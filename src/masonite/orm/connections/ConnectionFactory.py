@@ -1,11 +1,11 @@
 class ConnectionFactory:
 
     _connections = {
-        'mysql': '',
-        'mssql': '',
-        'postgres': '',
-        'sqlite': '',
-        'oracle': '',
+        "mysql": "",
+        "mssql": "",
+        "postgres": "",
+        "sqlite": "",
+        "oracle": "",
     }
 
     def register(self, key, connection):
@@ -15,6 +15,6 @@ class ConnectionFactory:
         connection = self._connections.get(key)
         if connection:
             return connection
-        
-        raise Exception('That connection does not exist')
+
+        raise Exception("That connection does not exist")
         pass

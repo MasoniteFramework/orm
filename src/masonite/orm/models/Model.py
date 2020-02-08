@@ -1,19 +1,19 @@
 class Model:
 
     __fillable__ = []
-    __guarded__ = ['*']
-    __table__ = 'users'
-    __connection__ = 'default'
-    
+    __guarded__ = ["*"]
+    __table__ = "users"
+    __connection__ = "default"
+
     def first(self):
         pass
-    
+
     def find(self):
         pass
-    
+
     def first_or_new(self):
         pass
-    
+
     def first_or_create(self):
         pass
 

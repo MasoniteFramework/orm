@@ -1,21 +1,26 @@
 class MSSQLGrammer:
 
-    _columns = '*'
+    _columns = "*"
 
-    _sql = ''
+    _sql = ""
 
-    table = 'users'
+    table = "users"
 
     _wheres = ()
 
     _limit = False
 
     def _compile_select(self):
-        self._sql = 'SELECT {limit} {columns} FROM {table} {wheres}'.format(
-            columns=self._compile_columns(seperator=', '),
-            table=self._compile_from(),
-            wheres=self._compile_wheres(),
-            limit=self._compile_limit()).strip().replace('  ', ' ')
+        self._sql = (
+            "SELECT {limit} {columns} FROM {table} {wheres}".format(
+                columns=self._compile_columns(seperator=", "),
+                table=self._compile_from(),
+                wheres=self._compile_wheres(),
+                limit=self._compile_limit(),
+            )
+            .strip()
+            .replace("  ", " ")
+        )
 
         return self
 
@@ -24,7 +29,7 @@ class MSSQLGrammer:
 
     def _compile_limit(self):
         if not self._limit:
-            return ''
+            return ""
 
         return "TOP {limit}".format(limit=self._limit)
 
@@ -33,7 +38,7 @@ class MSSQLGrammer:
         return self
 
     def where(self, column, value):
-        self._wheres += ((column, '=', value),)
+        self._wheres += ((column, "=", value),)
         return self
 
     def limit(self, amount):
@@ -41,7 +46,7 @@ class MSSQLGrammer:
         return self
 
     def _compile_wheres(self):
-        sql = ''
+        sql = ""
         loop_count = 0
         for where in self._wheres:
             if loop_count == 0:
@@ -52,7 +57,8 @@ class MSSQLGrammer:
             column, equality, value = where
             column = self._compile_column(column)
             sql += "{keyword} {column} {equality} '{value}'".format(
-                keyword=keyword, column=column, equality=equality, value=value)
+                keyword=keyword, column=column, equality=equality, value=value
+            )
             loop_count += 1
         return sql
 
@@ -60,9 +66,9 @@ class MSSQLGrammer:
         print(self._sql)
         return self._sql
 
-    def _compile_columns(self, seperator=''):
-        sql = ''
-        if self._columns == '*':
+    def _compile_columns(self, seperator=""):
+        sql = ""
+        if self._columns == "*":
             return self._columns
 
         for column in self._columns:
@@ -70,6 +76,5 @@ class MSSQLGrammer:
 
         return sql[:-2]
 
-    def _compile_column(self, column, seperator=''):
+    def _compile_column(self, column, seperator=""):
         return "[{column}]{seperator}".format(column=column, seperator=seperator)
-

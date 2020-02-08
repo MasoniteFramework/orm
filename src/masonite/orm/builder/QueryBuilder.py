@@ -1,7 +1,7 @@
 class QueryBuilder:
-    _columns = '*'
+    _columns = "*"
 
-    _sql = ''
+    _sql = ""
 
     _updates = {}
 
@@ -9,9 +9,9 @@ class QueryBuilder:
 
     _limit = False
 
-    _action = 'select'
+    _action = "select"
 
-    def __init__(self, grammer, table=''):
+    def __init__(self, grammer, table=""):
         self.grammer = grammer
         self.table = table
 
@@ -21,16 +21,16 @@ class QueryBuilder:
 
     def create(self, creates):
         self._columns = creates
-        self._action = 'insert'
+        self._action = "insert"
         return self
 
     def delete(self, column, value):
         self.where(column, value)
-        self._action = 'delete'
+        self._action = "delete"
         return self
 
     def where(self, column, value):
-        self._wheres += ((column, '=', value),)
+        self._wheres += ((column, "=", value),)
         return self
 
     def limit(self, amount):
@@ -39,7 +39,7 @@ class QueryBuilder:
 
     def update(self, updates):
         self._updates = updates
-        self._action = 'update'
+        self._action = "update"
         return self
 
     def first(self):
@@ -49,5 +49,13 @@ class QueryBuilder:
         pass
 
     def to_sql(self):
-        grammer = self.grammer(columns=self._columns, table=self.table, wheres=self._wheres, limit=self._limit, updates=self._updates)
-        return getattr(grammer, "_compile_{action}".format(action=self._action))().to_sql()
+        grammer = self.grammer(
+            columns=self._columns,
+            table=self.table,
+            wheres=self._wheres,
+            limit=self._limit,
+            updates=self._updates,
+        )
+        return getattr(
+            grammer, "_compile_{action}".format(action=self._action)
+        )().to_sql()
