@@ -1,9 +1,18 @@
+from ..connections.ConnectionFactory import ConnectionFactory
+
+
 class Model:
 
     __fillable__ = []
     __guarded__ = ["*"]
     __table__ = "users"
     __connection__ = "default"
+    __resolved_connection__ = None
+
+    _booted = False
+
+    def boot(self):
+        self.__resolved_connection__ = ConnectionFactory.make(self.__connection__)
 
     def first(self):
         pass
