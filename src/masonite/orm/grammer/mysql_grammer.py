@@ -78,11 +78,11 @@ class MySQLGrammer:
 
         return self
 
-    def _compile_update(self):
+    def _compile_update(self, qmark=False):
         self._sql = "UPDATE {table} SET {key_equals} {wheres}".format(
-            key_equals=self._compile_key_value_equals(),
+            key_equals=self._compile_key_value_equals(qmark=qmark),
             table=self._compile_from(),
-            wheres=self._compile_wheres(),
+            wheres=self._compile_wheres(qmark=qmark),
         )
 
         return self
@@ -106,12 +106,15 @@ class MySQLGrammer:
 
         return self
 
-    def _compile_key_value_equals(self):
+    def _compile_key_value_equals(self, qmark=False):
         sql = ""
         for column, value in self._updates.items():
             sql += self.key_value_string().format(
-                column=self._compile_column(column), value=value
+                column=self._compile_column(column), value=value if not qmark else '?'
             )
+
+            if qmark:
+                self._bindings += (value,)
 
         return sql
 

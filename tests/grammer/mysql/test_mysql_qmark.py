@@ -15,3 +15,12 @@ class TestMySQLQmark(unittest.TestCase):
         sql = "SELECT `username` FROM `users` WHERE `name` = '?'"
         self.assertEqual(mark.to_qmark(), sql)
         self.assertEqual(mark._bindings, ('Joe',))
+
+    def test_can_compile_update(self):
+        mark = self.builder.update({
+            'name': 'Bob'
+        }).where('name', 'Joe')
+
+        sql = "UPDATE `users` SET `name` = '?' WHERE `name` = '?'"
+        self.assertEqual(mark.to_qmark(), sql)
+        self.assertEqual(mark._bindings, ('Bob','Joe',))
