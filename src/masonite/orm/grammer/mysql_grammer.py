@@ -15,11 +15,12 @@ class MySQLGrammer:
 
     _limit = False
 
-    def __init__(self, columns='*', table='users', wheres=(), limit=False):
+    def __init__(self, columns='*', table='users', wheres=(), limit=False, updates={}):
         self._columns = columns 
         self.table = table 
         self._wheres = wheres 
         self._limit = limit 
+        self._updates = updates 
 
     def _compile_select(self):
         self._sql = 'SELECT {columns} FROM {table} {wheres} {limit}'.format(
