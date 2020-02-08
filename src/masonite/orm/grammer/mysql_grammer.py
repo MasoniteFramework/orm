@@ -25,6 +25,10 @@ class MySQLGrammer:
 
     _sql = ""
 
+    _sql_qmark = ""
+
+    _bindings = ()
+
     _updates = {}
 
     _aggregates = {}
@@ -46,6 +50,7 @@ class MySQLGrammer:
         updates={},
         aggregates=(),
         order_by=(),
+        group_by=(),
     ):
         self._columns = columns
         self.table = table
@@ -54,17 +59,19 @@ class MySQLGrammer:
         self._updates = updates
         self._aggregates = aggregates
         self._order_by = order_by
+        self._group_by = group_by
 
-    def _compile_select(self):
+    def _compile_select(self, qmark=False):
         self._sql = (
             self.select_format()
             .format(
                 columns=self._compile_columns(seperator=", "),
                 table=self._compile_from(),
-                wheres=self._compile_wheres(),
+                wheres=self._compile_wheres(qmark=qmark),
                 limit=self._compile_limit(),
                 aggregates=self._compile_aggregates(),
                 order_by=self._compile_order_by(),
+                group_by=self._compile_group_by(),
             )
             .strip()
         )
@@ -113,7 +120,7 @@ class MySQLGrammer:
         for aggregates in self._aggregates:
             aggregate, column = aggregates
             aggregate_function = self.aggregate_options.get(aggregate, "")
-            sql += " {aggregate_function}({column}) AS {alias}".format(
+            sql += self.aggregate_string().format(
                 aggregate_function=aggregate_function,
                 column=self._compile_column(column),
                 alias=self._compile_alias(column),
@@ -122,24 +129,39 @@ class MySQLGrammer:
         return sql
 
     def _compile_order_by(self):
-        print("compiling order by", self._order_by)
         sql = ""
         for order_bys in self._order_by:
             column, direction = order_bys
-            sql += "ORDER BY {column} {direction}".format(
+            sql += self.order_by_string().format(
                 column=self._compile_column(column), direction=direction.upper(),
             )
 
         return sql
 
+    def _compile_group_by(self):
+        sql = ""
+        print("compiling group by")
+        for group_bys in self._group_by:
+            print(group_bys)
+            column = group_bys
+            sql += "GROUP BY {column}".format(column=self._compile_column(column))
+
+        return sql
+
     def select_format(self):
-        return "SELECT {columns} FROM {table} {wheres} {order_by} {limit}"
+        return "SELECT {columns} FROM {table} {wheres} {group_by}{order_by}{limit}"
+
+    def aggregate_string(self):
+        return "{aggregate_function}({column}) AS {alias}"
 
     def key_value_string(self):
         return "{column} = '{value}'"
 
     def table_string(self):
         return "`{table}`"
+
+    def order_by_string(self):
+        return "ORDER BY {column} {direction}"
 
     def column_string(self):
         return "`{column}`{seperator}"
@@ -168,7 +190,7 @@ class MySQLGrammer:
 
         return self.limit_string().format(limit=self._limit)
 
-    def _compile_wheres(self):
+    def _compile_wheres(self, qmark=False):
         sql = ""
         loop_count = 0
         for where in self._wheres:
@@ -180,8 +202,15 @@ class MySQLGrammer:
             column, equality, value = where
             column = self._compile_column(column)
             sql += " {keyword} {column} {equality} '{value}'".format(
-                keyword=keyword, column=column, equality=equality, value=value
+                keyword=keyword,
+                column=column,
+                equality=equality,
+                value=value if not qmark else "?",
             )
+            if qmark:
+                print("adding to binding")
+                self._bindings += (value,)
+                print(self._bindings)
             loop_count += 1
         return sql
 
@@ -215,7 +244,16 @@ class MySQLGrammer:
         Returns:
             string
         """
-        self._sql = self._sql.strip().replace("  ", " ")
+        self._sql = self._sql.strip().replace("  ", " ").replace("   ", " ")
+        return self._sql
+
+    def to_qmark(self):
+        """Cleans up the SQL string and returns the SQL
+        
+        Returns:
+            string
+        """
+        self._sql = self._sql.strip().replace("  ", " ").replace("   ", " ")
         return self._sql
 
     def _compile_columns(self, seperator=""):
@@ -244,6 +282,7 @@ class MySQLGrammer:
             return self._columns
 
         for column, value in self._columns.items():
+            sql += self._compile_value(value, seperator=seperator)
             sql += self._compile_value(value, seperator=seperator)
 
         return sql[:-2]

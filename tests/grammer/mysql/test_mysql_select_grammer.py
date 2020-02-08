@@ -35,7 +35,7 @@ class TestMySQLGrammer(unittest.TestCase):
 
     def test_can_compile_with_sum(self):
         to_sql = self.builder.sum('age').to_sql()
-        sql = "SELECT SUM(`age`) as age FROM `users`"
+        sql = "SELECT SUM(`age`) AS age FROM `users`"
         self.assertEqual(to_sql, sql)
 
     def test_can_compile_with_max(self):
@@ -56,6 +56,11 @@ class TestMySQLGrammer(unittest.TestCase):
     def test_can_compile_with_order_by(self):
         to_sql = self.builder.select('username').order_by('age', 'desc').to_sql()
         sql = "SELECT `username` FROM `users` ORDER BY `age` DESC"
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_with_group_by(self):
+        to_sql = self.builder.select('username').group_by('age').to_sql()
+        sql = "SELECT `username` FROM `users` GROUP BY `age`"
         self.assertEqual(to_sql, sql)
 
 

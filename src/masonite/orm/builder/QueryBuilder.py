@@ -2,11 +2,14 @@ class QueryBuilder:
     _columns = "*"
 
     _sql = ""
+    _sql_binding = ""
+    _bindings = ()
 
     _updates = {}
 
     _wheres = ()
     _order_by = ()
+    _group_by = ()
 
     _aggregates = ()
 
@@ -67,6 +70,10 @@ class QueryBuilder:
         self._order_by += ((column, direction),)
         return self
 
+    def group_by(self, column):
+        self._group_by += (column,)
+        return self
+
     def aggregate(self, aggregate, column):
         self._aggregates += ((aggregate, column),)
 
@@ -93,8 +100,27 @@ class QueryBuilder:
             updates=self._updates,
             aggregates=self._aggregates,
             order_by=self._order_by,
+            group_by=self._group_by,
         )
 
         return getattr(
             grammer, "_compile_{action}".format(action=self._action)
         )().to_sql()
+
+    def to_qmark(self):
+        grammer = self.grammer(
+            columns=self._columns,
+            table=self.table,
+            wheres=self._wheres,
+            limit=self._limit,
+            updates=self._updates,
+            aggregates=self._aggregates,
+            order_by=self._order_by,
+            group_by=self._group_by,
+        )
+
+        grammer = getattr(grammer, "_compile_{action}".format(action=self._action))(
+            qmark=True
+        )
+        self._bindings = grammer._bindings
+        return grammer.to_qmark()
