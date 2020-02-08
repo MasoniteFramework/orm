@@ -11,9 +11,19 @@ class QueryBuilder:
 
     _action = "select"
 
-    def __init__(self, grammer, table=""):
+    def __init__(self, grammer, connection=None, table=""):
+        """QueryBuilder initializer
+        
+        Arguments:
+            grammer {masonite.orm.grammer.Grammer} -- A grammer class.
+        
+        Keyword Arguments:
+            connection {masonite.orm.connection.Connection} -- A connection class (default: {None})
+            table {str} -- the name of the table (default: {""})
+        """        
         self.grammer = grammer
         self.table = table
+        self.connection = connection
 
     def select(self, *args):
         self._columns = list(args)
@@ -43,10 +53,14 @@ class QueryBuilder:
         return self
 
     def first(self):
-        pass
+        return self.connection().make_connection().query(self.limit(1).to_sql(), (), results=1)
+
+    def all(self):
+        return self.connection().make_connection().query(self.to_sql(), ())
 
     def get(self):
-        pass
+        self._action = "select"
+        return 
 
     def to_sql(self):
         grammer = self.grammer(
@@ -56,6 +70,7 @@ class QueryBuilder:
             limit=self._limit,
             updates=self._updates,
         )
+
         return getattr(
             grammer, "_compile_{action}".format(action=self._action)
         )().to_sql()

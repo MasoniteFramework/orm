@@ -17,8 +17,9 @@ class MySQLConnection:
     def make_connection(self):
         """This sets the connection on the connection class
         """
+        print('connecting with', self.get_connection_details())
         self._connection = pymysql.connect(
-            cursorclass=pymysql.cursors.DictCursor, **self._get_connection_details()
+            cursorclass=pymysql.cursors.DictCursor, **self.get_connection_details()
         )
 
         return self
@@ -31,10 +32,10 @@ class MySQLConnection:
         that should pass to your connection method
         """
         connection_details = {}
-        connection_details.setdefault("db", self.connections.get("host"))
+        connection_details.setdefault("host", self.connections.get("host"))
         connection_details.setdefault("user", self.connections.get("username"))
         connection_details.setdefault("password", self.connections.get("password"))
-        connection_details.setdefault("port", self.connections.get("port"))
+        connection_details.setdefault("port", int(self.connections.get("port")))
         connection_details.setdefault("db", self.connections.get("database"))
         connection_details.update(self.connections.get("options", {}))
 
@@ -58,13 +59,15 @@ class MySQLConnection:
         """
         pass
 
-    def query(self, query, bindings):
+    def query(self, query, bindings, results='*'):
         try:
-
             with self._connection.cursor() as cursor:
                 # Read a single record
                 cursor.execute(query, bindings)
-                result = cursor.fetchone()
+                if results == 1:
+                    result = cursor.fetchone()
+                else:
+                    result = cursor.fetchall()
                 return result
         finally:
-            connection.close()
+            self._connection.close()

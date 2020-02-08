@@ -1,4 +1,6 @@
 from ..connections.ConnectionFactory import ConnectionFactory
+from ..builder.QueryBuilder import QueryBuilder
+from ..grammer.mysql_grammer import MySQLGrammer
 
 
 class Model:
@@ -11,14 +13,23 @@ class Model:
 
     _booted = False
 
-    def boot(self):
-        self.__resolved_connection__ = ConnectionFactory.make(self.__connection__)
+    @classmethod
+    def boot(cls):
+        cls.__resolved_connection__ = ConnectionFactory().make(cls.__connection__)
+        cls.builder = QueryBuilder(MySQLGrammer, cls.__resolved_connection__, table=cls.__table__)
 
-    def first(self):
-        pass
+    @classmethod
+    def first(cls):
+        return cls.builder.first()
 
-    def find(self):
-        pass
+    @classmethod
+    def all(cls):
+        cls.boot()
+        return cls.builder.all()
+
+    @classmethod
+    def find(cls, record_id):
+        return cls.builder.where('id', record_id).first()
 
     def first_or_new(self):
         pass
@@ -26,8 +37,10 @@ class Model:
     def first_or_create(self):
         pass
 
-    def where(self):
-        pass
+    @classmethod
+    def where(cls, *args, **kwargs):
+        cls.boot()
+        return cls.builder.where(*args, **kwargs)
 
     def limit(self):
         pass
@@ -57,4 +70,8 @@ class Model:
         pass
 
     def touch(self):
+        pass
+
+    @staticmethod
+    def set_connection_resolver(self):
         pass

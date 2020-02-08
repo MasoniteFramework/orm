@@ -1,12 +1,16 @@
+from .MySQLConnection import MySQLConnection
+
 class ConnectionFactory:
 
     _connections = {
-        "mysql": "",
+        "mysql": MySQLConnection,
         "mssql": "",
         "postgres": "",
         "sqlite": "",
         "oracle": "",
     }
+
+    _connection_settings = {}
 
     _default = "mysql"
 
@@ -22,4 +26,4 @@ class ConnectionFactory:
         if connection:
             return connection
 
-        raise Exception("That connection does not exist")
+        raise Exception("The '{connection}' connection does not exist".format(connection=connection))
