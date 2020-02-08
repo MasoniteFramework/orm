@@ -33,3 +33,9 @@ Finally you can run the tests and start building your application.
 ```
 $ python -m pytest
 ```
+
+# Short Term Tasks
+
+- [ ] Finish grammer for MYSQL, Postgres, MSSQL and SQLite
+- [ ] Get the query builder to use the grammer
+- [ ] Refactor to use `%s` symbols so we can use avoid sql injection attacks
