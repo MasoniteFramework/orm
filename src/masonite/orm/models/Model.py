@@ -46,3 +46,6 @@ class Model:
 
     def update_or_create(self):
         pass
+
+    def touch(self):
+        pass
