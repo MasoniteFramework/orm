@@ -15,7 +15,6 @@ class MySQLConnection:
     }
 
     def make_connection(self):
-
         """This sets the connection on the connection class
         """
         self._connection = pymysql.connect(
@@ -27,6 +26,9 @@ class MySQLConnection:
     def get_connection_details(self):
         """This is responsible for standardizing the normal connection
         details and passing it into the connection.
+
+        This will eventually be unpacked so make sure the keys are the same as the keywords
+        that should pass to your connection method
         """
         connection_details = {}
         connection_details.setdefault("db", self.connections.get("host"))
