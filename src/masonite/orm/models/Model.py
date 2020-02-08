@@ -19,6 +19,7 @@ class Model:
         cls.builder = QueryBuilder(
             MySQLGrammer, cls.__resolved_connection__, table=cls.__table__
         )
+        cls._booted = True
 
     @classmethod
     def first(cls):
@@ -31,7 +32,16 @@ class Model:
 
     @classmethod
     def find(cls, record_id):
+        cls._boot_if_not_booted()
         return cls.builder.where("id", record_id).first()
+
+    @classmethod
+    def _boot_if_not_booted(cls):
+        if not cls._booted:
+            cls.boot()
+
+        print("booted?", cls._booted)
+        return cls
 
     def first_or_new(self):
         pass

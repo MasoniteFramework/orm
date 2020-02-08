@@ -8,7 +8,7 @@ class TestMySQLUpdateGrammer(unittest.TestCase):
     def setUp(self):
         self.builder = QueryBuilder(GrammerFactory.make('mysql'), table='users')
 
-    def test_can_compile_update(self):
+    def test_can_compile_insert(self):
 
         to_sql = self.builder.create({
             'name': 'Joe'

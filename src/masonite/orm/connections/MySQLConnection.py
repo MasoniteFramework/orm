@@ -22,6 +22,8 @@ class MySQLConnection:
             cursorclass=pymysql.cursors.DictCursor, **self.get_connection_details()
         )
 
+        print("alive?", self._connection.open)
+
         return self
 
     def get_connection_details(self):
@@ -60,6 +62,7 @@ class MySQLConnection:
         pass
 
     def query(self, query, bindings, results="*"):
+        print("run query", query)
         try:
             with self._connection.cursor() as cursor:
                 # Read a single record

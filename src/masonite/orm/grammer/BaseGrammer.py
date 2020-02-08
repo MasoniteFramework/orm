@@ -2,7 +2,7 @@ import pymysql.cursors
 from masonite.testing import TestCase
 
 
-class MySQLGrammer:
+class BaseGrammer:
 
     """The keys in this dictionary is how the ORM will reference these aggregates
 
@@ -139,36 +139,6 @@ class MySQLGrammer:
 
         return sql
 
-    def select_format(self):
-        return "SELECT {columns} FROM {table} {wheres} {group_by}{order_by}{limit}"
-
-    def update_format(self):
-        return "UPDATE {table} SET {key_equals} {wheres}"
-
-    def insert_format(self):
-        return "INSERT INTO {table} ({columns}) VALUES ({values})"
-
-    def delete_format(self):
-        return "DELETE FROM {table} {wheres}"
-
-    def aggregate_string(self):
-        return "{aggregate_function}({column}) AS {alias}"
-
-    def key_value_string(self):
-        return "{column} = '{value}'"
-
-    def table_string(self):
-        return "`{table}`"
-
-    def order_by_string(self):
-        return "ORDER BY {column} {direction}"
-
-    def column_string(self):
-        return "`{column}`{seperator}"
-
-    def value_string(self):
-        return "'{value}'{seperator}"
-
     def _compile_alias(self, column):
         return column
 
@@ -284,6 +254,7 @@ class MySQLGrammer:
             return self._columns
 
         for column, value in self._columns.items():
+            sql += self._compile_value(value, seperator=seperator)
             sql += self._compile_value(value, seperator=seperator)
 
         return sql[:-2]

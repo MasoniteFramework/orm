@@ -10,7 +10,7 @@ class TestMySQLQmark(unittest.TestCase):
 
     def test_can_compile_select(self):
 
-        mark = self.builder.select('username').where('name', 'Joe')
+        mark = self.builder.select('username').where('name', 'Joe').set_action('select')
 
         sql = "SELECT `username` FROM `users` WHERE `name` = '?'"
         self.assertEqual(mark.to_qmark(), sql)
