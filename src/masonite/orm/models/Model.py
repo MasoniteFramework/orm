@@ -42,8 +42,10 @@ class Model:
         cls.boot()
         return cls.builder.where(*args, **kwargs)
 
-    def limit(self):
-        pass
+    @classmethod
+    def limit(cls, *args, **kwargs):
+        cls.boot()
+        return cls.builder.limit(*args, **kwargs)
 
     def select(self):
         pass

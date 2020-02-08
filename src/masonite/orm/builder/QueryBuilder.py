@@ -60,6 +60,7 @@ class QueryBuilder:
 
     def get(self):
         self._action = "select"
+        return self.connection().make_connection().query(self.to_sql(), ())
         return 
 
     def to_sql(self):
