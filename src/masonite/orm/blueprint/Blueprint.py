@@ -1,0 +1,2 @@
+class Blueprint:
+    pass
