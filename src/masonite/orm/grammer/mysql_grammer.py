@@ -7,6 +7,8 @@ class MySQLGrammer:
 
     _sql = ''
 
+    _updates = ''
+
     table = 'users'
 
     _wheres = ()
@@ -25,8 +27,23 @@ class MySQLGrammer:
             table=self._compile_from(), 
             wheres=self._compile_wheres(),
             limit=self._compile_limit()).strip()
+
+    def _compile_update(self):
+        self._sql = 'UPDATE {table} SET {key_equals} {wheres}'.format(
+            key_equals=self._compile_key_value_equals(), 
+            table=self._compile_from(),
+            wheres=self._compile_wheres())
             
         return self
+
+    def _compile_key_value_equals(self):
+        sql = ''
+        for column, value in self._updates.items():
+            sql += "{column} = '{value}'".format(
+                column = self._compile_column(column),
+                value=value)
+
+        return sql
 
     def _compile_from(self):
         return "`{table}`".format(table=self.table)
@@ -65,6 +82,10 @@ class MySQLGrammer:
         self._limit = amount
         return self
 
+    def update(self, updates):
+        self._updates = updates
+        return self
+
     def to_sql(self):
         print('calling to sql', self._sql)
         return self._sql
@@ -85,55 +106,3 @@ class MySQLGrammer:
 
 
 
-
-
-class User:
-
-    _columns = '*'
-
-    table = 'users'
-
-    _wheres = ()
-
-    _limit = False
-
-    _grammer = MySQLGrammer
-
-    def select(self, *args):
-        self._columns = list(args)
-        return self
-
-    def where(self, column, value):
-        self._wheres += ((column, '=', value),)
-        return self
-
-    def limit(self, amount):
-        self._limit = amount
-        return self
-
-    def first(self):
-        # Connect to the database
-        connection = pymysql.connect(host='localhost',
-                                    user='root',
-                                    password='',
-                                    db='gbaleague',
-                                    charset='utf8mb4',
-                                    cursorclass=pymysql.cursors.DictCursor)
-        query = self._grammer(
-            columns=self._columns,
-            table=self.table,
-            wheres=self._wheres,
-            limit=self._limit,
-        )._compile_select().to_sql()
-
-        try:
-            with connection.cursor() as cursor:
-                # Read a single record
-                sql = query
-                cursor.execute(sql)
-                result = cursor.fetchone()
-                print(result)
-        finally:
-            connection.close()
-
-User().select('*').where('id', '1').first()
