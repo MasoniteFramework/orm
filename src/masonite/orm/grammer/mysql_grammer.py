@@ -7,7 +7,7 @@ class MySQLGrammer:
 
     _sql = ''
 
-    _updates = ''
+    _updates = {}
 
     table = 'users'
 
@@ -28,11 +28,32 @@ class MySQLGrammer:
             wheres=self._compile_wheres(),
             limit=self._compile_limit()).strip()
 
+        return self
+
     def _compile_update(self):
         self._sql = 'UPDATE {table} SET {key_equals} {wheres}'.format(
             key_equals=self._compile_key_value_equals(), 
             table=self._compile_from(),
             wheres=self._compile_wheres())
+            
+        return self
+
+    def _compile_insert(self):
+        self._sql = 'INSERT INTO {table} ({columns}) VALUES ({values})'.format(
+            key_equals=self._compile_key_value_equals(), 
+            table=self._compile_from(),
+            columns=self._compile_columns(seperator=', '), 
+            values=self._compile_values(seperator=', '), 
+            )
+            
+        return self
+
+    def _compile_delete(self):
+        self._sql = 'DELETE FROM {table} {wheres}'.format(
+            key_equals=self._compile_key_value_equals(), 
+            table=self._compile_from(),
+            wheres=self._compile_wheres()
+        )
             
         return self
 
@@ -74,6 +95,14 @@ class MySQLGrammer:
         self._columns = list(args)
         return self
 
+    def create(self, creates):
+        self._columns = creates
+        return self
+
+    def delete(self, column, value):
+        self.where(column, value)
+        return self
+
     def where(self, column, value):
         self._wheres += ((column, '=', value),)
         return self
@@ -100,8 +129,21 @@ class MySQLGrammer:
         
         return sql[:-2]
 
+    def _compile_values(self, seperator=''):
+        sql = ''
+        if self._columns == '*':
+            return self._columns
+        
+        for column, value in self._columns.items():
+            sql += self._compile_value(value, seperator=seperator)
+        
+        return sql[:-2]
+
     def _compile_column(self, column, seperator=''):
         return "`{column}`{seperator}".format(column=column, seperator=seperator)
+
+    def _compile_value(self, value, seperator=''):
+        return "'{value}'{seperator}".format(value=value, seperator=seperator)
 
 
 
