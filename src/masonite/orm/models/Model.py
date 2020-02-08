@@ -16,7 +16,9 @@ class Model:
     @classmethod
     def boot(cls):
         cls.__resolved_connection__ = ConnectionFactory().make(cls.__connection__)
-        cls.builder = QueryBuilder(MySQLGrammer, cls.__resolved_connection__, table=cls.__table__)
+        cls.builder = QueryBuilder(
+            MySQLGrammer, cls.__resolved_connection__, table=cls.__table__
+        )
 
     @classmethod
     def first(cls):
@@ -29,7 +31,7 @@ class Model:
 
     @classmethod
     def find(cls, record_id):
-        return cls.builder.where('id', record_id).first()
+        return cls.builder.where("id", record_id).first()
 
     def first_or_new(self):
         pass

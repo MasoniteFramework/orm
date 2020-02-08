@@ -6,6 +6,9 @@ class QueryBuilder:
     _updates = {}
 
     _wheres = ()
+    _order_by = ()
+
+    _aggregates = ()
 
     _limit = False
 
@@ -20,7 +23,7 @@ class QueryBuilder:
         Keyword Arguments:
             connection {masonite.orm.connection.Connection} -- A connection class (default: {None})
             table {str} -- the name of the table (default: {""})
-        """        
+        """
         self.grammer = grammer
         self.table = table
         self.connection = connection
@@ -52,8 +55,27 @@ class QueryBuilder:
         self._action = "update"
         return self
 
+    def sum(self, column):
+        self.aggregate("SUM", "{column}".format(column=column))
+        return self
+
+    def max(self, column):
+        self.aggregate("MAX", "{column}".format(column=column))
+        return self
+
+    def order_by(self, column, direction="ASC"):
+        self._order_by += ((column, direction),)
+        return self
+
+    def aggregate(self, aggregate, column):
+        self._aggregates += ((aggregate, column),)
+
     def first(self):
-        return self.connection().make_connection().query(self.limit(1).to_sql(), (), results=1)
+        return (
+            self.connection()
+            .make_connection()
+            .query(self.limit(1).to_sql(), (), results=1)
+        )
 
     def all(self):
         return self.connection().make_connection().query(self.to_sql(), ())
@@ -61,7 +83,6 @@ class QueryBuilder:
     def get(self):
         self._action = "select"
         return self.connection().make_connection().query(self.to_sql(), ())
-        return 
 
     def to_sql(self):
         grammer = self.grammer(
@@ -70,6 +91,8 @@ class QueryBuilder:
             wheres=self._wheres,
             limit=self._limit,
             updates=self._updates,
+            aggregates=self._aggregates,
+            order_by=self._order_by,
         )
 
         return getattr(

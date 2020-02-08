@@ -32,3 +32,30 @@ class TestMySQLGrammer(unittest.TestCase):
         to_sql = self.builder.select('username', 'password').where('id', 1).where('username', 'joe').limit(10).to_sql()
         sql = "SELECT `username`, `password` FROM `users` WHERE `id` = '1' AND `username` = 'joe' LIMIT 10"
         self.assertEqual(to_sql, sql)
+
+    def test_can_compile_with_sum(self):
+        to_sql = self.builder.sum('age').to_sql()
+        sql = "SELECT SUM(`age`) as age FROM `users`"
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_with_max(self):
+        to_sql = self.builder.max('age').to_sql()
+        sql = "SELECT MAX(`age`) AS age FROM `users`"
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_with_max_and_columns(self):
+        to_sql = self.builder.select('username').max('age').to_sql()
+        sql = "SELECT `username`, MAX(`age`) AS age FROM `users`"
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_with_max_and_columns_different_order(self):
+        to_sql = self.builder.max('age').select('username').to_sql()
+        sql = "SELECT `username`, MAX(`age`) AS age FROM `users`"
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_with_order_by(self):
+        to_sql = self.builder.select('username').order_by('age', 'desc').to_sql()
+        sql = "SELECT `username` FROM `users` ORDER BY `age` DESC"
+        self.assertEqual(to_sql, sql)
+
+

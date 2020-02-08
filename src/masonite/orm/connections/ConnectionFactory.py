@@ -1,5 +1,6 @@
 from .MySQLConnection import MySQLConnection
 
+
 class ConnectionFactory:
 
     _connections = {
@@ -26,4 +27,6 @@ class ConnectionFactory:
         if connection:
             return connection
 
-        raise Exception("The '{connection}' connection does not exist".format(connection=connection))
+        raise Exception(
+            "The '{connection}' connection does not exist".format(connection=connection)
+        )

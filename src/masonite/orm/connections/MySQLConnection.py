@@ -17,7 +17,7 @@ class MySQLConnection:
     def make_connection(self):
         """This sets the connection on the connection class
         """
-        print('connecting with', self.get_connection_details())
+        print("connecting with", self.get_connection_details())
         self._connection = pymysql.connect(
             cursorclass=pymysql.cursors.DictCursor, **self.get_connection_details()
         )
@@ -59,7 +59,7 @@ class MySQLConnection:
         """
         pass
 
-    def query(self, query, bindings, results='*'):
+    def query(self, query, bindings, results="*"):
         try:
             with self._connection.cursor() as cursor:
                 # Read a single record

@@ -34,7 +34,10 @@ class TestMySQLSelectConnection(unittest.TestCase):
     def test_can_get_5_records(self):
         users = MockUser.limit(5).get()
         self.assertEqual(len(users), 5)
-
+    
     def test_can_get_1_record_with_get(self):
         users = MockUser.where('id', 1).limit(5).get()
+        self.assertEqual(len(users), 1)
+
+        users = MockUser.limit(5).where('id', 1).get()
         self.assertEqual(len(users), 1)
