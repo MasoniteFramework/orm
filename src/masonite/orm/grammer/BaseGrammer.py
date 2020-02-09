@@ -7,7 +7,7 @@ class BaseGrammer:
     """The keys in this dictionary is how the ORM will reference these aggregates
 
     The values on the right are the matching functions for the grammer
-    
+
     Returns:
         [type] -- [description]
     """
@@ -216,7 +216,7 @@ class BaseGrammer:
 
     def to_sql(self):
         """Cleans up the SQL string and returns the SQL
-        
+
         Returns:
             string
         """
@@ -225,7 +225,7 @@ class BaseGrammer:
 
     def to_qmark(self):
         """Cleans up the SQL string and returns the SQL
-        
+
         Returns:
             string
         """
@@ -236,7 +236,7 @@ class BaseGrammer:
         sql = ""
         print("compiling columns")
 
-        if self._columns is not "*":
+        if self._columns != "*":
             for column in self._columns:
                 sql += self._compile_column(column, seperator=seperator)
 

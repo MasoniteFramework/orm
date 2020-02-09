@@ -1,10 +1,10 @@
 class QueryBuilder:
     def __init__(self, grammer, connection=None, table=""):
         """QueryBuilder initializer
-        
+
         Arguments:
             grammer {masonite.orm.grammer.Grammer} -- A grammer class.
-        
+
         Keyword Arguments:
             connection {masonite.orm.connection.Connection} -- A connection class (default: {None})
             table {str} -- the name of the table (default: {""})

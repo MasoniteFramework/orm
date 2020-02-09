@@ -1,4 +1,4 @@
-"""This module homes the GrammerExample class. 
+"""This module homes the GrammerExample class.
 
 This class can be used for creating new grammer classes
 """
@@ -26,12 +26,12 @@ class GrammerExample:
 
         columns - Will be a seperated list of column values.
             This could be `column1`, `column2` for mysql or
-            [column1], [column2] for mssql. This is dependant 
+            [column1], [column2] for mssql. This is dependant
             on the grammer class implementation.
-        
-        table - The table name. 
 
-        wheres - Will be a seperated list of where clauses. This is dependant 
+        table - The table name.
+
+        wheres - Will be a seperated list of where clauses. This is dependant
             on the grammer class implementation.
 
         group_by - A group by clause.
@@ -39,7 +39,7 @@ class GrammerExample:
         order_by - An order by clause.
 
         limit - A limit clause.
-        
+
         Returns:
             [type] -- [description]
         """
