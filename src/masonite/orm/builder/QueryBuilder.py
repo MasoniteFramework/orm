@@ -88,11 +88,15 @@ class QueryBuilder:
         )
 
     def all(self):
-        return self.connection().make_connection().query(self.to_qmark(), self._bindings)
+        return (
+            self.connection().make_connection().query(self.to_qmark(), self._bindings)
+        )
 
     def get(self):
         self._action = "select"
-        return self.connection().make_connection().query(self.to_qmark(), self._bindings)
+        return (
+            self.connection().make_connection().query(self.to_qmark(), self._bindings)
+        )
 
     def set_action(self, action):
         self._action = action

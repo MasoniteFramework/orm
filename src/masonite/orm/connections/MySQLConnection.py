@@ -63,7 +63,7 @@ class MySQLConnection:
 
     def query(self, query, bindings, results="*"):
         print("run query", query)
-        query = query.replace('?', '%s')
+        query = query.replace("?", "%s")
         try:
             with self._connection.cursor() as cursor:
                 # Read a single record

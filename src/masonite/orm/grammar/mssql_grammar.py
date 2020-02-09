@@ -32,7 +32,7 @@ class MSSQLGrammar(BaseGrammar):
 
     def create_column_length(self):
         return "({length})"
-        
+
     def limit_string(self):
         return "TOP {limit}"
 
