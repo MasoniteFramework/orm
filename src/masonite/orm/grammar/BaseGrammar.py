@@ -114,9 +114,13 @@ class BaseGrammar:
     def _compile_key_value_equals(self, qmark=False):
         sql = ""
         for column, value in self._updates.items():
+            print('looping through', column)
+            print('getting', self._compile_column(column))
             sql += self.key_value_string().format(
                 column=self._compile_column(column), value=value if not qmark else "?"
             )
+
+            print('compiling key value pairs', sql)
 
             if qmark:
                 self._bindings += (value,)
