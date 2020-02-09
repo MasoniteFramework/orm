@@ -3,6 +3,7 @@
 This class can be used for creating new grammer classes
 """
 
+
 class GrammerExample:
 
     aggregate_options = {
@@ -41,7 +42,7 @@ class GrammerExample:
         
         Returns:
             [type] -- [description]
-        """        
+        """
         return "SELECT {columns} FROM {table} {wheres} {group_by}{order_by}{limit}"
 
     def update_format(self):

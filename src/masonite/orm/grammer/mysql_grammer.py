@@ -2,6 +2,7 @@ import pymysql.cursors
 from masonite.testing import TestCase
 from .BaseGrammer import BaseGrammer
 
+
 class MySQLGrammer(BaseGrammer):
 
     """The keys in this dictionary is how the ORM will reference these aggregates
@@ -24,18 +25,15 @@ class MySQLGrammer(BaseGrammer):
     type_map = {
         "string": "VARCHAR",
         "char": "CHAR",
-
         "integer": "INT",
         "big_integer": "BIGINT",
         "tiny_integer": "TINYINT",
         "big_increments": "BIGINT",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
-
         "increments": "INT AUTO_INCREMENT PRIMARY KEY",
         "binary": "LONGBLOB",
         "boolean": "BOOLEAN",
-
         "decimal": "DECIMAL",
         "double": "DOUBLE",
         "enum": "ENUM",
@@ -52,7 +50,6 @@ class MySQLGrammer(BaseGrammer):
         "year": "YEAR",
         "datetime": "DATETIME",
         "tiny_increments": "TINYINT AUTO_INCREMENT",
-
         "unsigned": "INT UNSIGNED",
         "unsigned_integer": "UNSIGNED INT",
     }
@@ -87,9 +84,7 @@ class MySQLGrammer(BaseGrammer):
         self._sql_qmark = ""
 
     def _compile_create(self):
-        sql = "CREATE TABLE {table} ".format(
-            table=self._compile_from()
-        )
+        sql = "CREATE TABLE {table} ".format(table=self._compile_from())
 
         sql += "("
         for columns in self._creates:
@@ -97,11 +92,11 @@ class MySQLGrammer(BaseGrammer):
             sql += "{column} {data_type}{length}{nullable}, ".format(
                 column=self._compile_column(column),
                 data_type=self.type_map.get(data_type),
-                length="({length})".format(length=length) if length else '',
-                nullable='' if nullable else ' NOT NULL'
+                length="({length})".format(length=length) if length else "",
+                nullable="" if nullable else " NOT NULL",
             )
 
-        sql = sql.rstrip(', ')
+        sql = sql.rstrip(", ")
 
         sql += ")"
         print(sql)

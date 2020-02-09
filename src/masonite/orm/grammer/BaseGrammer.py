@@ -12,8 +12,6 @@ class BaseGrammer:
         [type] -- [description]
     """
 
-
-
     table = "users"
 
     def __init__(

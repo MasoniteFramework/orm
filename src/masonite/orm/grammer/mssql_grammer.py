@@ -1,5 +1,6 @@
 from .BaseGrammer import BaseGrammer
 
+
 class MSSQLGrammer(BaseGrammer):
 
     aggregate_options = {
