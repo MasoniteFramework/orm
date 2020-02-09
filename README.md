@@ -76,6 +76,7 @@ TODO
     - [ ] Tests
 
 - [ ] Relationships
+- [ ] Add indexes to schema 
 - [ ] Eager Loading
     - [ ] N + 1 Problem
 - [ ] Make new collection class
