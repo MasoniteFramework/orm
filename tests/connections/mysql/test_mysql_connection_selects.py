@@ -16,7 +16,7 @@ if os.getenv('RUN_MYSQL_DATABASE', False):
             self.builder = QueryBuilder(GrammarFactory.make('mysql'), table='users')
 
         def test_can_compile_select(self):
-            to_sql = MockUser.where('id', 1).to_sql()
+            to_sql = MockUser.where('id', 1).set_action('select').to_sql()
 
             sql = "SELECT * FROM `users` WHERE `id` = '1'"
             self.assertEqual(to_sql, sql)

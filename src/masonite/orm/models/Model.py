@@ -29,7 +29,7 @@ class Model:
     @classmethod
     def all(cls):
         cls.boot()
-        return cls.builder.all()
+        return cls.builder.set_action("select").all()
 
     @classmethod
     def find(cls, record_id):

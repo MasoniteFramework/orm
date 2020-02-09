@@ -32,6 +32,7 @@ class SQLiteConnection:
         that should pass to your connection method
         """
         connection_details = {}
+        print(self.connections)
         connection_details.setdefault("db", self.connections.get("database"))
         connection_details.update(self.connections.get("options", {}))
 
@@ -56,10 +57,10 @@ class SQLiteConnection:
         pass
 
     @classmethod
-    def set_connections(cls, dictionary):
+    def set_connection_settings(cls, dictionary):
         """Transaction
         """
-        cls.connections = dictionary
+        cls.connection_details = dictionary
 
     def query(self, query, bindings, results="*"):
 

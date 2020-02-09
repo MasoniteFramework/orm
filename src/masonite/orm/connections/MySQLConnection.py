@@ -5,7 +5,7 @@ class MySQLConnection:
     _connection = None
     _cursor = None
 
-    connections = {
+    connection_details = {
         "host": "localhost",
         "username": "root",
         "password": "",
@@ -34,12 +34,15 @@ class MySQLConnection:
         that should pass to your connection method
         """
         connection_details = {}
-        connection_details.setdefault("host", self.connections.get("host"))
-        connection_details.setdefault("user", self.connections.get("username"))
-        connection_details.setdefault("password", self.connections.get("password"))
-        connection_details.setdefault("port", int(self.connections.get("port")))
-        connection_details.setdefault("db", self.connections.get("database"))
-        connection_details.update(self.connections.get("options", {}))
+        print("details are", self.connection_details)
+        connection_details.setdefault("host", self.connection_details.get("host"))
+        connection_details.setdefault("user", self.connection_details.get("username"))
+        connection_details.setdefault(
+            "password", self.connection_details.get("password")
+        )
+        connection_details.setdefault("port", int(self.connection_details.get("port")))
+        connection_details.setdefault("db", self.connection_details.get("database"))
+        connection_details.update(self.connection_details.get("options", {}))
 
         return connection_details
 
@@ -62,10 +65,10 @@ class MySQLConnection:
         pass
 
     @classmethod
-    def set_connections(cls, dictionary):
+    def set_connection_settings(cls, dictionary):
         """Transaction
         """
-        cls.connections = dictionary
+        cls.connection_details = dictionary
 
     def query(self, query, bindings, results="*"):
         print("run query", query)

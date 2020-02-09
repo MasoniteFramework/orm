@@ -23,11 +23,12 @@ class ConnectionFactory:
     def make(self, key):
         if key == "default":
             connection = self._connections.get(self._default)
+            connection.set_connection_settings(CONNECTIONS.get(self._default))
         else:
             connection = self._connections.get(key)
+            connection.set_connection_settings(CONNECTIONS.get(key))
 
         if connection:
-            connection.set_connections(CONNECTIONS)
             return connection
 
         raise Exception(
