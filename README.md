@@ -71,8 +71,8 @@ TODO
     - [x] Grammar
     - [x] Connection
     - [ ] Schema
-        - [ ] Needs type mappings and aggregates
-        - [ ] SQL Injection
+        - [x] Needs type mappings and aggregates
+    - [x] SQL Injection
     - [ ] Tests
 
 - [ ] Relationships
