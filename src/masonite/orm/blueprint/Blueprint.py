@@ -1,6 +1,6 @@
 class Blueprint:
-    def __init__(self, grammer, table=""):
-        self.grammer = grammer
+    def __init__(self, grammar, table=""):
+        self.grammar = grammar
         self.table = table
         self._sql = ""
         self._columns = ()
@@ -14,7 +14,7 @@ class Blueprint:
         return self
 
     def _compile_create(self):
-        return self.grammer(creates=self._columns, table=self.table)._compile_create()
+        return self.grammar(creates=self._columns, table=self.table)._compile_create()
 
     def increments(self, column):
         self._columns += (("increments", column, None, True,),)
@@ -73,7 +73,7 @@ class Blueprint:
 
     def to_sql(self):
         return (
-            self.grammer(creates=self._columns, table=self.table)
+            self.grammar(creates=self._columns, table=self.table)
             ._compile_create()
             .to_sql()
         )

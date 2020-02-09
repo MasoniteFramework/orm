@@ -1,15 +1,15 @@
 class QueryBuilder:
-    def __init__(self, grammer, connection=None, table=""):
+    def __init__(self, grammar, connection=None, table=""):
         """QueryBuilder initializer
 
         Arguments:
-            grammer {masonite.orm.grammer.Grammer} -- A grammer class.
+            grammar {masonite.orm.grammar.Grammar} -- A grammar class.
 
         Keyword Arguments:
             connection {masonite.orm.connection.Connection} -- A connection class (default: {None})
             table {str} -- the name of the table (default: {""})
         """
-        self.grammer = grammer
+        self.grammar = grammar
         self.table = table
         self.connection = connection
         self.boot()
@@ -99,7 +99,7 @@ class QueryBuilder:
         return self
 
     def to_sql(self):
-        grammer = self.grammer(
+        grammar = self.grammar(
             columns=self._columns,
             table=self.table,
             wheres=self._wheres,
@@ -111,13 +111,13 @@ class QueryBuilder:
         )
 
         sql = getattr(
-            grammer, "_compile_{action}".format(action=self._action)
+            grammar, "_compile_{action}".format(action=self._action)
         )().to_sql()
         self.boot()
         return sql
 
     def to_qmark(self):
-        grammer = self.grammer(
+        grammar = self.grammar(
             columns=self._columns,
             table=self.table,
             wheres=self._wheres,
@@ -128,9 +128,9 @@ class QueryBuilder:
             group_by=self._group_by,
         )
 
-        grammer = getattr(grammer, "_compile_{action}".format(action=self._action))(
+        grammar = getattr(grammar, "_compile_{action}".format(action=self._action))(
             qmark=True
         )
         self.boot()
-        self._bindings = grammer._bindings
-        return grammer.to_qmark()
+        self._bindings = grammar._bindings
+        return grammar.to_qmark()

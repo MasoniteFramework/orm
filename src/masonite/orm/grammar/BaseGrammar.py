@@ -2,11 +2,11 @@ import pymysql.cursors
 from masonite.testing import TestCase
 
 
-class BaseGrammer:
+class BaseGrammar:
 
     """The keys in this dictionary is how the ORM will reference these aggregates
 
-    The values on the right are the matching functions for the grammer
+    The values on the right are the matching functions for the grammar
 
     Returns:
         [type] -- [description]

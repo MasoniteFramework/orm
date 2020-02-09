@@ -1,7 +1,7 @@
-from .BaseGrammer import BaseGrammer
+from .BaseGrammar import BaseGrammar
 
 
-class MSSQLGrammer(BaseGrammer):
+class MSSQLGrammar(BaseGrammar):
 
     aggregate_options = {
         "SUM": "SUM",

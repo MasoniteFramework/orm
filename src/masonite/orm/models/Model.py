@@ -1,6 +1,6 @@
 from ..connections.ConnectionFactory import ConnectionFactory
 from ..builder.QueryBuilder import QueryBuilder
-from ..grammer.mysql_grammer import MySQLGrammer
+from ..grammar.mysql_grammar import MySQLGrammar
 
 
 class Model:
@@ -17,7 +17,7 @@ class Model:
     def boot(cls):
         cls.__resolved_connection__ = ConnectionFactory().make(cls.__connection__)
         cls.builder = QueryBuilder(
-            MySQLGrammer, cls.__resolved_connection__, table=cls.__table__
+            MySQLGrammar, cls.__resolved_connection__, table=cls.__table__
         )
         cls._booted = True
 

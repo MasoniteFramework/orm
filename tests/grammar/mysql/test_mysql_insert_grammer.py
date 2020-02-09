@@ -1,12 +1,12 @@
-from src.masonite.orm.grammer.mysql_grammer import MySQLGrammer 
+from src.masonite.orm.grammar.mysql_grammar import MySQLGrammar 
 from src.masonite.orm.builder.QueryBuilder import QueryBuilder
-from src.masonite.orm.grammer.GrammerFactory import GrammerFactory
+from src.masonite.orm.grammar.GrammarFactory import GrammarFactory
 import unittest
 
-class TestMySQLUpdateGrammer(unittest.TestCase):
+class TestMySQLUpdateGrammar(unittest.TestCase):
 
     def setUp(self):
-        self.builder = QueryBuilder(GrammerFactory.make('mysql'), table='users')
+        self.builder = QueryBuilder(GrammarFactory.make('mysql'), table='users')
 
     def test_can_compile_insert(self):
 

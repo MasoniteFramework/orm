@@ -1,12 +1,12 @@
 import unittest
-from src.masonite.orm.grammer.mssql_grammer import MSSQLGrammer
+from src.masonite.orm.grammar.mssql_grammar import MSSQLGrammar
 from src.masonite.orm.builder.QueryBuilder import QueryBuilder
-from src.masonite.orm.grammer.GrammerFactory import GrammerFactory
+from src.masonite.orm.grammar.GrammarFactory import GrammarFactory
 
-class TestSQLServerGrammer(unittest.TestCase):
+class TestSQLServerGrammar(unittest.TestCase):
 
     def setUp(self):
-        self.builder = QueryBuilder(GrammerFactory.make('mssql'), table='users')
+        self.builder = QueryBuilder(GrammarFactory.make('mssql'), table='users')
 
     def test_can_compile_select(self):
         to_sql = self.builder.set_action('select').to_sql()

@@ -1,5 +1,5 @@
 import unittest
-from src.masonite.orm.grammer.mssql_grammer import MSSQLGrammer
+from src.masonite.orm.grammar.mssql_grammar import MSSQLGrammar
 from app.User import User
 import os
 
