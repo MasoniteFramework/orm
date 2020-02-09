@@ -83,27 +83,6 @@ class MySQLGrammer(BaseGrammer):
 
         self._sql_qmark = ""
 
-    def _compile_create(self):
-        sql = "CREATE TABLE {table} ".format(table=self._compile_from())
-
-        sql += "("
-        for columns in self._creates:
-            data_type, column, length, nullable = columns
-            sql += "{column} {data_type}{length}{nullable}, ".format(
-                column=self._compile_column(column),
-                data_type=self.type_map.get(data_type),
-                length="({length})".format(length=length) if length else "",
-                nullable="" if nullable else " NOT NULL",
-            )
-
-        sql = sql.rstrip(", ")
-
-        sql += ")"
-        print(sql)
-
-        self._sql = sql
-        return self
-
     def select_format(self):
         return "SELECT {columns} FROM {table} {wheres} {group_by}{order_by}{limit}"
 
@@ -122,6 +101,15 @@ class MySQLGrammer(BaseGrammer):
     def key_value_string(self):
         return "{column} = '{value}'"
 
+    def create_column_string(self):
+        return "{column} {data_type}{length}{nullable}, "
+
+    def create_start(self):
+        return "CREATE TABLE {table} "
+
+    def create_column_length(self):
+        return "({length})"
+    
     def table_string(self):
         return "`{table}`"
 

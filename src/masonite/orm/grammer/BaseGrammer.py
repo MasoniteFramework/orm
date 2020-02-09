@@ -40,6 +40,26 @@ class BaseGrammer:
 
         self._sql_qmark = ""
 
+    def _compile_create(self):
+        sql = self.create_start().format(table=self._compile_from())
+
+        sql += "("
+        for columns in self._creates:
+            data_type, column, length, nullable = columns
+            sql += self.create_column_string().format(
+                column=self._compile_column(column),
+                data_type=self.type_map.get(data_type),
+                length=self.create_column_length().format(length=length) if length else "",
+                nullable="" if nullable else " NOT NULL",
+            )
+
+        sql = sql.rstrip(", ")
+
+        sql += ")"
+
+        self._sql = sql
+        return self
+
     def _compile_select(self, qmark=False):
         self._sql = (
             self.select_format()
