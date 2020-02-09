@@ -54,34 +54,6 @@ class SQLiteGrammar(BaseGrammar):
         "unsigned_integer": "INT UNSIGNED",
     }
 
-    def __init__(
-        self,
-        columns="*",
-        table="users",
-        wheres=(),
-        limit=False,
-        updates={},
-        aggregates=(),
-        order_by=(),
-        group_by=(),
-        creates=(),
-    ):
-        self._columns = columns
-        self.table = table
-        self._wheres = wheres
-        self._limit = limit
-        self._updates = updates
-        self._aggregates = aggregates
-        self._order_by = order_by
-        self._group_by = group_by
-        self._creates = creates
-
-        self._bindings = ()
-
-        self._sql = ""
-
-        self._sql_qmark = ""
-
     def select_format(self):
         return "SELECT {columns} FROM {table} {wheres} {group_by}{order_by}{limit}"
 

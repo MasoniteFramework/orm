@@ -1,20 +1,9 @@
 import pymysql
-from src.masonite.orm.grammar.GrammarFactory import GrammarFactory
+
+from .BaseConnection import BaseConnection
 
 
-class MySQLConnection:
-    _connection = None
-    _cursor = None
-
-    connection_details = {
-        "host": "localhost",
-        "username": "root",
-        "password": "",
-        "database": "orm",
-        "port": "3306",
-        "options": {"charset": "utf8mb4"},
-    }
-
+class MySQLConnection(BaseConnection):
     def make_connection(self):
         """This sets the connection on the connection class
         """
@@ -61,18 +50,25 @@ class MySQLConnection:
         """
         pass
 
-    @classmethod
-    def get_grammer(self):
-        driver = 'mysql'
-        return GrammarFactory().make(driver)
-
-    @classmethod
-    def set_connection_settings(cls, dictionary):
+    def transaction_level(self):
         """Transaction
         """
-        cls.connection_details = dictionary
+        pass
 
     def query(self, query, bindings, results="*"):
+        """Make the actual query that will reach the database and come back with a result.
+
+        Arguments:
+            query {string} -- A string query. This could be a qmarked string or a regular query.
+            bindings {tuple} -- A tuple of bindings
+
+        Keyword Arguments:
+            results {str|1} -- If the results is equal to an asterisks it will call 'fetchAll'
+                    else it will return 'fetchOne' and return a single record. (default: {"*"})
+
+        Returns:
+            dict|None -- Returns a dictionary of results or None
+        """
         query = query.replace("?", "%s")
         try:
             with self._connection.cursor() as cursor:

@@ -32,8 +32,9 @@ CONNECTIONS = {
         'database': 'orm',
         'port': '3306',
         'prefix': '',
+        'grammer': 'mysql',
         'options': {
-            'charset': 'utf8mb4'
+            'charset': 'utf8mb4',
         },
     },
     'sqlite': {

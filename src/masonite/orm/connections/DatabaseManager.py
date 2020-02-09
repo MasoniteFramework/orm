@@ -1,5 +1,8 @@
 from .ConnectionFactory import ConnectionFactory
 
+"""Currently an unused class
+"""
+
 
 class Resolver:
     """Resolves and switches database connections on the fly
