@@ -3,7 +3,7 @@ from src.masonite.orm.grammar.mssql_grammar import MSSQLGrammar
 from src.masonite.orm.builder.QueryBuilder import QueryBuilder
 from src.masonite.orm.grammar.GrammarFactory import GrammarFactory
 
-class TestSQLServerGrammar(unittest.TestCase):
+class TestMSSQLSelectGrammar(unittest.TestCase):
 
     def setUp(self):
         self.builder = QueryBuilder(GrammarFactory.make('mssql'), table='users', connection_details={

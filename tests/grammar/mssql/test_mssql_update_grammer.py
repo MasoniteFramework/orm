@@ -3,7 +3,7 @@ from src.masonite.orm.builder.QueryBuilder import QueryBuilder
 from src.masonite.orm.grammar.GrammarFactory import GrammarFactory 
 import unittest
 
-class TestMySQLUpdateGrammar(unittest.TestCase):
+class TestMSSQLUpdateGrammar(unittest.TestCase):
 
 
     def setUp(self):
