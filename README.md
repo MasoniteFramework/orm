@@ -54,11 +54,11 @@ TODO
     - [x] Tests
 
 - [ ] MSSQL
-    - [ ] Grammar
+    - [-] Grammar
     - [ ] Connection
     - [ ] Schema
         - [ ] SQL Injection
-    - [ ] Tests
+    - [-] Tests
 
 - [ ] Postgres
     - [ ] Grammar
