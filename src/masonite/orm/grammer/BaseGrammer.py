@@ -49,7 +49,9 @@ class BaseGrammer:
             sql += self.create_column_string().format(
                 column=self._compile_column(column),
                 data_type=self.type_map.get(data_type),
-                length=self.create_column_length().format(length=length) if length else "",
+                length=self.create_column_length().format(length=length)
+                if length
+                else "",
                 nullable="" if nullable else " NOT NULL",
             )
 

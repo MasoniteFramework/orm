@@ -108,7 +108,7 @@ class MySQLGrammer(BaseGrammer):
 
     def create_column_length(self):
         return "({length})"
-    
+
     def table_string(self):
         return "`{table}`"
 
