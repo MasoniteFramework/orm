@@ -48,15 +48,14 @@ class BaseGrammar:
         sql = self.create_start().format(table=self._compile_from())
 
         sql += "("
-        for columns in self._creates:
-            data_type, column, length, nullable = columns
+        for column in self._creates:
             sql += self.create_column_string().format(
-                column=self._compile_column(column),
-                data_type=self.type_map.get(data_type),
-                length=self.create_column_length().format(length=length)
-                if length
+                column=self._compile_column(column.column_name),
+                data_type=self.type_map.get(column.column_type),
+                length=self.create_column_length().format(length=column.length)
+                if column.length
                 else "",
-                nullable="" if nullable else " NOT NULL",
+                nullable="" if column.is_null else " NOT NULL",
             )
 
         sql = sql.rstrip(", ")
