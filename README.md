@@ -78,3 +78,4 @@ TODO
 - [ ] Relationships
 - [ ] Eager Loading
     - [ ] N + 1 Problem
+- [ ] Make new collection class
