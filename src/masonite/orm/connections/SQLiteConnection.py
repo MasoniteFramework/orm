@@ -19,7 +19,7 @@ class SQLiteConnection:
         """This sets the connection on the connection class
         """
         connection_details = self.get_connection_details()
-        self._connection = sqlite3.connect(connection_details.get('db'))
+        self._connection = sqlite3.connect(connection_details.get("db"))
         self._connection.row_factory = sqlite3.Row
 
         return self
@@ -57,15 +57,15 @@ class SQLiteConnection:
 
     def query(self, query, bindings, results="*"):
 
-        query = query.replace("'?'", '?')
-        print('make query', query, bindings)
+        query = query.replace("'?'", "?")
+        print("make query", query, bindings)
         try:
             cursor = self._connection.cursor()
             cursor.execute(query, bindings)
             if results == 1:
-               result = [dict(row) for row in cursor.fetchall()]
-               if result:
-                   return result[0]
+                result = [dict(row) for row in cursor.fetchall()]
+                if result:
+                    return result[0]
             else:
                 return [dict(row) for row in cursor.fetchall()]
         finally:
