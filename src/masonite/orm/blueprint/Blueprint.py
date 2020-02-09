@@ -77,3 +77,9 @@ class Blueprint:
             ._compile_create()
             .to_sql()
         )
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        pass

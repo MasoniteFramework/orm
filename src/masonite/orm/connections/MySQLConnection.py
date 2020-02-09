@@ -1,4 +1,5 @@
 import pymysql
+from src.masonite.orm.grammar.GrammarFactory import GrammarFactory
 
 
 class MySQLConnection:
@@ -59,6 +60,11 @@ class MySQLConnection:
         """Transaction
         """
         pass
+
+    @classmethod
+    def get_grammer(self):
+        driver = 'mysql'
+        return GrammarFactory().make(driver)
 
     @classmethod
     def set_connection_settings(cls, dictionary):
