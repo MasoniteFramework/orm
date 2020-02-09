@@ -1,5 +1,6 @@
 from .MySQLConnection import MySQLConnection
 from .SQLiteConnection import SQLiteConnection
+from config.database import CONNECTIONS
 
 
 class ConnectionFactory:
@@ -26,6 +27,7 @@ class ConnectionFactory:
             connection = self._connections.get(key)
 
         if connection:
+            connection.set_connections(CONNECTIONS)
             return connection
 
         raise Exception(

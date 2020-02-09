@@ -55,6 +55,12 @@ class SQLiteConnection:
         """
         pass
 
+    @classmethod
+    def set_connections(cls, dictionary):
+        """Transaction
+        """
+        cls.connections = dictionary
+
     def query(self, query, bindings, results="*"):
 
         query = query.replace("'?'", "?")

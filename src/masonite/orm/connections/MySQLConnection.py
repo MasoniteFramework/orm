@@ -61,6 +61,12 @@ class MySQLConnection:
         """
         pass
 
+    @classmethod
+    def set_connections(cls, dictionary):
+        """Transaction
+        """
+        cls.connections = dictionary
+
     def query(self, query, bindings, results="*"):
         print("run query", query)
         query = query.replace("?", "%s")

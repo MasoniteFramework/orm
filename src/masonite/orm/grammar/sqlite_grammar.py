@@ -39,19 +39,16 @@ class SQLiteGrammar(BaseGrammar):
         "enum": "VARCHAR",
         "text": "TEXT",
         "float": "FLOAT",
-
         "geometry": "TEXT",
         "json": "BLOB",
         "jsonb": "BLOB",
         "long_text": "TEXT",
         "point": "BLOB",
-
         "time": "REAL",
         "timestamp": "REAL",
         "date": "TEXT",
         "datetime": "TEXT",
         "year": "TEXT",
-
         "tiny_increments": "TINYINT AUTOINCREMENT",
         "unsigned": "INT UNSIGNED",
         "unsigned_integer": "INT UNSIGNED",
