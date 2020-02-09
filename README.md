@@ -74,3 +74,6 @@ TODO
         - [ ] SQL Injection
     - [ ] Tests
 
+- [ ] Relationships
+- [ ] Eager Loading
+    - [ ] N + 1 Problem
