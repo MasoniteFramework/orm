@@ -34,6 +34,10 @@ CONNECTIONS = {
         'options': {
             'charset': 'utf8mb4'
         },
+    },
+    'sqlite': {
+        'driver': 'sqlite',
+        'database': 'orm.db'
     }
 }
 

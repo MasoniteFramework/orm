@@ -10,4 +10,6 @@ class User(Model):
 
     __fillable__ = ['name', 'email', 'password']
 
+    __connection__ = 'sqlite'
+
     __auth__ = 'email'

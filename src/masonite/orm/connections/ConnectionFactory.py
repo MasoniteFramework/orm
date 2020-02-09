@@ -1,4 +1,5 @@
 from .MySQLConnection import MySQLConnection
+from .SQLiteConnection import SQLiteConnection
 
 
 class ConnectionFactory:
@@ -7,7 +8,7 @@ class ConnectionFactory:
         "mysql": MySQLConnection,
         "mssql": "",
         "postgres": "",
-        "sqlite": "",
+        "sqlite": SQLiteConnection,
         "oracle": "",
     }
 

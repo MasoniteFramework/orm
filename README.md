@@ -46,8 +46,31 @@ $ python -m pytest
 
 TODO
 
-- MySQL
+- [x] MySQL
+    - [x] Grammar
+    - [x] Connection
+    - [x] Schema
+        - [x] SQL Injection
+    - [x] Tests
+
+- [ ] MSSQL
     - [ ] Grammar
     - [ ] Connection
+    - [ ] Schema
         - [ ] SQL Injection
     - [ ] Tests
+
+- [ ] Postgres
+    - [ ] Grammar
+    - [ ] Connection
+    - [ ] Schema
+        - [ ] SQL Injection
+    - [ ] Tests
+
+- [ ] SQLite
+    - [x] Grammar
+    - [x] Connection
+    - [ ] Schema
+        - [ ] SQL Injection
+    - [ ] Tests
+
