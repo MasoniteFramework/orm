@@ -53,7 +53,6 @@ class MySQLGrammer(BaseGrammer):
         "unsigned": "INT UNSIGNED",
         "unsigned_integer": "UNSIGNED INT",
     }
-    table = "users"
 
     def __init__(
         self,
