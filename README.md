@@ -52,6 +52,7 @@ TODO
     - [x] Schema
         - [x] SQL Injection
     - [x] Tests
+- [ ] Create Schema Builder class (just a wrapper around create and alter queries)
 
 - [ ] MSSQL
     - [-] Grammar
@@ -80,3 +81,5 @@ TODO
 - [ ] Eager Loading
     - [ ] N + 1 Problem
 - [ ] Make new collection class
+
+- [?] Make `Column` classes to better interact with building data
