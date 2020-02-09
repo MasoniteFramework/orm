@@ -52,7 +52,6 @@ TODO
     - [x] Schema
         - [x] SQL Injection
     - [x] Tests
-- [ ] Create Schema Builder class (just a wrapper around create and alter queries)
 
 - [ ] MSSQL
     - [-] Grammar
@@ -76,8 +75,9 @@ TODO
     - [x] SQL Injection
     - [ ] Tests
 
+- [x] Create Schema Builder class (just a wrapper around create and alter queries)
 - [ ] Relationships
-- [ ] Add indexes to schema 
+- [in progress] Add indexes to schema 
 - [ ] Eager Loading
     - [ ] N + 1 Problem
 - [ ] Make new collection class
