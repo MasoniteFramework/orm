@@ -36,6 +36,10 @@ $ python -m pytest
 
 # Short Term Tasks
 
-- [ ] Finish grammer for MYSQL, Postgres, MSSQL and SQLite
-- [ ] Get the query builder to use the grammer
-- [ ] Refactor to use `%s` symbols so we can use avoid sql injection attacks
+- [ ] Finish basic grammer for:
+    - [x] MySQL
+    - [ ] MSSQL
+    - [ ] Postgres
+    - [ ] SQLite
+- [x] Get the query builder to use the grammer
+- [x] Refactor to use `%s` symbols so we can use avoid sql injection attacks

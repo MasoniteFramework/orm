@@ -24,6 +24,15 @@ class MSSQLGrammer(BaseGrammer):
     def delete_format(self):
         return "DELETE FROM {table} {wheres}"
 
+    def create_column_string(self):
+        return "{column} {data_type}{length}{nullable}, "
+
+    def create_start(self):
+        return "CREATE TABLE {table} "
+
+    def create_column_length(self):
+        return "({length})"
+        
     def limit_string(self):
         return "TOP {limit}"
 
