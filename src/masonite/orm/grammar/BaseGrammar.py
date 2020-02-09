@@ -24,6 +24,7 @@ class BaseGrammar:
         aggregates=(),
         order_by=(),
         group_by=(),
+        connection_details={}
     ):
         self._columns = columns
         self.table = table
@@ -33,6 +34,9 @@ class BaseGrammar:
         self._aggregates = aggregates
         self._order_by = order_by
         self._group_by = group_by
+        self._connection_details = connection_details
+
+        print('details', self._connection_details)
 
         self._bindings = ()
 
@@ -144,9 +148,7 @@ class BaseGrammar:
 
     def _compile_group_by(self):
         sql = ""
-        print("compiling group by")
         for group_bys in self._group_by:
-            print(group_bys)
             column = group_bys
             sql += "GROUP BY {column}".format(column=self._compile_column(column))
 
@@ -156,7 +158,7 @@ class BaseGrammar:
         return column
 
     def _compile_from(self):
-        return self.table_string().format(table=self.table)
+        return self.table_string().format(table=self.table, database=self._connection_details.get('database', ''), prefix=self._connection_details.get('prefix', ''))
 
     def _compile_limit(self):
         if not self._limit:
@@ -182,9 +184,7 @@ class BaseGrammar:
                 value=value if not qmark else "?",
             )
             if qmark:
-                print("adding to binding")
                 self._bindings += (value,)
-                print(self._bindings)
             loop_count += 1
         return sql
 
@@ -234,18 +234,15 @@ class BaseGrammar:
 
     def _compile_columns(self, seperator=""):
         sql = ""
-        print("compiling columns")
 
         if self._columns != "*":
             for column in self._columns:
                 sql += self._compile_column(column, seperator=seperator)
 
-        print("compiled columns", sql)
 
         if self._aggregates:
             sql += self._compile_aggregates()
 
-        print("compiled aggregates", sql)
 
         if sql == "":
             return "*"

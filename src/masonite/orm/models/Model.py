@@ -16,7 +16,6 @@ class Model:
     @classmethod
     def boot(cls):
         cls.__resolved_connection__ = ConnectionFactory().make(cls.__connection__)
-        print(cls.__resolved_connection__)
         cls.builder = QueryBuilder(
             MySQLGrammar, cls.__resolved_connection__, table=cls.__table__
         )
@@ -41,7 +40,6 @@ class Model:
         if not cls._booted:
             cls.boot()
 
-        print("booted?", cls._booted)
         return cls
 
     def first_or_new(self):

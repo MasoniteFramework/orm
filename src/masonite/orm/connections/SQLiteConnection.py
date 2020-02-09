@@ -32,7 +32,6 @@ class SQLiteConnection:
         that should pass to your connection method
         """
         connection_details = {}
-        print(self.connections)
         connection_details.setdefault("db", self.connections.get("database"))
         connection_details.update(self.connections.get("options", {}))
 
@@ -65,7 +64,6 @@ class SQLiteConnection:
     def query(self, query, bindings, results="*"):
 
         query = query.replace("'?'", "?")
-        print("make query", query, bindings)
         try:
             cursor = self._connection.cursor()
             cursor.execute(query, bindings)

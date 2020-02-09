@@ -31,13 +31,15 @@ CONNECTIONS = {
         'password': '',
         'database': 'orm',
         'port': '3306',
+        'prefix': '',
         'options': {
             'charset': 'utf8mb4'
         },
     },
     'sqlite': {
         'driver': 'sqlite',
-        'database': 'orm.db'
+        'database': 'orm.db',
+        'prefix': ''
     }
 }
 

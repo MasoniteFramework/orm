@@ -1,5 +1,5 @@
 class QueryBuilder:
-    def __init__(self, grammar, connection=None, table=""):
+    def __init__(self, grammar, connection=None, table="", connection_details={}):
         """QueryBuilder initializer
 
         Arguments:
@@ -12,6 +12,7 @@ class QueryBuilder:
         self.grammar = grammar
         self.table = table
         self.connection = connection
+        self.connection_details = connection_details
         self.boot()
 
     def boot(self):
@@ -103,6 +104,7 @@ class QueryBuilder:
         return self
 
     def to_sql(self):
+
         grammar = self.grammar(
             columns=self._columns,
             table=self.table,
@@ -112,6 +114,7 @@ class QueryBuilder:
             aggregates=self._aggregates,
             order_by=self._order_by,
             group_by=self._group_by,
+            connection_details=self.connection.connection_details if self.connection else self.connection_details
         )
 
         sql = getattr(
@@ -130,7 +133,9 @@ class QueryBuilder:
             aggregates=self._aggregates,
             order_by=self._order_by,
             group_by=self._group_by,
+            connection_details=self.connection.connection_details if self.connection else self.connection_details
         )
+
 
         grammar = getattr(grammar, "_compile_{action}".format(action=self._action))(
             qmark=True

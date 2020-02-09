@@ -65,6 +65,7 @@ class MySQLGrammar(BaseGrammar):
         order_by=(),
         group_by=(),
         creates=(),
+        connection_details={}
     ):
         self._columns = columns
         self.table = table
@@ -75,6 +76,9 @@ class MySQLGrammar(BaseGrammar):
         self._order_by = order_by
         self._group_by = group_by
         self._creates = creates
+        self._connection_details = connection_details
+
+        print('details', self._connection_details)
 
         self._bindings = ()
 

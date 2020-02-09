@@ -49,7 +49,7 @@ class MSSQLGrammar(BaseGrammar):
         return "[{column}] = '{value}'"
 
     def table_string(self):
-        return "[{table}]"
+        return "[{prefix}{table}]"
 
     def order_by_string(self):
         return "ORDER BY {column} {direction}"
