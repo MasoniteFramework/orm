@@ -12,14 +12,7 @@ class BaseGrammer:
         [type] -- [description]
     """
 
-    aggregate_options = {
-        "SUM": "SUM",
-        "MAX": "MAX",
-        "MIN": "MIN",
-        "AVG": "AVG",
-        "COUNT": "COUNT",
-        "AVG": "AVG",
-    }
+
 
     table = "users"
 
@@ -142,15 +135,6 @@ class BaseGrammer:
     def _compile_alias(self, column):
         return column
 
-    def limit_string(self):
-        return "LIMIT {limit}"
-
-    def first_where_string(self):
-        return "WHERE"
-
-    def additional_where_string(self):
-        return "AND"
-
     def _compile_from(self):
         return self.table_string().format(table=self.table)
 
@@ -254,7 +238,6 @@ class BaseGrammer:
             return self._columns
 
         for column, value in self._columns.items():
-            sql += self._compile_value(value, seperator=seperator)
             sql += self._compile_value(value, seperator=seperator)
 
         return sql[:-2]

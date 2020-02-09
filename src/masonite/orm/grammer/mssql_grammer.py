@@ -1,80 +1,51 @@
-class MSSQLGrammer:
+from .BaseGrammer import BaseGrammer
 
-    _columns = "*"
+class MSSQLGrammer(BaseGrammer):
 
-    _sql = ""
+    aggregate_options = {
+        "SUM": "SUM",
+        "MAX": "MAX",
+        "MIN": "MIN",
+        "AVG": "AVG",
+        "COUNT": "COUNT",
+        "AVG": "AVG",
+    }
 
-    table = "users"
+    def select_format(self):
+        return "SELECT {limit} {columns} FROM {table} {wheres} {group_by}{order_by}"
 
-    _wheres = ()
+    def update_format(self):
+        return "UPDATE {table} SET {key_equals} {wheres}"
 
-    _limit = False
+    def insert_format(self):
+        return "INSERT INTO {table} ({columns}) VALUES ({values})"
 
-    def _compile_select(self):
-        self._sql = (
-            "SELECT {limit} {columns} FROM {table} {wheres}".format(
-                columns=self._compile_columns(seperator=", "),
-                table=self._compile_from(),
-                wheres=self._compile_wheres(),
-                limit=self._compile_limit(),
-            )
-            .strip()
-            .replace("  ", " ")
-        )
+    def delete_format(self):
+        return "DELETE FROM {table} {wheres}"
 
-        return self
+    def limit_string(self):
+        return "TOP {limit}"
 
-    def _compile_from(self):
-        return "[{table}]".format(table=self.table)
+    def first_where_string(self):
+        return "WHERE"
 
-    def _compile_limit(self):
-        if not self._limit:
-            return ""
+    def additional_where_string(self):
+        return "AND"
 
-        return "TOP {limit}".format(limit=self._limit)
+    def aggregate_string(self):
+        return "{aggregate_function}({column}) AS {alias}"
 
-    def select(self, *args):
-        self._columns = list(args)
-        return self
+    def key_value_string(self):
+        return "[{column}] = '{value}'"
 
-    def where(self, column, value):
-        self._wheres += ((column, "=", value),)
-        return self
+    def table_string(self):
+        return "[{table}]"
 
-    def limit(self, amount):
-        self._limit = amount
-        return self
+    def order_by_string(self):
+        return "ORDER BY {column} {direction}"
 
-    def _compile_wheres(self):
-        sql = ""
-        loop_count = 0
-        for where in self._wheres:
-            if loop_count == 0:
-                keyword = "WHERE"
-            else:
-                keyword = " AND"
+    def column_string(self):
+        return "[{column}]{seperator}"
 
-            column, equality, value = where
-            column = self._compile_column(column)
-            sql += "{keyword} {column} {equality} '{value}'".format(
-                keyword=keyword, column=column, equality=equality, value=value
-            )
-            loop_count += 1
-        return sql
-
-    def to_sql(self):
-        print(self._sql)
-        return self._sql
-
-    def _compile_columns(self, seperator=""):
-        sql = ""
-        if self._columns == "*":
-            return self._columns
-
-        for column in self._columns:
-            sql += self._compile_column(column, seperator=seperator)
-
-        return sql[:-2]
-
-    def _compile_column(self, column, seperator=""):
-        return "[{column}]{seperator}".format(column=column, seperator=seperator)
+    def value_string(self):
+        return "'{value}'{seperator}"
