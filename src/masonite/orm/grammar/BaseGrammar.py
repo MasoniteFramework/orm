@@ -24,7 +24,7 @@ class BaseGrammar:
         aggregates=(),
         order_by=(),
         group_by=(),
-        connection_details={}
+        connection_details={},
     ):
         self._columns = columns
         self.table = table
@@ -36,7 +36,7 @@ class BaseGrammar:
         self._group_by = group_by
         self._connection_details = connection_details
 
-        print('details', self._connection_details)
+        print("details", self._connection_details)
 
         self._bindings = ()
 
@@ -114,13 +114,13 @@ class BaseGrammar:
     def _compile_key_value_equals(self, qmark=False):
         sql = ""
         for column, value in self._updates.items():
-            print('looping through', column)
-            print('getting', self._compile_column(column))
+            print("looping through", column)
+            print("getting", self._compile_column(column))
             sql += self.key_value_string().format(
                 column=self._compile_column(column), value=value if not qmark else "?"
             )
 
-            print('compiling key value pairs', sql)
+            print("compiling key value pairs", sql)
 
             if qmark:
                 self._bindings += (value,)
@@ -162,7 +162,11 @@ class BaseGrammar:
         return column
 
     def _compile_from(self):
-        return self.table_string().format(table=self.table, database=self._connection_details.get('database', ''), prefix=self._connection_details.get('prefix', ''))
+        return self.table_string().format(
+            table=self.table,
+            database=self._connection_details.get("database", ""),
+            prefix=self._connection_details.get("prefix", ""),
+        )
 
     def _compile_limit(self):
         if not self._limit:
@@ -243,10 +247,8 @@ class BaseGrammar:
             for column in self._columns:
                 sql += self._compile_column(column, seperator=seperator)
 
-
         if self._aggregates:
             sql += self._compile_aggregates()
-
 
         if sql == "":
             return "*"

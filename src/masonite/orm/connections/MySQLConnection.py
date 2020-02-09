@@ -21,7 +21,6 @@ class MySQLConnection:
             cursorclass=pymysql.cursors.DictCursor, **self.get_connection_details()
         )
 
-
         return self
 
     def get_connection_details(self):

@@ -114,7 +114,9 @@ class QueryBuilder:
             aggregates=self._aggregates,
             order_by=self._order_by,
             group_by=self._group_by,
-            connection_details=self.connection.connection_details if self.connection else self.connection_details
+            connection_details=self.connection.connection_details
+            if self.connection
+            else self.connection_details,
         )
 
         sql = getattr(
@@ -133,9 +135,10 @@ class QueryBuilder:
             aggregates=self._aggregates,
             order_by=self._order_by,
             group_by=self._group_by,
-            connection_details=self.connection.connection_details if self.connection else self.connection_details
+            connection_details=self.connection.connection_details
+            if self.connection
+            else self.connection_details,
         )
-
 
         grammar = getattr(grammar, "_compile_{action}".format(action=self._action))(
             qmark=True
