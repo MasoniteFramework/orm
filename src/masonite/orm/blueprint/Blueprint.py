@@ -33,6 +33,7 @@ class Column:
         self.after_column = after_column
         return self
 
+
 class Blueprint:
     def __init__(self, grammar, table="", action=None):
         self.grammar = grammar
