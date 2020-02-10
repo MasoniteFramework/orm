@@ -55,6 +55,7 @@ class GrammarExample:
         return "DELETE FROM {table} {wheres}"
 
     def unique_constraint_string(self):
+        property()
         return "CONSTRAINT {clean_column}_unique UNIQUE ({clean_column})"
 
     def limit_string(self):

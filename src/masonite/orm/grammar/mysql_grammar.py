@@ -75,8 +75,17 @@ class MySQLGrammar(BaseGrammar):
     def create_column_string(self):
         return "{column} {data_type}{length}{nullable}, "
 
+    def alter_column_string(self):
+        return "ADD {column} {data_type}{length}{nullable}, "
+
+    def rename_column_string(self):
+        return "CHANGE COLUMN old_name {column} {data_type}{length}{nullable}, "
+
     def create_start(self):
         return "CREATE TABLE {table} "
+
+    def alter_start(self):
+        return "ALTER TABLE {table} "
 
     def create_column_length(self):
         return "({length})"

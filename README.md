@@ -48,32 +48,68 @@ TODO
 
 - [x] MySQL
     - [x] Grammar
+        - [x] SELECT
+        - [x] UPDATE
+        - [x] INSERT
+        - [x] DELETE
+        - [ ] ALTER
     - [x] Connection
     - [x] Schema
         - [x] SQL Injection
+        - [x] Needs type mappings and aggregates
+        - [ ] Alter query AFTER keyword (for adding column after another column)
+        - [ ] Constraints
+            - [x] Primary Keys
+            - [x] Unique
     - [x] Tests
 
 - [ ] MSSQL
     - [-] Grammar
+        - [x] SELECT
+        - [x] UPDATE
+        - [x] INSERT
+        - [x] DELETE
+        - [ ] ALTER
     - [ ] Connection
     - [ ] Schema
         - [ ] SQL Injection
+        - [ ] Needs type mappings and aggregates
+        - [ ] Constraints
+            - [ ] Primary Keys
+            - [ ] Unique
     - [-] Tests
 
 - [ ] Postgres
     - [ ] Grammar
+        - [ ] SELECT
+        - [ ] UPDATE
+        - [ ] INSERT
+        - [ ] DELETE
+        - [ ] ALTER
     - [ ] Connection
     - [ ] Schema
         - [ ] SQL Injection
-    - [ ] Tests
+        - [ ] Needs type mappings and aggregates
+        - [ ] Constraints
+            - [ ] Primary Keys
+            - [ ] Unique
+    - [ ] Full Tests
 
 - [ ] SQLite
     - [x] Grammar
+        - [ ] SELECT
+        - [ ] UPDATE
+        - [ ] INSERT
+        - [ ] DELETE
+        - [ ] ALTER
     - [x] Connection
     - [ ] Schema
         - [x] Needs type mappings and aggregates
+        - [ ] Constraints
+            - [ ] Primary Keys
+            - [ ] Unique
     - [x] SQL Injection
-    - [ ] Tests
+    - [ ] Full Tests
 
 - [x] Create Schema Builder class (just a wrapper around create and alter queries)
 - [ ] Relationships
@@ -81,5 +117,5 @@ TODO
 - [ ] Eager Loading
     - [ ] N + 1 Problem
 - [ ] Make new collection class
-
-- [?] Make `Column` classes to better interact with building data
+- [x] Make `Column` classes to better interact with building data
+- [ ] Fully document every part of the project. Will need to first get a basic working project and then start documenting everything. Then start opening pull requests and documenting as we add new features. Similiar to the way Masonite has good documentation.

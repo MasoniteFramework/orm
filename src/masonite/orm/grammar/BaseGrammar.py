@@ -79,6 +79,28 @@ class BaseGrammar:
         self._sql = sql
         return self
 
+    def _compile_alter(self):
+        sql = self.alter_start().format(table=self._compile_from())
+
+        """Add Columns
+        """
+        for column in self._creates:
+            sql += self.alter_column_string().format(
+                column=self._compile_column(column.column_name),
+                old_column=self._compile_column(column.old_column),
+                data_type=self.type_map.get(column.column_type),
+                length=self.create_column_length().format(length=column.length)
+                if column.length
+                else "",
+                nullable="" if column.is_null else " NOT NULL",
+            )
+
+        sql = sql.rstrip(", ")
+
+
+        self._sql = sql
+        return self
+
     def _compile_select(self, qmark=False):
         self._sql = (
             self.select_format()

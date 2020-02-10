@@ -33,4 +33,20 @@ class Schema:
             masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
         cls._table = table
-        return Blueprint(cls._connection.get_grammer(), table=table)
+
+        return Blueprint(cls._connection.get_grammer(), table=table, action='create')
+
+    @classmethod
+    def table(cls, table):
+        """Sets the table and returns the blueprint.
+
+        This should be used as a context manager.
+
+        Arguments:
+            table {string} -- The name of a table like 'users'
+
+        Returns:
+            masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
+        """
+        cls._table = table
+        return Blueprint(cls._connection.get_grammer(), table=table, action='alter')

@@ -9,6 +9,8 @@ class Column:
         self.is_null = nullable
         self.is_constraint = False
         self.constraint_type = None
+        self.after_column = None
+        self.old_column = ''
 
     def nullable(self):
         self.is_null = True
@@ -23,14 +25,18 @@ class Column:
         self.constraint_type = "unique"
         return self
 
+    def rename(self, column):
+        self.old_column = column
+        return self
 
 class Blueprint:
-    def __init__(self, grammar, table=""):
+    def __init__(self, grammar, table="", action=None):
         self.grammar = grammar
         self.table = table
         self._sql = ""
         self._columns = ()
         self._last_column = None
+        self._action = action
 
     def string(self, column, length=255, nullable=False):
         self._last_column = self.new_column("string", column, length, nullable)
@@ -48,6 +54,9 @@ class Blueprint:
         return self
 
     def _compile_create(self):
+        return self.grammar(creates=self._columns, table=self.table)._compile_create()
+
+    def _compile_alter(self):
         return self.grammar(creates=self._columns, table=self.table)._compile_create()
 
     def increments(self, column, nullable=False):
@@ -116,11 +125,18 @@ class Blueprint:
         pass
 
     def to_sql(self):
-        return (
-            self.grammar(creates=self._columns, table=self.table)
-            ._compile_create()
-            .to_sql()
-        )
+        if self._action == 'create':
+            return (
+                self.grammar(creates=self._columns, table=self.table)
+                ._compile_create()
+                .to_sql()
+            )
+        else:
+            return (
+                self.grammar(creates=self._columns, table=self.table)
+                ._compile_alter()
+                .to_sql()
+            )
 
     def __enter__(self):
         return self
@@ -134,4 +150,9 @@ class Blueprint:
 
     def unique(self):
         self._last_column.unique()
+        return self
+
+    def rename(self, old_column, new_column):
+        self._last_column = self.new_column(None, column, length, nullable).rename(old_column)
+        self._columns += (self._last_column,)
         return self
