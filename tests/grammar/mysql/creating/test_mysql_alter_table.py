@@ -25,3 +25,11 @@ class TestMySQLAlterGrammar(unittest.TestCase):
 
         sql = "ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL, ADD `age` VARCHAR(255)"
         self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_can_alter_after_column(self):
+        with self.schema.table('users') as blueprint:
+            blueprint.string('name')
+            blueprint.string('age').nullable().after('name')
+
+        sql = "ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL, ADD `age` VARCHAR(255) AFTER `name`"
+        self.assertEqual(blueprint.to_sql(), sql)
