@@ -213,22 +213,33 @@ class BaseGrammar:
         sql = ""
         loop_count = 0
         for where in self._wheres:
+            print(where)
+            column, equality, value = where
+
+
+            print(column, equality, value )
             if loop_count == 0:
                 keyword = self.first_where_string()
             else:
                 keyword = self.additional_where_string()
 
-            column, equality, value = where
+            # if amount:
+            #     keyword = self.where_in_string().format(
+            #         values=','.join(value) if isinstance(value, list) else ''
+            #     )
+
+
             column = self._compile_column(column)
-            sql += " {keyword} {column} {equality} '{value}'".format(
+            sql += " {keyword} {column} {equality} {value}".format(
                 keyword=keyword,
                 column=column,
                 equality=equality,
-                value=value if not qmark else "?",
+                value=("(" + ",".join(value) + ")") if isinstance(value, list) else self.value_string().format(value=value, seperator='') if not qmark else "'?'",
             )
             if qmark:
                 self._bindings += (value,)
             loop_count += 1
+
         return sql
 
     def select(self, *args):

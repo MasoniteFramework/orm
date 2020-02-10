@@ -113,3 +113,6 @@ class MySQLGrammar(BaseGrammar):
 
     def additional_where_string(self):
         return "AND"
+
+    def where_in_string(self):
+        return "WHERE IN ({values})"
