@@ -84,3 +84,6 @@ class GrammarExample:
 
     def value_string(self):
         return "'{value}'{seperator}"
+
+    def after_column_string(self):
+        return " AFTER `{after}`"
