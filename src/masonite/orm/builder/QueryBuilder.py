@@ -73,6 +73,11 @@ class QueryBuilder:
         self._order_by += ((column, direction),)
         return self
 
+    def where_in(self, column, wheres=[]):
+        wheres = [ str(x) for x in wheres]
+        self._wheres += ((column, "IN", wheres),)
+        return self
+
     def group_by(self, column):
         self._group_by += (column,)
         return self
