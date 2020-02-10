@@ -29,6 +29,9 @@ class Column:
         self.old_column = column
         return self
 
+    def after(self, after_column):
+        self.after_column = after_column
+        return self
 
 class Blueprint:
     def __init__(self, grammar, table="", action=None):
@@ -158,4 +161,8 @@ class Blueprint:
             old_column
         )
         self._columns += (self._last_column,)
+        return self
+
+    def after(self, old_column):
+        self._last_column.after(old_column)
         return self

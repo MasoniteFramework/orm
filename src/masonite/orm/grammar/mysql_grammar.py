@@ -76,7 +76,7 @@ class MySQLGrammar(BaseGrammar):
         return "{column} {data_type}{length}{nullable}, "
 
     def alter_column_string(self):
-        return "ADD {column} {data_type}{length}{nullable}, "
+        return "ADD {column} {data_type}{length}{nullable}{after}, "
 
     def rename_column_string(self):
         return "CHANGE COLUMN old_name {column} {data_type}{length}{nullable}, "
