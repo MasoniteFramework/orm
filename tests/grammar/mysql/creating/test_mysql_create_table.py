@@ -57,7 +57,7 @@ class TestMySQLUpdateGrammar(unittest.TestCase):
 
         sql = ("CREATE TABLE `users` ("
                 "`id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL, "
-                "`name` VARCHAR(255) NOT NULL, "
+                "`name` VARCHAR(255) NOT NULL"
             ")"
         )
 

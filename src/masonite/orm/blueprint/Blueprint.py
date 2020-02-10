@@ -1,6 +1,7 @@
 class Column:
-
-    def __init__(self, column_type, column_name, table=None, length=None, nullable=False):
+    def __init__(
+        self, column_type, column_name, table=None, length=None, nullable=False
+    ):
         self.column_type = column_type
         self.column_name = column_name
         self.length = length
@@ -19,8 +20,9 @@ class Column:
 
     def unique(self):
         self.is_constraint = True
-        self.constraint_type = 'unique'
+        self.constraint_type = "unique"
         return self
+
 
 class Blueprint:
     def __init__(self, grammar, table=""):
@@ -31,12 +33,14 @@ class Blueprint:
         self._last_column = None
 
     def string(self, column, length=255, nullable=False):
-        self._last_column = self.new_column('string', column, length, nullable)
+        self._last_column = self.new_column("string", column, length, nullable)
         self._columns += (self._last_column,)
         return self
 
     def new_column(self, column_type, column, length=255, nullable=False):
-        return Column(column_type, column, table=self.table, length=length, nullable=nullable)
+        return Column(
+            column_type, column, table=self.table, length=length, nullable=nullable
+        )
 
     def integer(self, column, length=11, nullable=False):
         self._last_column = self.new_column("integer", column, length, nullable)
@@ -80,7 +84,9 @@ class Blueprint:
         return self
 
     def decimal(self, column, length=17, precision=6, nullable=False):
-        self._last_column = self.new_column("decimal", column, "{}, {}".format(length, precision), nullable)
+        self._last_column = self.new_column(
+            "decimal", column, "{}, {}".format(length, precision), nullable
+        )
         self._columns += (self._last_column,)
         return self
 
