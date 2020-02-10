@@ -48,6 +48,8 @@ class BaseGrammar:
         sql = self.create_start().format(table=self._compile_from())
 
         sql += "("
+        """Add Columns
+        """        
         for column in self._creates:
             sql += self.create_column_string().format(
                 column=self._compile_column(column.column_name),
@@ -58,7 +60,17 @@ class BaseGrammar:
                 nullable="" if column.is_null else " NOT NULL",
             )
 
+        """Add Constraints
+        """        
+        for column in self._creates:
+            if column.is_constraint:
+                sql += getattr(self, '{}_constraint_string'.format(column.constraint_type))().format(
+                    column=self._compile_column(column.column_name),
+                    clean_column=column.column_name, 
+                )
+                sql += ", "
         sql = sql.rstrip(", ")
+
 
         sql += ")"
 

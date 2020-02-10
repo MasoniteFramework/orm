@@ -1,10 +1,13 @@
 class Column:
 
-    def __init__(self, column_type, column_name, length=None, nullable=False):
+    def __init__(self, column_type, column_name, table=None, length=None, nullable=False):
         self.column_type = column_type
         self.column_name = column_name
         self.length = length
+        self.table = table
         self.is_null = nullable
+        self.is_constraint = False
+        self.constraint_type = None
 
     def nullable(self):
         self.is_null = True
@@ -12,6 +15,11 @@ class Column:
 
     def not_nullable(self):
         self.is_null = False
+        return self
+
+    def unique(self):
+        self.is_constraint = True
+        self.constraint_type = 'unique'
         return self
 
 class Blueprint:
@@ -28,7 +36,7 @@ class Blueprint:
         return self
 
     def new_column(self, column_type, column, length=255, nullable=False):
-        return Column(column_type, column, length, nullable)
+        return Column(column_type, column, table=self.table, length=length, nullable=nullable)
 
     def integer(self, column, length=11, nullable=False):
         self._last_column = self.new_column("integer", column, length, nullable)
@@ -116,4 +124,8 @@ class Blueprint:
 
     def nullable(self):
         self._last_column.nullable()
+        return self
+
+    def unique(self):
+        self._last_column.unique()
         return self

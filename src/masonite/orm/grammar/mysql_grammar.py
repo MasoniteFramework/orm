@@ -81,6 +81,12 @@ class MySQLGrammar(BaseGrammar):
     def create_column_length(self):
         return "({length})"
 
+    def unique_constraint_string(self):
+        return "CONSTRAINT {clean_column}_unique UNIQUE ({clean_column})"
+
+    def primary_key_constraint_string(self):
+        return "PRIMARY KEY ({clean_column})"
+
     def table_string(self):
         return "`{table}`"
 
