@@ -1,5 +1,4 @@
 masonite>=2.2,<2.3
 flake8
-black
 pytest
 pymysql
