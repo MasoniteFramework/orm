@@ -94,7 +94,8 @@ class BaseGrammar:
                 if column.length
                 else "",
                 nullable="" if column.is_null else " NOT NULL",
-                after=" AFTER " + "`{0}`".format(column.after_column) if column.after_column else ""
+                after=self.after_column_string().format(after=column.after_column) if column.after_column else ""
+
             )
 
         sql = sql.rstrip(", ")

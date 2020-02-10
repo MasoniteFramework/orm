@@ -116,3 +116,6 @@ class MySQLGrammar(BaseGrammar):
 
     def where_in_string(self):
         return "WHERE IN ({values})"
+
+    def after_column_string(self):
+        return " AFTER `{after}`"
