@@ -10,7 +10,7 @@ class Column:
         self.is_constraint = False
         self.constraint_type = None
         self.after_column = None
-        self.old_column = ''
+        self.old_column = ""
 
     def nullable(self):
         self.is_null = True
@@ -28,6 +28,7 @@ class Column:
     def rename(self, column):
         self.old_column = column
         return self
+
 
 class Blueprint:
     def __init__(self, grammar, table="", action=None):
@@ -125,7 +126,7 @@ class Blueprint:
         pass
 
     def to_sql(self):
-        if self._action == 'create':
+        if self._action == "create":
             return (
                 self.grammar(creates=self._columns, table=self.table)
                 ._compile_create()
@@ -153,6 +154,8 @@ class Blueprint:
         return self
 
     def rename(self, old_column, new_column):
-        self._last_column = self.new_column(None, column, length, nullable).rename(old_column)
+        self._last_column = self.new_column(None, column, length, nullable).rename(
+            old_column
+        )
         self._columns += (self._last_column,)
         return self

@@ -97,7 +97,6 @@ class BaseGrammar:
 
         sql = sql.rstrip(", ")
 
-
         self._sql = sql
         return self
 
@@ -216,8 +215,7 @@ class BaseGrammar:
             print(where)
             column, equality, value = where
 
-
-            print(column, equality, value )
+            print(column, equality, value)
             if loop_count == 0:
                 keyword = self.first_where_string()
             else:
@@ -228,13 +226,16 @@ class BaseGrammar:
             #         values=','.join(value) if isinstance(value, list) else ''
             #     )
 
-
             column = self._compile_column(column)
             sql += " {keyword} {column} {equality} {value}".format(
                 keyword=keyword,
                 column=column,
                 equality=equality,
-                value=("(" + ",".join(value) + ")") if isinstance(value, list) else self.value_string().format(value=value, seperator='') if not qmark else "'?'",
+                value=("(" + ",".join(value) + ")")
+                if isinstance(value, list)
+                else self.value_string().format(value=value, seperator="")
+                if not qmark
+                else "'?'",
             )
             if qmark:
                 self._bindings += (value,)

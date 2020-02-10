@@ -34,7 +34,7 @@ class Schema:
         """
         cls._table = table
 
-        return Blueprint(cls._connection.get_grammer(), table=table, action='create')
+        return Blueprint(cls._connection.get_grammer(), table=table, action="create")
 
     @classmethod
     def table(cls, table):
@@ -49,4 +49,4 @@ class Schema:
             masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
         cls._table = table
-        return Blueprint(cls._connection.get_grammer(), table=table, action='alter')
+        return Blueprint(cls._connection.get_grammer(), table=table, action="alter")

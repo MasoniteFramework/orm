@@ -74,7 +74,7 @@ class QueryBuilder:
         return self
 
     def where_in(self, column, wheres=[]):
-        wheres = [ str(x) for x in wheres]
+        wheres = [str(x) for x in wheres]
         self._wheres += ((column, "IN", wheres),)
         return self
 
