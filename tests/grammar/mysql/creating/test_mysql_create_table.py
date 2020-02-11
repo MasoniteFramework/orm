@@ -58,6 +58,20 @@ class TestMySQLUpdateGrammar(unittest.TestCase):
 
         self.assertEqual(blueprint.to_sql(), sql)
 
+def test_can_compile_primary_key(self):
+        with self.schema.create('users') as blueprint:
+            blueprint.increments('id')
+            blueprint.string('name')
+
+        sql = ("CREATE TABLE `users` ("
+                "`id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL, "
+                "`name` VARCHAR(255) NOT NULL, "
+                "PRIMARY KEY (`id`)"
+            ")"
+        )
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_can_compile_enum(self):
         with self.schema.create('users') as blueprint:
             blueprint.enum('age', [1,2,3]).nullable()
