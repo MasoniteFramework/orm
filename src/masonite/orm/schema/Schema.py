@@ -83,3 +83,21 @@ class Schema:
     def set_default_string_length(cls, length):
         cls._default_string_length = length
         return cls
+
+    @classmethod
+    def drop_table_query(cls, table, query_only=True):
+        grammar = cls._connection.get_grammer()(table=table)
+        query = grammar.drop_table(table).to_sql()
+        if query_only:
+            return query
+        return bool(cls._connection().make_connection().query(query, ()))
+
+    @classmethod
+    def drop_table_if_exists_query(cls, table, exists=False, query_only=True):
+        grammar = cls._connection.get_grammer()(table=table)
+        query = grammar.drop_table_if_exists(table).to_sql()
+        if query_only:
+            return query
+        return bool(cls._connection().make_connection().query(query, ()))
+
+

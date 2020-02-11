@@ -107,20 +107,19 @@ class TestMySQLCreateGrammar(unittest.TestCase):
 
         self.assertEqual(to_sql, sql)
 
+    def test_drop_table(self):
+        to_sql = self.schema.drop_table_query('users', query_only=True)
 
-    # def test_drop_table(self):
-    #     to_sql = self.schema.drop_table_query('users', query_only=True)
+        sql = "DROP TABLE `users`"
 
-    #     sql = "DROP TABLE `users`"
+        self.assertEqual(to_sql, sql)
 
-    #     self.assertEqual(to_sql, sql)
+    def test_drop_table_if_exists(self):
+        to_sql = self.schema.drop_table_if_exists_query('users', query_only=True)
 
-    # def test_drop_table(self):
-    #     to_sql = self.schema.drop_table('users', query_only=True)
+        sql = "DROP TABLE IF EXISTS `users`"
 
-    #     sql = "DROP TABLE IF EXISTS `users`"
-
-    #     self.assertEqual(to_sql, sql)
+        self.assertEqual(to_sql, sql)
 
     def test_drop_column(self):
         with self.schema.table('users') as blueprint:

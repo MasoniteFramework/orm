@@ -128,3 +128,9 @@ class MySQLGrammar(BaseGrammar):
 
     def after_column_string(self):
         return "AFTER {after}"
+
+    def drop_table_string(self):
+        return "DROP TABLE {table}"
+
+    def drop_table_if_exists_string(self):
+        return "DROP TABLE IF EXISTS {table}"
