@@ -9,7 +9,7 @@ class MockUser(Model):
 
     __table__ = 'users'
 
-if os.getenv('RUN_MYSQL_DATABASE', False):
+if os.getenv('RUN_MYSQL_DATABASE', False) == 'True':
     class TestMySQLSelectConnection(unittest.TestCase):
 
         def setUp(self):
