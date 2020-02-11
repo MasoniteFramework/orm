@@ -84,6 +84,7 @@ class BaseGrammar:
 
         """Add Columns
         """
+
         for column in self._creates:
             sql += self.alter_column_string().format(
                 column=self._compile_column(column.column_name),
@@ -93,9 +94,11 @@ class BaseGrammar:
                 if column.length
                 else "",
                 nullable="" if column.is_null else " NOT NULL",
+                after=self.after_column_string().format(after=self._compile_column(column.after_column)) if column.after_column else ""
             )
 
-        sql = sql.rstrip(", ")
+        # Fix any inconsistencies
+        sql = sql.rstrip(", ").replace(" ,", ',')
 
         self._sql = sql
         return self

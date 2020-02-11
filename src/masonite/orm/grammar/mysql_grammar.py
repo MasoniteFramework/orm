@@ -76,7 +76,7 @@ class MySQLGrammar(BaseGrammar):
         return "{column} {data_type}{length}{nullable}, "
 
     def alter_column_string(self):
-        return "ADD {column} {data_type}{length}{nullable}, "
+        return "ADD {column} {data_type}{length}{nullable} {after}, "
 
     def rename_column_string(self):
         return "CHANGE COLUMN old_name {column} {data_type}{length}{nullable}, "
@@ -116,3 +116,6 @@ class MySQLGrammar(BaseGrammar):
 
     def where_in_string(self):
         return "WHERE IN ({values})"
+
+    def after_column_string(self):
+        return "AFTER {after}"
