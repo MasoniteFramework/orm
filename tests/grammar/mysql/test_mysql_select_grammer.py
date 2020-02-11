@@ -65,4 +65,9 @@ class TestMySQLGrammar(unittest.TestCase):
         sql = "SELECT `username` FROM `users` GROUP BY `age`"
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_where_in(self):
+        to_sql = self.builder.select('username').where_in('age', [1,2,3]).set_action('select').to_sql()
+        sql = "SELECT `username` FROM `users` WHERE `age` IN (1,2,3)"
+        self.assertEqual(to_sql, sql)
+
 

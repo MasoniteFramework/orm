@@ -54,6 +54,13 @@ class GrammarExample:
     def delete_format(self):
         return "DELETE FROM {table} {wheres}"
 
+    def column_exists_string(self):
+        return "SHOW COLUMNS FROM {table} LIKE {value}"
+
+    def unique_constraint_string(self):
+        property()
+        return "CONSTRAINT {clean_column}_unique UNIQUE ({clean_column})"
+
     def limit_string(self):
         return "LIMIT {limit}"
 
@@ -80,3 +87,6 @@ class GrammarExample:
 
     def value_string(self):
         return "'{value}'{seperator}"
+
+    def after_column_string(self):
+        return " AFTER `{after}`"

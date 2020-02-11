@@ -37,6 +37,7 @@ class BaseGrammar:
         self._group_by = group_by
         self._creates = creates
         self._connection_details = connection_details
+        self._column = None
 
         self._bindings = ()
 
@@ -48,6 +49,8 @@ class BaseGrammar:
         sql = self.create_start().format(table=self._compile_from())
 
         sql += "("
+        """Add Columns
+        """
         for column in self._creates:
             sql += self.create_column_string().format(
                 column=self._compile_column(column.column_name),
@@ -58,9 +61,49 @@ class BaseGrammar:
                 nullable="" if column.is_null else " NOT NULL",
             )
 
+        """Add Constraints
+        """
+        for column in self._creates:
+            if column.is_constraint:
+                sql += getattr(
+                    self, "{}_constraint_string".format(column.constraint_type)
+                )().format(
+                    column=self._compile_column(column.column_name),
+                    clean_column=column.column_name,
+                )
+                sql += ", "
+        print(sql)
         sql = sql.rstrip(", ")
 
         sql += ")"
+
+        self._sql = sql
+        return self
+
+    def _compile_alter(self):
+        sql = self.alter_start().format(table=self._compile_from())
+
+        """Add Columns
+        """
+
+        for column in self._creates:
+            sql += self.alter_column_string().format(
+                column=self._compile_column(column.column_name),
+                old_column=self._compile_column(column.old_column),
+                data_type=self.type_map.get(column.column_type),
+                length=self.create_column_length().format(length=column.length)
+                if column.length
+                else "",
+                nullable="" if column.is_null else " NOT NULL",
+                after=self.after_column_string().format(
+                    after=self._compile_column(column.after_column)
+                )
+                if column.after_column
+                else "",
+            )
+
+        # Fix any inconsistencies
+        sql = sql.rstrip(", ").replace(" ,", ",")
 
         self._sql = sql
         return self
@@ -177,22 +220,35 @@ class BaseGrammar:
         sql = ""
         loop_count = 0
         for where in self._wheres:
+            print(where)
+            column, equality, value = where
+
+            print(column, equality, value)
             if loop_count == 0:
                 keyword = self.first_where_string()
             else:
                 keyword = self.additional_where_string()
 
-            column, equality, value = where
+            # if amount:
+            #     keyword = self.where_in_string().format(
+            #         values=','.join(value) if isinstance(value, list) else ''
+            #     )
+
             column = self._compile_column(column)
-            sql += " {keyword} {column} {equality} '{value}'".format(
+            sql += " {keyword} {column} {equality} {value}".format(
                 keyword=keyword,
                 column=column,
                 equality=equality,
-                value=value if not qmark else "?",
+                value=("(" + ",".join(value) + ")")
+                if isinstance(value, list)
+                else self.value_string().format(value=value, seperator="")
+                if not qmark
+                else "'?'",
             )
             if qmark:
                 self._bindings += (value,)
             loop_count += 1
+
         return sql
 
     def select(self, *args):
@@ -220,6 +276,16 @@ class BaseGrammar:
     def update(self, updates):
         self._updates = updates
         return self
+
+    def column_exists(self, column):
+        self._column = column
+        self._sql = self._compile_exists()
+        return self
+
+    def _compile_exists(self):
+        return self.column_exists_string().format(
+            table=self._compile_from(), value=self._compile_value(self._column)
+        )
 
     def to_sql(self):
         """Cleans up the SQL string and returns the SQL

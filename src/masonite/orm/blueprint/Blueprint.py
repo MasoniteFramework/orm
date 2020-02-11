@@ -1,10 +1,16 @@
 class Column:
-
-    def __init__(self, column_type, column_name, length=None, nullable=False):
+    def __init__(
+        self, column_type, column_name, table=None, length=None, nullable=False
+    ):
         self.column_type = column_type
         self.column_name = column_name
         self.length = length
+        self.table = table
         self.is_null = nullable
+        self.is_constraint = False
+        self.constraint_type = None
+        self.after_column = None
+        self.old_column = ""
 
     def nullable(self):
         self.is_null = True
@@ -14,21 +20,38 @@ class Column:
         self.is_null = False
         return self
 
+    def unique(self):
+        self.is_constraint = True
+        self.constraint_type = "unique"
+        return self
+
+    def rename(self, column):
+        self.old_column = column
+        return self
+
+    def after(self, after_column):
+        self.after_column = after_column
+        return self
+
+
 class Blueprint:
-    def __init__(self, grammar, table=""):
+    def __init__(self, grammar, table="", action=None):
         self.grammar = grammar
         self.table = table
         self._sql = ""
         self._columns = ()
         self._last_column = None
+        self._action = action
 
     def string(self, column, length=255, nullable=False):
-        self._last_column = self.new_column('string', column, length, nullable)
+        self._last_column = self.new_column("string", column, length, nullable)
         self._columns += (self._last_column,)
         return self
 
     def new_column(self, column_type, column, length=255, nullable=False):
-        return Column(column_type, column, length, nullable)
+        return Column(
+            column_type, column, table=self.table, length=length, nullable=nullable
+        )
 
     def integer(self, column, length=11, nullable=False):
         self._last_column = self.new_column("integer", column, length, nullable)
@@ -36,6 +59,9 @@ class Blueprint:
         return self
 
     def _compile_create(self):
+        return self.grammar(creates=self._columns, table=self.table)._compile_create()
+
+    def _compile_alter(self):
         return self.grammar(creates=self._columns, table=self.table)._compile_create()
 
     def increments(self, column, nullable=False):
@@ -72,7 +98,9 @@ class Blueprint:
         return self
 
     def decimal(self, column, length=17, precision=6, nullable=False):
-        self._last_column = self.new_column("decimal", column, "{}, {}".format(length, precision), nullable)
+        self._last_column = self.new_column(
+            "decimal", column, "{}, {}".format(length, precision), nullable
+        )
         self._columns += (self._last_column,)
         return self
 
@@ -102,11 +130,18 @@ class Blueprint:
         pass
 
     def to_sql(self):
-        return (
-            self.grammar(creates=self._columns, table=self.table)
-            ._compile_create()
-            .to_sql()
-        )
+        if self._action == "create":
+            return (
+                self.grammar(creates=self._columns, table=self.table)
+                ._compile_create()
+                .to_sql()
+            )
+        else:
+            return (
+                self.grammar(creates=self._columns, table=self.table)
+                ._compile_alter()
+                .to_sql()
+            )
 
     def __enter__(self):
         return self
@@ -116,4 +151,19 @@ class Blueprint:
 
     def nullable(self):
         self._last_column.nullable()
+        return self
+
+    def unique(self):
+        self._last_column.unique()
+        return self
+
+    def rename(self, old_column, new_column):
+        self._last_column = self.new_column(None, column, length, nullable).rename(
+            old_column
+        )
+        self._columns += (self._last_column,)
+        return self
+
+    def after(self, old_column):
+        self._last_column.after(old_column)
         return self

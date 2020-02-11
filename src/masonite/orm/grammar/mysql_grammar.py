@@ -75,11 +75,26 @@ class MySQLGrammar(BaseGrammar):
     def create_column_string(self):
         return "{column} {data_type}{length}{nullable}, "
 
+    def column_exists_string(self):
+        return "SHOW COLUMNS FROM {table} LIKE {value}"
+
+    def alter_column_string(self):
+        return "ADD {column} {data_type}{length}{nullable} {after}, "
+
+    def rename_column_string(self):
+        return "CHANGE COLUMN old_name {column} {data_type}{length}{nullable}, "
+
     def create_start(self):
         return "CREATE TABLE {table} "
 
+    def alter_start(self):
+        return "ALTER TABLE {table} "
+
     def create_column_length(self):
         return "({length})"
+
+    def unique_constraint_string(self):
+        return "CONSTRAINT {clean_column}_unique UNIQUE ({clean_column})"
 
     def table_string(self):
         return "`{table}`"
@@ -101,3 +116,9 @@ class MySQLGrammar(BaseGrammar):
 
     def additional_where_string(self):
         return "AND"
+
+    def where_in_string(self):
+        return "WHERE IN ({values})"
+
+    def after_column_string(self):
+        return "AFTER {after}"

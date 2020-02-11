@@ -4,20 +4,24 @@ from src.masonite.orm.grammar.GrammarFactory import GrammarFactory
 from src.masonite.orm.schema.Schema import Schema
 import unittest
 
-class TestMySQLUpdateGrammar(unittest.TestCase):
 
+class TestMySQLCreateGrammar(unittest.TestCase):
 
     def setUp(self):
         self.schema = Schema.on('mysql')
-        print(self.schema)
-        # self.blueprint = 
-
 
     def test_can_compile_column(self):
         with self.schema.create('users') as blueprint:
             blueprint.string('name')
 
         sql = "CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL)"
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_can_compile_column_constraint(self):
+        with self.schema.create('users') as blueprint:
+            blueprint.string('name').unique()
+
+        sql = "CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL, CONSTRAINT name_unique UNIQUE (name))"
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_can_compile_multiple_columns(self):
@@ -58,18 +62,31 @@ class TestMySQLUpdateGrammar(unittest.TestCase):
 
         self.assertEqual(blueprint.to_sql(), sql)
 
-def test_can_compile_primary_key(self):
+    def test_can_compile_primary_key(self):
         with self.schema.create('users') as blueprint:
             blueprint.increments('id')
             blueprint.string('name')
 
         sql = ("CREATE TABLE `users` ("
                 "`id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL, "
-                "`name` VARCHAR(255) NOT NULL, "
-                "PRIMARY KEY (`id`)"
+                "`name` VARCHAR(255) NOT NULL"
             ")"
         )
 
+        self.assertEqual(blueprint.to_sql(), sql)
+            
+    def test_can_compile_multiple_constraints(self):
+        with self.schema.create('users') as blueprint:
+            blueprint.increments('id')
+            blueprint.string('name').unique()
+
+        sql = (
+            "CREATE TABLE `users` ("
+                "`id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL, "
+                "`name` VARCHAR(255) NOT NULL, "
+                "CONSTRAINT name_unique UNIQUE (name)"
+            ")"
+        )
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_can_compile_enum(self):
@@ -82,6 +99,13 @@ def test_can_compile_primary_key(self):
         )
 
         self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_column_exists(self):
+        to_sql = self.schema.has_column_query('users', 'email')
+
+        sql = "SHOW COLUMNS FROM `users` LIKE 'email'"
+
+        self.assertEqual(to_sql, sql)
 
     def test_can_compile_large_blueprint(self):
         with self.schema.create('users') as blueprint:
