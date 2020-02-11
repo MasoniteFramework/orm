@@ -1,6 +1,12 @@
 class Column:
     def __init__(
-        self, column_type, column_name, table=None, length=None, nullable=False
+        self,
+        column_type,
+        column_name,
+        table=None,
+        length=None,
+        nullable=False,
+        action="add",
     ):
         self.column_type = column_type
         self.column_name = column_name
@@ -11,6 +17,7 @@ class Column:
         self.constraint_type = None
         self.after_column = None
         self.old_column = ""
+        self._action = action
 
     def nullable(self):
         self.is_null = True
@@ -35,22 +42,29 @@ class Column:
 
 
 class Blueprint:
-    def __init__(self, grammar, table="", action=None):
+    def __init__(self, grammar, table="", action=None, default_string_length=None):
         self.grammar = grammar
         self.table = table
         self._sql = ""
         self._columns = ()
         self._last_column = None
         self._action = action
+        self._default_string_length = default_string_length
 
     def string(self, column, length=255, nullable=False):
         self._last_column = self.new_column("string", column, length, nullable)
         self._columns += (self._last_column,)
         return self
 
-    def new_column(self, column_type, column, length=255, nullable=False):
+    def new_column(self, column_type, column, length=255, nullable=False, action="add"):
+        length = self._default_string_length or length
         return Column(
-            column_type, column, table=self.table, length=length, nullable=nullable
+            column_type,
+            column,
+            table=self.table,
+            length=length,
+            nullable=nullable,
+            action=action,
         )
 
     def integer(self, column, length=11, nullable=False):
@@ -166,4 +180,9 @@ class Blueprint:
 
     def after(self, old_column):
         self._last_column.after(old_column)
+        return self
+
+    def drop_column(self, column):
+        self._last_column = self.new_column(None, column, None, None, action="drop")
+        self._columns += (self._last_column,)
         return self

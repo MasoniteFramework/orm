@@ -6,6 +6,7 @@ class Schema:
 
     _connection = ConnectionFactory().make("default")
     _grammer = None
+    _default_string_length = "255"
 
     @classmethod
     def on(cls, connection):
@@ -35,7 +36,12 @@ class Schema:
         """
         cls._table = table
 
-        return Blueprint(cls._connection.get_grammer(), table=table, action="create")
+        return Blueprint(
+            cls._connection.get_grammer(),
+            table=table,
+            action="create",
+            default_string_length=cls._default_string_length,
+        )
 
     @classmethod
     def table(cls, table):
@@ -50,7 +56,12 @@ class Schema:
             masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
         cls._table = table
-        return Blueprint(cls._connection.get_grammer(), table=table, action="alter")
+        return Blueprint(
+            cls._connection.get_grammer(),
+            table=table,
+            action="alter",
+            default_string_length=cls._default_string_length,
+        )
 
     @classmethod
     def has_column(cls, table, column, query_only=False):
@@ -67,3 +78,8 @@ class Schema:
         if query_only:
             return query
         return bool(cls._connection().make_connection().query(query, ()))
+
+    @classmethod
+    def set_default_string_length(cls, length):
+        cls._default_string_length = length
+        return cls

@@ -78,8 +78,14 @@ class MySQLGrammar(BaseGrammar):
     def column_exists_string(self):
         return "SHOW COLUMNS FROM {table} LIKE {value}"
 
-    def alter_column_string(self):
+    def add_column_string(self):
         return "ADD {column} {data_type}{length}{nullable} {after}, "
+
+    def drop_column_string(self):
+        return "DROP COLUMN {column}, "
+
+    def modify_column_string(self):
+        return "MODIFY {column} {data_type}{length}{nullable} {after}, "
 
     def rename_column_string(self):
         return "CHANGE COLUMN old_name {column} {data_type}{length}{nullable}, "

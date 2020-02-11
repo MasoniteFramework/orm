@@ -122,6 +122,38 @@ class TestMySQLCreateGrammar(unittest.TestCase):
 
     #     self.assertEqual(to_sql, sql)
 
+    def test_drop_column(self):
+        with self.schema.table('users') as blueprint:
+            blueprint.drop_column('name')
+
+        sql = ("ALTER TABLE `users` "
+                "DROP COLUMN `name`")
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_default_string_length(self):
+        with self.schema.table('users') as blueprint:
+            blueprint.string('name')
+        
+        self.assertEqual(str(blueprint._columns[0].length), '255')
+
+        sql = ("ALTER TABLE `users` "
+                "ADD `name` VARCHAR(255) NOT NULL")
+
+        self.assertEqual(blueprint.to_sql(), sql)
+        
+        Schema.set_default_string_length('191')
+
+        with self.schema.table('users') as blueprint:
+            blueprint.string('name')
+        
+        self.assertEqual(str(blueprint._columns[0].length), '191')
+
+        sql = ("ALTER TABLE `users` "
+                "ADD `name` VARCHAR(191) NOT NULL")
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_can_compile_large_blueprint(self):
         with self.schema.create('users') as blueprint:
             blueprint.string('name')

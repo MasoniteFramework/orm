@@ -85,9 +85,10 @@ class BaseGrammar:
 
         """Add Columns
         """
-
+        print("compiling alter", self._creates)
         for column in self._creates:
-            sql += self.alter_column_string().format(
+            print(column._action)
+            sql += getattr(self, "{}_column_string".format(column._action))().format(
                 column=self._compile_column(column.column_name),
                 old_column=self._compile_column(column.old_column),
                 data_type=self.type_map.get(column.column_type),
