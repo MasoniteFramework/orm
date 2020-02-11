@@ -101,16 +101,24 @@ class TestMySQLCreateGrammar(unittest.TestCase):
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_column_exists(self):
-        to_sql = self.schema.has_column_query('users', 'email')
+        to_sql = self.schema.has_column('users', 'email', query_only=True)
 
         sql = "SHOW COLUMNS FROM `users` LIKE 'email'"
 
         self.assertEqual(to_sql, sql)
 
-    # def test_table_exists(self):
-    #     to_sql = self.schema.has_table_query('users')
 
-    #     sql = "SHOW TABLES like 'users'"
+    # def test_drop_table(self):
+    #     to_sql = self.schema.drop_table_query('users', query_only=True)
+
+    #     sql = "DROP TABLE `users`"
+
+    #     self.assertEqual(to_sql, sql)
+
+    # def test_drop_table(self):
+    #     to_sql = self.schema.drop_table('users', query_only=True)
+
+    #     sql = "DROP TABLE IF EXISTS `users`"
 
     #     self.assertEqual(to_sql, sql)
 
