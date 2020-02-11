@@ -94,11 +94,11 @@ class BaseGrammar:
                 if column.length
                 else "",
                 nullable="" if column.is_null else " NOT NULL",
-                after=self.after_column_string().format(after=column.after_column) if column.after_column else ""
-
+                after=self.after_column_string().format(after=self._compile_column(column.after_column)) if column.after_column else ""
             )
 
-        sql = sql.rstrip(", ")
+        # Fix any inconsistencies
+        sql = sql.rstrip(", ").replace(" ,", ',')
 
         self._sql = sql
         return self
