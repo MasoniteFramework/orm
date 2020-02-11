@@ -66,11 +66,7 @@ class Schema:
         cls._table = table
         self._grammer = cls._connection.get_grammer()(table=table)
         query = cls.has_column_query(table, column)
-        return bool(
-            cls._connection()
-            .make_connection()
-            .query(query, grammar._bindings)
-        )
+        return bool(cls._connection().make_connection().query(query, grammar._bindings))
 
     @classmethod
     def has_column_query(cls, table, column):
