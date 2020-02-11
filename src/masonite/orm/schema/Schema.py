@@ -99,5 +99,3 @@ class Schema:
         if query_only:
             return query
         return bool(cls._connection().make_connection().query(query, ()))
-
-
