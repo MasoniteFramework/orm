@@ -57,7 +57,9 @@ class Blueprint:
         return self
 
     def new_column(self, column_type, column, length=255, nullable=False, action="add"):
-        length = self._default_string_length or length
+        if length == 255:
+            length = self._default_string_length or length
+
         return Column(
             column_type,
             column,
