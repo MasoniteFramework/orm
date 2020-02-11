@@ -336,3 +336,11 @@ class BaseGrammar:
 
     def _compile_value(self, value, seperator=""):
         return self.value_string().format(value=value, seperator=seperator)
+
+    def drop_table(self, table):
+        self._sql = self.drop_table_string().format(table=self._compile_column(table))
+        return self
+
+    def drop_table_if_exists(self, table):
+        self._sql = self.drop_table_if_exists_string().format(table=self._compile_column(table))
+        return self
