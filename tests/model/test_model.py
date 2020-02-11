@@ -3,7 +3,7 @@ from src.masonite.orm.grammar.mssql_grammar import MSSQLGrammar
 from app.User import User
 import os
 
-if os.getenv('RUN_MYSQL_DATABASE', False):
+if os.getenv('RUN_MYSQL_DATABASE', False) == 'True':
     class TestModel(unittest.TestCase):
 
         def test_can_call(self):
