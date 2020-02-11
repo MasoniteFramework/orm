@@ -9,7 +9,6 @@ class TestMySQLCreateGrammar(unittest.TestCase):
 
     def setUp(self):
         self.schema = Schema.on('mysql')
-        print(self.schema)
 
     def test_can_compile_column(self):
         with self.schema.create('users') as blueprint:
