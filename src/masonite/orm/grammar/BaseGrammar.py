@@ -37,6 +37,7 @@ class BaseGrammar:
         self._group_by = group_by
         self._creates = creates
         self._connection_details = connection_details
+        self._column = None
 
         self._bindings = ()
 
@@ -94,11 +95,15 @@ class BaseGrammar:
                 if column.length
                 else "",
                 nullable="" if column.is_null else " NOT NULL",
-                after=self.after_column_string().format(after=self._compile_column(column.after_column)) if column.after_column else ""
+                after=self.after_column_string().format(
+                    after=self._compile_column(column.after_column)
+                )
+                if column.after_column
+                else "",
             )
 
         # Fix any inconsistencies
-        sql = sql.rstrip(", ").replace(" ,", ',')
+        sql = sql.rstrip(", ").replace(" ,", ",")
 
         self._sql = sql
         return self
@@ -271,6 +276,16 @@ class BaseGrammar:
     def update(self, updates):
         self._updates = updates
         return self
+
+    def column_exists(self, column):
+        self._column = column
+        self._sql = self._compile_exists()
+        return self
+
+    def _compile_exists(self):
+        return self.column_exists_string().format(
+            table=self._compile_from(), value=self._compile_value(self._column)
+        )
 
     def to_sql(self):
         """Cleans up the SQL string and returns the SQL

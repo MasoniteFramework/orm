@@ -54,6 +54,9 @@ class GrammarExample:
     def delete_format(self):
         return "DELETE FROM {table} {wheres}"
 
+    def column_exists_string(self):
+        return "SHOW COLUMNS FROM {table} LIKE {value}"
+
     def unique_constraint_string(self):
         property()
         return "CONSTRAINT {clean_column}_unique UNIQUE ({clean_column})"

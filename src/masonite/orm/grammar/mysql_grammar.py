@@ -75,6 +75,9 @@ class MySQLGrammar(BaseGrammar):
     def create_column_string(self):
         return "{column} {data_type}{length}{nullable}, "
 
+    def column_exists_string(self):
+        return "SHOW COLUMNS FROM {table} LIKE {value}"
+
     def alter_column_string(self):
         return "ADD {column} {data_type}{length}{nullable} {after}, "
 

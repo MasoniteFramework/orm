@@ -87,6 +87,13 @@ class TestMySQLCreateGrammar(unittest.TestCase):
 
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_column_exists(self):
+        to_sql = self.schema.has_column_query('users', 'email')
+
+        sql = "SHOW COLUMNS FROM `users` LIKE 'email'"
+
+        self.assertEqual(to_sql, sql)
+
     def test_can_compile_large_blueprint(self):
         with self.schema.create('users') as blueprint:
             blueprint.string('name')
