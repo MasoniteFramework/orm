@@ -51,6 +51,12 @@ class GrammarExample:
     def insert_format(self):
         return "INSERT INTO {table} ({columns}) VALUES ({values})"
 
+    def where_in_string(self):
+        return "WHERE IN ({values})"
+
+    def where_string(self):
+        return " {keyword} {column} {equality} {value}"
+
     def delete_format(self):
         return "DELETE FROM {table} {wheres}"
 
