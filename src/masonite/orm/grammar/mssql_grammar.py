@@ -50,7 +50,7 @@ class MSSQLGrammar(BaseGrammar):
 
     def where_string(self):
         return " {keyword} {column} {equality} {value}"
-        
+
     def key_value_string(self):
         return "{column} = '{value}'"
 
