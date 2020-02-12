@@ -230,13 +230,16 @@ class BaseGrammar:
             else:
                 keyword = self.additional_where_string()
 
-            # if amount:
-            #     keyword = self.where_in_string().format(
-            #         values=','.join(value) if isinstance(value, list) else ''
-            #     )
-
             column = self._compile_column(column)
-            sql += " {keyword} {column} {equality} {value}".format(
+
+            if value is None:
+                sql_string = self.where_null_string()
+            elif value is True:
+                sql_string = self.where_not_null_string()
+            else:
+                sql_string = self.where_string()
+
+            sql += sql_string.format(
                 keyword=keyword,
                 column=column,
                 equality=equality,
@@ -342,5 +345,7 @@ class BaseGrammar:
         return self
 
     def drop_table_if_exists(self, table):
-        self._sql = self.drop_table_if_exists_string().format(table=self._compile_column(table))
+        self._sql = self.drop_table_if_exists_string().format(
+            table=self._compile_column(table)
+        )
         return self

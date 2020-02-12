@@ -52,6 +52,14 @@ class QueryBuilder:
         self._wheres += ((column, "=", value),)
         return self
 
+    def where_null(self, column):
+        self.where(column, None)
+        return self
+
+    def where_not_null(self, column):
+        self.where(column, True)
+        return self
+
     def limit(self, amount):
         self._limit = amount
         return self

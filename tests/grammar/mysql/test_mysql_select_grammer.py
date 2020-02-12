@@ -72,6 +72,16 @@ class BaseTestCaseSelectGrammer:
         sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_where_null(self):
+        to_sql = self.builder.select('username').where_null('age').set_action('select').to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_where_not_null(self):
+        to_sql = self.builder.select('username').where_not_null('age').set_action('select').to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
 class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
 
     grammar = 'mysql'
@@ -148,5 +158,18 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
         self.builder.select('username').where_in('age', [1,2,3]).set_action('select').to_sql() 
         """
         return "SELECT `username` FROM `users` WHERE `age` IN (1,2,3)"
+
+
+    def can_compile_where_null(self):
+        """
+        self.builder.select('username').where_null('age').set_action('select').to_sql() 
+        """
+        return "SELECT `username` FROM `users` WHERE `age` IS NULL"
+
+    def can_compile_where_not_null(self):
+        """
+        self.builder.select('username').where_not_null('age').set_action('select').to_sql() 
+        """
+        return "SELECT `username` FROM `users` WHERE `age` IS NOT NULL"
 
 

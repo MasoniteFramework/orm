@@ -126,6 +126,15 @@ class MySQLGrammar(BaseGrammar):
     def where_in_string(self):
         return "WHERE IN ({values})"
 
+    def where_string(self):
+        return " {keyword} {column} {equality} {value}"
+
+    def where_null_string(self):
+        return "{keyword} {column} IS NULL"
+
+    def where_not_null_string(self):
+        return "{keyword} {column} IS NOT NULL"
+
     def after_column_string(self):
         return "AFTER {after}"
 
