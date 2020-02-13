@@ -175,9 +175,14 @@ class BaseGrammar:
         for aggregates in self._aggregates:
             aggregate, column = aggregates
             aggregate_function = self.aggregate_options.get(aggregate, "")
-            sql += self.aggregate_string().format(
+            if column == '*':
+                aggregate_string = self.aggregate_string_without_alias()
+            else:
+                aggregate_string = self.aggregate_string_with_alias()
+
+            sql += aggregate_string.format(
                 aggregate_function=aggregate_function,
-                column=self._compile_column(column),
+                column='*' if column == '*' else self._compile_column(column),
                 alias=self._compile_alias(column),
             )
 

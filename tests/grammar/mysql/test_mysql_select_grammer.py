@@ -82,6 +82,16 @@ class BaseTestCaseSelectGrammer:
         sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_count(self):
+        to_sql = self.builder.count().to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_count_column(self):
+        to_sql = self.builder.count('money').to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
 class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
 
     grammar = 'mysql'
@@ -171,5 +181,20 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
         self.builder.select('username').where_not_null('age').to_sql() 
         """
         return "SELECT `username` FROM `users` WHERE `age` IS NOT NULL"
+
+
+    def can_compile_count(self):
+        """
+        self.builder.count().to_sql() 
+        """
+
+        return "SELECT COUNT(*) FROM `users`"
+
+    def can_compile_count_column(self):
+        """
+        self.builder.count().to_sql() 
+        """
+
+        return "SELECT COUNT(`money`) AS money FROM `users`"
 
 

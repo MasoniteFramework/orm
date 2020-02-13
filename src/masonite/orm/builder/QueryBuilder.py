@@ -95,6 +95,10 @@ class QueryBuilder:
         self.aggregate("SUM", "{column}".format(column=column))
         return self
 
+    def count(self, column='*'):
+        self.aggregate("COUNT", "{column}".format(column=column))
+        return self
+
     def max(self, column):
         self.aggregate("MAX", "{column}".format(column=column))
         return self

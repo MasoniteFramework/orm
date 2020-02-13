@@ -66,8 +66,11 @@ class MySQLGrammar(BaseGrammar):
     def delete_format(self):
         return "DELETE FROM {table} {wheres}"
 
-    def aggregate_string(self):
+    def aggregate_string_with_alias(self):
         return "{aggregate_function}({column}) AS {alias}"
+
+    def aggregate_string_without_alias(self):
+        return "{aggregate_function}({column})"
 
     def key_value_string(self):
         return "{column} = '{value}'"
