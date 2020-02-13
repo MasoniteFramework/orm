@@ -10,7 +10,7 @@ class BaseQMarkTest:
         self.builder = QueryBuilder(GrammarFactory.make('mysql'), table='users')
 
     def test_can_compile_select(self):
-        mark = self.builder.select('username').where('name', 'Joe').set_action('select')
+        mark = self.builder.select('username').where('name', 'Joe')
 
         sql, bindings = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
         self.assertEqual(mark.to_qmark(), sql)
@@ -29,7 +29,7 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
 
     def can_compile_select(self):
         """
-        self.builder.select('username').where('name', 'Joe').set_action('select')
+        self.builder.select('username').where('name', 'Joe')
         """
         return "SELECT `username` FROM `users` WHERE `name` = '?'", ('Joe',)
 

@@ -9,7 +9,7 @@ class TestMSSQLQmark(unittest.TestCase):
         self.builder = QueryBuilder(GrammarFactory.make('mssql'), table='users')
 
     def test_can_compile_select(self):
-        mark = self.builder.select('username').where('name', 'Joe').set_action('select')
+        mark = self.builder.select('username').where('name', 'Joe')
 
         sql = "SELECT [username] FROM [users] WHERE [name] = '?'"
         self.assertEqual(mark.to_qmark(), sql)

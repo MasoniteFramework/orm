@@ -1,4 +1,7 @@
 class QueryBuilder:
+
+    _action = 'select'
+
     def __init__(self, grammar, connection=None, table="", connection_details={}):
         """QueryBuilder initializer
 
@@ -15,6 +18,7 @@ class QueryBuilder:
         self.connection_details = connection_details
         self._scopes = {}
         self.boot()
+        self.set_action('select')
 
     def set_scope(self, cls, name):
         self._scopes.update({name: cls})
@@ -149,6 +153,9 @@ class QueryBuilder:
             if self.connection
             else self.connection_details,
         )
+
+        if not self._action:
+            self.set_action('select')
 
         sql = getattr(
             grammar, "_compile_{action}".format(action=self._action)
