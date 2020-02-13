@@ -13,7 +13,25 @@ class QueryBuilder:
         self.table = table
         self.connection = connection
         self.connection_details = connection_details
+        self._scopes = {}
         self.boot()
+
+    def set_scope(self, cls, name):
+        self._scopes.update({name: cls})
+
+        return self
+
+    def __getattr__(self, attribute):
+        print(self._scopes)
+        if attribute in self._scopes:
+            # print('calling', attribute, 'on', cls)
+            return getattr(self._scopes[attribute], attribute)
+            # return cls
+
+        print("could not locate", attribute)
+        raise AttributeError(
+            "'QueryBuilder' object has no attribute '{}'".format(attribute)
+        )
 
     def boot(self):
         self._columns = "*"
