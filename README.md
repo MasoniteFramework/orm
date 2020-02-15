@@ -34,17 +34,21 @@ Finally you can run the tests and start building your application.
 $ python -m pytest
 ```
 
-# Short Term Tasks
+# Phase 1
+
+Phase 1 will involve getting the foundation setup for this project. Making sure we can include all the basic use cases and relationships as well as a 100% full documentation. By the end of Phase 1, this ORM should be able to handle the 90% of use cases of a project. Phase 2 will complete the more uncommon or edge cases.
+
+## Short Term Tasks
 
 - [ ] Finish basic grammar for:
-    - [x] MySQL
+    - [-] MySQL
     - [ ] MSSQL
     - [ ] Postgres
     - [ ] SQLite
 - [x] Get the query builder to use the grammar
 - [x] Refactor to use `%s` symbols so we can use avoid sql injection attacks
 
-TODO
+## TODO
 
 - [x] MySQL
     - [x] Grammar
@@ -53,12 +57,15 @@ TODO
         - [x] INSERT
         - [x] DELETE
         - [ ] ALTER
+        - [x] Subselects
+            - [x] on wheres `where age > (SELCT ..)`
+        - [x] Exists
     - [x] Connection
     - [x] Schema
         - [x] SQL Injection
         - [x] Needs type mappings and aggregates
         - [ ] Alter query AFTER keyword (for adding column after another column)
-        - [ ] Constraints
+        - [x] Constraints
             - [x] Primary Keys
             - [x] Unique
     - [x] Tests
@@ -119,3 +126,11 @@ TODO
 - [ ] Make new collection class
 - [x] Make `Column` classes to better interact with building data
 - [ ] Fully document every part of the project. Will need to first get a basic working project and then start documenting everything. Then start opening pull requests and documenting as we add new features. Similiar to the way Masonite has good documentation.
+
+# Phase 2
+
+Phase 2 will involve further refactoring. By this phase, all the documentation should be done for the above phase.
+
+This phase will be responsible for more complex (and typically lesser used) tasks like:
+
+- [ ] Joining
