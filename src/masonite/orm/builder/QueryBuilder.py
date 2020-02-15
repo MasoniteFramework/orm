@@ -1,3 +1,5 @@
+import copy
+
 class QueryExpression:
 
     def __init__(self, column, equality, value, value_type='value'):
@@ -5,6 +7,11 @@ class QueryExpression:
         self.equality = equality
         self.value = value
         self.value_type = value_type
+
+class SubSelectExpression:
+
+    def __init__(self, builder):
+        self.builder = builder
 
 
 class QueryBuilder:
@@ -35,13 +42,11 @@ class QueryBuilder:
         return self
 
     def __getattr__(self, attribute):
-        print(self._scopes)
         if attribute in self._scopes:
             # print('calling', attribute, 'on', cls)
             return getattr(self._scopes[attribute], attribute)
             # return cls
 
-        print("could not locate", attribute)
         raise AttributeError(
             "'QueryBuilder' object has no attribute '{}'".format(attribute)
         )
@@ -93,8 +98,12 @@ class QueryBuilder:
         return self
 
     def where_in(self, column, wheres=[]):
-        wheres = [str(x) for x in wheres]
-        self._wheres += ((QueryExpression(column, 'IN', wheres)),)
+        if isinstance(wheres, QueryBuilder):
+            print(wheres._columns)
+            self._wheres += ((QueryExpression(column, 'IN', SubSelectExpression(wheres.clone()))),)
+        else:
+            wheres = [str(x) for x in wheres]
+            self._wheres += ((QueryExpression(column, 'IN', wheres)),)
         return self
 
     def where_column(self, column1, column2):
@@ -202,3 +211,30 @@ class QueryBuilder:
         self.boot()
         self._bindings = grammar._bindings
         return grammar.to_qmark()
+
+    def clone(self):
+        builder = QueryBuilder(
+            grammar=self.grammar,
+            connection=self.connection,
+            table=self.table
+        )
+
+        builder._columns = self._columns
+
+        builder._sql = self._sql
+        builder._sql_binding = self._sql_binding
+        builder._bindings = self._bindings
+
+        builder._updates = self._updates
+
+        builder._wheres = self._wheres
+        builder._order_by = self._order_by
+        builder._group_by = self._group_by
+
+        builder._aggregates = self._aggregates
+
+        builder._limit = self._limit
+        builder._action = self._action
+        print('cloning')
+
+        return builder

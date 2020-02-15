@@ -97,6 +97,23 @@ class BaseTestCaseSelectGrammer:
         sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_sub_select(self):
+        to_sql = self.builder.where_in('name', 
+            QueryBuilder(GrammarFactory.make(self.grammar), table='users').select('age')
+        ).to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_complex_sub_select(self):
+        to_sql = self.builder.where_in('name', 
+            (QueryBuilder(GrammarFactory.make(self.grammar), table='users')
+                .select('age').where_in('email', 
+                    QueryBuilder(GrammarFactory.make(self.grammar), table='users').select('email')
+            ))
+        ).to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
 class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
 
     grammar = 'mysql'
@@ -208,5 +225,26 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
         """
 
         return "SELECT * FROM `users` WHERE `name` = `email`"
+
+    def can_compile_sub_select(self):
+        """
+        self.builder.where_in('name', 
+            QueryBuilder(GrammarFactory.make(self.grammar), table='users').select('age')
+        ).to_sql()
+        """
+
+        return "SELECT * FROM `users` WHERE `name` IN (SELECT `age` FROM `users`)"
+
+    def can_compile_complex_sub_select(self):
+        """
+        self.builder.where_in('name', 
+            (QueryBuilder(GrammarFactory.make(self.grammar), table='users')
+                .select('age').where_in('email', 
+                    QueryBuilder(GrammarFactory.make(self.grammar), table='users').select('email')
+            ))
+        ).to_sql()
+        """
+
+        return "SELECT * FROM `users` WHERE `name` IN (SELECT `age` FROM `users` WHERE `email` IN (SELECT `email` FROM `users`))"
 
 
