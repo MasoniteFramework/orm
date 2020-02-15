@@ -99,17 +99,31 @@ class BaseTestCaseSelectGrammer:
 
     def test_can_compile_sub_select(self):
         to_sql = self.builder.where_in('name', 
-            QueryBuilder(GrammarFactory.make(self.grammar), table='users').select('age')
+            self.builder.new().select('age')
         ).to_sql()
         sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
         self.assertEqual(to_sql, sql)
 
     def test_can_compile_complex_sub_select(self):
         to_sql = self.builder.where_in('name', 
-            (QueryBuilder(GrammarFactory.make(self.grammar), table='users')
+            (self.builder.new()
                 .select('age').where_in('email', 
-                    QueryBuilder(GrammarFactory.make(self.grammar), table='users').select('email')
+                    self.builder.new().select('email')
             ))
+        ).to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_sub_select_value(self):
+        to_sql = self.builder.where('name', 
+            self.builder.new().sum('age')
+        ).to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_exists(self):
+        to_sql = self.builder.select('age').where_exists(
+            self.builder.new().select('username').where('age', 12)
         ).to_sql()
         sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
         self.assertEqual(to_sql, sql)
@@ -235,6 +249,15 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
 
         return "SELECT * FROM `users` WHERE `name` IN (SELECT `age` FROM `users`)"
 
+    def can_compile_sub_select_value(self):
+        """
+        self.builder.where('name', 
+            self.builder.new().sum('age')
+        ).to_sql()
+        """
+
+        return "SELECT * FROM `users` WHERE `name` = (SELECT SUM(`age`) AS age FROM `users`)"
+
     def can_compile_complex_sub_select(self):
         """
         self.builder.where_in('name', 
@@ -244,7 +267,14 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
             ))
         ).to_sql()
         """
-
         return "SELECT * FROM `users` WHERE `name` IN (SELECT `age` FROM `users` WHERE `email` IN (SELECT `email` FROM `users`))"
+
+    def can_compile_exists(self):
+        """
+        self.builder.select('age').where_exists(
+            self.builder.new().select('username').where('age', 12)
+        ).to_sql()
+        """
+        return "SELECT `age` FROM `users` WHERE EXISTS (SELECT `username` FROM `users` WHERE `age` = '12')"
 
 

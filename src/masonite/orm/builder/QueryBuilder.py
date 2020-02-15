@@ -85,7 +85,18 @@ class QueryBuilder:
         return self
 
     def where(self, column, value):
-        self._wheres += ((QueryExpression(column, '=', value, 'value')),)
+        if isinstance(value, QueryBuilder):
+            self._wheres += ((QueryExpression(column, '=', SubSelectExpression(value))),)
+        else:
+            self._wheres += ((QueryExpression(column, '=', value, 'value')),)
+        # self._wheres += ((column, "=", value),)
+        return self
+
+    def where_exists(self, value):
+        if isinstance(value, QueryBuilder):
+            self._wheres += ((QueryExpression(None, 'EXISTS', SubSelectExpression(value))),)
+        else:
+            self._wheres += ((QueryExpression(None, 'EXISTS', value, 'value')),)
         # self._wheres += ((column, "=", value),)
         return self
 
@@ -99,8 +110,7 @@ class QueryBuilder:
 
     def where_in(self, column, wheres=[]):
         if isinstance(wheres, QueryBuilder):
-            print(wheres._columns)
-            self._wheres += ((QueryExpression(column, 'IN', SubSelectExpression(wheres.clone()))),)
+            self._wheres += ((QueryExpression(column, 'IN', SubSelectExpression(wheres))),)
         else:
             wheres = [str(x) for x in wheres]
             self._wheres += ((QueryExpression(column, 'IN', wheres)),)
@@ -212,29 +222,11 @@ class QueryBuilder:
         self._bindings = grammar._bindings
         return grammar.to_qmark()
 
-    def clone(self):
+    def new(self):
         builder = QueryBuilder(
             grammar=self.grammar,
             connection=self.connection,
             table=self.table
         )
-
-        builder._columns = self._columns
-
-        builder._sql = self._sql
-        builder._sql_binding = self._sql_binding
-        builder._bindings = self._bindings
-
-        builder._updates = self._updates
-
-        builder._wheres = self._wheres
-        builder._order_by = self._order_by
-        builder._group_by = self._group_by
-
-        builder._aggregates = self._aggregates
-
-        builder._limit = self._limit
-        builder._action = self._action
-        print('cloning')
 
         return builder

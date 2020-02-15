@@ -227,54 +227,52 @@ class BaseGrammar:
         sql = ""
         loop_count = 0
         for where in self._wheres:
-            print(self._wheres)
-            if not isinstance(where, SubSelectExpression):
-                column = where.column
-                equality = where.equality
-                value = where.value
-                value_type = where.value_type
-                print(column)
+            column = where.column
+            equality = where.equality
+            value = where.value
+            value_type = where.value_type
 
-                if loop_count == 0:
-                    keyword = self.first_where_string()
-                else:
-                    keyword = self.additional_where_string()
+            if loop_count == 0:
+                keyword = self.first_where_string()
+            else:
+                keyword = self.additional_where_string()
 
-                column = self._compile_column(column)
+            column = self._compile_column(column)
 
-                if value is None:
-                    sql_string = self.where_null_string()
-                elif value is True:
-                    sql_string = self.where_not_null_string()
-                else:
-                    sql_string = self.where_string()
+            if value is None:
+                sql_string = self.where_null_string()
+            elif value is True:
+                sql_string = self.where_not_null_string()
+            elif equality == 'EXISTS':
+                sql_string = self.where_exists_string()
+            else:
+                sql_string = self.where_string()
 
-                if qmark:
-                    query_value = "'?'"
-                elif isinstance(value, SubSelectExpression):
-                    print('build from', value.builder)
-                    query_value = "(" + value.builder.to_sql() + ")"
-                elif isinstance(value, list):
-                    query_value = "("
-                    for val in value:
-                        query_value += self.value_string().format(value=val, seperator=",")
-                    query_value = query_value.rstrip(',') + ")"
-                elif value_type == 'value':
-                    query_value = self.value_string().format(value=value, seperator="")
-                elif value_type == 'column':
-                    query_value = self.column_string().format(column=value, seperator="")
 
-                sql += sql_string.format(
-                    keyword=keyword,
-                    column=column,
-                    equality=equality,
-                    value=query_value
-                )
-                if qmark:
-                    self._bindings += (value,)
-                loop_count += 1
-        else:
-            pass
+            if isinstance(value, SubSelectExpression):
+                query_value = self.subquery_string().format(query=value.builder.to_sql())
+            elif qmark:
+                query_value = "'?'"
+            elif isinstance(value, list):
+                query_value = "("
+                for val in value:
+                    query_value += self.value_string().format(value=val, seperator=",")
+                query_value = query_value.rstrip(',') + ")"
+            elif value_type == 'value':
+                query_value = self.value_string().format(value=value, seperator="")
+            elif value_type == 'column':
+                query_value = self.column_string().format(column=value, seperator="")
+
+            sql += sql_string.format(
+                keyword=keyword,
+                column=column,
+                equality=equality,
+                value=query_value
+            )
+            if qmark:
+                self._bindings += (value,)
+
+            loop_count += 1
 
         return sql
 

@@ -72,6 +72,15 @@ class MySQLGrammar(BaseGrammar):
     def aggregate_string_without_alias(self):
         return "{aggregate_function}({column})"
 
+    def subquery_string(self):
+        return "({query})"
+
+    def where_exists_string(self):
+        return "{keyword} EXISTS {value}"
+
+    def subquery_alias_string(self):
+        return "AS {alias}"
+
     def key_value_string(self):
         return "{column} = '{value}'"
 
