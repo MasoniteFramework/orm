@@ -92,6 +92,11 @@ class BaseTestCaseSelectGrammer:
         sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_where_column(self):
+        to_sql = self.builder.where_column('name', 'email').to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
 class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
 
     grammar = 'mysql'
@@ -167,7 +172,7 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
         """
         self.builder.select('username').where_in('age', [1,2,3]).to_sql() 
         """
-        return "SELECT `username` FROM `users` WHERE `age` IN (1,2,3)"
+        return "SELECT `username` FROM `users` WHERE `age` IN ('1','2','3')"
 
 
     def can_compile_where_null(self):
@@ -196,5 +201,12 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
         """
 
         return "SELECT COUNT(`money`) AS money FROM `users`"
+
+    def can_compile_where_column(self):
+        """
+        self.builder.where_column('name', 'email').to_sql() 
+        """
+
+        return "SELECT * FROM `users` WHERE `name` = `email`"
 
 

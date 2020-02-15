@@ -1,3 +1,12 @@
+class QueryExpression:
+
+    def __init__(self, column, equality, value, value_type='value'):
+        self.column = column
+        self.equality = equality
+        self.value = value
+        self.value_type = value_type
+
+
 class QueryBuilder:
 
     _action = 'select'
@@ -71,7 +80,8 @@ class QueryBuilder:
         return self
 
     def where(self, column, value):
-        self._wheres += ((column, "=", value),)
+        self._wheres += ((QueryExpression(column, '=', value, 'value')),)
+        # self._wheres += ((column, "=", value),)
         return self
 
     def where_null(self, column):
@@ -81,6 +91,15 @@ class QueryBuilder:
     def where_not_null(self, column):
         self.where(column, True)
         return self
+
+    def where_in(self, column, wheres=[]):
+        wheres = [str(x) for x in wheres]
+        self._wheres += ((QueryExpression(column, 'IN', wheres)),)
+        return self
+
+    def where_column(self, column1, column2):
+        self._wheres += ((QueryExpression(column1, '=', column2, 'column')),)
+        return self 
 
     def limit(self, amount):
         self._limit = amount
@@ -105,11 +124,6 @@ class QueryBuilder:
 
     def order_by(self, column, direction="ASC"):
         self._order_by += ((column, direction),)
-        return self
-
-    def where_in(self, column, wheres=[]):
-        wheres = [str(x) for x in wheres]
-        self._wheres += ((column, "IN", wheres),)
         return self
 
     def group_by(self, column):

@@ -226,10 +226,11 @@ class BaseGrammar:
         sql = ""
         loop_count = 0
         for where in self._wheres:
-            print(where)
-            column, equality, value = where
+            column = where.column
+            equality = where.equality
+            value = where.value
+            value_type = where.value_type
 
-            print(column, equality, value)
             if loop_count == 0:
                 keyword = self.first_where_string()
             else:
@@ -244,15 +245,31 @@ class BaseGrammar:
             else:
                 sql_string = self.where_string()
 
+            if qmark:
+                query_value = "'?'"
+            elif isinstance(value, list):
+                query_value = "("
+                for val in value:
+                    query_value += self.value_string().format(value=val, seperator=",")
+                query_value = query_value.rstrip(',') + ")"
+            elif value_type == 'value':
+                query_value = self.value_string().format(value=value, seperator="")
+            elif value_type == 'column':
+                query_value = self.column_string().format(column=value, seperator="")
+
             sql += sql_string.format(
                 keyword=keyword,
                 column=column,
                 equality=equality,
-                value=("(" + ",".join(value) + ")")
-                if isinstance(value, list)
-                else self.value_string().format(value=value, seperator="")
-                if not qmark
-                else "'?'",
+                value=query_value
+                # ("(" + ",".join(value) + ")")
+                # "'?'" if qmark
+                # else self.value_string().format(value=value, seperator="")
+                # else isinstance(value, list)
+                # if value_type == 'value'
+                # else self.column_string().format(column=value, seperator="")
+                # if not qmark
+                # else "'?'",
             )
             if qmark:
                 self._bindings += (value,)
