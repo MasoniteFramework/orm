@@ -232,13 +232,25 @@ class BaseGrammar:
             value = where.value
             value_type = where.value_type
 
+            """Need to get a specific keyword here. This keyword either needs to be 
+            something like WHERE, AND, OR.
+
+            Depending on the loop depends on the placement of the AND 
+            """            
             if loop_count == 0:
                 keyword = self.first_where_string()
+            elif where.keyword == 'or':
+                keyword = self.or_where_string()
             else:
                 keyword = self.additional_where_string()
 
+            """The column is an easy compile
+            """            
             column = self._compile_column(column)
 
+            """Need to find which type of where string it is. 
+            sIf it is a WHERE NULL, WHERE EXISTS, WHERE `col` = 'val' etc
+            """            
             if value is None:
                 sql_string = self.where_null_string()
             elif value is True:
@@ -249,6 +261,8 @@ class BaseGrammar:
                 sql_string = self.where_string()
 
 
+            """If the value should actually be a sub query then we need to wrap it in a query here
+            """            
             if isinstance(value, SubSelectExpression):
                 query_value = self.subquery_string().format(query=value.builder.to_sql())
             elif qmark:
@@ -267,14 +281,18 @@ class BaseGrammar:
                 keyword=keyword,
                 column=column,
                 equality=equality,
-                value=query_value
+                value=query_value,
             )
+
             if qmark:
-                self._bindings += (value,)
+                self.add_binding(value)
 
             loop_count += 1
 
         return sql
+    
+    def add_binding(self, binding):
+        self._bindings += (binding,)
 
     def select(self, *args):
         self._columns = list(args)

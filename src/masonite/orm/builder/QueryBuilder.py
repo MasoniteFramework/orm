@@ -1,12 +1,14 @@
 import copy
+import inspect
 
 class QueryExpression:
 
-    def __init__(self, column, equality, value, value_type='value'):
+    def __init__(self, column, equality, value, value_type='value', keyword=None):
         self.column = column
         self.equality = equality
         self.value = value
         self.value_type = value_type
+        self.keyword = keyword
 
 class SubSelectExpression:
 
@@ -84,11 +86,24 @@ class QueryBuilder:
         self._action = "delete"
         return self
 
-    def where(self, column, value):
-        if isinstance(value, QueryBuilder):
+    def where(self, column, value=None):
+        if inspect.isfunction(column):
+            builder = self.new()
+            builder = column(builder)
+            print('builder?', builder)
+            self._wheres += ((QueryExpression(None, '=', SubSelectExpression(builder))),)
+        elif isinstance(value, QueryBuilder):
             self._wheres += ((QueryExpression(column, '=', SubSelectExpression(value))),)
         else:
             self._wheres += ((QueryExpression(column, '=', value, 'value')),)
+        # self._wheres += ((column, "=", value),)
+        return self
+
+    def or_where(self, column, value):
+        if isinstance(value, QueryBuilder):
+            self._wheres += ((QueryExpression(column, '=', SubSelectExpression(value))),)
+        else:
+            self._wheres += ((QueryExpression(column, '=', value, 'value', keyword='or')),)
         # self._wheres += ((column, "=", value),)
         return self
 
@@ -174,10 +189,9 @@ class QueryBuilder:
     def set_action(self, action):
         self._action = action
         return self
-
-    def to_sql(self):
-
-        grammar = self.grammar(
+    
+    def get_grammar(self):
+        return self.grammar(
             columns=self._columns,
             table=self.table,
             wheres=self._wheres,
@@ -190,6 +204,9 @@ class QueryBuilder:
             if self.connection
             else self.connection_details,
         )
+
+    def to_sql(self):
+        grammar = self.get_grammar()
 
         if not self._action:
             self.set_action('select')

@@ -75,6 +75,9 @@ class MySQLGrammar(BaseGrammar):
     def subquery_string(self):
         return "({query})"
 
+    def where_group_string(self):
+        return "{keyword} {value}"
+
     def where_exists_string(self):
         return "{keyword} EXISTS {value}"
 
@@ -134,6 +137,9 @@ class MySQLGrammar(BaseGrammar):
 
     def additional_where_string(self):
         return "AND"
+
+    def or_where_string(self):
+        return "OR"
 
     def where_in_string(self):
         return "WHERE IN ({values})"
