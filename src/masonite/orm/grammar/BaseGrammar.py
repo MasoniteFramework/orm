@@ -1,6 +1,6 @@
 import pymysql.cursors
 from masonite.testing import TestCase
-from src.masonite.orm.builder.QueryBuilder import SubSelectExpression
+from src.masonite.orm.builder.QueryBuilder import SubSelectExpression, SubGroupExpression
 
 
 class BaseGrammar:
@@ -265,18 +265,17 @@ class BaseGrammar:
 
             """If the value should actually be a sub query then we need to wrap it in a query here
             """
-            if isinstance(value, SubSelectExpression):
-                if value.subtype == "group":
-                    query_value = self.subquery_string().format(
-                        query=value.builder.get_grammar()._compile_wheres(
-                            strip_first_where=True
-                        )
+            if isinstance(value, SubGroupExpression):
+                query_value = self.subquery_string().format(
+                    query=value.builder.get_grammar()._compile_wheres(
+                        strip_first_where=True
                     )
-                    sql_string = self.where_group_string()
-                else:
-                    query_value = self.subquery_string().format(
-                        query=value.builder.to_sql()
-                    )
+                )
+                sql_string = self.where_group_string()
+            elif isinstance(value, SubSelectExpression):
+                query_value = self.subquery_string().format(
+                    query=value.builder.to_sql()
+                )
             elif qmark:
                 query_value = "'?'"
             elif isinstance(value, list):

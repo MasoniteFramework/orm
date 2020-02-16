@@ -12,9 +12,12 @@ class QueryExpression:
 
 
 class SubSelectExpression:
-    def __init__(self, builder, subtype="subquery"):
+    def __init__(self, builder):
         self.builder = builder
-        self.subtype = subtype
+
+class SubGroupExpression:
+    def __init__(self, builder):
+        self.builder = builder
 
 
 class QueryBuilder:
@@ -93,7 +96,7 @@ class QueryBuilder:
             self._wheres += (
                 (
                     QueryExpression(
-                        None, "=", SubSelectExpression(builder, subtype="group")
+                        None, "=", SubGroupExpression(builder)
                     )
                 ),
             )
