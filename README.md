@@ -53,13 +53,16 @@ Phase 1 will involve getting the foundation setup for this project. Making sure 
 - [x] MySQL
     - [x] Grammar
         - [x] SELECT
+            - [ ] Where
+            - [ ] Or Where
         - [x] UPDATE
         - [x] INSERT
         - [x] DELETE
         - [ ] ALTER
+
         - [x] Subselects
-            - [x] on wheres `where age > (SELCT ..)`
-        - [x] Exists
+            - [x] on wheres `where age > (SELECT ..)`
+            - [x] Exists
     - [x] Connection
     - [x] Schema
         - [x] SQL Injection
