@@ -25,6 +25,18 @@ class BaseTestCaseUpdateGrammer:
         sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_increment(self):
+        to_sql = self.builder.increment('age').to_sql()
+
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_decrement(self):
+        to_sql = self.builder.decrement('age', 20).to_sql()
+
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
 class TestMySQLUpdateGrammar(BaseTestCaseUpdateGrammer, unittest.TestCase):
 
     grammar = 'mysql'
@@ -44,3 +56,15 @@ class TestMySQLUpdateGrammar(BaseTestCaseUpdateGrammer, unittest.TestCase):
         }).to_sql()
         """        
         return "UPDATE `users` SET `name` = 'Joe' WHERE `name` = 'bob' AND `age` = '20'"
+
+    def can_compile_increment(self):
+        """
+        builder.increment('age').to_sql()
+        """        
+        return "UPDATE `users` SET `age` = `age` + '1'"
+
+    def can_compile_decrement(self):
+        """
+        builder.decrement('age', 20).to_sql()
+        """        
+        return "UPDATE `users` SET `age` = `age` - '20'"

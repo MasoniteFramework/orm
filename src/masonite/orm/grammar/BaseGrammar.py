@@ -157,17 +157,33 @@ class BaseGrammar:
 
     def _compile_key_value_equals(self, qmark=False):
         sql = ""
-        for column, value in self._updates.items():
-            print("looping through", column)
-            print("getting", self._compile_column(column))
-            sql += self.key_value_string().format(
-                column=self._compile_column(column), value=value if not qmark else "?"
-            )
+        print(self._updates)
+        for update in self._updates:
+            print(update)
 
-            print("compiling key value pairs", sql)
+            if update.update_type == 'increment':
+                sql_string = self.increment_string()
+            elif update.update_type == 'decrement':
+                sql_string = self.decrement_string()
+            else:
+                sql_string = self.key_value_string()
 
-            if qmark:
-                self._bindings += (value,)
+            column = update.column
+            value = update.value
+            if isinstance(column, dict):
+                for key, value in column.items():
+                    sql += sql_string.format(
+                        column=self._compile_column(key), value=value if not qmark else "?"
+                    )
+
+                    if qmark:
+                        self._bindings += (value,)
+            else:
+                sql += sql_string.format(
+                    column=self._compile_column(column), value=value if not qmark else "?"
+                )
+                if qmark:
+                    self._bindings += (value,)
 
         return sql
 

@@ -10,6 +10,12 @@ class QueryExpression:
         self.value_type = value_type
         self.keyword = keyword
 
+class UpdateQueryExpression:
+    def __init__(self, column, value=None, update_type='keyvalue'):
+        self.column = column
+        self.value = value
+        self.update_type = update_type
+
 
 class SubSelectExpression:
     def __init__(self, builder):
@@ -158,7 +164,17 @@ class QueryBuilder:
         return self
 
     def update(self, updates):
-        self._updates = updates
+        self._updates = (UpdateQueryExpression(updates),)
+        self._action = "update"
+        return self
+
+    def increment(self, column, value=1):
+        self._updates = (UpdateQueryExpression(column, value, update_type='increment'),)
+        self._action = "update"
+        return self
+
+    def decrement(self, column, value=1):
+        self._updates = (UpdateQueryExpression(column, value, update_type='decrement'),)
         self._action = "update"
         return self
 

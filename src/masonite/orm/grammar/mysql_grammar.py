@@ -87,6 +87,12 @@ class MySQLGrammar(BaseGrammar):
     def key_value_string(self):
         return "{column} = '{value}'"
 
+    def increment_string(self):
+        return "{column} = {column} + '{value}'"
+
+    def decrement_string(self):
+        return "{column} = {column} - '{value}'"
+
     def create_column_string(self):
         return "{column} {data_type}{length}{nullable}, "
 
