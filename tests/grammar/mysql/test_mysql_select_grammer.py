@@ -31,10 +31,10 @@ class BaseTestCaseSelectGrammer:
         sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
         self.assertEqual(to_sql, sql)
 
-    # def test_can_grouped_where(self):
-    #     to_sql = self.builder.where('name', 2).where(lambda query: query.where('age', 2).where('name', 'Joe')).to_sql()
-    #     sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
-    #     self.assertEqual(to_sql, sql)
+    def test_can_grouped_where(self):
+        to_sql = self.builder.where(lambda query: query.where('age', 2).where('name', 'Joe')).to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
 
 
     def test_can_compile_with_several_where(self):
@@ -259,9 +259,9 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
 
     def can_grouped_where(self):
         """
-        self.builder.where('name', 2).where(lambda query: query.where('age', 2).where('name', 'Joe')).to_sql()
+        self.builder.where(lambda query: query.where('age', 2).where('name', 'Joe')).to_sql()
         """
-        return "SELECT * FROM `users` WHERE `name` = '2' AND (`age` = '2' AND `name` = 'Joe')"
+        return "SELECT * FROM `users` WHERE ( `age` = '2' AND `name` = 'Joe')"
 
     def can_compile_sub_select(self):
         """

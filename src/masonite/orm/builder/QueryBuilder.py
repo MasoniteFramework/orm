@@ -1,24 +1,25 @@
 import copy
 import inspect
 
-class QueryExpression:
 
-    def __init__(self, column, equality, value, value_type='value', keyword=None):
+class QueryExpression:
+    def __init__(self, column, equality, value, value_type="value", keyword=None):
         self.column = column
         self.equality = equality
         self.value = value
         self.value_type = value_type
         self.keyword = keyword
 
-class SubSelectExpression:
 
-    def __init__(self, builder):
+class SubSelectExpression:
+    def __init__(self, builder, subtype="subquery"):
         self.builder = builder
+        self.subtype = subtype
 
 
 class QueryBuilder:
 
-    _action = 'select'
+    _action = "select"
 
     def __init__(self, grammar, connection=None, table="", connection_details={}):
         """QueryBuilder initializer
@@ -36,7 +37,7 @@ class QueryBuilder:
         self.connection_details = connection_details
         self._scopes = {}
         self.boot()
-        self.set_action('select')
+        self.set_action("select")
 
     def set_scope(self, cls, name):
         self._scopes.update({name: cls})
@@ -88,30 +89,42 @@ class QueryBuilder:
 
     def where(self, column, value=None):
         if inspect.isfunction(column):
-            builder = self.new()
-            builder = column(builder)
-            print('builder?', builder)
-            self._wheres += ((QueryExpression(None, '=', SubSelectExpression(builder))),)
+            builder = column(self.new())
+            self._wheres += (
+                (
+                    QueryExpression(
+                        None, "=", SubSelectExpression(builder, subtype="group")
+                    )
+                ),
+            )
         elif isinstance(value, QueryBuilder):
-            self._wheres += ((QueryExpression(column, '=', SubSelectExpression(value))),)
+            self._wheres += (
+                (QueryExpression(column, "=", SubSelectExpression(value))),
+            )
         else:
-            self._wheres += ((QueryExpression(column, '=', value, 'value')),)
+            self._wheres += ((QueryExpression(column, "=", value, "value")),)
         # self._wheres += ((column, "=", value),)
         return self
 
     def or_where(self, column, value):
         if isinstance(value, QueryBuilder):
-            self._wheres += ((QueryExpression(column, '=', SubSelectExpression(value))),)
+            self._wheres += (
+                (QueryExpression(column, "=", SubSelectExpression(value))),
+            )
         else:
-            self._wheres += ((QueryExpression(column, '=', value, 'value', keyword='or')),)
+            self._wheres += (
+                (QueryExpression(column, "=", value, "value", keyword="or")),
+            )
         # self._wheres += ((column, "=", value),)
         return self
 
     def where_exists(self, value):
         if isinstance(value, QueryBuilder):
-            self._wheres += ((QueryExpression(None, 'EXISTS', SubSelectExpression(value))),)
+            self._wheres += (
+                (QueryExpression(None, "EXISTS", SubSelectExpression(value))),
+            )
         else:
-            self._wheres += ((QueryExpression(None, 'EXISTS', value, 'value')),)
+            self._wheres += ((QueryExpression(None, "EXISTS", value, "value")),)
         # self._wheres += ((column, "=", value),)
         return self
 
@@ -125,15 +138,17 @@ class QueryBuilder:
 
     def where_in(self, column, wheres=[]):
         if isinstance(wheres, QueryBuilder):
-            self._wheres += ((QueryExpression(column, 'IN', SubSelectExpression(wheres))),)
+            self._wheres += (
+                (QueryExpression(column, "IN", SubSelectExpression(wheres))),
+            )
         else:
             wheres = [str(x) for x in wheres]
-            self._wheres += ((QueryExpression(column, 'IN', wheres)),)
+            self._wheres += ((QueryExpression(column, "IN", wheres)),)
         return self
 
     def where_column(self, column1, column2):
-        self._wheres += ((QueryExpression(column1, '=', column2, 'column')),)
-        return self 
+        self._wheres += ((QueryExpression(column1, "=", column2, "column")),)
+        return self
 
     def limit(self, amount):
         self._limit = amount
@@ -148,7 +163,7 @@ class QueryBuilder:
         self.aggregate("SUM", "{column}".format(column=column))
         return self
 
-    def count(self, column='*'):
+    def count(self, column="*"):
         self.aggregate("COUNT", "{column}".format(column=column))
         return self
 
@@ -189,7 +204,7 @@ class QueryBuilder:
     def set_action(self, action):
         self._action = action
         return self
-    
+
     def get_grammar(self):
         return self.grammar(
             columns=self._columns,
@@ -209,7 +224,7 @@ class QueryBuilder:
         grammar = self.get_grammar()
 
         if not self._action:
-            self.set_action('select')
+            self.set_action("select")
 
         sql = getattr(
             grammar, "_compile_{action}".format(action=self._action)
@@ -241,9 +256,7 @@ class QueryBuilder:
 
     def new(self):
         builder = QueryBuilder(
-            grammar=self.grammar,
-            connection=self.connection,
-            table=self.table
+            grammar=self.grammar, connection=self.connection, table=self.table
         )
 
         return builder

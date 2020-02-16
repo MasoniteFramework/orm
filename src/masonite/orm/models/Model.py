@@ -19,7 +19,7 @@ class Model:
         cls.builder = QueryBuilder(
             MySQLGrammar, cls.__resolved_connection__, table=cls.__table__
         )
-        cls.builder.set_action('select')
+        cls.builder.set_action("select")
         cls._booted = True
 
     @classmethod
