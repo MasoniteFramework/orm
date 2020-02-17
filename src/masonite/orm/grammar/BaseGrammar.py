@@ -1,6 +1,9 @@
 import pymysql.cursors
 from masonite.testing import TestCase
-from src.masonite.orm.builder.QueryBuilder import SubSelectExpression, SubGroupExpression
+from src.masonite.orm.builder.QueryBuilder import (
+    SubSelectExpression,
+    SubGroupExpression,
+)
 
 
 class BaseGrammar:
@@ -161,9 +164,9 @@ class BaseGrammar:
         for update in self._updates:
             print(update)
 
-            if update.update_type == 'increment':
+            if update.update_type == "increment":
                 sql_string = self.increment_string()
-            elif update.update_type == 'decrement':
+            elif update.update_type == "decrement":
                 sql_string = self.decrement_string()
             else:
                 sql_string = self.key_value_string()
@@ -173,14 +176,16 @@ class BaseGrammar:
             if isinstance(column, dict):
                 for key, value in column.items():
                     sql += sql_string.format(
-                        column=self._compile_column(key), value=value if not qmark else "?"
+                        column=self._compile_column(key),
+                        value=value if not qmark else "?",
                     )
 
                     if qmark:
                         self._bindings += (value,)
             else:
                 sql += sql_string.format(
-                    column=self._compile_column(column), value=value if not qmark else "?"
+                    column=self._compile_column(column),
+                    value=value if not qmark else "?",
                 )
                 if qmark:
                     self._bindings += (value,)

@@ -10,8 +10,9 @@ class QueryExpression:
         self.value_type = value_type
         self.keyword = keyword
 
+
 class UpdateQueryExpression:
-    def __init__(self, column, value=None, update_type='keyvalue'):
+    def __init__(self, column, value=None, update_type="keyvalue"):
         self.column = column
         self.value = value
         self.update_type = update_type
@@ -20,6 +21,7 @@ class UpdateQueryExpression:
 class SubSelectExpression:
     def __init__(self, builder):
         self.builder = builder
+
 
 class SubGroupExpression:
     def __init__(self, builder):
@@ -30,7 +32,9 @@ class QueryBuilder:
 
     _action = "select"
 
-    def __init__(self, grammar, connection=None, table="", connection_details={}):
+    def __init__(
+        self, grammar, connection=None, table="", connection_details={}, scopes={}
+    ):
         """QueryBuilder initializer
 
         Arguments:
@@ -45,10 +49,18 @@ class QueryBuilder:
         self.connection = connection
         self.connection_details = connection_details
         self._scopes = {}
+        self._global_scopes = {}
+        if scopes:
+            self._scopes.update(scopes)
         self.boot()
         self.set_action("select")
 
     def set_scope(self, cls, name):
+        self._scopes.update({name: cls})
+
+        return self
+
+    def set_global_scope(self, cls, name):
         self._scopes.update({name: cls})
 
         return self
@@ -99,13 +111,7 @@ class QueryBuilder:
     def where(self, column, value=None):
         if inspect.isfunction(column):
             builder = column(self.new())
-            self._wheres += (
-                (
-                    QueryExpression(
-                        None, "=", SubGroupExpression(builder)
-                    )
-                ),
-            )
+            self._wheres += ((QueryExpression(None, "=", SubGroupExpression(builder))),)
         elif isinstance(value, QueryBuilder):
             self._wheres += (
                 (QueryExpression(column, "=", SubSelectExpression(value))),
@@ -169,12 +175,12 @@ class QueryBuilder:
         return self
 
     def increment(self, column, value=1):
-        self._updates = (UpdateQueryExpression(column, value, update_type='increment'),)
+        self._updates = (UpdateQueryExpression(column, value, update_type="increment"),)
         self._action = "update"
         return self
 
     def decrement(self, column, value=1):
-        self._updates = (UpdateQueryExpression(column, value, update_type='decrement'),)
+        self._updates = (UpdateQueryExpression(column, value, update_type="decrement"),)
         self._action = "update"
         return self
 

@@ -15,12 +15,14 @@ class Model:
 
     @classmethod
     def boot(cls):
-        cls.__resolved_connection__ = ConnectionFactory().make(cls.__connection__)
-        cls.builder = QueryBuilder(
-            MySQLGrammar, cls.__resolved_connection__, table=cls.__table__
-        )
-        cls.builder.set_action("select")
-        cls._booted = True
+
+        if not cls._booted:
+            cls.__resolved_connection__ = ConnectionFactory().make(cls.__connection__)
+            cls.builder = QueryBuilder(
+                MySQLGrammar, cls.__resolved_connection__, table=cls.__table__
+            )
+            cls.builder.set_action("select")
+            cls._booted = True
 
     @classmethod
     def first(cls):
