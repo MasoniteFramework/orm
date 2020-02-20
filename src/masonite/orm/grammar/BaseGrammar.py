@@ -249,7 +249,6 @@ class BaseGrammar:
 
     def _compile_having(self, qmark=False):
         sql = ""
-        loop_count = 0
         for having in self._having:
             column = having.column
             equality = having.equality
@@ -263,10 +262,10 @@ class BaseGrammar:
             sql += sql_string.format(
                 column=self._compile_column(column),
                 equality=equality,
-                value=self._compile_value(value)
+                value=self._compile_value(value),
             )
 
-        return sql  
+        return sql
 
     def _compile_wheres(self, qmark=False, strip_first_where=False):
         sql = ""

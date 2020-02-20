@@ -10,17 +10,19 @@ class QueryExpression:
         self.value_type = value_type
         self.keyword = keyword
 
+
 class HavingExpression:
     def __init__(self, column, equality=None, value=None):
         self.column = column
-        
+
         if equality and not value:
             value = equality
-            equality = '='
+            equality = "="
 
         self.equality = equality
         self.value = value
-        self.value_type = 'having'
+        self.value_type = "having"
+
 
 class UpdateQueryExpression:
     def __init__(self, column, value=None, update_type="keyvalue"):
@@ -155,10 +157,8 @@ class QueryBuilder:
         # self._wheres += ((column, "=", value),)
         return self
 
-    def having(self, column, equality='', value=''):
-        self._having += (   
-            (HavingExpression(column, equality, value)),
-        )
+    def having(self, column, equality="", value=""):
+        self._having += ((HavingExpression(column, equality, value)),)
         return self
 
     def where_null(self, column):

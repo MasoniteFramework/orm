@@ -156,9 +156,6 @@ class MySQLGrammar(BaseGrammar):
     def having_string(self):
         return "HAVING {column}"
 
-    def having_string(self):
-        return "HAVING {column}"
-
     def having_equality_string(self):
         return "HAVING {column} {equality} {value}"
 
