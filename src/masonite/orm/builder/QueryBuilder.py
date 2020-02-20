@@ -10,6 +10,17 @@ class QueryExpression:
         self.value_type = value_type
         self.keyword = keyword
 
+class HavingExpression:
+    def __init__(self, column, equality=None, value=None):
+        self.column = column
+        
+        if equality and not value:
+            value = equality
+            equality = '='
+
+        self.equality = equality
+        self.value = value
+        self.value_type = 'having'
 
 class UpdateQueryExpression:
     def __init__(self, column, value=None, update_type="keyvalue"):
@@ -87,6 +98,7 @@ class QueryBuilder:
         self._wheres = ()
         self._order_by = ()
         self._group_by = ()
+        self._having = ()
 
         self._aggregates = ()
 
@@ -141,6 +153,12 @@ class QueryBuilder:
         else:
             self._wheres += ((QueryExpression(None, "EXISTS", value, "value")),)
         # self._wheres += ((column, "=", value),)
+        return self
+
+    def having(self, column, equality='', value=''):
+        self._having += (   
+            (HavingExpression(column, equality, value)),
+        )
         return self
 
     def where_null(self, column):
@@ -240,6 +258,7 @@ class QueryBuilder:
             aggregates=self._aggregates,
             order_by=self._order_by,
             group_by=self._group_by,
+            having=self._having,
             connection_details=self.connection.connection_details
             if self.connection
             else self.connection_details,

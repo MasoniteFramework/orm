@@ -55,7 +55,7 @@ class MySQLGrammar(BaseGrammar):
     }
 
     def select_format(self):
-        return "SELECT {columns} FROM {table} {wheres} {group_by}{order_by}{limit}"
+        return "SELECT {columns} FROM {table} {wheres} {group_by}{order_by}{limit} {having}"
 
     def update_format(self):
         return "UPDATE {table} SET {key_equals} {wheres}"
@@ -152,6 +152,15 @@ class MySQLGrammar(BaseGrammar):
 
     def where_string(self):
         return " {keyword} {column} {equality} {value}"
+
+    def having_string(self):
+        return "HAVING {column}"
+
+    def having_string(self):
+        return "HAVING {column}"
+
+    def having_equality_string(self):
+        return "HAVING {column} {equality} {value}"
 
     def where_null_string(self):
         return "{keyword} {column} IS NULL"

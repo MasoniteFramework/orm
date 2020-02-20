@@ -28,6 +28,7 @@ class BaseGrammar:
         aggregates=(),
         order_by=(),
         group_by=(),
+        having=(),
         creates=(),
         connection_details={},
     ):
@@ -39,6 +40,7 @@ class BaseGrammar:
         self._aggregates = aggregates
         self._order_by = order_by
         self._group_by = group_by
+        self._having = having
         self._creates = creates
         self._connection_details = connection_details
         self._column = None
@@ -124,6 +126,7 @@ class BaseGrammar:
                 aggregates=self._compile_aggregates(),
                 order_by=self._compile_order_by(),
                 group_by=self._compile_group_by(),
+                having=self._compile_having(),
             )
             .strip()
         )
@@ -244,6 +247,27 @@ class BaseGrammar:
 
         return self.limit_string().format(limit=self._limit)
 
+    def _compile_having(self, qmark=False):
+        sql = ""
+        loop_count = 0
+        for having in self._having:
+            column = having.column
+            equality = having.equality
+            value = having.value
+
+            if not equality and not value:
+                sql_string = self.having_string()
+            else:
+                sql_string = self.having_equality_string()
+
+            sql += sql_string.format(
+                column=self._compile_column(column),
+                equality=equality,
+                value=self._compile_value(value)
+            )
+
+        return sql  
+
     def _compile_wheres(self, qmark=False, strip_first_where=False):
         sql = ""
         loop_count = 0
@@ -284,6 +308,8 @@ class BaseGrammar:
             else:
                 sql_string = self.where_string()
 
+            print(sql_string)
+
             """If the value should actually be a sub query then we need to wrap it in a query here
             """
             if isinstance(value, SubGroupExpression):
@@ -307,6 +333,8 @@ class BaseGrammar:
             elif value_type == "value":
                 query_value = self.value_string().format(value=value, seperator="")
             elif value_type == "column":
+                query_value = self.column_string().format(column=value, seperator="")
+            elif value_type == "having":
                 query_value = self.column_string().format(column=value, seperator="")
 
             sql += sql_string.format(

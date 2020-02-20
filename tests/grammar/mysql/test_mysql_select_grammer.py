@@ -138,6 +138,21 @@ class BaseTestCaseSelectGrammer:
         sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_having(self):
+        to_sql = self.builder.sum('age').group_by('age').having('age').to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_having_with_expression(self):
+        to_sql = self.builder.sum('age').group_by('age').having('age', 10).to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_having_with_greater_than_expression(self):
+        to_sql = self.builder.sum('age').group_by('age').having('age', '>', 10).to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
 class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
 
     grammar = 'mysql'
@@ -299,5 +314,23 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
         ).to_sql()
         """
         return "SELECT `age` FROM `users` WHERE EXISTS (SELECT `username` FROM `users` WHERE `age` = '12')"
+
+    def can_compile_having(self):
+        """
+        builder.sum('age').group_by('age').having('age').to_sql()
+        """
+        return "SELECT SUM(`age`) AS age FROM `users` GROUP BY `age` HAVING `age`"
+
+    def can_compile_having_with_expression(self):
+        """
+        builder.sum('age').group_by('age').having('age', 10).to_sql()
+        """
+        return "SELECT SUM(`age`) AS age FROM `users` GROUP BY `age` HAVING `age` = '10'"
+
+    def can_compile_having_with_greater_than_expression(self):
+        """
+        builder.sum('age').group_by('age').having('age', '>', 10).to_sql()
+        """
+        return "SELECT SUM(`age`) AS age FROM `users` GROUP BY `age` HAVING `age` > '10'"
 
 
