@@ -430,7 +430,7 @@ class BaseGrammar:
         return sql[:-2]
 
     def _compile_column(self, column, seperator=""):
-        return self.column_string().format(column=column, seperator=seperator)
+        return self.column_string().format(column=column, seperator=seperator, table=self.table)
 
     def _compile_value(self, value, seperator=""):
         return self.value_string().format(value=value, seperator=seperator)
