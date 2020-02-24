@@ -36,6 +36,8 @@ $ python -m pytest
 
 # Phase 1
 
+**Versions 0.1-0.5**
+
 **Project Deadline: November 1 2020**. This should give enough time to incorporate the new ORM into Masonite's major release at the time.
 
 Phase 1 will involve getting the foundation setup for this project. Making sure we can include all the basic use cases and relationships as well as a 100% full documentation. By the end of Phase 1, this ORM should be able to handle the 90% of use cases of a project. Phase 2 will complete the more uncommon or edge cases.
@@ -134,6 +136,8 @@ Phase 1 will involve getting the foundation setup for this project. Making sure 
 
 # Phase 2
 
+**Versions 0.5 - 0.9**
+
 Phase 2 will involve further refactoring. By this phase, all the documentation should be done for the above phase.
 
 This phase will be responsible for more complex (and typically lesser used) tasks like:
@@ -141,5 +145,7 @@ This phase will be responsible for more complex (and typically lesser used) task
 - [ ] Joining
 
 # Phase 3
+
+**Versions 1.0+**
 
 This phase will be responsible for adding additional quality of life features and overall improvements to the ORM. These include additional options and additional 
