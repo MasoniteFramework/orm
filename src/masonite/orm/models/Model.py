@@ -32,10 +32,12 @@ class Model:
     @classmethod
     def apply_scope(cls, scope_class):
         cls.boot()
-        boot_methods = [ v for k,v in scope_class.__dict__.items() if k.startswith('boot_')]
+        boot_methods = [
+            v for k, v in scope_class.__dict__.items() if k.startswith("boot_")
+        ]
         for method in boot_methods:
             method(cls, cls.builder)
-        
+
         return cls
 
     @classmethod

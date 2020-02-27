@@ -1,8 +1,10 @@
-import pymysql.cursors
+import re
+
 from masonite.testing import TestCase
+
 from src.masonite.orm.builder.QueryBuilder import (
-    SubSelectExpression,
     SubGroupExpression,
+    SubSelectExpression,
 )
 
 
@@ -28,6 +30,7 @@ class BaseGrammar:
         aggregates=(),
         order_by=(),
         group_by=(),
+        joins=(),
         having=(),
         creates=(),
         connection_details={},
@@ -40,6 +43,7 @@ class BaseGrammar:
         self._aggregates = aggregates
         self._order_by = order_by
         self._group_by = group_by
+        self._joins = joins
         self._having = having
         self._creates = creates
         self._connection_details = connection_details
@@ -126,6 +130,7 @@ class BaseGrammar:
                 aggregates=self._compile_aggregates(),
                 order_by=self._compile_order_by(),
                 group_by=self._compile_group_by(),
+                joins=self._compile_joins(),
                 having=self._compile_having(),
             )
             .strip()
@@ -141,6 +146,24 @@ class BaseGrammar:
         )
 
         return self
+
+    def _compile_joins(self):
+        sql = ""
+        for join in self._joins:
+            local_table = join.column1.split(".")[0]
+            column1 = join.column1.split(".")[1]
+            column2 = join.column2.split(".")[1]
+            sql += self.join_string().format(
+                foreign_table=self._compile_table(join.foreign_table),
+                local_table=self._compile_table(local_table),
+                column1=self._compile_column(column1),
+                equality=join.equality,
+                column2=self._compile_column(column2),
+                keyword=self.join_keywords[join.clause],
+            )
+            sql += " "
+
+        return sql
 
     def _compile_insert(self):
         self._sql = self.insert_format().format(
@@ -237,6 +260,13 @@ class BaseGrammar:
     def _compile_from(self):
         return self.table_string().format(
             table=self.table,
+            database=self._connection_details.get("database", ""),
+            prefix=self._connection_details.get("prefix", ""),
+        )
+
+    def _compile_table(self, table):
+        return self.table_string().format(
+            table=table,
             database=self._connection_details.get("database", ""),
             prefix=self._connection_details.get("prefix", ""),
         )
@@ -392,8 +422,8 @@ class BaseGrammar:
         Returns:
             string
         """
-        self._sql = self._sql.strip().replace("  ", " ").replace("   ", " ")
-        return self._sql
+
+        return re.sub(" +", " ", self._sql.strip())
 
     def to_qmark(self):
         """Cleans up the SQL string and returns the SQL
@@ -401,8 +431,7 @@ class BaseGrammar:
         Returns:
             string
         """
-        self._sql = self._sql.strip().replace("  ", " ").replace("   ", " ")
-        return self._sql
+        return re.sub(" +", " ", self._sql.strip())
 
     def _compile_columns(self, seperator=""):
         sql = ""
@@ -430,7 +459,9 @@ class BaseGrammar:
         return sql[:-2]
 
     def _compile_column(self, column, seperator=""):
-        return self.column_string().format(column=column, seperator=seperator, table=self.table)
+        return self.column_string().format(
+            column=column, seperator=seperator, table=self.table
+        )
 
     def _compile_value(self, value, seperator=""):
         return self.value_string().format(value=value, seperator=seperator)

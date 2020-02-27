@@ -24,6 +24,15 @@ class HavingExpression:
         self.value_type = "having"
 
 
+class JoinExpression:
+    def __init__(self, foreign_table, column1, equality, column2, clause="inner"):
+        self.foreign_table = foreign_table
+        self.column1 = column1
+        self.equality = equality
+        self.column2 = column2
+        self.clause = clause
+
+
 class UpdateQueryExpression:
     def __init__(self, column, value=None, update_type="keyvalue"):
         self.column = column
@@ -100,6 +109,7 @@ class QueryBuilder:
         self._wheres = ()
         self._order_by = ()
         self._group_by = ()
+        self._joins = ()
         self._having = ()
 
         self._aggregates = ()
@@ -177,6 +187,24 @@ class QueryBuilder:
         else:
             wheres = [str(x) for x in wheres]
             self._wheres += ((QueryExpression(column, "IN", wheres)),)
+        return self
+
+    def join(self, foreign_table, column1, equality, column2, clause="inner"):
+        self._joins += (
+            JoinExpression(foreign_table, column1, equality, column2, clause=clause),
+        )
+        return self
+
+    def left_join(self, foreign_table, column1, equality, column2):
+        self._joins += (
+            JoinExpression(foreign_table, column1, equality, column2, "left"),
+        )
+        return self
+
+    def right_join(self, foreign_table, column1, equality, column2):
+        self._joins += (
+            JoinExpression(foreign_table, column1, equality, column2, "right"),
+        )
         return self
 
     def where_column(self, column1, column2):
@@ -258,6 +286,7 @@ class QueryBuilder:
             aggregates=self._aggregates,
             order_by=self._order_by,
             group_by=self._group_by,
+            joins=self._joins,
             having=self._having,
             connection_details=self.connection.connection_details
             if self.connection

@@ -153,10 +153,20 @@ class BaseTestCaseSelectGrammer:
         sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
         self.assertEqual(to_sql, sql)
 
-    # def test_can_compile_join(self):
-    #     to_sql = self.builder.join('contacts', 'users.id', '=', 'contacts.user_id').to_sql()
-    #     sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
-    #     self.assertEqual(to_sql, sql)
+    def test_can_compile_join(self):
+        to_sql = self.builder.join('contacts', 'users.id', '=', 'contacts.user_id').to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_left_join(self):
+        to_sql = self.builder.left_join('contacts', 'users.id', '=', 'contacts.user_id').to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_multiple_join(self):
+        to_sql = self.builder.join('contacts', 'users.id', '=', 'contacts.user_id').join('posts', 'comments.post_id', '=', 'posts.id').to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
 
 class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
 
@@ -343,6 +353,18 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
         """
         builder.join('contacts', 'users.id', '=', 'contacts.user_id').to_sql()
         """
-        return "SELECT * from `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`user_id`"
+        return "SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`user_id`"
+
+    def can_compile_left_join(self):
+        """
+        builder.join('contacts', 'users.id', '=', 'contacts.user_id').to_sql()
+        """
+        return "SELECT * FROM `users` LEFT JOIN `contacts` ON `users`.`id` = `contacts`.`user_id`"
+
+    def can_compile_multiple_join(self):
+        """
+        builder.join('contacts', 'users.id', '=', 'contacts.user_id').to_sql()
+        """
+        return "SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`user_id` INNER JOIN `posts` ON `comments`.`post_id` = `posts`.`id`"
 
 

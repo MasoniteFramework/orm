@@ -22,6 +22,15 @@ class MySQLGrammar(BaseGrammar):
         "AVG": "AVG",
     }
 
+    join_keywords = {
+        "inner": "INNER JOIN",
+        "outer": "OUTER JOIN",
+        "left": "LEFT JOIN",
+        "right": "RIGHT JOIN",
+        "left_inner": "LEFT INNER JOIN",
+        "right_inner": "RIGHT INNER JOIN",
+    }
+
     type_map = {
         "string": "VARCHAR",
         "char": "CHAR",
@@ -55,7 +64,7 @@ class MySQLGrammar(BaseGrammar):
     }
 
     def select_format(self):
-        return "SELECT {columns} FROM {table} {wheres} {group_by}{order_by}{limit} {having}"
+        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by}{order_by}{limit} {having}"
 
     def update_format(self):
         return "UPDATE {table} SET {key_equals} {wheres}"
@@ -134,6 +143,9 @@ class MySQLGrammar(BaseGrammar):
 
     def value_string(self):
         return "'{value}'{seperator}"
+
+    def join_string(self):
+        return "{keyword} {foreign_table} ON {local_table}.{column1} {equality} {foreign_table}.{column2}"
 
     def limit_string(self):
         return "LIMIT {limit}"
