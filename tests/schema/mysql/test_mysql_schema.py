@@ -313,7 +313,6 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
     def can_compile_timestamps_columns(self):
         """
         with self.schema.create('users') as blueprint:
-            blueprint.string("name)
             blueprint.timestamps()
         """
 
