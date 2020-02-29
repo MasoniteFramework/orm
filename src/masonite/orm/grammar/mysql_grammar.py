@@ -185,3 +185,6 @@ class MySQLGrammar(BaseGrammar):
 
     def drop_table_if_exists_string(self):
         return "DROP TABLE IF EXISTS {table}"
+
+    def timestamp_column(self):
+        return "TIMESTAMP"

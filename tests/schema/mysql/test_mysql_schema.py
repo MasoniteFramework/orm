@@ -113,6 +113,12 @@ class BaseTestCreateGrammar:
         sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_can_compile_timestamps_columns(self):
+        with self.schema.create('users') as blueprint:
+            blueprint.timestamps()
+
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(blueprint.to_sql(), sql)
 
 class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
@@ -303,3 +309,17 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
                 "ADD `name` VARCHAR(191) NOT NULL")
 
         self.assertEqual(blueprint.to_sql(), sql)
+
+    def can_compile_timestamps_columns(self):
+        """
+        with self.schema.create('users') as blueprint:
+            blueprint.string("name)
+            blueprint.timestamps()
+        """
+
+        return (
+            "CREATE TABLE `users` ("
+                "`created_at` TIMESTAMP NOT NULL, "
+                "`updated_at` TIMESTAMP NOT NULL"
+            ")"
+        )
