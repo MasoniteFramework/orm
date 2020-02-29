@@ -3,7 +3,7 @@ from app.User import User
 import inspect
 
 from src.masonite.orm.models.Model import Model
-from src.masonite.orm.mixins.scope import scope, global_scope
+from src.masonite.orm.mixins.scope import scope
 
 class SoftDeletes:
 
