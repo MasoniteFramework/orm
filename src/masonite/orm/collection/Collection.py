@@ -1,14 +1,13 @@
 class Collection:
-
     def __init__(self, items=[]):
         self.items = items
-    
+
     def take(self, number):
         return self.items[:number]
-    
+
     def first(self):
         return self.items[0]
-    
+
     def last(self):
         return self.items[-1]
 
@@ -42,9 +41,6 @@ class Collection:
     def filter(self):
         pass
 
-    def first(self):
-        pass
-
     def flatten(self):
         pass
 
@@ -61,9 +57,6 @@ class Collection:
         pass
 
     def is_empty(self):
-        pass
-
-    def last(self):
         pass
 
     def map(self):
@@ -109,9 +102,6 @@ class Collection:
         pass
 
     def sum(self):
-        pass
-
-    def take(self):
         pass
 
     def to_json(self):

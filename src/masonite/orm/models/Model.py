@@ -10,6 +10,7 @@ class Model:
     __table__ = "users"
     __connection__ = "default"
     __resolved_connection__ = None
+    __attributes__ = {}
 
     _booted = False
 
@@ -80,8 +81,11 @@ class Model:
     def select(self):
         pass
 
-    def hydrate(self):
-        pass
+    @classmethod
+    def hydrate(cls, dictionary):
+        model = cls()
+        model.__attributes__.update(dictionary or {})
+        return model
 
     def fill(self):
         pass
@@ -107,3 +111,7 @@ class Model:
     @staticmethod
     def set_connection_resolver(self):
         pass
+
+    def __getattr__(self, attribute):
+        if attribute in self.__attributes__:
+            return self.__attributes__[attribute]

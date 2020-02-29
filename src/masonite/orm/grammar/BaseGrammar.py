@@ -82,7 +82,6 @@ class BaseGrammar:
                     clean_column=column.column_name,
                 )
                 sql += ", "
-        print(sql)
         sql = sql.rstrip(", ")
 
         sql += ")"
@@ -95,9 +94,7 @@ class BaseGrammar:
 
         """Add Columns
         """
-        print("compiling alter", self._creates)
         for column in self._creates:
-            print(column._action)
             sql += getattr(self, "{}_column_string".format(column._action))().format(
                 column=self._compile_column(column.column_name),
                 old_column=self._compile_column(column.old_column),
@@ -186,9 +183,7 @@ class BaseGrammar:
 
     def _compile_key_value_equals(self, qmark=False):
         sql = ""
-        print(self._updates)
         for update in self._updates:
-            print(update)
 
             if update.update_type == "increment":
                 sql_string = self.increment_string()
@@ -336,8 +331,6 @@ class BaseGrammar:
                 sql_string = self.where_exists_string()
             else:
                 sql_string = self.where_string()
-
-            print(sql_string)
 
             """If the value should actually be a sub query then we need to wrap it in a query here
             """

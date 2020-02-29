@@ -333,3 +333,6 @@ class QueryBuilder:
         )
 
         return builder
+
+    def __call__(self):
+        return self
