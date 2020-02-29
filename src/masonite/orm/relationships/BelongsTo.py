@@ -18,7 +18,7 @@ class BelongsTo:
     def __get__(self, instance, owner):
         relationship = self.fn(self)
         if not instance:
-            """This means the user called the attribute rather than accessed it. 
+            """This means the user called the attribute rather than accessed it.
             In this case we want to return the builder
             """
             self.relationship = self.fn(self)
