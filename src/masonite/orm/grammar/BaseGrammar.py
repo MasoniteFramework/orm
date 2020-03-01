@@ -62,14 +62,28 @@ class BaseGrammar:
         """Add Columns
         """
         for column in self._creates:
-            sql += self.create_column_string().format(
-                column=self._compile_column(column.column_name),
-                data_type=self.type_map.get(column.column_type),
-                length=self.create_column_length().format(length=column.length)
+
+            length_string = (
+                self.create_column_length().format(length=column.length)
                 if column.length
-                else "",
-                nullable="" if column.is_null else " NOT NULL",
+                else ""
             )
+            mapped_time_value = self.timestamp_mapping.get(column.default)
+
+            default_value = mapped_time_value or column.default
+
+            attributes = {
+                "column": self._compile_column(column.column_name),
+                "data_type": self.type_map.get(column.column_type),
+                "length": length_string,
+            }
+
+            if default_value:
+                attributes.update({"default_value": default_value})
+                sql += self.create_column_string_with_default().format(**attributes)
+            else:
+                attributes.update({"nullable": "" if column.is_null else " NOT NULL"})
+                sql += self.create_column_string().format(**attributes)
 
         """Add Constraints
         """
