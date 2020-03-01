@@ -62,14 +62,29 @@ class BaseGrammar:
         """Add Columns
         """
         for column in self._creates:
-            sql += self.create_column_string().format(
-                column=self._compile_column(column.column_name),
-                data_type=self.type_map.get(column.column_type),
-                length=self.create_column_length().format(length=column.length)
-                if column.length
-                else "",
-                nullable="" if column.is_null else " NOT NULL",
-            )
+
+            length_string = self.create_column_length().format(length=column.length) if column.length else ""
+            default_temporal_field_value = self.temporal_field_defaults.get(column.column_type, None)
+
+            default_value = column.default_value
+
+            if default_temporal_field_value and column.use_current_timestamp:
+                default_value = default_temporal_field_value
+            elif column.default_value:
+                default_value = column.default_value
+
+            attributes = {
+                "column": self._compile_column(column.column_name),
+                "data_type": self.type_map.get(column.column_type),
+                "length": length_string,
+            }
+
+            if default_value:
+                attributes.update({"default_value": default_value})
+                sql += self.create_column_string_with_default().format(**attributes)
+            else:
+                attributes.update({"nullable": "" if column.is_null else " NOT NULL" })
+                sql += self.create_column_string().format(**attributes)
 
         """Add Constraints
         """
