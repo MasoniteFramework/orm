@@ -1,9 +1,7 @@
 import inspect
 import unittest
 
-from src.masonite.orm.grammar.mysql_grammar import MySQLGrammar
-from src.masonite.orm.testing.BaseTestCaseSelectGrammar import \
-    BaseTestCaseSelectGrammer
+from src.masonite.orm.testing.BaseTestCaseSelectGrammar import BaseTestCaseSelectGrammer
 
 
 class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
