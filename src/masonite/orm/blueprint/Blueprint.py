@@ -21,6 +21,7 @@ class Column:
         self.use_current_timestamp = False
         self.default = default
         self._action = action
+        self._change = False
 
     def nullable(self):
         self.is_null = True
@@ -45,6 +46,10 @@ class Column:
 
     def default(self, value):
         self.default = value
+        return self
+
+    def change(self):
+        self._action = "modify"
         return self
 
     def use_current(self):
@@ -213,6 +218,10 @@ class Blueprint:
 
     def nullable(self):
         self._last_column.nullable()
+        return self
+
+    def change(self):
+        self._last_column.change()
         return self
 
     def unique(self):

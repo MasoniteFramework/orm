@@ -32,3 +32,24 @@ class TestMySQLAlterGrammar(unittest.TestCase):
 
         sql = "ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL, ADD `age` VARCHAR(255) AFTER `name`"
         self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_can_alter_drop_column(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.drop_column("name")
+
+        sql = "ALTER TABLE `users` DROP COLUMN `name`"
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_can_alter_change_column(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.string("name", 50).nullable().change()
+
+        sql = "ALTER TABLE `users` MODIFY `name` VARCHAR(50) NULL"
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_can_alter_modify_column(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.drop_column("name")
+
+        sql = "ALTER TABLE `users` DROP COLUMN `name`"
+        self.assertEqual(blueprint.to_sql(), sql)

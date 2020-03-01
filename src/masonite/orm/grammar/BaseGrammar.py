@@ -112,6 +112,12 @@ class BaseGrammar:
         """Add Columns
         """
         for column in self._creates:
+            nullable = ""
+            if column.is_null and column._action == "modify":
+                nullable = " NULL"
+            elif not column.is_null:
+                nullable = " NOT NULL"
+
             sql += getattr(self, "{}_column_string".format(column._action))().format(
                 column=self._compile_column(column.column_name),
                 old_column=self._compile_column(column.old_column),
@@ -119,7 +125,7 @@ class BaseGrammar:
                 length=self.create_column_length().format(length=column.length)
                 if column.length
                 else "",
-                nullable="" if column.is_null else " NOT NULL",
+                nullable=nullable,
                 after=self.after_column_string().format(
                     after=self._compile_column(column.after_column)
                 )
