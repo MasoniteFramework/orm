@@ -144,6 +144,13 @@ class BaseTestCreateGrammar:
         sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_can_compile_timestamps_columns_with_default_of_now(self):
+        with self.schema.create('users') as blueprint:
+            blueprint.timestamp('logged_at', now=True)
+
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(blueprint.to_sql(), sql)
+
 
 class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
@@ -345,6 +352,18 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             "CREATE TABLE `users` ("
                 "`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
                 "`updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+            ")"
+        )
+
+    def can_compile_timestamps_columns_with_default_of_now(self):
+        """
+        with self.schema.create('users') as blueprint:
+            blueprint.timestamp('logged_at', now=True)
+        """
+
+        return (
+            "CREATE TABLE `users` ("
+                "`logged_at` TIMESTAMP DEFAULT NOW()"
             ")"
         )
 

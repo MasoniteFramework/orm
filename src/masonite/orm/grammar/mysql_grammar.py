@@ -63,10 +63,7 @@ class MySQLGrammar(BaseGrammar):
         "unsigned_integer": "UNSIGNED INT",
     }
 
-    temporal_field_defaults = {
-        "timestamp": "CURRENT_TIMESTAMP",
-        "datetime": "NOW()"
-    }
+    timestamp_mapping = {"current": "CURRENT_TIMESTAMP", "now": "NOW()"}
 
     def select_format(self):
         return "SELECT {columns} FROM {table} {joins} {wheres} {group_by}{order_by}{limit} {having}"
@@ -109,10 +106,10 @@ class MySQLGrammar(BaseGrammar):
 
     def create_column_string(self):
         return "{column} {data_type}{length}{nullable}, "
-    
+
     def create_column_string_with_default(self):
         return "{column} {data_type}{length} DEFAULT {default_value}, "
-    
+
     def column_exists_string(self):
         return "SHOW COLUMNS FROM {table} LIKE {value}"
 

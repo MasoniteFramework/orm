@@ -63,15 +63,14 @@ class BaseGrammar:
         """
         for column in self._creates:
 
-            length_string = self.create_column_length().format(length=column.length) if column.length else ""
-            default_temporal_field_value = self.temporal_field_defaults.get(column.column_type, None)
+            length_string = (
+                self.create_column_length().format(length=column.length)
+                if column.length
+                else ""
+            )
+            mapped_time_value = self.timestamp_mapping.get(column.default)
 
-            default_value = column.default_value
-
-            if default_temporal_field_value and column.use_current_timestamp:
-                default_value = default_temporal_field_value
-            elif column.default_value:
-                default_value = column.default_value
+            default_value = mapped_time_value or column.default
 
             attributes = {
                 "column": self._compile_column(column.column_name),
@@ -83,7 +82,7 @@ class BaseGrammar:
                 attributes.update({"default_value": default_value})
                 sql += self.create_column_string_with_default().format(**attributes)
             else:
-                attributes.update({"nullable": "" if column.is_null else " NOT NULL" })
+                attributes.update({"nullable": "" if column.is_null else " NOT NULL"})
                 sql += self.create_column_string().format(**attributes)
 
         """Add Constraints

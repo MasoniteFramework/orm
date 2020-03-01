@@ -7,6 +7,7 @@ class Column:
         length=None,
         nullable=False,
         action="add",
+        default=None,
     ):
         self.column_type = column_type
         self.column_name = column_name
@@ -18,7 +19,7 @@ class Column:
         self.after_column = None
         self.old_column = ""
         self.use_current_timestamp = False
-        self.default_value = None
+        self.default = default
         self._action = action
 
     def nullable(self):
@@ -43,12 +44,14 @@ class Column:
         return self
 
     def default(self, value):
-        self.default_value = value
+        self.default = value
         return self
 
     def use_current(self):
-        self.use_current_timestamp = True
+        self.default = "current"
+        # self.use_current_timestamp = True
         return self
+
 
 class Blueprint:
     def __init__(self, grammar, table="", action=None, default_string_length=None):
@@ -65,7 +68,15 @@ class Blueprint:
         self._columns += (self._last_column,)
         return self
 
-    def new_column(self, column_type, column, length=255, nullable=False, action="add"):
+    def new_column(
+        self,
+        column_type,
+        column,
+        length=255,
+        nullable=False,
+        action="add",
+        default=False,
+    ):
         if length == 255:
             length = self._default_string_length or length
 
@@ -76,6 +87,7 @@ class Blueprint:
             length=length,
             nullable=nullable,
             action=action,
+            default=default,
         )
 
     def integer(self, column, length=11, nullable=False):
@@ -122,17 +134,29 @@ class Blueprint:
         self._columns += (self._last_column,)
         return self
 
-    def timestamp(self, column, nullable=False):
-        self._last_column = self.new_column("timestamp", column, None, nullable)
+    def timestamp(self, column, nullable=False, now=False):
+        if now:
+            now = "now"
+
+        self._last_column = self.new_column(
+            "timestamp", column, None, nullable, default=now
+        )
         self._columns += (self._last_column,)
         return self
 
     def timestamps(self):
-        created_at = self.new_column('timestamp', 'created_at', None, nullable=False).use_current()
-        updated_at = self.new_column('timestamp', 'updated_at', None, nullable=False).use_current()
+        created_at = self.new_column(
+            "timestamp", "created_at", None, nullable=False
+        ).use_current()
+        updated_at = self.new_column(
+            "timestamp", "updated_at", None, nullable=False
+        ).use_current()
 
         self._last_column = updated_at
-        self._columns += (created_at, updated_at,)
+        self._columns += (
+            created_at,
+            updated_at,
+        )
         return self
 
     def decimal(self, column, length=17, precision=6, nullable=False):
