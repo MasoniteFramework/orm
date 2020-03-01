@@ -1,26 +1,27 @@
-from src.masonite.orm.grammar.mysql_grammar import MySQLGrammar 
+from src.masonite.orm.grammar.mysql_grammar import MySQLGrammar
 from src.masonite.orm.builder.QueryBuilder import QueryBuilder
 from src.masonite.orm.grammar.GrammarFactory import GrammarFactory
 import unittest
 import inspect
 
-class BaseInsertGrammarTest:
 
+class BaseInsertGrammarTest:
     def setUp(self):
-        self.builder = QueryBuilder(GrammarFactory.make(self.grammar), table='users')
+        self.builder = QueryBuilder(GrammarFactory.make(self.grammar), table="users")
 
     def test_can_compile_insert(self):
 
-        to_sql = self.builder.create({
-            'name': 'Joe'
-        }).to_sql()
+        to_sql = self.builder.create({"name": "Joe"}).to_sql()
 
-        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
         self.assertEqual(to_sql, sql)
+
 
 class TestMySQLUpdateGrammar(BaseInsertGrammarTest, unittest.TestCase):
 
-    grammar = 'mysql'
+    grammar = "mysql"
 
     def can_compile_insert(self):
         """
