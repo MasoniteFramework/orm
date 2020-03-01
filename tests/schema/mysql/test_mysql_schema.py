@@ -113,12 +113,37 @@ class BaseTestCreateGrammar:
         sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
         self.assertEqual(blueprint.to_sql(), sql)
 
-    def test_can_compile_timestamps_columns(self):
+    def test_can_compile_timestamps_columns_with_default(self):
         with self.schema.create('users') as blueprint:
             blueprint.timestamps()
 
         sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
         self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_can_compile_timestamp_column_without_default(self):
+        with self.schema.create('users') as blueprint:
+            blueprint.timestamp('logged_at')
+
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_can_compile_timestamps_columns_mixed_defaults_and_not_default(self):
+        with self.schema.create('users') as blueprint:
+            blueprint.timestamps()
+            blueprint.timestamp('logged_at')
+            blueprint.timestamp('expirated_at')
+
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_can_compile_timestamp_nullable_columns(self):
+        with self.schema.create('users') as blueprint:
+            blueprint.timestamp('logged_at')
+            blueprint.timestamp('expirated_at').nullable()
+
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(blueprint.to_sql(), sql)
+
 
 class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
@@ -310,7 +335,7 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         self.assertEqual(blueprint.to_sql(), sql)
 
-    def can_compile_timestamps_columns(self):
+    def can_compile_timestamps_columns_with_default(self):
         """
         with self.schema.create('users') as blueprint:
             blueprint.timestamps()
@@ -318,7 +343,50 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return (
             "CREATE TABLE `users` ("
-                "`created_at` TIMESTAMP NOT NULL, "
-                "`updated_at` TIMESTAMP NOT NULL"
+                "`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                "`updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+            ")"
+        )
+
+    def can_compile_timestamp_column_without_default(self):
+        """
+        with self.schema.create('users') as blueprint:
+            blueprint.timestamp('logged_at')
+        """
+
+        return (
+            "CREATE TABLE `users` ("
+                "`logged_at` TIMESTAMP NOT NULL"
+            ")"
+        )
+
+    def can_compile_timestamps_columns_mixed_defaults_and_not_default(self):
+        """
+        with self.schema.create('users') as blueprint:
+            blueprint.timestamps()
+            blueprint.timestamp('logged_at')
+            blueprint.timestamp('expirated_at')
+        """
+
+        return (
+            "CREATE TABLE `users` ("
+                "`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                "`updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                "`logged_at` TIMESTAMP NOT NULL, "
+                "`expirated_at` TIMESTAMP NOT NULL"
+            ")"
+        )
+
+    def test_can_compile_timestamp_nullable_columns(self):
+        """
+        with self.schema.create('users') as blueprint:
+            blueprint.timestamp('logged_at')
+            blueprint.timestamp('expirated_at').nullable()
+        """
+
+        return (
+            "CREATE TABLE `users` ("
+                "`logged_at` TIMESTAMP NOT NULL, "
+                "`expirated_at` TIMESTAMP"
             ")"
         )

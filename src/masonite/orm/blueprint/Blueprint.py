@@ -17,9 +17,9 @@ class Column:
         self.constraint_type = None
         self.after_column = None
         self.old_column = ""
-        self._action = action
-        self.current_timestamp = False
+        self.use_current_timestamp = False
         self.default_value = None
+        self._action = action
 
     def nullable(self):
         self.is_null = True
@@ -42,13 +42,13 @@ class Column:
         self.after_column = after_column
         return self
 
-    def use_current(self):
-        self.use_current = True
+    def default(self, value):
+        self.default_value = value
         return self
 
-    def default(self, value=None):
-        if value:
-            self.default_value = value
+    def use_current(self):
+        self.use_current_timestamp = True
+        return self
 
 class Blueprint:
     def __init__(self, grammar, table="", action=None, default_string_length=None):
@@ -119,6 +119,11 @@ class Blueprint:
 
     def datetime(self, column, nullable=False):
         self._last_column = self.new_column("datetime", column, None, nullable)
+        self._columns += (self._last_column,)
+        return self
+
+    def timestamp(self, column, nullable=False):
+        self._last_column = self.new_column("timestamp", column, None, nullable)
         self._columns += (self._last_column,)
         return self
 
