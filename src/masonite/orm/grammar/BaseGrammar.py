@@ -27,6 +27,7 @@ class BaseGrammar:
         table="users",
         wheres=(),
         limit=False,
+        offset=False,
         updates={},
         aggregates=(),
         order_by=(),
@@ -40,6 +41,7 @@ class BaseGrammar:
         self.table = table
         self._wheres = wheres
         self._limit = limit
+        self._offset = offset
         self._updates = updates
         self._aggregates = aggregates
         self._order_by = order_by
@@ -139,6 +141,7 @@ class BaseGrammar:
                 table=self._compile_from(),
                 wheres=self._compile_wheres(qmark=qmark),
                 limit=self._compile_limit(),
+                offset=self._compile_offset(),
                 aggregates=self._compile_aggregates(),
                 order_by=self._compile_order_by(),
                 group_by=self._compile_group_by(),
@@ -286,6 +289,12 @@ class BaseGrammar:
             return ""
 
         return self.limit_string().format(limit=self._limit)
+
+    def _compile_offset(self):
+        if not self._offset:
+            return ""
+
+        return self.offset_string().format(offset=self._offset)
 
     def _compile_having(self, qmark=False):
         sql = ""

@@ -183,6 +183,11 @@ class BaseTestCaseSelectGrammer:
         sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_limit_and_offset(self):
+        to_sql = self.builder.limit(10).offset(10).to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
 class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
 
     grammar = 'mysql'
@@ -284,6 +289,12 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
         self.builder.select_raw("COUNT(*)").to_sql()
         """
         return "SELECT COUNT(*) FROM `users`"
+
+    def can_compile_limit_and_offset(self):
+        """
+        self.builder.select_raw("COUNT(*)").to_sql()
+        """
+        return "SELECT * FROM `users` LIMIT 10 OFFSET 10"
 
     def can_compile_select_raw_with_select(self):
         """

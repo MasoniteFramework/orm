@@ -60,6 +60,7 @@ class SubGroupExpression:
     def __init__(self, builder):
         self.builder = builder
 
+
 class SelectExpression:
     def __init__(self, column, raw=False):
         self.column = column
@@ -131,6 +132,7 @@ class QueryBuilder:
         self._aggregates = ()
 
         self._limit = False
+        self._offset = False
         self._action = None
 
     def select(self, *args):
@@ -240,6 +242,10 @@ class QueryBuilder:
         self._limit = amount
         return self
 
+    def offset(self, amount):
+        self._offset = amount
+        return self
+
     def update(self, updates):
         self._updates = (UpdateQueryExpression(updates),)
         self._action = "update"
@@ -307,6 +313,7 @@ class QueryBuilder:
             table=self.table,
             wheres=self._wheres,
             limit=self._limit,
+            offset=self._offset,
             updates=self._updates,
             aggregates=self._aggregates,
             order_by=self._order_by,
@@ -336,6 +343,7 @@ class QueryBuilder:
             table=self.table,
             wheres=self._wheres,
             limit=self._limit,
+            offset=self._offset,
             updates=self._updates,
             aggregates=self._aggregates,
             order_by=self._order_by,

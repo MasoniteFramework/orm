@@ -66,7 +66,7 @@ class MySQLGrammar(BaseGrammar):
     timestamp_mapping = {"current": "CURRENT_TIMESTAMP", "now": "NOW()"}
 
     def select_format(self):
-        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by}{order_by}{limit} {having}"
+        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by}{order_by}{limit} {offset} {having}"
 
     def update_format(self):
         return "UPDATE {table} SET {key_equals} {wheres}"
@@ -157,6 +157,9 @@ class MySQLGrammar(BaseGrammar):
 
     def limit_string(self):
         return "LIMIT {limit}"
+
+    def offset_string(self):
+        return "OFFSET {offset}"
 
     def first_where_string(self):
         return "WHERE"
