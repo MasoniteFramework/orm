@@ -86,6 +86,9 @@ class MySQLGrammar(BaseGrammar):
     def subquery_string(self):
         return "({query})"
 
+    def raw_query_string(self):
+        return "{keyword} {query}"
+
     def where_group_string(self):
         return "{keyword} {value}"
 

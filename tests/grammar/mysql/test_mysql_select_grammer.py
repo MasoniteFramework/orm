@@ -107,6 +107,11 @@ class BaseTestCaseSelectGrammer:
         sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_where_raw(self):
+        to_sql = self.builder.where_raw("`age` = '18'").to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
     def test_can_compile_sub_select(self):
         to_sql = self.builder.where_in('name', 
             self.builder.new().select('age')
@@ -258,6 +263,12 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
         """
         return "SELECT `username` FROM `users` WHERE `age` IS NOT NULL"
 
+    def can_compile_where_raw(self):
+        """
+        self.builder.where_raw("`age` = '18'").to_sql()
+        """
+        return "SELECT * FROM `users` WHERE `age` = '18'"
+
 
     def can_compile_count(self):
         """
@@ -366,5 +377,3 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
         builder.join('contacts', 'users.id', '=', 'contacts.user_id').to_sql()
         """
         return "SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`user_id` INNER JOIN `posts` ON `comments`.`post_id` = `posts`.`id`"
-
-

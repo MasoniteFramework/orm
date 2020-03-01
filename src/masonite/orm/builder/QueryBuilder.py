@@ -3,12 +3,23 @@ import inspect
 
 
 class QueryExpression:
-    def __init__(self, column, equality, value, value_type="value", keyword=None):
+    def __init__(
+        self,
+        column,
+        equality,
+        value,
+        value_type="value",
+        keyword=None,
+        raw=False,
+        bindings=(),
+    ):
         self.column = column
         self.equality = equality
         self.value = value
         self.value_type = value_type
         self.keyword = keyword
+        self.raw = raw
+        self.bindings = bindings
 
 
 class HavingExpression:
@@ -143,6 +154,10 @@ class QueryBuilder:
         else:
             self._wheres += ((QueryExpression(column, "=", value, "value")),)
         # self._wheres += ((column, "=", value),)
+        return self
+
+    def where_raw(self, column, bindings=()):
+        self._wheres += ((QueryExpression(column, "=", None, "value", raw=True)),)
         return self
 
     def or_where(self, column, value):

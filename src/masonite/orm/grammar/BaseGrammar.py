@@ -330,6 +330,18 @@ class BaseGrammar:
             else:
                 keyword = self.additional_where_string()
 
+            if where.raw:
+                """If we have a raw query we just want to use the query supplied
+                and don't need to compile anything.
+                """
+                sql += self.raw_query_string().format(
+                    keyword=keyword, query=where.column
+                )
+
+                self.add_binding(where.bindings)
+
+                continue
+
             """The column is an easy compile
             """
             column = self._compile_column(column)
