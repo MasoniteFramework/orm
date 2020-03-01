@@ -5,6 +5,7 @@ from masonite.testing import TestCase
 from src.masonite.orm.builder.QueryBuilder import (
     SubGroupExpression,
     SubSelectExpression,
+    SelectExpression,
 )
 
 
@@ -22,7 +23,7 @@ class BaseGrammar:
 
     def __init__(
         self,
-        columns="*",
+        columns=(),
         table="users",
         wheres=(),
         limit=False,
@@ -457,6 +458,12 @@ class BaseGrammar:
 
         if self._columns != "*":
             for column in self._columns:
+                if isinstance(column, SelectExpression):
+                    if column.raw:
+                        sql += column.column
+                        continue
+
+                    column = column.column
                 sql += self._compile_column(column, seperator=seperator)
 
         if self._aggregates:

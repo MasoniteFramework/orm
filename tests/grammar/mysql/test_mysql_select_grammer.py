@@ -112,6 +112,16 @@ class BaseTestCaseSelectGrammer:
         sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_select_raw(self):
+        to_sql = self.builder.select_raw("COUNT(*)").to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_select_raw_with_select(self):
+        to_sql = self.builder.select('id').select_raw("COUNT(*)").to_sql()
+        sql = getattr(self, inspect.currentframe().f_code.co_name.replace('test_', ''))()
+        self.assertEqual(to_sql, sql)
+
     def test_can_compile_sub_select(self):
         to_sql = self.builder.where_in('name', 
             self.builder.new().select('age')
@@ -268,6 +278,18 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
         self.builder.where_raw("`age` = '18'").to_sql()
         """
         return "SELECT * FROM `users` WHERE `age` = '18'"
+
+    def can_compile_select_raw(self):
+        """
+        self.builder.select_raw("COUNT(*)").to_sql()
+        """
+        return "SELECT COUNT(*) FROM `users`"
+
+    def can_compile_select_raw_with_select(self):
+        """
+        self.builder.select('id').select_raw("COUNT(*)").to_sql()
+        """
+        return "SELECT `id`, COUNT(*) FROM `users`"
 
 
     def can_compile_count(self):

@@ -60,6 +60,11 @@ class SubGroupExpression:
     def __init__(self, builder):
         self.builder = builder
 
+class SelectExpression:
+    def __init__(self, column, raw=False):
+        self.column = column
+        self.raw = raw
+
 
 class QueryBuilder:
 
@@ -109,7 +114,7 @@ class QueryBuilder:
         )
 
     def boot(self):
-        self._columns = "*"
+        self._columns = ()
 
         self._sql = ""
         self._sql_binding = ""
@@ -129,7 +134,12 @@ class QueryBuilder:
         self._action = None
 
     def select(self, *args):
-        self._columns = list(args)
+        for column in args:
+            self._columns += (SelectExpression(column),)
+        return self
+
+    def select_raw(self, string):
+        self._columns += (SelectExpression(string, raw=True),)
         return self
 
     def create(self, creates):
