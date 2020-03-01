@@ -1,3 +1,6 @@
+from ..collection.Collection import Collection
+
+
 class BaseRelationship:
     def __init__(self, fn, local_key=None, foreign_key=None):
         if isinstance(fn, str):
@@ -43,7 +46,6 @@ class BaseRelationship:
         Returns:
             object -- Either returns a builder or a hydrated model.
         """
-
         relationship = self.fn(self)
         if not instance:
             """This means the user called the attribute rather than accessed it.
@@ -55,20 +57,32 @@ class BaseRelationship:
 
         """Since the attribute is accessed we want the relationship hydrated and ready to go.
         """
-        return relationship.hydrate(
-            self.apply_query(relationship, self.cls, self.foreign_key, self.local_key)
+        query_data = self.apply_query(
+            relationship, instance, self.foreign_key, self.local_key
         )
+
+        if isinstance(query_data, dict):
+            return relationship.hydrate(query_data)
+        elif isinstance(query_data, list):
+            results = []
+            for result in query_data:
+                results.append(relationship.hydrate(result))
+            return results
+            return relationship.new_collection(results)
+
+        raise Exception("found", query_data)
 
     def apply_query(self, foreign, owner, foreign_key, local_key):
         """Apply the query and return a dictionary to be hydrated
-        
+
         Arguments:
             foreign {oject} -- The relationship object
             owner {object} -- The current model oject.
             foreign_key {string} -- The column to access on the relationship model.
             local_key {string} -- The column to access on the current model.
-        
+
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-        return foreign.where(foreign_key, owner.__attributes__[local_key]).first()
+
+        return foreign.where(foreign_key, owner().__attributes__[local_key]).first()

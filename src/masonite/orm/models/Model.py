@@ -1,6 +1,7 @@
 from ..connections.ConnectionFactory import ConnectionFactory
 from ..builder.QueryBuilder import QueryBuilder
 from ..grammar.mysql_grammar import MySQLGrammar
+from ..collection.Collection import Collection
 
 
 class Model:
@@ -10,7 +11,9 @@ class Model:
     __table__ = "users"
     __connection__ = "default"
     __resolved_connection__ = None
-    __attributes__ = {}
+
+    def __init__(self):
+        self.__attributes__ = {}
 
     _booted = False
 
@@ -86,6 +89,10 @@ class Model:
         model = cls()
         model.__attributes__.update(dictionary or {})
         return model
+
+    @classmethod
+    def new_collection(cls, collection_data):
+        return Collection(collection_data)
 
     def fill(self):
         pass

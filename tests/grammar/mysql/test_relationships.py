@@ -2,12 +2,15 @@ import os
 import unittest
 
 from src.masonite.orm.models.Model import Model
-from src.masonite.orm.relationships import belongs_to
+from src.masonite.orm.relationships import belongs_to, has_many
 
 if os.getenv('RUN_MYSQL_DATABASE', False) == 'True':
 
     class Profile(Model):
         __table__ = 'profiles'
+
+    class Articles(Model):
+        __table__ = 'articles'
 
     class MockUser(Model):
 
@@ -18,6 +21,10 @@ if os.getenv('RUN_MYSQL_DATABASE', False) == 'True':
         @belongs_to('id', 'user_id')
         def profile(self):
             return Profile
+
+        @has_many('id', 'user_id')
+        def articles(self):
+            return Articles
 
         @classmethod
         def with_(cls, *eagers):
@@ -39,3 +46,12 @@ if os.getenv('RUN_MYSQL_DATABASE', False) == 'True':
                 user = MockUser.hydrate(dictionary)
                 self.assertIsInstance(user.profile, Profile)
                 print(user.profile.city)
+
+        def test_can_access_has_many_relationship(self):
+            user = MockUser.hydrate(MockUser.where('id', 1).first())
+            self.assertEqual(len(user.articles), 4)
+
+        def test_can_access_relationship_multiple_times(self):
+            user = MockUser.hydrate(MockUser.where('id', 1).first())
+            self.assertEqual(len(user.articles), 4)
+            self.assertEqual(len(user.articles), 4)

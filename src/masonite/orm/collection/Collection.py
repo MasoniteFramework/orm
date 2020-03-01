@@ -12,7 +12,10 @@ class Collection:
         return self.items[-1]
 
     def all(self):
-        pass
+        return self.items
+
+    def __len__(self):
+        return len(self.items)
 
     def avg(self):
         pass

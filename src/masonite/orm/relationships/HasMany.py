@@ -1,7 +1,7 @@
 from .BaseRelationship import BaseRelationship
 
 
-class BelongsTo(BaseRelationship):
+class HasMany(BaseRelationship):
     def apply_query(self, foreign, owner, foreign_key, local_key):
         """Apply the query and return a dictionary to be hydrated
 
@@ -14,4 +14,7 @@ class BelongsTo(BaseRelationship):
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-        return foreign.where(foreign_key, owner.__attributes__[local_key]).first()
+        print("efore apply", owner.__attributes__[local_key])
+        result = foreign.where(foreign_key, owner.__attributes__[local_key]).get()
+        print("after apply", owner.__attributes__[local_key])
+        return result
