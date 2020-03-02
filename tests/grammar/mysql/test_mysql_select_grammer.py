@@ -106,7 +106,7 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
 
     def can_compile_limit_and_offset(self):
         """
-        self.builder.select_raw("COUNT(*)").to_sql()
+        self.builder.limit(10).offset(10).to_sql()
         """
         return "SELECT * FROM `users` LIMIT 10 OFFSET 10"
 
@@ -225,3 +225,15 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
         builder.join('contacts', 'users.id', '=', 'contacts.user_id').to_sql()
         """
         return "SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`user_id` INNER JOIN `posts` ON `comments`.`post_id` = `posts`.`id`"
+
+    def test_can_compile_where_raw(self):
+        to_sql = self.builder.where_raw("`age` = '18'").to_sql()
+        self.assertEqual(to_sql, "SELECT * FROM `users` WHERE `age` = '18'")
+
+    def test_can_compile_select_raw(self):
+        to_sql = self.builder.select_raw("COUNT(*)").to_sql()
+        self.assertEqual(to_sql, "SELECT COUNT(*) FROM `users`")
+
+    def test_can_compile_select_raw_with_select(self):
+        to_sql = self.builder.select("id").select_raw("COUNT(*)").to_sql()
+        self.assertEqual(to_sql, "SELECT `id`, COUNT(*) FROM `users`")

@@ -155,7 +155,7 @@ class MySQLGrammar(BaseGrammar):
     def join_string(self):
         return "{keyword} {foreign_table} ON {local_table}.{column1} {equality} {foreign_table}.{column2}"
 
-    def limit_string(self):
+    def limit_string(self, offset=False):
         return "LIMIT {limit}"
 
     def offset_string(self):

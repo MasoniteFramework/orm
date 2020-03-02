@@ -294,13 +294,13 @@ class BaseGrammar:
         if not self._limit:
             return ""
 
-        return self.limit_string().format(limit=self._limit)
+        return self.limit_string(offset=self._offset).format(limit=self._limit)
 
     def _compile_offset(self):
         if not self._offset:
             return ""
 
-        return self.offset_string().format(offset=self._offset)
+        return self.offset_string().format(offset=self._offset, limit=self._limit)
 
     def _compile_having(self, qmark=False):
         sql = ""
