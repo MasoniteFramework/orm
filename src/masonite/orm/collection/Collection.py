@@ -110,8 +110,14 @@ class Collection:
     def sort(self):
         pass
 
-    def sum(self):
-        pass
+    def sum(self, key=None):
+        result = 0
+        items = self._value_retriever(key)
+        try:
+            result = sum(items)
+        except TypeError as e:
+            pass
+        return result
 
     def to_json(self):
         pass
@@ -132,3 +138,16 @@ class Collection:
 
     def zip(self):
         pass
+
+    def _value_retriever(self, key):
+        items = []
+        for item in self.items:
+            if not key:
+                items = self.items
+                break
+            elif isinstance(key, str):
+                if hasattr(item, key) or (key in item):
+                    items.append(getattr(item, key, item[key]))
+            elif callable(key):
+                items.append(key(item))
+        return items
