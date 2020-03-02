@@ -77,7 +77,8 @@ class Collection:
         return attributes
 
     def pop(self):
-        pass
+        last = self.items.pop()
+        return last
 
     def prepend(self):
         pass

@@ -7,3 +7,4 @@ masonite_validation*
 dist
 .env
 *.db
+.idea

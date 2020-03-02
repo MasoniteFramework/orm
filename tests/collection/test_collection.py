@@ -28,3 +28,8 @@ class TestCollection(unittest.TestCase):
             ]
         )
         self.assertEqual(len(collection.where("name", "Joe")), 2)
+
+    def test_pop(self):
+        collection = Collection([1, 2, 3])
+        self.assertEqual(collection.pop(), 3)
+        self.assertEqual(collection.all(), [1, 2])
