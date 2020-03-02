@@ -33,3 +33,9 @@ class TestCollection(unittest.TestCase):
         collection = Collection([1, 2, 3])
         self.assertEqual(collection.pop(), 3)
         self.assertEqual(collection.all(), [1, 2])
+
+    def test_is_empty(self):
+        collection = Collection([])
+        self.assertEqual(collection.is_empty(), True)
+        collection = Collection([1, 2, 3])
+        self.assertEqual(collection.is_empty(), False)
