@@ -74,7 +74,7 @@ class MySQLConnection(BaseConnection):
             data_results = []
             with self._connection.cursor() as cursor:
                 # Read a single record
-                execute = cursor.execute(query, bindings)
+                cursor.execute(query, bindings)
                 if results == 1:
                     return cursor.fetchone()
                 else:
