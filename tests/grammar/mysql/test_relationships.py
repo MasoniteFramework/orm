@@ -26,12 +26,6 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
         def articles(self):
             return Articles
 
-        @classmethod
-        def with_(cls, *eagers):
-            cls.boot()
-            cls._eager_loads += eagers
-            return cls.builder
-
     class TestRelationships(unittest.TestCase):
         def test_relationship_can_be_callable(self):
             self.assertEqual(
@@ -51,5 +45,19 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
 
         def test_can_access_relationship_multiple_times(self):
             user = MockUser.hydrate(MockUser.where("id", 1).first())
+            self.assertEqual(len(user.articles), 4)
+            self.assertEqual(len(user.articles), 4)
+
+        def test_loading(self):
+            user = MockUser.hydrate(MockUser.load("articles").where("id", 1).first())
+            self.assertEqual(len(user.articles), 4)
+            self.assertEqual(len(user.articles), 4)
+            self.assertEqual(len(user.articles), 4)
+            self.assertEqual(len(user.articles), 4)
+            self.assertEqual(len(user.articles), 4)
+            self.assertEqual(len(user.articles), 4)
+            self.assertEqual(len(user.articles), 4)
+            self.assertEqual(len(user.articles), 4)
+            self.assertEqual(len(user.articles), 4)
             self.assertEqual(len(user.articles), 4)
             self.assertEqual(len(user.articles), 4)

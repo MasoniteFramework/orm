@@ -14,7 +14,5 @@ class HasMany(BaseRelationship):
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-        print("efore apply", owner.__attributes__[local_key])
         result = foreign.where(foreign_key, owner.__attributes__[local_key]).get()
-        print("after apply", owner.__attributes__[local_key])
         return result

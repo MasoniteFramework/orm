@@ -55,6 +55,11 @@ class BaseRelationship:
             self.relationship.boot()
             return self.relationship.builder
 
+        """After we access the result and we wanted to load it we will fetch the loaded result
+        """
+        if self.fn.__name__ in instance._loaded_relationships:
+            return instance._loaded_relationships[self.fn.__name__]
+
         """Since the attribute is accessed we want the relationship hydrated and ready to go.
         """
         query_data = self.apply_query(
@@ -62,13 +67,18 @@ class BaseRelationship:
         )
 
         if isinstance(query_data, dict):
-            return relationship.hydrate(query_data)
+            loaded_result = relationship.hydrate(query_data)
+            if self.fn.__name__ in owner._loads:
+                instance._loaded_relationships[self.fn.__name__] = loaded_result
+            return loaded_result
         elif isinstance(query_data, list):
             results = []
             for result in query_data:
                 results.append(relationship.hydrate(result))
-            return results
-            return relationship.new_collection(results)
+            loaded_result = relationship.new_collection(results)
+            if self.fn.__name__ in owner._loads:
+                instance._loaded_relationships[self.fn.__name__] = loaded_result
+            return loaded_result
 
         raise Exception("found", query_data)
 

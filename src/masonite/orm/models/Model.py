@@ -14,6 +14,7 @@ class Model:
 
     def __init__(self):
         self.__attributes__ = {}
+        self._loaded_relationships = {}
 
     _booted = False
 
@@ -28,6 +29,7 @@ class Model:
             cls.builder.set_action("select")
             cls._booted = True
             cls._boot_parent_scopes(cls)
+            cls._loads = ()
 
     def _boot_parent_scopes(cls):
         for parent in cls.__bases__:
@@ -122,3 +124,9 @@ class Model:
     def __getattr__(self, attribute):
         if attribute in self.__attributes__:
             return self.__attributes__[attribute]
+
+    @classmethod
+    def load(cls, *loads):
+        cls.boot()
+        cls._loads += loads
+        return cls.builder
