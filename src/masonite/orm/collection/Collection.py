@@ -68,8 +68,13 @@ class Collection:
     def merge(self):
         pass
 
-    def pluck(self):
-        pass
+    def pluck(self, attribute):
+        attributes = []
+        for item in self.items:
+            for key, value in item.items():
+                if key == attribute:
+                    attributes.append(value)
+        return attributes
 
     def pop(self):
         pass
@@ -116,8 +121,13 @@ class Collection:
     def unique(self):
         pass
 
-    def where(self):
-        pass
+    def where(self, attribute, value):
+        attributes = []
+        for item in self.items:
+            if item.get(attribute) == value:
+                attributes.append(item)
+
+        return attributes or None
 
     def zip(self):
         pass

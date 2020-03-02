@@ -14,3 +14,17 @@ class TestCollection(unittest.TestCase):
     def test_last(self):
         collection = Collection([1, 2, 3, 4])
         self.assertEqual(collection.last(), 4)
+
+    def test_pluck(self):
+        collection = Collection([{"id": 1, "name": "Joe"}, {"id": 2, "name": "Bob"}])
+        self.assertEqual(collection.pluck("id"), [1, 2])
+
+    def test_where(self):
+        collection = Collection(
+            [
+                {"id": 1, "name": "Joe"},
+                {"id": 2, "name": "Joe"},
+                {"id": 3, "name": "Bob"},
+            ]
+        )
+        self.assertEqual(len(collection.where("name", "Joe")), 2)

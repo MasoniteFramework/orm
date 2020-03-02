@@ -60,6 +60,13 @@ class BaseRelationship:
         if self.fn.__name__ in instance._loaded_relationships:
             return instance._loaded_relationships[self.fn.__name__]
 
+        """After we access the result and we wanted to load it we will fetch the loaded result
+        """
+        if self.fn.__name__ in instance._eager_relationships:
+            return Collection(instance._eager_relationships[self.fn.__name__]).where(
+                "user_id", instance.id
+            )
+
         """Since the attribute is accessed we want the relationship hydrated and ready to go.
         """
         query_data = self.apply_query(

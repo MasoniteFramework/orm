@@ -69,15 +69,17 @@ class MySQLConnection(BaseConnection):
         Returns:
             dict|None -- Returns a dictionary of results or None
         """
-        query = query.replace("?", "%s")
+        query = query.replace("'?'", "%s")
         try:
+            data_results = []
             with self._connection.cursor() as cursor:
                 # Read a single record
-                cursor.execute(query, bindings)
+                execute = cursor.execute(query, bindings)
                 if results == 1:
-                    result = cursor.fetchone()
+                    return cursor.fetchone()
                 else:
-                    result = cursor.fetchall()
-                return result
+                    for result in cursor.fetchall():
+                        data_results.append(result)
+            return data_results
         finally:
             self._connection.close()

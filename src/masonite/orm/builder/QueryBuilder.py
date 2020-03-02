@@ -1,5 +1,6 @@
 import copy
 import inspect
+from ..collection.Collection import Collection
 
 
 class QueryExpression:
@@ -72,7 +73,13 @@ class QueryBuilder:
     _action = "select"
 
     def __init__(
-        self, grammar, connection=None, table="", connection_details={}, scopes={}
+        self,
+        grammar,
+        connection=None,
+        table="",
+        connection_details={},
+        scopes={},
+        owner=None,
     ):
         """QueryBuilder initializer
 
@@ -85,6 +92,7 @@ class QueryBuilder:
         """
         self.grammar = grammar
         self.table = table
+        self.owner = owner
         self.connection = connection
         self.connection_details = connection_details
         self._scopes = {}
@@ -299,9 +307,18 @@ class QueryBuilder:
 
     def get(self):
         self._action = "select"
-        return (
+        result = (
             self.connection().make_connection().query(self.to_qmark(), self._bindings)
         )
+        if self.owner._eager_load:
+            for eager in self.owner._eager_load:
+                relationship_result = (
+                    getattr(self.owner, eager)()
+                    .where_in("id", Collection(result).pluck("id"))
+                    .get()
+                )
+                self.owner._eager_relationships[eager] = relationship_result
+        return result
 
     def set_action(self, action):
         self._action = action

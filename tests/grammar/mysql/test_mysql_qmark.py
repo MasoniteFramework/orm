@@ -27,6 +27,15 @@ class BaseQMarkTest:
         self.assertEqual(mark.to_qmark(), sql)
         self.assertEqual(mark._bindings, bindings)
 
+    def test_can_compile_where_in(self):
+        mark = self.builder.where_in("id", [1, 2, 3])
+
+        sql, bindings = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(mark.to_qmark(), sql)
+        self.assertEqual(mark._bindings, bindings)
+
 
 class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
     def can_compile_select(self):
@@ -42,3 +51,9 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         }).where('name', 'Joe')
         """
         return "UPDATE `users` SET `name` = '?' WHERE `name` = '?'", ("Bob", "Joe",)
+
+    def can_compile_where_in(self):
+        """
+        self.builder.where_in('id', [1,2,3]).to_qmark()
+        """
+        return "SELECT * FROM `users` WHERE `id` IN ('?', '?', '?')", ("1", "2", "3")

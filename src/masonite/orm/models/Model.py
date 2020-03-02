@@ -11,6 +11,8 @@ class Model:
     __table__ = "users"
     __connection__ = "default"
     __resolved_connection__ = None
+    _eager_load = ()
+    _eager_relationships = {}
 
     def __init__(self):
         self.__attributes__ = {}
@@ -24,7 +26,10 @@ class Model:
         if not cls._booted:
             cls.__resolved_connection__ = ConnectionFactory().make(cls.__connection__)
             cls.builder = QueryBuilder(
-                MySQLGrammar, cls.__resolved_connection__, table=cls.__table__
+                MySQLGrammar,
+                cls.__resolved_connection__,
+                table=cls.__table__,
+                owner=cls,
             )
             cls.builder.set_action("select")
             cls._booted = True
@@ -129,4 +134,10 @@ class Model:
     def load(cls, *loads):
         cls.boot()
         cls._loads += loads
+        return cls.builder
+
+    @classmethod
+    def with_(cls, *eagers):
+        cls.boot()
+        cls._eager_load += eagers
         return cls.builder

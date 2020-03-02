@@ -387,13 +387,20 @@ class BaseGrammar:
                 query_value = self.subquery_string().format(
                     query=value.builder.to_sql()
                 )
-            elif qmark:
-                query_value = "'?'"
             elif isinstance(value, list):
                 query_value = "("
                 for val in value:
-                    query_value += self.value_string().format(value=val, seperator=",")
-                query_value = query_value.rstrip(",") + ")"
+                    if qmark:
+                        query_value += "'?', "
+                        self.add_binding(val)
+                    else:
+                        query_value += self.value_string().format(
+                            value=val, seperator=","
+                        )
+                query_value = query_value.rstrip(",").rstrip(", ") + ")"
+            elif qmark:
+                query_value = "'?'"
+                self.add_binding(value)
             elif value_type == "value":
                 query_value = self.value_string().format(value=value, seperator="")
             elif value_type == "column":
@@ -404,9 +411,6 @@ class BaseGrammar:
             sql += sql_string.format(
                 keyword=keyword, column=column, equality=equality, value=query_value,
             )
-
-            if qmark:
-                self.add_binding(value)
 
             loop_count += 1
 

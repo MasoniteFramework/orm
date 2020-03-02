@@ -49,15 +49,8 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             self.assertEqual(len(user.articles), 4)
 
         def test_loading(self):
-            user = MockUser.hydrate(MockUser.load("articles").where("id", 1).first())
-            self.assertEqual(len(user.articles), 4)
-            self.assertEqual(len(user.articles), 4)
-            self.assertEqual(len(user.articles), 4)
-            self.assertEqual(len(user.articles), 4)
-            self.assertEqual(len(user.articles), 4)
-            self.assertEqual(len(user.articles), 4)
-            self.assertEqual(len(user.articles), 4)
-            self.assertEqual(len(user.articles), 4)
-            self.assertEqual(len(user.articles), 4)
-            self.assertEqual(len(user.articles), 4)
-            self.assertEqual(len(user.articles), 4)
+            users = MockUser.with_("articles").get()
+            for user in users:
+                user_model = MockUser.hydrate(user)
+                print(user_model.id)
+                print(user_model.articles)
