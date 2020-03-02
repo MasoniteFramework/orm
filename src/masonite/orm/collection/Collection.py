@@ -140,12 +140,12 @@ class Collection:
         pass
 
     def _value_retriever(self, key):
+        if not key:
+            return self.items
+
         items = []
         for item in self.items:
-            if not key:
-                items = self.items
-                break
-            elif isinstance(key, str):
+            if isinstance(key, str):
                 if hasattr(item, key) or (key in item):
                     items.append(getattr(item, key, item[key]))
             elif callable(key):
