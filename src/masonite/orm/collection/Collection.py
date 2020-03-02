@@ -115,7 +115,7 @@ class Collection:
         items = self._value_retriever(key)
         try:
             result = sum(items)
-        except TypeError as e:
+        except TypeError:
             pass
         return result
 
