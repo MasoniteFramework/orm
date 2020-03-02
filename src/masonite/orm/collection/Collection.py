@@ -60,7 +60,7 @@ class Collection:
         pass
 
     def is_empty(self):
-        pass
+        return True if not self.items else False
 
     def map(self):
         pass
