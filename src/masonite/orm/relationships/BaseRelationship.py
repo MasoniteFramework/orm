@@ -63,7 +63,7 @@ class BaseRelationship:
             )
 
         """Apply the query needed to make this relationship work.
-        """        
+        """
         result = self.apply_query(
             relationship, instance, self.foreign_key, self.local_key
         )
