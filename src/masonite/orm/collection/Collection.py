@@ -65,6 +65,17 @@ class Collection:
     def map(self):
         pass
 
+    def map_into(self, cls, method=None):
+        results = []
+        for item in self.items:
+
+            if method:
+                results.append(getattr(cls, method)(item))
+            else:
+                results.append(cls(item))
+
+        return Collection(results)
+
     def merge(self):
         pass
 
@@ -132,3 +143,7 @@ class Collection:
 
     def zip(self):
         pass
+
+    def __iter__(self):
+        for item in self.items:
+            yield item

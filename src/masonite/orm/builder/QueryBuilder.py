@@ -317,8 +317,8 @@ class QueryBuilder:
                     .where_in("id", Collection(result).pluck("id"))
                     .get()
                 )
-                self.owner._eager_relationships[eager] = relationship_result
-        return result
+                self.owner._relationships[eager] = relationship_result
+        return self.owner.new_collection(result).map_into(self.owner, "hydrate")
 
     def set_action(self, action):
         self._action = action
