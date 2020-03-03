@@ -93,6 +93,14 @@ class BaseTestCreateGrammar:
         )()
         self.assertEqual(to_sql, sql)
 
+    def test_table_exists(self):
+        to_sql = self.schema.has_table("users", query_only=True)
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
     def test_drop_table(self):
         to_sql = self.schema.drop_table("users", query_only=True)
 
@@ -287,6 +295,14 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         """
 
         return "SHOW COLUMNS FROM `users` LIKE 'email'"
+
+    def table_exists(self):
+        """
+        self.schema.has_table('users', query_only=True)
+        """
+
+        return "SHOW TABLES LIKE `users`"
+
 
     def drop_table(self):
         """

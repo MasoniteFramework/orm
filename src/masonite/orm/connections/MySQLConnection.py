@@ -55,7 +55,7 @@ class MySQLConnection(BaseConnection):
         """
         pass
 
-    def query(self, query, bindings, results="*"):
+    def query(self, query, bindings=(), results="*"):
         """Make the actual query that will reach the database and come back with a result.
 
         Arguments:
