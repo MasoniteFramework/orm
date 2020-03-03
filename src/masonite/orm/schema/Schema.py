@@ -80,6 +80,10 @@ class Schema:
         return bool(cls._connection().make_connection().query(query, ()))
 
     @classmethod
+    def has_table(cls, table):
+        pass
+    
+    @classmethod
     def set_default_string_length(cls, length):
         cls._default_string_length = length
         return cls
