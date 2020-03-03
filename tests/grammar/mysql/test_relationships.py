@@ -34,8 +34,7 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             )
 
         def test_can_access_relationship(self):
-            for dictionary in MockUser.where("id", 1).get():
-                user = MockUser.hydrate(dictionary)
+            for user in MockUser.where("id", 1).get():
                 self.assertIsInstance(user.profile, Profile)
                 print(user.profile.city)
 
@@ -51,6 +50,5 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
         def test_loading(self):
             users = MockUser.with_("articles").get()
             for user in users:
-                user_model = MockUser.hydrate(user)
-                print(user_model.id)
-                print(user_model.articles)
+                print(user)
+                # print(user.articles)
