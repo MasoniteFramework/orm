@@ -1,14 +1,26 @@
 import copy
 import inspect
+from ..collection.Collection import Collection
 
 
 class QueryExpression:
-    def __init__(self, column, equality, value, value_type="value", keyword=None):
+    def __init__(
+        self,
+        column,
+        equality,
+        value,
+        value_type="value",
+        keyword=None,
+        raw=False,
+        bindings=(),
+    ):
         self.column = column
         self.equality = equality
         self.value = value
         self.value_type = value_type
         self.keyword = keyword
+        self.raw = raw
+        self.bindings = bindings
 
 
 class HavingExpression:
@@ -50,12 +62,24 @@ class SubGroupExpression:
         self.builder = builder
 
 
+class SelectExpression:
+    def __init__(self, column, raw=False):
+        self.column = column
+        self.raw = raw
+
+
 class QueryBuilder:
 
     _action = "select"
 
     def __init__(
-        self, grammar, connection=None, table="", connection_details={}, scopes={}
+        self,
+        grammar,
+        connection=None,
+        table="",
+        connection_details={},
+        scopes={},
+        owner=None,
     ):
         """QueryBuilder initializer
 
@@ -68,6 +92,7 @@ class QueryBuilder:
         """
         self.grammar = grammar
         self.table = table
+        self.owner = owner
         self.connection = connection
         self.connection_details = connection_details
         self._scopes = {}
@@ -98,7 +123,7 @@ class QueryBuilder:
         )
 
     def boot(self):
-        self._columns = "*"
+        self._columns = ()
 
         self._sql = ""
         self._sql_binding = ""
@@ -115,10 +140,16 @@ class QueryBuilder:
         self._aggregates = ()
 
         self._limit = False
+        self._offset = False
         self._action = None
 
     def select(self, *args):
-        self._columns = list(args)
+        for column in args:
+            self._columns += (SelectExpression(column),)
+        return self
+
+    def select_raw(self, string):
+        self._columns += (SelectExpression(string, raw=True),)
         return self
 
     def create(self, creates):
@@ -143,6 +174,10 @@ class QueryBuilder:
         else:
             self._wheres += ((QueryExpression(column, "=", value, "value")),)
         # self._wheres += ((column, "=", value),)
+        return self
+
+    def where_raw(self, column, bindings=()):
+        self._wheres += ((QueryExpression(column, "=", None, "value", raw=True)),)
         return self
 
     def or_where(self, column, value):
@@ -215,6 +250,10 @@ class QueryBuilder:
         self._limit = amount
         return self
 
+    def offset(self, amount):
+        self._offset = amount
+        return self
+
     def update(self, updates):
         self._updates = (UpdateQueryExpression(updates),)
         self._action = "update"
@@ -268,9 +307,18 @@ class QueryBuilder:
 
     def get(self):
         self._action = "select"
-        return (
+        result = (
             self.connection().make_connection().query(self.to_qmark(), self._bindings)
         )
+        if self.owner._eager_load:
+            for eager in self.owner._eager_load:
+                relationship_result = (
+                    getattr(self.owner, eager)()
+                    .where_in("id", Collection(result).pluck("id"))
+                    .get()
+                )
+                self.owner._eager_relationships[eager] = relationship_result
+        return result
 
     def set_action(self, action):
         self._action = action
@@ -282,6 +330,7 @@ class QueryBuilder:
             table=self.table,
             wheres=self._wheres,
             limit=self._limit,
+            offset=self._offset,
             updates=self._updates,
             aggregates=self._aggregates,
             order_by=self._order_by,
@@ -311,6 +360,7 @@ class QueryBuilder:
             table=self.table,
             wheres=self._wheres,
             limit=self._limit,
+            offset=self._offset,
             updates=self._updates,
             aggregates=self._aggregates,
             order_by=self._order_by,
@@ -333,3 +383,6 @@ class QueryBuilder:
         )
 
         return builder
+
+    def __call__(self):
+        return self

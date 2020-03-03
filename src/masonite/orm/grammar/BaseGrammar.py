@@ -5,6 +5,7 @@ from masonite.testing import TestCase
 from src.masonite.orm.builder.QueryBuilder import (
     SubGroupExpression,
     SubSelectExpression,
+    SelectExpression,
 )
 
 
@@ -22,10 +23,11 @@ class BaseGrammar:
 
     def __init__(
         self,
-        columns="*",
+        columns=(),
         table="users",
         wheres=(),
         limit=False,
+        offset=False,
         updates={},
         aggregates=(),
         order_by=(),
@@ -39,6 +41,7 @@ class BaseGrammar:
         self.table = table
         self._wheres = wheres
         self._limit = limit
+        self._offset = offset
         self._updates = updates
         self._aggregates = aggregates
         self._order_by = order_by
@@ -63,15 +66,14 @@ class BaseGrammar:
         """
         for column in self._creates:
 
-            length_string = self.create_column_length().format(length=column.length) if column.length else ""
-            default_temporal_field_value = self.temporal_field_defaults.get(column.column_type, None)
+            length_string = (
+                self.create_column_length().format(length=column.length)
+                if column.length
+                else ""
+            )
+            mapped_time_value = self.timestamp_mapping.get(column.default)
 
-            default_value = column.default_value
-
-            if default_temporal_field_value and column.use_current_timestamp:
-                default_value = default_temporal_field_value
-            elif column.default_value:
-                default_value = column.default_value
+            default_value = mapped_time_value or column.default
 
             attributes = {
                 "column": self._compile_column(column.column_name),
@@ -83,7 +85,7 @@ class BaseGrammar:
                 attributes.update({"default_value": default_value})
                 sql += self.create_column_string_with_default().format(**attributes)
             else:
-                attributes.update({"nullable": "" if column.is_null else " NOT NULL" })
+                attributes.update({"nullable": "" if column.is_null else " NOT NULL"})
                 sql += self.create_column_string().format(**attributes)
 
         """Add Constraints
@@ -97,7 +99,6 @@ class BaseGrammar:
                     clean_column=column.column_name,
                 )
                 sql += ", "
-        print(sql)
         sql = sql.rstrip(", ")
 
         sql += ")"
@@ -110,9 +111,13 @@ class BaseGrammar:
 
         """Add Columns
         """
-        print("compiling alter", self._creates)
         for column in self._creates:
-            print(column._action)
+            nullable = ""
+            if column.is_null and column._action == "modify":
+                nullable = " NULL"
+            elif not column.is_null:
+                nullable = " NOT NULL"
+
             sql += getattr(self, "{}_column_string".format(column._action))().format(
                 column=self._compile_column(column.column_name),
                 old_column=self._compile_column(column.old_column),
@@ -120,7 +125,7 @@ class BaseGrammar:
                 length=self.create_column_length().format(length=column.length)
                 if column.length
                 else "",
-                nullable="" if column.is_null else " NOT NULL",
+                nullable=nullable,
                 after=self.after_column_string().format(
                     after=self._compile_column(column.after_column)
                 )
@@ -142,6 +147,7 @@ class BaseGrammar:
                 table=self._compile_from(),
                 wheres=self._compile_wheres(qmark=qmark),
                 limit=self._compile_limit(),
+                offset=self._compile_offset(),
                 aggregates=self._compile_aggregates(),
                 order_by=self._compile_order_by(),
                 group_by=self._compile_group_by(),
@@ -201,9 +207,7 @@ class BaseGrammar:
 
     def _compile_key_value_equals(self, qmark=False):
         sql = ""
-        print(self._updates)
         for update in self._updates:
-            print(update)
 
             if update.update_type == "increment":
                 sql_string = self.increment_string()
@@ -290,7 +294,13 @@ class BaseGrammar:
         if not self._limit:
             return ""
 
-        return self.limit_string().format(limit=self._limit)
+        return self.limit_string(offset=self._offset).format(limit=self._limit)
+
+    def _compile_offset(self):
+        if not self._offset:
+            return ""
+
+        return self.offset_string().format(offset=self._offset, limit=self._limit)
 
     def _compile_having(self, qmark=False):
         sql = ""
@@ -336,6 +346,18 @@ class BaseGrammar:
             else:
                 keyword = self.additional_where_string()
 
+            if where.raw:
+                """If we have a raw query we just want to use the query supplied
+                and don't need to compile anything.
+                """
+                sql += self.raw_query_string().format(
+                    keyword=keyword, query=where.column
+                )
+
+                self.add_binding(where.bindings)
+
+                continue
+
             """The column is an easy compile
             """
             column = self._compile_column(column)
@@ -352,8 +374,6 @@ class BaseGrammar:
             else:
                 sql_string = self.where_string()
 
-            print(sql_string)
-
             """If the value should actually be a sub query then we need to wrap it in a query here
             """
             if isinstance(value, SubGroupExpression):
@@ -367,13 +387,20 @@ class BaseGrammar:
                 query_value = self.subquery_string().format(
                     query=value.builder.to_sql()
                 )
-            elif qmark:
-                query_value = "'?'"
             elif isinstance(value, list):
                 query_value = "("
                 for val in value:
-                    query_value += self.value_string().format(value=val, seperator=",")
-                query_value = query_value.rstrip(",") + ")"
+                    if qmark:
+                        query_value += "'?', "
+                        self.add_binding(val)
+                    else:
+                        query_value += self.value_string().format(
+                            value=val, seperator=","
+                        )
+                query_value = query_value.rstrip(",").rstrip(", ") + ")"
+            elif qmark:
+                query_value = "'?'"
+                self.add_binding(value)
             elif value_type == "value":
                 query_value = self.value_string().format(value=value, seperator="")
             elif value_type == "column":
@@ -384,9 +411,6 @@ class BaseGrammar:
             sql += sql_string.format(
                 keyword=keyword, column=column, equality=equality, value=query_value,
             )
-
-            if qmark:
-                self.add_binding(value)
 
             loop_count += 1
 
@@ -453,6 +477,12 @@ class BaseGrammar:
 
         if self._columns != "*":
             for column in self._columns:
+                if isinstance(column, SelectExpression):
+                    if column.raw:
+                        sql += column.column
+                        continue
+
+                    column = column.column
                 sql += self._compile_column(column, seperator=seperator)
 
         if self._aggregates:

@@ -63,13 +63,10 @@ class MySQLGrammar(BaseGrammar):
         "unsigned_integer": "UNSIGNED INT",
     }
 
-    temporal_field_defaults = {
-        "timestamp": "CURRENT_TIMESTAMP",
-        "datetime": "NOW()"
-    }
+    timestamp_mapping = {"current": "CURRENT_TIMESTAMP", "now": "NOW()"}
 
     def select_format(self):
-        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by}{order_by}{limit} {having}"
+        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by}{order_by}{limit} {offset} {having}"
 
     def update_format(self):
         return "UPDATE {table} SET {key_equals} {wheres}"
@@ -88,6 +85,9 @@ class MySQLGrammar(BaseGrammar):
 
     def subquery_string(self):
         return "({query})"
+
+    def raw_query_string(self):
+        return "{keyword} {query}"
 
     def where_group_string(self):
         return "{keyword} {value}"
@@ -109,10 +109,10 @@ class MySQLGrammar(BaseGrammar):
 
     def create_column_string(self):
         return "{column} {data_type}{length}{nullable}, "
-    
+
     def create_column_string_with_default(self):
         return "{column} {data_type}{length} DEFAULT {default_value}, "
-    
+
     def column_exists_string(self):
         return "SHOW COLUMNS FROM {table} LIKE {value}"
 
@@ -155,8 +155,11 @@ class MySQLGrammar(BaseGrammar):
     def join_string(self):
         return "{keyword} {foreign_table} ON {local_table}.{column1} {equality} {foreign_table}.{column2}"
 
-    def limit_string(self):
+    def limit_string(self, offset=False):
         return "LIMIT {limit}"
+
+    def offset_string(self):
+        return "OFFSET {offset}"
 
     def first_where_string(self):
         return "WHERE"

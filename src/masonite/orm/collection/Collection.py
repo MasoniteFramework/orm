@@ -1,19 +1,21 @@
 class Collection:
-
     def __init__(self, items=[]):
         self.items = items
-    
+
     def take(self, number):
         return self.items[:number]
-    
+
     def first(self):
         return self.items[0]
-    
+
     def last(self):
         return self.items[-1]
 
     def all(self):
-        pass
+        return self.items
+
+    def __len__(self):
+        return len(self.items)
 
     def avg(self):
         pass
@@ -42,9 +44,6 @@ class Collection:
     def filter(self):
         pass
 
-    def first(self):
-        pass
-
     def flatten(self):
         pass
 
@@ -63,20 +62,23 @@ class Collection:
     def is_empty(self):
         pass
 
-    def last(self):
-        pass
-
     def map(self):
         pass
 
     def merge(self):
         pass
 
-    def pluck(self):
-        pass
+    def pluck(self, attribute):
+        attributes = []
+        for item in self.items:
+            for key, value in item.items():
+                if key == attribute:
+                    attributes.append(value)
+        return attributes
 
     def pop(self):
-        pass
+        last = self.items.pop()
+        return last
 
     def prepend(self):
         pass
@@ -111,9 +113,6 @@ class Collection:
     def sum(self):
         pass
 
-    def take(self):
-        pass
-
     def to_json(self):
         pass
 
@@ -123,8 +122,13 @@ class Collection:
     def unique(self):
         pass
 
-    def where(self):
-        pass
+    def where(self, attribute, value):
+        attributes = []
+        for item in self.items:
+            if item.get(attribute) == value:
+                attributes.append(item)
+
+        return attributes or None
 
     def zip(self):
         pass

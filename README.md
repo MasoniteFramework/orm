@@ -57,8 +57,8 @@ Phase 1 will involve getting the foundation setup for this project. Making sure 
 - [x] MySQL
     - [x] Grammar
         - [x] SELECT
-            - [ ] Where
-            - [ ] Or Where
+            - [x] Where
+            - [x] Or Where
         - [x] UPDATE
         - [x] INSERT
         - [x] DELETE
@@ -71,7 +71,7 @@ Phase 1 will involve getting the foundation setup for this project. Making sure 
     - [x] Schema
         - [x] SQL Injection
         - [x] Needs type mappings and aggregates
-        - [ ] Alter query AFTER keyword (for adding column after another column)
+        - [x] Alter query AFTER keyword (for adding column after another column)
         - [x] Constraints
             - [x] Primary Keys
             - [x] Unique
@@ -129,7 +129,7 @@ Phase 1 will involve getting the foundation setup for this project. Making sure 
     - [ ] Full Tests
 
 - [x] Create Schema Builder class (just a wrapper around create and alter queries)
-- [ ] Relationships
+- [x] Relationships
 - [in progress] Add indexes to schema 
 - [ ] Eager Loading
     - [ ] N + 1 Problem
@@ -142,6 +142,8 @@ Phase 1 will involve getting the foundation setup for this project. Making sure 
 **Versions 0.5 - 0.9**
 
 Phase 2 will involve further refactoring. By this phase, all the documentation should be done for the above phase.
+
+* Where Has queries
 
 # Phase 3
 
