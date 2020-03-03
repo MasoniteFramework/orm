@@ -94,7 +94,7 @@ class Schema:
         if query_only:
             return query
         return bool(cls._connection().make_connection().query(query))
-    
+
     @classmethod
     def set_default_string_length(cls, length):
         cls._default_string_length = length

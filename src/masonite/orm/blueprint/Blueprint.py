@@ -21,7 +21,7 @@ class Column:
         self.default = default
         self._action = action
         self._change = False
-        
+
     def nullable(self):
         self.is_null = True
         return self
