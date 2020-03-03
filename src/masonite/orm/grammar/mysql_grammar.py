@@ -116,6 +116,9 @@ class MySQLGrammar(BaseGrammar):
     def column_exists_string(self):
         return "SHOW COLUMNS FROM {table} LIKE {value}"
 
+    def table_exists_string(self):
+        return "SHOW TABLES LIKE {table}"
+
     def add_column_string(self):
         return "ADD {column} {data_type}{length}{nullable} {after}, "
 
@@ -139,6 +142,12 @@ class MySQLGrammar(BaseGrammar):
 
     def unique_constraint_string(self):
         return "CONSTRAINT {clean_column}_unique UNIQUE ({clean_column})"
+
+    def create_index_string(self):
+        return "INDEX ({column})"
+
+    def foreign_key_constraint_string(self):
+        return "FOREIGN KEY {local_column} REFERENCES {foreign_table}({primary_key_foreign_table})"
 
     def table_string(self):
         return "`{table}`"
