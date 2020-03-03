@@ -202,6 +202,13 @@ class QueryBuilder:
         # self._wheres += ((column, "=", value),)
         return self
 
+    def where_between(self, column, low, high):
+        """Short cut for chaining two where clauses
+        Instead of `.where('age', '>', 5).where('age', '<', '10')`
+        We can use `.where_between('age', 5, 10)`
+        """
+        return self.where(column, ">", low).where(column, "<", high)
+
     def having(self, column, equality="", value=""):
         self._having += ((HavingExpression(column, equality, value)),)
         return self
