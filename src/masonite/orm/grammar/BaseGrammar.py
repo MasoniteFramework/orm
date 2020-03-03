@@ -445,6 +445,10 @@ class BaseGrammar:
         self._updates = updates
         return self
 
+    def table_exists(self):
+        self._sql = self.table_exists_string().format(table=self._compile_from())
+        return self
+
     def column_exists(self, column):
         self._column = column
         self._sql = self._compile_exists()
