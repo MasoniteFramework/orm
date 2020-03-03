@@ -60,7 +60,7 @@ class Collection:
         pass
 
     def is_empty(self):
-        return True if not self.items else False
+        return not self.items
 
     def map(self):
         pass
@@ -123,7 +123,7 @@ class Collection:
 
     def sum(self, key=None):
         result = 0
-        items = self._value_retriever(key)
+        items = self._get_value(key) or self.items
         try:
             result = sum(items)
         except TypeError:
@@ -154,9 +154,9 @@ class Collection:
         for item in self.items:
             yield item
 
-    def _value_retriever(self, key):
+    def _get_value(self, key):
         if not key:
-            return self.items
+            return None
 
         items = []
         for item in self.items:
