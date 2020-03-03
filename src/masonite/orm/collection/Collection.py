@@ -36,7 +36,7 @@ class Collection:
         pass
 
     def count(self):
-        pass
+        return len(self.items)
 
     def diff(self):
         pass
