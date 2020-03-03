@@ -18,11 +18,10 @@ class Column:
         self.constraint_type = None
         self.after_column = None
         self.old_column = ""
-        self.use_current_timestamp = False
         self.default = default
         self._action = action
         self._change = False
-
+        
     def nullable(self):
         self.is_null = True
         return self
@@ -54,7 +53,6 @@ class Column:
 
     def use_current(self):
         self.default = "current"
-        # self.use_current_timestamp = True
         return self
 
 
@@ -67,6 +65,8 @@ class Blueprint:
         self._last_column = None
         self._action = action
         self._default_string_length = default_string_length
+        self._last_relation = None
+        self. _relations = []
 
     def string(self, column, length=255, nullable=False):
         self._last_column = self.new_column("string", column, length, nullable)
@@ -195,6 +195,22 @@ class Blueprint:
 
     def unsigned_integer(self):
         pass
+
+    def foreign(self, local_column=None):
+        self._last_relation = {}
+        self._last_relation.update({"local_column": local_column})
+        return self
+
+    def references(self, external_column=None):
+        self._last_relation.update({"external_column": external_column})
+        return self
+
+    def on(self, table=None):
+        self._last_relation.update({"table": table})
+        self._relations.append(self._last_relation)
+        self._last_relation = None
+
+        return self
 
     def to_sql(self):
         if self._action == "create":
