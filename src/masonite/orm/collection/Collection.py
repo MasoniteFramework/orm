@@ -60,7 +60,7 @@ class Collection:
         pass
 
     def is_empty(self):
-        pass
+        return True if not self.items else False
 
     def map(self):
         pass
@@ -121,8 +121,14 @@ class Collection:
     def sort(self):
         pass
 
-    def sum(self):
-        pass
+    def sum(self, key=None):
+        result = 0
+        items = self._value_retriever(key)
+        try:
+            result = sum(items)
+        except TypeError:
+            pass
+        return result
 
     def to_json(self):
         pass
@@ -147,3 +153,16 @@ class Collection:
     def __iter__(self):
         for item in self.items:
             yield item
+
+    def _value_retriever(self, key):
+        if not key:
+            return self.items
+
+        items = []
+        for item in self.items:
+            if isinstance(key, str):
+                if hasattr(item, key) or (key in item):
+                    items.append(getattr(item, key, item[key]))
+            elif callable(key):
+                items.append(key(item))
+        return items
