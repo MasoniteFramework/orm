@@ -12,13 +12,19 @@ class Model:
     __connection__ = "default"
     __resolved_connection__ = None
     _eager_load = ()
-    _eager_relationships = {}
+    _relationships = {}
+    _booted = False
+    __primary_key__ = "id"
 
     def __init__(self):
         self.__attributes__ = {}
-        self._loaded_relationships = {}
+        self._relationships = {}
 
-    _booted = False
+    def get_primary_key(self):
+        return self.__primary_key__
+
+    def get_primary_key_value(self):
+        return getattr(self, self.get_primary_key())
 
     @classmethod
     def boot(cls):

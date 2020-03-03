@@ -49,45 +49,29 @@ class BaseRelationship:
         relationship = self.fn(self)
         if not instance:
             """This means the user called the attribute rather than accessed it.
-            In this case we want to return the builder
+            In this case we want to return the builder so we can chain on additional methods
             """
             self.relationship = self.fn(self)
             self.relationship.boot()
             return self.relationship.builder
 
-        """After we access the result and we wanted to load it we will fetch the loaded result
+        """Check if the relationship is eager loaded and return that relationship instead
         """
-        if self.fn.__name__ in instance._loaded_relationships:
-            return instance._loaded_relationships[self.fn.__name__]
-
-        """After we access the result and we wanted to load it we will fetch the loaded result
-        """
-        if self.fn.__name__ in instance._eager_relationships:
-            return Collection(instance._eager_relationships[self.fn.__name__]).where(
-                "user_id", instance.id
+        if self.fn.__name__ in instance._relationships:
+            return Collection(instance._relationships[self.fn.__name__]).where(
+                self.foreign_key, instance.get_primary_key_value()
             )
 
-        """Since the attribute is accessed we want the relationship hydrated and ready to go.
+        """Apply the query needed to make this relationship work.
         """
-        query_data = self.apply_query(
+        result = self.apply_query(
             relationship, instance, self.foreign_key, self.local_key
         )
 
-        if isinstance(query_data, dict):
-            loaded_result = relationship.hydrate(query_data)
-            if self.fn.__name__ in owner._loads:
-                instance._loaded_relationships[self.fn.__name__] = loaded_result
-            return loaded_result
-        elif isinstance(query_data, list):
-            results = []
-            for result in query_data:
-                results.append(relationship.hydrate(result))
-            loaded_result = relationship.new_collection(results)
-            if self.fn.__name__ in owner._loads:
-                instance._loaded_relationships[self.fn.__name__] = loaded_result
-            return loaded_result
+        if isinstance(result, dict):
+            return relationship.hydrate(result)
 
-        raise Exception("found", query_data)
+        return result
 
     def apply_query(self, foreign, owner, foreign_key, local_key):
         """Apply the query and return a dictionary to be hydrated

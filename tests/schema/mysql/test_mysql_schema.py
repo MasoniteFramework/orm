@@ -413,7 +413,7 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             ")"
         )
 
-    def test_can_compile_timestamp_nullable_columns(self):
+    def can_compile_timestamp_nullable_columns(self):
         """
         with self.schema.create('users') as blueprint:
             blueprint.timestamp('logged_at')
