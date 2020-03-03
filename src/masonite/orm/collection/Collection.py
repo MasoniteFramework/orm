@@ -26,8 +26,11 @@ class Collection:
             pass
         return result
 
-    def chunk(self):
-        pass
+    def chunk(self, step):
+        items = []
+        for i in range(0, self.count(), step):
+            items.append(self.__class__(self.items[i:i + step]))
+        return self.__class__(items)
 
     def collapse(self):
         pass
