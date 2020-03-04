@@ -17,8 +17,14 @@ class Collection:
     def __len__(self):
         return len(self.items)
 
-    def avg(self):
-        pass
+    def avg(self, key=None):
+        result = 0
+        items = self._get_value(key) or self.items
+        try:
+            result = sum(items) / len(items)
+        except TypeError:
+            pass
+        return result
 
     def chunk(self):
         pass
@@ -30,7 +36,7 @@ class Collection:
         pass
 
     def count(self):
-        pass
+        return len(self.items)
 
     def diff(self):
         pass
