@@ -254,7 +254,7 @@ class BaseTestCaseSelectGrammer:
         self.assertEqual(to_sql, sql)
 
     def test_can_compile_between(self):
-        to_sql = self.builder.between('age', 18, 21).to_sql()
+        to_sql = self.builder.between("age", 18, 21).to_sql()
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()

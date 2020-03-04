@@ -51,14 +51,15 @@ class UpdateQueryExpression:
         self.value = value
         self.update_type = update_type
 
+
 class BetweenExpression:
     def __init__(self, column, low, high):
         self.column = column
         self.low = low
         self.high = high
-        self.equality = None
+        self.equality = "BETWEEN"
         self.value = None
-        self.value_type = 'BETWEEN'
+        self.value_type = "BETWEEN"
         self.raw = False
 
 

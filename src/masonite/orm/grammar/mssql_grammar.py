@@ -89,6 +89,9 @@ class MSSQLGrammar(BaseGrammar):
     def where_null_string(self):
         return "{keyword} {column} IS NULL"
 
+    def between_string(self):
+        return "{keyword} {column} BETWEEN {low} AND {high}"
+
     def where_not_null_string(self):
         return "{keyword} {column} IS NOT NULL"
 
