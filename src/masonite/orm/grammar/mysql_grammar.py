@@ -146,11 +146,11 @@ class MySQLGrammar(BaseGrammar):
     def unique_constraint_string(self):
         return "CONSTRAINT {clean_column}_unique UNIQUE ({clean_column})"
 
+    def foreign_key_constraint_string(self):
+        return "FOREIGN KEY {local_columns} REFERENCES {foreign_table}({primary_key_foreign_tables})"
+
     def create_index_string(self):
         return "INDEX ({column})"
-
-    def foreign_key_constraint_string(self):
-        return "FOREIGN KEY {local_column} REFERENCES {foreign_table}({primary_key_foreign_table})"
 
     def table_string(self):
         return "`{table}`"

@@ -37,6 +37,7 @@ class BaseGrammar:
         having=(),
         creates=(),
         connection_details={},
+        constraints=None
     ):
         self._columns = columns
         self.table = table
@@ -52,6 +53,7 @@ class BaseGrammar:
         self._creates = creates
         self._connection_details = connection_details
         self._column = None
+        self._constraints = constraints
 
         self._bindings = ()
 
@@ -91,15 +93,10 @@ class BaseGrammar:
 
         """Add Constraints
         """
-        for column in self._creates:
-            if column.is_constraint:
-                sql += getattr(
-                    self, "{}_constraint_string".format(column.constraint_type)
-                )().format(
-                    column=self._compile_column(column.column_name),
-                    clean_column=column.column_name,
-                )
-                sql += ", "
+        for constraint in self._constraints:
+            sql += constraint.to_sql(self)
+            sql += ", "
+
         sql = sql.rstrip(", ")
 
         sql += ")"
@@ -133,6 +130,9 @@ class BaseGrammar:
                 if column.after_column
                 else "",
             )
+
+        for constraint in self._constraints:
+            sql += constraint.to_sql(self)
 
         # Fix any inconsistencies
         sql = sql.rstrip(", ").replace(" ,", ",")
