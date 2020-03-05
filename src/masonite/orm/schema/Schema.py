@@ -115,3 +115,11 @@ class Schema:
         if query_only:
             return query
         return bool(cls._connection().make_connection().query(query))
+
+    @classmethod
+    def create_index(cls, name, query_only=True):
+        grammar = cls._connection.get_grammer()(table=table)
+        query = grammar.create_index_string(name).to_sql()
+        if query_only:
+            return query
+        return bool(cls._connection().make_connection().query(query))
