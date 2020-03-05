@@ -6,6 +6,7 @@ from src.masonite.orm.builder.QueryBuilder import (
     SubGroupExpression,
     SubSelectExpression,
     SelectExpression,
+    BetweenExpression,
 )
 
 
@@ -365,7 +366,14 @@ class BaseGrammar:
             """Need to find which type of where string it is.
             If it is a WHERE NULL, WHERE EXISTS, WHERE `col` = 'val' etc
             """
-            if value is None:
+            if equality == "BETWEEN":
+                sql_string = self.between_string().format(
+                    low=self._compile_value(where.low),
+                    high=self._compile_value(where.high),
+                    column=self._compile_table(where.column),
+                    keyword=keyword,
+                )
+            elif value is None:
                 sql_string = self.where_null_string()
             elif value is True:
                 sql_string = self.where_not_null_string()
@@ -407,6 +415,8 @@ class BaseGrammar:
                 query_value = self.column_string().format(column=value, seperator="")
             elif value_type == "having":
                 query_value = self.column_string().format(column=value, seperator="")
+            else:
+                query_value = ""
 
             sql += sql_string.format(
                 keyword=keyword, column=column, equality=equality, value=query_value,

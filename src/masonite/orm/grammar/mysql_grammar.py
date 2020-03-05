@@ -92,6 +92,9 @@ class MySQLGrammar(BaseGrammar):
     def where_group_string(self):
         return "{keyword} {value}"
 
+    def between_string(self):
+        return "{keyword} {column} BETWEEN {low} AND {high}"
+
     def where_exists_string(self):
         return "{keyword} EXISTS {value}"
 

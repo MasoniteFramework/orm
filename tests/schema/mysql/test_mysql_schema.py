@@ -126,6 +126,16 @@ class BaseTestCreateGrammar:
         )()
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_drop_multiple_column(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.drop_column("name", "age", "profile")
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_can_compile_large_blueprint(self):
         with self.schema.create("users") as blueprint:
             blueprint.string("name")
@@ -326,6 +336,19 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return "ALTER TABLE `users` " "DROP COLUMN `name`"
 
+    def drop_multiple_column(self):
+        """
+        with self.schema.table('users') as blueprint:
+            blueprint.drop_column('name', 'age', 'profile')
+        """
+
+        return (
+            "ALTER TABLE `users` "
+            "DROP COLUMN `name`, "
+            "DROP COLUMN `age`, "
+            "DROP COLUMN `profile`"
+        )
+
     def can_compile_large_blueprint(self):
         """
         with self.schema.create('users') as blueprint:
@@ -429,7 +452,7 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             ")"
         )
 
-    def test_can_compile_timestamp_nullable_columns(self):
+    def can_compile_timestamp_nullable_columns(self):
         """
         with self.schema.create('users') as blueprint:
             blueprint.timestamp('logged_at')

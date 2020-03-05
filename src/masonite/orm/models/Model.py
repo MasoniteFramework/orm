@@ -8,17 +8,23 @@ class Model:
 
     __fillable__ = []
     __guarded__ = ["*"]
-    __table__ = "users"
+    __table__ = None
     __connection__ = "default"
     __resolved_connection__ = None
     _eager_load = ()
-    _eager_relationships = {}
+    _relationships = {}
+    _booted = False
+    __primary_key__ = "id"
 
     def __init__(self):
         self.__attributes__ = {}
-        self._loaded_relationships = {}
+        self._relationships = {}
 
-    _booted = False
+    def get_primary_key(self):
+        return self.__primary_key__
+
+    def get_primary_key_value(self):
+        return getattr(self, self.get_primary_key())
 
     @classmethod
     def boot(cls):
@@ -28,7 +34,7 @@ class Model:
             cls.builder = QueryBuilder(
                 MySQLGrammar,
                 cls.__resolved_connection__,
-                table=cls.__table__,
+                table=cls.get_table_name(),
                 owner=cls,
             )
             cls.builder.set_action("select")
@@ -50,6 +56,13 @@ class Model:
             method(cls, cls.builder)
 
         return cls
+
+    @classmethod
+    def get_table_name(cls):
+        if cls.__table__:
+            return cls.__table__
+
+        return cls.__name__.lower() + "s"
 
     @classmethod
     def first(cls):

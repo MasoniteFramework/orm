@@ -17,8 +17,14 @@ class Collection:
     def __len__(self):
         return len(self.items)
 
-    def avg(self):
-        pass
+    def avg(self, key=None):
+        result = 0
+        items = self._get_value(key) or self.items
+        try:
+            result = sum(items) / len(items)
+        except TypeError:
+            pass
+        return result
 
     def chunk(self):
         pass
@@ -30,7 +36,7 @@ class Collection:
         pass
 
     def count(self):
-        pass
+        return len(self.items)
 
     def diff(self):
         pass
@@ -60,10 +66,21 @@ class Collection:
         pass
 
     def is_empty(self):
-        pass
+        return not self.items
 
     def map(self):
         pass
+
+    def map_into(self, cls, method=None):
+        results = []
+        for item in self.items:
+
+            if method:
+                results.append(getattr(cls, method)(item))
+            else:
+                results.append(cls(item))
+
+        return Collection(results)
 
     def merge(self):
         pass
@@ -110,8 +127,14 @@ class Collection:
     def sort(self):
         pass
 
-    def sum(self):
-        pass
+    def sum(self, key=None):
+        result = 0
+        items = self._get_value(key) or self.items
+        try:
+            result = sum(items)
+        except TypeError:
+            pass
+        return result
 
     def to_json(self):
         pass
@@ -132,3 +155,20 @@ class Collection:
 
     def zip(self):
         pass
+
+    def __iter__(self):
+        for item in self.items:
+            yield item
+
+    def _get_value(self, key):
+        if not key:
+            return None
+
+        items = []
+        for item in self.items:
+            if isinstance(key, str):
+                if hasattr(item, key) or (key in item):
+                    items.append(getattr(item, key, item[key]))
+            elif callable(key):
+                items.append(key(item))
+        return items
