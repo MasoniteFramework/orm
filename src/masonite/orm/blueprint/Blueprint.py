@@ -1,3 +1,7 @@
+from ..relationships.ForeignKeyRelation import ForeignKeyRelation
+from ..schema.constraints.constraints import UniqueConstraint, ForeignKeyConstraint
+
+
 class Column:
     def __init__(
         self,
@@ -65,8 +69,7 @@ class Blueprint:
         self._last_column = None
         self._action = action
         self._default_string_length = default_string_length
-        self._last_relation = None
-        self. _relations = []
+        self._constraints = []
 
     def string(self, column, length=255, nullable=False):
         self._last_column = self.new_column("string", column, length, nullable)
@@ -196,32 +199,33 @@ class Blueprint:
     def unsigned_integer(self):
         pass
 
-    def foreign(self, local_column=None):
-        self._last_relation = {}
-        self._last_relation.update({"local_column": local_column})
-        return self
+    def foreign(self, *columns):
+        if not columns:
+            raise ValueError(
+                "You should define local key definitions on relationships."
+            )
 
-    def references(self, external_column=None):
-        self._last_relation.update({"external_column": external_column})
-        return self
+        columns_constraints = [
+            self.new_column(column_name, "unsigned", None) for column_name in columns
+        ]
 
-    def on(self, table=None):
-        self._last_relation.update({"table": table})
-        self._relations.append(self._last_relation)
-        self._last_relation = None
+        foreign_relation = ForeignKeyRelation(columns_constraints)
+        constraint = ForeignKeyConstraint(foreign_relation)
 
-        return self
+        self._constraints.append(constraint)
+
+        return foreign_relation
 
     def to_sql(self):
         if self._action == "create":
             return (
-                self.grammar(creates=self._columns, table=self.table)
+                self.grammar(creates=self._columns, table=self.table, constraints=self._constraints)
                 ._compile_create()
                 .to_sql()
             )
         else:
             return (
-                self.grammar(creates=self._columns, table=self.table)
+                self.grammar(creates=self._columns, table=self.table, constraints=self._constraints)
                 ._compile_alter()
                 .to_sql()
             )
@@ -242,6 +246,7 @@ class Blueprint:
 
     def unique(self):
         self._last_column.unique()
+        self._constraints.append(UniqueConstraint(self._last_column))
         return self
 
     def rename(self, old_column, new_column):
