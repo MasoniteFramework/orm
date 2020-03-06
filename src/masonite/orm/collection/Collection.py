@@ -232,7 +232,7 @@ class Collection:
 
     def __eq__(self, other):
         if isinstance(other, Collection):
-            return self._items == other.all()
+            return other == other.all()
         return other == self._items
 
     def __getitem__(self, item):
@@ -249,8 +249,7 @@ class Collection:
 
     def __ne__(self, other):
         if isinstance(other, Collection):
-            other = other._items
-
+            other = other.all()
         return other != self._items
 
     def __len__(self):
@@ -258,20 +257,20 @@ class Collection:
 
     def __le__(self, other):
         if isinstance(other, Collection):
-            return self._items <= other.all()
-        return other <= self._items
+            other = other.all()
+        return self._items <= other
 
     def __lt__(self, other):
         if isinstance(other, Collection):
-            return self._items < other.all()
-        return other < self._items
+            other = other.all()
+        return self._items < other
 
     def __ge__(self, other):
         if isinstance(other, Collection):
-            return self._items >= other.all()
-        return other >= self._items
+            other = other.all()
+        return self._items >= other
 
     def __gt__(self, other):
         if isinstance(other, Collection):
-            return self._items > other.all()
-        return other > self._items
+            other = other.all()
+        return self._items > other
