@@ -11,10 +11,13 @@ class TestCollection(unittest.TestCase):
     def test_first(self):
         collection = Collection([1, 2, 3, 4])
         self.assertEqual(collection.first(), 1)
+        self.assertEqual(collection.last(), 4)
+        self.assertEqual(collection.first(lambda x: x < 3), 1)
 
     def test_last(self):
         collection = Collection([1, 2, 3, 4])
         self.assertEqual(collection.last(), 4)
+        self.assertEqual(collection.last(lambda x: x < 3), 2)
 
     def test_pluck(self):
         collection = Collection([{"id": 1, "name": "Joe"}, {"id": 2, "name": "Bob"}])
@@ -250,12 +253,12 @@ class TestCollection(unittest.TestCase):
 
         unique = collection.unique('age')
 
-        self.assertEqual(unique.all(),  [
-                {"name": "Corentin All", "age": 1},
-                {"name": "Corentin All", "age": 2},
-                {"name": "Corentin All", "age": 3},
-                {"name": "Corentin All", "age": 4},
-            ])
+        self.assertEqual(unique.all(), [
+            {"name": "Corentin All", "age": 1},
+            {"name": "Corentin All", "age": 2},
+            {"name": "Corentin All", "age": 3},
+            {"name": "Corentin All", "age": 4},
+        ])
 
     def test_transform(self):
         collection = Collection([1, 1, 2, 3, 4])
@@ -280,12 +283,12 @@ class TestCollection(unittest.TestCase):
         )
 
         value = collection.shift()
-        self.assertEqual(value,  {"name": "Corentin All", "age": 1})
+        self.assertEqual(value, {"name": "Corentin All", "age": 1})
         self.assertEqual(collection.all(), [
-                {"name": "Corentin All", "age": 2},
-                {"name": "Corentin All", "age": 3},
-                {"name": "Corentin All", "age": 4},
-            ])
+            {"name": "Corentin All", "age": 2},
+            {"name": "Corentin All", "age": 3},
+            {"name": "Corentin All", "age": 4},
+        ])
 
     def test_sort(self):
         collection = Collection([4, 1, 2, 3])
@@ -313,3 +316,41 @@ class TestCollection(unittest.TestCase):
             {"name": "Corentin All", "age": 3},
             {"name": "Corentin All", "age": 2},
         ])
+
+    def test_zip(self):
+        collection = Collection(['Chair', 'Desk'])
+        zipped = collection.zip([100, 200])
+
+        self.assertEqual(zipped.all(), [['Chair', 100], ['Desk', 200]])
+
+    def test_diff(self):
+        collection = Collection(['Chair', 'Desk'])
+        diff = collection.diff([100, 200])
+
+        self.assertEqual(diff.all(), ['Chair', 'Desk'])
+
+    def test_each(self):
+        collection = Collection([1, 2, 3, 4])
+        collection.each(lambda x: x + 2)
+        self.assertEqual(collection.all(), [x + 2 for x in range(1, 5)])
+
+    def test_every(self):
+        collection = Collection([1, 2, 3, 4])
+        self.assertFalse(collection.every(lambda x: x > 2))
+
+        collection = Collection([1, 2, 3, 4])
+        self.assertTrue(collection.every(lambda x: x >= 1))
+
+    def test_filter(self):
+        collection = Collection([1, 2, 3, 4])
+        filtered = collection.filter(lambda x: x > 2)
+        self.assertEqual(filtered.all(), Collection([3, 4]))
+
+    def test_implode(self):
+        collection = Collection([1, 2, 3, 4])
+        result = collection.implode('-')
+        self.assertEqual(result, '1-2-3-4')
+
+        collection = Collection([{"name": "Corentin"}, {"name": "Joe"}, {"name": "Marlysson"}, ])
+        result = collection.implode(key='name')
+        self.assertEqual(result, "Corentin,Joe,Marlysson")

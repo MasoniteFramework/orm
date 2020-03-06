@@ -11,11 +11,17 @@ class Collection:
 
         return self[:number]
 
-    def first(self):
-        return self[0]
+    def first(self, callback=None):
+        filtered = self
+        if callback:
+            filtered = self.filter(callback)
+        return filtered[0]
 
-    def last(self):
-        return self[-1]
+    def last(self, callback=None):
+        filtered = self
+        if callback:
+            filtered = self.filter(callback)
+        return filtered[-1]
 
     def all(self):
         return self._items
@@ -32,7 +38,7 @@ class Collection:
     def chunk(self, size):
         items = []
         for i in range(0, self.count(), size):
-            items.append(self.__class__(self[i:i + size]))
+            items.append(self[i:i + size])
         return self.__class__(items)
 
     def collapse(self):
@@ -49,17 +55,27 @@ class Collection:
     def count(self):
         return len(self._items)
 
-    def diff(self):
-        pass
+    def diff(self, items):
+        if isinstance(items, Collection):
+            items = items.all()
+        return self.__class__([x for x in self if x not in items])
 
-    def each(self):
-        pass
+    def each(self, callback):
+        self._check_is_callable(callback)
 
-    def every(self):
-        pass
+        for k, v in enumerate(self):
+            result = callback(v)
+            if not result:
+                break
+            self[k] = result
 
-    def filter(self):
-        pass
+    def every(self, callback):
+        self._check_is_callable(callback)
+        return all([callback(x) for x in self])
+
+    def filter(self, callback):
+        self._check_is_callable(callback)
+        return self.__class__(list(filter(callback, self)))
 
     def flatten(self):
         pass
@@ -83,18 +99,21 @@ class Collection:
 
         return self._value(default)
 
-    def implode(self):
-        pass
+    def implode(self, glue=',', key=None):
+        first = self.first()
+        if not isinstance(first, str) and key:
+            return glue.join(self.pluck(key))
+        return glue.join([str(x) for x in self])
 
     def is_empty(self):
-        return not self._items
+        return not self
 
     def map(self):
         pass
 
     def map_into(self, cls, method=None):
         results = []
-        for item in self._items:
+        for item in self:
 
             if method:
                 results.append(getattr(cls, method)(item))
@@ -145,8 +164,7 @@ class Collection:
         return reduce(callback, self, initial)
 
     def reject(self, callback):
-        if not callable(callback):
-            raise ValueError("The 'callback' should be a function or closure")
+        self._check_is_callable(callback)
 
         items = self._get_value(callback) or self._items
         self._items = items
@@ -176,8 +194,7 @@ class Collection:
         pass
 
     def transform(self, callback):
-        if not callable(callback):
-            raise ValueError("The 'callback' should be a function or closure")
+        self._check_is_callable(callback)
         self._items = self._get_value(callback)
 
     def unique(self, key=None):
@@ -203,8 +220,16 @@ class Collection:
 
         return attributes or None
 
-    def zip(self):
-        pass
+    def zip(self, items):
+        if isinstance(items, Collection):
+            items = items.all()
+        if not isinstance(items, list):
+            raise ValueError("The 'items' parameter must be a list or a Collection")
+
+        _items = []
+        for x, y in zip(self, items):
+            _items.append([x, y])
+        return self.__class__(_items)
 
     def _get_value(self, key):
         if not key:
@@ -225,6 +250,11 @@ class Collection:
         if callable(value):
             return value()
         return value
+
+    def _check_is_callable(self, callback):
+        if not callable(callback):
+            raise ValueError("The 'callback' should be a function")
+        return True
 
     def __iter__(self):
         for item in self._items:
