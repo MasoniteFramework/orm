@@ -1,25 +1,25 @@
 class Collection:
     def __init__(self, items=[]):
-        self.items = items
+        self._items = items
 
     def take(self, number):
-        return self.items[:number]
+        return self._items[:number]
 
     def first(self):
-        return self.items[0]
+        return self._items[0]
 
     def last(self):
-        return self.items[-1]
+        return self._items[-1]
 
     def all(self):
-        return self.items
+        return self._items
 
     def __len__(self):
-        return len(self.items)
+        return len(self._items)
 
     def avg(self, key=None):
         result = 0
-        items = self._get_value(key) or self.items
+        items = self._get_value(key) or self._items
         try:
             result = sum(items) / len(items)
         except TypeError:
@@ -29,12 +29,12 @@ class Collection:
     def chunk(self, step):
         items = []
         for i in range(0, self.count(), step):
-            items.append(self.__class__(self.items[i:i + step]))
+            items.append(self.__class__(self._items[i:i + step]))
         return self.__class__(items)
 
     def collapse(self):
         items = []
-        for item in self.items:
+        for item in self._items:
             if isinstance(item, Collection):
                 item = item.all()
             items += item
@@ -44,7 +44,7 @@ class Collection:
         pass
 
     def count(self):
-        return len(self.items)
+        return len(self._items)
 
     def diff(self):
         pass
@@ -74,14 +74,14 @@ class Collection:
         pass
 
     def is_empty(self):
-        return not self.items
+        return not self._items
 
     def map(self):
         pass
 
     def map_into(self, cls, method=None):
         results = []
-        for item in self.items:
+        for item in self._items:
 
             if method:
                 results.append(getattr(cls, method)(item))
@@ -97,19 +97,19 @@ class Collection:
         if isinstance(items, Collection):
             items = items.all()
 
-        self.items += items
+        self._items += items
         return self
 
     def pluck(self, attribute):
         attributes = []
-        for item in self.items:
+        for item in self._items:
             for key, value in item.items():
                 if key == attribute:
                     attributes.append(value)
         return attributes
 
     def pop(self):
-        last = self.items.pop()
+        last = self._items.pop()
         return last
 
     def prepend(self):
@@ -144,7 +144,7 @@ class Collection:
 
     def sum(self, key=None):
         result = 0
-        items = self._get_value(key) or self.items
+        items = self._get_value(key) or self._items
         try:
             result = sum(items)
         except TypeError:
@@ -162,7 +162,7 @@ class Collection:
 
     def where(self, attribute, value):
         attributes = []
-        for item in self.items:
+        for item in self._items:
             if item.get(attribute) == value:
                 attributes.append(item)
 
@@ -172,18 +172,18 @@ class Collection:
         pass
 
     def __iter__(self):
-        for item in self.items:
+        for item in self._items:
             yield item
 
     def __eq__(self, other):
-        return self.items == other.items
+        return self.all() == other.all()
 
     def _get_value(self, key):
         if not key:
             return None
 
         items = []
-        for item in self.items:
+        for item in self._items:
             if isinstance(key, str):
                 if hasattr(item, key) or (key in item):
                     items.append(getattr(item, key, item[key]))
