@@ -1,5 +1,6 @@
-from src.masonite.orm.collection.Collection import Collection
 import unittest
+
+from src.masonite.orm.collection.Collection import Collection
 
 
 class TestCollection(unittest.TestCase):
@@ -95,6 +96,53 @@ class TestCollection(unittest.TestCase):
         self.assertEqual(collection.count(), 4)
 
         collection = Collection(
-            [{"name": "Corentin All", "age": 1}, {"name": "Corentin All", "age": 2},]
+            [{"name": "Corentin All", "age": 1}, {"name": "Corentin All", "age": 2}, ]
         )
         self.assertEqual(collection.count(), 2)
+
+    def test_chunk(self):
+        collection = Collection([1, 1, 2, 4])
+
+        chunked = collection.chunk(2)
+        self.assertEqual(
+            chunked, Collection([
+                Collection([1, 1]), Collection([2, 4])
+            ])
+        )
+
+        collection = Collection(
+            [
+                {"name": "chair", "colours": ["green", "black"]},
+                {"name": "desk", "colours": ["red", "yellow"]},
+                {"name": "bookcase", "colours": ["white"]},
+            ]
+        )
+
+        chunked = collection.chunk(2)
+        self.assertEqual(
+            chunked, Collection([
+                Collection([
+                    {"name": "chair", "colours": ["green", "black"]},
+                    {"name": "desk", "colours": ["red", "yellow"]}]),
+                Collection([
+                    {"name": "bookcase", "colours": ["white"]},
+                ])
+            ])
+        )
+
+    def test_collapse(self):
+        collection = Collection([[1, 1], [2, 4]])
+
+        collapsed = collection.collapse()
+
+        self.assertEqual(collapsed, Collection([1, 1, 2, 4]))
+
+    def test_get(self):
+        collection = Collection([[1, 1], [2, 4]])
+
+        self.assertEqual(collection.get(), [[1, 1], [2, 4]])
+
+    def test_merge(self):
+        collection = Collection([[1, 1], [2, 4]])
+        collection.merge([[2, 1]])
+        self.assertEqual(collection.all(), [[1, 1], [2, 4], [2, 1]])

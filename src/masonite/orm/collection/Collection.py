@@ -33,7 +33,12 @@ class Collection:
         return self.__class__(items)
 
     def collapse(self):
-        pass
+        items = []
+        for item in self.items:
+            if isinstance(item, Collection):
+                item = item.all()
+            items += item
+        return self.__class__(items)
 
     def contains(self):
         pass
@@ -63,7 +68,7 @@ class Collection:
         pass
 
     def get(self):
-        pass
+        return self.all()
 
     def implode(self):
         pass
@@ -85,8 +90,15 @@ class Collection:
 
         return Collection(results)
 
-    def merge(self):
-        pass
+    def merge(self, items):
+        if not isinstance(items, list):
+            raise ValueError('Unable to merge uncompatible types')
+
+        if isinstance(items, Collection):
+            items = items.all()
+
+        self.items += items
+        return self
 
     def pluck(self, attribute):
         attributes = []
@@ -162,6 +174,9 @@ class Collection:
     def __iter__(self):
         for item in self.items:
             yield item
+
+    def __eq__(self, other):
+        return self.items == other.items
 
     def _get_value(self, key):
         if not key:
