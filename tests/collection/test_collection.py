@@ -87,7 +87,7 @@ class TestCollection(unittest.TestCase):
                 {"name": "bookcase", "colours": ["white"]},
             ]
         )
-        self.assertEqual(collection.avg(lambda x: len(x["colours"])), 5/3)
+        self.assertEqual(collection.avg(lambda x: len(x["colours"])), 5 / 3)
         self.assertEqual(collection.avg(lambda x: len(x)), 2)
 
     def test_count(self):
@@ -95,9 +95,6 @@ class TestCollection(unittest.TestCase):
         self.assertEqual(collection.count(), 4)
 
         collection = Collection(
-            [
-                {"name": "Corentin All", "age": 1},
-                {"name": "Corentin All", "age": 2},
-            ]
+            [{"name": "Corentin All", "age": 1}, {"name": "Corentin All", "age": 2},]
         )
         self.assertEqual(collection.count(), 2)

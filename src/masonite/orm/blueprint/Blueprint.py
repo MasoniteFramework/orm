@@ -239,7 +239,9 @@ class Blueprint:
         self._last_column.after(old_column)
         return self
 
-    def drop_column(self, column):
-        self._last_column = self.new_column(None, column, None, None, action="drop")
-        self._columns += (self._last_column,)
+    def drop_column(self, *columns):
+        for column in columns:
+            self._last_column = self.new_column(None, column, None, None, action="drop")
+            self._columns += (self._last_column,)
+
         return self

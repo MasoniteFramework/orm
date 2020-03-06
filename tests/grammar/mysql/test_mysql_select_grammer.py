@@ -226,6 +226,12 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
         """
         return "SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`user_id` INNER JOIN `posts` ON `comments`.`post_id` = `posts`.`id`"
 
+    def can_compile_between(self):
+        """
+        builder.between('age', 18, 21).to_sql()
+        """
+        return "SELECT * FROM `users` WHERE `age` BETWEEN '18' AND '21'"
+
     def test_can_compile_where_raw(self):
         to_sql = self.builder.where_raw("`age` = '18'").to_sql()
         self.assertEqual(to_sql, "SELECT * FROM `users` WHERE `age` = '18'")

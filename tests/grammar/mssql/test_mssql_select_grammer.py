@@ -192,6 +192,12 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
         """
         return "SELECT SUM([age]) AS age FROM [users] GROUP BY [age] HAVING [age]"
 
+    def can_compile_between(self):
+        """
+        builder.between('age', 18, 21).to_sql()
+        """
+        return "SELECT * FROM [users] WHERE [age] BETWEEN '18' AND '21'"
+
     def can_compile_having_with_expression(self):
         """
         builder.sum('age').group_by('age').having('age', 10).to_sql()

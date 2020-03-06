@@ -8,7 +8,7 @@ class Model:
 
     __fillable__ = []
     __guarded__ = ["*"]
-    __table__ = "users"
+    __table__ = None
     __connection__ = "default"
     __resolved_connection__ = None
     _eager_load = ()
@@ -34,7 +34,7 @@ class Model:
             cls.builder = QueryBuilder(
                 MySQLGrammar,
                 cls.__resolved_connection__,
-                table=cls.__table__,
+                table=cls.get_table_name(),
                 owner=cls,
             )
             cls.builder.set_action("select")
@@ -56,6 +56,13 @@ class Model:
             method(cls, cls.builder)
 
         return cls
+
+    @classmethod
+    def get_table_name(cls):
+        if cls.__table__:
+            return cls.__table__
+
+        return cls.__name__.lower() + "s"
 
     @classmethod
     def first(cls):
