@@ -354,3 +354,36 @@ class TestCollection(unittest.TestCase):
         collection = Collection([{"name": "Corentin"}, {"name": "Joe"}, {"name": "Marlysson"}, ])
         result = collection.implode(key='name')
         self.assertEqual(result, "Corentin,Joe,Marlysson")
+
+    def test_map_into(self):
+        collection = Collection(['USD', 'EUR', 'GBP'])
+
+        class Currency:
+            def __init__(self, code):
+                self.code = code
+
+            def __eq__(self, other):
+                return self.code == other.code
+
+        currencies = collection.map_into(Currency)
+        self.assertEqual(
+            currencies.all(), [Currency('USD'), Currency('EUR'), Currency('GBP')]
+        )
+
+    def test_map(self):
+        collection = Collection([1, 2, 3, 4])
+        multiplied = collection.map(lambda x: x * 2)
+        self.assertEqual(multiplied.all(), [2, 4, 6, 8])
+
+        def callback(x):
+            x["age"] = x["age"] + 2
+            return x
+
+        collection = Collection([
+            {"name": "Corentin", "age": 10}, {"name": "Joe", "age": 20}, {"name": "Marlysson", "age": 15}
+        ])
+        result = collection.map(callback)
+        self.assertEqual(result.all(), [
+            {"name": "Corentin", "age": 12}, {"name": "Joe", "age": 22}, {"name": "Marlysson", "age": 17}
+
+        ])

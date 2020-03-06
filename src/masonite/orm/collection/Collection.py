@@ -50,6 +50,7 @@ class Collection:
         return self.__class__(items)
 
     def contains(self):
+        # todo implements this methods
         pass
 
     def count(self):
@@ -78,6 +79,7 @@ class Collection:
         return self.__class__(list(filter(callback, self)))
 
     def flatten(self):
+        # todo implements this methods
         pass
 
     def forget(self, *keys):
@@ -108,8 +110,10 @@ class Collection:
     def is_empty(self):
         return not self
 
-    def map(self):
-        pass
+    def map(self, callback):
+        self._check_is_callable(callback)
+        items = [callback(x) for x in self]
+        return self.__class__(items)
 
     def map_into(self, cls, method=None):
         results = []
@@ -191,6 +195,7 @@ class Collection:
         return result
 
     def to_json(self):
+        # todo implements this methods
         pass
 
     def transform(self, callback):
