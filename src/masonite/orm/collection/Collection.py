@@ -157,12 +157,19 @@ class Collection:
         self._items += items
         return self
 
-    def pluck(self, attribute):
-        attributes = []
+    def pluck(self, value, key=None):
+        if key:
+            attributes = {}
+
+        else:
+            attributes = []
         for item in self:
-            for key, value in item.items():
-                if key == attribute:
-                    attributes.append(value)
+            for k, v in item.items():
+                if k == value:
+                    if key:
+                        attributes[self._data_get(item, key)] = self._data_get(item, value)
+                    else:
+                        attributes.append(v)
         return attributes
 
     def pop(self):
