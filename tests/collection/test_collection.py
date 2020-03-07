@@ -32,6 +32,11 @@ class TestCollection(unittest.TestCase):
             ]
         )
         self.assertEqual(len(collection.where("name", "Joe")), 2)
+        self.assertEqual(len(collection.where("id", '!=', 1)), 2)
+        self.assertEqual(len(collection.where("id", '>', 1)), 2)
+        self.assertEqual(len(collection.where("id", '>=', 1)), 3)
+        self.assertEqual(len(collection.where("id", '<=', 1)), 1)
+        self.assertEqual(len(collection.where("id", '<', 3)), 2)
 
     def test_pop(self):
         collection = Collection([1, 2, 3])
@@ -387,3 +392,72 @@ class TestCollection(unittest.TestCase):
             {"name": "Corentin", "age": 12}, {"name": "Joe", "age": 22}, {"name": "Marlysson", "age": 17}
 
         ])
+
+    def test_serialize(self):
+        class Currency:
+            def __init__(self, code):
+                self.code = code
+
+            def __eq__(self, other):
+                return self.code == other.code
+
+            def to_dict(self):
+                return {'code': self.code}
+
+        collection = Collection([
+            Collection([{"name": "Corentin", "age": 12}]),
+            {"name": "Joe", "age": 22},
+            {"name": "Marlysson", "age": 17},
+            Currency("USD")
+        ])
+
+        serialized_data = collection.serialize()
+        self.assertEqual(serialized_data, [
+            [{"name": "Corentin", "age": 12}],
+            {"name": "Joe", "age": 22},
+            {"name": "Marlysson", "age": 17},
+            {"code": "USD"}
+        ])
+
+    def test_json(self):
+        collection = Collection([
+            {"name": "Corentin", "age": 10}, {"name": "Joe", "age": 20}, {"name": "Marlysson", "age": 15}
+        ])
+
+        json_data = collection.to_json()
+
+        self.assertEqual(json_data,
+                         '[{"name": "Corentin", "age": 10}, '
+                         '{"name": "Joe", "age": 20}, {"name": "Marlysson", "age": 15}]')
+
+    def test_contains(self):
+        collection = Collection([1, 2, 3, 4])
+
+        self.assertTrue(collection.contains(3))
+        self.assertFalse(collection.contains(5))
+
+        collection = Collection([
+            {"name": "Corentin", "age": 10}, {"name": "Joe", "age": 20}, {"name": "Marlysson", "age": 15}
+        ])
+
+        self.assertTrue(collection.contains(lambda x: x['age'] == 10))
+        self.assertFalse(collection.contains('age'))
+        self.assertTrue(collection.contains('age', 10))
+        self.assertFalse(collection.contains('age', 11))
+
+    def test_all(self):
+        collection = Collection([1, 2, 3, 4])
+        self.assertEqual(collection.all(), [1, 2, 3, 4])
+
+        collection = Collection([
+            {"name": "Corentin", "age": 10}, {"name": "Joe", "age": 20}, {"name": "Marlysson", "age": 15}
+        ])
+        self.assertEqual(collection.all(), [
+            {"name": "Corentin", "age": 10}, {"name": "Joe", "age": 20}, {"name": "Marlysson", "age": 15}
+        ])
+
+    def test_flatten(self):
+        collection = Collection([1, 2, [3, 4, 5, {'foo': 'bar'}]])
+        flattened = collection.flatten()
+
+        self.assertEqual(flattened.all(), [1, 2, 3, 4, 5, 'bar'])
