@@ -255,7 +255,7 @@ class Collection:
         op = '=='
         value = args[0]
 
-        if len(args) == 2:
+        if len(args) >= 2:
             op = args[0]
             value = args[1]
 
