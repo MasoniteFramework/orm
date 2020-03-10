@@ -24,6 +24,9 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
         def articles(self):
             return Articles
 
+        def get_is_admin(self):
+            return "You are an admin"
+
     class TestRelationships(unittest.TestCase):
         def test_relationship_can_be_callable(self):
             self.assertEqual(
