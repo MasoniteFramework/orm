@@ -2,6 +2,17 @@ from ..connections.ConnectionFactory import ConnectionFactory
 from ..builder.QueryBuilder import QueryBuilder
 from ..grammar.mysql_grammar import MySQLGrammar
 from ..collection.Collection import Collection
+import json
+
+
+class BoolCast:
+    def get(self, value):
+        return bool(value)
+
+
+class JsonCast:
+    def get(self, value):
+        return json.dumps(value)
 
 
 class Model:
@@ -15,6 +26,12 @@ class Model:
     _relationships = {}
     _booted = False
     __primary_key__ = "id"
+    __casts__ = {"is_admin": "bool"}
+
+    __cast_map__ = {
+        "bool": BoolCast,
+        "json": JsonCast,
+    }
 
     def __init__(self):
         self.__attributes__ = {}
@@ -141,7 +158,16 @@ class Model:
 
     def __getattr__(self, attribute):
         if attribute in self.__attributes__:
-            return self.__attributes__[attribute]
+            return self.get_value(attribute)
+
+    def get_value(self, attribute):
+        if attribute in self.__casts__:
+            return self._cast_attribute(attribute)
+
+        return self.__attributes__[attribute]
+
+    def _cast_attribute(self, attribute):
+        return self.__cast_map__[self.__casts__[attribute]]().get(attribute)
 
     @classmethod
     def load(cls, *loads):

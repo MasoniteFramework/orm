@@ -120,6 +120,13 @@ class BaseTestCaseSelectGrammer:
         )()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_where_not_in(self):
+        to_sql = self.builder.select("username").where_not_in("age", [1, 2, 3]).to_sql()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
     def test_can_compile_where_null(self):
         to_sql = self.builder.select("username").where_null("age").to_sql()
         sql = getattr(
@@ -255,6 +262,13 @@ class BaseTestCaseSelectGrammer:
 
     def test_can_compile_between(self):
         to_sql = self.builder.between("age", 18, 21).to_sql()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_not_between(self):
+        to_sql = self.builder.not_between("age", 18, 21).to_sql()
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()

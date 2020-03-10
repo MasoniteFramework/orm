@@ -43,7 +43,7 @@ class Collection:
     def chunk(self, size):
         items = []
         for i in range(0, self.count(), size):
-            items.append(self[i:i + size])
+            items.append(self[i : i + size])
         return self.__class__(items)
 
     def collapse(self):
@@ -122,7 +122,7 @@ class Collection:
 
         return self._value(default)
 
-    def implode(self, glue=',', key=None):
+    def implode(self, glue=",", key=None):
         first = self.first()
         if not isinstance(first, str) and key:
             return glue.join(self.pluck(key))
@@ -149,7 +149,7 @@ class Collection:
 
     def merge(self, items):
         if not isinstance(items, list):
-            raise ValueError('Unable to merge uncompatible types')
+            raise ValueError("Unable to merge uncompatible types")
 
         if isinstance(items, Collection):
             items = items.all()
@@ -167,7 +167,9 @@ class Collection:
             for k, v in item.items():
                 if k == value:
                     if key:
-                        attributes[self._data_get(item, key)] = self._data_get(item, value)
+                        attributes[self._data_get(item, key)] = self._data_get(
+                            item, value
+                        )
                     else:
                         attributes.append(v)
         return attributes
@@ -206,9 +208,9 @@ class Collection:
 
     def serialize(self):
         def _serialize(item):
-            if hasattr(item, 'serialize'):
+            if hasattr(item, "serialize"):
                 return item.serialize()
-            elif hasattr(item, 'to_dict'):
+            elif hasattr(item, "to_dict"):
                 return item.to_dict()
             return item
 
@@ -252,7 +254,7 @@ class Collection:
         return self.__class__(items)
 
     def where(self, key, *args):
-        op = '=='
+        op = "=="
         value = args[0]
 
         if len(args) >= 2:
@@ -320,12 +322,12 @@ class Collection:
 
     def _make_comparison(self, a, b, op):
         operators = {
-            '<': operator.lt,
-            '<=': operator.le,
-            '==': operator.eq,
-            '!=': operator.ne,
-            '>': operator.gt,
-            '>=': operator.ge,
+            "<": operator.lt,
+            "<=": operator.le,
+            "==": operator.eq,
+            "!=": operator.ne,
+            ">": operator.gt,
+            ">=": operator.ge,
         }
         return operators[op](a, b)
 

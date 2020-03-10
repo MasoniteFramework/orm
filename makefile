@@ -7,7 +7,7 @@ test:
 ci:
 	make test
 lint:
-	python -m flake8 src/masonite/ --ignore=E501,F401,E128,E402,E731,F821,E712,W503
+	python -m flake8 src/masonite/ --ignore=E501,F401,E203,E128,E402,E731,F821,E712,W503
 format:
 	black src/masonite
 	black tests/

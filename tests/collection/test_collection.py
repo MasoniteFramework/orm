@@ -33,11 +33,11 @@ class TestCollection(unittest.TestCase):
             ]
         )
         self.assertEqual(len(collection.where("name", "Joe")), 2)
-        self.assertEqual(len(collection.where("id", '!=', 1)), 2)
-        self.assertEqual(len(collection.where("id", '>', 1)), 2)
-        self.assertEqual(len(collection.where("id", '>=', 1)), 3)
-        self.assertEqual(len(collection.where("id", '<=', 1)), 1)
-        self.assertEqual(len(collection.where("id", '<', 3)), 2)
+        self.assertEqual(len(collection.where("id", "!=", 1)), 2)
+        self.assertEqual(len(collection.where("id", ">", 1)), 2)
+        self.assertEqual(len(collection.where("id", ">=", 1)), 3)
+        self.assertEqual(len(collection.where("id", "<=", 1)), 1)
+        self.assertEqual(len(collection.where("id", "<", 3)), 2)
 
     def test_pop(self):
         collection = Collection([1, 2, 3])
@@ -105,7 +105,7 @@ class TestCollection(unittest.TestCase):
         self.assertEqual(collection.count(), 4)
 
         collection = Collection(
-            [{"name": "Corentin All", "age": 1}, {"name": "Corentin All", "age": 2}, ]
+            [{"name": "Corentin All", "age": 1}, {"name": "Corentin All", "age": 2},]
         )
         self.assertEqual(collection.count(), 2)
 
@@ -113,11 +113,7 @@ class TestCollection(unittest.TestCase):
         collection = Collection([1, 1, 2, 4])
 
         chunked = collection.chunk(2)
-        self.assertEqual(
-            chunked, Collection([
-                Collection([1, 1]), Collection([2, 4])
-            ])
-        )
+        self.assertEqual(chunked, Collection([Collection([1, 1]), Collection([2, 4])]))
 
         collection = Collection(
             [
@@ -129,14 +125,18 @@ class TestCollection(unittest.TestCase):
 
         chunked = collection.chunk(2)
         self.assertEqual(
-            chunked, Collection([
-                Collection([
-                    {"name": "chair", "colours": ["green", "black"]},
-                    {"name": "desk", "colours": ["red", "yellow"]}]),
-                Collection([
-                    {"name": "bookcase", "colours": ["white"]},
-                ])
-            ])
+            chunked,
+            Collection(
+                [
+                    Collection(
+                        [
+                            {"name": "chair", "colours": ["green", "black"]},
+                            {"name": "desk", "colours": ["red", "yellow"]},
+                        ]
+                    ),
+                    Collection([{"name": "bookcase", "colours": ["white"]},]),
+                ]
+            ),
         )
 
     def test_collapse(self):
@@ -223,15 +223,19 @@ class TestCollection(unittest.TestCase):
                 {"name": "Corentin All", "age": 4},
             ]
         )
-        collection.reject(lambda x: x if x['age'] > 2 else None)
+        collection.reject(lambda x: x if x["age"] > 2 else None)
 
-        self.assertEqual(Collection(
-            [
-                {"name": "Corentin All", "age": 3},
-                {"name": "Corentin All", "age": 4},
-            ]), collection.all())
+        self.assertEqual(
+            Collection(
+                [
+                    {"name": "Corentin All", "age": 3},
+                    {"name": "Corentin All", "age": 4},
+                ]
+            ),
+            collection.all(),
+        )
 
-        collection.reject(lambda x: x['age'] if x['age'] > 2 else None)
+        collection.reject(lambda x: x["age"] if x["age"] > 2 else None)
 
         self.assertEqual(collection.all(), [3, 4])
 
@@ -257,14 +261,17 @@ class TestCollection(unittest.TestCase):
             ]
         )
 
-        unique = collection.unique('age')
+        unique = collection.unique("age")
 
-        self.assertEqual(unique.all(), [
-            {"name": "Corentin All", "age": 1},
-            {"name": "Corentin All", "age": 2},
-            {"name": "Corentin All", "age": 3},
-            {"name": "Corentin All", "age": 4},
-        ])
+        self.assertEqual(
+            unique.all(),
+            [
+                {"name": "Corentin All", "age": 1},
+                {"name": "Corentin All", "age": 2},
+                {"name": "Corentin All", "age": 3},
+                {"name": "Corentin All", "age": 4},
+            ],
+        )
 
     def test_transform(self):
         collection = Collection([1, 1, 2, 3, 4])
@@ -290,11 +297,14 @@ class TestCollection(unittest.TestCase):
 
         value = collection.shift()
         self.assertEqual(value, {"name": "Corentin All", "age": 1})
-        self.assertEqual(collection.all(), [
-            {"name": "Corentin All", "age": 2},
-            {"name": "Corentin All", "age": 3},
-            {"name": "Corentin All", "age": 4},
-        ])
+        self.assertEqual(
+            collection.all(),
+            [
+                {"name": "Corentin All", "age": 2},
+                {"name": "Corentin All", "age": 3},
+                {"name": "Corentin All", "age": 4},
+            ],
+        )
 
     def test_sort(self):
         collection = Collection([4, 1, 2, 3])
@@ -317,23 +327,26 @@ class TestCollection(unittest.TestCase):
         )
         collection.reverse()
 
-        self.assertEqual(collection.all(), [
-            {"name": "Corentin All", "age": 4},
-            {"name": "Corentin All", "age": 3},
-            {"name": "Corentin All", "age": 2},
-        ])
+        self.assertEqual(
+            collection.all(),
+            [
+                {"name": "Corentin All", "age": 4},
+                {"name": "Corentin All", "age": 3},
+                {"name": "Corentin All", "age": 2},
+            ],
+        )
 
     def test_zip(self):
-        collection = Collection(['Chair', 'Desk'])
+        collection = Collection(["Chair", "Desk"])
         zipped = collection.zip([100, 200])
 
-        self.assertEqual(zipped.all(), [['Chair', 100], ['Desk', 200]])
+        self.assertEqual(zipped.all(), [["Chair", 100], ["Desk", 200]])
 
     def test_diff(self):
-        collection = Collection(['Chair', 'Desk'])
+        collection = Collection(["Chair", "Desk"])
         diff = collection.diff([100, 200])
 
-        self.assertEqual(diff.all(), ['Chair', 'Desk'])
+        self.assertEqual(diff.all(), ["Chair", "Desk"])
 
     def test_each(self):
         collection = Collection([1, 2, 3, 4])
@@ -354,15 +367,17 @@ class TestCollection(unittest.TestCase):
 
     def test_implode(self):
         collection = Collection([1, 2, 3, 4])
-        result = collection.implode('-')
-        self.assertEqual(result, '1-2-3-4')
+        result = collection.implode("-")
+        self.assertEqual(result, "1-2-3-4")
 
-        collection = Collection([{"name": "Corentin"}, {"name": "Joe"}, {"name": "Marlysson"}, ])
-        result = collection.implode(key='name')
+        collection = Collection(
+            [{"name": "Corentin"}, {"name": "Joe"}, {"name": "Marlysson"},]
+        )
+        result = collection.implode(key="name")
         self.assertEqual(result, "Corentin,Joe,Marlysson")
 
     def test_map_into(self):
-        collection = Collection(['USD', 'EUR', 'GBP'])
+        collection = Collection(["USD", "EUR", "GBP"])
 
         class Currency:
             def __init__(self, code):
@@ -373,7 +388,7 @@ class TestCollection(unittest.TestCase):
 
         currencies = collection.map_into(Currency)
         self.assertEqual(
-            currencies.all(), [Currency('USD'), Currency('EUR'), Currency('GBP')]
+            currencies.all(), [Currency("USD"), Currency("EUR"), Currency("GBP")]
         )
 
     def test_map(self):
@@ -385,14 +400,22 @@ class TestCollection(unittest.TestCase):
             x["age"] = x["age"] + 2
             return x
 
-        collection = Collection([
-            {"name": "Corentin", "age": 10}, {"name": "Joe", "age": 20}, {"name": "Marlysson", "age": 15}
-        ])
+        collection = Collection(
+            [
+                {"name": "Corentin", "age": 10},
+                {"name": "Joe", "age": 20},
+                {"name": "Marlysson", "age": 15},
+            ]
+        )
         result = collection.map(callback)
-        self.assertEqual(result.all(), [
-            {"name": "Corentin", "age": 12}, {"name": "Joe", "age": 22}, {"name": "Marlysson", "age": 17}
-
-        ])
+        self.assertEqual(
+            result.all(),
+            [
+                {"name": "Corentin", "age": 12},
+                {"name": "Joe", "age": 22},
+                {"name": "Marlysson", "age": 17},
+            ],
+        )
 
     def test_serialize(self):
         class Currency:
@@ -403,33 +426,44 @@ class TestCollection(unittest.TestCase):
                 return self.code == other.code
 
             def to_dict(self):
-                return {'code': self.code}
+                return {"code": self.code}
 
-        collection = Collection([
-            Collection([{"name": "Corentin", "age": 12}]),
-            {"name": "Joe", "age": 22},
-            {"name": "Marlysson", "age": 17},
-            Currency("USD")
-        ])
+        collection = Collection(
+            [
+                Collection([{"name": "Corentin", "age": 12}]),
+                {"name": "Joe", "age": 22},
+                {"name": "Marlysson", "age": 17},
+                Currency("USD"),
+            ]
+        )
 
         serialized_data = collection.serialize()
-        self.assertEqual(serialized_data, [
-            [{"name": "Corentin", "age": 12}],
-            {"name": "Joe", "age": 22},
-            {"name": "Marlysson", "age": 17},
-            {"code": "USD"}
-        ])
+        self.assertEqual(
+            serialized_data,
+            [
+                [{"name": "Corentin", "age": 12}],
+                {"name": "Joe", "age": 22},
+                {"name": "Marlysson", "age": 17},
+                {"code": "USD"},
+            ],
+        )
 
     def test_json(self):
-        collection = Collection([
-            {"name": "Corentin", "age": 10}, {"name": "Joe", "age": 20}, {"name": "Marlysson", "age": 15}
-        ])
+        collection = Collection(
+            [
+                {"name": "Corentin", "age": 10},
+                {"name": "Joe", "age": 20},
+                {"name": "Marlysson", "age": 15},
+            ]
+        )
 
         json_data = collection.to_json()
 
-        self.assertEqual(json_data,
-                         '[{"name": "Corentin", "age": 10}, '
-                         '{"name": "Joe", "age": 20}, {"name": "Marlysson", "age": 15}]')
+        self.assertEqual(
+            json_data,
+            '[{"name": "Corentin", "age": 10}, '
+            '{"name": "Joe", "age": 20}, {"name": "Marlysson", "age": 15}]',
+        )
 
     def test_contains(self):
         collection = Collection([1, 2, 3, 4])
@@ -437,28 +471,41 @@ class TestCollection(unittest.TestCase):
         self.assertTrue(collection.contains(3))
         self.assertFalse(collection.contains(5))
 
-        collection = Collection([
-            {"name": "Corentin", "age": 10}, {"name": "Joe", "age": 20}, {"name": "Marlysson", "age": 15}
-        ])
+        collection = Collection(
+            [
+                {"name": "Corentin", "age": 10},
+                {"name": "Joe", "age": 20},
+                {"name": "Marlysson", "age": 15},
+            ]
+        )
 
-        self.assertTrue(collection.contains(lambda x: x['age'] == 10))
-        self.assertFalse(collection.contains('age'))
-        self.assertTrue(collection.contains('age', 10))
-        self.assertFalse(collection.contains('age', 11))
+        self.assertTrue(collection.contains(lambda x: x["age"] == 10))
+        self.assertFalse(collection.contains("age"))
+        self.assertTrue(collection.contains("age", 10))
+        self.assertFalse(collection.contains("age", 11))
 
     def test_all(self):
         collection = Collection([1, 2, 3, 4])
         self.assertEqual(collection.all(), [1, 2, 3, 4])
 
-        collection = Collection([
-            {"name": "Corentin", "age": 10}, {"name": "Joe", "age": 20}, {"name": "Marlysson", "age": 15}
-        ])
-        self.assertEqual(collection.all(), [
-            {"name": "Corentin", "age": 10}, {"name": "Joe", "age": 20}, {"name": "Marlysson", "age": 15}
-        ])
+        collection = Collection(
+            [
+                {"name": "Corentin", "age": 10},
+                {"name": "Joe", "age": 20},
+                {"name": "Marlysson", "age": 15},
+            ]
+        )
+        self.assertEqual(
+            collection.all(),
+            [
+                {"name": "Corentin", "age": 10},
+                {"name": "Joe", "age": 20},
+                {"name": "Marlysson", "age": 15},
+            ],
+        )
 
     def test_flatten(self):
-        collection = Collection([1, 2, [3, 4, 5, {'foo': 'bar'}]])
+        collection = Collection([1, 2, [3, 4, 5, {"foo": "bar"}]])
         flattened = collection.flatten()
 
-        self.assertEqual(flattened.all(), [1, 2, 3, 4, 5, 'bar'])
+        self.assertEqual(flattened.all(), [1, 2, 3, 4, 5, "bar"])
