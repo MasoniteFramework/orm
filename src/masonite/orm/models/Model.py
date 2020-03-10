@@ -26,7 +26,7 @@ class Model:
     _relationships = {}
     _booted = False
     __primary_key__ = "id"
-    __casts__ = {"is_admin": "bool"}
+    __casts__ = {}
 
     __cast_map__ = {
         "bool": BoolCast,
@@ -57,6 +57,12 @@ class Model:
             cls.builder.set_action("select")
             cls._booted = True
             cls._boot_parent_scopes(cls)
+            cast_methods = [v for k, v in cls.__dict__.items() if k.startswith("get_")]
+            for cast in cast_methods:
+                cls.__casts__[cast.__name__.replace("get_", "")] = cast
+
+            print("final_cast", cls.__casts__)
+            print("cast methods are", cast_methods)
             cls._loads = ()
 
     def _boot_parent_scopes(cls):
@@ -167,7 +173,11 @@ class Model:
         return self.__attributes__[attribute]
 
     def _cast_attribute(self, attribute):
-        return self.__cast_map__[self.__casts__[attribute]]().get(attribute)
+        cast_method = self.__casts__[attribute]
+        if isinstance(cast_method, str):
+            return self.__cast_map__[cast_method]().get(attribute)
+
+        return cast_method(attribute)
 
     @classmethod
     def load(cls, *loads):
