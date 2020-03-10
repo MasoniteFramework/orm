@@ -50,7 +50,7 @@ Phase 1 will involve getting the foundation setup for this project. Making sure 
     - [ ] Postgres
     - [ ] SQLite
 - [x] Get the query builder to use the grammar
-- [x] Refactor to use `%s` symbols so we can use avoid sql injection attacks
+- [x] Refactor to use `%s` (or `?`) symbols so we can use avoid sql injection attacks
 
 ## TODO
 
