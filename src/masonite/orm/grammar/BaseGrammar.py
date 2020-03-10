@@ -373,6 +373,13 @@ class BaseGrammar:
                     column=self._compile_table(where.column),
                     keyword=keyword,
                 )
+            elif equality == "NOT BETWEEN":
+                sql_string = self.not_between_string().format(
+                    low=self._compile_value(where.low),
+                    high=self._compile_value(where.high),
+                    column=self._compile_table(where.column),
+                    keyword=keyword,
+                )
             elif value is None:
                 sql_string = self.where_null_string()
             elif value is True:

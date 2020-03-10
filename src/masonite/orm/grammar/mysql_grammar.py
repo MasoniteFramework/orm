@@ -95,6 +95,9 @@ class MySQLGrammar(BaseGrammar):
     def between_string(self):
         return "{keyword} {column} BETWEEN {low} AND {high}"
 
+    def not_between_string(self):
+        return "{keyword} {column} NOT BETWEEN {low} AND {high}"
+
     def where_exists_string(self):
         return "{keyword} EXISTS {value}"
 

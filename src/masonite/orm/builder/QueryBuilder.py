@@ -53,11 +53,11 @@ class UpdateQueryExpression:
 
 
 class BetweenExpression:
-    def __init__(self, column, low, high):
+    def __init__(self, column, low, high, equality="BETWEEN"):
         self.column = column
         self.low = low
         self.high = high
-        self.equality = "BETWEEN"
+        self.equality = equality
         self.value = None
         self.value_type = "BETWEEN"
         self.raw = False
@@ -227,6 +227,10 @@ class QueryBuilder:
 
     def between(self, column, low, high):
         self._wheres += (BetweenExpression(column, low, high),)
+        return self
+
+    def not_between(self, column, low, high):
+        self._wheres += (BetweenExpression(column, low, high, equality="NOT BETWEEN"),)
         return self
 
     def where_in(self, column, wheres=[]):
