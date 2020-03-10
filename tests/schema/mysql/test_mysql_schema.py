@@ -197,6 +197,14 @@ class BaseTestCreateGrammar:
         )()
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_rename_table(self):
+        to_sql = self.schema.rename("users", "core", query_only=True)
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
 
 class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
     def setUp(self):
@@ -449,3 +457,10 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             "`expirated_at` TIMESTAMP"
             ")"
         )
+
+    def rename_table(self):
+        """
+            to_sql = self.schema.rename("users", "core", query_only=True)
+        """
+
+        return "RENAME TABLE `users` TO `core`"
