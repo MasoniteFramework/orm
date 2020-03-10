@@ -50,3 +50,10 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             for user in users:
                 print(user)
                 # print(user.articles)
+
+        def test_casting(self):
+            users = User.with_("articles").where("is_admin", 1).get()
+            for user in users:
+                print(user.is_admin)
+                self.assertIs(user.is_admin, True)
+                # print(user.articles)
