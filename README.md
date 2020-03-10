@@ -130,10 +130,10 @@ Phase 1 will involve getting the foundation setup for this project. Making sure 
 
 - [x] Create Schema Builder class (just a wrapper around create and alter queries)
 - [x] Relationships
-- [in progress] Add indexes to schema 
-- [ ] Eager Loading
-    - [ ] N + 1 Problem
-- [ ] Make new collection class
+[in progress] Add indexes to schema 
+- [x] Eager Loading
+    - [x] N + 1 Problem
+- [x] Make new collection class
 - [x] Make `Column` classes to better interact with building data
 - [ ] Fully document every part of the project. Will need to first get a basic working project and then start documenting everything. Then start opening pull requests and documenting as we add new features. Similiar to the way Masonite has good documentation.
 
