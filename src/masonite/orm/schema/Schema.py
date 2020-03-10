@@ -99,3 +99,11 @@ class Schema:
         if query_only:
             return query
         return bool(cls._connection().make_connection().query(query, ()))
+
+    @classmethod
+    def rename(cls, table, new_name, query_only=False):
+        grammar = cls._connection.get_grammer()(table=table)
+        query = grammar.rename_table(current_name=table, new_name=new_name).to_sql()
+        if query_only:
+            return query
+        return bool(cls._connection().make_connection().query(query, ()))

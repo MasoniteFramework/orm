@@ -537,3 +537,9 @@ class BaseGrammar:
             table=self._compile_column(table)
         )
         return self
+
+    def rename_table(self, current_name, new_name):
+        self._sql = self.rename_table_string().format(
+            current_name=self._compile_column(current_name),
+            new_name=self._compile_column(new_name))
+        return self
