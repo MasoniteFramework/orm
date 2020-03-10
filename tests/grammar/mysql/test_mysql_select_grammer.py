@@ -80,6 +80,12 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammer, unittest.TestCase):
         """
         return "SELECT `username` FROM `users` WHERE `age` IN ('1','2','3')"
 
+    def can_compile_where_not_in(self):
+        """
+        self.builder.select('username').where_not_in('age', [1,2,3]).to_sql() 
+        """
+        return "SELECT `username` FROM `users` WHERE `age` NOT IN ('1','2','3')"
+
     def can_compile_where_null(self):
         """
         self.builder.select('username').where_null('age').to_sql() 

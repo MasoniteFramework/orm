@@ -239,6 +239,16 @@ class QueryBuilder:
             self._wheres += ((QueryExpression(column, "IN", wheres)),)
         return self
 
+    def where_not_in(self, column, wheres=[]):
+        if isinstance(wheres, QueryBuilder):
+            self._wheres += (
+                (QueryExpression(column, "NOT IN", SubSelectExpression(wheres))),
+            )
+        else:
+            wheres = [str(x) for x in wheres]
+            self._wheres += ((QueryExpression(column, "NOT IN", wheres)),)
+        return self
+
     def join(self, foreign_table, column1, equality, column2, clause="inner"):
         self._joins += (
             JoinExpression(foreign_table, column1, equality, column2, clause=clause),
