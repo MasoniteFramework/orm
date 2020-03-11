@@ -105,7 +105,7 @@ class MySQLGrammar(BaseGrammar):
         return "AS {alias}"
 
     def key_value_string(self):
-        return "{column} = '{value}'"
+        return "{column} = '{value}'{seperator}"
 
     def increment_string(self):
         return "{column} = {column} + '{value}'"

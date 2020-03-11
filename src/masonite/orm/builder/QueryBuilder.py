@@ -152,7 +152,7 @@ class QueryBuilder:
 
         self._limit = False
         self._offset = False
-        self._action = None
+        self.set_action("select")
 
     def select(self, *args):
         for column in args:
@@ -165,13 +165,13 @@ class QueryBuilder:
 
     def create(self, creates):
         self._columns = creates
-        self._action = "insert"
+        self.set_action("insert")
         return self
 
     def delete(self, column=None, value=None):
         if column and value:
             self.where(column, value)
-        self._action = "delete"
+        self.set_action("delete")
         return self
 
     def where(self, column, value=None):
@@ -283,19 +283,23 @@ class QueryBuilder:
         self._offset = amount
         return self
 
-    def update(self, updates):
+    def update(self, updates, dry=False):
+        print("update method???", updates)
         self._updates = (UpdateQueryExpression(updates),)
-        self._action = "update"
-        return self
+        self.set_action("update")
+        if dry:
+            return self
+
+        return self.connection().make_connection().query(self.to_sql(), self._bindings)
 
     def increment(self, column, value=1):
         self._updates = (UpdateQueryExpression(column, value, update_type="increment"),)
-        self._action = "update"
+        self.set_action("update")
         return self
 
     def decrement(self, column, value=1):
         self._updates = (UpdateQueryExpression(column, value, update_type="decrement"),)
-        self._action = "update"
+        self.set_action("update")
         return self
 
     def sum(self, column):
@@ -322,7 +326,7 @@ class QueryBuilder:
         self._aggregates += ((aggregate, column),)
 
     def first(self):
-        self._action = "select"
+        self.set_action("select")
         return (
             self.connection()
             .make_connection()
@@ -335,7 +339,7 @@ class QueryBuilder:
         )
 
     def get(self):
-        self._action = "select"
+        self.set_action("select")
         result = (
             self.connection().make_connection().query(self.to_qmark(), self._bindings)
         )
