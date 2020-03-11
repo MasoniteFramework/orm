@@ -35,6 +35,7 @@ class Model:
 
     def __init__(self):
         self.__attributes__ = {}
+        self.__dirty_attributes__ = {}
         self._relationships = {}
 
     def get_primary_key(self):
@@ -165,6 +166,18 @@ class Model:
     def __getattr__(self, attribute):
         if attribute in self.__attributes__:
             return self.get_value(attribute)
+
+    def __setattr__(self, attribute, value):
+        try:
+            if not attribute.startswith("_"):
+                self.__dict__["__dirty_attributes__"].update({attribute: value})
+        except KeyError:
+            pass
+
+    def save(self):
+        return self.builder.where(
+            self.get_primary_key(), self.get_primary_key_value()
+        ).update(self.__dirty_attributes__)
 
     def get_value(self, attribute):
         if attribute in self.__casts__:

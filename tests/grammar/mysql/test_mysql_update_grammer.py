@@ -10,7 +10,19 @@ class BaseTestCaseUpdateGrammer:
         self.builder = QueryBuilder(GrammarFactory.make(self.grammar), table="users")
 
     def test_can_compile_update(self):
-        to_sql = self.builder.where("name", "bob").update({"name": "Joe"}).to_sql()
+        to_sql = (
+            self.builder.where("name", "bob").update({"name": "Joe"}, dry=True).to_sql()
+        )
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_multiple_update(self):
+        to_sql = self.builder.update(
+            {"name": "Joe", "email": "user@email.com"}, dry=True
+        ).to_sql()
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -21,7 +33,7 @@ class BaseTestCaseUpdateGrammer:
         to_sql = (
             self.builder.where("name", "bob")
             .where("age", 20)
-            .update({"name": "Joe"})
+            .update({"name": "Joe"}, dry=True)
             .to_sql()
         )
 
@@ -58,6 +70,12 @@ class TestMySQLUpdateGrammar(BaseTestCaseUpdateGrammer, unittest.TestCase):
         }).to_sql()
         """
         return "UPDATE `users` SET `name` = 'Joe' WHERE `name` = 'bob'"
+
+    def can_compile_multiple_update(self):
+        """
+        self.builder.update({"name": "Joe", "email": "user@email.com"}, dry=True).to_sql()
+        """
+        return "UPDATE `users` SET `name` = 'Joe', `email` = 'user@email.com'"
 
     def can_compile_update_with_multiple_where(self):
         """

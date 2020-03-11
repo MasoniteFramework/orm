@@ -8,7 +8,9 @@ class MySQLConnection(BaseConnection):
         """This sets the connection on the connection class
         """
         self._connection = pymysql.connect(
-            cursorclass=pymysql.cursors.DictCursor, **self.get_connection_details()
+            cursorclass=pymysql.cursors.DictCursor,
+            autocommit=True,
+            **self.get_connection_details(),
         )
 
         return self
@@ -70,6 +72,7 @@ class MySQLConnection(BaseConnection):
             dict|None -- Returns a dictionary of results or None
         """
         query = query.replace("'?'", "%s")
+        print("running query", query)
         try:
             with self._connection.cursor() as cursor:
                 cursor.execute(query, bindings)

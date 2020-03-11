@@ -224,6 +224,7 @@ class BaseGrammar:
                     sql += sql_string.format(
                         column=self._compile_column(key),
                         value=value if not qmark else "?",
+                        seperator=", ",
                     )
 
                     if qmark:
@@ -235,6 +236,8 @@ class BaseGrammar:
                 )
                 if qmark:
                     self._bindings += (value,)
+
+            sql = sql.rstrip(", ")
 
         return sql
 
@@ -541,5 +544,6 @@ class BaseGrammar:
     def rename_table(self, current_name, new_name):
         self._sql = self.rename_table_string().format(
             current_name=self._compile_column(current_name),
-            new_name=self._compile_column(new_name))
+            new_name=self._compile_column(new_name),
+        )
         return self
