@@ -19,7 +19,7 @@ class BaseQMarkTest:
         self.assertEqual(mark._bindings, bindings)
 
     def test_can_compile_update(self):
-        mark = self.builder.update({"name": "Bob"}).where("name", "Joe")
+        mark = self.builder.update({"name": "Bob"}, dry=True).where("name", "Joe")
 
         sql, bindings = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")

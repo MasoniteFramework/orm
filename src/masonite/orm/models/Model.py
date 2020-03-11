@@ -164,13 +164,15 @@ class Model:
         pass
 
     def __getattr__(self, attribute):
-        if attribute in self.__attributes__:
+        if attribute in self.__dict__["__attributes__"]:
             return self.get_value(attribute)
 
     def __setattr__(self, attribute, value):
         try:
             if not attribute.startswith("_"):
                 self.__dict__["__dirty_attributes__"].update({attribute: value})
+            else:
+                self.__dict__[attribute] = value
         except KeyError:
             pass
 

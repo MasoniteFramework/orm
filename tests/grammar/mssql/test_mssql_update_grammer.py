@@ -10,7 +10,9 @@ class TestMSSQLUpdateGrammar(unittest.TestCase):
 
     def test_can_compile_update(self):
 
-        to_sql = self.builder.where("name", "bob").update({"name": "Joe"}).to_sql()
+        to_sql = (
+            self.builder.where("name", "bob").update({"name": "Joe"}, dry=True).to_sql()
+        )
 
         sql = "UPDATE [users] SET [name] = 'Joe' WHERE [name] = 'bob'"
         self.assertEqual(to_sql, sql)
@@ -19,7 +21,7 @@ class TestMSSQLUpdateGrammar(unittest.TestCase):
         to_sql = (
             self.builder.where("name", "bob")
             .where("age", 20)
-            .update({"name": "Joe"})
+            .update({"name": "Joe"}, dry=True)
             .to_sql()
         )
 
