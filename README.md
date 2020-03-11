@@ -40,7 +40,7 @@ $ python -m pytest
 
 **Project Deadline: November 1 2020**. This should give enough time to incorporate the new ORM into Masonite's major release at the time.
 
-Phase 1 will involve getting the foundation setup for this project. Making sure we can include all the basic use cases and relationships as well as a 100% full documentation. By the end of Phase 1, this ORM should be able to handle the 90% of use cases of a project. Phase 2 will complete the more uncommon or edge cases.
+Phase 1 will involve getting the foundation setup for this project. Making sure we can include all the basic use cases and relationships as well as a 100% full documentation. By the end of Phase 1, this ORM should be able to handle the 90% of use cases of a project. Phase 2 will complete the more uncommon or edge cases. Finally,. Phase 3 will be quality of life features.
 
 ## Short Term Tasks
 
@@ -50,7 +50,7 @@ Phase 1 will involve getting the foundation setup for this project. Making sure 
     - [ ] Postgres
     - [ ] SQLite
 - [x] Get the query builder to use the grammar
-- [x] Refactor to use `%s` symbols so we can use avoid sql injection attacks
+- [x] Refactor to use `%s` (or `?`) symbols so we can use avoid sql injection attacks
 
 ## TODO
 
@@ -62,7 +62,7 @@ Phase 1 will involve getting the foundation setup for this project. Making sure 
         - [x] UPDATE
         - [x] INSERT
         - [x] DELETE
-        - [ ] ALTER
+        - [x] ALTER
         - [x] Subselects
             - [x] on wheres `where age > (SELECT ..)`
             - [x] Exists
@@ -77,6 +77,22 @@ Phase 1 will involve getting the foundation setup for this project. Making sure 
             - [x] Unique
     - [x] Tests
 
+- [x] Create Schema Builder class (just a wrapper around create and alter queries)
+- [x] Relationships
+[in progress] Add indexes to schema 
+- [x] Eager Loading
+    - [x] N + 1 Problem
+- [x] Make new collection class
+- [x] Make `Column` classes to better interact with building data
+- [ ] Fully document every part of the project. Will need to first get a basic working project and then start documenting everything. Then start opening pull requests and documenting as we add new features. Similiar to the way Masonite has good documentation.
+
+# Phase 2
+
+**Versions 0.5 - 0.9**
+
+Phase 2 will involve further refactoring. By this phase, all the documentation should be done for the above phase.
+
+- [ ] Where Has queries
 - [ ] MSSQL
     - [-] Grammar
         - [x] SELECT
@@ -128,25 +144,13 @@ Phase 1 will involve getting the foundation setup for this project. Making sure 
     - [x] SQL Injection
     - [ ] Full Tests
 
-- [x] Create Schema Builder class (just a wrapper around create and alter queries)
-- [x] Relationships
-- [in progress] Add indexes to schema 
-- [ ] Eager Loading
-    - [ ] N + 1 Problem
-- [ ] Make new collection class
-- [x] Make `Column` classes to better interact with building data
-- [ ] Fully document every part of the project. Will need to first get a basic working project and then start documenting everything. Then start opening pull requests and documenting as we add new features. Similiar to the way Masonite has good documentation.
-
-# Phase 2
-
-**Versions 0.5 - 0.9**
-
-Phase 2 will involve further refactoring. By this phase, all the documentation should be done for the above phase.
-
-* Where Has queries
 
 # Phase 3
 
 **Versions 1.0+**
 
 This phase will be responsible for adding additional quality of life features and overall improvements to the ORM. These include additional options and additional wrapper methods
+
+- [ ] Quality of Life Features
+- [ ] Oracle
+- [ ] MongoDB (?)

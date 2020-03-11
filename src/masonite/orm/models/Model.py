@@ -26,7 +26,7 @@ class Model:
     _relationships = {}
     _booted = False
     __primary_key__ = "id"
-    __casts__ = {"is_admin": "bool"}
+    __casts__ = {}
 
     __cast_map__ = {
         "bool": BoolCast,
@@ -35,6 +35,7 @@ class Model:
 
     def __init__(self):
         self.__attributes__ = {}
+        self.__dirty_attributes__ = {}
         self._relationships = {}
 
     def get_primary_key(self):
@@ -57,6 +58,12 @@ class Model:
             cls.builder.set_action("select")
             cls._booted = True
             cls._boot_parent_scopes(cls)
+            cast_methods = [v for k, v in cls.__dict__.items() if k.startswith("get_")]
+            for cast in cast_methods:
+                cls.__casts__[cast.__name__.replace("get_", "")] = cast
+
+            print("final_cast", cls.__casts__)
+            print("cast methods are", cast_methods)
             cls._loads = ()
 
     def _boot_parent_scopes(cls):
@@ -157,8 +164,22 @@ class Model:
         pass
 
     def __getattr__(self, attribute):
-        if attribute in self.__attributes__:
+        if attribute in self.__dict__["__attributes__"]:
             return self.get_value(attribute)
+
+    def __setattr__(self, attribute, value):
+        try:
+            if not attribute.startswith("_"):
+                self.__dict__["__dirty_attributes__"].update({attribute: value})
+            else:
+                self.__dict__[attribute] = value
+        except KeyError:
+            pass
+
+    def save(self):
+        return self.builder.where(
+            self.get_primary_key(), self.get_primary_key_value()
+        ).update(self.__dirty_attributes__)
 
     def get_value(self, attribute):
         if attribute in self.__casts__:
@@ -167,7 +188,11 @@ class Model:
         return self.__attributes__[attribute]
 
     def _cast_attribute(self, attribute):
-        return self.__cast_map__[self.__casts__[attribute]]().get(attribute)
+        cast_method = self.__casts__[attribute]
+        if isinstance(cast_method, str):
+            return self.__cast_map__[cast_method]().get(attribute)
+
+        return cast_method(attribute)
 
     @classmethod
     def load(cls, *loads):
