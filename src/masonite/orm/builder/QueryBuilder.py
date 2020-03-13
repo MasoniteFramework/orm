@@ -170,7 +170,11 @@ class QueryBuilder:
 
     def delete(self, column=None, value=None):
         if column and value:
-            self.where(column, value)
+            if isinstance(value, (list, tuple)):
+                self.where_in(column, value)
+            else:
+                self.where(column, value)
+
         self.set_action("delete")
         return self
 
