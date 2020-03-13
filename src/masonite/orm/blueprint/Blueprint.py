@@ -255,6 +255,10 @@ class Blueprint:
         self._constraints += (Constraint(column, constraint_type="fulltext"),)
         return self
 
+    def primary(self, column):
+        self._constraints += (Constraint(column, constraint_type="primary"),)
+        return self
+
     def rename(self, old_column, new_column):
         self._last_column = self.new_column(None, column, length, nullable).rename(
             old_column

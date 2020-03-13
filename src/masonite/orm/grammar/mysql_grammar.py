@@ -152,6 +152,9 @@ class MySQLGrammar(BaseGrammar):
     def fulltext_constraint_string(self):
         return "FULLTEXT ({column}){seperator}"
 
+    def primary_constraint_string(self):
+        return "PRIMARY KEY ({column}){seperator}"
+
     def table_string(self):
         return "`{table}`"
 

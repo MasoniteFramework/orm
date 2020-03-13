@@ -215,6 +215,16 @@ class BaseTestCreateGrammar:
         )()
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_primary_constraint(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.string("name")
+            blueprint.primary("id")
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_index_constraint(self):
         with self.schema.create("users") as blueprint:
             blueprint.string("name")
@@ -354,6 +364,20 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             "CREATE TABLE `users` ("
             "`name` VARCHAR(255) NOT NULL, "
             "FULLTEXT (`description`)"
+            ")"
+        )
+
+    def primary_constraint(self):
+        """
+        with self.schema.create("users") as blueprint:
+            blueprint.string("name")
+            blueprint.primary('id')
+        """
+
+        return (
+            "CREATE TABLE `users` ("
+            "`name` VARCHAR(255) NOT NULL, "
+            "PRIMARY KEY (`id`)"
             ")"
         )
 
