@@ -235,6 +235,17 @@ class BaseTestCreateGrammar:
         )()
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_foreign_key_constraint(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.unsigned("user_id")
+            blueprint.foreign("user_id").references("id").on("profile")
+            blueprint.foreign("fruit_id").references("id").on("fruit")
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_multiple_index_constraint(self):
         with self.schema.create("users") as blueprint:
             blueprint.string("name")
@@ -392,6 +403,30 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             "CREATE TABLE `users` ("
             "`name` VARCHAR(255) NOT NULL, "
             "INDEX (`email`, `name`)"
+            ")"
+        )
+
+    def foreign_key_constraint(self):
+        """
+        with self.schema.create("users") as blueprint:
+            blueprint.integer("user_id").unsigned()
+            blueprint.foreign('user_id').references('id').on('profile')
+            blueprint.foreign('fruit_id').references('id').on('fruit')
+        """
+        print(
+            (
+                "CREATE TABLE `users` ("
+                "`user_id` INT UNSIGNED NOT NULL, "
+                "FOREIGN KEY (`user_id`) REFERENCES `profile`(`id`), "
+                "FOREIGN KEY (`fruit_id`) REFERENCES `fruit`(`id`)"
+                ")"
+            )
+        )
+        return (
+            "CREATE TABLE `users` ("
+            "`user_id` INT UNSIGNED NOT NULL, "
+            "FOREIGN KEY (`user_id`) REFERENCES `profile`(`id`), "
+            "FOREIGN KEY (`fruit_id`) REFERENCES `fruit`(`id`)"
             ")"
         )
 

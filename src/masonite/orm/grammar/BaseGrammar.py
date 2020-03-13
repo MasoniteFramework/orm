@@ -37,6 +37,7 @@ class BaseGrammar:
         having=(),
         creates=(),
         constraints=(),
+        foreign_keys=(),
         connection_details={},
     ):
         self._columns = columns
@@ -52,6 +53,7 @@ class BaseGrammar:
         self._having = having
         self._creates = creates
         self._constraints = constraints
+        self._foreign_keys = foreign_keys
         self._connection_details = connection_details
         self._column = None
 
@@ -66,6 +68,7 @@ class BaseGrammar:
             table=self._compile_from(),
             columns=self._compile_create_columns(),
             constraints=self._compile_create_constraints().rstrip(" "),
+            foreign_keys=self._compile_foreign_keys().rstrip(" "),
         )
         return self
 
@@ -101,6 +104,18 @@ class BaseGrammar:
 
         self._sql = sql
         return self
+
+    def _compile_foreign_keys(self):
+        sql = ", "
+        for foreign_key in self._foreign_keys:
+            sql += self.foreign_key_string().format(
+                column=self._compile_column(foreign_key.column_name),
+                foreign_table=self._compile_table(foreign_key.foreign_table),
+                foreign_column=self._compile_column(foreign_key.foreign_column),
+                seperator=", ",
+            )
+
+        return sql.rstrip(", ")
 
     def _compile_create_columns(self):
         sql = ""

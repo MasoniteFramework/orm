@@ -64,6 +64,19 @@ class Constraint:
         self.constraint_type = constraint_type
 
 
+class ForeignKey:
+    def __init__(self, column, foreign_table=None, foreign_column=None):
+        self.column_name = column
+        self.foreign_table = foreign_table
+        self.foreign_column = foreign_column
+
+    def references(self, foreign_column):
+        self.foreign_column = foreign_column
+
+    def on(self, foreign_table):
+        self.foreign_table = foreign_table
+
+
 class Blueprint:
     def __init__(self, grammar, table="", action=None, default_string_length=None):
         self.grammar = grammar
@@ -71,6 +84,7 @@ class Blueprint:
         self._sql = ""
         self._columns = ()
         self._constraints = ()
+        self._foreign_keys = ()
         self._last_column = None
         self._action = action
         self._default_string_length = default_string_length
@@ -209,6 +223,7 @@ class Blueprint:
                 self.grammar(
                     creates=self._columns,
                     constraints=self._constraints,
+                    foreign_keys=self._foreign_keys,
                     table=self.table,
                 )
                 ._compile_create()
@@ -219,6 +234,7 @@ class Blueprint:
                 self.grammar(
                     creates=self._columns,
                     constraints=self._constraints,
+                    foreign_keys=self._foreign_keys,
                     table=self.table,
                 )
                 ._compile_alter()
@@ -257,6 +273,19 @@ class Blueprint:
 
     def primary(self, column):
         self._constraints += (Constraint(column, constraint_type="primary"),)
+        return self
+
+    def foreign(self, column):
+        self._last_foreign = ForeignKey(column)
+        return self
+
+    def references(self, column):
+        self._last_foreign.references(column)
+        return self
+
+    def on(self, table):
+        self._last_foreign.on(table)
+        self._foreign_keys += (self._last_foreign,)
         return self
 
     def rename(self, old_column, new_column):
