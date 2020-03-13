@@ -156,7 +156,7 @@ class MySQLGrammar(BaseGrammar):
         return "PRIMARY KEY ({column}){seperator}"
 
     def foreign_key_string(self):
-        return "FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){seperator}"
+        return "CONSTRAINT {index_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){seperator}"
 
     def table_string(self):
         return "`{table}`"

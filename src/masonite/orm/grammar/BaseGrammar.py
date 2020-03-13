@@ -112,6 +112,7 @@ class BaseGrammar:
                 column=self._compile_column(foreign_key.column_name),
                 foreign_table=self._compile_table(foreign_key.foreign_table),
                 foreign_column=self._compile_column(foreign_key.foreign_column),
+                index_name=foreign_key.index_name,
                 seperator=", ",
             )
 

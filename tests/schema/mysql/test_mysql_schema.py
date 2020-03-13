@@ -260,6 +260,7 @@ class BaseTestCreateGrammar:
 class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
     def setUp(self):
         self.schema = Schema.on("mysql")
+        self.maxDiff = 999
 
     def can_compile_column(self):
         """
@@ -413,20 +414,12 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.foreign('user_id').references('id').on('profile')
             blueprint.foreign('fruit_id').references('id').on('fruit')
         """
-        print(
-            (
-                "CREATE TABLE `users` ("
-                "`user_id` INT UNSIGNED NOT NULL, "
-                "FOREIGN KEY (`user_id`) REFERENCES `profile`(`id`), "
-                "FOREIGN KEY (`fruit_id`) REFERENCES `fruit`(`id`)"
-                ")"
-            )
-        )
+
         return (
             "CREATE TABLE `users` ("
             "`user_id` INT UNSIGNED NOT NULL, "
-            "FOREIGN KEY (`user_id`) REFERENCES `profile`(`id`), "
-            "FOREIGN KEY (`fruit_id`) REFERENCES `fruit`(`id`)"
+            "CONSTRAINT users_user_id_foreign FOREIGN KEY (`user_id`) REFERENCES `profile`(`id`), "
+            "CONSTRAINT users_fruit_id_foreign FOREIGN KEY (`fruit_id`) REFERENCES `fruit`(`id`)"
             ")"
         )
 

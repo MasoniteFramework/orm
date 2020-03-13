@@ -65,16 +65,19 @@ class Constraint:
 
 
 class ForeignKey:
-    def __init__(self, column, foreign_table=None, foreign_column=None):
+    def __init__(self, column, current_table, foreign_table=None, foreign_column=None):
         self.column_name = column
+        self.current_table = current_table
         self.foreign_table = foreign_table
         self.foreign_column = foreign_column
+        self.index_name = ""
 
     def references(self, foreign_column):
         self.foreign_column = foreign_column
 
     def on(self, foreign_table):
         self.foreign_table = foreign_table
+        self.index_name = f"{self.current_table}_{self.column_name}_foreign"
 
 
 class Blueprint:
@@ -276,7 +279,7 @@ class Blueprint:
         return self
 
     def foreign(self, column):
-        self._last_foreign = ForeignKey(column)
+        self._last_foreign = ForeignKey(column, self.table)
         return self
 
     def references(self, column):
