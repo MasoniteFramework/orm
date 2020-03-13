@@ -134,8 +134,8 @@ class MySQLGrammar(BaseGrammar):
     def rename_column_string(self):
         return "CHANGE COLUMN old_name {column} {data_type}{length}{nullable}, "
 
-    def create_start(self):
-        return "CREATE TABLE {table} "
+    def create_format(self):
+        return "CREATE TABLE {table} ({columns}{constraints})"
 
     def alter_start(self):
         return "ALTER TABLE {table} "
@@ -144,7 +144,10 @@ class MySQLGrammar(BaseGrammar):
         return "({length})"
 
     def unique_constraint_string(self):
-        return "CONSTRAINT {clean_column}_unique UNIQUE ({clean_column})"
+        return "CONSTRAINT {clean_column}_unique UNIQUE ({clean_column}){seperator}"
+
+    def index_constraint_string(self):
+        return "INDEX ({column}){seperator}"
 
     def table_string(self):
         return "`{table}`"

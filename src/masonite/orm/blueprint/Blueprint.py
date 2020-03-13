@@ -58,12 +58,19 @@ class Column:
         return self
 
 
+class Constraint:
+    def __init__(self, column, constraint_type):
+        self.column_name = column
+        self.constraint_type = constraint_type
+
+
 class Blueprint:
     def __init__(self, grammar, table="", action=None, default_string_length=None):
         self.grammar = grammar
         self.table = table
         self._sql = ""
         self._columns = ()
+        self._constraints = ()
         self._last_column = None
         self._action = action
         self._default_string_length = default_string_length
@@ -199,13 +206,21 @@ class Blueprint:
     def to_sql(self):
         if self._action == "create":
             return (
-                self.grammar(creates=self._columns, table=self.table)
+                self.grammar(
+                    creates=self._columns,
+                    constraints=self._constraints,
+                    table=self.table,
+                )
                 ._compile_create()
                 .to_sql()
             )
         else:
             return (
-                self.grammar(creates=self._columns, table=self.table)
+                self.grammar(
+                    creates=self._columns,
+                    constraints=self._constraints,
+                    table=self.table,
+                )
                 ._compile_alter()
                 .to_sql()
             )
@@ -224,8 +239,16 @@ class Blueprint:
         self._last_column.change()
         return self
 
-    def unique(self):
-        self._last_column.unique()
+    def unique(self, column=None):
+        if column is None:
+            column = self._last_column.column_name
+
+        self._constraints += (Constraint(column, constraint_type="unique"),)
+
+        return self
+
+    def index(self, column):
+        self._constraints += (Constraint(column, constraint_type="index"),)
         return self
 
     def rename(self, old_column, new_column):

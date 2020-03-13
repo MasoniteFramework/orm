@@ -56,16 +56,6 @@ class BaseTestCreateGrammar:
         )()
         self.assertEqual(blueprint.to_sql(), sql)
 
-    def test_can_compile_primary_key(self):
-        with self.schema.create("users") as blueprint:
-            blueprint.increments("id")
-            blueprint.string("name")
-
-        sql = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
-        self.assertEqual(blueprint.to_sql(), sql)
-
     def test_can_compile_multiple_constraints(self):
         with self.schema.create("users") as blueprint:
             blueprint.increments("id")
@@ -205,6 +195,36 @@ class BaseTestCreateGrammar:
         )()
         self.assertEqual(to_sql, sql)
 
+    def test_unique_constraint(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.string("name")
+            blueprint.unique("email")
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_index_constraint(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.string("name")
+            blueprint.index("email")
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_multiple_index_constraint(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.string("name")
+            blueprint.index(["email", "name"])
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(blueprint.to_sql(), sql)
+
 
 class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
     def setUp(self):
@@ -262,20 +282,6 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             ")"
         )
 
-    def can_compile_primary_key(self):
-        """
-        with self.schema.create('users') as blueprint:
-            blueprint.increments('id')
-            blueprint.string('name')
-        """
-
-        return (
-            "CREATE TABLE `users` ("
-            "`id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL, "
-            "`name` VARCHAR(255) NOT NULL"
-            ")"
-        )
-
     def can_compile_multiple_constraints(self):
         """
         with self.schema.create('users') as blueprint:
@@ -298,6 +304,48 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         """
 
         return "CREATE TABLE `users` (" "`age` ENUM('1','2','3')" ")"
+
+    def unique_constraint(self):
+        """
+        with self.schema.create("users") as blueprint:
+            blueprint.string("name")
+            blueprint.unique('email')
+        """
+
+        return (
+            "CREATE TABLE `users` ("
+            "`name` VARCHAR(255) NOT NULL, "
+            "CONSTRAINT email_unique UNIQUE (email)"
+            ")"
+        )
+
+    def index_constraint(self):
+        """
+        with self.schema.create("users") as blueprint:
+            blueprint.string("name")
+            blueprint.index('email')
+        """
+
+        return (
+            "CREATE TABLE `users` ("
+            "`name` VARCHAR(255) NOT NULL, "
+            "INDEX (`email`)"
+            ")"
+        )
+
+    def multiple_index_constraint(self):
+        """
+        with self.schema.create("users") as blueprint:
+            blueprint.string("name")
+            blueprint.index('email')
+        """
+
+        return (
+            "CREATE TABLE `users` ("
+            "`name` VARCHAR(255) NOT NULL, "
+            "INDEX (`email`, `name`)"
+            ")"
+        )
 
     def column_exists(self):
         """
