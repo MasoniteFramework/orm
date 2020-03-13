@@ -149,6 +149,9 @@ class MySQLGrammar(BaseGrammar):
     def index_constraint_string(self):
         return "INDEX ({column}){seperator}"
 
+    def fulltext_constraint_string(self):
+        return "FULLTEXT ({column}){seperator}"
+
     def table_string(self):
         return "`{table}`"
 
