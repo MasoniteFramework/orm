@@ -62,6 +62,10 @@ class Constraint:
     def __init__(self, column, constraint_type):
         self.column_name = column
         self.constraint_type = constraint_type
+        if isinstance(column, (list, tuple)):
+            self.index_name = "_".join(column) + "_" + constraint_type
+        else:
+            self.index_name = column + "_" + constraint_type
 
 
 class ForeignKey:
@@ -70,6 +74,8 @@ class ForeignKey:
         self.current_table = current_table
         self.foreign_table = foreign_table
         self.foreign_column = foreign_column
+        self._on_delete = None
+        self._on_update = None
         self.index_name = ""
 
     def references(self, foreign_column):
@@ -78,6 +84,14 @@ class ForeignKey:
     def on(self, foreign_table):
         self.foreign_table = foreign_table
         self.index_name = f"{self.current_table}_{self.column_name}_foreign"
+
+    def on_update(self, action):
+        self._on_update = action
+        return self
+
+    def on_delete(self, action):
+        self._on_delete = action
+        return self
 
 
 class Blueprint:
@@ -289,6 +303,14 @@ class Blueprint:
     def on(self, table):
         self._last_foreign.on(table)
         self._foreign_keys += (self._last_foreign,)
+        return self
+
+    def on_delete(self, action):
+        self._last_foreign.on_delete(action)
+        return self
+
+    def on_update(self, action):
+        self._last_foreign.on_update(action)
         return self
 
     def rename(self, old_column, new_column):

@@ -47,6 +47,38 @@ class TestMySQLAlterGrammar(unittest.TestCase):
         sql = "ALTER TABLE `users` MODIFY `name` VARCHAR(50) NULL"
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_can_alter_index(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.unique("name")
+
+        sql = "ALTER TABLE `users` ADD CONSTRAINT name_unique UNIQUE(`name`)"
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_can_alter_foreign_key(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.foreign("profile_id").references("id").on("profile")
+
+        sql = "ALTER TABLE `users` ADD CONSTRAINT users_profile_id_foreign FOREIGN KEY (`profile_id`) REFERENCES `profile`(`id`)"
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_can_alter_foreign_key_with_on_delete(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.foreign("profile_id").references("id").on("profile").on_delete(
+                "cascade"
+            )
+
+        sql = "ALTER TABLE `users` ADD CONSTRAINT users_profile_id_foreign FOREIGN KEY (`profile_id`) REFERENCES `profile`(`id`) ON DELETE CASCADE"
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_can_alter_foreign_key_with_on_update(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.foreign("profile_id").references("id").on("profile").on_update(
+                "cascade"
+            )
+
+        sql = "ALTER TABLE `users` ADD CONSTRAINT users_profile_id_foreign FOREIGN KEY (`profile_id`) REFERENCES `profile`(`id`) ON UPDATE CASCADE"
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_can_alter_modify_column(self):
         with self.schema.table("users") as blueprint:
             blueprint.drop_column("name")

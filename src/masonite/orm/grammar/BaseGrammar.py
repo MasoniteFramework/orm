@@ -73,10 +73,18 @@ class BaseGrammar:
         return self
 
     def _compile_alter(self):
-        sql = self.alter_start().format(table=self._compile_from())
+        # sql = self.alter_start().format(table=self._compile_from())
+        self._sql = self.alter_format().format(
+            table=self._compile_from(),
+            columns=self._compile_alter_columns(),
+            constraints=self._compile_alter_constraints(),
+            foreign_keys=self._compile_alter_foreign_keys(),
+        )
 
-        """Add Columns
-        """
+        return self
+
+    def _compile_alter_columns(self):
+        sql = ""
         for column in self._creates:
             nullable = ""
             if column.is_null and column._action == "modify":
@@ -102,8 +110,7 @@ class BaseGrammar:
         # Fix any inconsistencies
         sql = sql.rstrip(", ").replace(" ,", ",")
 
-        self._sql = sql
-        return self
+        return sql
 
     def _compile_foreign_keys(self):
         sql = ", "
@@ -113,6 +120,27 @@ class BaseGrammar:
                 foreign_table=self._compile_table(foreign_key.foreign_table),
                 foreign_column=self._compile_column(foreign_key.foreign_column),
                 index_name=foreign_key.index_name,
+                seperator=", ",
+            )
+
+        return sql.rstrip(", ")
+
+    def _compile_alter_foreign_keys(self):
+        sql = " "
+        for foreign_key in self._foreign_keys:
+            if foreign_key._on_delete:
+                action = self.on_delete_mapping[foreign_key._on_delete]
+            elif foreign_key._on_update:
+                action = self.on_update_mapping[foreign_key._on_update]
+            else:
+                action = ""
+
+            sql += self.alter_foreign_key_string().format(
+                column=self._compile_column(foreign_key.column_name),
+                foreign_table=self._compile_table(foreign_key.foreign_table),
+                foreign_column=self._compile_column(foreign_key.foreign_column),
+                index_name=foreign_key.index_name,
+                action=action,
                 seperator=", ",
             )
 
@@ -165,6 +193,21 @@ class BaseGrammar:
             )().format(
                 column=self._get_multiple_columns(column.column_name),
                 clean_column=column.column_name,
+                index_name=column.index_name,
+                seperator=", ",
+            )
+
+        return sql.rstrip(", ")
+
+    def _compile_alter_constraints(self):
+        sql = " "
+        for column in self._constraints:
+            sql += getattr(
+                self, "{}_alter_constraint_string".format(column.constraint_type)
+            )().format(
+                column=self._get_multiple_columns(column.column_name),
+                clean_column=column.column_name,
+                index_name=column.index_name,
                 seperator=", ",
             )
 
