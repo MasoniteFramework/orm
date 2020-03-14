@@ -58,12 +58,50 @@ class Column:
         return self
 
 
+class Constraint:
+    def __init__(self, column, constraint_type):
+        self.column_name = column
+        self.constraint_type = constraint_type
+        if isinstance(column, (list, tuple)):
+            self.index_name = "_".join(column) + "_" + constraint_type
+        else:
+            self.index_name = column + "_" + constraint_type
+
+
+class ForeignKey:
+    def __init__(self, column, current_table, foreign_table=None, foreign_column=None):
+        self.column_name = column
+        self.current_table = current_table
+        self.foreign_table = foreign_table
+        self.foreign_column = foreign_column
+        self._on_delete = None
+        self._on_update = None
+        self.index_name = ""
+
+    def references(self, foreign_column):
+        self.foreign_column = foreign_column
+
+    def on(self, foreign_table):
+        self.foreign_table = foreign_table
+        self.index_name = f"{self.current_table}_{self.column_name}_foreign"
+
+    def on_update(self, action):
+        self._on_update = action
+        return self
+
+    def on_delete(self, action):
+        self._on_delete = action
+        return self
+
+
 class Blueprint:
     def __init__(self, grammar, table="", action=None, default_string_length=None):
         self.grammar = grammar
         self.table = table
         self._sql = ""
         self._columns = ()
+        self._constraints = ()
+        self._foreign_keys = ()
         self._last_column = None
         self._action = action
         self._default_string_length = default_string_length
@@ -199,13 +237,23 @@ class Blueprint:
     def to_sql(self):
         if self._action == "create":
             return (
-                self.grammar(creates=self._columns, table=self.table)
+                self.grammar(
+                    creates=self._columns,
+                    constraints=self._constraints,
+                    foreign_keys=self._foreign_keys,
+                    table=self.table,
+                )
                 ._compile_create()
                 .to_sql()
             )
         else:
             return (
-                self.grammar(creates=self._columns, table=self.table)
+                self.grammar(
+                    creates=self._columns,
+                    constraints=self._constraints,
+                    foreign_keys=self._foreign_keys,
+                    table=self.table,
+                )
                 ._compile_alter()
                 .to_sql()
             )
@@ -224,8 +272,45 @@ class Blueprint:
         self._last_column.change()
         return self
 
-    def unique(self):
-        self._last_column.unique()
+    def unique(self, column=None):
+        if column is None:
+            column = self._last_column.column_name
+
+        self._constraints += (Constraint(column, constraint_type="unique"),)
+
+        return self
+
+    def index(self, column):
+        self._constraints += (Constraint(column, constraint_type="index"),)
+        return self
+
+    def fulltext(self, column):
+        self._constraints += (Constraint(column, constraint_type="fulltext"),)
+        return self
+
+    def primary(self, column):
+        self._constraints += (Constraint(column, constraint_type="primary"),)
+        return self
+
+    def foreign(self, column):
+        self._last_foreign = ForeignKey(column, self.table)
+        return self
+
+    def references(self, column):
+        self._last_foreign.references(column)
+        return self
+
+    def on(self, table):
+        self._last_foreign.on(table)
+        self._foreign_keys += (self._last_foreign,)
+        return self
+
+    def on_delete(self, action):
+        self._last_foreign.on_delete(action)
+        return self
+
+    def on_update(self, action):
+        self._last_foreign.on_update(action)
         return self
 
     def rename(self, old_column, new_column):

@@ -63,6 +63,18 @@ class MySQLGrammar(BaseGrammar):
         "unsigned_integer": "UNSIGNED INT",
     }
 
+    on_delete_mapping = {
+        "cascade": "ON DELETE CASCADE",
+        "null": "ON DELETE SET NULL",
+        None: "",
+    }
+
+    on_update_mapping = {
+        "cascade": "ON UPDATE CASCADE",
+        "null": "ON UPDATE SET NULL",
+        None: "",
+    }
+
     timestamp_mapping = {"current": "CURRENT_TIMESTAMP", "now": "NOW()"}
 
     def select_format(self):
@@ -134,8 +146,11 @@ class MySQLGrammar(BaseGrammar):
     def rename_column_string(self):
         return "CHANGE COLUMN old_name {column} {data_type}{length}{nullable}, "
 
-    def create_start(self):
-        return "CREATE TABLE {table} "
+    def create_format(self):
+        return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
+
+    def alter_format(self):
+        return "ALTER TABLE {table} {columns}{constraints}{foreign_keys}"
 
     def alter_start(self):
         return "ALTER TABLE {table} "
@@ -144,7 +159,25 @@ class MySQLGrammar(BaseGrammar):
         return "({length})"
 
     def unique_constraint_string(self):
-        return "CONSTRAINT {clean_column}_unique UNIQUE ({clean_column})"
+        return "CONSTRAINT {index_name} UNIQUE ({clean_column}){seperator}"
+
+    def unique_alter_constraint_string(self):
+        return "ADD CONSTRAINT {index_name} UNIQUE({column}){seperator}"
+
+    def index_constraint_string(self):
+        return "INDEX ({column}){seperator}"
+
+    def fulltext_constraint_string(self):
+        return "FULLTEXT ({column}){seperator}"
+
+    def primary_constraint_string(self):
+        return "PRIMARY KEY ({column}){seperator}"
+
+    def foreign_key_string(self):
+        return "CONSTRAINT {index_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){seperator}"
+
+    def alter_foreign_key_string(self):
+        return "ADD CONSTRAINT {index_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}) {action}{seperator}"
 
     def table_string(self):
         return "`{table}`"

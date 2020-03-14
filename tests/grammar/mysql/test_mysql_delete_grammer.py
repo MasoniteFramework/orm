@@ -16,6 +16,14 @@ class BaseDeleteGrammarTest:
         )()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_delete_in(self):
+        to_sql = self.builder.delete("id", [1, 2, 3]).to_sql()
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
     def test_can_compile_delete_with_where(self):
         to_sql = (
             self.builder.where("age", 20)
@@ -44,6 +52,16 @@ class TestMySQLDeleteGrammar(BaseDeleteGrammarTest, unittest.TestCase):
         )
         """
         return "DELETE FROM `users` WHERE `id` = '1'"
+
+    def can_compile_delete_in(self):
+        """
+        (
+            self.builder
+            .delete('id', 1)
+            .to_sql()
+        )
+        """
+        return "DELETE FROM `users` WHERE `id` IN ('1','2','3')"
 
     def can_compile_delete_with_where(self):
         """

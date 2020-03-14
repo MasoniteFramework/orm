@@ -36,6 +36,8 @@ class BaseGrammar:
         joins=(),
         having=(),
         creates=(),
+        constraints=(),
+        foreign_keys=(),
         connection_details={},
     ):
         self._columns = columns
@@ -50,6 +52,8 @@ class BaseGrammar:
         self._joins = joins
         self._having = having
         self._creates = creates
+        self._constraints = constraints
+        self._foreign_keys = foreign_keys
         self._connection_details = connection_details
         self._column = None
 
@@ -60,58 +64,27 @@ class BaseGrammar:
         self._sql_qmark = ""
 
     def _compile_create(self):
-        sql = self.create_start().format(table=self._compile_from())
-
-        sql += "("
-        """Add Columns
-        """
-        for column in self._creates:
-
-            length_string = (
-                self.create_column_length().format(length=column.length)
-                if column.length
-                else ""
-            )
-            mapped_time_value = self.timestamp_mapping.get(column.default)
-
-            default_value = mapped_time_value or column.default
-
-            attributes = {
-                "column": self._compile_column(column.column_name),
-                "data_type": self.type_map.get(column.column_type),
-                "length": length_string,
-            }
-
-            if default_value:
-                attributes.update({"default_value": default_value})
-                sql += self.create_column_string_with_default().format(**attributes)
-            else:
-                attributes.update({"nullable": "" if column.is_null else " NOT NULL"})
-                sql += self.create_column_string().format(**attributes)
-
-        """Add Constraints
-        """
-        for column in self._creates:
-            if column.is_constraint:
-                sql += getattr(
-                    self, "{}_constraint_string".format(column.constraint_type)
-                )().format(
-                    column=self._compile_column(column.column_name),
-                    clean_column=column.column_name,
-                )
-                sql += ", "
-        sql = sql.rstrip(", ")
-
-        sql += ")"
-
-        self._sql = sql
+        self._sql = self.create_format().format(
+            table=self._compile_from(),
+            columns=self._compile_create_columns(),
+            constraints=self._compile_create_constraints().rstrip(" "),
+            foreign_keys=self._compile_foreign_keys().rstrip(" "),
+        )
         return self
 
     def _compile_alter(self):
-        sql = self.alter_start().format(table=self._compile_from())
+        # sql = self.alter_start().format(table=self._compile_from())
+        self._sql = self.alter_format().format(
+            table=self._compile_from(),
+            columns=self._compile_alter_columns(),
+            constraints=self._compile_alter_constraints(),
+            foreign_keys=self._compile_alter_foreign_keys(),
+        )
 
-        """Add Columns
-        """
+        return self
+
+    def _compile_alter_columns(self):
+        sql = ""
         for column in self._creates:
             nullable = ""
             if column.is_null and column._action == "modify":
@@ -137,8 +110,108 @@ class BaseGrammar:
         # Fix any inconsistencies
         sql = sql.rstrip(", ").replace(" ,", ",")
 
-        self._sql = sql
-        return self
+        return sql
+
+    def _compile_foreign_keys(self):
+        sql = ", "
+        for foreign_key in self._foreign_keys:
+            sql += self.foreign_key_string().format(
+                column=self._compile_column(foreign_key.column_name),
+                foreign_table=self._compile_table(foreign_key.foreign_table),
+                foreign_column=self._compile_column(foreign_key.foreign_column),
+                index_name=foreign_key.index_name,
+                seperator=", ",
+            )
+
+        return sql.rstrip(", ")
+
+    def _compile_alter_foreign_keys(self):
+        sql = " "
+        for foreign_key in self._foreign_keys:
+            if foreign_key._on_delete:
+                action = self.on_delete_mapping[foreign_key._on_delete]
+            elif foreign_key._on_update:
+                action = self.on_update_mapping[foreign_key._on_update]
+            else:
+                action = ""
+
+            sql += self.alter_foreign_key_string().format(
+                column=self._compile_column(foreign_key.column_name),
+                foreign_table=self._compile_table(foreign_key.foreign_table),
+                foreign_column=self._compile_column(foreign_key.foreign_column),
+                index_name=foreign_key.index_name,
+                action=action,
+                seperator=", ",
+            )
+
+        return sql.rstrip(", ")
+
+    def _compile_create_columns(self):
+        sql = ""
+        for column in self._creates:
+
+            length_string = (
+                self.create_column_length().format(length=column.length)
+                if column.length
+                else ""
+            )
+            mapped_time_value = self.timestamp_mapping.get(column.default)
+
+            default_value = mapped_time_value or column.default
+
+            attributes = {
+                "column": self._compile_column(column.column_name),
+                "data_type": self.type_map.get(column.column_type),
+                "length": length_string,
+            }
+
+            if default_value:
+                attributes.update({"default_value": default_value})
+                sql += self.create_column_string_with_default().format(**attributes)
+            else:
+                attributes.update({"nullable": "" if column.is_null else " NOT NULL"})
+                sql += self.create_column_string().format(**attributes)
+
+        if not self._constraints:
+            sql = sql.rstrip(", ")
+        return sql.strip()
+
+    def _get_multiple_columns(self, columns):
+        if isinstance(columns, list):
+            column_string = ""
+            for col in columns:
+                column_string += self._compile_column(col) + ", "
+            return column_string.rstrip(", ")
+
+        return self._compile_column(columns)
+
+    def _compile_create_constraints(self):
+        sql = " "
+        for column in self._constraints:
+            sql += getattr(
+                self, "{}_constraint_string".format(column.constraint_type)
+            )().format(
+                column=self._get_multiple_columns(column.column_name),
+                clean_column=column.column_name,
+                index_name=column.index_name,
+                seperator=", ",
+            )
+
+        return sql.rstrip(", ")
+
+    def _compile_alter_constraints(self):
+        sql = " "
+        for column in self._constraints:
+            sql += getattr(
+                self, "{}_alter_constraint_string".format(column.constraint_type)
+            )().format(
+                column=self._get_multiple_columns(column.column_name),
+                clean_column=column.column_name,
+                index_name=column.index_name,
+                seperator=", ",
+            )
+
+        return sql.rstrip(", ")
 
     def _compile_select(self, qmark=False):
         self._sql = (
