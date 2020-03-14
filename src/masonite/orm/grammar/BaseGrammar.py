@@ -544,7 +544,9 @@ class BaseGrammar:
         return self
 
     def table_exists(self):
-        self._sql = self.table_exists_string().format(table=self._compile_table(self.table))
+        self._sql = self.table_exists_string().format(
+            table=self._compile_table(self.table)
+        )
         return self
 
     def _compile_exists(self):
