@@ -107,3 +107,11 @@ class Schema:
         if query_only:
             return query
         return bool(cls._connection().make_connection().query(query, ()))
+
+    @classmethod
+    def truncate(cls, table, query_only=True):
+        grammar = cls._connection.get_grammer()(table=table)
+        query = grammar.truncate_table(table=table).to_sql()
+        if query_only:
+            return query
+        return bool(cls._connection().make_connection().query(query, ()))

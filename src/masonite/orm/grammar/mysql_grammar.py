@@ -236,5 +236,8 @@ class MySQLGrammar(BaseGrammar):
     def drop_table_if_exists_string(self):
         return "DROP TABLE IF EXISTS {table}"
 
+    def truncate_table_string(self):
+        return "TRUNCATE TABLE {table}"
+
     def rename_table_string(self):
         return "RENAME TABLE {current_name} TO {new_name}"

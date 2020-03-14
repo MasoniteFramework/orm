@@ -620,3 +620,9 @@ class BaseGrammar:
             new_name=self._compile_column(new_name),
         )
         return self
+
+    def truncate_table(self, table):
+        self._sql = self.truncate_table_string().format(
+            table=self._compile_table(table)
+        )
+        return self
