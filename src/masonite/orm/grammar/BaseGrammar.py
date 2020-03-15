@@ -126,14 +126,15 @@ class BaseGrammar:
         return sql.rstrip(", ")
 
     def _compile_alter_foreign_keys(self):
+
+        action = ""
+
         sql = " "
         for foreign_key in self._foreign_keys:
             if foreign_key._on_delete:
-                action = self.on_delete_mapping[foreign_key._on_delete]
+                action = self.on_delete_mapping.get(foreign_key._on_delete, action)
             elif foreign_key._on_update:
-                action = self.on_update_mapping[foreign_key._on_update]
-            else:
-                action = ""
+                action = self.on_update_mapping.get(foreign_key._on_update, action)
 
             sql += self.alter_foreign_key_string().format(
                 column=self._compile_column(foreign_key.column_name),

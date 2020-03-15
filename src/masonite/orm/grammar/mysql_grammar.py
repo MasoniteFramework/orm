@@ -66,14 +66,9 @@ class MySQLGrammar(BaseGrammar):
     on_delete_mapping = {
         "cascade": "ON DELETE CASCADE",
         "null": "ON DELETE SET NULL",
-        None: "",
     }
 
-    on_update_mapping = {
-        "cascade": "ON UPDATE CASCADE",
-        "null": "ON UPDATE SET NULL",
-        None: "",
-    }
+    on_update_mapping = {"cascade": "ON UPDATE CASCADE", "null": "ON UPDATE SET NULL"}
 
     timestamp_mapping = {"current": "CURRENT_TIMESTAMP", "now": "NOW()"}
 
