@@ -3,6 +3,7 @@ from ..builder.QueryBuilder import QueryBuilder
 from ..grammar.mysql_grammar import MySQLGrammar
 from ..collection.Collection import Collection
 import json
+from datetime import datetime
 
 
 class BoolCast:
@@ -27,6 +28,7 @@ class Model:
     _booted = False
     __primary_key__ = "id"
     __casts__ = {}
+    __timestamps__ = False
 
     __cast_map__ = {
         "bool": BoolCast,
@@ -157,7 +159,23 @@ class Model:
         pass
 
     def touch(self):
-        pass
+        """
+        Update the timestamps's value from model
+        """
+
+        if not __timestamps__:
+            return False
+
+        self._update_timestamps()
+
+        self.save()
+
+    def _update_timestamps(self):
+        self.__attributes__.update({"updated_at": self._current_timestamp()})
+        self.__dirty_attributes__.update(self.__attributes__)
+
+    def _current_timestamp(self):
+        return datetime.now()
 
     @staticmethod
     def set_connection_resolver(self):
