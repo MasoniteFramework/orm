@@ -134,6 +134,9 @@ class MySQLGrammar(BaseGrammar):
     def column_exists_string(self):
         return "SHOW COLUMNS FROM {table} LIKE {value}"
 
+    def table_exists_string(self):
+        return "SHOW TABLE LIKE {table}"
+
     def add_column_string(self):
         return "ADD {column} {data_type}{length}{nullable} {after}, "
 
