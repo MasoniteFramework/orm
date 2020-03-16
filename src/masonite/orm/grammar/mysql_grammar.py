@@ -228,7 +228,7 @@ class MySQLGrammar(BaseGrammar):
         return "{keyword} {column} IS NULL"
 
     def where_not_null_string(self):
-        return "{keyword} {column} IS NOT NULL"
+        return " {keyword} {column} IS NOT NULL"
 
     def after_column_string(self):
         return "AFTER {after}"
