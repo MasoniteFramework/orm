@@ -106,7 +106,15 @@ class Schema:
         query = grammar.rename_table(current_name=table, new_name=new_name).to_sql()
         if query_only:
             return query
-        return bool(cls._connection().make_connection().query(query))
+        return bool(cls._connection().make_connection().query(query, ()))
+
+    @classmethod
+    def truncate(cls, table, query_only=True):
+        grammar = cls._connection.get_grammer()(table=table)
+        query = grammar.truncate_table(table=table).to_sql()
+        if query_only:
+            return query
+        return bool(cls._connection().make_connection().query(query, ()))
 
     @classmethod
     def has_table(cls, table, query_only=False):
