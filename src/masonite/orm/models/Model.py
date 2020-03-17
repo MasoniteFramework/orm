@@ -144,8 +144,8 @@ class Model:
     @classmethod
     def create(cls, dictionary):
         cls.boot()
-        if cls.__fillable__ != ['*']:
-            dictionary = { x: dictionary[x] for x in cls.__fillable__}
+        if cls.__fillable__ != ["*"]:
+            dictionary = {x: dictionary[x] for x in cls.__fillable__}
         to_sql = cls.builder.create(dictionary).to_sql()
         return to_sql
 
