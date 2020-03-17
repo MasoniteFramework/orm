@@ -27,6 +27,12 @@ class Model:
     _booted = False
     __primary_key__ = "id"
     __casts__ = {}
+    _global_scopes = {
+        "select": [],
+        "insert": [],
+        "update": [],
+        "delete": [],
+    }
 
     __cast_map__ = {
         "bool": BoolCast,
@@ -54,10 +60,10 @@ class Model:
                 cls.__resolved_connection__,
                 table=cls.get_table_name(),
                 owner=cls,
+                global_scopes=cls._global_scopes,
             )
             cls.builder.set_action("select")
             cls._booted = True
-            cls._boot_parent_scopes(cls)
             cast_methods = [v for k, v in cls.__dict__.items() if k.startswith("get_")]
             for cast in cast_methods:
                 cls.__casts__[cast.__name__.replace("get_", "")] = cast
@@ -77,7 +83,8 @@ class Model:
             v for k, v in scope_class.__dict__.items() if k.startswith("boot_")
         ]
         for method in boot_methods:
-            method(cls, cls.builder)
+            for action in ["select", "insert", "update", "delete"]:
+                cls._global_scopes[action].append(method().get(action, []))
 
         return cls
 
