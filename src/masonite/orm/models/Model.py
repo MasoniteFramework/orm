@@ -141,8 +141,13 @@ class Model:
     def fill(self):
         pass
 
-    def create(self):
-        pass
+    @classmethod
+    def create(cls, dictionary):
+        cls.boot()
+        if cls.__fillable__ != ['*']:
+            dictionary = { x: dictionary[x] for x in cls.__fillable__}
+        to_sql = cls.builder.create(dictionary).to_sql()
+        return to_sql
 
     def delete(self):
         pass
