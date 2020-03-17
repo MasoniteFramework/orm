@@ -77,7 +77,7 @@ class Schema:
         query = grammar.column_exists(column).to_sql()
         if query_only:
             return query
-        return bool(cls._connection().make_connection().query(query, ()))
+        return bool(cls._connection().make_connection().query(query))
 
     @classmethod
     def set_default_string_length(cls, length):
@@ -90,7 +90,7 @@ class Schema:
         query = grammar.drop_table(table).to_sql()
         if query_only:
             return query
-        return bool(cls._connection().make_connection().query(query, ()))
+        return bool(cls._connection().make_connection().query(query))
 
     @classmethod
     def drop_table_if_exists(cls, table, exists=False, query_only=True):
@@ -98,7 +98,7 @@ class Schema:
         query = grammar.drop_table_if_exists(table).to_sql()
         if query_only:
             return query
-        return bool(cls._connection().make_connection().query(query, ()))
+        return bool(cls._connection().make_connection().query(query))
 
     @classmethod
     def rename(cls, table, new_name, query_only=False):
@@ -107,3 +107,25 @@ class Schema:
         if query_only:
             return query
         return bool(cls._connection().make_connection().query(query, ()))
+
+    @classmethod
+    def truncate(cls, table, query_only=True):
+        grammar = cls._connection.get_grammer()(table=table)
+        query = grammar.truncate_table(table=table).to_sql()
+        if query_only:
+            return query
+        return bool(cls._connection().make_connection().query(query, ()))
+
+    @classmethod
+    def has_table(cls, table, query_only=False):
+        """Checks if the a database has a specific table
+        Arguments:
+            table {string} -- The name of a table like 'users'
+        Returns:
+            masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
+        """
+        grammar = cls._connection.get_grammer()(table=table)
+        query = grammar.table_exists().to_sql()
+        if query_only:
+            return query
+        return bool(cls._connection().make_connection().query(query))

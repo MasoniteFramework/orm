@@ -134,6 +134,9 @@ class MySQLGrammar(BaseGrammar):
     def column_exists_string(self):
         return "SHOW COLUMNS FROM {table} LIKE {value}"
 
+    def table_exists_string(self):
+        return "SHOW TABLE LIKE {table}"
+
     def add_column_string(self):
         return "ADD {column} {data_type}{length}{nullable} {after}, "
 
@@ -235,6 +238,9 @@ class MySQLGrammar(BaseGrammar):
 
     def drop_table_if_exists_string(self):
         return "DROP TABLE IF EXISTS {table}"
+
+    def truncate_table_string(self):
+        return "TRUNCATE TABLE {table}"
 
     def rename_table_string(self):
         return "RENAME TABLE {current_name} TO {new_name}"
