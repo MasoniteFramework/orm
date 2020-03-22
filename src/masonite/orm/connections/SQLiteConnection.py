@@ -1,5 +1,5 @@
 import sqlite3
-from src.masonite.orm.grammar.GrammarFactory import GrammarFactory
+from src.masonite.orm.grammar import GrammarFactory
 from .BaseConnection import BaseConnection
 
 

@@ -1,5 +1,5 @@
 from ..connections.ConnectionFactory import ConnectionFactory
-from ..builder.QueryBuilder import QueryBuilder
+from ..builder import QueryBuilder
 from ..grammar.mysql_grammar import MySQLGrammar
 from ..collection.Collection import Collection
 import json
