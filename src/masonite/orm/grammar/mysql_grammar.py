@@ -244,3 +244,15 @@ class MySQLGrammar(BaseGrammar):
 
     def rename_table_string(self):
         return "RENAME TABLE {current_name} TO {new_name}"
+
+    def drop_index_column_string(self):
+        return "DROP INDEX {column} "
+
+    def drop_unique_column_string(self):
+        return "DROP INDEX {column} "
+
+    def drop_foreign_column_string(self):
+        return "DROP FOREIGN KEY {column} "
+
+    def drop_primary_column_string(self):
+        return "DROP PRIMARY KEY"
