@@ -27,11 +27,9 @@ class TimeStamps:
         owner_cls.updated_at = "now"
 
     def set_timestamp_create(owner_cls, query):
-        print("set timestamp create", owner_cls)
         owner_cls.builder.create(
             {"updated_at": "now", "created_at": "now",}
         )
-        print("other builder??", owner_cls.builder, query)
 
 
 class User(Model):
