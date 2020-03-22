@@ -73,6 +73,7 @@ class Model:
                 "update": [],
                 "delete": [],
             }
+
             cls._loads = ()
 
     def _boot_parent_scopes(cls):
