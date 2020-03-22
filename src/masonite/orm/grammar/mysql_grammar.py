@@ -117,7 +117,7 @@ class MySQLGrammar(BaseGrammar):
         return "AS {alias}"
 
     def key_value_string(self):
-        return "{column} = '{value}'{seperator}"
+        return "{column} = '{value}'{separator}"
 
     def increment_string(self):
         return "{column} = {column} + '{value}'"
@@ -162,25 +162,25 @@ class MySQLGrammar(BaseGrammar):
         return "({length})"
 
     def unique_constraint_string(self):
-        return "CONSTRAINT {index_name} UNIQUE ({clean_column}){seperator}"
+        return "CONSTRAINT {index_name} UNIQUE ({clean_column}){separator}"
 
     def unique_alter_constraint_string(self):
-        return "ADD CONSTRAINT {index_name} UNIQUE({column}){seperator}"
+        return "ADD CONSTRAINT {index_name} UNIQUE({column}){separator}"
 
     def index_constraint_string(self):
-        return "INDEX ({column}){seperator}"
+        return "INDEX ({column}){separator}"
 
     def fulltext_constraint_string(self):
-        return "FULLTEXT ({column}){seperator}"
+        return "FULLTEXT ({column}){separator}"
 
     def primary_constraint_string(self):
-        return "PRIMARY KEY ({column}){seperator}"
+        return "PRIMARY KEY ({column}){separator}"
 
     def foreign_key_string(self):
-        return "CONSTRAINT {index_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){seperator}"
+        return "CONSTRAINT {index_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){separator}"
 
     def alter_foreign_key_string(self):
-        return "ADD CONSTRAINT {index_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}) {action}{seperator}"
+        return "ADD CONSTRAINT {index_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}) {action}{separator}"
 
     def table_string(self):
         return "`{table}`"
@@ -189,10 +189,10 @@ class MySQLGrammar(BaseGrammar):
         return "ORDER BY {column} {direction}"
 
     def column_string(self):
-        return "`{column}`{seperator}"
+        return "`{column}`{separator}"
 
     def value_string(self):
-        return "'{value}'{seperator}"
+        return "'{value}'{separator}"
 
     def join_string(self):
         return "{keyword} {foreign_table} ON {local_table}.{column1} {equality} {foreign_table}.{column2}"
@@ -243,7 +243,7 @@ class MySQLGrammar(BaseGrammar):
         return "TRUNCATE TABLE {table}"
 
     def rename_table_string(self):
-        return "RENAME TABLE {current_name} TO {new_name}"
+        return "RENAME TABLE {current_table_name} TO {new_table_name}"
 
     def drop_index_column_string(self):
         return "DROP INDEX {column} "

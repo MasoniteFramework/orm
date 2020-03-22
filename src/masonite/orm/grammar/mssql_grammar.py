@@ -117,7 +117,7 @@ class MSSQLGrammar(BaseGrammar):
         return "ORDER BY {column} {direction}"
 
     def column_string(self):
-        return "[{column}]{seperator}"
+        return "[{column}]{separator}"
 
     def value_string(self):
-        return "'{value}'{seperator}"
+        return "'{value}'{separator}"

@@ -4,6 +4,9 @@ from .BaseConnection import BaseConnection
 
 
 class SQLiteConnection(BaseConnection):
+    """SQLite Connection class.
+    """
+
     def make_connection(self):
         """This sets the connection on the connection class
         """
