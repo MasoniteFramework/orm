@@ -4,6 +4,7 @@ from ..grammar.mysql_grammar import MySQLGrammar
 from ..collection.Collection import Collection
 import json
 from datetime import datetime
+from inflection import tableize
 
 
 class BoolCast:
@@ -28,7 +29,7 @@ class Model:
     _booted = False
     __primary_key__ = "id"
     __casts__ = {}
-    __timestamps__ = False
+    __timestamps__ = True
     _global_scopes = {}
 
     __cast_map__ = {
@@ -46,6 +47,10 @@ class Model:
 
     def get_primary_key_value(self):
         return getattr(self, self.get_primary_key())
+
+    def set_primary_key_value(self, value):
+        setattr(self, self.get_primary_key(), value)
+        return self
 
     @classmethod
     def boot(cls):
@@ -95,10 +100,7 @@ class Model:
 
     @classmethod
     def get_table_name(cls):
-        if cls.__table__:
-            return cls.__table__
-
-        return cls.__name__.lower() + "s"
+        return cls.__table__ or tableize(cls.__name__)
 
     @classmethod
     def first(cls):
@@ -173,21 +175,21 @@ class Model:
     def update_or_create(self):
         pass
 
-    def touch(self):
+    def touch(self, date=None, query=True):
         """
         Update the timestamps's value from model
         """
+        self.boot()
 
-        if not __timestamps__:
+        if not self.__timestamps__:
             return False
 
-        self._update_timestamps()
+        self._update_timestamps(date=date)
 
-        self.save()
+        return self.save(query=query)
 
-    def _update_timestamps(self):
-        self.__attributes__.update({"updated_at": self._current_timestamp()})
-        self.__dirty_attributes__.update(self.__attributes__)
+    def _update_timestamps(self, date=None):
+        self.updated_at = date or self._current_timestamp()
 
     def _current_timestamp(self):
         return datetime.now()
@@ -209,10 +211,17 @@ class Model:
         except KeyError:
             pass
 
-    def save(self):
-        return self.builder.where(
-            self.get_primary_key(), self.get_primary_key_value()
-        ).update(self.__dirty_attributes__)
+    def save(self, query=False):
+        if not query:
+            return self.builder.where(
+                self.get_primary_key(), self.get_primary_key_value()
+            ).update(self.__dirty_attributes__)
+
+        return (
+            self.builder.where(self.get_primary_key(), self.get_primary_key_value())
+            .update(self.__dirty_attributes__, dry=True)
+            .to_sql()
+        )
 
     def get_value(self, attribute):
         if attribute in self.__casts__:

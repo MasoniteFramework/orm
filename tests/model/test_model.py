@@ -14,6 +14,15 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
         __fillable__ = ["*"]
         __table__ = "profiles"
 
+    class Profile(Model):
+        pass
+
+    class Company(Model):
+        pass
+
+    class ProductNames(Model):
+        pass
+
     class TestModel(unittest.TestCase):
         def test_can_use_fillable(self):
             sql = ProfileFillable.create({"name": "Joe", "email": "user@example.com"})
@@ -29,6 +38,25 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
                 sql,
                 "INSERT INTO `profiles` (`name`, `email`) VALUES ('Joe', 'user@example.com')",
             )
+
+        def test_can_touch(self):
+            profile = ProfileFillAsterisk.hydrate({"name": "Joe", "id": 1})
+
+            sql = profile.touch("now", query=True)
+
+            self.assertEqual(
+                sql, "UPDATE `profiles` SET `updated_at` = 'now' WHERE `id` = '1'"
+            )
+
+        def test_table_name(self):
+            table_name = Profile.get_table_name()
+            self.assertEqual(table_name, "profiles")
+
+            table_name = Company.get_table_name()
+            self.assertEqual(table_name, "companies")
+
+            table_name = ProductNames.get_table_name()
+            self.assertEqual(table_name, "product_names")
 
         # def test_can_call(self):
         #     print(User.find(1))
