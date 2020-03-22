@@ -48,10 +48,6 @@ class Model:
     def get_primary_key_value(self):
         return getattr(self, self.get_primary_key())
 
-    def set_primary_key_value(self, value):
-        setattr(self, self.get_primary_key(), value)
-        return self
-
     @classmethod
     def boot(cls):
 
