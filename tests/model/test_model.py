@@ -58,6 +58,27 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             table_name = ProductNames.get_table_name()
             self.assertEqual(table_name, "product_names")
 
+        def test_serialize(self):
+            profile = ProfileFillAsterisk.hydrate({"name": "Joe", "id": 1})
+
+            self.assertEqual(profile.serialize(), {
+                "name": "Joe",
+                "id": 1
+            })
+
+        def test_serialize_with_dirty_attribute(self):
+            profile = ProfileFillAsterisk.hydrate({"name": "Joe", "id": 1})
+
+            profile.age = 18
+            self.assertEqual(profile.serialize(), {
+                "age": 18,
+                "name": "Joe",
+                "id": 1,
+
+            })
+
+
+
         # def test_can_call(self):
         #     print(User.find(1))
         #     print(User.find(2))

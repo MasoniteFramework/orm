@@ -165,6 +165,11 @@ class Model:
     def get(self):
         pass
 
+    def serialize(self):
+        serialized_dictionary = self.__attributes__
+        serialized_dictionary.update(self.__dirty_attributes__)
+        return serialized_dictionary
+
     def find_or_fail(self):
         pass
 
