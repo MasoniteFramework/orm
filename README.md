@@ -93,6 +93,10 @@ Phase 1 will involve getting the foundation setup for this project. Making sure 
 Phase 2 will involve further refactoring. By this phase, all the documentation should be done for the above phase.
 
 - [ ] Where Has queries
+- [ ] Migrations
+    - [ ] Migration Schema
+    - [ ] Migration Classes
+    - [ ] Migration Command
 - [ ] MSSQL
     - [-] Grammar
         - [x] SELECT
