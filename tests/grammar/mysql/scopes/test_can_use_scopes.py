@@ -7,8 +7,29 @@ from src.masonite.orm.mixins.scope import scope
 
 
 class SoftDeletes:
-    def boot_soft_delete(self, query):
-        query.where_not_null("deleted_at")
+    def boot_soft_delete():
+        return {
+            "select": SoftDeletes.query_where_null,
+        }
+
+    def query_where_null(owner_cls, query):
+        return query.where_not_null("deleted_at")
+
+
+class TimeStamps:
+    def boot_timestamps():
+        return {
+            "update": TimeStamps.set_timestamp,
+            "insert": TimeStamps.set_timestamp_create,
+        }
+
+    def set_timestamp(owner_cls, query):
+        owner_cls.updated_at = "now"
+
+    def set_timestamp_create(owner_cls, query):
+        owner_cls.builder.create(
+            {"updated_at": "now", "created_at": "now",}
+        )
 
 
 class User(Model):
@@ -38,8 +59,18 @@ class TestMySQLScopes(unittest.TestCase):
         sql = "SELECT * FROM `users` WHERE `active` = '2' AND `gender` = 'W' AND `name` = 'joe'"
         self.assertEqual(sql, User.active(2).gender("W").where("name", "joe").to_sql())
 
-    def test_can_use_global_scopes(self):
-        sql = "SELECT * FROM `users` WHERE `deleted_at` IS NOT NULL AND `name` = 'joe'"
+    def test_can_use_global_scopes_on_select(self):
+        sql = "SELECT * FROM `users` WHERE `name` = 'joe' AND `deleted_at` IS NOT NULL"
         self.assertEqual(
             sql, User.apply_scope(SoftDeletes).where("name", "joe").to_sql()
         )
+
+    def test_can_use_global_scopes_on_select(self):
+        sql = "SELECT * FROM `users` WHERE `name` = 'joe' AND `deleted_at` IS NOT NULL"
+        self.assertEqual(
+            sql, User.apply_scope(SoftDeletes).where("name", "joe").to_sql()
+        )
+
+    def test_can_use_global_scopes_on_time(self):
+        sql = "INSERT INTO `users` (`name`, `updated_at`, `created_at`) VALUES ('Joe', 'now', 'now')"
+        self.assertEqual(sql, User.apply_scope(TimeStamps).create({"name": "Joe"}))

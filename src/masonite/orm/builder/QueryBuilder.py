@@ -90,6 +90,7 @@ class QueryBuilder:
         table="",
         connection_details={},
         scopes={},
+        global_scopes={},
         owner=None,
     ):
         """QueryBuilder initializer
@@ -107,7 +108,7 @@ class QueryBuilder:
         self.connection = connection
         self.connection_details = connection_details
         self._scopes = {}
-        self._global_scopes = {}
+        self._global_scopes = global_scopes
         if scopes:
             self._scopes.update(scopes)
         self.boot()
@@ -125,7 +126,6 @@ class QueryBuilder:
 
     def __getattr__(self, attribute):
         if attribute in self._scopes:
-            # print('calling', attribute, 'on', cls)
             return getattr(self._scopes[attribute], attribute)
             # return cls
 
@@ -135,6 +135,7 @@ class QueryBuilder:
 
     def boot(self):
         self._columns = ()
+        self._creates = {}
 
         self._sql = ""
         self._sql_binding = ""
@@ -164,7 +165,7 @@ class QueryBuilder:
         return self
 
     def create(self, creates):
-        self._columns = creates
+        self._creates.update(creates)
         self.set_action("insert")
         return self
 
@@ -288,7 +289,6 @@ class QueryBuilder:
         return self
 
     def update(self, updates, dry=False):
-        print("update method???", updates)
         self._updates = (UpdateQueryExpression(updates),)
         self.set_action("update")
         if dry:
@@ -362,8 +362,11 @@ class QueryBuilder:
         return self
 
     def get_grammar(self):
+        """Either _creates when creating, otherwise use columns
+        """
+        columns = self._creates or self._columns
         return self.grammar(
-            columns=self._columns,
+            columns=columns,
             table=self.table,
             wheres=self._wheres,
             limit=self._limit,
@@ -380,10 +383,17 @@ class QueryBuilder:
         )
 
     def to_sql(self):
-        grammar = self.get_grammar()
 
         if not self._action:
             self.set_action("select")
+
+        for scope in self._global_scopes.get(self.owner, {}).get(self._action, []):
+            if not scope:
+                continue
+
+            scope(self.owner, self)
+
+        grammar = self.get_grammar()
 
         sql = getattr(
             grammar, "_compile_{action}".format(action=self._action)

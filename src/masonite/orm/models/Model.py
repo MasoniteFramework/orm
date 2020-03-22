@@ -18,7 +18,7 @@ class JsonCast:
 
 class Model:
 
-    __fillable__ = []
+    __fillable__ = ["*"]
     __guarded__ = ["*"]
     __table__ = None
     __connection__ = "default"
@@ -29,6 +29,7 @@ class Model:
     __primary_key__ = "id"
     __casts__ = {}
     __timestamps__ = False
+    _global_scopes = {}
 
     __cast_map__ = {
         "bool": BoolCast,
@@ -56,16 +57,22 @@ class Model:
                 cls.__resolved_connection__,
                 table=cls.get_table_name(),
                 owner=cls,
+                global_scopes=cls._global_scopes,
             )
+
             cls.builder.set_action("select")
             cls._booted = True
-            cls._boot_parent_scopes(cls)
             cast_methods = [v for k, v in cls.__dict__.items() if k.startswith("get_")]
             for cast in cast_methods:
                 cls.__casts__[cast.__name__.replace("get_", "")] = cast
 
-            print("final_cast", cls.__casts__)
-            print("cast methods are", cast_methods)
+            # Set global scope defaults
+            cls._global_scopes[cls] = {
+                "select": [],
+                "insert": [],
+                "update": [],
+                "delete": [],
+            }
             cls._loads = ()
 
     def _boot_parent_scopes(cls):
@@ -79,7 +86,9 @@ class Model:
             v for k, v in scope_class.__dict__.items() if k.startswith("boot_")
         ]
         for method in boot_methods:
-            method(cls, cls.builder)
+            for action in ["select", "insert", "update", "delete"]:
+
+                cls._global_scopes[cls][action].append(method().get(action, []))
 
         return cls
 
@@ -143,8 +152,13 @@ class Model:
     def fill(self):
         pass
 
-    def create(self):
-        pass
+    @classmethod
+    def create(cls, dictionary):
+        cls.boot()
+        if cls.__fillable__ != ["*"]:
+            dictionary = {x: dictionary[x] for x in cls.__fillable__}
+        to_sql = cls.builder.create(dictionary).to_sql()
+        return to_sql
 
     def delete(self):
         pass

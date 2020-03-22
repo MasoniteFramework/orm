@@ -228,7 +228,7 @@ class MySQLGrammar(BaseGrammar):
         return "{keyword} {column} IS NULL"
 
     def where_not_null_string(self):
-        return "{keyword} {column} IS NOT NULL"
+        return " {keyword} {column} IS NOT NULL"
 
     def after_column_string(self):
         return "AFTER {after}"
@@ -244,3 +244,15 @@ class MySQLGrammar(BaseGrammar):
 
     def rename_table_string(self):
         return "RENAME TABLE {current_name} TO {new_name}"
+
+    def drop_index_column_string(self):
+        return "DROP INDEX {column} "
+
+    def drop_unique_column_string(self):
+        return "DROP INDEX {column} "
+
+    def drop_foreign_column_string(self):
+        return "DROP FOREIGN KEY {column} "
+
+    def drop_primary_column_string(self):
+        return "DROP PRIMARY KEY"
