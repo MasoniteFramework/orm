@@ -214,7 +214,7 @@ class Model:
         )
 
         if not query:
-            return return.update(self.__dirty_attributes__)
+            return builder.update(self.__dirty_attributes__)
 
         return builder.update(self.__dirty_attributes__, dry=True).to_sql()
 
