@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='starter-package',
+    name='masonite-orm',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
@@ -13,7 +13,7 @@ setup(
     long_description='Basic Boilerplate Package',
 
     # The project's main homepage.
-    url='https://github.com/masoniteframework/starter-package',
+    url='https://github.com/masoniteframework/orm',
 
     # Author details
     author='Your Name',
@@ -26,6 +26,14 @@ setup(
     # Use this option if your package needs to include files that are not python files
     # like html templates or css files
     include_package_data=True,
+
+    # List run-time dependencies here.  These will be installed by pip when
+    # your project is installed. For an analysis of "install_requires" vs pip's
+    # requirements files see:
+    # https://packaging.python.org/en/latest/requirements.html
+    install_requires=[
+        'inflection==0.3.1'
+    ],
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -47,10 +55,9 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
 
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
@@ -74,14 +81,6 @@ setup(
         'routes',
         'storage'
         ]),
-
-    # List run-time dependencies here.  These will be installed by pip when
-    # your project is installed. For an analysis of "install_requires" vs pip's
-    # requirements files see:
-    # https://packaging.python.org/en/latest/requirements.html
-    install_requires=[
-        # 'pypi-package>=1.7.1,<1.8'
-    ],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,

@@ -336,8 +336,10 @@ class Blueprint:
             indexes = [indexes]
 
         for index in indexes:
-            self._last_column = self.new_column(None, index, None, None, action="drop_index")
-            self._columns += self._last_column,
+            self._last_column = self.new_column(
+                None, index, None, None, action="drop_index"
+            )
+            self._columns += (self._last_column,)
         return self
 
     def drop_unique(self, indexes):
@@ -345,13 +347,17 @@ class Blueprint:
             indexes = [indexes]
 
         for index in indexes:
-            self._last_column = self.new_column(None, index, None, None, action="drop_unique")
-            self._columns += self._last_column,
+            self._last_column = self.new_column(
+                None, index, None, None, action="drop_unique"
+            )
+            self._columns += (self._last_column,)
         return self
 
     def drop_primary(self):
-        self._last_column = self.new_column(None, None, None, None, action="drop_primary")
-        self._columns += self._last_column,
+        self._last_column = self.new_column(
+            None, None, None, None, action="drop_primary"
+        )
+        self._columns += (self._last_column,)
         return self
 
     def drop_foreign(self, keys):
@@ -360,11 +366,13 @@ class Blueprint:
 
         for key in keys:
             if not key.startswith(self.table):
-                key = self.table + '_' + key
-            if not key.endswith('foreign'):
-                key = key + '_foreign'
+                key = self.table + "_" + key
+            if not key.endswith("foreign"):
+                key = key + "_foreign"
 
-            self._last_column = self.new_column(None, key, None, None, action="drop_foreign")
+            self._last_column = self.new_column(
+                None, key, None, None, action="drop_foreign"
+            )
             self._last_column.is_constraint = True
-            self._columns += self._last_column,
+            self._columns += (self._last_column,)
         return self

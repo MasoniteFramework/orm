@@ -3,6 +3,8 @@ from ..builder.QueryBuilder import QueryBuilder
 from ..grammar.mysql_grammar import MySQLGrammar
 from ..collection.Collection import Collection
 import json
+from datetime import datetime
+from inflection import tableize
 
 
 class BoolCast:
@@ -27,6 +29,7 @@ class Model:
     _booted = False
     __primary_key__ = "id"
     __casts__ = {}
+    __timestamps__ = True
     _global_scopes = {}
 
     __cast_map__ = {
@@ -71,6 +74,7 @@ class Model:
                 "update": [],
                 "delete": [],
             }
+
             cls._loads = ()
 
     def _boot_parent_scopes(cls):
@@ -92,10 +96,7 @@ class Model:
 
     @classmethod
     def get_table_name(cls):
-        if cls.__table__:
-            return cls.__table__
-
-        return cls.__name__.lower() + "s"
+        return cls.__table__ or tableize(cls.__name__)
 
     @classmethod
     def first(cls):
@@ -170,8 +171,24 @@ class Model:
     def update_or_create(self):
         pass
 
-    def touch(self):
-        pass
+    def touch(self, date=None, query=True):
+        """
+        Update the timestamps's value from model
+        """
+        self.boot()
+
+        if not self.__timestamps__:
+            return False
+
+        self._update_timestamps(date=date)
+
+        return self.save(query=query)
+
+    def _update_timestamps(self, date=None):
+        self.updated_at = date or self._current_timestamp()
+
+    def _current_timestamp(self):
+        return datetime.now()
 
     @staticmethod
     def set_connection_resolver(self):
@@ -190,10 +207,16 @@ class Model:
         except KeyError:
             pass
 
-    def save(self):
-        return self.builder.where(
+    def save(self, query=False):
+
+        builder = self.builder.where(
             self.get_primary_key(), self.get_primary_key_value()
-        ).update(self.__dirty_attributes__)
+        )
+
+        if not query:
+            return builder.update(self.__dirty_attributes__)
+
+        return builder.update(self.__dirty_attributes__, dry=True).to_sql()
 
     def get_value(self, attribute):
         if attribute in self.__casts__:
