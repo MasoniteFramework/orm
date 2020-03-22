@@ -387,7 +387,7 @@ class QueryBuilder:
         if not self._action:
             self.set_action("select")
 
-        for scope in self._global_scopes.get(self._action, []):
+        for scope in self._global_scopes.get(self.owner, {}).get(self._action, []):
             if not scope:
                 continue
 

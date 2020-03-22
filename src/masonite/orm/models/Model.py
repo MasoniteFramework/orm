@@ -17,7 +17,7 @@ class JsonCast:
 
 class Model:
 
-    __fillable__ = []
+    __fillable__ = ["*"]
     __guarded__ = ["*"]
     __table__ = None
     __connection__ = "default"
@@ -27,12 +27,7 @@ class Model:
     _booted = False
     __primary_key__ = "id"
     __casts__ = {}
-    _global_scopes = {
-        "select": [],
-        "insert": [],
-        "update": [],
-        "delete": [],
-    }
+    _global_scopes = {}
 
     __cast_map__ = {
         "bool": BoolCast,
@@ -62,14 +57,20 @@ class Model:
                 owner=cls,
                 global_scopes=cls._global_scopes,
             )
+
             cls.builder.set_action("select")
             cls._booted = True
             cast_methods = [v for k, v in cls.__dict__.items() if k.startswith("get_")]
             for cast in cast_methods:
                 cls.__casts__[cast.__name__.replace("get_", "")] = cast
 
-            print("final_cast", cls.__casts__)
-            print("cast methods are", cast_methods)
+            # Set global scope defaults
+            cls._global_scopes[cls] = {
+                "select": [],
+                "insert": [],
+                "update": [],
+                "delete": [],
+            }
             cls._loads = ()
 
     def _boot_parent_scopes(cls):
@@ -84,7 +85,8 @@ class Model:
         ]
         for method in boot_methods:
             for action in ["select", "insert", "update", "delete"]:
-                cls._global_scopes[action].append(method().get(action, []))
+
+                cls._global_scopes[cls][action].append(method().get(action, []))
 
         return cls
 
@@ -150,6 +152,9 @@ class Model:
 
     @classmethod
     def create(cls, dictionary):
+        cls.boot()
+        if cls.__fillable__ != ["*"]:
+            dictionary = {x: dictionary[x] for x in cls.__fillable__}
         to_sql = cls.builder.create(dictionary).to_sql()
         return to_sql
 
