@@ -208,16 +208,15 @@ class Model:
             pass
 
     def save(self, query=False):
-        if not query:
-            return self.builder.where(
-                self.get_primary_key(), self.get_primary_key_value()
-            ).update(self.__dirty_attributes__)
 
-        return (
-            self.builder.where(self.get_primary_key(), self.get_primary_key_value())
-            .update(self.__dirty_attributes__, dry=True)
-            .to_sql()
+        builder = self.builder.where(
+            self.get_primary_key(), self.get_primary_key_value()
         )
+
+        if not query:
+            return return.update(self.__dirty_attributes__)
+
+        return builder.update(self.__dirty_attributes__, dry=True).to_sql()
 
     def get_value(self, attribute):
         if attribute in self.__casts__:
