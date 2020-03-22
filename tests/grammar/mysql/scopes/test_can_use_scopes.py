@@ -1,19 +1,9 @@
-import unittest
-from app.User import User
 import inspect
+import unittest
 
-from src.masonite.orm.models.Model import Model
-from src.masonite.orm.mixins.scope import scope
-
-
-class SoftDeletes:
-    def boot_soft_delete():
-        return {
-            "select": SoftDeletes.query_where_null,
-        }
-
-    def query_where_null(owner_cls, query):
-        return query.where_not_null("deleted_at")
+from app.User import User
+from src.masonite.orm.scopes import scope, SoftDeletes
+from src.masonite.orm.models import Model
 
 
 class TimeStamps:

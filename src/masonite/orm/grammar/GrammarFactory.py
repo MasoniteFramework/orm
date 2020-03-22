@@ -4,6 +4,8 @@ from .sqlite_grammar import SQLiteGrammar
 
 
 class GrammarFactory:
+    """Class for controlling the registration and creation of grammars.
+    """
 
     grammars = {
         # Base grammars that will be used with various drivers
@@ -18,6 +20,12 @@ class GrammarFactory:
 
     @staticmethod
     def make(key):
-        grammar = GrammarFactory.grammars.get(key)
-        if grammar:
-            return grammar
+        """Makes a specific registered grammar class from a key.
+
+        Arguments:
+            key {string} -- The key that the grammar is registered to.
+
+        Returns:
+            self
+        """
+        return GrammarFactory.grammars.get(key)

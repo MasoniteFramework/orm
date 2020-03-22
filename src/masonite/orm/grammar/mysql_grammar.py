@@ -1,16 +1,11 @@
 import pymysql.cursors
 from masonite.testing import TestCase
+
 from .BaseGrammar import BaseGrammar
 
 
 class MySQLGrammar(BaseGrammar):
-
-    """The keys in this dictionary is how the ORM will reference these aggregates
-
-    The values on the right are the matching functions for the grammar
-
-    Returns:
-        [type] -- [description]
+    """MySQL grammar class.
     """
 
     aggregate_options = {

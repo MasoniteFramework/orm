@@ -1,6 +1,7 @@
+from config.database import CONNECTIONS
+
 from .MySQLConnection import MySQLConnection
 from .SQLiteConnection import SQLiteConnection
-from config.database import CONNECTIONS
 
 
 class ConnectionFactory:

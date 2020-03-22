@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from src.masonite.orm.models.Model import Model
+from src.masonite.orm.models import Model
 from src.masonite.orm.relationships import belongs_to, has_many
 
 if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
