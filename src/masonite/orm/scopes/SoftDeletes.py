@@ -1,4 +1,7 @@
 class SoftDeletes:
+    """Scope class to add soft deleting to models.
+    """
+
     def boot_soft_delete():
         return {
             "select": SoftDeletes.query_where_null,
