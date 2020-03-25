@@ -1,7 +1,7 @@
 import unittest
 from src.masonite.orm.grammar.mssql_grammar import MSSQLGrammar
 from app.User import User
-from src.masonite.orm.models.Model import Model
+from src.masonite.orm.models import Model
 import os
 
 if os.getenv("RUN_MYSQL_DATABASE", False) == "True":

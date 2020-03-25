@@ -1,9 +1,12 @@
+from config.database import CONNECTIONS
+
 from .MySQLConnection import MySQLConnection
 from .SQLiteConnection import SQLiteConnection
-from config.database import CONNECTIONS
 
 
 class ConnectionFactory:
+    """Class for controlling the registration and creation of connection types.
+    """
 
     _connections = {
         "mysql": MySQLConnection,

@@ -1,36 +1,9 @@
-import unittest
-from app.User import User
 import inspect
+import unittest
 
-from src.masonite.orm.models.Model import Model
-from src.masonite.orm.mixins.scope import scope
-
-
-class SoftDeletes:
-    def boot_soft_delete():
-        return {
-            "select": SoftDeletes.query_where_null,
-        }
-
-    def query_where_null(owner_cls, query):
-        return query.where_not_null("deleted_at")
-
-
-class TimeStamps:
-    def boot_timestamps():
-        return {
-            "update": TimeStamps.set_timestamp,
-            "insert": TimeStamps.set_timestamp_create,
-        }
-
-    def set_timestamp(owner_cls, query):
-        owner_cls.updated_at = "now"
-
-    def set_timestamp_create(owner_cls, query):
-        owner_cls.builder.create(
-            {"updated_at": "now", "created_at": "now",}
-        )
-
+from app.User import User
+from src.masonite.orm.scopes import scope, SoftDeletes, TimeStamps
+from src.masonite.orm.models import Model
 
 class User(Model):
     @scope

@@ -92,10 +92,10 @@ class GrammarExample:
         return "ORDER BY {column} {direction}"
 
     def column_string(self):
-        return "`{column}`{seperator}"
+        return "`{column}`{separator}"
 
     def value_string(self):
-        return "'{value}'{seperator}"
+        return "'{value}'{separator}"
 
     def after_column_string(self):
         return " AFTER `{after}`"

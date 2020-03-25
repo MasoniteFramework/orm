@@ -1,7 +1,7 @@
 import inspect
 
-from ..builder.QueryBuilder import QueryBuilder
-from ..grammar.GrammarFactory import GrammarFactory
+from ..builder import QueryBuilder
+from ..grammar import GrammarFactory
 
 
 class BaseTestCaseSelectGrammer:
