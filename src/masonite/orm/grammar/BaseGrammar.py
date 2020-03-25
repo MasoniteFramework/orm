@@ -70,7 +70,7 @@ class BaseGrammar:
             self
         """
         self._sql = self.create_format().format(
-            table=self._compile_from(),
+            table=self._compile_table(self.table),
             columns=self._compile_create_columns(),
             constraints=self._compile_create_constraints().rstrip(" "),
             foreign_keys=self._compile_foreign_keys().rstrip(" "),
@@ -84,7 +84,7 @@ class BaseGrammar:
             self
         """
         self._sql = self.alter_format().format(
-            table=self._compile_from(),
+            table=self._compile_table(self.table),
             columns=self._compile_alter_columns(),
             constraints=self._compile_alter_constraints(),
             foreign_keys=self._compile_alter_foreign_keys(),
@@ -272,8 +272,8 @@ class BaseGrammar:
         self._sql = (
             self.select_format()
             .format(
-                columns=self._compile_columns(separator=", "),
-                table=self._compile_from(),
+                columns=self._compile_columns(seperator=", "),
+                table=self._compile_table(self.table),
                 wheres=self._compile_wheres(qmark=qmark),
                 limit=self._compile_limit(),
                 offset=self._compile_offset(),
@@ -299,7 +299,7 @@ class BaseGrammar:
         """
         self._sql = self.update_format().format(
             key_equals=self._compile_key_value_equals(qmark=qmark),
-            table=self._compile_from(),
+            table=self._compile_table(self.table),
             wheres=self._compile_wheres(qmark=qmark),
         )
 
@@ -336,9 +336,9 @@ class BaseGrammar:
         """
         self._sql = self.insert_format().format(
             key_equals=self._compile_key_value_equals(),
-            table=self._compile_from(),
-            columns=self._compile_columns(separator=", "),
-            values=self._compile_values(separator=", "),
+            table=self._compile_table(self.table),
+            columns=self._compile_columns(seperator=", "),
+            values=self._compile_values(seperator=", "),
         )
 
         return self
@@ -351,7 +351,7 @@ class BaseGrammar:
         """
         self._sql = self.delete_format().format(
             key_equals=self._compile_key_value_equals(),
-            table=self._compile_from(),
+            table=self._compile_table(self.table),
             wheres=self._compile_wheres(),
         )
 
@@ -461,18 +461,6 @@ class BaseGrammar:
             self
         """
         return column
-
-    def _compile_from(self):
-        """Compiles the from table name.
-
-        Returns:
-            self
-        """
-        return self.table_string().format(
-            table=self.table,
-            database=self._connection_details.get("database", ""),
-            prefix=self._connection_details.get("prefix", ""),
-        )
 
     def _compile_table(self, table):
         """Compiles a given table name.
@@ -596,14 +584,14 @@ class BaseGrammar:
                 sql_string = self.between_string().format(
                     low=self._compile_value(where.low),
                     high=self._compile_value(where.high),
-                    column=self._compile_table(where.column),
+                    column=self._compile_column(where.column),
                     keyword=keyword,
                 )
             elif equality == "NOT BETWEEN":
                 sql_string = self.not_between_string().format(
                     low=self._compile_value(where.low),
                     high=self._compile_value(where.high),
-                    column=self._compile_table(where.column),
+                    column=self._compile_column(where.column),
                     keyword=keyword,
                 )
             elif value is None:
@@ -698,7 +686,8 @@ class BaseGrammar:
             self
         """
         return self.column_exists_string().format(
-            table=self._compile_from(), value=self._compile_value(self._column)
+            table=self._compile_table(self.table),
+            value=self._compile_value(self._column),
         )
 
     def to_sql(self):
