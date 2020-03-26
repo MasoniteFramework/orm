@@ -11,5 +11,5 @@ class TimeStamps:
 
     def set_timestamp_create(owner_cls, query):
         owner_cls.builder.create(
-            {"updated_at": "now", "created_at": "now",}
+            {"updated_at": "now", "created_at": "now", }
         )
