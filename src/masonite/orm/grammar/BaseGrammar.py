@@ -109,7 +109,7 @@ class BaseGrammar:
             sql += getattr(self, "{}_column_string".format(column._action))().format(
                 column=self._compile_column(column.column_name),
                 old_column=self._compile_column(column.old_column),
-                data_type=self.type_map.get(column.column_type) if self.type_map.get(column.column_type) else "",
+                data_type=self.type_map.get(column.column_type, ""),
                 length=self.create_column_length().format(length=column.length)
                 if column.length
                 else "",

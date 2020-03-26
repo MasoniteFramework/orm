@@ -774,7 +774,7 @@ class QueryBuilder:
         sql = getattr(
             grammar, "_compile_{action}".format(action=self._action)
         )().to_sql()
-        # self.boot()
+        self.boot()
         return sql
 
     def to_qmark(self):
@@ -801,7 +801,7 @@ class QueryBuilder:
         grammar = getattr(grammar, "_compile_{action}".format(action=self._action))(
             qmark=True
         )
-        # self.boot()
+        self.boot()
         self._bindings = grammar._bindings
         return grammar.to_qmark()
 

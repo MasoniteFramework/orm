@@ -68,13 +68,13 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
-    def test_first(self):
-        builder = self.get_builder()
-        builder.first()
-        sql = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
-        self.assertEqual(builder.to_sql(), sql)
+    # def test_first(self):
+    #     builder = self.get_builder()
+    #     builder.first()
+    #     sql = getattr(
+    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
+    #     )()
+    #     self.assertEqual(builder.to_sql(), sql)
 
     def test_select(self):
         builder = self.get_builder()
@@ -164,13 +164,13 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
-    def test_update(self):
-        builder = self.get_builder()
-        builder.update({"name": "Joe", "email": "joe@yopmail.com"})
-        sql = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
-        self.assertEqual(builder.to_sql(), sql)
+    # def test_update(self):
+    #     builder = self.get_builder()
+    #     builder.update({"name": "Joe", "email": "joe@yopmail.com"})
+    #     sql = getattr(
+    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
+    #     )()
+    #     self.assertEqual(builder.to_sql(), sql)
 
     def test_increment(self):
         builder = self.get_builder()
