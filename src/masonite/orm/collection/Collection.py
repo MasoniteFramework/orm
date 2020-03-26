@@ -5,7 +5,8 @@ from functools import reduce
 
 class Collection:
     """Wraps various data types to make working with them easier.
-    """    
+    """
+
     def __init__(self, items=[]):
         self._items = items
 
@@ -17,7 +18,7 @@ class Collection:
 
         Returns:
             int
-        """  
+        """
         if number < 0:
             return self[number:]
 
@@ -76,7 +77,7 @@ class Collection:
 
         Returns:
             int -- Returns the average.
-        """        
+        """
         result = 0
         items = self._get_value(key) or self._items
         try:
@@ -96,10 +97,10 @@ class Collection:
         """
         items = []
         for i in range(0, self.count(), size):
-            items.append(self[i : i + size])
+            items.append(self[i: i + size])
         return self.__class__(items)
 
-    def collapse(self):     
+    def collapse(self):
         items = []
         for item in self:
             if isinstance(item, Collection):
