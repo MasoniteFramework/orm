@@ -109,7 +109,7 @@ class BaseGrammar:
             sql += getattr(self, "{}_column_string".format(column._action))().format(
                 column=self._compile_column(column.column_name),
                 old_column=self._compile_column(column.old_column),
-                data_type=self.type_map.get(column.column_type),
+                data_type=self.type_map.get(column.column_type) if self.type_map.get(column.column_type) else "",
                 length=self.create_column_length().format(length=column.length)
                 if column.length
                 else "",
@@ -272,7 +272,7 @@ class BaseGrammar:
         self._sql = (
             self.select_format()
             .format(
-                columns=self._compile_columns(seperator=", "),
+                columns=self._compile_columns(separator=", "),
                 table=self._compile_table(self.table),
                 wheres=self._compile_wheres(qmark=qmark),
                 limit=self._compile_limit(),
@@ -337,8 +337,8 @@ class BaseGrammar:
         self._sql = self.insert_format().format(
             key_equals=self._compile_key_value_equals(),
             table=self._compile_table(self.table),
-            columns=self._compile_columns(seperator=", "),
-            values=self._compile_values(seperator=", "),
+            columns=self._compile_columns(separator=", "),
+            values=self._compile_values(separator=", "),
         )
 
         return self
