@@ -1,5 +1,5 @@
-import copy
 import inspect
+
 from ..collection.Collection import Collection
 
 
@@ -8,14 +8,14 @@ class QueryExpression:
     """
 
     def __init__(
-        self,
-        column,
-        equality,
-        value,
-        value_type="value",
-        keyword=None,
-        raw=False,
-        bindings=(),
+            self,
+            column,
+            equality,
+            value,
+            value_type="value",
+            keyword=None,
+            raw=False,
+            bindings=(),
     ):
         self.column = column
         self.equality = equality
@@ -110,14 +110,14 @@ class QueryBuilder:
     _action = "select"
 
     def __init__(
-        self,
-        grammar,
-        connection=None,
-        table="",
-        connection_details={},
-        scopes={},
-        global_scopes={},
-        owner=None,
+            self,
+            grammar,
+            connection=None,
+            table="",
+            connection_details={},
+            scopes={},
+            global_scopes={},
+            owner=None,
     ):
         """QueryBuilder initializer
 
@@ -452,12 +452,12 @@ class QueryBuilder:
         return self
 
     def join(
-        self,
-        foreign_table: str,
-        column1: str,
-        equality: ["=", "<", "<=", ">", ">="],
-        column2: str,
-        clause="inner",
+            self,
+            foreign_table: str,
+            column1: str,
+            equality: ["=", "<", "<=", ">", ">="],
+            column2: str,
+            clause="inner",
     ):
         """Specifies a join expression.
 
@@ -816,6 +816,30 @@ class QueryBuilder:
         )
 
         return builder
+
+    def avg(self, column):
+        """Aggregates a columns values.
+
+        Arguments:
+            column {string} -- The name of the column to aggregate.
+
+        Returns:
+            self
+        """
+        self.aggregate("AVG", "{column}".format(column=column))
+        return self
+
+    def min(self, column):
+        """Aggregates a columns values.
+
+        Arguments:
+            column {string} -- The name of the column to aggregate.
+
+        Returns:
+            self
+        """
+        self.aggregate("MIN", "{column}".format(column=column))
+        return self
 
     def __call__(self):
         """Magic method to standardize what happens when the query builder object is called.
