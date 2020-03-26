@@ -783,27 +783,27 @@ class QueryBuilder:
         Returns:
             self
         """
-        grammar = self.grammar(
-            columns=self._columns,
-            table=self.table,
-            wheres=self._wheres,
-            limit=self._limit,
-            offset=self._offset,
-            updates=self._updates,
-            aggregates=self._aggregates,
-            order_by=self._order_by,
-            group_by=self._group_by,
-            connection_details=self.connection.connection_details
-            if self.connection
-            else self.connection_details,
-        )
 
-        grammar = getattr(grammar, "_compile_{action}".format(action=self._action))(
+        if not self._action:
+            self.set_action("select")
+
+        for scope in self._global_scopes.get(self.owner, {}).get(self._action, []):
+            if not scope:
+                continue
+
+            scope(self.owner, self)
+
+        grammar = self.get_grammar()
+
+        qmark = getattr(grammar, "_compile_{action}".format(action=self._action))(
             qmark=True
-        )
+        ).to_qmark()
+
         self.boot()
+
         self._bindings = grammar._bindings
-        return grammar.to_qmark()
+
+        return qmark
 
     def new(self):
         """Creates a new QueryBuilder class.
