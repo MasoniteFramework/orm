@@ -1,5 +1,5 @@
 from src.masonite.orm.connections.ConnectionFactory import ConnectionFactory
-from src.masonite.orm.blueprint.Blueprint import Blueprint
+from src.masonite.orm.blueprint import Blueprint
 
 
 class Schema:
@@ -103,7 +103,9 @@ class Schema:
     @classmethod
     def rename(cls, table, new_name, query_only=False):
         grammar = cls._connection.get_grammer()(table=table)
-        query = grammar.rename_table(current_name=table, new_name=new_name).to_sql()
+        query = grammar.rename_table(
+            current_table_name=table, new_table_name=new_name
+        ).to_sql()
         if query_only:
             return query
         return bool(cls._connection().make_connection().query(query, ()))

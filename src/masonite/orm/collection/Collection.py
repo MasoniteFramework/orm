@@ -4,16 +4,36 @@ from functools import reduce
 
 
 class Collection:
+    """Wraps various data types to make working with them easier.
+    """    
     def __init__(self, items=[]):
         self._items = items
 
-    def take(self, number):
+    def take(self, number: int):
+        """Takes a specific number of results from the items.
+
+        Arguments:
+            number {integer} -- The number of results to take.
+
+        Returns:
+            int
+        """  
         if number < 0:
             return self[number:]
 
         return self[:number]
 
     def first(self, callback=None):
+        """Takes the first result in the items.
+
+        If a callback is given then the first result will be the result after the filter.
+
+        Keyword Arguments:
+            callback {callable} -- Used to filter the results before returning the first item. (default: {None})
+
+        Returns:
+            mixed -- Returns whatever the first item is.
+        """
         filtered = self
         if callback:
             filtered = self.filter(callback)
@@ -23,15 +43,40 @@ class Collection:
         return response
 
     def last(self, callback=None):
+        """Takes the last result in the items.
+
+        If a callback is given then the last result will be the result after the filter.
+
+        Keyword Arguments:
+            callback {callable} -- Used to filter the results before returning the last item. (default: {None})
+
+        Returns:
+            mixed -- Returns whatever the last item is.
+        """
         filtered = self
         if callback:
             filtered = self.filter(callback)
         return filtered[-1]
 
     def all(self):
+        """Returns all the items.
+
+        Returns:
+            mixed -- Returns all items.
+        """
         return self._items
 
     def avg(self, key=None):
+        """Returns the average of the items.
+
+        If a key is given it will return the average of all the values of the key.
+
+        Keyword Arguments:
+            key {string} -- The key to use to find the average of all the values of that key. (default: {None})
+
+        Returns:
+            int -- Returns the average.
+        """        
         result = 0
         items = self._get_value(key) or self._items
         try:
@@ -40,13 +85,21 @@ class Collection:
             pass
         return result
 
-    def chunk(self, size):
+    def chunk(self, size: int):
+        """Chunks the items.
+
+        Keyword Arguments:
+            size {integer} -- The number of values in each chunk.
+
+        Returns:
+            int -- Returns the average.
+        """
         items = []
         for i in range(0, self.count(), size):
             items.append(self[i : i + size])
         return self.__class__(items)
 
-    def collapse(self):
+    def collapse(self):     
         items = []
         for item in self:
             if isinstance(item, Collection):

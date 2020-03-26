@@ -1,7 +1,7 @@
 from src.masonite.orm.grammar.mysql_grammar import MySQLGrammar
-from src.masonite.orm.builder.QueryBuilder import QueryBuilder
-from src.masonite.orm.grammar.GrammarFactory import GrammarFactory
-from src.masonite.orm.models.Model import Model
+from src.masonite.orm.builder import QueryBuilder
+from src.masonite.orm.grammar import GrammarFactory
+from src.masonite.orm.models import Model
 import unittest
 import os
 

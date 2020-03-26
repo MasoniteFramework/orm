@@ -1,8 +1,10 @@
 from ..connections.ConnectionFactory import ConnectionFactory
-from ..builder.QueryBuilder import QueryBuilder
+from ..builder import QueryBuilder
 from ..grammar.mysql_grammar import MySQLGrammar
 from ..collection.Collection import Collection
 import json
+from datetime import datetime
+from inflection import tableize
 
 
 class BoolCast:
@@ -17,7 +19,7 @@ class JsonCast:
 
 class Model:
 
-    __fillable__ = []
+    __fillable__ = ["*"]
     __guarded__ = ["*"]
     __table__ = None
     __connection__ = "default"
@@ -27,12 +29,8 @@ class Model:
     _booted = False
     __primary_key__ = "id"
     __casts__ = {}
-    _global_scopes = {
-        "select": [],
-        "insert": [],
-        "update": [],
-        "delete": [],
-    }
+    __timestamps__ = True
+    _global_scopes = {}
 
     __cast_map__ = {
         "bool": BoolCast,
@@ -62,14 +60,21 @@ class Model:
                 owner=cls,
                 global_scopes=cls._global_scopes,
             )
+
             cls.builder.set_action("select")
             cls._booted = True
             cast_methods = [v for k, v in cls.__dict__.items() if k.startswith("get_")]
             for cast in cast_methods:
                 cls.__casts__[cast.__name__.replace("get_", "")] = cast
 
-            print("final_cast", cls.__casts__)
-            print("cast methods are", cast_methods)
+            # Set global scope defaults
+            cls._global_scopes[cls] = {
+                "select": [],
+                "insert": [],
+                "update": [],
+                "delete": [],
+            }
+
             cls._loads = ()
 
     def _boot_parent_scopes(cls):
@@ -84,16 +89,14 @@ class Model:
         ]
         for method in boot_methods:
             for action in ["select", "insert", "update", "delete"]:
-                cls._global_scopes[action].append(method().get(action, []))
+
+                cls._global_scopes[cls][action].append(method().get(action, []))
 
         return cls
 
     @classmethod
     def get_table_name(cls):
-        if cls.__table__:
-            return cls.__table__
-
-        return cls.__name__.lower() + "s"
+        return cls.__table__ or tableize(cls.__name__)
 
     @classmethod
     def first(cls):
@@ -150,6 +153,9 @@ class Model:
 
     @classmethod
     def create(cls, dictionary):
+        cls.boot()
+        if cls.__fillable__ != ["*"]:
+            dictionary = {x: dictionary[x] for x in cls.__fillable__}
         to_sql = cls.builder.create(dictionary).to_sql()
         return to_sql
 
@@ -159,14 +165,35 @@ class Model:
     def get(self):
         pass
 
+    def serialize(self):
+        serialized_dictionary = self.__attributes__
+        serialized_dictionary.update(self.__dirty_attributes__)
+        return serialized_dictionary
+
     def find_or_fail(self):
         pass
 
     def update_or_create(self):
         pass
 
-    def touch(self):
-        pass
+    def touch(self, date=None, query=True):
+        """
+        Update the timestamps's value from model
+        """
+        self.boot()
+
+        if not self.__timestamps__:
+            return False
+
+        self._update_timestamps(date=date)
+
+        return self.save(query=query)
+
+    def _update_timestamps(self, date=None):
+        self.updated_at = date or self._current_timestamp()
+
+    def _current_timestamp(self):
+        return datetime.now()
 
     @staticmethod
     def set_connection_resolver(self):
@@ -185,10 +212,16 @@ class Model:
         except KeyError:
             pass
 
-    def save(self):
-        return self.builder.where(
+    def save(self, query=False):
+
+        builder = self.builder.where(
             self.get_primary_key(), self.get_primary_key_value()
-        ).update(self.__dirty_attributes__)
+        )
+
+        if not query:
+            return builder.update(self.__dirty_attributes__)
+
+        return builder.update(self.__dirty_attributes__, dry=True).to_sql()
 
     def get_value(self, attribute):
         if attribute in self.__casts__:

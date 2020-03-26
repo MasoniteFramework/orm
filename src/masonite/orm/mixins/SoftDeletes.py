@@ -1,2 +1,0 @@
-class SoftDeletes:
-    pass

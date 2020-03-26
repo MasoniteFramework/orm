@@ -1,16 +1,11 @@
 import pymysql.cursors
 from masonite.testing import TestCase
+
 from .BaseGrammar import BaseGrammar
 
 
 class SQLiteGrammar(BaseGrammar):
-
-    """The keys in this dictionary is how the ORM will reference these aggregates
-
-    The values on the right are the matching functions for the grammar
-
-    Returns:
-        [type] -- [description]
+    """MySQL grammar class.
     """
 
     aggregate_options = {
@@ -88,10 +83,10 @@ class SQLiteGrammar(BaseGrammar):
         return "ORDER BY {column} {direction}"
 
     def column_string(self):
-        return "`{column}`{seperator}"
+        return "`{column}`{separator}"
 
     def value_string(self):
-        return "'{value}'{seperator}"
+        return "'{value}'{separator}"
 
     def limit_string(self):
         return "LIMIT {limit}"
