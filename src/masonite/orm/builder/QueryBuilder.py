@@ -672,13 +672,15 @@ class QueryBuilder:
         """
         self._aggregates += ((aggregate, column),)
 
-    def first(self):
+    def first(self, query=True):
         """Gets the first record.
 
         Returns:
             dictionary -- Returns a dictionary of results.
         """
         self.set_action("select")
+        if query:
+            return self.limit(1)
         return (
             self.connection()
             .make_connection()
