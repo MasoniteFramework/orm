@@ -164,13 +164,12 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
-    # def test_update(self):
-    #     builder = self.get_builder()
-    #     builder.update({"name": "Joe", "email": "joe@yopmail.com"})
-    #     sql = getattr(
-    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
-    #     )()
-    #     self.assertEqual(builder.to_sql(), sql)
+    def test_update(self):
+        builder = self.get_builder().update({"name": "Joe", "email": "joe@yopmail.com"}, dry=True)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
 
     def test_increment(self):
         builder = self.get_builder()
