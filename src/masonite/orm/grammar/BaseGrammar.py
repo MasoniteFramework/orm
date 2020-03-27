@@ -343,16 +343,16 @@ class BaseGrammar:
 
         return self
 
-    def _compile_delete(self):
+    def _compile_delete(self, qmark=True):
         """Compiles a delete expression.
 
         Returns:
             self
         """
         self._sql = self.delete_format().format(
-            key_equals=self._compile_key_value_equals(),
+            key_equals=self._compile_key_value_equals(qmark=qmark),
             table=self._compile_table(self.table),
-            wheres=self._compile_wheres(),
+            wheres=self._compile_wheres(qmark=qmark),
         )
 
         return self
