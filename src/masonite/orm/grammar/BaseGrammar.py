@@ -343,7 +343,7 @@ class BaseGrammar:
 
         return self
 
-    def _compile_delete(self, qmark=True):
+    def _compile_delete(self, qmark=False):
         """Compiles a delete expression.
 
         Returns:

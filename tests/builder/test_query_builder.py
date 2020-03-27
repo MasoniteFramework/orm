@@ -210,6 +210,83 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_where_column(self):
+        builder = self.get_builder()
+        builder.where_column('name', 'username')
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_where_not_in(self):
+        builder = self.get_builder()
+        builder.where_not_in('id', [1, 2, 3])
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_between(self):
+        builder = self.get_builder()
+        builder.between('id', 2, 5)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_not_between(self):
+        builder = self.get_builder()
+        builder.not_between('id', 2, 5)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_where_in(self):
+        builder = self.get_builder()
+        builder.where_in('id', [1, 2, 3])
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_where_null(self):
+        builder = self.get_builder()
+        builder.where_null('name')
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_where_not_null(self):
+        builder = self.get_builder()
+        builder.where_not_null('name')
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_having(self):
+        builder = self.get_builder(table='payments')
+        builder.select('user_id').avg('salary').group_by('user_id').having('salary', '>=', '1000')
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_group_by(self):
+        builder = self.get_builder(table='payments')
+        builder.select('user_id').min('salary').group_by('user_id')
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
 
 class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
     grammar = MySQLGrammar
@@ -373,3 +450,56 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         return 'SELECT * FROM `users` ORDER BY `email` DESC'
 
+    def where_column(self):
+        """
+            builder.where_column('name', 'username')
+        """
+        return 'SELECT * FROM `users` WHERE `name` = `username`'
+
+    def where_null(self):
+        """
+            builder.where_null('name')
+        """
+        return 'SELECT * FROM `users` WHERE `name` IS NULL'
+
+    def where_not_null(self):
+        """
+            builder.where_null('name')
+        """
+        return 'SELECT * FROM `users` WHERE `name` IS NOT NULL'
+
+    def where_not_in(self):
+        """
+            builder.where_not_in('id', [1, 2, 3])
+        """
+        return "SELECT * FROM `users` WHERE `id` NOT IN ('1','2','3')"
+
+    def where_in(self):
+        """
+            builder.where_in('id', [1, 2, 3])
+        """
+        return "SELECT * FROM `users` WHERE `id` IN ('1','2','3')"
+
+    def between(self):
+        """
+            builder.between('id', 2, 5)
+        """
+        return "SELECT * FROM `users` WHERE `id` BETWEEN '2' AND '5'"
+
+    def not_between(self):
+        """
+            builder.not_between('id', 2, 5)
+        """
+        return "SELECT * FROM `users` WHERE `id` NOT BETWEEN '2' AND '5'"
+
+    def having(self):
+        """
+            builder.select('user_id').avg('salary').group_by('user_id').having('salary', '>=', '1000')
+        """
+        return "SELECT `user_id`, AVG(`salary`) AS salary FROM `payments` GROUP BY `user_id` HAVING `salary` >= '1000'"
+
+    def group_by(self):
+        """
+             builder.select('user_id').min('salary').group_by('user_id')
+        """
+        return "SELECT `user_id`, MIN(`salary`) AS salary FROM `payments` GROUP BY `user_id`"
