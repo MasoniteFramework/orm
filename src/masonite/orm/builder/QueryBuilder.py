@@ -1,5 +1,5 @@
-import copy
 import inspect
+
 from ..collection.Collection import Collection
 
 
@@ -8,14 +8,14 @@ class QueryExpression:
     """
 
     def __init__(
-        self,
-        column,
-        equality,
-        value,
-        value_type="value",
-        keyword=None,
-        raw=False,
-        bindings=(),
+            self,
+            column,
+            equality,
+            value,
+            value_type="value",
+            keyword=None,
+            raw=False,
+            bindings=(),
     ):
         self.column = column
         self.equality = equality
@@ -110,14 +110,14 @@ class QueryBuilder:
     _action = "select"
 
     def __init__(
-        self,
-        grammar,
-        connection=None,
-        table="",
-        connection_details={},
-        scopes={},
-        global_scopes={},
-        owner=None,
+            self,
+            grammar,
+            connection=None,
+            table="",
+            connection_details={},
+            scopes={},
+            global_scopes={},
+            owner=None,
     ):
         """QueryBuilder initializer
 
@@ -452,12 +452,12 @@ class QueryBuilder:
         return self
 
     def join(
-        self,
-        foreign_table: str,
-        column1: str,
-        equality: ["=", "<", "<=", ">", ">="],
-        column2: str,
-        clause="inner",
+            self,
+            foreign_table: str,
+            column1: str,
+            equality: ["=", "<", "<=", ">", ">="],
+            column2: str,
+            clause="inner",
     ):
         """Specifies a join expression.
 
@@ -672,13 +672,15 @@ class QueryBuilder:
         """
         self._aggregates += ((aggregate, column),)
 
-    def first(self):
+    def first(self, query=True):
         """Gets the first record.
 
         Returns:
             dictionary -- Returns a dictionary of results.
         """
         self.set_action("select")
+        if query:
+            return self.limit(1)
         return (
             self.connection()
             .make_connection()
@@ -783,27 +785,27 @@ class QueryBuilder:
         Returns:
             self
         """
-        grammar = self.grammar(
-            columns=self._columns,
-            table=self.table,
-            wheres=self._wheres,
-            limit=self._limit,
-            offset=self._offset,
-            updates=self._updates,
-            aggregates=self._aggregates,
-            order_by=self._order_by,
-            group_by=self._group_by,
-            connection_details=self.connection.connection_details
-            if self.connection
-            else self.connection_details,
-        )
 
-        grammar = getattr(grammar, "_compile_{action}".format(action=self._action))(
+        if not self._action:
+            self.set_action("select")
+
+        for scope in self._global_scopes.get(self.owner, {}).get(self._action, []):
+            if not scope:
+                continue
+
+            scope(self.owner, self)
+
+        grammar = self.get_grammar()
+
+        qmark = getattr(grammar, "_compile_{action}".format(action=self._action))(
             qmark=True
-        )
+        ).to_qmark()
+
         self.boot()
+
         self._bindings = grammar._bindings
-        return grammar.to_qmark()
+
+        return qmark
 
     def new(self):
         """Creates a new QueryBuilder class.
@@ -816,6 +818,30 @@ class QueryBuilder:
         )
 
         return builder
+
+    def avg(self, column):
+        """Aggregates a columns values.
+
+        Arguments:
+            column {string} -- The name of the column to aggregate.
+
+        Returns:
+            self
+        """
+        self.aggregate("AVG", "{column}".format(column=column))
+        return self
+
+    def min(self, column):
+        """Aggregates a columns values.
+
+        Arguments:
+            column {string} -- The name of the column to aggregate.
+
+        Returns:
+            self
+        """
+        self.aggregate("MIN", "{column}".format(column=column))
+        return self
 
     def __call__(self):
         """Magic method to standardize what happens when the query builder object is called.

@@ -342,6 +342,15 @@ class BaseTestCreateGrammar:
         )()
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_rename_column(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.rename("name", "first_name")
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(blueprint.to_sql(), sql)
+
 
 class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
     def setUp(self):
@@ -745,4 +754,13 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             "ALTER TABLE `users` "
             "DROP FOREIGN KEY `users_article_id_foreign` "
             "DROP FOREIGN KEY `users_post_id_foreign`"
+        )
+
+    def rename_column(self):
+        """
+        with self.schema.table("users") as blueprint:
+            blueprint.rename("name", "first_name")
+        """
+        return (
+            "ALTER TABLE `users` CHANGE COLUMN `name` `first_name`"
         )

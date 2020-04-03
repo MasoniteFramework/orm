@@ -142,7 +142,7 @@ class MySQLGrammar(BaseGrammar):
         return "MODIFY {column} {data_type}{length}{nullable} {after}, "
 
     def rename_column_string(self):
-        return "CHANGE COLUMN old_name {column} {data_type}{length}{nullable}, "
+        return "CHANGE COLUMN {old_column} {column} {data_type}{length}{nullable}, "
 
     def create_format(self):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
