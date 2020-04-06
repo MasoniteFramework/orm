@@ -140,9 +140,15 @@ class Model:
 
     @classmethod
     def hydrate(cls, dictionary):
-        model = cls()
-        model.__attributes__.update(dictionary or {})
-        return model
+        if isinstance(dictionary, list):
+            response = []
+            for element in dictionary:
+                response.append(element)
+            return cls.new_collection(response)
+        else:
+            model = cls()
+            model.__attributes__.update(dictionary or {})
+            return model
 
     @classmethod
     def new_collection(cls, collection_data):

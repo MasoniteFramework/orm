@@ -642,9 +642,9 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.new_column(None, new_column, action="rename", length=None, nullable=True).rename(
-            old_column
-        )
+        self._last_column = self.new_column(
+            None, new_column, action="rename", length=None, nullable=True
+        ).rename(old_column)
         self._columns += (self._last_column,)
         return self
 

@@ -5,6 +5,7 @@ from app.User import User
 from src.masonite.orm.scopes import scope, SoftDeletes, TimeStamps
 from src.masonite.orm.models import Model
 
+
 class User(Model):
     @scope
     def active(query, status):

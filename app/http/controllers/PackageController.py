@@ -9,5 +9,4 @@ class PackageController:
     """
 
     def show(self, view: View, request: Request):
-
-        return 'Hello World'
+        return User.where('id', 10).all().serialize()

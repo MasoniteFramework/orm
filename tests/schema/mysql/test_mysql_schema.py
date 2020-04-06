@@ -761,6 +761,4 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.rename("name", "first_name")
         """
-        return (
-            "ALTER TABLE `users` CHANGE COLUMN `name` `first_name`"
-        )
+        return "ALTER TABLE `users` CHANGE COLUMN `name` `first_name`"

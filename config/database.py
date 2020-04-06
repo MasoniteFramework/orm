@@ -3,8 +3,6 @@
 import os
 
 from masonite.environment import LoadEnvironment, env
-from orator import DatabaseManager, Model
-
 
 """
 |--------------------------------------------------------------------------

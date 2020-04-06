@@ -8,14 +8,14 @@ class QueryExpression:
     """
 
     def __init__(
-            self,
-            column,
-            equality,
-            value,
-            value_type="value",
-            keyword=None,
-            raw=False,
-            bindings=(),
+        self,
+        column,
+        equality,
+        value,
+        value_type="value",
+        keyword=None,
+        raw=False,
+        bindings=(),
     ):
         self.column = column
         self.equality = equality
@@ -110,14 +110,14 @@ class QueryBuilder:
     _action = "select"
 
     def __init__(
-            self,
-            grammar,
-            connection=None,
-            table="",
-            connection_details={},
-            scopes={},
-            global_scopes={},
-            owner=None,
+        self,
+        grammar,
+        connection=None,
+        table="",
+        connection_details={},
+        scopes={},
+        global_scopes={},
+        owner=None,
     ):
         """QueryBuilder initializer
 
@@ -452,12 +452,12 @@ class QueryBuilder:
         return self
 
     def join(
-            self,
-            foreign_table: str,
-            column1: str,
-            equality: ["=", "<", "<=", ">", ">="],
-            column2: str,
-            clause="inner",
+        self,
+        foreign_table: str,
+        column1: str,
+        equality: ["=", "<", "<=", ">", ">="],
+        column2: str,
+        clause="inner",
     ):
         """Specifies a join expression.
 
@@ -672,7 +672,7 @@ class QueryBuilder:
         """
         self._aggregates += ((aggregate, column),)
 
-    def first(self, query=True):
+    def first(self, query=False):
         """Gets the first record.
 
         Returns:
@@ -681,7 +681,8 @@ class QueryBuilder:
         self.set_action("select")
         if query:
             return self.limit(1)
-        return (
+
+        return self.owner.hydrate(
             self.connection()
             .make_connection()
             .query(self.limit(1).to_qmark(), self._bindings, results=1)
@@ -693,7 +694,7 @@ class QueryBuilder:
         Returns:
             dictionary -- Returns a dictionary of results.
         """
-        return (
+        return self.owner.hydrate(
             self.connection().make_connection().query(self.to_qmark(), self._bindings)
         )
 
