@@ -1,8 +1,6 @@
 import re
 
-from masonite.testing import TestCase
-
-from src.masonite.orm.builder.QueryBuilder import (
+from ..builder.QueryBuilder import (
     SubGroupExpression,
     SubSelectExpression,
     SelectExpression,

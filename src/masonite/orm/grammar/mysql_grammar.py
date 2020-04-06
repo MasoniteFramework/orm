@@ -1,5 +1,4 @@
 import pymysql.cursors
-from masonite.testing import TestCase
 
 from .BaseGrammar import BaseGrammar
 

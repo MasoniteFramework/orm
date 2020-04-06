@@ -1,4 +1,4 @@
-from src.masonite.orm.grammar import GrammarFactory
+from ..grammar import GrammarFactory
 
 
 class BaseConnection:
