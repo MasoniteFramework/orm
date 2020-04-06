@@ -16,7 +16,6 @@ class ConnectionFactory:
         "oracle": "",
     }
 
-    _connection_settings = {}
 
     @classmethod
     def register(cls, key, connection):
