@@ -1,5 +1,6 @@
 from faker import Faker
 
+
 class Factory:
 
     _factories = {}
@@ -8,7 +9,7 @@ class Factory:
         self.model = model
         self.number = number
 
-    def make(self, dictionary={}, name='default'):
+    def make(self, dictionary={}, name="default"):
         if self.number == 1 and not isinstance(dictionary, list):
             called = self._factories[self.model][name](Faker())
             called.update(dictionary)
@@ -29,9 +30,8 @@ class Factory:
             return self.model.hydrate(results)
 
     @classmethod
-    def register(cls, model, call, name='default'):
-        print(cls._factories)
-        if not model in cls._factories:
+    def register(cls, model, call, name="default"):
+        if model not in cls._factories:
             cls._factories[model] = {name: call}
         else:
             cls._factories[model][name] = call

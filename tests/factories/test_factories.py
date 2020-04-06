@@ -7,48 +7,32 @@ from src.masonite.orm.grammar import GrammarFactory
 from src.masonite.orm.grammar.mysql_grammar import MySQLGrammar
 from src.masonite.orm.models import Model
 
+
 class User(Model):
     pass
 
-class TestFactories(unittest.TestCase):
 
+class TestFactories(unittest.TestCase):
     def setUp(self):
         factory.register(User, self.user_factory)
-        factory.register(User, self.named_user_factory, name='admin')
+        factory.register(User, self.named_user_factory, name="admin")
 
     def user_factory(self, faker):
-        return {
-            'id': 1,
-            'name': faker.name()
-        }
+        return {"id": 1, "name": faker.name()}
 
     def named_user_factory(self, faker):
-        return {
-            'id': 1,
-            'name': faker.name(),
-            'admin': 1
-        }
+        return {"id": 1, "name": faker.name(), "admin": 1}
 
     def test_can_make_single(self):
-        user = factory(User).make({
-            'id': 1,
-            'name': 'Joe'
-        })
+        user = factory(User).make({"id": 1, "name": "Joe"})
 
-        self.assertEqual(user.name, 'Joe')
+        self.assertEqual(user.name, "Joe")
         self.assertIsInstance(user, User)
 
     def test_can_make_several(self):
-        users = factory(User).make([
-            {
-                'id': 1,
-                'name': 'Joe'
-            },
-            {
-                'id': 2,
-                'name': 'Bob'
-            },
-        ])
+        users = factory(User).make(
+            [{"id": 1, "name": "Joe"}, {"id": 2, "name": "Bob"},]
+        )
 
         self.assertEqual(users.count(), 2)
 
@@ -58,5 +42,5 @@ class TestFactories(unittest.TestCase):
         self.assertEqual(users.count(), 50)
 
     def test_can_make_named_factory(self):
-        user = factory(User).make(name='admin')
+        user = factory(User).make(name="admin")
         self.assertEqual(user.admin, 1)
