@@ -30,7 +30,7 @@ CONNECTIONS = {
         'database': 'orm',
         'port': '3306',
         'prefix': '',
-        'grammer': 'mysql',
+        'grammar': 'mysql',
         'options': {
             'charset': 'utf8mb4',
         },

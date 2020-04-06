@@ -4,7 +4,7 @@ from ..builder import QueryBuilder
 from ..grammar import GrammarFactory
 
 
-class BaseTestCaseSelectGrammer:
+class BaseTestCaseSelectGrammar:
     def setUp(self):
         self.builder = QueryBuilder(GrammarFactory.make(self.grammar), table="users")
 
