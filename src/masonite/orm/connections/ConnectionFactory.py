@@ -16,10 +16,6 @@ class ConnectionFactory:
         "oracle": "",
     }
 
-    _connection_settings = {}
-
-    _default = "mysql"
-
     @classmethod
     def register(cls, key, connection):
         """Registers new connections
@@ -47,8 +43,9 @@ class ConnectionFactory:
             masonite.orm.connection.BaseConnection -- Returns an instance of a BaseConnection class.
         """
         if key == "default":
-            connection = self._connections.get(self._default)
-            connection.set_connection_settings(CONNECTIONS.get(self._default))
+            connection_details = CONNECTIONS.get(CONNECTIONS.get("default"))
+            connection = self._connections.get(connection_details.get("driver"))
+            connection.set_connection_settings(connection_details)
         else:
             connection = self._connections.get(key)
             connection.set_connection_settings(CONNECTIONS.get(key))

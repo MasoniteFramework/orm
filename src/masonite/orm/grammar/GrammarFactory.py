@@ -12,7 +12,7 @@ class GrammarFactory:
         "mysql": MySQLGrammar,
         "sqlite": SQLiteGrammar,
         "mssql": MSSQLGrammar,
-        # examples of using different versions of grammer here
+        # examples of using different versions of grammar here
         "mssql2008": MSSQLGrammar,
         "mssql2012": MSSQLGrammar,
         "mssql2016": MSSQLGrammar,

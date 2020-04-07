@@ -1,6 +1,7 @@
 import unittest
 from src.masonite.orm.grammar.mssql_grammar import MSSQLGrammar
 from app.User import User
+from src.masonite.orm.collection import Collection
 from src.masonite.orm.models import Model
 import os
 
@@ -18,6 +19,9 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
         pass
 
     class Company(Model):
+        pass
+
+    class User(Model):
         pass
 
     class ProductNames(Model):
@@ -57,6 +61,10 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
 
             table_name = ProductNames.get_table_name()
             self.assertEqual(table_name, "product_names")
+
+        def test_returns_correct_data_type(self):
+            self.assertIsInstance(User.all(), Collection)
+            self.assertIsInstance(User.first(), User)
 
         def test_serialize(self):
             profile = ProfileFillAsterisk.hydrate({"name": "Joe", "id": 1})

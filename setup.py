@@ -6,7 +6,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.0.1',
+    version='0.0.1.7',
     package_dir={'': 'src'},
 
     description='Basic Boilerplate Package',
@@ -71,16 +71,32 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages(exclude=[
-        'tests*',
-        'app',
-        'bootstrap',
-        'config',
-        'databases',
-        'resources',
-        'routes',
-        'storage'
-        ]),
+    # packages=find_packages(exclude=[
+    #     'tests*',
+    #     'app',
+    #     'bootstrap',
+    #     'config',
+    #     'databases',
+    #     'resources',
+    #     'routes',
+    #     'storage'
+    #     ]),
+    packages=[
+        'masonite.orm',
+        'masonite.orm.blueprint',
+        'masonite.orm.builder',
+        'masonite.orm.collection',
+        'masonite.orm.connections',
+        'masonite.orm.grammar',
+        'masonite.orm.migrations',
+        'masonite.orm.models',
+        'masonite.orm.models',
+        'masonite.orm.relationships',
+        'masonite.orm.schema',
+        'masonite.orm.scopes',
+        'masonite.orm.seeds',
+        'masonite.orm.testing',
+    ],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,

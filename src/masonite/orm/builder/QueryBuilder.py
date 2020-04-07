@@ -1,106 +1,17 @@
 import inspect
 
 from ..collection.Collection import Collection
-
-
-class QueryExpression:
-    """A helper class to manage query expressions.
-    """
-
-    def __init__(
-            self,
-            column,
-            equality,
-            value,
-            value_type="value",
-            keyword=None,
-            raw=False,
-            bindings=(),
-    ):
-        self.column = column
-        self.equality = equality
-        self.value = value
-        self.value_type = value_type
-        self.keyword = keyword
-        self.raw = raw
-        self.bindings = bindings
-
-
-class HavingExpression:
-    """A helper class to manage having expressions.
-    """
-
-    def __init__(self, column, equality=None, value=None):
-        self.column = column
-
-        if equality and not value:
-            value = equality
-            equality = "="
-
-        self.equality = equality
-        self.value = value
-        self.value_type = "having"
-
-
-class JoinExpression:
-    """A helper class to manage join expressions.
-    """
-
-    def __init__(self, foreign_table, column1, equality, column2, clause="inner"):
-        self.foreign_table = foreign_table
-        self.column1 = column1
-        self.equality = equality
-        self.column2 = column2
-        self.clause = clause
-
-
-class UpdateQueryExpression:
-    """A helper class to manage update expressions.
-    """
-
-    def __init__(self, column, value=None, update_type="keyvalue"):
-        self.column = column
-        self.value = value
-        self.update_type = update_type
-
-
-class BetweenExpression:
-    """A helper class to manage where between expressions.
-    """
-
-    def __init__(self, column, low, high, equality="BETWEEN"):
-        self.column = column
-        self.low = low
-        self.high = high
-        self.equality = equality
-        self.value = None
-        self.value_type = "BETWEEN"
-        self.raw = False
-
-
-class SubSelectExpression:
-    """A helper class to manage subselect expressions.
-    """
-
-    def __init__(self, builder):
-        self.builder = builder
-
-
-class SubGroupExpression:
-    """A helper class to manage subgroup expressions.
-    """
-
-    def __init__(self, builder):
-        self.builder = builder
-
-
-class SelectExpression:
-    """A helper class to manage select expressions.
-    """
-
-    def __init__(self, column, raw=False):
-        self.column = column
-        self.raw = raw
+from ..connections.ConnectionFactory import ConnectionFactory
+from ..expressions.expressions import (
+    SubGroupExpression,
+    SubSelectExpression,
+    SelectExpression,
+    BetweenExpression,
+    QueryExpression,
+    UpdateQueryExpression,
+    JoinExpression,
+    HavingExpression,
+)
 
 
 class QueryBuilder:
@@ -110,14 +21,14 @@ class QueryBuilder:
     _action = "select"
 
     def __init__(
-            self,
-            grammar,
-            connection=None,
-            table="",
-            connection_details={},
-            scopes={},
-            global_scopes={},
-            owner=None,
+        self,
+        grammar=None,
+        connection=None,
+        table="",
+        connection_details={},
+        scopes={},
+        global_scopes={},
+        owner=None,
     ):
         """QueryBuilder initializer
 
@@ -129,7 +40,7 @@ class QueryBuilder:
             table {str} -- the name of the table (default: {""})
         """
         self.grammar = grammar
-        self.table = table
+        self._table = table
         self.owner = owner
         self.connection = connection
         self.connection_details = connection_details
@@ -139,6 +50,38 @@ class QueryBuilder:
             self._scopes.update(scopes)
         self.boot()
         self.set_action("select")
+
+        # Get the connection and grammar class.
+        if not self.grammar:
+            from ..grammar.GrammarFactory import GrammarFactory
+            from ..connections.ConnectionFactory import ConnectionFactory
+
+            connection_dictionary = self.connection_details.get(
+                self.connection_details.get("default")
+            )
+            grammar = connection_dictionary.get(
+                "grammar", None
+            ) or connection_dictionary.get("driver")
+            driver = connection_dictionary.get("driver")
+            self.connection = ConnectionFactory().make(driver)
+            self.grammar = GrammarFactory().make(grammar)
+
+        if not self.owner:
+            from ..models import QueryResult
+
+            self.owner = QueryResult
+
+    def table(self, table):
+        """Sets a table on the query builder
+
+        Arguments:
+            table {string} -- The name of the table
+
+        Returns:
+            self
+        """
+        self._table = table
+        return self
 
     def set_scope(self, cls, name):
         """Sets a scope based on a class and maps it to a name.
@@ -452,12 +395,12 @@ class QueryBuilder:
         return self
 
     def join(
-            self,
-            foreign_table: str,
-            column1: str,
-            equality: ["=", "<", "<=", ">", ">="],
-            column2: str,
-            clause="inner",
+        self,
+        foreign_table: str,
+        column1: str,
+        equality: ["=", "<", "<=", ">", ">="],
+        column2: str,
+        clause="inner",
     ):
         """Specifies a join expression.
 
@@ -672,7 +615,7 @@ class QueryBuilder:
         """
         self._aggregates += ((aggregate, column),)
 
-    def first(self, query=True):
+    def first(self, query=False):
         """Gets the first record.
 
         Returns:
@@ -681,7 +624,8 @@ class QueryBuilder:
         self.set_action("select")
         if query:
             return self.limit(1)
-        return (
+
+        return self.owner.hydrate(
             self.connection()
             .make_connection()
             .query(self.limit(1).to_qmark(), self._bindings, results=1)
@@ -693,7 +637,7 @@ class QueryBuilder:
         Returns:
             dictionary -- Returns a dictionary of results.
         """
-        return (
+        return self.owner.hydrate(
             self.connection().make_connection().query(self.to_qmark(), self._bindings)
         )
 
@@ -738,9 +682,10 @@ class QueryBuilder:
 
         # Either _creates when creating, otherwise use columns
         columns = self._creates or self._columns
+
         return self.grammar(
             columns=columns,
-            table=self.table,
+            table=self._table,
             wheres=self._wheres,
             limit=self._limit,
             offset=self._offset,
@@ -814,7 +759,7 @@ class QueryBuilder:
             QueryBuilder -- The ORM QueryBuilder class.
         """
         builder = QueryBuilder(
-            grammar=self.grammar, connection=self.connection, table=self.table
+            grammar=self.grammar, connection=self.connection, table=self._table
         )
 
         return builder

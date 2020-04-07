@@ -97,7 +97,7 @@ class Collection:
         """
         items = []
         for i in range(0, self.count(), size):
-            items.append(self[i: i + size])
+            items.append(self[i : i + size])
         return self.__class__(items)
 
     def collapse(self):
@@ -433,15 +433,3 @@ class Collection:
         if isinstance(other, Collection):
             other = other.all()
         return self._items > other
-
-    def __str__(self):
-        return str(self._items)
-
-    def __repr__(self):
-        _repr = []
-        for x in self:
-            if isinstance(x, Collection):
-                _repr.append(str(x))
-            else:
-                _repr.append(x)
-        return str(_repr)

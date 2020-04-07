@@ -5,7 +5,7 @@ import unittest
 import inspect
 
 
-class BaseTestCaseUpdateGrammer:
+class BaseTestCaseUpdateGrammar:
     def setUp(self):
         self.builder = QueryBuilder(GrammarFactory.make(self.grammar), table="users")
 
@@ -59,7 +59,7 @@ class BaseTestCaseUpdateGrammer:
         self.assertEqual(to_sql, sql)
 
 
-class TestMySQLUpdateGrammar(BaseTestCaseUpdateGrammer, unittest.TestCase):
+class TestMySQLUpdateGrammar(BaseTestCaseUpdateGrammar, unittest.TestCase):
 
     grammar = "mysql"
 

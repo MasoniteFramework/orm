@@ -1,5 +1,5 @@
-from src.masonite.orm.connections.ConnectionFactory import ConnectionFactory
-from src.masonite.orm.blueprint import Blueprint
+from ..connections.ConnectionFactory import ConnectionFactory
+from ..blueprint import Blueprint
 
 
 class Schema:

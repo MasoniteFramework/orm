@@ -10,16 +10,11 @@ from tests.utils import MockConnectionFactory
 class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("default")
-        return QueryBuilder(
-            self.grammar,
-            connection,
-            table=table,
-            owner=Model
-        )
+        return QueryBuilder(self.grammar, connection, table=table, owner=Model)
 
     def test_sum(self):
         builder = self.get_builder()
-        builder.sum('age')
+        builder.sum("age")
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -28,7 +23,7 @@ class BaseTestQueryBuilder:
 
     def test_max(self):
         builder = self.get_builder()
-        builder.max('age')
+        builder.max("age")
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -37,7 +32,7 @@ class BaseTestQueryBuilder:
 
     def test_min(self):
         builder = self.get_builder()
-        builder.min('age')
+        builder.min("age")
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -46,7 +41,7 @@ class BaseTestQueryBuilder:
 
     def test_avg(self):
         builder = self.get_builder()
-        builder.avg('age')
+        builder.avg("age")
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -77,7 +72,7 @@ class BaseTestQueryBuilder:
 
     def test_select(self):
         builder = self.get_builder()
-        builder.select('name', 'email')
+        builder.select("name", "email")
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -85,7 +80,7 @@ class BaseTestQueryBuilder:
 
     def test_select_raw(self):
         builder = self.get_builder()
-        builder.select_raw('count(email) as email_count')
+        builder.select_raw("count(email) as email_count")
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -93,7 +88,7 @@ class BaseTestQueryBuilder:
 
     def test_create(self):
         builder = self.get_builder()
-        builder.create({"name": "Corentin All", 'email': 'corentin@yopmail.com'})
+        builder.create({"name": "Corentin All", "email": "corentin@yopmail.com"})
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -109,7 +104,7 @@ class BaseTestQueryBuilder:
 
     def test_where(self):
         builder = self.get_builder()
-        builder.where('name', 'Joe')
+        builder.where("name", "Joe")
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -117,7 +112,7 @@ class BaseTestQueryBuilder:
 
     def test_where_exists(self):
         builder = self.get_builder()
-        builder.where_exists('name')
+        builder.where_exists("name")
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -164,7 +159,9 @@ class BaseTestQueryBuilder:
         self.assertEqual(builder.to_sql(), sql)
 
     def test_update(self):
-        builder = self.get_builder().update({"name": "Joe", "email": "joe@yopmail.com"}, dry=True)
+        builder = self.get_builder().update(
+            {"name": "Joe", "email": "joe@yopmail.com"}, dry=True
+        )
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -172,7 +169,7 @@ class BaseTestQueryBuilder:
 
     def test_increment(self):
         builder = self.get_builder()
-        builder.increment('age', 1)
+        builder.increment("age", 1)
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -180,7 +177,7 @@ class BaseTestQueryBuilder:
 
     def test_decrement(self):
         builder = self.get_builder()
-        builder.decrement('age', 1)
+        builder.decrement("age", 1)
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -188,7 +185,7 @@ class BaseTestQueryBuilder:
 
     def test_count(self):
         builder = self.get_builder()
-        builder.count('id')
+        builder.count("id")
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -196,7 +193,7 @@ class BaseTestQueryBuilder:
 
     def test_order_by_asc(self):
         builder = self.get_builder()
-        builder.order_by('email', 'asc')
+        builder.order_by("email", "asc")
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -204,7 +201,7 @@ class BaseTestQueryBuilder:
 
     def test_order_by_desc(self):
         builder = self.get_builder()
-        builder.order_by('email', 'desc')
+        builder.order_by("email", "desc")
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -212,7 +209,7 @@ class BaseTestQueryBuilder:
 
     def test_where_column(self):
         builder = self.get_builder()
-        builder.where_column('name', 'username')
+        builder.where_column("name", "username")
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -220,7 +217,7 @@ class BaseTestQueryBuilder:
 
     def test_where_not_in(self):
         builder = self.get_builder()
-        builder.where_not_in('id', [1, 2, 3])
+        builder.where_not_in("id", [1, 2, 3])
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -228,7 +225,7 @@ class BaseTestQueryBuilder:
 
     def test_between(self):
         builder = self.get_builder()
-        builder.between('id', 2, 5)
+        builder.between("id", 2, 5)
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -236,7 +233,7 @@ class BaseTestQueryBuilder:
 
     def test_not_between(self):
         builder = self.get_builder()
-        builder.not_between('id', 2, 5)
+        builder.not_between("id", 2, 5)
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -244,7 +241,7 @@ class BaseTestQueryBuilder:
 
     def test_where_in(self):
         builder = self.get_builder()
-        builder.where_in('id', [1, 2, 3])
+        builder.where_in("id", [1, 2, 3])
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -253,7 +250,7 @@ class BaseTestQueryBuilder:
 
     def test_where_null(self):
         builder = self.get_builder()
-        builder.where_null('name')
+        builder.where_null("name")
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -262,7 +259,7 @@ class BaseTestQueryBuilder:
 
     def test_where_not_null(self):
         builder = self.get_builder()
-        builder.where_not_null('name')
+        builder.where_not_null("name")
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -270,8 +267,10 @@ class BaseTestQueryBuilder:
         self.assertEqual(builder.to_sql(), sql)
 
     def test_having(self):
-        builder = self.get_builder(table='payments')
-        builder.select('user_id').avg('salary').group_by('user_id').having('salary', '>=', '1000')
+        builder = self.get_builder(table="payments")
+        builder.select("user_id").avg("salary").group_by("user_id").having(
+            "salary", ">=", "1000"
+        )
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -279,13 +278,33 @@ class BaseTestQueryBuilder:
         self.assertEqual(builder.to_sql(), sql)
 
     def test_group_by(self):
-        builder = self.get_builder(table='payments')
-        builder.select('user_id').min('salary').group_by('user_id')
+        builder = self.get_builder(table="payments")
+        builder.select("user_id").min("salary").group_by("user_id")
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
         self.assertEqual(builder.to_sql(), sql)
+
+    def test_builder_alone(self):
+        self.assertTrue(
+            QueryBuilder(
+                connection_details={
+                    "default": "mysql",
+                    "mysql": {
+                        "driver": "mysql",
+                        "host": "localhost",
+                        "username": "root",
+                        "password": "",
+                        "database": "orm",
+                        "port": "3306",
+                        "prefix": "",
+                        "grammar": "mysql",
+                        "options": {"charset": "utf8mb4",},
+                    },
+                }
+            ).table("users")
+        )
 
 
 class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
@@ -296,7 +315,7 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
             builder = self.get_builder()
             builder.sum('age')
         """
-        return 'SELECT SUM(`age`) AS age FROM `users`'
+        return "SELECT SUM(`age`) AS age FROM `users`"
 
     def max(self):
         """
@@ -352,7 +371,7 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
             builder = self.get_builder()
             builder.select_raw('count(email) as email_count')
         """
-        return 'SELECT count(email) as email_count FROM `users`'
+        return "SELECT count(email) as email_count FROM `users`"
 
     def create(self):
         """
@@ -436,37 +455,37 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
             builder.count(id)
         """
-        return 'SELECT COUNT(`id`) AS id FROM `users`'
+        return "SELECT COUNT(`id`) AS id FROM `users`"
 
     def order_by_asc(self):
         """
             builder.order_by('email', 'asc')
         """
-        return 'SELECT * FROM `users` ORDER BY `email` ASC'
+        return "SELECT * FROM `users` ORDER BY `email` ASC"
 
     def order_by_desc(self):
         """
             builder.order_by('email', 'des')
         """
-        return 'SELECT * FROM `users` ORDER BY `email` DESC'
+        return "SELECT * FROM `users` ORDER BY `email` DESC"
 
     def where_column(self):
         """
             builder.where_column('name', 'username')
         """
-        return 'SELECT * FROM `users` WHERE `name` = `username`'
+        return "SELECT * FROM `users` WHERE `name` = `username`"
 
     def where_null(self):
         """
             builder.where_null('name')
         """
-        return 'SELECT * FROM `users` WHERE `name` IS NULL'
+        return "SELECT * FROM `users` WHERE `name` IS NULL"
 
     def where_not_null(self):
         """
             builder.where_null('name')
         """
-        return 'SELECT * FROM `users` WHERE `name` IS NOT NULL'
+        return "SELECT * FROM `users` WHERE `name` IS NOT NULL"
 
     def where_not_in(self):
         """
