@@ -1,6 +1,6 @@
 import re
 
-from ..builder.QueryBuilder import (
+from ..expressions.expressions import (
     SubGroupExpression,
     SubSelectExpression,
     SelectExpression,

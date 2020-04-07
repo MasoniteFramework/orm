@@ -286,6 +286,26 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_builder_alone(self):
+        self.assertTrue(
+            QueryBuilder(
+                connection_details={
+                    "default": "mysql",
+                    "mysql": {
+                        "driver": "mysql",
+                        "host": "localhost",
+                        "username": "root",
+                        "password": "",
+                        "database": "orm",
+                        "port": "3306",
+                        "prefix": "",
+                        "grammar": "mysql",
+                        "options": {"charset": "utf8mb4",},
+                    },
+                }
+            ).table("users")
+        )
+
 
 class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
     grammar = MySQLGrammar
