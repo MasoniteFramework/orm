@@ -1,7 +1,6 @@
 import inspect
 
 from ..collection.Collection import Collection
-from ..connections.ConnectionFactory import ConnectionFactory
 from ..expressions.expressions import (
     SubGroupExpression,
     SubSelectExpression,
@@ -208,27 +207,30 @@ class QueryBuilder:
         self.set_action("delete")
         return self
 
-    def where(self, column, value=None):
+    def where(self, column, *args):
         """Specifies a where expression.
 
         Arguments:
             column {string} -- The name of the column to search
 
         Keyword Arguments:
-            value {string|None} -- The value of the column to search. (default: {None})
+            args {List} -- The operator and the value of the column to search. (default: {None})
 
         Returns:
             self
         """
+
+        operator, value = self._extract_operator_value(*args)
+
         if inspect.isfunction(column):
             builder = column(self.new())
-            self._wheres += ((QueryExpression(None, "=", SubGroupExpression(builder))),)
+            self._wheres += ((QueryExpression(None, operator, SubGroupExpression(builder))),)
         elif isinstance(value, QueryBuilder):
             self._wheres += (
-                (QueryExpression(column, "=", SubSelectExpression(value))),
+                (QueryExpression(column, operator, SubSelectExpression(value))),
             )
         else:
-            self._wheres += ((QueryExpression(column, "=", value, "value")),)
+            self._wheres += ((QueryExpression(column, operator, value, "value")),)
         return self
 
     def where_raw(self, query: str, bindings=()):
@@ -246,7 +248,7 @@ class QueryBuilder:
         self._wheres += ((QueryExpression(query, "=", None, "value", raw=True)),)
         return self
 
-    def or_where(self, column: [str, int], value: [str, int, callable]) -> "self":
+    def or_where(self, column: [str, int], *args) -> "self":
         """Specifies an or where query expression.
 
         Arguments:
@@ -256,13 +258,14 @@ class QueryBuilder:
         Returns:
             [type] -- [description]
         """
+        operator, value = self._extract_operator_value(*args)
         if isinstance(value, QueryBuilder):
             self._wheres += (
-                (QueryExpression(column, "=", SubSelectExpression(value))),
+                (QueryExpression(column, operator, SubSelectExpression(value))),
             )
         else:
             self._wheres += (
-                (QueryExpression(column, "=", value, "value", keyword="or")),
+                (QueryExpression(column, operator, value, "value", keyword="or")),
             )
         return self
 
@@ -787,6 +790,25 @@ class QueryBuilder:
         """
         self.aggregate("MIN", "{column}".format(column=column))
         return self
+
+    def _extract_operator_value(self, *args):
+
+        operators = ["=", ">", ">=", "<", "<=", "!=", "<>"]
+
+        operator = operators[0]
+
+        value = None
+
+        if (len(args)) >= 2:
+            operator = args[0]
+            value = args[1]
+        elif len(args) == 1:
+            value = args[0]
+
+        if operator not in operators:
+            raise ValueError('Invalid comparison operator. The operator can be %s' % ", ".join(operators))
+
+        return operator, value
 
     def __call__(self):
         """Magic method to standardize what happens when the query builder object is called.

@@ -306,6 +306,54 @@ class BaseTestQueryBuilder:
             ).table("users")
         )
 
+    def test_where_lt(self):
+        builder = self.get_builder()
+        builder.where('age', '<', '20')
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_where_lte(self):
+        builder = self.get_builder()
+        builder.where('age', '<=', '20')
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_where_gt(self):
+        builder = self.get_builder()
+        builder.where('age', '>', '20')
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_where_gte(self):
+        builder = self.get_builder()
+        builder.where('age', '>=', '20')
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_where_ne(self):
+        builder = self.get_builder()
+        builder.where('age', '!=', '20')
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_or_where(self):
+        builder = self.get_builder()
+        builder.where('age', '20').or_where('age', '<', 20)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
 
 class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
     grammar = MySQLGrammar
@@ -522,3 +570,45 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
              builder.select('user_id').min('salary').group_by('user_id')
         """
         return "SELECT `user_id`, MIN(`salary`) AS salary FROM `payments` GROUP BY `user_id`"
+
+    def where_lt(self):
+        """
+            builder = self.get_builder()
+            builder.where('age', '<', '20')
+        """
+        return "SELECT * FROM `users` WHERE `age` < '20'"
+
+    def where_lte(self):
+        """
+            builder = self.get_builder()
+            builder.where('age', '<=', '20')
+        """
+        return "SELECT * FROM `users` WHERE `age` <= '20'"
+
+    def where_gt(self):
+        """
+            builder = self.get_builder()
+            builder.where('age', '>', '20')
+        """
+        return "SELECT * FROM `users` WHERE `age` > '20'"
+
+    def where_gte(self):
+        """
+            builder = self.get_builder()
+            builder.where('age', '>=', '20')
+        """
+        return "SELECT * FROM `users` WHERE `age` >= '20'"
+
+    def where_ne(self):
+        """
+            builder = self.get_builder()
+            builder.where('age', '!=', '20')
+        """
+        return "SELECT * FROM `users` WHERE `age` != '20'"
+
+    def or_where(self):
+        """
+            builder = self.get_builder()
+            builder.where('age', '20').or_where('age','<', 20)
+        """
+        return "SELECT * FROM `users` WHERE `age` = '20' OR `age` < '20'"
