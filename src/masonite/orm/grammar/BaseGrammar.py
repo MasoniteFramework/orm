@@ -558,7 +558,7 @@ class BaseGrammar:
             elif where.keyword == "or":
                 keyword = self.or_where_string()
             else:
-                keyword = self.additional_where_string()
+                keyword = " " + self.additional_where_string()
 
             if where.raw:
                 """If we have a raw query we just want to use the query supplied
@@ -637,6 +637,7 @@ class BaseGrammar:
                 query_value = self._table_column_string(column=value, separator="")
             else:
                 query_value = ""
+
             sql += sql_string.format(
                 keyword=keyword, column=column, equality=equality, value=query_value,
             )

@@ -82,6 +82,28 @@ class QueryBuilder:
         self._table = table
         return self
 
+    def get_table_name(self):
+        """Sets a table on the query builder
+
+        Arguments:
+            table {string} -- The name of the table
+
+        Returns:
+            self
+        """
+        return self._table
+
+    def get_relation(self, key):
+        """Sets a table on the query builder
+
+        Arguments:
+            table {string} -- The name of the table
+
+        Returns:
+            self
+        """
+        return getattr(self.owner, key)
+
     def set_scope(self, cls, name):
         """Sets a scope based on a class and maps it to a name.
 
