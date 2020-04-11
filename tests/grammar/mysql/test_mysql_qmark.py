@@ -51,13 +51,16 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         """
         self.builder.select('username').where('name', 'Joe')
         """
-        return "SELECT `username` FROM `users` WHERE `name` = '?'", ("Joe",)
+        return (
+            "SELECT `users`.`username` FROM `users` WHERE `users`.`name` = '?'",
+            ("Joe",),
+        )
 
     def can_compile_delete(self):
         """
         self.builder.where('name', 'Joe').delete()
         """
-        return "DELETE FROM `users` WHERE `name` = '?'", ("Joe",)
+        return "DELETE FROM `users` WHERE `users`.`name` = '?'", ("Joe",)
 
     def can_compile_update(self):
         """
@@ -65,10 +68,16 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
             'name': 'Bob'
         }).where('name', 'Joe')
         """
-        return "UPDATE `users` SET `name` = '?' WHERE `name` = '?'", ("Bob", "Joe",)
+        return (
+            "UPDATE `users` SET `users`.`name` = '?' WHERE `users`.`name` = '?'",
+            ("Bob", "Joe",),
+        )
 
     def can_compile_where_in(self):
         """
         self.builder.where_in('id', [1,2,3]).to_qmark()
         """
-        return "SELECT * FROM `users` WHERE `id` IN ('?', '?', '?')", ("1", "2", "3")
+        return (
+            "SELECT * FROM `users` WHERE `users`.`id` IN ('?', '?', '?')",
+            ("1", "2", "3"),
+        )

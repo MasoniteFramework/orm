@@ -11,7 +11,7 @@ class TestMySQLDeleteGrammar(unittest.TestCase):
     def test_can_compile_delete(self):
         to_sql = self.builder.delete("id", 1).to_sql()
 
-        sql = "DELETE FROM [users] WHERE [id] = '1'"
+        sql = "DELETE FROM [users] WHERE [users].[id] = '1'"
         self.assertEqual(to_sql, sql)
 
     def test_can_compile_delete_with_where(self):
@@ -23,5 +23,7 @@ class TestMySQLDeleteGrammar(unittest.TestCase):
             .to_sql()
         )
 
-        sql = "DELETE FROM [users] WHERE [age] = '20' AND [profile] = '1'"
+        sql = (
+            "DELETE FROM [users] WHERE [users].[age] = '20' AND [users].[profile] = '1'"
+        )
         self.assertEqual(to_sql, sql)

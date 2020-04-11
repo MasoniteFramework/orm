@@ -224,7 +224,9 @@ class QueryBuilder:
 
         if inspect.isfunction(column):
             builder = column(self.new())
-            self._wheres += ((QueryExpression(None, operator, SubGroupExpression(builder))),)
+            self._wheres += (
+                (QueryExpression(None, operator, SubGroupExpression(builder))),
+            )
         elif isinstance(value, QueryBuilder):
             self._wheres += (
                 (QueryExpression(column, operator, SubSelectExpression(value))),
@@ -806,7 +808,10 @@ class QueryBuilder:
             value = args[0]
 
         if operator not in operators:
-            raise ValueError('Invalid comparison operator. The operator can be %s' % ", ".join(operators))
+            raise ValueError(
+                "Invalid comparison operator. The operator can be %s"
+                % ", ".join(operators)
+            )
 
         return operator, value
 

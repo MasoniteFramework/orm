@@ -29,4 +29,4 @@ class TestMySQLUpdateGrammar(BaseInsertGrammarTest, unittest.TestCase):
             'name': 'Joe'
         }).to_sql()
         """
-        return "INSERT INTO `users` (`name`) VALUES ('Joe')"
+        return "INSERT INTO `users` (`users`.`name`) VALUES ('Joe')"

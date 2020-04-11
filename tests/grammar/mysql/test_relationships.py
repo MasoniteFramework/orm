@@ -31,7 +31,7 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
         def test_relationship_can_be_callable(self):
             self.assertEqual(
                 User.profile().where("name", "Joe").to_sql(),
-                "SELECT * FROM `profiles` WHERE `name` = 'Joe'",
+                "SELECT * FROM `profiles` WHERE `profiles`.`name` = 'Joe'",
             )
 
         def test_can_access_relationship(self):
@@ -67,3 +67,13 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
                 user.name = "Joe"
                 user.is_admin = 1
                 user.save()
+
+        def test_relationship_has(self):
+            to_sql = User.has("articles").to_sql()
+            print(to_sql)
+            self.assertEqual(
+                to_sql,
+                "SELECT * FROM `users` WHERE EXISTS ("
+                "SELECT * FROM `articles` WHERE `articles`.`user_id` = `users`.`id`"
+                ")",
+            )

@@ -31,7 +31,9 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
         def test_can_use_fillable(self):
             sql = ProfileFillable.create({"name": "Joe", "email": "user@example.com"})
 
-            self.assertEqual(sql, "INSERT INTO `profiles` (`name`) VALUES ('Joe')")
+            self.assertEqual(
+                sql, "INSERT INTO `profiles` (`profiles`.`name`) VALUES ('Joe')"
+            )
 
         def test_can_use_fillable_asterisk(self):
             sql = ProfileFillAsterisk.create(
@@ -40,7 +42,7 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
 
             self.assertEqual(
                 sql,
-                "INSERT INTO `profiles` (`name`, `email`) VALUES ('Joe', 'user@example.com')",
+                "INSERT INTO `profiles` (`profiles`.`name`, `profiles`.`email`) VALUES ('Joe', 'user@example.com')",
             )
 
         def test_can_touch(self):
@@ -49,7 +51,8 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             sql = profile.touch("now", query=True)
 
             self.assertEqual(
-                sql, "UPDATE `profiles` SET `updated_at` = 'now' WHERE `id` = '1'"
+                sql,
+                "UPDATE `profiles` SET `profiles`.`updated_at` = 'now' WHERE `profiles`.`id` = '1'",
             )
 
         def test_table_name(self):

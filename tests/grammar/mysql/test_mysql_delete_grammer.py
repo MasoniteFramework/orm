@@ -51,7 +51,7 @@ class TestMySQLDeleteGrammar(BaseDeleteGrammarTest, unittest.TestCase):
             .to_sql()
         )
         """
-        return "DELETE FROM `users` WHERE `id` = '1'"
+        return "DELETE FROM `users` WHERE `users`.`id` = '1'"
 
     def can_compile_delete_in(self):
         """
@@ -61,7 +61,7 @@ class TestMySQLDeleteGrammar(BaseDeleteGrammarTest, unittest.TestCase):
             .to_sql()
         )
         """
-        return "DELETE FROM `users` WHERE `id` IN ('1','2','3')"
+        return "DELETE FROM `users` WHERE `users`.`id` IN ('1','2','3')"
 
     def can_compile_delete_with_where(self):
         """
@@ -74,4 +74,6 @@ class TestMySQLDeleteGrammar(BaseDeleteGrammarTest, unittest.TestCase):
             .to_sql()
         )
         """
-        return "DELETE FROM `users` WHERE `age` = '20' AND `profile` = '1'"
+        return (
+            "DELETE FROM `users` WHERE `users`.`age` = '20' AND `users`.`profile` = '1'"
+        )

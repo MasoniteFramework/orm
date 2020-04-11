@@ -185,11 +185,14 @@ class MySQLGrammar(BaseGrammar):
     def column_string(self):
         return "`{column}`{separator}"
 
+    def table_column_string(self):
+        return "`{table}`.`{column}`{separator}"
+
     def value_string(self):
         return "'{value}'{separator}"
 
     def join_string(self):
-        return "{keyword} {foreign_table} ON {local_table}.{column1} {equality} {foreign_table}.{column2}"
+        return "{keyword} {foreign_table} ON {column1} {equality} {column2}"
 
     def limit_string(self, offset=False):
         return "LIMIT {limit}"

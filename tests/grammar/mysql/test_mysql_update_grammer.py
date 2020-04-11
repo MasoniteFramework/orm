@@ -69,13 +69,13 @@ class TestMySQLUpdateGrammar(BaseTestCaseUpdateGrammar, unittest.TestCase):
             'name': 'Joe'
         }).to_sql()
         """
-        return "UPDATE `users` SET `name` = 'Joe' WHERE `name` = 'bob'"
+        return "UPDATE `users` SET `users`.`name` = 'Joe' WHERE `users`.`name` = 'bob'"
 
     def can_compile_multiple_update(self):
         """
         self.builder.update({"name": "Joe", "email": "user@email.com"}, dry=True).to_sql()
         """
-        return "UPDATE `users` SET `name` = 'Joe', `email` = 'user@email.com'"
+        return "UPDATE `users` SET `users`.`name` = 'Joe', `users`.`email` = 'user@email.com'"
 
     def can_compile_update_with_multiple_where(self):
         """
@@ -83,16 +83,16 @@ class TestMySQLUpdateGrammar(BaseTestCaseUpdateGrammar, unittest.TestCase):
             'name': 'Joe'
         }).to_sql()
         """
-        return "UPDATE `users` SET `name` = 'Joe' WHERE `name` = 'bob' AND `age` = '20'"
+        return "UPDATE `users` SET `users`.`name` = 'Joe' WHERE `users`.`name` = 'bob' AND `users`.`age` = '20'"
 
     def can_compile_increment(self):
         """
         builder.increment('age').to_sql()
         """
-        return "UPDATE `users` SET `age` = `age` + '1'"
+        return "UPDATE `users` SET `users`.`age` = `users`.`age` + '1'"
 
     def can_compile_decrement(self):
         """
         builder.decrement('age', 20).to_sql()
         """
-        return "UPDATE `users` SET `age` = `age` - '20'"
+        return "UPDATE `users` SET `users`.`age` = `users`.`age` - '20'"

@@ -12,5 +12,5 @@ class TestMySQLInsertGrammar(unittest.TestCase):
 
         to_sql = self.builder.create({"name": "Joe"}).to_sql()
 
-        sql = "INSERT INTO [users] ([name]) VALUES ('Joe')"
+        sql = "INSERT INTO [users] ([users].[name]) VALUES ('Joe')"
         self.assertEqual(to_sql, sql)

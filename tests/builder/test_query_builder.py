@@ -47,13 +47,13 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
-    def test_all(self):
-        builder = self.get_builder()
-        builder.all()
-        sql = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
-        self.assertEqual(builder.to_sql(), sql)
+    # def test_all(self):
+    #     builder = self.get_builder()
+    #     builder.all()
+    #     sql = getattr(
+    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
+    #     )()
+    #     self.assertEqual(builder.to_sql(), sql)
 
     def test_get(self):
         builder = self.get_builder()
@@ -308,7 +308,7 @@ class BaseTestQueryBuilder:
 
     def test_where_lt(self):
         builder = self.get_builder()
-        builder.where('age', '<', '20')
+        builder.where("age", "<", "20")
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -316,7 +316,7 @@ class BaseTestQueryBuilder:
 
     def test_where_lte(self):
         builder = self.get_builder()
-        builder.where('age', '<=', '20')
+        builder.where("age", "<=", "20")
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -324,7 +324,7 @@ class BaseTestQueryBuilder:
 
     def test_where_gt(self):
         builder = self.get_builder()
-        builder.where('age', '>', '20')
+        builder.where("age", ">", "20")
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -332,7 +332,7 @@ class BaseTestQueryBuilder:
 
     def test_where_gte(self):
         builder = self.get_builder()
-        builder.where('age', '>=', '20')
+        builder.where("age", ">=", "20")
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -340,7 +340,7 @@ class BaseTestQueryBuilder:
 
     def test_where_ne(self):
         builder = self.get_builder()
-        builder.where('age', '!=', '20')
+        builder.where("age", "!=", "20")
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -348,7 +348,7 @@ class BaseTestQueryBuilder:
 
     def test_or_where(self):
         builder = self.get_builder()
-        builder.where('age', '20').or_where('age', '<', 20)
+        builder.where("age", "20").or_where("age", "<", 20)
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -363,28 +363,28 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
             builder = self.get_builder()
             builder.sum('age')
         """
-        return "SELECT SUM(`age`) AS age FROM `users`"
+        return "SELECT SUM(`users`.`age`) AS age FROM `users`"
 
     def max(self):
         """
             builder = self.get_builder()
             builder.max('age')
         """
-        return "SELECT MAX(`age`) AS age FROM `users`"
+        return "SELECT MAX(`users`.`age`) AS age FROM `users`"
 
     def min(self):
         """
             builder = self.get_builder()
             builder.min('age')
         """
-        return "SELECT MIN(`age`) AS age FROM `users`"
+        return "SELECT MIN(`users`.`age`) AS age FROM `users`"
 
     def avg(self):
         """
             builder = self.get_builder()
             builder.avg('age')
         """
-        return "SELECT AVG(`age`) AS age FROM `users`"
+        return "SELECT AVG(`users`.`age`) AS age FROM `users`"
 
     def first(self):
         """
@@ -412,7 +412,7 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
             builder = self.get_builder()
             builder.select('name', 'email')
         """
-        return "SELECT `name`, `email` FROM `users`"
+        return "SELECT `users`.`name`, `users`.`email` FROM `users`"
 
     def select_raw(self):
         """
@@ -426,21 +426,21 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
             builder = get_builder()
             builder.create({"name": "Corentin All", 'email': 'corentin@yopmail.com'})
         """
-        return "INSERT INTO `users` (`name`, `email`) VALUES ('Corentin All', 'corentin@yopmail.com')"
+        return "INSERT INTO `users` (`users`.`name`, `users`.`email`) VALUES ('Corentin All', 'corentin@yopmail.com')"
 
     def delete(self):
         """
             builder = get_builder()
             builder.delete("name', 'Joe')
         """
-        return "DELETE FROM `users` WHERE `name` = 'Joe'"
+        return "DELETE FROM `users` WHERE `users`.`name` = 'Joe'"
 
     def where(self):
         """
             builder = get_builder()
             builder.where('name', 'Joe')
         """
-        return "SELECT * FROM `users` WHERE `name` = 'Joe'"
+        return "SELECT * FROM `users` WHERE `users`.`name` = 'Joe'"
 
     def where_exists(self):
         """
@@ -485,130 +485,132 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
             builder.update({"name": "Joe", "email": "joe@yopmail.com"})
         """
-        return "UPDATE `users` SET `name` = 'Joe', `email` = 'joe@yopmail.com'"
+        return "UPDATE `users` SET `users`.`name` = 'Joe', `users`.`email` = 'joe@yopmail.com'"
 
     def increment(self):
         """
             builder.increment('age', 1)
         """
-        return "UPDATE `users` SET `age` = `age` + '1'"
+        return "UPDATE `users` SET `users`.`age` = `users`.`age` + '1'"
 
     def decrement(self):
         """
             builder.decrement('age', 1)
         """
-        return "UPDATE `users` SET `age` = `age` - '1'"
+        return "UPDATE `users` SET `users`.`age` = `users`.`age` - '1'"
 
     def count(self):
         """
             builder.count(id)
         """
-        return "SELECT COUNT(`id`) AS id FROM `users`"
+        return "SELECT COUNT(`users`.`id`) AS id FROM `users`"
 
     def order_by_asc(self):
         """
             builder.order_by('email', 'asc')
         """
-        return "SELECT * FROM `users` ORDER BY `email` ASC"
+        return "SELECT * FROM `users` ORDER BY `users`.`email` ASC"
 
     def order_by_desc(self):
         """
             builder.order_by('email', 'des')
         """
-        return "SELECT * FROM `users` ORDER BY `email` DESC"
+        return "SELECT * FROM `users` ORDER BY `users`.`email` DESC"
 
     def where_column(self):
         """
             builder.where_column('name', 'username')
         """
-        return "SELECT * FROM `users` WHERE `name` = `username`"
+        return "SELECT * FROM `users` WHERE `users`.`name` = `users`.`username`"
 
     def where_null(self):
         """
             builder.where_null('name')
         """
-        return "SELECT * FROM `users` WHERE `name` IS NULL"
+        return "SELECT * FROM `users` WHERE `users`.`name` IS NULL"
 
     def where_not_null(self):
         """
             builder.where_null('name')
         """
-        return "SELECT * FROM `users` WHERE `name` IS NOT NULL"
+        return "SELECT * FROM `users` WHERE `users`.`name` IS NOT NULL"
 
     def where_not_in(self):
         """
             builder.where_not_in('id', [1, 2, 3])
         """
-        return "SELECT * FROM `users` WHERE `id` NOT IN ('1','2','3')"
+        return "SELECT * FROM `users` WHERE `users`.`id` NOT IN ('1','2','3')"
 
     def where_in(self):
         """
             builder.where_in('id', [1, 2, 3])
         """
-        return "SELECT * FROM `users` WHERE `id` IN ('1','2','3')"
+        return "SELECT * FROM `users` WHERE `users`.`id` IN ('1','2','3')"
 
     def between(self):
         """
             builder.between('id', 2, 5)
         """
-        return "SELECT * FROM `users` WHERE `id` BETWEEN '2' AND '5'"
+        return "SELECT * FROM `users` WHERE `users`.`id` BETWEEN '2' AND '5'"
 
     def not_between(self):
         """
             builder.not_between('id', 2, 5)
         """
-        return "SELECT * FROM `users` WHERE `id` NOT BETWEEN '2' AND '5'"
+        return "SELECT * FROM `users` WHERE `users`.`id` NOT BETWEEN '2' AND '5'"
 
     def having(self):
         """
             builder.select('user_id').avg('salary').group_by('user_id').having('salary', '>=', '1000')
         """
-        return "SELECT `user_id`, AVG(`salary`) AS salary FROM `payments` GROUP BY `user_id` HAVING `salary` >= '1000'"
+        return "SELECT `payments`.`user_id`, AVG(`payments`.`salary`) AS salary FROM `payments` GROUP BY `payments`.`user_id` HAVING `payments`.`salary` >= '1000'"
 
     def group_by(self):
         """
              builder.select('user_id').min('salary').group_by('user_id')
         """
-        return "SELECT `user_id`, MIN(`salary`) AS salary FROM `payments` GROUP BY `user_id`"
+        return "SELECT `payments`.`user_id`, MIN(`payments`.`salary`) AS salary FROM `payments` GROUP BY `payments`.`user_id`"
 
     def where_lt(self):
         """
             builder = self.get_builder()
             builder.where('age', '<', '20')
         """
-        return "SELECT * FROM `users` WHERE `age` < '20'"
+        return "SELECT * FROM `users` WHERE `users`.`age` < '20'"
 
     def where_lte(self):
         """
             builder = self.get_builder()
             builder.where('age', '<=', '20')
         """
-        return "SELECT * FROM `users` WHERE `age` <= '20'"
+        return "SELECT * FROM `users` WHERE `users`.`age` <= '20'"
 
     def where_gt(self):
         """
             builder = self.get_builder()
             builder.where('age', '>', '20')
         """
-        return "SELECT * FROM `users` WHERE `age` > '20'"
+        return "SELECT * FROM `users` WHERE `users`.`age` > '20'"
 
     def where_gte(self):
         """
             builder = self.get_builder()
             builder.where('age', '>=', '20')
         """
-        return "SELECT * FROM `users` WHERE `age` >= '20'"
+        return "SELECT * FROM `users` WHERE `users`.`age` >= '20'"
 
     def where_ne(self):
         """
             builder = self.get_builder()
             builder.where('age', '!=', '20')
         """
-        return "SELECT * FROM `users` WHERE `age` != '20'"
+        return "SELECT * FROM `users` WHERE `users`.`age` != '20'"
 
     def or_where(self):
         """
             builder = self.get_builder()
             builder.where('age', '20').or_where('age','<', 20)
         """
-        return "SELECT * FROM `users` WHERE `age` = '20' OR `age` < '20'"
+        return (
+            "SELECT * FROM `users` WHERE `users`.`age` = '20' OR `users`.`age` < '20'"
+        )

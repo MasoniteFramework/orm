@@ -131,6 +131,16 @@ class Model:
         return cls.builder.where(*args, **kwargs)
 
     @classmethod
+    def has(cls, *args, **kwargs):
+        cls.boot()
+        for arg in args:
+            print("looping through", arg)
+            print(getattr(cls, arg)())
+            return cls.builder.where_exists(
+                getattr(cls, arg)().where_column("articles.user_id", "users.id")
+            )
+
+    @classmethod
     def limit(cls, *args, **kwargs):
         cls.boot()
         return cls.builder.limit(*args, **kwargs)
@@ -145,9 +155,15 @@ class Model:
             for element in dictionary:
                 response.append(element)
             return cls.new_collection(response)
+        elif isinstance(dictionary, dict):
+            model = cls()
+            print(model, model.__attributes__, dictionary)
+            model.__attributes__.update(dictionary or {})
+            return model
         else:
             model = cls()
-            model.__attributes__.update(dictionary or {})
+            print("updating", dictionary)
+            model.__attributes__.update(dictionary.__attributes__)
             return model
 
     @classmethod

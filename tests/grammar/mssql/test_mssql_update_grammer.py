@@ -14,7 +14,7 @@ class TestMSSQLUpdateGrammar(unittest.TestCase):
             self.builder.where("name", "bob").update({"name": "Joe"}, dry=True).to_sql()
         )
 
-        sql = "UPDATE [users] SET [name] = 'Joe' WHERE [name] = 'bob'"
+        sql = "UPDATE [users] SET [users].[name] = 'Joe' WHERE [users].[name] = 'bob'"
         self.assertEqual(to_sql, sql)
 
     def test_can_compile_update_with_multiple_where(self):
@@ -25,5 +25,5 @@ class TestMSSQLUpdateGrammar(unittest.TestCase):
             .to_sql()
         )
 
-        sql = "UPDATE [users] SET [name] = 'Joe' WHERE [name] = 'bob' AND [age] = '20'"
+        sql = "UPDATE [users] SET [users].[name] = 'Joe' WHERE [users].[name] = 'bob' AND [users].[age] = '20'"
         self.assertEqual(to_sql, sql)
