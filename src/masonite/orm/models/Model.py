@@ -26,6 +26,7 @@ class Model:
     __resolved_connection__ = None
     _eager_load = ()
     _relationships = {}
+    _registered_relationships = {}
     _booted = False
     __primary_key__ = "id"
     __casts__ = {}
@@ -131,14 +132,31 @@ class Model:
         return cls.builder.where(*args, **kwargs)
 
     @classmethod
-    def has(cls, *args, **kwargs):
+    def has(cls, *has_relationships, **kwargs):
         cls.boot()
-        for arg in args:
-            print("looping through", arg)
-            print(getattr(cls, arg)())
-            return cls.builder.where_exists(
-                getattr(cls, arg)().where_column("articles.user_id", "users.id")
-            )
+        for has_relationship in has_relationships:
+            if "." in has_relationship:
+                # Get nested relationship
+                last_builder = cls.builder
+                for split_has_relationship in has_relationship.split("."):
+                    local_key = cls._registered_relationships[last_builder.owner][
+                        split_has_relationship
+                    ]["local"]
+                    foreign_key = cls._registered_relationships[last_builder.owner][
+                        split_has_relationship
+                    ]["foreign"]
+                    relationship = last_builder.get_relation(split_has_relationship)()
+
+                    last_builder.where_exists(
+                        relationship.where_column(
+                            f"{relationship.get_table_name()}.{foreign_key}",
+                            f"{last_builder.get_table_name()}.{local_key}",
+                        )
+                    )
+
+                    last_builder = relationship
+
+        return cls.builder
 
     @classmethod
     def limit(cls, *args, **kwargs):

@@ -12,6 +12,13 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
     class Articles(Model):
         __table__ = "articles"
 
+        @belongs_to("id", "article_id")
+        def logo(self):
+            return Logo
+
+    class Logo(Model):
+        __table__ = "logos"
+
     class User(Model):
 
         _eager_loads = ()
@@ -28,6 +35,8 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             return "You are an admin"
 
     class TestRelationships(unittest.TestCase):
+        maxDiff = None
+
         def test_relationship_can_be_callable(self):
             self.assertEqual(
                 User.profile().where("name", "Joe").to_sql(),
@@ -76,4 +85,22 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
                 "SELECT * FROM `users` WHERE EXISTS ("
                 "SELECT * FROM `articles` WHERE `articles`.`user_id` = `users`.`id`"
                 ")",
+            )
+
+        def test_relationship_multiple_has(self):
+            to_sql = User.has("articles", "profile").to_sql()
+            self.assertEqual(
+                to_sql,
+                "SELECT * FROM `users` WHERE EXISTS ("
+                "SELECT * FROM `articles` WHERE `articles`.`user_id` = `users`.`id`"
+                ") AND EXISTS ("
+                "SELECT * FROM `profiles` WHERE `profiles`.`user_id` = `users`.`id`"
+                ")",
+            )
+
+        def test_nested_has(self):
+            to_sql = User.has("articles.logo").to_sql()
+            self.assertEqual(
+                to_sql,
+                "SELECT * FROM `users` WHERE EXISTS (SELECT * FROM `articles` WHERE `articles`.`user_id` = `users`.`id` AND EXISTS (SELECT * FROM `logos` WHERE `logos`.`article_id` = `articles`.`id`))",
             )

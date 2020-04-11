@@ -18,6 +18,16 @@ class BaseRelationship:
         Arguments:
             name {object} -- The model class.
         """
+
+        # Register relationships to the model instance
+        if cls not in cls._registered_relationships:
+            cls._registered_relationships[cls] = {}
+
+        cls._registered_relationships[cls][self.fn.__name__] = {}
+        cls._registered_relationships[cls][self.fn.__name__][
+            "foreign"
+        ] = self.foreign_key
+        cls._registered_relationships[cls][self.fn.__name__]["local"] = self.local_key
         self.cls = cls
 
     def __call__(self, fn=None, *args, **kwargs):
