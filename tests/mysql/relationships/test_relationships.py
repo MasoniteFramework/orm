@@ -79,7 +79,6 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
 
         def test_relationship_has(self):
             to_sql = User.has("articles").to_sql()
-            print(to_sql)
             self.assertEqual(
                 to_sql,
                 "SELECT * FROM `users` WHERE EXISTS ("
@@ -98,9 +97,15 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
                 ")",
             )
 
+            count = User.has("articles", "profile").get().count()
+            self.assertEqual(count, 2)
+
         def test_nested_has(self):
             to_sql = User.has("articles.logo").to_sql()
             self.assertEqual(
                 to_sql,
                 "SELECT * FROM `users` WHERE EXISTS (SELECT * FROM `articles` WHERE `articles`.`user_id` = `users`.`id` AND EXISTS (SELECT * FROM `logos` WHERE `logos`.`article_id` = `articles`.`id`))",
             )
+
+            count = User.has("articles.logo").get().count()
+            self.assertEqual(count, 2)

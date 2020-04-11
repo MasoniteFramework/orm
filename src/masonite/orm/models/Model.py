@@ -155,7 +155,20 @@ class Model:
                     )
 
                     last_builder = relationship
-
+            else:
+                relationship = getattr(cls, has_relationship)()
+                local_key = cls._registered_relationships[cls][has_relationship][
+                    "local"
+                ]
+                foreign_key = cls._registered_relationships[cls][has_relationship][
+                    "foreign"
+                ]
+                cls.builder.where_exists(
+                    relationship.where_column(
+                        f"{relationship.get_table_name()}.{foreign_key}",
+                        f"{cls.builder.get_table_name()}.{local_key}",
+                    )
+                )
         return cls.builder
 
     @classmethod
