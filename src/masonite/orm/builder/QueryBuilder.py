@@ -400,6 +400,12 @@ class QueryBuilder:
             self._wheres += ((QueryExpression(column, "IN", wheres)),)
         return self
 
+    def has(self, *args, **kwargs):
+        return self.owner.has(*args, **kwargs)
+
+    def where_has(self, *args, **kwargs):
+        return self.owner.where_has(*args, **kwargs)
+
     def where_not_in(self, column, wheres=[]):
         """Specifies where a column does not contain a list of a values.
 

@@ -86,6 +86,15 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
                 ")",
             )
 
+        def test_relationship_has_off_builder(self):
+            to_sql = User.where("active", 1).has("articles").to_sql()
+            self.assertEqual(
+                to_sql,
+                "SELECT * FROM `users` WHERE `users`.`active` = '1' AND EXISTS ("
+                "SELECT * FROM `articles` WHERE `articles`.`user_id` = `users`.`id`"
+                ")",
+            )
+
         def test_relationship_multiple_has(self):
             to_sql = User.has("articles", "profile").to_sql()
             self.assertEqual(
@@ -109,3 +118,12 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
 
             count = User.has("articles.logo").get().count()
             self.assertEqual(count, 2)
+
+        def test_relationship_where_has(self):
+            to_sql = User.where_has("articles", lambda q: q.where("status", 1)).to_sql()
+            self.assertEqual(
+                to_sql,
+                "SELECT * FROM `users` WHERE EXISTS ("
+                "SELECT * FROM `articles` WHERE `articles`.`user_id` = `users`.`id` AND `articles`.`status` = '1'"
+                ")",
+            )

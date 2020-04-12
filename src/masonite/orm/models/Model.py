@@ -156,6 +156,7 @@ class Model:
 
                     last_builder = relationship
             else:
+                print(has_relationship)
                 relationship = getattr(cls, has_relationship)()
                 local_key = cls._registered_relationships[cls][has_relationship][
                     "local"
@@ -169,6 +170,25 @@ class Model:
                         f"{cls.builder.get_table_name()}.{local_key}",
                     )
                 )
+        return cls.builder
+
+    @classmethod
+    def where_has(cls, has_relationship, callback):
+        cls.boot()
+        relationship = getattr(cls, has_relationship)()
+
+        local_key = cls._registered_relationships[cls][has_relationship]["local"]
+        foreign_key = cls._registered_relationships[cls][has_relationship]["foreign"]
+
+        callback(
+            relationship.where_column(
+                f"{relationship.get_table_name()}.{foreign_key}",
+                f"{cls.builder.get_table_name()}.{local_key}",
+            )
+        )
+
+        cls.builder.where_exists(relationship)
+
         return cls.builder
 
     @classmethod
