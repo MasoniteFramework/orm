@@ -529,7 +529,7 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         """
         self.schema.has_table('users', query_only=True)
         """
-        return "SHOW TABLE LIKE `users`"
+        return "SELECT * from information_schema.tables where table_name='users' AND table_schema = 'orm'"
 
     def drop_table(self):
         """

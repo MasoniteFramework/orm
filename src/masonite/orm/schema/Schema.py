@@ -126,7 +126,9 @@ class Schema:
         Returns:
             masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
-        grammar = cls._connection.get_grammer()(table=table)
+        grammar = cls._connection.get_grammer()(
+            table=table, database=cls._connection.get_database_name()
+        )
         query = grammar.table_exists().to_sql()
         if query_only:
             return query

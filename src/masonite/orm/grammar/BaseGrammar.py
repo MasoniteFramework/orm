@@ -24,6 +24,7 @@ class BaseGrammar:
         self,
         columns=(),
         table="users",
+        database=None,
         wheres=(),
         limit=False,
         offset=False,
@@ -40,6 +41,7 @@ class BaseGrammar:
     ):
         self._columns = columns
         self.table = table
+        self.database = database
         self._wheres = wheres
         self._limit = limit
         self._offset = offset
@@ -674,7 +676,9 @@ class BaseGrammar:
             self
         """
         self._sql = self.table_exists_string().format(
-            table=self._compile_table(self.table)
+            table=self._compile_table(self.table),
+            database=self.database,
+            clean_table=self.table,
         )
         return self
 

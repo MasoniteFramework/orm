@@ -37,6 +37,10 @@ class MySQLConnection(BaseConnection):
 
         return connection_details
 
+    @classmethod
+    def get_database_name(self):
+        return self().get_connection_details().get("db")
+
     def reconnect(self):
         pass
 

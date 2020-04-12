@@ -51,7 +51,6 @@ class Model:
 
     @classmethod
     def boot(cls):
-
         if not cls._booted:
             cls.__resolved_connection__ = ConnectionFactory().make(cls.__connection__)
             cls.builder = QueryBuilder(
@@ -98,6 +97,11 @@ class Model:
     @classmethod
     def get_table_name(cls):
         return cls.__table__ or tableize(cls.__name__)
+
+    @classmethod
+    def get_database_name(cls):
+        cls.boot()
+        print(cls.__resolved_connection__)
 
     @classmethod
     def first(cls):
