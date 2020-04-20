@@ -6,6 +6,7 @@ class CreateFriendsTable(Migration):
         """
         Run the migrations.
         """
+
         with self.schema.create('friends') as table:
             table.increments('id')
             table.string('name')

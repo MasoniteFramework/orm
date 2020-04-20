@@ -52,8 +52,6 @@ class Schema:
         """
         cls._table = table
 
-        print("calling create", cls._dry)
-
         return Blueprint(
             cls._connection.get_grammer(),
             connection=cls._connection,

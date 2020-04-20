@@ -15,12 +15,17 @@ from inflection import camelize
 
 class Migration:
     def __init__(
-        self, connection="mysql", dry=False, migration_directory="databases/migrations"
+        self,
+        connection="mysql",
+        dry=False,
+        command_class=None,
+        migration_directory="databases/migrations",
     ):
         self.schema = Schema.on(connection)
         self._dry = dry
         self.migration_directory = migration_directory.replace("/", ".")
         self.last_migrations_ran = []
+        self.command_class = command_class
 
     def create_table_if_not_exists(self):
         if not self.schema.has_table("migrations"):
@@ -51,6 +56,7 @@ class Migration:
     def get_rollback_migrations(self):
         return (
             MigrationModel.where("batch", MigrationModel.all().max("batch"))
+            .order_by("migration_id", "desc")
             .get()
             .pluck("migration")
         )
@@ -87,15 +93,33 @@ class Migration:
                 f"{self.migration_directory}.{migration_module}.{migration_name}"
             )
             self.last_migrations_ran.append(migration)
-            if self._dry:
-                continue
+            if self.command_class:
+                self.command_class.line(
+                    f"<comment>Migrating:</comment> <question>{migration}</question>"
+                )
 
             migration_class().up()
+
+            if self.command_class:
+                self.command_class.line(
+                    f"<info>Migrated:</info> <question>{migration}</question>"
+                )
+
             MigrationModel.create({"batch": batch, "migration": migration})
 
     def rollback(self):
         for migration in self.get_rollback_migrations():
+            if self.command_class:
+                self.command_class.line(
+                    f"<comment>Rolling back:</comment> <question>{migration}</question>"
+                )
+
             self.locate(migration)().down()
+
+            if self.command_class:
+                self.command_class.line(
+                    f"<info>Rolled back:</info> <question>{migration}</question>"
+                )
 
         self.delete_last_batch()
 
