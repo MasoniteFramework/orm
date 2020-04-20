@@ -2,6 +2,9 @@ import os
 import unittest
 
 from src.masonite.orm.migrations.Migration import Migration
+from src.masonite.orm.models.MigrationModel import MigrationModel
+from inflection import camelize
+from pydoc import locate
 
 
 class TestMigrations(unittest.TestCase):
@@ -9,4 +12,14 @@ class TestMigrations(unittest.TestCase):
         pass
 
     def test_has_migrations(self):
-        print(Migration().create_table_if_not_exists())
+        pass
+
+    def test_migrate(self):
+        migration_class = Migration()
+        migration_class.create_table_if_not_exists()
+        migration_class.migrate()
+
+    def test_rollback(self):
+        migration_class = Migration()
+        migration_class.create_table_if_not_exists()
+        migration_class.rollback()

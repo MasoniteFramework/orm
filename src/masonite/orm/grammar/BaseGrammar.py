@@ -749,8 +749,7 @@ class BaseGrammar:
         sql = ""
         if self._columns == "*":
             return self._columns
-
-        for column, value in self._columns.items():
+        for column, value in dict(self._columns).items():
             sql += self._compile_value(value, separator=separator)
 
         return sql[:-2]

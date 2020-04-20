@@ -196,7 +196,7 @@ class QueryBuilder:
         self._columns += (SelectExpression(string, raw=True),)
         return self
 
-    def create(self, creates):
+    def create(self, creates, query=False):
         """Specifies a dictionary that should be used to create new values.
 
         Arguments:
@@ -205,11 +205,14 @@ class QueryBuilder:
         Returns:
             self
         """
-        self._creates.update(creates)
         self.set_action("insert")
-        return self
+        self._creates.update(creates)
+        if query:
+            return self
 
-    def delete(self, column=None, value=None):
+        return self.connection().make_connection().query(self.to_sql(), self._bindings)
+
+    def delete(self, column=None, value=None, query=False):
         """Specify the column and value to delete
         or deletes everything based on a previously used where expression.
 
@@ -227,7 +230,10 @@ class QueryBuilder:
                 self.where(column, value)
 
         self.set_action("delete")
-        return self
+        if query:
+            return self
+
+        return self.connection().make_connection().query(self.to_sql(), self._bindings)
 
     def where(self, column, *args):
         """Specifies a where expression.

@@ -38,6 +38,7 @@ class Schema:
 
         return Blueprint(
             cls._connection.get_grammer(),
+            connection=cls._connection,
             table=table,
             action="create",
             default_string_length=cls._default_string_length,
@@ -85,12 +86,16 @@ class Schema:
         return cls
 
     @classmethod
-    def drop_table(cls, table, query_only=True):
+    def drop_table(cls, table, query_only=False):
         grammar = cls._connection.get_grammer()(table=table)
         query = grammar.drop_table(table).to_sql()
         if query_only:
             return query
         return bool(cls._connection().make_connection().query(query))
+
+    @classmethod
+    def drop(cls, *args, **kwargs):
+        return cls.drop_table(*args, **kwargs)
 
     @classmethod
     def drop_table_if_exists(cls, table, exists=False, query_only=True):

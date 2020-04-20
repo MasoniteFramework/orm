@@ -153,11 +153,19 @@ class Blueprint:
     """Used for building schemas for creating, modifying or altering schema.
     """
 
-    def __init__(self, grammar, table="", action=None, default_string_length=None):
+    def __init__(
+        self,
+        grammar,
+        table="",
+        connection=None,
+        action=None,
+        default_string_length=None,
+    ):
         self.grammar = grammar
         self.table = table
         self._sql = ""
         self._columns = ()
+        self._connection = connection()
         self._constraints = ()
         self._foreign_keys = ()
         self._last_column = None
@@ -497,6 +505,7 @@ class Blueprint:
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
+        print("exited", self._connection.make_connection().query(self.to_sql()))
         pass
 
     def nullable(self):

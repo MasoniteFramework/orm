@@ -200,12 +200,14 @@ class Model:
         cls.boot()
         return cls.builder.limit(*args, **kwargs)
 
-    def select(self):
-        pass
+    @classmethod
+    def select(cls, *args, **kwargs):
+        cls.boot()
+        return cls.builder.select(*args, **kwargs)
 
     @classmethod
     def hydrate(cls, dictionary):
-        if isinstance(dictionary, list):
+        if isinstance(dictionary, (list, tuple)):
             response = []
             for element in dictionary:
                 response.append(element)
@@ -217,7 +219,6 @@ class Model:
             return model
         else:
             model = cls()
-            print("updating", dictionary)
             model.__attributes__.update(dictionary.__attributes__)
             return model
 
@@ -229,12 +230,14 @@ class Model:
         pass
 
     @classmethod
-    def create(cls, dictionary):
+    def create(cls, dictionary, query=False):
         cls.boot()
         if cls.__fillable__ != ["*"]:
             dictionary = {x: dictionary[x] for x in cls.__fillable__}
-        to_sql = cls.builder.create(dictionary).to_sql()
-        return to_sql
+        if query:
+            return cls.builder.create(dictionary, query=True).to_sql()
+
+        return cls.builder.create(dictionary)
 
     def delete(self):
         pass
@@ -324,3 +327,6 @@ class Model:
         cls.boot()
         cls._eager_load += eagers
         return cls.builder
+
+    def __getitem__(self, attribute):
+        return getattr(self, attribute)

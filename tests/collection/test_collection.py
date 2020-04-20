@@ -1,6 +1,8 @@
 import unittest
 
 from src.masonite.orm.collection.Collection import Collection
+from src.masonite.orm.factories.Factory import Factory as factory
+from src.masonite.orm.models import Model
 
 
 class TestCollection(unittest.TestCase):
@@ -23,6 +25,12 @@ class TestCollection(unittest.TestCase):
         collection = Collection([{"id": 1, "name": "Joe"}, {"id": 2, "name": "Bob"}])
         self.assertEqual(collection.pluck("id"), [1, 2])
         self.assertEqual(collection.pluck("name", "id"), {1: "Joe", 2: "Bob"})
+
+    def test_pluck_with_models(self):
+        factory.register(Model, lambda faker: {"id": 1, "batch": 1})
+        collection = factory(Model, 5).make()
+        print(collection)
+        self.assertEqual(collection.pluck("batch"), [1, 1, 1, 1, 1])
 
     def test_where(self):
         collection = Collection(
@@ -99,6 +107,24 @@ class TestCollection(unittest.TestCase):
         )
         self.assertEqual(collection.avg(lambda x: len(x["colours"])), 5 / 3)
         self.assertEqual(collection.avg(lambda x: len(x)), 2)
+
+    def test_max(self):
+        collection = Collection([1, 1, 2, 4])
+        self.assertEqual(collection.max(), 4)
+
+        collection = Collection(
+            [
+                {"name": "Corentin All", "age": 1},
+                {"name": "Corentin All", "age": 2},
+                {"name": "Corentin All", "age": 3},
+                {"name": "Corentin All", "age": 4},
+            ]
+        )
+        self.assertEqual(collection.max("age"), 4)
+        self.assertEqual(collection.max(), 0)
+
+        collection = Collection([{"batch": 1}, {"batch": 1}])
+        self.assertEqual(collection.max("batch"), 1)
 
     def test_count(self):
         collection = Collection([1, 1, 2, 4])
