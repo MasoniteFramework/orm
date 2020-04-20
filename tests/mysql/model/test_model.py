@@ -29,7 +29,9 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
 
     class TestModel(unittest.TestCase):
         def test_can_use_fillable(self):
-            sql = ProfileFillable.create({"name": "Joe", "email": "user@example.com"})
+            sql = ProfileFillable.create(
+                {"name": "Joe", "email": "user@example.com"}, query=True
+            )
 
             self.assertEqual(
                 sql, "INSERT INTO `profiles` (`profiles`.`name`) VALUES ('Joe')"
@@ -37,7 +39,7 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
 
         def test_can_use_fillable_asterisk(self):
             sql = ProfileFillAsterisk.create(
-                {"name": "Joe", "email": "user@example.com"}
+                {"name": "Joe", "email": "user@example.com"}, query=True
             )
 
             self.assertEqual(

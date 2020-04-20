@@ -160,17 +160,22 @@ class Blueprint:
         connection=None,
         action=None,
         default_string_length=None,
+        dry=False,
     ):
         self.grammar = grammar
         self.table = table
         self._sql = ""
         self._columns = ()
-        self._connection = connection()
+
         self._constraints = ()
         self._foreign_keys = ()
         self._last_column = None
         self._action = action
         self._default_string_length = default_string_length
+        print("dry is", dry)
+        self._dry = dry
+        if connection:
+            self._connection = connection()
 
     def string(self, column, length=255, nullable=False):
         """Sets a column to be the string representation for the table.
@@ -505,8 +510,10 @@ class Blueprint:
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
+        if self._dry:
+            return
+
         print("exited", self._connection.make_connection().query(self.to_sql()))
-        pass
 
     def nullable(self):
         """Sets the last column created as nullable

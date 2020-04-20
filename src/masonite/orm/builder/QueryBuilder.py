@@ -752,7 +752,6 @@ class QueryBuilder:
         for scope in self._global_scopes.get(self.owner, {}).get(self._action, []):
             if not scope:
                 continue
-
             scope(self.owner, self)
 
         grammar = self.get_grammar()

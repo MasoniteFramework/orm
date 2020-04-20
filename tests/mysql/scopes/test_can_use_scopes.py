@@ -47,4 +47,6 @@ class TestMySQLScopes(unittest.TestCase):
 
     def test_can_use_global_scopes_on_time(self):
         sql = "INSERT INTO `users` (`users`.`name`, `users`.`updated_at`, `users`.`created_at`) VALUES ('Joe', 'now', 'now')"
-        self.assertEqual(sql, User.apply_scope(TimeStamps).create({"name": "Joe"}))
+        self.assertEqual(
+            sql, User.apply_scope(TimeStamps).create({"name": "Joe"}, query=True)
+        )

@@ -19,7 +19,7 @@ class BaseQMarkTest:
         self.assertEqual(mark._bindings, bindings)
 
     def test_can_compile_delete(self):
-        mark = self.builder.where("name", "Joe").delete()
+        mark = self.builder.where("name", "Joe").delete(query=True)
 
         sql, bindings = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")

@@ -5,8 +5,11 @@ from src.masonite.orm.schema import Schema
 
 
 class BaseTestCreateGrammar:
+
+    schema = Schema.dry().on("mysql")
+
     def setUp(self):
-        self.schema = Schema.on("mysql")
+        pass
 
     def test_can_compile_column(self):
         with self.schema.create("users") as blueprint:

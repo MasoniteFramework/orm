@@ -7,6 +7,7 @@ class Schema:
     _connection = ConnectionFactory().make("default")
     _grammer = None
     _default_string_length = "255"
+    _dry = False
 
     @classmethod
     def on(cls, connection):
@@ -23,6 +24,21 @@ class Schema:
         return cls
 
     @classmethod
+    def dry(cls):
+        """Change the connection from the default connection
+
+        Arguments:
+            connection {string} -- A connection string like 'mysql' or 'mssql'.
+                It will be made with the connection factory.
+
+        Returns:
+            cls
+        """
+        cls._dry = True
+        print("calling dry", cls._dry)
+        return cls
+
+    @classmethod
     def create(cls, table):
         """Sets the table and returns the blueprint.
 
@@ -36,12 +52,15 @@ class Schema:
         """
         cls._table = table
 
+        print("calling create", cls._dry)
+
         return Blueprint(
             cls._connection.get_grammer(),
             connection=cls._connection,
             table=table,
             action="create",
             default_string_length=cls._default_string_length,
+            dry=cls._dry,
         )
 
     @classmethod
@@ -62,6 +81,7 @@ class Schema:
             table=table,
             action="alter",
             default_string_length=cls._default_string_length,
+            dry=cls._dry,
         )
 
     @classmethod
