@@ -136,6 +136,16 @@ class Model:
         return cls.builder.where(*args, **kwargs)
 
     @classmethod
+    def order_by(cls, *args, **kwargs):
+        cls.boot()
+        return cls.builder.order_by(*args, **kwargs)
+
+    @classmethod
+    def where_in(cls, *args, **kwargs):
+        cls.boot()
+        return cls.builder.where(*args, **kwargs)
+
+    @classmethod
     def has(cls, *has_relationships, **kwargs):
         cls.boot()
         for has_relationship in has_relationships:

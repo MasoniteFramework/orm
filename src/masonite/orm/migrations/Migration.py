@@ -61,22 +61,23 @@ class Migration:
             .pluck("migration")
         )
 
-    def get_all_migrations(self):
+    def get_all_migrations(self, reverse=False):
+        if reverse:
+            return (
+                MigrationModel.order_by("migration_id", "desc").get().pluck("migration")
+            )
         return MigrationModel.all().pluck("migration")
 
     def get_last_batch_number(self):
         return MigrationModel.select("batch").get().max("batch")
 
-    def run_migration_up(self, file_path):
-        pass
+    def delete_migration(self, file_path):
+        return MigrationModel.where("migration", file_path).delete()
 
     def locate(self, file_name):
         migration_name = camelize("_".join(file_name.split("_")[4:]).replace(".py", ""))
         file_name = file_name.replace(".py", "")
         return locate(f"{self.migration_directory}.{file_name}.{migration_name}")
-
-    def run_migration_down(self, file_path):
-        pass
 
     def get_ran_migrations(self):
         pass
@@ -132,10 +133,26 @@ class Migration:
         self.delete_migrations(ran_migrations)
 
     def delete_migrations(self, migrations=[]):
-        MigrationModel.where_in("migration", migrations).delete()
+        return MigrationModel.where_in("migration", migrations).delete()
 
     def delete_last_batch(self):
         return MigrationModel.where("batch", self.get_last_batch_number()).delete()
 
     def refresh(self):
-        pass
+        for migration in self.get_all_migrations(reverse=True):
+            if self.command_class:
+                self.command_class.line(
+                    f"<comment>Rolling back:</comment> <question>{migration}</question>"
+                )
+
+            self.locate(migration)().down()
+
+            if self.command_class:
+                self.command_class.line(
+                    f"<info>Rolled back:</info> <question>{migration}</question>"
+                )
+
+            self.delete_migrations([migration])
+        if self.command_class:
+            self.command_class.line("")
+        self.migrate()
