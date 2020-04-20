@@ -101,7 +101,7 @@ class Model:
     @classmethod
     def get_database_name(cls):
         cls.boot()
-        print(cls.__resolved_connection__)
+        return cls.__resolved_connection__
 
     @classmethod
     def first(cls):
@@ -160,7 +160,6 @@ class Model:
 
                     last_builder = relationship
             else:
-                print(has_relationship)
                 relationship = getattr(cls, has_relationship)()
                 local_key = cls._registered_relationships[cls][has_relationship][
                     "local"
@@ -214,7 +213,6 @@ class Model:
             return cls.new_collection(response)
         elif isinstance(dictionary, dict):
             model = cls()
-            print(model, model.__attributes__, dictionary)
             model.__attributes__.update(dictionary or {})
             return model
         else:

@@ -316,7 +316,6 @@ class BaseGrammar:
             local_table = join.column1.split(".")[0]
             column1 = join.column1
             column2 = join.column2
-            print(column1)
             sql += self.join_string().format(
                 foreign_table=self._compile_table(join.foreign_table),
                 local_table=self._compile_table(local_table),

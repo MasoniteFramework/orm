@@ -29,7 +29,6 @@ class TestCollection(unittest.TestCase):
     def test_pluck_with_models(self):
         factory.register(Model, lambda faker: {"id": 1, "batch": 1})
         collection = factory(Model, 5).make()
-        print(collection)
         self.assertEqual(collection.pluck("batch"), [1, 1, 1, 1, 1])
 
     def test_where(self):

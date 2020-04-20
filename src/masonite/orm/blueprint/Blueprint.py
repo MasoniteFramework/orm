@@ -172,7 +172,6 @@ class Blueprint:
         self._last_column = None
         self._action = action
         self._default_string_length = default_string_length
-        print("dry is", dry)
         self._dry = dry
         if connection:
             self._connection = connection()
@@ -512,8 +511,6 @@ class Blueprint:
     def __exit__(self, exc_type, exc_value, exc_traceback):
         if self._dry:
             return
-
-        print("exited", self._connection.make_connection().query(self.to_sql()))
 
     def nullable(self):
         """Sets the last column created as nullable

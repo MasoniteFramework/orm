@@ -14,9 +14,13 @@ from inflection import camelize
 
 
 class Migration:
-    def __init__(self, connection="mysql", migration_directory="databases/migrations"):
+    def __init__(
+        self, connection="mysql", dry=False, migration_directory="databases/migrations"
+    ):
         self.schema = Schema.on(connection)
+        self._dry = dry
         self.migration_directory = migration_directory.replace("/", ".")
+        self.last_migrations_ran = []
 
     def create_table_if_not_exists(self):
         if not self.schema.has_table("migrations"):
@@ -74,6 +78,7 @@ class Migration:
     def migrate(self):
         batch = self.get_last_batch_number() + 1
         for migration in self.get_unran_migrations():
+
             migration_module = migration.replace(".py", "")
             migration_name = camelize(
                 "_".join(migration.split("_")[4:]).replace(".py", "")
@@ -81,6 +86,10 @@ class Migration:
             migration_class = locate(
                 f"{self.migration_directory}.{migration_module}.{migration_name}"
             )
+            self.last_migrations_ran.append(migration)
+            if self._dry:
+                continue
+
             migration_class().up()
             MigrationModel.create({"batch": batch, "migration": migration})
 
