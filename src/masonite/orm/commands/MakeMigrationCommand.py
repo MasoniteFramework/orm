@@ -56,7 +56,6 @@ class MakeMigrationCommand(Command):
                 output = output.replace("__PASS_OR_DROP__", "pass")
                 output = output.replace("__action__", "table")
 
-        date_file = ""
         file_name = f"{now.strftime('%Y_%m_%d')}_{now.microsecond}_{name}.py"
 
         with open(os.path.join(os.getcwd(), migration_directory, file_name), "w") as fp:
