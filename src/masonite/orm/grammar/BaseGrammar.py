@@ -24,6 +24,7 @@ class BaseGrammar:
         self,
         columns=(),
         table="users",
+        database=None,
         wheres=(),
         limit=False,
         offset=False,
@@ -40,6 +41,7 @@ class BaseGrammar:
     ):
         self._columns = columns
         self.table = table
+        self.database = database
         self._wheres = wheres
         self._limit = limit
         self._offset = offset
@@ -314,7 +316,6 @@ class BaseGrammar:
             local_table = join.column1.split(".")[0]
             column1 = join.column1
             column2 = join.column2
-            print(column1)
             sql += self.join_string().format(
                 foreign_table=self._compile_table(join.foreign_table),
                 local_table=self._compile_table(local_table),
@@ -674,7 +675,9 @@ class BaseGrammar:
             self
         """
         self._sql = self.table_exists_string().format(
-            table=self._compile_table(self.table)
+            table=self._compile_table(self.table),
+            database=self.database,
+            clean_table=self.table,
         )
         return self
 
@@ -745,8 +748,7 @@ class BaseGrammar:
         sql = ""
         if self._columns == "*":
             return self._columns
-
-        for column, value in self._columns.items():
+        for column, value in dict(self._columns).items():
             sql += self._compile_value(value, separator=separator)
 
         return sql[:-2]

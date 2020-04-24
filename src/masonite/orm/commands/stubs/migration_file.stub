@@ -1,0 +1,18 @@
+"""__MIGRATION_NAME__ Migration."""
+
+from src.masonite.orm.migrations.Migration import Migration
+
+
+class __MIGRATION_NAME__(Migration):
+    def up(self):
+        """
+        Run the migrations.
+        """
+        with self.schema.__action__("__TABLE_NAME__") as table:
+            pass
+
+    def down(self):
+        """
+        Revert the migrations.
+        """
+        __PASS_OR_DROP__

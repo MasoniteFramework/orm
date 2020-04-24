@@ -2,6 +2,10 @@ import pymysql
 
 from .BaseConnection import BaseConnection
 
+import random
+
+CONNECTION_POOL = []
+
 
 class MySQLConnection(BaseConnection):
     """MYSQL Connection class.
@@ -10,11 +14,17 @@ class MySQLConnection(BaseConnection):
     def make_connection(self):
         """This sets the connection on the connection class
         """
-        self._connection = pymysql.connect(
-            cursorclass=pymysql.cursors.DictCursor,
-            autocommit=True,
-            **self.get_connection_details(),
-        )
+        if len(CONNECTION_POOL) < 10:
+            self._connection = pymysql.connect(
+                cursorclass=pymysql.cursors.DictCursor,
+                autocommit=True,
+                **self.get_connection_details(),
+            )
+            CONNECTION_POOL.append(self._connection)
+        else:
+            self._connection = CONNECTION_POOL[
+                random.randint(0, len(CONNECTION_POOL) - 1)
+            ]
 
         return self
 
@@ -36,6 +46,10 @@ class MySQLConnection(BaseConnection):
         connection_details.update(self.connection_details.get("options", {}))
 
         return connection_details
+
+    @classmethod
+    def get_database_name(self):
+        return self().get_connection_details().get("db")
 
     def reconnect(self):
         pass
@@ -75,7 +89,7 @@ class MySQLConnection(BaseConnection):
             dict|None -- Returns a dictionary of results or None
         """
         query = query.replace("'?'", "%s")
-        print("running query", query)
+        # print("running query", query)
         try:
             with self._connection.cursor() as cursor:
                 cursor.execute(query, bindings)
@@ -84,4 +98,4 @@ class MySQLConnection(BaseConnection):
                 else:
                     return cursor.fetchall()
         finally:
-            self._connection.close()
+            pass

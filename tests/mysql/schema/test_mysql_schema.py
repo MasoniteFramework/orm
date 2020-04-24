@@ -5,8 +5,11 @@ from src.masonite.orm.schema import Schema
 
 
 class BaseTestCreateGrammar:
+
+    schema = Schema.dry().on("mysql")
+
     def setUp(self):
-        self.schema = Schema.on("mysql")
+        pass
 
     def test_can_compile_column(self):
         with self.schema.create("users") as blueprint:
@@ -529,7 +532,7 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         """
         self.schema.has_table('users', query_only=True)
         """
-        return "SHOW TABLE LIKE `users`"
+        return "SELECT * from information_schema.tables where table_name='users' AND table_schema = 'orm'"
 
     def drop_table(self):
         """

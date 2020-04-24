@@ -7,6 +7,7 @@ class Schema:
     _connection = ConnectionFactory().make("default")
     _grammer = None
     _default_string_length = "255"
+    _dry = False
 
     @classmethod
     def on(cls, connection):
@@ -20,6 +21,21 @@ class Schema:
             cls
         """
         cls._connection = ConnectionFactory().make(connection)
+        return cls
+
+    @classmethod
+    def dry(cls):
+        """Change the connection from the default connection
+
+        Arguments:
+            connection {string} -- A connection string like 'mysql' or 'mssql'.
+                It will be made with the connection factory.
+
+        Returns:
+            cls
+        """
+        cls._dry = True
+        print("calling dry", cls._dry)
         return cls
 
     @classmethod
@@ -38,9 +54,11 @@ class Schema:
 
         return Blueprint(
             cls._connection.get_grammer(),
+            connection=cls._connection,
             table=table,
             action="create",
             default_string_length=cls._default_string_length,
+            dry=cls._dry,
         )
 
     @classmethod
@@ -61,6 +79,7 @@ class Schema:
             table=table,
             action="alter",
             default_string_length=cls._default_string_length,
+            dry=cls._dry,
         )
 
     @classmethod
@@ -85,12 +104,16 @@ class Schema:
         return cls
 
     @classmethod
-    def drop_table(cls, table, query_only=True):
+    def drop_table(cls, table, query_only=False):
         grammar = cls._connection.get_grammer()(table=table)
         query = grammar.drop_table(table).to_sql()
         if query_only:
             return query
         return bool(cls._connection().make_connection().query(query))
+
+    @classmethod
+    def drop(cls, *args, **kwargs):
+        return cls.drop_table(*args, **kwargs)
 
     @classmethod
     def drop_table_if_exists(cls, table, exists=False, query_only=True):
@@ -126,7 +149,9 @@ class Schema:
         Returns:
             masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
-        grammar = cls._connection.get_grammer()(table=table)
+        grammar = cls._connection.get_grammer()(
+            table=table, database=cls._connection.get_database_name()
+        )
         query = grammar.table_exists().to_sql()
         if query_only:
             return query

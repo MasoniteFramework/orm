@@ -46,7 +46,6 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
         def test_can_access_relationship(self):
             for user in User.where("id", 1).get():
                 self.assertIsInstance(user.profile, Profile)
-                print(user.profile.city)
 
         def test_can_access_has_many_relationship(self):
             user = User.hydrate(User.where("id", 1).first())
@@ -60,15 +59,12 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
         def test_loading(self):
             users = User.with_("articles").get()
             for user in users:
-                print(user)
-                # print(user.articles)
+                user
 
         def test_casting(self):
             users = User.with_("articles").where("is_admin", 1).get()
             for user in users:
-                print(user.is_admin)
-                # self.assertIs(user.is_admin, True)
-                # print(user.articles)
+                user
 
         def test_setting(self):
             users = User.with_("articles").where("is_admin", 1).get()

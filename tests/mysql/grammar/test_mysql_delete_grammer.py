@@ -9,7 +9,7 @@ class BaseDeleteGrammarTest:
         self.builder = QueryBuilder(GrammarFactory.make(self.grammar), table="users")
 
     def test_can_compile_delete(self):
-        to_sql = self.builder.delete("id", 1).to_sql()
+        to_sql = self.builder.delete("id", 1, query=True).to_sql()
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -17,7 +17,7 @@ class BaseDeleteGrammarTest:
         self.assertEqual(to_sql, sql)
 
     def test_can_compile_delete_in(self):
-        to_sql = self.builder.delete("id", [1, 2, 3]).to_sql()
+        to_sql = self.builder.delete("id", [1, 2, 3], query=True).to_sql()
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -29,7 +29,7 @@ class BaseDeleteGrammarTest:
             self.builder.where("age", 20)
             .where("profile", 1)
             .set_action("delete")
-            .delete()
+            .delete(query=True)
             .to_sql()
         )
 

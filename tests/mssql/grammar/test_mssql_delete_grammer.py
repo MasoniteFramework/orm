@@ -9,7 +9,7 @@ class TestMySQLDeleteGrammar(unittest.TestCase):
         self.builder = QueryBuilder(GrammarFactory.make("mssql"), table="users")
 
     def test_can_compile_delete(self):
-        to_sql = self.builder.delete("id", 1).to_sql()
+        to_sql = self.builder.delete("id", 1, query=True).to_sql()
 
         sql = "DELETE FROM [users] WHERE [users].[id] = '1'"
         self.assertEqual(to_sql, sql)
@@ -19,7 +19,7 @@ class TestMySQLDeleteGrammar(unittest.TestCase):
             self.builder.where("age", 20)
             .where("profile", 1)
             .set_action("delete")
-            .delete()
+            .delete(query=True)
             .to_sql()
         )
 

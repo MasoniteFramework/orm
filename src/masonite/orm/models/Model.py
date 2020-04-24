@@ -51,7 +51,6 @@ class Model:
 
     @classmethod
     def boot(cls):
-
         if not cls._booted:
             cls.__resolved_connection__ = ConnectionFactory().make(cls.__connection__)
             cls.builder = QueryBuilder(
@@ -100,6 +99,11 @@ class Model:
         return cls.__table__ or tableize(cls.__name__)
 
     @classmethod
+    def get_database_name(cls):
+        cls.boot()
+        return cls.__resolved_connection__
+
+    @classmethod
     def first(cls):
         return cls.builder.first()
 
@@ -132,6 +136,16 @@ class Model:
         return cls.builder.where(*args, **kwargs)
 
     @classmethod
+    def order_by(cls, *args, **kwargs):
+        cls.boot()
+        return cls.builder.order_by(*args, **kwargs)
+
+    @classmethod
+    def where_in(cls, *args, **kwargs):
+        cls.boot()
+        return cls.builder.where(*args, **kwargs)
+
+    @classmethod
     def has(cls, *has_relationships, **kwargs):
         cls.boot()
         for has_relationship in has_relationships:
@@ -156,7 +170,6 @@ class Model:
 
                     last_builder = relationship
             else:
-                print(has_relationship)
                 relationship = getattr(cls, has_relationship)()
                 local_key = cls._registered_relationships[cls][has_relationship][
                     "local"
@@ -196,24 +209,24 @@ class Model:
         cls.boot()
         return cls.builder.limit(*args, **kwargs)
 
-    def select(self):
-        pass
+    @classmethod
+    def select(cls, *args, **kwargs):
+        cls.boot()
+        return cls.builder.select(*args, **kwargs)
 
     @classmethod
     def hydrate(cls, dictionary):
-        if isinstance(dictionary, list):
+        if isinstance(dictionary, (list, tuple)):
             response = []
             for element in dictionary:
                 response.append(element)
             return cls.new_collection(response)
         elif isinstance(dictionary, dict):
             model = cls()
-            print(model, model.__attributes__, dictionary)
             model.__attributes__.update(dictionary or {})
             return model
         else:
             model = cls()
-            print("updating", dictionary)
             model.__attributes__.update(dictionary.__attributes__)
             return model
 
@@ -225,12 +238,14 @@ class Model:
         pass
 
     @classmethod
-    def create(cls, dictionary):
+    def create(cls, dictionary, query=False):
         cls.boot()
         if cls.__fillable__ != ["*"]:
             dictionary = {x: dictionary[x] for x in cls.__fillable__}
-        to_sql = cls.builder.create(dictionary).to_sql()
-        return to_sql
+        if query:
+            return cls.builder.create(dictionary, query=True).to_sql()
+
+        return cls.builder.create(dictionary)
 
     def delete(self):
         pass
@@ -320,3 +335,6 @@ class Model:
         cls.boot()
         cls._eager_load += eagers
         return cls.builder
+
+    def __getitem__(self, attribute):
+        return getattr(self, attribute)

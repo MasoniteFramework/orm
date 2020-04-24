@@ -88,7 +88,9 @@ class BaseTestQueryBuilder:
 
     def test_create(self):
         builder = self.get_builder()
-        builder.create({"name": "Corentin All", "email": "corentin@yopmail.com"})
+        builder.create(
+            {"name": "Corentin All", "email": "corentin@yopmail.com"}, query=True
+        )
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -96,7 +98,7 @@ class BaseTestQueryBuilder:
 
     def test_delete(self):
         builder = self.get_builder()
-        builder.delete("name", "Joe")
+        builder.delete("name", "Joe", query=True)
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()

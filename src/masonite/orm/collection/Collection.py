@@ -86,6 +86,26 @@ class Collection:
             pass
         return result
 
+    def max(self, key=None):
+        """Returns the average of the items.
+
+        If a key is given it will return the average of all the values of the key.
+
+        Keyword Arguments:
+            key {string} -- The key to use to find the average of all the values of that key. (default: {None})
+
+        Returns:
+            int -- Returns the average.
+        """
+        result = 0
+        items = self._get_value(key) or self._items
+
+        try:
+            return max(items)
+        except (TypeError, ValueError):
+            pass
+        return result
+
     def chunk(self, size: int):
         """Chunks the items.
 
@@ -214,11 +234,15 @@ class Collection:
     def pluck(self, value, key=None):
         if key:
             attributes = {}
-
         else:
             attributes = []
         for item in self:
-            for k, v in item.items():
+            if isinstance(item, dict):
+                iterable = item.items()
+            else:
+                iterable = item.serialize().items()
+
+            for k, v in iterable:
                 if k == value:
                     if key:
                         attributes[self._data_get(item, key)] = self._data_get(
@@ -226,6 +250,7 @@ class Collection:
                         )
                     else:
                         attributes.append(v)
+
         return attributes
 
     def pop(self):
