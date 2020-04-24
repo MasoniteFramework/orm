@@ -6,6 +6,7 @@ import random
 
 CONNECTION_POOL = []
 
+
 class MySQLConnection(BaseConnection):
     """MYSQL Connection class.
     """
@@ -13,7 +14,7 @@ class MySQLConnection(BaseConnection):
     def make_connection(self):
         """This sets the connection on the connection class
         """
-        if (len(CONNECTION_POOL) < 10):
+        if len(CONNECTION_POOL) < 10:
             self._connection = pymysql.connect(
                 cursorclass=pymysql.cursors.DictCursor,
                 autocommit=True,
@@ -21,7 +22,9 @@ class MySQLConnection(BaseConnection):
             )
             CONNECTION_POOL.append(self._connection)
         else:
-            self._connection = CONNECTION_POOL[random.randint(0,len(CONNECTION_POOL) - 1)]
+            self._connection = CONNECTION_POOL[
+                random.randint(0, len(CONNECTION_POOL) - 1)
+            ]
 
         return self
 
