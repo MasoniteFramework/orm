@@ -4,13 +4,15 @@ Migrations needs to:
     * Maintain a migrations table
     * Generate migration files
 """
-from os import listdir, path
 import os
+from os import listdir, path
 from os.path import isfile, join
-from ..schema import Schema
-from ..models.MigrationModel import MigrationModel
 from pydoc import locate
+
 from inflection import camelize
+
+from ..models.MigrationModel import MigrationModel
+from ..schema import Schema
 
 
 class Migration:
@@ -48,7 +50,7 @@ class Migration:
         unran_migrations = []
         database_migrations = MigrationModel.all()
         for migration in all_migrations:
-            if migration not in database_migrations.pluck("migration"):
+            if migration.replace('.py', '') not in database_migrations.pluck("migration"):
                 unran_migrations.append(migration)
 
         return unran_migrations
@@ -66,6 +68,7 @@ class Migration:
             return (
                 MigrationModel.order_by("migration_id", "desc").get().pluck("migration")
             )
+
         return MigrationModel.all().pluck("migration")
 
     def get_last_batch_number(self):
