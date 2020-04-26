@@ -89,7 +89,7 @@ class MySQLConnection(BaseConnection):
             dict|None -- Returns a dictionary of results or None
         """
         query = query.replace("'?'", "%s")
-        # print("running query", query)
+        print("running query", query)
         try:
             with self._connection.cursor() as cursor:
                 cursor.execute(query, bindings)

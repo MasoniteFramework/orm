@@ -1,0 +1,10 @@
+"""__SEEDER_NAME__ Seeder."""
+
+from masonite.orm.seeds import Seeder
+
+
+class __SEEDER_NAME__(Seeder):
+
+    def run(self):
+        """Run the database seeds."""
+        pass
