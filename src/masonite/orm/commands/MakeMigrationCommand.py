@@ -28,9 +28,11 @@ class MakeMigrationCommand(Command):
         if self.option("create") != "None":
             table = self.option("create")
             action = "create"
+            stub_file = 'create_migration'
         else:
             table = self.option("table")
             action = "alter"
+            stub_file = 'table_migration'
 
         if table == "None":
             raise ValueError(
@@ -39,22 +41,15 @@ class MakeMigrationCommand(Command):
 
         migration_directory = "databases/migrations"
 
+
         with open(
             os.path.join(
-                pathlib.Path(__file__).parent.absolute(), "stubs/migration_file.stub"
+                pathlib.Path(__file__).parent.absolute(), f"stubs/{stub_file}.stub"
             )
         ) as fp:
             output = fp.read()
             output = output.replace("__MIGRATION_NAME__", camelize(name))
             output = output.replace("__TABLE_NAME__", table)
-            if action == "create":
-                output = output.replace(
-                    "__PASS_OR_DROP__", 'self.schema.drop("__TABLE_NAME__")'
-                )
-                output = output.replace("__action__", "create")
-            else:
-                output = output.replace("__PASS_OR_DROP__", "pass")
-                output = output.replace("__action__", "table")
 
         file_name = f"{now.strftime('%Y_%m_%d')}_{now.microsecond}_{name}.py"
 

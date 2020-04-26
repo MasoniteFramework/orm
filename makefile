@@ -1,7 +1,8 @@
 init:
 	cp .env-example .env
-	pip install masonite_cli
 	pip install -r requirements.txt
+	# Create MySQL Database
+	# Create Postgres Database
 test:
 	python -m pytest tests
 ci:
@@ -16,6 +17,7 @@ coverage:
 	python -m pytest --cov-report term --cov-report xml --cov=masonite tests/
 	python -m coveralls
 publish:
+	make format
 	python setup.py sdist
 	twine upload dist/*
 	rm -fr build dist .egg masonite.egg-info
