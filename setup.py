@@ -6,18 +6,18 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.0.1.7',
+    version='0.0.2.8',
     package_dir={'': 'src'},
 
-    description='Basic Boilerplate Package',
-    long_description='Basic Boilerplate Package',
+    description='The Official Masonite ORM',
+    long_description='The Official Masonite ORM',
 
     # The project's main homepage.
     url='https://github.com/masoniteframework/orm',
 
     # Author details
-    author='Your Name',
-    author_email='you@example.com',
+    author='Joe Mancuso',
+    author_email='joe@masoniteproject.com',
 
     # Choose your license
     license='MIT',
@@ -67,29 +67,21 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords='space separated keywords like this',
+    keywords='masonite framework orm',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    # packages=find_packages(exclude=[
-    #     'tests*',
-    #     'app',
-    #     'bootstrap',
-    #     'config',
-    #     'databases',
-    #     'resources',
-    #     'routes',
-    #     'storage'
-    #     ]),
     packages=[
         'masonite.orm',
         'masonite.orm.blueprint',
         'masonite.orm.builder',
         'masonite.orm.collection',
+        'masonite.orm.commands',
         'masonite.orm.connections',
+        'masonite.orm.expressions',
+        'masonite.orm.factories',
         'masonite.orm.grammar',
         'masonite.orm.migrations',
-        'masonite.orm.models',
         'masonite.orm.models',
         'masonite.orm.relationships',
         'masonite.orm.schema',

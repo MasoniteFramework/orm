@@ -25,7 +25,7 @@ CONNECTIONS = {
     'mysql': {
         'driver': 'mysql',
         'host': 'localhost',
-        'username': 'root',
+        'user': 'root',
         'password': '',
         'database': 'orm',
         'port': '3306',
