@@ -196,7 +196,7 @@ class QueryBuilder:
         self._columns += (SelectExpression(string, raw=True),)
         return self
 
-    def create(self, creates, query=False):
+    def create(self, creates={}, query=False, **kwargs):
         """Specifies a dictionary that should be used to create new values.
 
         Arguments:
@@ -205,6 +205,8 @@ class QueryBuilder:
         Returns:
             self
         """
+        if not creates:
+            creates = kwargs
         self.set_action("insert")
         self._creates.update(creates)
         if query:

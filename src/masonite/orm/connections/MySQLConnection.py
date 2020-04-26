@@ -37,7 +37,7 @@ class MySQLConnection(BaseConnection):
         """
         connection_details = {}
         connection_details.setdefault("host", self.connection_details.get("host"))
-        connection_details.setdefault("user", self.connection_details.get("username"))
+        connection_details.setdefault("user", self.connection_details.get("user"))
         connection_details.setdefault(
             "password", self.connection_details.get("password")
         )

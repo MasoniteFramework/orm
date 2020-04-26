@@ -1,7 +1,7 @@
 import unittest
 
-from src.masonite.orm.collection.Collection import Collection
-from src.masonite.orm.factories.Factory import Factory as factory
+from src.masonite.orm.collection import Collection
+from src.masonite.orm.factories import Factory as factory
 from src.masonite.orm.models import Model
 
 

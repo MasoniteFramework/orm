@@ -1,10 +1,12 @@
-from ..connections.ConnectionFactory import ConnectionFactory
-from ..builder import QueryBuilder
-from ..grammar.mysql_grammar import MySQLGrammar
-from ..collection.Collection import Collection
 import json
 from datetime import datetime
+
 from inflection import tableize
+
+from ..builder import QueryBuilder
+from ..collection import Collection
+from ..connections import ConnectionFactory
+from ..grammar import MySQLGrammar
 
 
 class BoolCast:
@@ -227,7 +229,7 @@ class Model:
             return model
         else:
             model = cls()
-            model.__attributes__.update(dictionary.__attributes__)
+            model.__attributes__.update(dictionary.__attributes__ if dictionary else {})
             return model
 
     @classmethod
@@ -238,8 +240,11 @@ class Model:
         pass
 
     @classmethod
-    def create(cls, dictionary, query=False):
+    def create(cls, dictionary={}, query=False, **kwargs):
         cls.boot()
+        if not dictionary:
+            dictionary = kwargs
+
         if cls.__fillable__ != ["*"]:
             dictionary = {x: dictionary[x] for x in cls.__fillable__}
         if query:
@@ -287,11 +292,17 @@ class Model:
     def set_connection_resolver(self):
         pass
 
+    def __hasattr__(self, attribute):
+        print("did it clal this?")
+
     def __getattr__(self, attribute):
         if attribute in self.__dict__["__attributes__"]:
             return self.get_value(attribute)
+        name = self.__class__.__name__
+        raise AttributeError(f"class '{name}' has no attribute {attribute}")
 
     def __setattr__(self, attribute, value):
+        print("calling this?", attribute, value)
         try:
             if not attribute.startswith("_"):
                 self.__dict__["__dirty_attributes__"].update({attribute: value})
@@ -312,6 +323,7 @@ class Model:
         return builder.update(self.__dirty_attributes__, dry=True).to_sql()
 
     def get_value(self, attribute):
+        print("getting value")
         if attribute in self.__casts__:
             return self._cast_attribute(attribute)
 
@@ -337,4 +349,5 @@ class Model:
         return cls.builder
 
     def __getitem__(self, attribute):
+        print("getting it?")
         return getattr(self, attribute)
