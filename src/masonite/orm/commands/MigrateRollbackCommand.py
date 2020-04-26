@@ -1,11 +1,11 @@
 from cleo import Command
 
-from src.masonite.orm.migrations.Migration import Migration
+from ..migrations import Migration
 
 
 class MigrateRollbackCommand(Command):
     """
-    Run migrations.
+    Rolls back the last batch of migrations.
 
     migrate:rollback
         {--c|connection=default : The connection you want to run migrations on}

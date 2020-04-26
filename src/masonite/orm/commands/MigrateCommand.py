@@ -1,5 +1,5 @@
 from cleo import Command
-from src.masonite.orm.migrations.Migration import Migration
+from ..migrations import Migration
 
 
 class MigrateCommand(Command):

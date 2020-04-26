@@ -5,15 +5,15 @@ import pathlib
 from cleo import Command
 from inflection import camelize
 
-from src.masonite.orm.migrations.Migration import Migration
+from ..migrations import Migration
 
 
 class MakeMigrationCommand(Command):
     """
-    Run migrations.
+    Creates a new migration file.
 
     migration
-        {name : Make a new migration}
+        {name : The name of the migration}
         {--c|create=None : The table to create}
         {--t|table=None : The table to alter}
     """

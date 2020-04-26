@@ -1,10 +1,10 @@
 from cleo import Command
-from src.masonite.orm.migrations.Migration import Migration
+from ..migrations import Migration
 
 
 class MigrateRefreshCommand(Command):
     """
-    Run migrations.
+    Rolls back all migrations and migrates them again.
 
     migrate:refresh
         {--c|connection=default : The connection you want to run migrations on}
