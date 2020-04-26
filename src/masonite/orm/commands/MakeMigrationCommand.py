@@ -3,7 +3,7 @@ import os
 import pathlib
 
 from cleo import Command
-from inflection import camelize
+from inflection import camelize, tableize
 
 from ..migrations import Migration
 
@@ -19,9 +19,6 @@ class MakeMigrationCommand(Command):
     """
 
     def handle(self):
-        # get the contents of a stub file
-        # replace the placeholders of a stub file
-        # output the content to a file location
         name = self.argument("name")
         now = datetime.datetime.today()
 
@@ -33,9 +30,8 @@ class MakeMigrationCommand(Command):
             stub_file = "table_migration"
 
         if table == "None":
-            raise ValueError(
-                "You must supply a table name with either the --create or --table options"
-            )
+            table = tableize(name.replace("create_", "").replace("_table", ""))
+            stub_file = "create_migration"
 
         migration_directory = "databases/migrations"
 
@@ -48,7 +44,7 @@ class MakeMigrationCommand(Command):
             output = output.replace("__MIGRATION_NAME__", camelize(name))
             output = output.replace("__TABLE_NAME__", table)
 
-        file_name = f"{now.strftime('%Y_%m_%d')}_{now.microsecond}_{name}.py"
+        file_name = f"{now.strftime('%Y_%m_%d_%H%M%S')}_{name}.py"
 
         with open(os.path.join(os.getcwd(), migration_directory, file_name), "w") as fp:
             fp.write(output)
