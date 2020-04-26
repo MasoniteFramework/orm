@@ -50,7 +50,9 @@ class Migration:
         unran_migrations = []
         database_migrations = MigrationModel.all()
         for migration in all_migrations:
-            if migration.replace('.py', '') not in database_migrations.pluck("migration"):
+            if migration.replace(".py", "") not in database_migrations.pluck(
+                "migration"
+            ):
                 unran_migrations.append(migration)
 
         return unran_migrations

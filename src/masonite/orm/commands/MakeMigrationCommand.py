@@ -27,12 +27,10 @@ class MakeMigrationCommand(Command):
 
         if self.option("create") != "None":
             table = self.option("create")
-            action = "create"
-            stub_file = 'create_migration'
+            stub_file = "create_migration"
         else:
             table = self.option("table")
-            action = "alter"
-            stub_file = 'table_migration'
+            stub_file = "table_migration"
 
         if table == "None":
             raise ValueError(
@@ -40,7 +38,6 @@ class MakeMigrationCommand(Command):
             )
 
         migration_directory = "databases/migrations"
-
 
         with open(
             os.path.join(
