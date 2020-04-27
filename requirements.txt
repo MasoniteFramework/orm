@@ -3,3 +3,4 @@ flake8
 pytest
 pymysql
 inflection==0.3.1
+psycopg2-binary
