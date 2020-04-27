@@ -35,6 +35,19 @@ CONNECTIONS = {
             'charset': 'utf8mb4',
         },
     },
+    'postgres': {
+        'driver': 'postgres',
+        'host': 'localhost',
+        'user': 'postgres',
+        'password': 'postgres',
+        'database': 'orm',
+        'port': '3306',
+        'prefix': '',
+        'grammar': 'mysql',
+        'options': {
+            'charset': 'utf8mb4',
+        },
+    },
     'sqlite': {
         'driver': 'sqlite',
         'database': 'orm.db',

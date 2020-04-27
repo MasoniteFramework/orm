@@ -828,47 +828,6 @@ class BaseGrammar:
             column=column, separator=separator, table=table or self.table
         )
 
-    # def _table_update_column_string(self, column, separator=""):
-    #     """Compiles a column into the column syntax.
-
-    #     Arguments:
-    #         column {string} -- The name of the column.
-
-    #     Keyword Arguments:
-    #         separator {string} -- The separator used between columns (default: {""})
-
-    #     Returns:
-    #         self
-    #     """
-    #     print("table column update string")
-    #     table = None
-    #     if column and "." in column:
-    #         table, column = column.split(".")
-    #     print("string is ")
-    #     return self.table_update_column_string().format(
-    #         column=column, separator=separator, table=table or self.table
-    #     )
-
-    # def _table_insert_column_string(self, column, separator=""):
-    #     """Compiles a column into the column syntax.
-
-    #     Arguments:
-    #         column {string} -- The name of the column.
-
-    #     Keyword Arguments:
-    #         separator {string} -- The separator used between columns (default: {""})
-
-    #     Returns:
-    #         self
-    #     """
-    #     table = None
-    #     if column and "." in column:
-    #         table, column = column.split(".")
-
-    #     return self.table_insert_column_string().format(
-    #         column=column, separator=separator, table=table or self.table
-    #     )
-
     def _compile_value(self, value, separator=""):
         """Compiles a value using the value syntax.
 
