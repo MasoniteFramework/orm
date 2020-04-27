@@ -337,7 +337,7 @@ class BaseGrammar:
         self._sql = self.insert_format().format(
             key_equals=self._compile_key_value_equals(),
             table=self._compile_table(self.table),
-            columns=self._compile_columns(separator=", "),
+            columns=self._compile_insert_columns(separator=", "),
             values=self._compile_values(separator=", "),
         )
 
@@ -367,6 +367,7 @@ class BaseGrammar:
             self
         """
         sql = ""
+        print("in updates")
         for update in self._updates:
 
             if update.update_type == "increment":
@@ -375,13 +376,14 @@ class BaseGrammar:
                 sql_string = self.decrement_string()
             else:
                 sql_string = self.key_value_string()
+            print("string is", sql_string)
 
             column = update.column
             value = update.value
             if isinstance(column, dict):
                 for key, value in column.items():
                     sql += sql_string.format(
-                        column=self._table_column_string(key),
+                        column=self._table_update_column_string(key),
                         value=value if not qmark else "?",
                         separator=", ",
                     )
@@ -390,7 +392,7 @@ class BaseGrammar:
                         self._bindings += (value,)
             else:
                 sql += sql_string.format(
-                    column=self._table_column_string(column),
+                    column=self._table_update_column_string(column),
                     value=value if not qmark else "?",
                 )
                 if qmark:
@@ -560,6 +562,8 @@ class BaseGrammar:
                 keyword = self.or_where_string()
             else:
                 keyword = " " + self.additional_where_string()
+
+            print("getting keyword", keyword)
 
             if where.raw:
                 """If we have a raw query we just want to use the query supplied
@@ -736,6 +740,33 @@ class BaseGrammar:
             return "*"
         return sql.rstrip(",").rstrip(", ")
 
+    def _compile_insert_columns(self, separator=""):
+        """Specifies the columns in a selection expression.
+
+        Keyword Arguments:
+            separator {str} -- The separator used between columns (default: {""})
+
+        Returns:
+            self
+        """
+        sql = ""
+        if self._columns != "*":
+            for column in self._columns:
+                if isinstance(column, SelectExpression):
+                    if column.raw:
+                        sql += column.column
+                        continue
+
+                    column = column.column
+                sql += self._table_insert_column_string(column, separator=separator)
+
+        if self._aggregates:
+            sql += self._compile_aggregates()
+
+        if sql == "":
+            return "*"
+        return sql.rstrip(",").rstrip(", ")
+
     def _compile_values(self, separator=""):
         """Compiles column values for insert expressions.
 
@@ -789,6 +820,47 @@ class BaseGrammar:
             table, column = column.split(".")
 
         return self.table_column_string().format(
+            column=column, separator=separator, table=table or self.table
+        )
+
+    def _table_update_column_string(self, column, separator=""):
+        """Compiles a column into the column syntax.
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Keyword Arguments:
+            separator {string} -- The separator used between columns (default: {""})
+
+        Returns:
+            self
+        """
+        print("table column update string")
+        table = None
+        if column and "." in column:
+            table, column = column.split(".")
+        print("string is ")
+        return self.table_update_column_string().format(
+            column=column, separator=separator, table=table or self.table
+        )
+
+    def _table_insert_column_string(self, column, separator=""):
+        """Compiles a column into the column syntax.
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Keyword Arguments:
+            separator {string} -- The separator used between columns (default: {""})
+
+        Returns:
+            self
+        """
+        table = None
+        if column and "." in column:
+            table, column = column.split(".")
+
+        return self.table_insert_column_string().format(
             column=column, separator=separator, table=table or self.table
         )
 

@@ -124,5 +124,11 @@ class MSSQLGrammar(BaseGrammar):
     def table_column_string(self):
         return "[{table}].[{column}]{separator}"
 
+    def table_update_column_string(self):
+        return "[{table}].[{column}]{separator}"
+
+    def table_insert_column_string(self):
+        return "[{table}].[{column}]{separator}"
+
     def value_string(self):
         return "'{value}'{separator}"

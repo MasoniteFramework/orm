@@ -1,8 +1,8 @@
 from .BaseGrammar import BaseGrammar
 
 
-class MySQLGrammar(BaseGrammar):
-    """MySQL grammar class.
+class PostgresGrammar(BaseGrammar):
+    """Postgres grammar class.
     """
 
     aggregate_options = {
@@ -175,22 +175,22 @@ class MySQLGrammar(BaseGrammar):
         return "ADD CONSTRAINT {index_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}) {action}{separator}"
 
     def table_string(self):
-        return "`{table}`"
+        return '"{table}"'
 
     def order_by_string(self):
         return "ORDER BY {column} {direction}"
 
     def column_string(self):
-        return "`{column}`{separator}"
+        return '"{column}"{separator}'
 
     def table_column_string(self):
-        return "`{table}`.`{column}`{separator}"
+        return '"{table}"."{column}"{separator}'
 
     def table_update_column_string(self):
-        return self.table_column_string()
+        return '"{column}"{separator}'
 
     def table_insert_column_string(self):
-        return self.table_column_string()
+        return '"{column}"{separator}'
 
     def value_string(self):
         return "'{value}'{separator}"
