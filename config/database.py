@@ -41,12 +41,9 @@ CONNECTIONS = {
         'user': 'postgres',
         'password': 'postgres',
         'database': 'orm',
-        'port': '3306',
+        'port': '5432',
         'prefix': '',
-        'grammar': 'mysql',
-        'options': {
-            'charset': 'utf8mb4',
-        },
+        'grammar': 'postgres',
     },
     'sqlite': {
         'driver': 'sqlite',

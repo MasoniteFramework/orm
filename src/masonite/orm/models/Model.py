@@ -56,7 +56,7 @@ class Model:
         if not cls._booted:
             cls.__resolved_connection__ = ConnectionFactory().make(cls.__connection__)
             cls.builder = QueryBuilder(
-                MySQLGrammar,
+                cls.__resolved_connection__.get_grammer(),
                 cls.__resolved_connection__,
                 table=cls.get_table_name(),
                 owner=cls,

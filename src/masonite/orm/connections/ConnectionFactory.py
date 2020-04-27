@@ -2,6 +2,7 @@ from config.database import CONNECTIONS
 
 from .MySQLConnection import MySQLConnection
 from .SQLiteConnection import SQLiteConnection
+from .PostgresConnection import PostgresConnection
 
 
 class ConnectionFactory:
@@ -11,7 +12,7 @@ class ConnectionFactory:
     _connections = {
         "mysql": MySQLConnection,
         "mssql": "",
-        "postgres": "",
+        "postgres": PostgresConnection,
         "sqlite": SQLiteConnection,
         "oracle": "",
     }
