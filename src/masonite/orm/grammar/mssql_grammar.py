@@ -24,9 +24,10 @@ class MSSQLGrammar(BaseGrammar):
     }
 
     column_strings = {
-        "default": "[{table}].[{column}]{separator}",
+        "select": "[{table}].[{column}]{separator}",
         "insert": "[{table}].[{column}]{separator}",
         "update": "[{table}].[{column}]{separator}",
+        "delete": "[{table}].[{column}]{separator}",
     }
 
     def select_format(self):

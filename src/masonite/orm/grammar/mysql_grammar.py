@@ -67,10 +67,26 @@ class MySQLGrammar(BaseGrammar):
         None: "",
     }
 
+    """Column strings are formats for how columns and key values should be formatted
+    on specific queries. These can be different depending on the type of query.
+
+    For example for Postgres, You can specify columns as "users"."name":
+
+        SELECT "users"."name" from "users"
+
+    But on updates we can only specify the column name and cannot have the table prefixed:
+
+        UPDATE "users" SET "name" = "value"
+
+    This dictionary allows you to modify the format depending on the type
+    of query we are generating.
+    """
+
     column_strings = {
-        "default": "`{table}`.`{column}`{separator}",
+        "select": "`{table}`.`{column}`{separator}",
         "insert": "`{table}`.`{column}`{separator}",
         "update": "`{table}`.`{column}`{separator}",
+        "delete": "`{table}`.`{column}`{separator}",
     }
 
     timestamp_mapping = {"current": "CURRENT_TIMESTAMP", "now": "NOW()"}

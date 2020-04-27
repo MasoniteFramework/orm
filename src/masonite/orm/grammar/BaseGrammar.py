@@ -63,6 +63,9 @@ class BaseGrammar:
 
         self._sql_qmark = ""
 
+    def compile(self, action):
+        return getattr(self, "_compile_" + action)()
+
     def _compile_create(self):
         """Compiles a query for creating new table schemas.
 
@@ -357,7 +360,7 @@ class BaseGrammar:
 
         return self
 
-    def _compile_key_value_equals(self, qmark=False, action="default"):
+    def _compile_key_value_equals(self, qmark=False, action="select"):
         """Compiles key value pairs.
 
         Keyword Arguments:
@@ -713,7 +716,7 @@ class BaseGrammar:
         """
         return re.sub(" +", " ", self._sql.strip())
 
-    def _compile_columns(self, separator="", action="default"):
+    def _compile_columns(self, separator="", action="select"):
         """Specifies the columns in a selection expression.
 
         Keyword Arguments:
@@ -805,7 +808,7 @@ class BaseGrammar:
             column=column, separator=separator, table=table or self.table
         )
 
-    def _table_column_string(self, column, separator="", action="default"):
+    def _table_column_string(self, column, separator="", action="select"):
         """Compiles a column into the column syntax.
 
         Arguments:
