@@ -67,6 +67,12 @@ class PostgresGrammar(BaseGrammar):
         None: "",
     }
 
+    column_strings = {
+        'default': '"{table}"."{column}"{separator}',
+        'insert': '"{column}"{separator}',
+        'update': '"{column}"{separator}',
+    }
+
     timestamp_mapping = {"current": "CURRENT_TIMESTAMP", "now": "NOW()"}
 
     def select_format(self):

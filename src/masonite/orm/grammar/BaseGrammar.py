@@ -298,7 +298,7 @@ class BaseGrammar:
             self
         """
         self._sql = self.update_format().format(
-            key_equals=self._compile_key_value_equals(qmark=qmark),
+            key_equals=self._compile_key_value_equals(qmark=qmark, action='update'),
             table=self._compile_table(self.table),
             wheres=self._compile_wheres(qmark=qmark),
         )
@@ -337,7 +337,7 @@ class BaseGrammar:
         self._sql = self.insert_format().format(
             key_equals=self._compile_key_value_equals(),
             table=self._compile_table(self.table),
-            columns=self._compile_insert_columns(separator=", "),
+            columns=self._compile_columns(separator=", ", action="insert"),
             values=self._compile_values(separator=", "),
         )
 
@@ -357,7 +357,7 @@ class BaseGrammar:
 
         return self
 
-    def _compile_key_value_equals(self, qmark=False):
+    def _compile_key_value_equals(self, qmark=False, action='default'):
         """Compiles key value pairs.
 
         Keyword Arguments:
@@ -383,7 +383,7 @@ class BaseGrammar:
             if isinstance(column, dict):
                 for key, value in column.items():
                     sql += sql_string.format(
-                        column=self._table_update_column_string(key),
+                        column=self._table_column_string(key, action=action),
                         value=value if not qmark else "?",
                         separator=", ",
                     )
@@ -392,7 +392,7 @@ class BaseGrammar:
                         self._bindings += (value,)
             else:
                 sql += sql_string.format(
-                    column=self._table_update_column_string(column),
+                    column=self._table_column_string(column, action=action),
                     value=value if not qmark else "?",
                 )
                 if qmark:
@@ -713,7 +713,7 @@ class BaseGrammar:
         """
         return re.sub(" +", " ", self._sql.strip())
 
-    def _compile_columns(self, separator=""):
+    def _compile_columns(self, separator="", action="default"):
         """Specifies the columns in a selection expression.
 
         Keyword Arguments:
@@ -731,7 +731,7 @@ class BaseGrammar:
                         continue
 
                     column = column.column
-                sql += self._table_column_string(column, separator=separator)
+                sql += self._table_column_string(column, separator=separator, action=action)
 
         if self._aggregates:
             sql += self._compile_aggregates()
@@ -803,7 +803,7 @@ class BaseGrammar:
             column=column, separator=separator, table=table or self.table
         )
 
-    def _table_column_string(self, column, separator=""):
+    def _table_column_string(self, column, separator="", action='default'):
         """Compiles a column into the column syntax.
 
         Arguments:
@@ -819,50 +819,50 @@ class BaseGrammar:
         if column and "." in column:
             table, column = column.split(".")
 
-        return self.table_column_string().format(
+        return self.column_strings.get(action).format(
             column=column, separator=separator, table=table or self.table
         )
 
-    def _table_update_column_string(self, column, separator=""):
-        """Compiles a column into the column syntax.
+    # def _table_update_column_string(self, column, separator=""):
+    #     """Compiles a column into the column syntax.
 
-        Arguments:
-            column {string} -- The name of the column.
+    #     Arguments:
+    #         column {string} -- The name of the column.
 
-        Keyword Arguments:
-            separator {string} -- The separator used between columns (default: {""})
+    #     Keyword Arguments:
+    #         separator {string} -- The separator used between columns (default: {""})
 
-        Returns:
-            self
-        """
-        print("table column update string")
-        table = None
-        if column and "." in column:
-            table, column = column.split(".")
-        print("string is ")
-        return self.table_update_column_string().format(
-            column=column, separator=separator, table=table or self.table
-        )
+    #     Returns:
+    #         self
+    #     """
+    #     print("table column update string")
+    #     table = None
+    #     if column and "." in column:
+    #         table, column = column.split(".")
+    #     print("string is ")
+    #     return self.table_update_column_string().format(
+    #         column=column, separator=separator, table=table or self.table
+    #     )
 
-    def _table_insert_column_string(self, column, separator=""):
-        """Compiles a column into the column syntax.
+    # def _table_insert_column_string(self, column, separator=""):
+    #     """Compiles a column into the column syntax.
 
-        Arguments:
-            column {string} -- The name of the column.
+    #     Arguments:
+    #         column {string} -- The name of the column.
 
-        Keyword Arguments:
-            separator {string} -- The separator used between columns (default: {""})
+    #     Keyword Arguments:
+    #         separator {string} -- The separator used between columns (default: {""})
 
-        Returns:
-            self
-        """
-        table = None
-        if column and "." in column:
-            table, column = column.split(".")
+    #     Returns:
+    #         self
+    #     """
+    #     table = None
+    #     if column and "." in column:
+    #         table, column = column.split(".")
 
-        return self.table_insert_column_string().format(
-            column=column, separator=separator, table=table or self.table
-        )
+    #     return self.table_insert_column_string().format(
+    #         column=column, separator=separator, table=table or self.table
+    #     )
 
     def _compile_value(self, value, separator=""):
         """Compiles a value using the value syntax.

@@ -67,6 +67,12 @@ class MySQLGrammar(BaseGrammar):
         None: "",
     }
 
+    column_strings = {
+        'default': "`{table}`.`{column}`{separator}",
+        'insert': "`{table}`.`{column}`{separator}",
+        'update': "`{table}`.`{column}`{separator}",
+    }
+
     timestamp_mapping = {"current": "CURRENT_TIMESTAMP", "now": "NOW()"}
 
     def select_format(self):
@@ -182,15 +188,6 @@ class MySQLGrammar(BaseGrammar):
 
     def column_string(self):
         return "`{column}`{separator}"
-
-    def table_column_string(self):
-        return "`{table}`.`{column}`{separator}"
-
-    def table_update_column_string(self):
-        return self.table_column_string()
-
-    def table_insert_column_string(self):
-        return self.table_column_string()
 
     def value_string(self):
         return "'{value}'{separator}"
