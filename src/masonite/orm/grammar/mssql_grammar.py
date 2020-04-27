@@ -24,9 +24,9 @@ class MSSQLGrammar(BaseGrammar):
     }
 
     column_strings = {
-        'default': "[{table}].[{column}]{separator}",
-        'insert': "[{table}].[{column}]{separator}",
-        'update': "[{table}].[{column}]{separator}",
+        "default": "[{table}].[{column}]{separator}",
+        "insert": "[{table}].[{column}]{separator}",
+        "update": "[{table}].[{column}]{separator}",
     }
 
     def select_format(self):

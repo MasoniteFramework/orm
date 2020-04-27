@@ -68,9 +68,9 @@ class PostgresGrammar(BaseGrammar):
     }
 
     column_strings = {
-        'default': '"{table}"."{column}"{separator}',
-        'insert': '"{column}"{separator}',
-        'update': '"{column}"{separator}',
+        "default": '"{table}"."{column}"{separator}',
+        "insert": '"{column}"{separator}',
+        "update": '"{column}"{separator}',
     }
 
     timestamp_mapping = {"current": "CURRENT_TIMESTAMP", "now": "NOW()"}

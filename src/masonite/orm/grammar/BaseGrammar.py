@@ -298,7 +298,7 @@ class BaseGrammar:
             self
         """
         self._sql = self.update_format().format(
-            key_equals=self._compile_key_value_equals(qmark=qmark, action='update'),
+            key_equals=self._compile_key_value_equals(qmark=qmark, action="update"),
             table=self._compile_table(self.table),
             wheres=self._compile_wheres(qmark=qmark),
         )
@@ -357,7 +357,7 @@ class BaseGrammar:
 
         return self
 
-    def _compile_key_value_equals(self, qmark=False, action='default'):
+    def _compile_key_value_equals(self, qmark=False, action="default"):
         """Compiles key value pairs.
 
         Keyword Arguments:
@@ -731,7 +731,9 @@ class BaseGrammar:
                         continue
 
                     column = column.column
-                sql += self._table_column_string(column, separator=separator, action=action)
+                sql += self._table_column_string(
+                    column, separator=separator, action=action
+                )
 
         if self._aggregates:
             sql += self._compile_aggregates()
@@ -803,7 +805,7 @@ class BaseGrammar:
             column=column, separator=separator, table=table or self.table
         )
 
-    def _table_column_string(self, column, separator="", action='default'):
+    def _table_column_string(self, column, separator="", action="default"):
         """Compiles a column into the column syntax.
 
         Arguments:
