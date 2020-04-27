@@ -79,7 +79,8 @@ class MySQLGrammar(BaseGrammar):
         UPDATE "users" SET "name" = "value"
 
     This dictionary allows you to modify the format depending on the type
-    of query we are generating.
+    of query we are generating. For most databases these will be the same
+    but this allows you to modify formats depending on the database.
     """
 
     column_strings = {
