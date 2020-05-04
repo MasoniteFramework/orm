@@ -407,7 +407,7 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return (
             "CREATE TABLE `users` ("
-            "`id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL, "
+            "`id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL, "
             "`name` VARCHAR(255) NOT NULL"
             ")"
         )
@@ -421,7 +421,7 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return (
             "CREATE TABLE `users` ("
-            "`id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL, "
+            "`id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL, "
             "`name` VARCHAR(255) NOT NULL, "
             "CONSTRAINT name_unique UNIQUE (name)"
             ")"
