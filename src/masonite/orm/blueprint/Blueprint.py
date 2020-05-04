@@ -269,8 +269,21 @@ class Blueprint:
         self._columns += (self._last_column,)
         return self
 
-    def big_increments(self):
-        pass
+    def big_increments(self, column, nullable=False):
+        """Sets a column to be the the big integer increments representation for the table
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.new_column("big_increments", column, None, nullable)
+        self._columns += (self._last_column,)
+        return self
 
     def binary(self, column, nullable=False):
         """Sets a column to be the binary representation for the table.
@@ -415,8 +428,21 @@ class Blueprint:
         self._columns += (self._last_column,)
         return self
 
-    def double(self):
-        pass
+    def double(self, column, nullable=False):
+        """Sets a column to be the the double representation for the table
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.new_column("double", column, None, nullable)
+        self._columns += (self._last_column,)
+        return self
 
     def enum(self, column, options=[], nullable=False):
         """Sets a column to be the enum representation for the table.
@@ -473,8 +499,21 @@ class Blueprint:
         self._columns += (self._last_column,)
         return self
 
-    def unsigned_integer(self):
-        pass
+    def unsigned_integer(self, column, nullable=False):
+        """Sets a column to be the unsigned integer representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.new_column("unsigned_integer", column, None, nullable)
+        self._columns += (self._last_column,)
+        return self
 
     def to_sql(self):
         """Compiles the blueprint class into a sql statement.

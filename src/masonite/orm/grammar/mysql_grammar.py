@@ -31,7 +31,7 @@ class MySQLGrammar(BaseGrammar):
         "integer": "INT",
         "big_integer": "BIGINT",
         "tiny_integer": "TINYINT",
-        "big_increments": "BIGINT",
+        "big_increments": "BIGINT AUTO_INCREMENT",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
         "increments": "INT UNSIGNED AUTO_INCREMENT PRIMARY KEY",
