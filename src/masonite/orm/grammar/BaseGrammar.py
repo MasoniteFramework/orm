@@ -62,6 +62,7 @@ class BaseGrammar:
         self._sql = ""
 
         self._sql_qmark = ""
+        self.queries = []
 
     def compile(self, action):
         return getattr(self, "_compile_" + action)()
@@ -113,7 +114,7 @@ class BaseGrammar:
                 column=self._compile_column(column.column_name),
                 old_column=self._compile_column(column.old_column),
                 data_type=self.type_map.get(column.column_type, ""),
-                length=self.create_column_length().format(length=column.length)
+                length=self.create_column_length(column.column_type).format(length=column.length)
                 if column.length
                 else "",
                 nullable=nullable,
@@ -183,19 +184,26 @@ class BaseGrammar:
         for column in self._creates:
 
             length_string = (
-                self.create_column_length().format(length=column.length)
+                self.create_column_length(column.column_type).format(length=column.length)
                 if column.length
                 else ""
             )
+
             mapped_time_value = self.timestamp_mapping.get(column.default)
 
             default_value = mapped_time_value or column.default
+
+            if hasattr(self, f'_type_{column.column_type}'):
+                sql += getattr(self, f'_type_{column.column_type}')(column, length_string, default_value)
+                continue
 
             attributes = {
                 "column": self._compile_column(column.column_name),
                 "data_type": self.type_map.get(column.column_type),
                 "length": length_string,
             }
+
+
 
             if default_value:
                 attributes.update({"default_value": default_value})
@@ -696,6 +704,7 @@ class BaseGrammar:
         """
         return self.column_exists_string().format(
             table=self._compile_table(self.table),
+            clean_table=self.table,
             value=self._compile_value(self._column),
         )
 

@@ -173,7 +173,7 @@ class MySQLGrammar(BaseGrammar):
     def alter_start(self):
         return "ALTER TABLE {table} "
 
-    def create_column_length(self):
+    def create_column_length(self, column_type):
         return "({length})"
 
     def unique_constraint_string(self):

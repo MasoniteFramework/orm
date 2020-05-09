@@ -1,5 +1,5 @@
 from .BaseGrammar import BaseGrammar
-
+import re
 
 class PostgresGrammar(BaseGrammar):
     """Postgres grammar class.
@@ -23,21 +23,25 @@ class PostgresGrammar(BaseGrammar):
         "right_inner": "RIGHT INNER JOIN",
     }
 
+    types_without_lengths = [
+        'integer'
+    ]
+
     type_map = {
         "string": "VARCHAR",
         "char": "CHAR",
-        "integer": "INT",
+        "integer": "INTEGER",
         "big_integer": "BIGINT",
         "tiny_integer": "TINYINT",
         "big_increments": "BIGINT",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
-        "increments": "INT AUTO_INCREMENT PRIMARY KEY",
+        "increments": "INTEGER PRIMARY KEY",
         "binary": "LONGBLOB",
         "boolean": "BOOLEAN",
         "decimal": "DECIMAL",
         "double": "DOUBLE",
-        "enum": "ENUM",
+        "enum": "VARCHAR(255) CHECK ",
         "text": "TEXT",
         "float": "FLOAT",
         "geometry": "GEOMETRY",
@@ -51,8 +55,8 @@ class PostgresGrammar(BaseGrammar):
         "year": "YEAR",
         "datetime": "DATETIME",
         "tiny_increments": "TINYINT AUTO_INCREMENT",
-        "unsigned": "INT UNSIGNED",
-        "unsigned_integer": "UNSIGNED INT",
+        "unsigned": "INT",
+        "unsigned_integer": "INT",
     }
 
     on_delete_mapping = {
@@ -127,14 +131,17 @@ class PostgresGrammar(BaseGrammar):
     def create_column_string(self):
         return "{column} {data_type}{length}{nullable}, "
 
+    def _type_enum(self, column, length_string, default=None):
+        return f""""{column.column_name}" VARCHAR(255) CHECK ("{column.column_name}" in {length_string})"""
+
     def create_column_string_with_default(self):
         return "{column} {data_type}{length} DEFAULT {default_value}, "
 
     def column_exists_string(self):
-        return "SHOW COLUMNS FROM {table} LIKE {value}"
+        return "SELECT column_name FROM information_schema.columns WHERE table_name='{clean_table}' and column_name={value}"
 
     def table_exists_string(self):
-        return "SELECT * from information_schema.tables where table_name='{clean_table}' AND table_schema = '{database}'"
+        return "SELECT * from information_schema.tables where table_name='{clean_table}'"
 
     def add_column_string(self):
         return "ADD {column} {data_type}{length}{nullable} {after}, "
@@ -157,7 +164,9 @@ class PostgresGrammar(BaseGrammar):
     def alter_start(self):
         return "ALTER TABLE {table} "
 
-    def create_column_length(self):
+    def create_column_length(self, column_type):
+        if column_type in self.types_without_lengths:
+            return ""
         return "({length})"
 
     def unique_constraint_string(self):
@@ -167,10 +176,75 @@ class PostgresGrammar(BaseGrammar):
         return "ADD CONSTRAINT {index_name} UNIQUE({column}){separator}"
 
     def index_constraint_string(self):
-        return "INDEX ({column}){separator}"
+        return """CREATE INDEX {clean_table}_{clean_column}_index ON {table}({column})"""
+
+    def _compile_create_constraints(self):
+        """Compiles constraints for creation schema.
+
+        Returns:
+            self
+        """
+        sql = " "
+        for column in self._constraints:
+            if column.constraint_type in ('index','fulltext'):
+                multiple_columns = self._get_multiple_columns(column.column_name)
+                if isinstance(column.column_name, list):
+                    for index_column in column.column_name:
+                        print('loop', index_column)
+                        query = getattr(
+                            self, "{}_constraint_string".format(column.constraint_type)
+                        )().format(
+                            column=self._compile_column(index_column),
+                            clean_column=index_column,
+                            index_name=column.index_name,
+                            table=self._compile_table(self.table),
+                            clean_table=self.table,
+                            separator="",
+                        )
+                        self.queries.append(query.rstrip(" "))
+                else:
+                    query = getattr(
+                        self, "{}_constraint_string".format(column.constraint_type)
+                    )().format(
+                        column=self._get_multiple_columns(column.column_name),
+                        clean_column=column.column_name,
+                        index_name=column.index_name,
+                        table=self._compile_table(self.table),
+                        clean_table=self.table,
+                        separator="",
+                    )
+                    self.queries.append(query.rstrip(" "))
+                continue
+            else:
+                sql += getattr(
+                    self, "{}_constraint_string".format(column.constraint_type)
+                )().format(
+                    column=self._get_multiple_columns(column.column_name),
+                    clean_column=column.column_name,
+                    index_name=column.index_name,
+                    table=self._compile_table(self.table),
+                    clean_table=self.table,
+                    separator=", ",
+                )
+
+        return sql.rstrip(", ").rstrip(",")
+
+    def to_sql(self):
+        """Cleans up the SQL string and returns the SQL
+
+        Returns:
+            string
+        """
+        sql = re.sub(" +", " ", self._sql.strip().replace(',)', ')'))
+        for query in self.queries:
+            sql += "; "
+            sql += re.sub(" +", " ", query.strip())
+        
+        return sql
+        # return re.sub(" +", " ", self._sql.strip())
 
     def fulltext_constraint_string(self):
-        return "FULLTEXT ({column}){separator}"
+        return "CREATE INDEX {clean_table}_{clean_column}_index ON {table}({column})"
 
     def primary_constraint_string(self):
         return "PRIMARY KEY ({column}){separator}"
@@ -248,10 +322,10 @@ class PostgresGrammar(BaseGrammar):
         return "DROP TABLE IF EXISTS {table}"
 
     def truncate_table_string(self):
-        return "TRUNCATE TABLE {table}"
+        return "TRUNCATE {table}"
 
     def rename_table_string(self):
-        return "RENAME TABLE {current_table_name} TO {new_table_name}"
+        return "ALTER TABLE {current_table_name} RENAME TO {new_table_name}"
 
     def drop_index_column_string(self):
         return "DROP INDEX {column} "
