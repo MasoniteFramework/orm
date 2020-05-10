@@ -3,13 +3,14 @@ import unittest
 
 from src.masonite.orm.builder import QueryBuilder
 from src.masonite.orm.grammar import PostgresGrammar
+from src.masonite.orm.connections import ConnectionFactory
 from src.masonite.orm.models import Model
 from tests.utils import MockConnectionFactory
 
 
 class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
-        connection = MockConnectionFactory().make("default")
+        connection = ConnectionFactory().make("postgres").dry()
         return QueryBuilder(self.grammar, connection, table=table, owner=Model)
 
     def test_sum(self):
@@ -47,13 +48,13 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
-    # def test_all(self):
-    #     builder = self.get_builder()
-    #     builder.all()
-    #     sql = getattr(
-    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
-    #     )()
-    #     self.assertEqual(builder.to_sql(), sql)
+    def test_all(self):
+        builder = self.get_builder()
+        builder.all()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
 
     def test_get(self):
         builder = self.get_builder()
