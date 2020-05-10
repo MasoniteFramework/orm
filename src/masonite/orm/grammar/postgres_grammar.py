@@ -186,9 +186,6 @@ class PostgresGrammar(BaseGrammar):
     def primary_key_string(self):
         return "{table}_primary"
 
-    def index_alter_constraint_string(self):
-        return """DROP INDEX "{index_name}\""""
-
     def index_constraint_string(self):
         return (
             """CREATE INDEX {clean_table}_{clean_column}_index ON {table}({column})"""
@@ -291,7 +288,7 @@ class PostgresGrammar(BaseGrammar):
         return "ALTER TABLE {current_table_name} RENAME TO {new_table_name}"
 
     def drop_index_column_string(self):
-        return "DROP INDEX {table}_{column}{separator} "
+        return "DROP INDEX {column}{separator} "
 
     def drop_unique_column_string(self):
         return "DROP CONSTRAINT {clean_column}{separator} "

@@ -18,6 +18,8 @@ coverage:
 	python -m coveralls
 show:
 	python -m pytest --cov-report term --cov-report html --cov=src/masonite tests/
+cov:
+	python -m pytest --cov-report term --cov-report xml --cov=src/masonite tests/
 publish:
 	make format
 	python setup.py sdist

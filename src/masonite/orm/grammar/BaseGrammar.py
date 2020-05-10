@@ -301,19 +301,18 @@ class BaseGrammar:
 
         return sql.rstrip(", ")
 
-    def _compile_alter_constraint_as_query(self, column):
+    def _compile_alter_constraint_as_query(self, column, action):
         """Compiles constraints for creation schema.
 
         Returns:
             self
         """
-        print("calling", "{}_alter_constraint_string".format(column.constraint_type))
         if not self.options["can_compile_multiple_index"] and isinstance(
             column.column_name, list
         ):
             for index_column in column.column_name:
                 query = getattr(
-                    self, "{}_alter_constraint_string".format(column.constraint_type)
+                    self, "{}_{}_column_string".format(action, column.constraint_type)
                 )().format(
                     column=self._compile_column(index_column),
                     clean_column=index_column,
@@ -325,7 +324,7 @@ class BaseGrammar:
                 self.queries.append(query.rstrip(" "))
         else:
             query = getattr(
-                self, "{}_alter_constraint_string".format(column.constraint_type)
+                self, "{}_{}_column_string".format(action, column.constraint_type)
             )().format(
                 column=self._get_multiple_columns(column.column_name),
                 clean_column=column.column_name,
@@ -344,13 +343,12 @@ class BaseGrammar:
         """
         sql = " "
         for column in self._constraints:
-            print("alter", column.action)
             if self.options.get(
                 "alter_constraints_as_separate_queries"
             ) and column.constraint_type in self.options.get(
                 "second_query_constraints"
             ):
-                self._compile_alter_constraint_as_query(column)
+                self._compile_alter_constraint_as_query(column, column.action)
                 continue
 
             sql += getattr(
@@ -474,7 +472,6 @@ class BaseGrammar:
             self
         """
         sql = ""
-        print("in updates")
         for update in self._updates:
 
             if update.update_type == "increment":
@@ -483,7 +480,6 @@ class BaseGrammar:
                 sql_string = self.decrement_string()
             else:
                 sql_string = self.key_value_string()
-            print("string is", sql_string)
 
             column = update.column
             value = update.value
@@ -669,8 +665,6 @@ class BaseGrammar:
                 keyword = self.or_where_string()
             else:
                 keyword = " " + self.additional_where_string()
-
-            print("getting keyword", keyword)
 
             if where.raw:
                 """If we have a raw query we just want to use the query supplied

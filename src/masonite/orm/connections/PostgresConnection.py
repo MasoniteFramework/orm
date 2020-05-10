@@ -16,7 +16,6 @@ class PostgresConnection(BaseConnection):
         """This sets the connection on the connection class
         """
         self._connection = psycopg2.connect(**self.get_connection_details())
-        print(self._connection)
 
         return self
 
@@ -36,7 +35,6 @@ class PostgresConnection(BaseConnection):
         connection_details.setdefault("port", int(self.connection_details.get("port")))
         connection_details.setdefault("dbname", self.connection_details.get("database"))
         connection_details.update(self.connection_details.get("options", {}))
-        print(self.connection_details)
         return connection_details
 
     @classmethod
@@ -81,7 +79,6 @@ class PostgresConnection(BaseConnection):
             dict|None -- Returns a dictionary of results or None
         """
         query = query.replace("'?'", "%s")
-        print("running query", query)
         try:
             with self._connection.cursor(
                 cursor_factory=psycopg2.extras.RealDictCursor

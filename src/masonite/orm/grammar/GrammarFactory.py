@@ -30,5 +30,4 @@ class GrammarFactory:
         Returns:
             self
         """
-        print(key, GrammarFactory.grammars.get(key))
         return GrammarFactory.grammars.get(key)
