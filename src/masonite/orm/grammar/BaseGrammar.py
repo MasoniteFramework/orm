@@ -301,6 +301,41 @@ class BaseGrammar:
 
         return sql.rstrip(", ")
 
+    def _compile_alter_constraint_as_query(self, column):
+        """Compiles constraints for creation schema.
+
+        Returns:
+            self
+        """
+        print("calling", "{}_alter_constraint_string".format(column.constraint_type))
+        if not self.options["can_compile_multiple_index"] and isinstance(
+            column.column_name, list
+        ):
+            for index_column in column.column_name:
+                query = getattr(
+                    self, "{}_alter_constraint_string".format(column.constraint_type)
+                )().format(
+                    column=self._compile_column(index_column),
+                    clean_column=index_column,
+                    index_name=column.index_name,
+                    table=self._compile_table(self.table),
+                    clean_table=self.table,
+                    separator="",
+                )
+                self.queries.append(query.rstrip(" "))
+        else:
+            query = getattr(
+                self, "{}_alter_constraint_string".format(column.constraint_type)
+            )().format(
+                column=self._get_multiple_columns(column.column_name),
+                clean_column=column.column_name,
+                index_name=column.index_name,
+                table=self._compile_table(self.table),
+                clean_table=self.table,
+                separator="",
+            )
+            self.queries.append(query.rstrip(" "))
+
     def _compile_alter_constraints(self):
         """Compiles constraints for alter schema.
 
@@ -308,13 +343,24 @@ class BaseGrammar:
             self
         """
         sql = " "
+
         for column in self._constraints:
+            if self.options.get(
+                "alter_constraints_as_separate_queries"
+            ) and column.constraint_type in self.options.get(
+                "second_query_constraints"
+            ):
+                self._compile_alter_constraint_as_query(column)
+                continue
+
             sql += getattr(
                 self, "{}_alter_constraint_string".format(column.constraint_type)
             )().format(
                 column=self._get_multiple_columns(column.column_name),
                 clean_column=column.column_name,
                 index_name=column.index_name,
+                table=self._compile_table(self.table),
+                clean_table=self.table,
                 separator=", ",
             )
 
@@ -763,7 +809,6 @@ class BaseGrammar:
         Returns:
             string
         """
-
         return re.sub(" +", " ", self._sql.strip())
 
     def to_qmark(self):

@@ -183,6 +183,9 @@ class PostgresGrammar(BaseGrammar):
     def unique_alter_constraint_string(self):
         return "ADD CONSTRAINT {index_name} UNIQUE({column}){separator}"
 
+    def index_alter_constraint_string(self):
+        return """DROP INDEX "{index_name}\""""
+
     def index_constraint_string(self):
         return (
             """CREATE INDEX {clean_table}_{clean_column}_index ON {table}({column})"""
@@ -244,13 +247,20 @@ class PostgresGrammar(BaseGrammar):
         Returns:
             string
         """
-        sql = re.sub(" +", " ", self._sql.strip().replace(",)", ")"))
-        for query in self.queries:
-            sql += "; "
-            sql += re.sub(" +", " ", query.strip())
 
-        return sql
-        # return re.sub(" +", " ", self._sql.strip())
+        if self.queries and (not self._columns and not self._creates):
+            sql = ""
+            for query in self.queries:
+                query += "; "
+                sql += re.sub(" +", " ", query)
+            return sql.rstrip(" ")
+        else:
+            sql = re.sub(" +", " ", self._sql.strip().replace(",)", ")"))
+            for query in self.queries:
+                sql += "; "
+                sql += re.sub(" +", " ", query.strip())
+
+            return sql
 
     def fulltext_constraint_string(self):
         return "CREATE INDEX {clean_table}_{clean_column}_index ON {table}({column})"
@@ -337,7 +347,7 @@ class PostgresGrammar(BaseGrammar):
         return "ALTER TABLE {current_table_name} RENAME TO {new_table_name}"
 
     def drop_index_column_string(self):
-        return "DROP INDEX {column} "
+        return "DROP INDEX {table}_{column} "
 
     def drop_unique_column_string(self):
         return "DROP INDEX {column} "

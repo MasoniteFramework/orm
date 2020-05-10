@@ -281,23 +281,23 @@ class BaseTestCreateGrammar:
         )()
         self.assertEqual(blueprint.to_sql(), sql)
 
-    # def test_drop_index(self):
-    #     with self.schema.table("users") as blueprint:
-    #         blueprint.drop_index("name_index")
+    def test_drop_index(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.drop_index("name_index")
 
-    #     sql = getattr(
-    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
-    #     )()
-    #     self.assertEqual(blueprint.to_sql(), sql)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(blueprint.to_sql(), sql)
 
-    # def test_drop_multiple_index(self):
-    #     with self.schema.table("users") as blueprint:
-    #         blueprint.drop_index(["name_index", "email_index"])
+    def test_drop_multiple_index(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.drop_index(["name_index", "email_index"])
 
-    #     sql = getattr(
-    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
-    #     )()
-    #     self.assertEqual(blueprint.to_sql(), sql)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(blueprint.to_sql(), sql)
 
     # def test_drop_unique(self):
     #     with self.schema.table("users") as blueprint:
@@ -347,7 +347,7 @@ class BaseTestCreateGrammar:
 
 class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
     def setUp(self):
-        self.schema = Schema.on("postgres")
+        self.schema = Schema.dry().on("postgres")
 
     def can_compile_column(self):
         """
@@ -705,34 +705,28 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
          with self.schema.table("users") as blueprint:
             blueprint.drop_index('name_index')
         """
-        return """DROP INDEX "users_name_index\""""
+        return """DROP INDEX "name_index\";"""
 
     def drop_multiple_index(self):
         """
          with self.schema.table("users") as blueprint:
             blueprint.drop_index(['name_index', 'email_index'])
         """
-        return (
-            "ALTER TABLE `users` " "DROP INDEX `name_index` " "DROP INDEX `email_index`"
-        )
+        return """DROP INDEX "name_index"; """ """DROP INDEX "email_index";"""
 
     def drop_unique(self):
         """
          with self.schema.table("users") as blueprint:
             blueprint.drop_index('name_unique')
         """
-        return "ALTER TABLE `users` DROP INDEX `name_unique`"
+        return "DROP INDEX `name_unique`;"
 
     def drop_multiple_unique(self):
         """
          with self.schema.table("users") as blueprint:
             blueprint.drop_index(['name_unique', 'email_unique'])
         """
-        return (
-            "ALTER TABLE `users` "
-            "DROP INDEX `name_unique` "
-            "DROP INDEX `email_unique`"
-        )
+        return """DROP INDEX "name_unique"; """ """DROP INDEX "email_unique";"""
 
     def drop_primary(self):
         """

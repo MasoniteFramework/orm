@@ -192,6 +192,9 @@ class MySQLGrammar(BaseGrammar):
     def index_constraint_string(self):
         return "INDEX ({column}){separator}"
 
+    def index_alter_constraint_string(self):
+        return self.drop_index_column_string()
+
     def fulltext_constraint_string(self):
         return "FULLTEXT ({column}){separator}"
 

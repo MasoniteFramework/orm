@@ -118,9 +118,11 @@ class Constraint:
         self.column_name = column
         self.constraint_type = constraint_type
         if isinstance(column, (list, tuple)):
-            self.index_name = "_".join(column) + "_" + constraint_type
+            self.index_name = "_".join(column)
         else:
-            self.index_name = column + "_" + constraint_type
+            self.index_name = column
+        if "_" + constraint_type not in self.index_name:
+            self.index_name += "_" + constraint_type
 
 
 class ForeignKey:
@@ -702,10 +704,11 @@ class Blueprint:
             indexes = [indexes]
 
         for index in indexes:
-            self._last_column = self.new_column(
-                None, index, None, None, action="drop_index"
-            )
-            self._columns += (self._last_column,)
+            # self._last_column = self.new_column(
+            #     None, index, None, None, action="drop_index"
+            # )
+            # self._columns += (self._last_column,)
+            self._constraints += (Constraint(index, constraint_type="index"),)
         return self
 
     def drop_unique(self, indexes):
