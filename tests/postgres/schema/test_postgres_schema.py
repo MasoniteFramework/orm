@@ -6,8 +6,6 @@ from src.masonite.orm.schema import Schema
 
 class BaseTestCreateGrammar:
 
-    schema = Schema.dry().on("postgres")
-
     def setUp(self):
         pass
 
@@ -267,14 +265,23 @@ class BaseTestCreateGrammar:
         )()
         self.assertEqual(blueprint.to_sql(), sql)
 
-    # def test_truncate_table(self):
-    #     to_sql = self.schema.truncate("users", query_only=True)
+    def test_truncate_table(self):
+        to_sql = self.schema.truncate("users", query_only=True)
 
-    #     sql = getattr(
-    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
-    #     )()
-    #     self.assertEqual(to_sql, sql)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
 
+    def test_rename_column(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.rename("name", "first_name")
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(blueprint.to_sql(), sql)
+        
     # def test_drop_index(self):
     #     with self.schema.table("users") as blueprint:
     #         blueprint.drop_index("name_index")
@@ -338,20 +345,11 @@ class BaseTestCreateGrammar:
     #     )()
     #     self.assertEqual(blueprint.to_sql(), sql)
 
-    # def test_rename_column(self):
-    #     with self.schema.table("users") as blueprint:
-    #         blueprint.rename("name", "first_name")
-
-    #     sql = getattr(
-    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
-    #     )()
-    #     self.assertEqual(blueprint.to_sql(), sql)
 
 
 class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
     def setUp(self):
-        # self.schema = Schema.on("mysql")
-        self.maxDiff = 999
+        self.schema = Schema.on("postgres")
 
     def can_compile_column(self):
         """
@@ -707,7 +705,7 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
          with self.schema.table("users") as blueprint:
             blueprint.drop_index('name_index')
         """
-        return "ALTER TABLE `users` DROP INDEX `name_index`"
+        return """DROP INDEX "users_name_index\""""
 
     def drop_multiple_index(self):
         """
@@ -766,4 +764,4 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.rename("name", "first_name")
         """
-        return "ALTER TABLE `users` CHANGE COLUMN `name` `first_name`"
+        return """ALTER TABLE "users" RENAME COLUMN "name" TO "first_name\""""

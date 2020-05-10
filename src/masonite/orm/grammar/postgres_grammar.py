@@ -153,7 +153,7 @@ class PostgresGrammar(BaseGrammar):
         return "MODIFY {column} {data_type}{length}{nullable} {after}, "
 
     def rename_column_string(self):
-        return "CHANGE COLUMN {old_column} {column} {data_type}{length}{nullable}, "
+        return "RENAME COLUMN {old_column} TO {column} {data_type}{length}{nullable}, "
 
     def create_format(self):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
