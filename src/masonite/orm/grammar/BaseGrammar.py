@@ -114,7 +114,9 @@ class BaseGrammar:
                 column=self._compile_column(column.column_name),
                 old_column=self._compile_column(column.old_column),
                 data_type=self.type_map.get(column.column_type, ""),
-                length=self.create_column_length(column.column_type).format(length=column.length)
+                length=self.create_column_length(column.column_type).format(
+                    length=column.length
+                )
                 if column.length
                 else "",
                 nullable=nullable,
@@ -184,7 +186,9 @@ class BaseGrammar:
         for column in self._creates:
 
             length_string = (
-                self.create_column_length(column.column_type).format(length=column.length)
+                self.create_column_length(column.column_type).format(
+                    length=column.length
+                )
                 if column.length
                 else ""
             )
@@ -193,8 +197,10 @@ class BaseGrammar:
 
             default_value = mapped_time_value or column.default
 
-            if hasattr(self, f'_type_{column.column_type}'):
-                sql += getattr(self, f'_type_{column.column_type}')(column, length_string, default_value)
+            if hasattr(self, f"_type_{column.column_type}"):
+                sql += getattr(self, f"_type_{column.column_type}")(
+                    column, length_string, default_value
+                )
                 continue
 
             attributes = {
@@ -202,8 +208,6 @@ class BaseGrammar:
                 "data_type": self.type_map.get(column.column_type),
                 "length": length_string,
             }
-
-
 
             if default_value:
                 attributes.update({"default_value": default_value})

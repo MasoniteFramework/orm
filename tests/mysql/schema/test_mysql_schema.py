@@ -7,7 +7,7 @@ from src.masonite.orm.schema import Schema
 class BaseTestCreateGrammar:
 
     schema = Schema.dry().on("mysql")
-    
+
     def setUp(self):
         self.maxDiff = None
 

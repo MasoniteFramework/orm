@@ -5,7 +5,6 @@ from src.masonite.orm.schema import Schema
 
 
 class BaseTestCreateGrammar:
-
     def setUp(self):
         pass
 
@@ -281,7 +280,7 @@ class BaseTestCreateGrammar:
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
         self.assertEqual(blueprint.to_sql(), sql)
-        
+
     # def test_drop_index(self):
     #     with self.schema.table("users") as blueprint:
     #         blueprint.drop_index("name_index")
@@ -346,7 +345,6 @@ class BaseTestCreateGrammar:
     #     self.assertEqual(blueprint.to_sql(), sql)
 
 
-
 class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
     def setUp(self):
         self.schema = Schema.on("postgres")
@@ -386,10 +384,7 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.string('name')
         """
 
-        return (
-            """CREATE TABLE "users" (""" 
-                """\"name" VARCHAR(255) NOT NULL""" 
-            """)""")
+        return """CREATE TABLE "users" (""" """\"name" VARCHAR(255) NOT NULL""" """)"""
 
     def can_compile_primary_key(self):
         """
@@ -426,9 +421,11 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.enum('age', [1,2,3]).nullable()
         """
 
-        return ("""CREATE TABLE "users" (""" 
-                """\"age" VARCHAR(255) CHECK ("age" in ('1','2','3'))""" 
-            """)""")
+        return (
+            """CREATE TABLE "users" ("""
+            """\"age" VARCHAR(255) CHECK ("age" in ('1','2','3'))"""
+            """)"""
+        )
 
     def unique_constraint(self):
         """
@@ -491,10 +488,10 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.index(["email", "name"])
         """
 
-        return(
+        return (
             """CREATE TABLE "users" ("""
             """\"name" VARCHAR(255) NOT NULL"""
-            """); CREATE INDEX users_email_index ON "users"("email"); """ 
+            """); CREATE INDEX users_email_index ON "users"("email"); """
             """CREATE INDEX users_name_index ON "users"("name")"""
         )
 
@@ -519,9 +516,11 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         self.schema.has_column('users', 'email', query_only=True)
         """
 
-        return ("""SELECT column_name """
-                """FROM information_schema.columns """
-                """WHERE table_name='users' and column_name='email'""")
+        return (
+            """SELECT column_name """
+            """FROM information_schema.columns """
+            """WHERE table_name='users' and column_name='email'"""
+        )
 
     def table_exists(self):
         """
@@ -549,15 +548,14 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.drop_column('name')
         """
 
-        return ("""ALTER TABLE "users\" """ 
-            """DROP COLUMN "name\"""")
+        return """ALTER TABLE "users\" """ """DROP COLUMN "name\""""
 
     def drop_multiple_column(self):
         """
         with self.schema.table('users') as blueprint:
             blueprint.drop_column('name', 'age', 'profile')
         """
-        
+
         return (
             """ALTER TABLE "users" """
             """DROP COLUMN "name", """
@@ -641,9 +639,11 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.timestamp('logged_at', now=True)
         """
 
-        return ("""CREATE TABLE "users" (""" 
-                """\"logged_at" TIMESTAMP DEFAULT NOW()""" 
-            """)""")
+        return (
+            """CREATE TABLE "users" ("""
+            """\"logged_at" TIMESTAMP DEFAULT NOW()"""
+            """)"""
+        )
 
     def can_compile_timestamp_column_without_default(self):
         """
@@ -651,9 +651,9 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.timestamp('logged_at')
         """
 
-        return ("""CREATE TABLE "users" (""" 
-                    """\"logged_at" TIMESTAMP NOT NULL"""
-                """)""")
+        return (
+            """CREATE TABLE "users" (""" """\"logged_at" TIMESTAMP NOT NULL""" """)"""
+        )
 
     def can_compile_timestamps_columns_mixed_defaults_and_not_default(self):
         """

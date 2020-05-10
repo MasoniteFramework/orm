@@ -1,6 +1,7 @@
 from .BaseGrammar import BaseGrammar
 import re
 
+
 class PostgresGrammar(BaseGrammar):
     """Postgres grammar class.
     """
@@ -23,9 +24,7 @@ class PostgresGrammar(BaseGrammar):
         "right_inner": "RIGHT INNER JOIN",
     }
 
-    types_without_lengths = [
-        'integer'
-    ]
+    types_without_lengths = ["integer"]
 
     type_map = {
         "string": "VARCHAR",
@@ -141,7 +140,9 @@ class PostgresGrammar(BaseGrammar):
         return "SELECT column_name FROM information_schema.columns WHERE table_name='{clean_table}' and column_name={value}"
 
     def table_exists_string(self):
-        return "SELECT * from information_schema.tables where table_name='{clean_table}'"
+        return (
+            "SELECT * from information_schema.tables where table_name='{clean_table}'"
+        )
 
     def add_column_string(self):
         return "ADD {column} {data_type}{length}{nullable} {after}, "
@@ -176,7 +177,9 @@ class PostgresGrammar(BaseGrammar):
         return "ADD CONSTRAINT {index_name} UNIQUE({column}){separator}"
 
     def index_constraint_string(self):
-        return """CREATE INDEX {clean_table}_{clean_column}_index ON {table}({column})"""
+        return (
+            """CREATE INDEX {clean_table}_{clean_column}_index ON {table}({column})"""
+        )
 
     def _compile_create_constraints(self):
         """Compiles constraints for creation schema.
@@ -186,11 +189,10 @@ class PostgresGrammar(BaseGrammar):
         """
         sql = " "
         for column in self._constraints:
-            if column.constraint_type in ('index','fulltext'):
-                multiple_columns = self._get_multiple_columns(column.column_name)
+            if column.constraint_type in ("index", "fulltext"):
                 if isinstance(column.column_name, list):
                     for index_column in column.column_name:
-                        print('loop', index_column)
+                        print("loop", index_column)
                         query = getattr(
                             self, "{}_constraint_string".format(column.constraint_type)
                         )().format(
@@ -235,11 +237,11 @@ class PostgresGrammar(BaseGrammar):
         Returns:
             string
         """
-        sql = re.sub(" +", " ", self._sql.strip().replace(',)', ')'))
+        sql = re.sub(" +", " ", self._sql.strip().replace(",)", ")"))
         for query in self.queries:
             sql += "; "
             sql += re.sub(" +", " ", query.strip())
-        
+
         return sql
         # return re.sub(" +", " ", self._sql.strip())
 
