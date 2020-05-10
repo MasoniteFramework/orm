@@ -343,8 +343,8 @@ class BaseGrammar:
             self
         """
         sql = " "
-
         for column in self._constraints:
+            print("alter", column.action)
             if self.options.get(
                 "alter_constraints_as_separate_queries"
             ) and column.constraint_type in self.options.get(
@@ -354,7 +354,10 @@ class BaseGrammar:
                 continue
 
             sql += getattr(
-                self, "{}_alter_constraint_string".format(column.constraint_type)
+                self,
+                "{}_alter_{}_constraint_string".format(
+                    column.constraint_type, column.action
+                ),
             )().format(
                 column=self._get_multiple_columns(column.column_name),
                 clean_column=column.column_name,

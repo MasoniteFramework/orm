@@ -299,50 +299,50 @@ class BaseTestCreateGrammar:
         )()
         self.assertEqual(blueprint.to_sql(), sql)
 
-    # def test_drop_unique(self):
-    #     with self.schema.table("users") as blueprint:
-    #         blueprint.drop_unique("name_unique")
+    def test_drop_unique(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.drop_unique("name_unique")
 
-    #     sql = getattr(
-    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
-    #     )()
-    #     self.assertEqual(blueprint.to_sql(), sql)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(blueprint.to_sql(), sql)
 
-    # def test_drop_multiple_unique(self):
-    #     with self.schema.table("users") as blueprint:
-    #         blueprint.drop_unique(["name_unique", "email_unique"])
+    def test_drop_multiple_unique(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.drop_unique(["name_unique", "email_unique"])
 
-    #     sql = getattr(
-    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
-    #     )()
-    #     self.assertEqual(blueprint.to_sql(), sql)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(blueprint.to_sql(), sql)
 
-    # def test_drop_primary(self):
-    #     with self.schema.table("users") as blueprint:
-    #         blueprint.drop_primary()
+    def test_drop_primary(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.drop_primary()
 
-    #     sql = getattr(
-    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
-    #     )()
-    #     self.assertEqual(blueprint.to_sql(), sql)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(blueprint.to_sql(), sql)
 
-    # def test_drop_foreign(self):
-    #     with self.schema.table("users") as blueprint:
-    #         blueprint.drop_foreign("users_article_id_foreign")
+    def test_drop_foreign(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.drop_foreign("users_article_id_foreign")
 
-    #     sql = getattr(
-    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
-    #     )()
-    #     self.assertEqual(blueprint.to_sql(), sql)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(blueprint.to_sql(), sql)
 
-    # def test_drop_multiple_foreign(self):
-    #     with self.schema.table("users") as blueprint:
-    #         blueprint.drop_foreign(["article_id", "post_id"])
+    def test_drop_multiple_foreign(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.drop_foreign(["article_id", "post_id"])
 
-    #     sql = getattr(
-    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
-    #     )()
-    #     self.assertEqual(blueprint.to_sql(), sql)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(blueprint.to_sql(), sql)
 
 
 class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
@@ -717,30 +717,30 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
     def drop_unique(self):
         """
          with self.schema.table("users") as blueprint:
-            blueprint.drop_index('name_unique')
+            blueprint.drop_unique('name_unique')
         """
-        return "DROP INDEX `name_unique`;"
+        return """ALTER TABLE "users" DROP CONSTRAINT name_unique"""
 
     def drop_multiple_unique(self):
         """
          with self.schema.table("users") as blueprint:
-            blueprint.drop_index(['name_unique', 'email_unique'])
+            blueprint.drop_unique(['name_unique', 'email_unique'])
         """
-        return """DROP INDEX "name_unique"; """ """DROP INDEX "email_unique";"""
+        return """ALTER TABLE "users" DROP CONSTRAINT name_unique, DROP CONSTRAINT email_unique"""
 
     def drop_primary(self):
         """
          with self.schema.table("users") as blueprint:
             blueprint.drop_primary()
         """
-        return "ALTER TABLE `users` " "DROP PRIMARY KEY"
+        return """ALTER TABLE "users" DROP CONSTRAINT users_primary"""
 
     def drop_foreign(self):
         """
          with self.schema.table("users") as blueprint:
             blueprint.drop_foreign('users_article_id_foreign')
         """
-        return "ALTER TABLE `users` " "DROP FOREIGN KEY `users_article_id_foreign`"
+        return """ALTER TABLE "users" """ """DROP CONSTRAINT users_article_id_foreign"""
 
     def drop_multiple_foreign(self):
         """
@@ -748,9 +748,9 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.drop_foreign(('article_id', 'post_id'))
         """
         return (
-            "ALTER TABLE `users` "
-            "DROP FOREIGN KEY `users_article_id_foreign` "
-            "DROP FOREIGN KEY `users_post_id_foreign`"
+            """ALTER TABLE "users" """
+            """DROP CONSTRAINT users_article_id_foreign, """
+            """DROP CONSTRAINT users_post_id_foreign"""
         )
 
     def rename_column(self):

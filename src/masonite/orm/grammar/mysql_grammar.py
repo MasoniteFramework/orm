@@ -195,6 +195,24 @@ class MySQLGrammar(BaseGrammar):
     def index_alter_constraint_string(self):
         return self.drop_index_column_string()
 
+    def unique_alter_drop_constraint_string(self):
+        return self.drop_index_column_string()
+
+    def primary_key_string(self):
+        return "{table}_primary"
+
+    def primary_alter_drop_constraint_string(self):
+        return self.drop_primary_column_string()
+
+    def index_alter_drop_constraint_string(self):
+        return self.drop_index_column_string()
+
+    def foreign_alter_drop_constraint_string(self):
+        return self.drop_foreign_column_string()
+
+    def unique_alter_create_constraint_string(self):
+        return self.unique_alter_constraint_string()
+
     def fulltext_constraint_string(self):
         return "FULLTEXT ({column}){separator}"
 

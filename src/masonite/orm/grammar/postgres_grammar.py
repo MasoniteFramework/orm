@@ -180,8 +180,20 @@ class PostgresGrammar(BaseGrammar):
     def unique_constraint_string(self):
         return "CONSTRAINT {index_name} UNIQUE ({clean_column}){separator}"
 
-    def unique_alter_constraint_string(self):
+    def unique_alter_create_constraint_string(self):
         return "ADD CONSTRAINT {index_name} UNIQUE({column}){separator}"
+
+    def unique_alter_drop_constraint_string(self):
+        return "DROP CONSTRAINT {index_name}{separator} "
+
+    def primary_key_string(self):
+        return "{table}_primary"
+
+    def primary_alter_drop_constraint_string(self):
+        return "DROP CONSTRAINT {index_name}{separator} "
+
+    def foreign_alter_drop_constraint_string(self):
+        return "DROP CONSTRAINT {index_name}{separator} "
 
     def index_alter_constraint_string(self):
         return """DROP INDEX "{index_name}\""""
@@ -350,10 +362,10 @@ class PostgresGrammar(BaseGrammar):
         return "DROP INDEX {table}_{column} "
 
     def drop_unique_column_string(self):
-        return "DROP INDEX {column} "
+        return "DROP CONSTRAINT {column} "
 
     def drop_foreign_column_string(self):
-        return "DROP FOREIGN KEY {column} "
+        return "DROP CONSTRAINT {column} "
 
     def drop_primary_column_string(self):
         return "DROP PRIMARY KEY"
