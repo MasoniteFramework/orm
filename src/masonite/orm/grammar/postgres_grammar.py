@@ -180,6 +180,9 @@ class PostgresGrammar(BaseGrammar):
     def unique_constraint_string(self):
         return "CONSTRAINT {index_name} UNIQUE ({clean_column}){separator}"
 
+    def create_unique_column_string(self):
+        return "ADD CONSTRAINT {index_name} UNIQUE({column}){separator}"
+
     def primary_key_string(self):
         return "{table}_primary"
 
