@@ -9,3 +9,6 @@ dist
 *.db
 .idea
 **/*.egg-info
+htmlcov/*
+coverage.xml
+.coverage

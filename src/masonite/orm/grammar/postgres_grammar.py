@@ -180,20 +180,8 @@ class PostgresGrammar(BaseGrammar):
     def unique_constraint_string(self):
         return "CONSTRAINT {index_name} UNIQUE ({clean_column}){separator}"
 
-    def unique_alter_create_constraint_string(self):
-        return "ADD CONSTRAINT {index_name} UNIQUE({column}){separator}"
-
-    def unique_alter_drop_constraint_string(self):
-        return "DROP CONSTRAINT {index_name}{separator} "
-
     def primary_key_string(self):
         return "{table}_primary"
-
-    def primary_alter_drop_constraint_string(self):
-        return "DROP CONSTRAINT {index_name}{separator} "
-
-    def foreign_alter_drop_constraint_string(self):
-        return "DROP CONSTRAINT {index_name}{separator} "
 
     def index_alter_constraint_string(self):
         return """DROP INDEX "{index_name}\""""
@@ -202,56 +190,6 @@ class PostgresGrammar(BaseGrammar):
         return (
             """CREATE INDEX {clean_table}_{clean_column}_index ON {table}({column})"""
         )
-
-    # def _compile_create_constraints(self):
-    #     """Compiles constraints for creation schema.
-
-    #     Returns:
-    #         self
-    #     """
-    #     sql = " "
-    #     for column in self._constraints:
-    #         if column.constraint_type in ("index", "fulltext"):
-    #             if isinstance(column.column_name, list):
-    #                 for index_column in column.column_name:
-    #                     print("loop", index_column)
-    #                     query = getattr(
-    #                         self, "{}_constraint_string".format(column.constraint_type)
-    #                     )().format(
-    #                         column=self._compile_column(index_column),
-    #                         clean_column=index_column,
-    #                         index_name=column.index_name,
-    #                         table=self._compile_table(self.table),
-    #                         clean_table=self.table,
-    #                         separator="",
-    #                     )
-    #                     self.queries.append(query.rstrip(" "))
-    #             else:
-    #                 query = getattr(
-    #                     self, "{}_constraint_string".format(column.constraint_type)
-    #                 )().format(
-    #                     column=self._get_multiple_columns(column.column_name),
-    #                     clean_column=column.column_name,
-    #                     index_name=column.index_name,
-    #                     table=self._compile_table(self.table),
-    #                     clean_table=self.table,
-    #                     separator="",
-    #                 )
-    #                 self.queries.append(query.rstrip(" "))
-    #             continue
-    #         else:
-    #             sql += getattr(
-    #                 self, "{}_constraint_string".format(column.constraint_type)
-    #             )().format(
-    #                 column=self._get_multiple_columns(column.column_name),
-    #                 clean_column=column.column_name,
-    #                 index_name=column.index_name,
-    #                 table=self._compile_table(self.table),
-    #                 clean_table=self.table,
-    #                 separator=", ",
-    #             )
-
-    #     return sql.rstrip(", ").rstrip(",")
 
     def to_sql(self):
         """Cleans up the SQL string and returns the SQL
@@ -293,15 +231,6 @@ class PostgresGrammar(BaseGrammar):
         return "ORDER BY {column} {direction}"
 
     def column_string(self):
-        return '"{column}"{separator}'
-
-    def table_column_string(self):
-        return '"{table}"."{column}"{separator}'
-
-    def table_update_column_string(self):
-        return '"{column}"{separator}'
-
-    def table_insert_column_string(self):
         return '"{column}"{separator}'
 
     def value_string(self):
@@ -359,13 +288,13 @@ class PostgresGrammar(BaseGrammar):
         return "ALTER TABLE {current_table_name} RENAME TO {new_table_name}"
 
     def drop_index_column_string(self):
-        return "DROP INDEX {table}_{column} "
+        return "DROP INDEX {table}_{column}{separator} "
 
     def drop_unique_column_string(self):
-        return "DROP CONSTRAINT {column} "
+        return "DROP CONSTRAINT {clean_column}{separator} "
 
     def drop_foreign_column_string(self):
-        return "DROP CONSTRAINT {column} "
+        return "DROP CONSTRAINT {clean_column}{separator} "
 
     def drop_primary_column_string(self):
-        return "DROP PRIMARY KEY"
+        return "DROP CONSTRAINT {clean_table}_primary{separator} "

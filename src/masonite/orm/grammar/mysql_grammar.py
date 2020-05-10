@@ -186,32 +186,11 @@ class MySQLGrammar(BaseGrammar):
     def unique_constraint_string(self):
         return "CONSTRAINT {index_name} UNIQUE ({clean_column}){separator}"
 
-    def unique_alter_constraint_string(self):
-        return "ADD CONSTRAINT {index_name} UNIQUE({column}){separator}"
-
     def index_constraint_string(self):
         return "INDEX ({column}){separator}"
 
-    def index_alter_constraint_string(self):
-        return self.drop_index_column_string()
-
-    def unique_alter_drop_constraint_string(self):
-        return self.drop_index_column_string()
-
     def primary_key_string(self):
         return "{table}_primary"
-
-    def primary_alter_drop_constraint_string(self):
-        return self.drop_primary_column_string()
-
-    def index_alter_drop_constraint_string(self):
-        return self.drop_index_column_string()
-
-    def foreign_alter_drop_constraint_string(self):
-        return self.drop_foreign_column_string()
-
-    def unique_alter_create_constraint_string(self):
-        return self.unique_alter_constraint_string()
 
     def fulltext_constraint_string(self):
         return "FULLTEXT ({column}){separator}"
@@ -287,6 +266,9 @@ class MySQLGrammar(BaseGrammar):
 
     def rename_table_string(self):
         return "RENAME TABLE {current_table_name} TO {new_table_name}"
+
+    def create_unique_column_string(self):
+        return "ADD CONSTRAINT {index_name} UNIQUE({column}){separator}"
 
     def drop_index_column_string(self):
         return "DROP INDEX {column} "

@@ -355,9 +355,7 @@ class BaseGrammar:
 
             sql += getattr(
                 self,
-                "{}_alter_{}_constraint_string".format(
-                    column.constraint_type, column.action
-                ),
+                "{}_{}_column_string".format(column.action, column.constraint_type,),
             )().format(
                 column=self._get_multiple_columns(column.column_name),
                 clean_column=column.column_name,
