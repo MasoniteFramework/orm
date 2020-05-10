@@ -67,6 +67,11 @@ class MySQLGrammar(BaseGrammar):
         None: "",
     }
 
+    options = {
+        "create_index_as_separate_queries": False,
+        "second_query_index_constraints": (),
+    }
+
     """Column strings are formats for how columns and key values should be formatted
     on specific queries. These can be different depending on the type of query.
 

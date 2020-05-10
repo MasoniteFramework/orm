@@ -77,6 +77,12 @@ class PostgresGrammar(BaseGrammar):
         "delete": '"{column}"{separator}',
     }
 
+    options = {
+        "create_index_as_separate_queries": True,
+        "second_query_index_constraints": ("index", "fulltext"),
+        "can_compile_multiple_index": False,  # INDEX("column1", "column2")
+    }
+
     timestamp_mapping = {"current": "CURRENT_TIMESTAMP", "now": "NOW()"}
 
     def select_format(self):
@@ -181,55 +187,55 @@ class PostgresGrammar(BaseGrammar):
             """CREATE INDEX {clean_table}_{clean_column}_index ON {table}({column})"""
         )
 
-    def _compile_create_constraints(self):
-        """Compiles constraints for creation schema.
+    # def _compile_create_constraints(self):
+    #     """Compiles constraints for creation schema.
 
-        Returns:
-            self
-        """
-        sql = " "
-        for column in self._constraints:
-            if column.constraint_type in ("index", "fulltext"):
-                if isinstance(column.column_name, list):
-                    for index_column in column.column_name:
-                        print("loop", index_column)
-                        query = getattr(
-                            self, "{}_constraint_string".format(column.constraint_type)
-                        )().format(
-                            column=self._compile_column(index_column),
-                            clean_column=index_column,
-                            index_name=column.index_name,
-                            table=self._compile_table(self.table),
-                            clean_table=self.table,
-                            separator="",
-                        )
-                        self.queries.append(query.rstrip(" "))
-                else:
-                    query = getattr(
-                        self, "{}_constraint_string".format(column.constraint_type)
-                    )().format(
-                        column=self._get_multiple_columns(column.column_name),
-                        clean_column=column.column_name,
-                        index_name=column.index_name,
-                        table=self._compile_table(self.table),
-                        clean_table=self.table,
-                        separator="",
-                    )
-                    self.queries.append(query.rstrip(" "))
-                continue
-            else:
-                sql += getattr(
-                    self, "{}_constraint_string".format(column.constraint_type)
-                )().format(
-                    column=self._get_multiple_columns(column.column_name),
-                    clean_column=column.column_name,
-                    index_name=column.index_name,
-                    table=self._compile_table(self.table),
-                    clean_table=self.table,
-                    separator=", ",
-                )
+    #     Returns:
+    #         self
+    #     """
+    #     sql = " "
+    #     for column in self._constraints:
+    #         if column.constraint_type in ("index", "fulltext"):
+    #             if isinstance(column.column_name, list):
+    #                 for index_column in column.column_name:
+    #                     print("loop", index_column)
+    #                     query = getattr(
+    #                         self, "{}_constraint_string".format(column.constraint_type)
+    #                     )().format(
+    #                         column=self._compile_column(index_column),
+    #                         clean_column=index_column,
+    #                         index_name=column.index_name,
+    #                         table=self._compile_table(self.table),
+    #                         clean_table=self.table,
+    #                         separator="",
+    #                     )
+    #                     self.queries.append(query.rstrip(" "))
+    #             else:
+    #                 query = getattr(
+    #                     self, "{}_constraint_string".format(column.constraint_type)
+    #                 )().format(
+    #                     column=self._get_multiple_columns(column.column_name),
+    #                     clean_column=column.column_name,
+    #                     index_name=column.index_name,
+    #                     table=self._compile_table(self.table),
+    #                     clean_table=self.table,
+    #                     separator="",
+    #                 )
+    #                 self.queries.append(query.rstrip(" "))
+    #             continue
+    #         else:
+    #             sql += getattr(
+    #                 self, "{}_constraint_string".format(column.constraint_type)
+    #             )().format(
+    #                 column=self._get_multiple_columns(column.column_name),
+    #                 clean_column=column.column_name,
+    #                 index_name=column.index_name,
+    #                 table=self._compile_table(self.table),
+    #                 clean_table=self.table,
+    #                 separator=", ",
+    #             )
 
-        return sql.rstrip(", ").rstrip(",")
+    #     return sql.rstrip(", ").rstrip(",")
 
     def to_sql(self):
         """Cleans up the SQL string and returns the SQL

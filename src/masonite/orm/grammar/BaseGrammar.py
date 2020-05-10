@@ -237,6 +237,40 @@ class BaseGrammar:
 
         return self._compile_column(columns)
 
+    def _compile_create_constraint_as_query(self, column):
+        """Compiles constraints for creation schema.
+
+        Returns:
+            self
+        """
+        if not self.options["can_compile_multiple_index"] and isinstance(
+            column.column_name, list
+        ):
+            for index_column in column.column_name:
+                query = getattr(
+                    self, "{}_constraint_string".format(column.constraint_type)
+                )().format(
+                    column=self._compile_column(index_column),
+                    clean_column=index_column,
+                    index_name=column.index_name,
+                    table=self._compile_table(self.table),
+                    clean_table=self.table,
+                    separator="",
+                )
+                self.queries.append(query.rstrip(" "))
+        else:
+            query = getattr(
+                self, "{}_constraint_string".format(column.constraint_type)
+            )().format(
+                column=self._get_multiple_columns(column.column_name),
+                clean_column=column.column_name,
+                index_name=column.index_name,
+                table=self._compile_table(self.table),
+                clean_table=self.table,
+                separator="",
+            )
+            self.queries.append(query.rstrip(" "))
+
     def _compile_create_constraints(self):
         """Compiles constraints for creation schema.
 
@@ -244,13 +278,24 @@ class BaseGrammar:
             self
         """
         sql = " "
+
         for column in self._constraints:
+            if self.options[
+                "create_index_as_separate_queries"
+            ] and column.constraint_type in self.options.get(
+                "second_query_index_constraints"
+            ):
+                self._compile_create_constraint_as_query(column)
+                continue
+
             sql += getattr(
                 self, "{}_constraint_string".format(column.constraint_type)
             )().format(
                 column=self._get_multiple_columns(column.column_name),
                 clean_column=column.column_name,
                 index_name=column.index_name,
+                table=self._compile_table(self.table),
+                clean_table=self.table,
                 separator=", ",
             )
 
