@@ -280,9 +280,9 @@ class BaseGrammar:
         sql = " "
 
         for column in self._constraints:
-            if self.options[
+            if self.options.get(
                 "create_constraints_as_separate_queries"
-            ] and column.constraint_type in self.options.get(
+            ) and column.constraint_type in self.options.get(
                 "second_query_constraints"
             ):
                 self._compile_create_constraint_as_query(column)
