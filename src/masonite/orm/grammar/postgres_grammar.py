@@ -78,8 +78,9 @@ class PostgresGrammar(BaseGrammar):
     }
 
     options = {
-        "create_index_as_separate_queries": True,
-        "second_query_index_constraints": ("index", "fulltext"),
+        "create_constraints_as_separate_queries": True,
+        "alter_constraints_as_separate_queries": True,
+        "second_query_constraints": ("index", "fulltext"),
         "can_compile_multiple_index": False,  # INDEX("column1", "column2")
     }
 

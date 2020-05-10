@@ -281,9 +281,9 @@ class BaseGrammar:
 
         for column in self._constraints:
             if self.options[
-                "create_index_as_separate_queries"
+                "create_constraints_as_separate_queries"
             ] and column.constraint_type in self.options.get(
-                "second_query_index_constraints"
+                "second_query_constraints"
             ):
                 self._compile_create_constraint_as_query(column)
                 continue

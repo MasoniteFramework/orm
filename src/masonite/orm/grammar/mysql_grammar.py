@@ -68,8 +68,10 @@ class MySQLGrammar(BaseGrammar):
     }
 
     options = {
-        "create_index_as_separate_queries": False,
-        "second_query_index_constraints": (),
+        "create_constraints_as_separate_queries": False,
+        "alter_constraints_as_separate_queries": False,
+        "second_query_constraints": (),
+        "can_compile_multiple_index": True,  # INDEX("column1", "column2")
     }
 
     """Column strings are formats for how columns and key values should be formatted
