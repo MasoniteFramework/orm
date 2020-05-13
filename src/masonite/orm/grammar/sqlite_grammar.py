@@ -72,7 +72,7 @@ class SQLiteGrammar(BaseGrammar):
 
     column_strings = {
         "select": '"{table}"."{column}"{separator}',
-        "insert": '"{table}"."{column}"{separator}',
+        "insert": '"{column}"{separator}',
         "update": '"{column}"{separator}',
         "delete": '"{table}"."{column}"{separator}',
     }

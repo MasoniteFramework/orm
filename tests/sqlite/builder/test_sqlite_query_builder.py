@@ -2,7 +2,7 @@ import inspect
 import unittest
 
 from src.masonite.orm.builder import QueryBuilder
-from src.masonite.orm.grammar import PostgresGrammar
+from src.masonite.orm.grammar import SQLiteGrammar
 from src.masonite.orm.connections import ConnectionFactory
 from src.masonite.orm.models import Model
 from tests.utils import MockConnectionFactory
@@ -10,7 +10,7 @@ from tests.utils import MockConnectionFactory
 
 class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
-        connection = MockConnectionFactory().make("default")
+        connection = MockConnectionFactory().make("sqlite")
         return QueryBuilder(self.grammar, connection, table=table, owner=Model)
 
     def test_sum(self):
@@ -360,7 +360,7 @@ class BaseTestQueryBuilder:
 
 class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
 
-    grammar = PostgresGrammar
+    grammar = SQLiteGrammar
 
     def sum(self):
         """
