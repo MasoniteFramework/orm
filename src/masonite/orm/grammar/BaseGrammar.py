@@ -747,7 +747,6 @@ class BaseGrammar:
             else:
                 query_value = ""
 
-            print(sql_string, column)
             sql += sql_string.format(
                 keyword=keyword, column=column, equality=equality, value=query_value,
             )

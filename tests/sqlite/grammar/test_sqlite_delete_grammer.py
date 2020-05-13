@@ -26,8 +26,7 @@ class BaseDeleteGrammarTest:
 
     def test_can_compile_delete_with_where(self):
         to_sql = (
-            self.builder
-            .where("age", 20)
+            self.builder.where("age", 20)
             .where("profile", 1)
             .delete(query=True)
             .to_sql()
