@@ -4,9 +4,9 @@ from src.masonite.orm.schema import Schema
 import unittest
 
 
-class TestPostgresAlterGrammar(unittest.TestCase):
+class TestSqliteAlterGrammar(unittest.TestCase):
     def setUp(self):
-        self.schema = Schema.dry().on("postgres")
+        self.schema = Schema.dry().on("sqlite")
 
     def test_can_compile_alter_column(self):
         with self.schema.table("users") as blueprint:

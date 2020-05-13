@@ -757,7 +757,6 @@ class QueryBuilder:
             scope(self.owner, self)
 
         grammar = self.get_grammar()
-
         sql = grammar.compile(self._action).to_sql()
         self.boot()
         return sql

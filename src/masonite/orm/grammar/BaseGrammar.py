@@ -62,9 +62,11 @@ class BaseGrammar:
         self._sql = ""
 
         self._sql_qmark = ""
+        self._action = "select"
         self.queries = []
 
     def compile(self, action):
+        self._action = action
         return getattr(self, "_compile_" + action)()
 
     def _compile_create(self):
@@ -924,7 +926,7 @@ class BaseGrammar:
         if column and "." in column:
             table, column = column.split(".")
 
-        return self.column_strings.get(action).format(
+        return self.column_strings.get(self._action).format(
             column=column, separator=separator, table=table or self.table
         )
 

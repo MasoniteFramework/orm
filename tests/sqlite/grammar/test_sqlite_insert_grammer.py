@@ -2,7 +2,7 @@ import inspect
 import unittest
 
 from src.masonite.orm.builder import QueryBuilder
-from src.masonite.orm.grammar import GrammarFactory, PostgresGrammar
+from src.masonite.orm.grammar import GrammarFactory
 
 
 class BaseInsertGrammarTest:
@@ -10,7 +10,7 @@ class BaseInsertGrammarTest:
 
     def setUp(self):
         print("test", self.grammar)
-        self.builder = QueryBuilder(GrammarFactory.make("postgres"), table="users")
+        self.builder = QueryBuilder(GrammarFactory.make("sqlite"), table="users")
 
     def test_can_compile_insert(self):
         to_sql = self.builder.create({"name": "Joe"}, query=True).to_sql()

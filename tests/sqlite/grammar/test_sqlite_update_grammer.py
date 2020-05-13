@@ -7,7 +7,7 @@ import inspect
 
 class BaseTestCaseUpdateGrammar:
     def setUp(self):
-        self.builder = QueryBuilder(GrammarFactory.make("postgres"), table="users")
+        self.builder = QueryBuilder(GrammarFactory.make("sqlite"), table="users")
 
     def test_can_compile_update(self):
         to_sql = (
@@ -59,9 +59,9 @@ class BaseTestCaseUpdateGrammar:
         self.assertEqual(to_sql, sql)
 
 
-class TestPostgresUpdateGrammar(BaseTestCaseUpdateGrammar, unittest.TestCase):
+class TestSqliteUpdateGrammar(BaseTestCaseUpdateGrammar, unittest.TestCase):
 
-    grammar = "postgres"
+    grammar = "sqlite"
 
     def can_compile_update(self):
         """
@@ -69,7 +69,7 @@ class TestPostgresUpdateGrammar(BaseTestCaseUpdateGrammar, unittest.TestCase):
             'name': 'Joe'
         }).to_sql()
         """
-        return """UPDATE "users" SET "name" = 'Joe' WHERE "users"."name" = 'bob'"""
+        return """UPDATE "users" SET "name" = 'Joe' WHERE "name" = 'bob'"""
 
     def can_compile_multiple_update(self):
         """
@@ -83,7 +83,7 @@ class TestPostgresUpdateGrammar(BaseTestCaseUpdateGrammar, unittest.TestCase):
             'name': 'Joe'
         }).to_sql()
         """
-        return """UPDATE "users" SET "name" = 'Joe' WHERE "users"."name" = 'bob' AND "users"."age" = '20'"""
+        return """UPDATE "users" SET "name" = 'Joe' WHERE "name" = 'bob' AND "age" = '20'"""
 
     def can_compile_increment(self):
         """

@@ -6,7 +6,7 @@ import unittest, inspect
 
 class BaseDeleteGrammarTest:
     def setUp(self):
-        self.builder = QueryBuilder(GrammarFactory.make("postgres"), table="users")
+        self.builder = QueryBuilder(GrammarFactory.make("sqlite"), table="users")
 
     def test_can_compile_delete(self):
         to_sql = self.builder.delete("id", 1, query=True).to_sql()
@@ -26,9 +26,9 @@ class BaseDeleteGrammarTest:
 
     def test_can_compile_delete_with_where(self):
         to_sql = (
-            self.builder.where("age", 20)
+            self.builder
+            .where("age", 20)
             .where("profile", 1)
-            .set_action("delete")
             .delete(query=True)
             .to_sql()
         )
@@ -39,9 +39,9 @@ class BaseDeleteGrammarTest:
         self.assertEqual(to_sql, sql)
 
 
-class TestPostgresDeleteGrammar(BaseDeleteGrammarTest, unittest.TestCase):
+class TestSqliteDeleteGrammar(BaseDeleteGrammarTest, unittest.TestCase):
 
-    grammar = "postgres"
+    grammar = "sqlite"
 
     def can_compile_delete(self):
         """
@@ -51,7 +51,7 @@ class TestPostgresDeleteGrammar(BaseDeleteGrammarTest, unittest.TestCase):
             .to_sql()
         )
         """
-        return """DELETE FROM "users" WHERE "users"."id" = '1'"""
+        return """DELETE FROM "users" WHERE "id" = '1'"""
 
     def can_compile_delete_in(self):
         """
@@ -61,7 +61,7 @@ class TestPostgresDeleteGrammar(BaseDeleteGrammarTest, unittest.TestCase):
             .to_sql()
         )
         """
-        return """DELETE FROM "users" WHERE "users"."id" IN ('1','2','3')"""
+        return """DELETE FROM "users" WHERE "id" IN ('1','2','3')"""
 
     def can_compile_delete_with_where(self):
         """
@@ -69,9 +69,8 @@ class TestPostgresDeleteGrammar(BaseDeleteGrammarTest, unittest.TestCase):
             self.builder
             .where('age', 20)
             .where('profile', 1)
-            .set_action('delete')
             .delete()
             .to_sql()
         )
         """
-        return """DELETE FROM "users" WHERE "users"."age" = '20' AND "users"."profile" = '1'"""
+        return """DELETE FROM "users" WHERE "age" = '20' AND "profile" = '1'"""

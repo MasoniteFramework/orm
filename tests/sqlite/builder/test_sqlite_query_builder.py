@@ -437,7 +437,7 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
             builder = get_builder()
             builder.delete("name', 'Joe')
         """
-        return """DELETE FROM "users" WHERE "users"."name" = 'Joe'"""
+        return """DELETE FROM "users" WHERE "name" = 'Joe'"""
 
     def where(self):
         """
