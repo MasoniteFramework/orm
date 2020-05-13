@@ -488,7 +488,7 @@ class BaseGrammar:
             if isinstance(column, dict):
                 for key, value in column.items():
                     sql += sql_string.format(
-                        column=self._table_column_string(key, action=action),
+                        column=self._table_column_string(key),
                         value=value if not qmark else "?",
                         separator=", ",
                     )
@@ -497,7 +497,7 @@ class BaseGrammar:
                         self._bindings += (value,)
             else:
                 sql += sql_string.format(
-                    column=self._table_column_string(column, action=action),
+                    column=self._table_column_string(column),
                     value=value if not qmark else "?",
                 )
                 if qmark:
@@ -835,9 +835,7 @@ class BaseGrammar:
                         continue
 
                     column = column.column
-                sql += self._table_column_string(
-                    column, separator=separator, action=action
-                )
+                sql += self._table_column_string(column, separator=separator)
 
         if self._aggregates:
             sql += self._compile_aggregates()
@@ -909,7 +907,7 @@ class BaseGrammar:
             column=column, separator=separator, table=table or self.table
         )
 
-    def _table_column_string(self, column, separator="", action="select"):
+    def _table_column_string(self, column, separator=""):
         """Compiles a column into the column syntax.
 
         Arguments:
