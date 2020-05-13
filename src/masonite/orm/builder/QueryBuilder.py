@@ -758,9 +758,7 @@ class QueryBuilder:
 
         grammar = self.get_grammar()
 
-        sql = getattr(
-            grammar, "_compile_{action}".format(action=self._action)
-        )().to_sql()
+        sql = grammar.compile(self._action).to_sql()
         self.boot()
         return sql
 

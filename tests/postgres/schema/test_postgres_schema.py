@@ -5,11 +5,8 @@ from src.masonite.orm.schema import Schema
 
 
 class BaseTestCreateGrammar:
-
-    schema = Schema.dry().on("mysql")
-
     def setUp(self):
-        self.maxDiff = None
+        pass
 
     def test_can_compile_column(self):
         with self.schema.create("users") as blueprint:
@@ -109,14 +106,6 @@ class BaseTestCreateGrammar:
         )()
         self.assertEqual(to_sql, sql)
 
-    def test_drop_table_if_exists(self):
-        to_sql = self.schema.drop_table_if_exists("users", query_only=True)
-
-        sql = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
-        self.assertEqual(to_sql, sql)
-
     def test_drop_column(self):
         with self.schema.table("users") as blueprint:
             blueprint.drop_column("name")
@@ -136,26 +125,26 @@ class BaseTestCreateGrammar:
 
         self.assertEqual(blueprint.to_sql(), sql)
 
-    def test_can_compile_large_blueprint(self):
-        with self.schema.create("users") as blueprint:
-            blueprint.string("name")
-            blueprint.string("email")
-            blueprint.string("password")
-            blueprint.integer("age").nullable()
-            blueprint.enum("type", ["Open", "Closed"])
-            blueprint.datetime("pick_up")
-            blueprint.binary("profile")
-            blueprint.boolean("of_age")
-            blueprint.char("first_initial", length=4)
-            blueprint.date("birthday")
-            blueprint.decimal("credit", 17, 6)
-            blueprint.text("description")
-            blueprint.unsigned("bank").nullable()
+    # def test_can_compile_large_blueprint(self):
+    #     with self.schema.create("users") as blueprint:
+    #         blueprint.string("name")
+    #         blueprint.string("email")
+    #         blueprint.string("password")
+    #         blueprint.integer("age").nullable()
+    #         blueprint.enum("type", ["Open", "Closed"])
+    #         blueprint.datetime("pick_up")
+    #         blueprint.binary("profile")
+    #         blueprint.boolean("of_age")
+    #         blueprint.char("first_initial", length=4)
+    #         blueprint.date("birthday")
+    #         blueprint.decimal("credit", 17, 6)
+    #         blueprint.text("description")
+    #         blueprint.unsigned("bank").nullable()
 
-        sql = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
-        self.assertEqual(blueprint.to_sql(), sql)
+    #     sql = getattr(
+    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
+    #     )()
+    #     self.assertEqual(blueprint.to_sql(), sql)
 
     def test_can_compile_timestamps_columns_with_default(self):
         with self.schema.create("users") as blueprint:
@@ -235,6 +224,7 @@ class BaseTestCreateGrammar:
 
     def test_primary_constraint(self):
         with self.schema.create("users") as blueprint:
+            blueprint.integer("id")
             blueprint.string("name")
             blueprint.primary("id")
 
@@ -281,6 +271,15 @@ class BaseTestCreateGrammar:
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
         self.assertEqual(to_sql, sql)
+
+    def test_rename_column(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.rename("name", "first_name")
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(blueprint.to_sql(), sql)
 
     def test_drop_index(self):
         with self.schema.table("users") as blueprint:
@@ -345,20 +344,10 @@ class BaseTestCreateGrammar:
         )()
         self.assertEqual(blueprint.to_sql(), sql)
 
-    def test_rename_column(self):
-        with self.schema.table("users") as blueprint:
-            blueprint.rename("name", "first_name")
 
-        sql = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
-        self.assertEqual(blueprint.to_sql(), sql)
-
-
-class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
+class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
     def setUp(self):
-        self.schema = Schema.on("mysql")
-        self.maxDiff = None
+        self.schema = Schema.dry().on("postgres")
 
     def can_compile_column(self):
         """
@@ -366,15 +355,14 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.string('name')
         """
 
-        return "CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL)"
+        return """CREATE TABLE "users" ("name" VARCHAR(255) NOT NULL)"""
 
     def can_compile_column_constraint(self):
         """
         with self.schema.create('users') as blueprint:
             blueprint.string('name').unique()
         """
-
-        return "CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL, CONSTRAINT name_unique UNIQUE (name))"
+        return """CREATE TABLE "users" ("name" VARCHAR(255) NOT NULL, CONSTRAINT name_unique UNIQUE (name))"""
 
     def can_compile_multiple_columns(self):
         """
@@ -384,10 +372,10 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         """
 
         return (
-            "CREATE TABLE `users` ("
-            "`name` VARCHAR(255), "
-            "`age` INT(11) NOT NULL"
-            ")"
+            """CREATE TABLE "users" ("""
+            """\"name" VARCHAR(255), """
+            """\"age" INTEGER NOT NULL"""
+            """)"""
         )
 
     def can_compile_not_null(self):
@@ -396,7 +384,7 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.string('name')
         """
 
-        return "CREATE TABLE `users` (" "`name` VARCHAR(255) NOT NULL" ")"
+        return """CREATE TABLE "users" (""" """\"name" VARCHAR(255) NOT NULL""" """)"""
 
     def can_compile_primary_key(self):
         """
@@ -406,10 +394,10 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         """
 
         return (
-            "CREATE TABLE `users` ("
-            "`id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL, "
-            "`name` VARCHAR(255) NOT NULL"
-            ")"
+            """CREATE TABLE "users" ("""
+            """\"id" INTEGER PRIMARY KEY NOT NULL, """
+            """\"name" VARCHAR(255) NOT NULL"""
+            """)"""
         )
 
     def can_compile_multiple_constraints(self):
@@ -420,11 +408,11 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         """
 
         return (
-            "CREATE TABLE `users` ("
-            "`id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL, "
-            "`name` VARCHAR(255) NOT NULL, "
-            "CONSTRAINT name_unique UNIQUE (name)"
-            ")"
+            """CREATE TABLE "users" ("""
+            """\"id" INTEGER PRIMARY KEY NOT NULL, """
+            """\"name" VARCHAR(255) NOT NULL, """
+            """CONSTRAINT name_unique UNIQUE (name)"""
+            """)"""
         )
 
     def can_compile_enum(self):
@@ -433,7 +421,11 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.enum('age', [1,2,3]).nullable()
         """
 
-        return "CREATE TABLE `users` (" "`age` ENUM('1','2','3')" ")"
+        return (
+            """CREATE TABLE "users" ("""
+            """\"age" VARCHAR(255) CHECK ("age" in ('1','2','3'))"""
+            """)"""
+        )
 
     def unique_constraint(self):
         """
@@ -443,24 +435,23 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         """
 
         return (
-            "CREATE TABLE `users` ("
-            "`name` VARCHAR(255) NOT NULL, "
-            "CONSTRAINT email_unique UNIQUE (email)"
-            ")"
+            """CREATE TABLE "users" ("""
+            """\"name" VARCHAR(255) NOT NULL, """
+            """CONSTRAINT email_unique UNIQUE (email)"""
+            """)"""
         )
 
     def index_constraint(self):
         """
         with self.schema.create("users") as blueprint:
             blueprint.string("name")
-            blueprint.index('email')
+            blueprint.index("email")
         """
 
         return (
-            "CREATE TABLE `users` ("
-            "`name` VARCHAR(255) NOT NULL, "
-            "INDEX (`email`)"
-            ")"
+            """CREATE TABLE "users" ("""
+            """\"name" VARCHAR(255) NOT NULL"""
+            """); CREATE INDEX users_email_index ON "users"("email")"""
         )
 
     def fulltext_constraint(self):
@@ -469,12 +460,10 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.string("name")
             blueprint.fulltext('description')
         """
-
         return (
-            "CREATE TABLE `users` ("
-            "`name` VARCHAR(255) NOT NULL, "
-            "FULLTEXT (`description`)"
-            ")"
+            """CREATE TABLE "users" ("""
+            """\"name" VARCHAR(255) NOT NULL"""
+            """); CREATE INDEX users_description_index ON "users"("description")"""
         )
 
     def primary_constraint(self):
@@ -485,24 +474,25 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         """
 
         return (
-            "CREATE TABLE `users` ("
-            "`name` VARCHAR(255) NOT NULL, "
-            "PRIMARY KEY (`id`)"
-            ")"
+            """CREATE TABLE "users" ("""
+            """\"id" INTEGER NOT NULL, """
+            """\"name" VARCHAR(255) NOT NULL, """
+            """PRIMARY KEY ("id")"""
+            """)"""
         )
 
     def multiple_index_constraint(self):
         """
         with self.schema.create("users") as blueprint:
             blueprint.string("name")
-            blueprint.index('email')
+            blueprint.index(["email", "name"])
         """
 
         return (
-            "CREATE TABLE `users` ("
-            "`name` VARCHAR(255) NOT NULL, "
-            "INDEX (`email`, `name`)"
-            ")"
+            """CREATE TABLE "users" ("""
+            """\"name" VARCHAR(255) NOT NULL"""
+            """); CREATE INDEX users_email_index ON "users"("email"); """
+            """CREATE INDEX users_name_index ON "users"("name")"""
         )
 
     def foreign_key_constraint(self):
@@ -514,11 +504,11 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         """
 
         return (
-            "CREATE TABLE `users` ("
-            "`user_id` INT UNSIGNED NOT NULL, "
-            "CONSTRAINT users_user_id_foreign FOREIGN KEY (`user_id`) REFERENCES `profile`(`id`), "
-            "CONSTRAINT users_fruit_id_foreign FOREIGN KEY (`fruit_id`) REFERENCES `fruit`(`id`)"
-            ")"
+            """CREATE TABLE "users" ("""
+            """\"user_id" INT NOT NULL, """
+            """CONSTRAINT users_user_id_foreign FOREIGN KEY ("user_id") REFERENCES "profile"("id"), """
+            """CONSTRAINT users_fruit_id_foreign FOREIGN KEY ("fruit_id") REFERENCES "fruit"("id")"""
+            """)"""
         )
 
     def column_exists(self):
@@ -526,27 +516,31 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         self.schema.has_column('users', 'email', query_only=True)
         """
 
-        return "SHOW COLUMNS FROM `users` LIKE 'email'"
+        return (
+            """SELECT column_name """
+            """FROM information_schema.columns """
+            """WHERE table_name='users' and column_name='email'"""
+        )
 
     def table_exists(self):
         """
         self.schema.has_table('users', query_only=True)
         """
-        return "SELECT * from information_schema.tables where table_name='users' AND table_schema = 'orm'"
+        return "SELECT * from information_schema.tables where table_name='users'"
 
     def drop_table(self):
         """
         to_sql = self.schema.drop_table('users', query_only=True)
         """
 
-        return "DROP TABLE `users`"
+        return """DROP TABLE "users\""""
 
     def drop_table_if_exists(self):
         """
         to_sql = self.schema.drop_table_if_exists('users', query_only=True)
         """
 
-        return "DROP TABLE IF EXISTS `users`"
+        return """DROP TABLE IF EXISTS "users\""""
 
     def drop_column(self):
         """
@@ -554,7 +548,7 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.drop_column('name')
         """
 
-        return "ALTER TABLE `users` " "DROP COLUMN `name`"
+        return """ALTER TABLE "users\" """ """DROP COLUMN "name\""""
 
     def drop_multiple_column(self):
         """
@@ -563,10 +557,10 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         """
 
         return (
-            "ALTER TABLE `users` "
-            "DROP COLUMN `name`, "
-            "DROP COLUMN `age`, "
-            "DROP COLUMN `profile`"
+            """ALTER TABLE "users" """
+            """DROP COLUMN "name", """
+            """DROP COLUMN "age", """
+            """DROP COLUMN "profile\""""
         )
 
     def can_compile_large_blueprint(self):
@@ -633,10 +627,10 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         """
 
         return (
-            "CREATE TABLE `users` ("
-            "`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
-            "`updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
-            ")"
+            """CREATE TABLE "users" ("""
+            """\"created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, """
+            """\"updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP"""
+            """)"""
         )
 
     def can_compile_timestamps_columns_with_default_of_now(self):
@@ -645,7 +639,11 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.timestamp('logged_at', now=True)
         """
 
-        return "CREATE TABLE `users` (" "`logged_at` TIMESTAMP DEFAULT NOW()" ")"
+        return (
+            """CREATE TABLE "users" ("""
+            """\"logged_at" TIMESTAMP DEFAULT NOW()"""
+            """)"""
+        )
 
     def can_compile_timestamp_column_without_default(self):
         """
@@ -653,7 +651,9 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.timestamp('logged_at')
         """
 
-        return "CREATE TABLE `users` (" "`logged_at` TIMESTAMP NOT NULL" ")"
+        return (
+            """CREATE TABLE "users" (""" """\"logged_at" TIMESTAMP NOT NULL""" """)"""
+        )
 
     def can_compile_timestamps_columns_mixed_defaults_and_not_default(self):
         """
@@ -664,12 +664,12 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         """
 
         return (
-            "CREATE TABLE `users` ("
-            "`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
-            "`updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
-            "`logged_at` TIMESTAMP NOT NULL, "
-            "`expirated_at` TIMESTAMP NOT NULL"
-            ")"
+            """CREATE TABLE "users" ("""
+            """\"created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, """
+            """\"updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, """
+            """\"logged_at" TIMESTAMP NOT NULL, """
+            """\"expirated_at" TIMESTAMP NOT NULL"""
+            """)"""
         )
 
     def can_compile_timestamp_nullable_columns(self):
@@ -680,10 +680,10 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         """
 
         return (
-            "CREATE TABLE `users` ("
-            "`logged_at` TIMESTAMP NOT NULL, "
-            "`expirated_at` TIMESTAMP"
-            ")"
+            """CREATE TABLE "users" ("""
+            """\"logged_at" TIMESTAMP NOT NULL, """
+            """\"expirated_at" TIMESTAMP"""
+            """)"""
         )
 
     def rename_table(self):
@@ -691,62 +691,56 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             to_sql = self.schema.rename("users", "core", query_only=True)
         """
 
-        return "RENAME TABLE `users` TO `core`"
+        return """ALTER TABLE "users" RENAME TO "core\""""
 
     def truncate_table(self):
         """
             to_sql = self.schema.truncate("users", query_only=True)
         """
 
-        return "TRUNCATE TABLE `users`"
+        return """TRUNCATE "users\""""
 
     def drop_index(self):
         """
          with self.schema.table("users") as blueprint:
             blueprint.drop_index('name_index')
         """
-        return "ALTER TABLE `users` DROP INDEX `name_index`"
+        return """DROP INDEX "name_index\";"""
 
     def drop_multiple_index(self):
         """
          with self.schema.table("users") as blueprint:
             blueprint.drop_index(['name_index', 'email_index'])
         """
-        return (
-            "ALTER TABLE `users` " "DROP INDEX `name_index` " "DROP INDEX `email_index`"
-        )
+        return """DROP INDEX "name_index"; """ """DROP INDEX "email_index";"""
 
     def drop_unique(self):
         """
          with self.schema.table("users") as blueprint:
-            blueprint.drop_index('name_unique')
+            blueprint.drop_unique('name_unique')
         """
-        return "ALTER TABLE `users` DROP INDEX `name_unique`"
+        return """ALTER TABLE "users" DROP CONSTRAINT name_unique"""
 
     def drop_multiple_unique(self):
         """
          with self.schema.table("users") as blueprint:
-            blueprint.drop_index(['name_unique', 'email_unique'])
+            blueprint.drop_unique(['name_unique', 'email_unique'])
         """
-        return (
-            "ALTER TABLE `users` "
-            "DROP INDEX `name_unique` "
-            "DROP INDEX `email_unique`"
-        )
+        return """ALTER TABLE "users" DROP CONSTRAINT name_unique, DROP CONSTRAINT email_unique"""
 
     def drop_primary(self):
         """
          with self.schema.table("users") as blueprint:
             blueprint.drop_primary()
         """
-        return "ALTER TABLE `users` " "DROP PRIMARY KEY"
+        return """ALTER TABLE "users" DROP CONSTRAINT users_primary"""
 
     def drop_foreign(self):
         """
          with self.schema.table("users") as blueprint:
             blueprint.drop_foreign('users_article_id_foreign')
         """
-        return "ALTER TABLE `users` " "DROP FOREIGN KEY `users_article_id_foreign`"
+        return """ALTER TABLE "users" """ """DROP CONSTRAINT users_article_id_foreign"""
 
     def drop_multiple_foreign(self):
         """
@@ -754,9 +748,9 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.drop_foreign(('article_id', 'post_id'))
         """
         return (
-            "ALTER TABLE `users` "
-            "DROP FOREIGN KEY `users_article_id_foreign` "
-            "DROP FOREIGN KEY `users_post_id_foreign`"
+            """ALTER TABLE "users" """
+            """DROP CONSTRAINT users_article_id_foreign, """
+            """DROP CONSTRAINT users_post_id_foreign"""
         )
 
     def rename_column(self):
@@ -764,4 +758,4 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.rename("name", "first_name")
         """
-        return "ALTER TABLE `users` CHANGE COLUMN `name` `first_name`"
+        return """ALTER TABLE "users" RENAME COLUMN "name" TO "first_name\""""

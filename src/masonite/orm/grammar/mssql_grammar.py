@@ -23,6 +23,13 @@ class MSSQLGrammar(BaseGrammar):
         "right_inner": "RIGHT INNER JOIN",
     }
 
+    column_strings = {
+        "select": "[{table}].[{column}]{separator}",
+        "insert": "[{table}].[{column}]{separator}",
+        "update": "[{table}].[{column}]{separator}",
+        "delete": "[{table}].[{column}]{separator}",
+    }
+
     def select_format(self):
         return "SELECT {limit} {columns} FROM {table} {joins} {wheres} {group_by}{order_by} {offset} {having}"
 
@@ -122,6 +129,12 @@ class MSSQLGrammar(BaseGrammar):
         return "[{column}]{separator}"
 
     def table_column_string(self):
+        return "[{table}].[{column}]{separator}"
+
+    def table_update_column_string(self):
+        return "[{table}].[{column}]{separator}"
+
+    def table_insert_column_string(self):
         return "[{table}].[{column}]{separator}"
 
     def value_string(self):

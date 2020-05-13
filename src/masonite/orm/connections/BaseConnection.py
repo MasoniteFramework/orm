@@ -5,6 +5,7 @@ class BaseConnection:
 
     _connection = None
     _cursor = None
+    _dry = False
 
     @classmethod
     def get_grammer(cls):
@@ -34,3 +35,8 @@ class BaseConnection:
         cls.connection_details = dictionary
         if "options" not in cls.connection_details:
             cls.connection_details.setdefault("options", {})
+
+    @classmethod
+    def dry(cls):
+        cls._dry = True
+        return cls

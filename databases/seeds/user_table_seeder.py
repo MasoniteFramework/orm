@@ -10,7 +10,6 @@ class UserTableSeeder(Seeder):
 
     def run(self):
         """Run the database seeds."""
-        print('run table seeder for users')
         factory(User, 5).create({
             'name': 'Joe',
             'password': 'joe',

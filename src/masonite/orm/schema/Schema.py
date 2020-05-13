@@ -35,7 +35,6 @@ class Schema:
             cls
         """
         cls._dry = True
-        print("calling dry", cls._dry)
         return cls
 
     @classmethod

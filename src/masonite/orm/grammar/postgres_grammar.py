@@ -1,8 +1,9 @@
 from .BaseGrammar import BaseGrammar
+import re
 
 
-class MySQLGrammar(BaseGrammar):
-    """MySQL grammar class.
+class PostgresGrammar(BaseGrammar):
+    """Postgres grammar class.
     """
 
     aggregate_options = {
@@ -23,21 +24,23 @@ class MySQLGrammar(BaseGrammar):
         "right_inner": "RIGHT INNER JOIN",
     }
 
+    types_without_lengths = ["integer"]
+
     type_map = {
         "string": "VARCHAR",
         "char": "CHAR",
-        "integer": "INT",
+        "integer": "INTEGER",
         "big_integer": "BIGINT",
         "tiny_integer": "TINYINT",
         "big_increments": "BIGINT",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
-        "increments": "INT UNSIGNED AUTO_INCREMENT PRIMARY KEY",
+        "increments": "INTEGER PRIMARY KEY",
         "binary": "LONGBLOB",
         "boolean": "BOOLEAN",
         "decimal": "DECIMAL",
         "double": "DOUBLE",
-        "enum": "ENUM",
+        "enum": "VARCHAR(255) CHECK ",
         "text": "TEXT",
         "float": "FLOAT",
         "geometry": "GEOMETRY",
@@ -51,8 +54,8 @@ class MySQLGrammar(BaseGrammar):
         "year": "YEAR",
         "datetime": "DATETIME",
         "tiny_increments": "TINYINT AUTO_INCREMENT",
-        "unsigned": "INT UNSIGNED",
-        "unsigned_integer": "UNSIGNED INT",
+        "unsigned": "INT",
+        "unsigned_integer": "INT",
     }
 
     on_delete_mapping = {
@@ -67,34 +70,18 @@ class MySQLGrammar(BaseGrammar):
         None: "",
     }
 
-    options = {
-        "create_constraints_as_separate_queries": False,  # Whether constraints should run as separate queries or part of the create table semantics
-        "alter_constraints_as_separate_queries": False,  # Whether constraints should run as separate queries or part of the alter table semantics
-        "second_query_constraints": (),  # constraint types that should run as separate queries
-        "can_compile_multiple_index": True,  # INDEX("column1", "column2")
+    column_strings = {
+        "select": '"{table}"."{column}"{separator}',
+        "insert": '"{column}"{separator}',
+        "update": '"{column}"{separator}',
+        "delete": '"{column}"{separator}',
     }
 
-    """Column strings are formats for how columns and key values should be formatted
-    on specific queries. These can be different depending on the type of query.
-
-    For example for Postgres, You can specify columns as "users"."name":
-
-        SELECT "users"."name" from "users"
-
-    But on updates we can only specify the column name and cannot have the table prefixed:
-
-        UPDATE "users" SET "name" = "value"
-
-    This dictionary allows you to modify the format depending on the type
-    of query we are generating. For most databases these will be the same
-    but this allows you to modify formats depending on the database.
-    """
-
-    column_strings = {
-        "select": "`{table}`.`{column}`{separator}",
-        "insert": "`{table}`.`{column}`{separator}",
-        "update": "`{table}`.`{column}`{separator}",
-        "delete": "`{table}`.`{column}`{separator}",
+    options = {
+        "create_constraints_as_separate_queries": True,
+        "alter_constraints_as_separate_queries": True,
+        "second_query_constraints": ("index", "fulltext"),
+        "can_compile_multiple_index": False,  # INDEX("column1", "column2")
     }
 
     timestamp_mapping = {"current": "CURRENT_TIMESTAMP", "now": "NOW()"}
@@ -150,14 +137,19 @@ class MySQLGrammar(BaseGrammar):
     def create_column_string(self):
         return "{column} {data_type}{length}{nullable}, "
 
+    def _type_enum(self, column, length_string, default=None):
+        return f""""{column.column_name}" VARCHAR(255) CHECK ("{column.column_name}" in {length_string})"""
+
     def create_column_string_with_default(self):
         return "{column} {data_type}{length} DEFAULT {default_value}, "
 
     def column_exists_string(self):
-        return "SHOW COLUMNS FROM {table} LIKE {value}"
+        return "SELECT column_name FROM information_schema.columns WHERE table_name='{clean_table}' and column_name={value}"
 
     def table_exists_string(self):
-        return "SELECT * from information_schema.tables where table_name='{clean_table}' AND table_schema = '{database}'"
+        return (
+            "SELECT * from information_schema.tables where table_name='{clean_table}'"
+        )
 
     def add_column_string(self):
         return "ADD {column} {data_type}{length}{nullable} {after}, "
@@ -169,7 +161,7 @@ class MySQLGrammar(BaseGrammar):
         return "MODIFY {column} {data_type}{length}{nullable} {after}, "
 
     def rename_column_string(self):
-        return "CHANGE COLUMN {old_column} {column} {data_type}{length}{nullable}, "
+        return "RENAME COLUMN {old_column} TO {column} {data_type}{length}{nullable}, "
 
     def create_format(self):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
@@ -181,19 +173,47 @@ class MySQLGrammar(BaseGrammar):
         return "ALTER TABLE {table} "
 
     def create_column_length(self, column_type):
+        if column_type in self.types_without_lengths:
+            return ""
         return "({length})"
 
     def unique_constraint_string(self):
         return "CONSTRAINT {index_name} UNIQUE ({clean_column}){separator}"
 
-    def index_constraint_string(self):
-        return "INDEX ({column}){separator}"
+    def create_unique_column_string(self):
+        return "ADD CONSTRAINT {index_name} UNIQUE({column}){separator}"
 
     def primary_key_string(self):
         return "{table}_primary"
 
+    def index_constraint_string(self):
+        return (
+            """CREATE INDEX {clean_table}_{clean_column}_index ON {table}({column})"""
+        )
+
+    def to_sql(self):
+        """Cleans up the SQL string and returns the SQL
+
+        Returns:
+            string
+        """
+
+        if self.queries and (not self._columns and not self._creates):
+            sql = ""
+            for query in self.queries:
+                query += "; "
+                sql += re.sub(" +", " ", query)
+            return sql.rstrip(" ")
+        else:
+            sql = re.sub(" +", " ", self._sql.strip().replace(",)", ")"))
+            for query in self.queries:
+                sql += "; "
+                sql += re.sub(" +", " ", query.strip())
+
+            return sql
+
     def fulltext_constraint_string(self):
-        return "FULLTEXT ({column}){separator}"
+        return "CREATE INDEX {clean_table}_{clean_column}_index ON {table}({column})"
 
     def primary_constraint_string(self):
         return "PRIMARY KEY ({column}){separator}"
@@ -205,13 +225,13 @@ class MySQLGrammar(BaseGrammar):
         return "ADD CONSTRAINT {index_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}) {action}{separator}"
 
     def table_string(self):
-        return "`{table}`"
+        return '"{table}"'
 
     def order_by_string(self):
         return "ORDER BY {column} {direction}"
 
     def column_string(self):
-        return "`{column}`{separator}"
+        return '"{column}"{separator}'
 
     def value_string(self):
         return "'{value}'{separator}"
@@ -262,22 +282,19 @@ class MySQLGrammar(BaseGrammar):
         return "DROP TABLE IF EXISTS {table}"
 
     def truncate_table_string(self):
-        return "TRUNCATE TABLE {table}"
+        return "TRUNCATE {table}"
 
     def rename_table_string(self):
-        return "RENAME TABLE {current_table_name} TO {new_table_name}"
-
-    def create_unique_column_string(self):
-        return "ADD CONSTRAINT {index_name} UNIQUE({column}){separator}"
+        return "ALTER TABLE {current_table_name} RENAME TO {new_table_name}"
 
     def drop_index_column_string(self):
-        return "DROP INDEX {column} "
+        return "DROP INDEX {column}{separator} "
 
     def drop_unique_column_string(self):
-        return "DROP INDEX {column} "
+        return "DROP CONSTRAINT {clean_column}{separator} "
 
     def drop_foreign_column_string(self):
-        return "DROP FOREIGN KEY {column} "
+        return "DROP CONSTRAINT {clean_column}{separator} "
 
     def drop_primary_column_string(self):
-        return "DROP PRIMARY KEY"
+        return "DROP CONSTRAINT {clean_table}_primary{separator} "
