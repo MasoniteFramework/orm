@@ -47,7 +47,7 @@ CONNECTIONS = {
     },
     'sqlite': {
         'driver': 'sqlite',
-        'database': 'orm.db',
+        'database': 'orm.sqlite3',
         'prefix': ''
     }
 }

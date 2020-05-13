@@ -24,8 +24,9 @@ class SQLiteConnection(BaseConnection):
         that should pass to your connection method
         """
         connection_details = {}
-        connection_details.setdefault("db", self.connections.get("database"))
-        connection_details.update(self.connections.get("options", {}))
+        connection_details.setdefault("db", self.connection_details.get("database"))
+        connection_details.update(self.connection_details.get("options", {}))
+
 
         return connection_details
 

@@ -734,7 +734,8 @@ class BaseGrammar:
                 query_value = query_value.rstrip(",").rstrip(", ") + ")"
             elif qmark:
                 query_value = "'?'"
-                self.add_binding(value)
+                if value is not True:
+                    self.add_binding(value)
             elif value_type == "value":
                 query_value = self.value_string().format(value=value, separator="")
             elif value_type == "column":
@@ -744,6 +745,7 @@ class BaseGrammar:
             else:
                 query_value = ""
 
+            print(sql_string, column)
             sql += sql_string.format(
                 keyword=keyword, column=column, equality=equality, value=query_value,
             )
