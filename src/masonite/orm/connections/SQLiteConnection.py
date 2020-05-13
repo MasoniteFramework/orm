@@ -27,7 +27,6 @@ class SQLiteConnection(BaseConnection):
         connection_details.setdefault("db", self.connection_details.get("database"))
         connection_details.update(self.connection_details.get("options", {}))
 
-
         return connection_details
 
     def reconnect(self):

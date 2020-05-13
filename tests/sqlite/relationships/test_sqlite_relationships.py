@@ -9,6 +9,7 @@ class Profile(Model):
     __table__ = "profiles"
     __connection__ = "sqlite"
 
+
 class Articles(Model):
     __table__ = "articles"
     __connection__ = "sqlite"
@@ -17,9 +18,11 @@ class Articles(Model):
     def logo(self):
         return Logo
 
+
 class Logo(Model):
     __table__ = "logos"
     __connection__ = "sqlite"
+
 
 class User(Model):
 
@@ -39,6 +42,7 @@ class User(Model):
 
     def get_is_admin(self):
         return "You are an admin"
+
 
 class TestRelationships(unittest.TestCase):
     maxDiff = None
