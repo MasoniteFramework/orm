@@ -227,9 +227,13 @@ class Model:
             model = cls()
             model.__attributes__.update(dictionary or {})
             return model
-        else:
+        elif isinstance(dictionary, cls):
             model = cls()
             model.__attributes__.update(dictionary.__attributes__ if dictionary else {})
+            return model
+        else:
+            model = cls()
+            model.__attributes__.update(dict(dictionary))
             return model
 
     @classmethod

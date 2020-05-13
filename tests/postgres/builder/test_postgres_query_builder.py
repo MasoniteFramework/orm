@@ -10,7 +10,7 @@ from tests.utils import MockConnectionFactory
 
 class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
-        connection = ConnectionFactory().make("postgres").dry()
+        connection = MockConnectionFactory().make("default")
         return QueryBuilder(self.grammar, connection, table=table, owner=Model)
 
     def test_sum(self):
