@@ -142,7 +142,7 @@ class BaseTestCreateGrammar:
             blueprint.string("email")
             blueprint.string("password")
             blueprint.integer("age").nullable()
-            blueprint.unsigned_integer('quantity')
+            blueprint.unsigned_integer("quantity")
             blueprint.enum("type", ["Open", "Closed"])
             blueprint.datetime("pick_up")
             blueprint.binary("profile")
@@ -152,8 +152,8 @@ class BaseTestCreateGrammar:
             blueprint.decimal("credit", 17, 6)
             blueprint.text("description")
             blueprint.unsigned("bank").nullable()
-            blueprint.double('percentage')
-            blueprint.big_increments('clicks')
+            blueprint.double("percentage")
+            blueprint.big_increments("clicks")
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
