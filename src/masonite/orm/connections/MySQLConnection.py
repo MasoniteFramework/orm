@@ -1,4 +1,3 @@
-
 from .BaseConnection import BaseConnection
 
 import random
@@ -16,7 +15,9 @@ class MySQLConnection(BaseConnection):
         try:
             import pymysql
         except ModuleNotFoundError:
-            raise DriverNotFound("You must have the 'pymysql' package installed to make a connection to MySQL. Please install it using 'pip install pymysql'")
+            raise DriverNotFound(
+                "You must have the 'pymysql' package installed to make a connection to MySQL. Please install it using 'pip install pymysql'"
+            )
 
         if len(CONNECTION_POOL) < 10:
             self._connection = pymysql.connect(
