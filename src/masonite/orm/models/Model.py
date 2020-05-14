@@ -220,7 +220,7 @@ class Model:
     def hydrate(cls, dictionary):
         if dictionary is None:
             return None
-            
+
         if isinstance(dictionary, (list, tuple)):
             response = []
             for element in dictionary:

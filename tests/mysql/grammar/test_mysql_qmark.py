@@ -45,6 +45,15 @@ class BaseQMarkTest:
         self.assertEqual(mark.to_qmark(), sql)
         self.assertEqual(mark._bindings, bindings)
 
+    def test_can_compile_where_not_null(self):
+        mark = self.builder.where_not_null("id")
+
+        sql, bindings = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(mark.to_qmark(), sql)
+        self.assertEqual(mark._bindings, bindings)
+
 
 class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
     def can_compile_select(self):
@@ -80,4 +89,13 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         return (
             "SELECT * FROM `users` WHERE `users`.`id` IN ('?', '?', '?')",
             ("1", "2", "3"),
+        )
+
+    def can_compile_where_not_null(self):
+        """
+        self.builder.where_not_null("id").to_qmark()
+        """
+        return (
+            "SELECT * FROM `users` WHERE `users`.`id` IS NOT NULL",
+            (),
         )

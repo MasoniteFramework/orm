@@ -599,7 +599,7 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             "`email` VARCHAR(255) NOT NULL, "
             "`password` VARCHAR(255) NOT NULL, "
             "`age` INT(11), "
-            "`quantity` UNSIGNED INT NOT NULL, "
+            "`quantity` INT UNSIGNED NOT NULL, "
             "`type` ENUM('Open','Closed') NOT NULL, "
             "`pick_up` DATETIME NOT NULL, "
             "`profile` LONGBLOB NOT NULL, "

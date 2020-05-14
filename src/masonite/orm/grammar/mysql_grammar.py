@@ -52,7 +52,7 @@ class MySQLGrammar(BaseGrammar):
         "datetime": "DATETIME",
         "tiny_increments": "TINYINT AUTO_INCREMENT",
         "unsigned": "INT UNSIGNED",
-        "unsigned_integer": "UNSIGNED INT",
+        "unsigned_integer": "INT UNSIGNED",
     }
 
     on_delete_mapping = {
