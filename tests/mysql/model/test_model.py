@@ -79,7 +79,10 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
         def test_hydrate_with_none(self):
             profile = ProfileFillAsterisk.hydrate(None)
 
-            self.assertEqual(profile.serialize(), {})
+            self.assertEqual(profile, None)
+
+        def test_can_print_none(self):
+            print(User.where("remember_token", "10").first())
 
         def test_serialize_with_dirty_attribute(self):
             profile = ProfileFillAsterisk.hydrate({"name": "Joe", "id": 1})

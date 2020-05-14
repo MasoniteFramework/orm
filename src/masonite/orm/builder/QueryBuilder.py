@@ -261,6 +261,10 @@ class QueryBuilder:
             self._wheres += (
                 (QueryExpression(column, operator, SubSelectExpression(value))),
             )
+        elif value is None:
+            self._wheres += ((QueryExpression(column, operator, value, "NULL")),)
+        elif value is True:
+            self._wheres += ((QueryExpression(column, operator, value, "NOT NULL")),)
         else:
             self._wheres += ((QueryExpression(column, operator, value, "value")),)
         return self

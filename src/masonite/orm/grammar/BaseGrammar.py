@@ -701,9 +701,9 @@ class BaseGrammar:
                     column=self._table_column_string(where.column),
                     keyword=keyword,
                 )
-            elif value is None:
+            elif value_type == "NULL":
                 sql_string = self.where_null_string()
-            elif value is True:
+            elif value_type == "NOT NULL":
                 sql_string = self.where_not_null_string()
             elif equality == "EXISTS":
                 sql_string = self.where_exists_string()
