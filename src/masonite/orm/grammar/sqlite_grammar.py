@@ -19,9 +19,9 @@ class SQLiteGrammar(BaseGrammar):
         "inner": "INNER JOIN",
         "outer": "OUTER JOIN",
         "left": "LEFT JOIN",
-        "right": "RIGHT JOIN",
+        "right": "LEFT JOIN",
         "left_inner": "LEFT INNER JOIN",
-        "right_inner": "RIGHT INNER JOIN",
+        "right_inner": "LEFT INNER JOIN",
     }
 
     types_without_lengths = []
