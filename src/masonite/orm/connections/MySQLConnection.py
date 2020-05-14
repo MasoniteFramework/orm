@@ -1,5 +1,3 @@
-import pymysql
-
 from .BaseConnection import BaseConnection
 
 import random
@@ -14,6 +12,13 @@ class MySQLConnection(BaseConnection):
     def make_connection(self):
         """This sets the connection on the connection class
         """
+        try:
+            import pymysql
+        except ModuleNotFoundError:
+            raise DriverNotFound(
+                "You must have the 'pymysql' package installed to make a connection to MySQL. Please install it using 'pip install pymysql'"
+            )
+
         if len(CONNECTION_POOL) < 10:
             self._connection = pymysql.connect(
                 cursorclass=pymysql.cursors.DictCursor,
@@ -89,7 +94,7 @@ class MySQLConnection(BaseConnection):
             dict|None -- Returns a dictionary of results or None
         """
         query = query.replace("'?'", "%s")
-        print("running query", query)
+        print("running query", query, bindings)
         try:
             with self._connection.cursor() as cursor:
                 cursor.execute(query, bindings)

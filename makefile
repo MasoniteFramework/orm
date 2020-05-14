@@ -22,6 +22,8 @@ cov:
 	python -m pytest --cov-report term --cov-report xml --cov=src/masonite tests/
 publish:
 	make format
+	make lint
+	make test
 	python setup.py sdist
 	twine upload dist/*
 	rm -fr build dist .egg masonite.egg-info

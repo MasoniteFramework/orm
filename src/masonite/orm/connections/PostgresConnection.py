@@ -1,9 +1,7 @@
 import random
 
-import pymysql
-import psycopg2
-
 from .BaseConnection import BaseConnection
+from ..exceptions import DriverNotFound
 
 CONNECTION_POOL = []
 
@@ -15,6 +13,13 @@ class PostgresConnection(BaseConnection):
     def make_connection(self):
         """This sets the connection on the connection class
         """
+        try:
+            import psycopg2
+        except ModuleNotFoundError:
+            raise DriverNotFound(
+                "You must have the 'psycopg2' package installed to make a connection to Postgres. Please install it using 'pip install psycopg2-binary'"
+            )
+
         self._connection = psycopg2.connect(**self.get_connection_details())
 
         return self
@@ -78,6 +83,8 @@ class PostgresConnection(BaseConnection):
         Returns:
             dict|None -- Returns a dictionary of results or None
         """
+        import psycopg2
+
         query = query.replace("'?'", "%s")
         print("running query:", query)
 

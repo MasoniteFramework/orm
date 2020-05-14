@@ -252,6 +252,13 @@ class QueryBuilder:
 
         operator, value = self._extract_operator_value(*args)
 
+        if value is None:
+            value = ""
+        elif value is True:
+            value = "1"
+        elif value is False:
+            value = "0"
+
         if inspect.isfunction(column):
             builder = column(self.new())
             self._wheres += (
@@ -344,7 +351,7 @@ class QueryBuilder:
         Returns:
             self
         """
-        self.where(column, None)
+        self._wheres += ((QueryExpression(column, "=", None, "NULL")),)
         return self
 
     def where_not_null(self, column: str):
@@ -356,7 +363,7 @@ class QueryBuilder:
         Returns:
             self
         """
-        self.where(column, True)
+        self._wheres += ((QueryExpression(column, "=", True, "NOT NULL")),)
         return self
 
     def between(self, column: str, low: [str, int], high: [str, int]):
