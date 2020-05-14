@@ -74,7 +74,7 @@ class PostgresGrammar(BaseGrammar):
         "select": '"{table}"."{column}"{separator}',
         "insert": '"{column}"{separator}',
         "update": '"{column}"{separator}',
-        "delete": '"{column}"{separator}',
+        "delete": '"{table}"."{column}"{separator}',
     }
 
     options = {

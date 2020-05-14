@@ -69,7 +69,7 @@ class TestPostgresUpdateGrammar(BaseTestCaseUpdateGrammar, unittest.TestCase):
             'name': 'Joe'
         }).to_sql()
         """
-        return """UPDATE "users" SET "name" = 'Joe' WHERE "users"."name" = 'bob'"""
+        return """UPDATE "users" SET "name" = 'Joe' WHERE "name" = 'bob'"""
 
     def can_compile_multiple_update(self):
         """
@@ -83,7 +83,7 @@ class TestPostgresUpdateGrammar(BaseTestCaseUpdateGrammar, unittest.TestCase):
             'name': 'Joe'
         }).to_sql()
         """
-        return """UPDATE "users" SET "name" = 'Joe' WHERE "users"."name" = 'bob' AND "users"."age" = '20'"""
+        return """UPDATE "users" SET "name" = 'Joe' WHERE "name" = 'bob' AND "age" = '20'"""
 
     def can_compile_increment(self):
         """

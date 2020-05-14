@@ -62,9 +62,11 @@ class BaseGrammar:
         self._sql = ""
 
         self._sql_qmark = ""
+        self._action = "select"
         self.queries = []
 
     def compile(self, action):
+        self._action = action
         return getattr(self, "_compile_" + action)()
 
     def _compile_create(self):
@@ -486,7 +488,7 @@ class BaseGrammar:
             if isinstance(column, dict):
                 for key, value in column.items():
                     sql += sql_string.format(
-                        column=self._table_column_string(key, action=action),
+                        column=self._table_column_string(key),
                         value=value if not qmark else "?",
                         separator=", ",
                     )
@@ -495,7 +497,7 @@ class BaseGrammar:
                         self._bindings += (value,)
             else:
                 sql += sql_string.format(
-                    column=self._table_column_string(column, action=action),
+                    column=self._table_column_string(column),
                     value=value if not qmark else "?",
                 )
                 if qmark:
@@ -734,7 +736,8 @@ class BaseGrammar:
                 query_value = query_value.rstrip(",").rstrip(", ") + ")"
             elif qmark:
                 query_value = "'?'"
-                self.add_binding(value)
+                if value is not True:
+                    self.add_binding(value)
             elif value_type == "value":
                 query_value = self.value_string().format(value=value, separator="")
             elif value_type == "column":
@@ -832,9 +835,7 @@ class BaseGrammar:
                         continue
 
                     column = column.column
-                sql += self._table_column_string(
-                    column, separator=separator, action=action
-                )
+                sql += self._table_column_string(column, separator=separator)
 
         if self._aggregates:
             sql += self._compile_aggregates()
@@ -906,7 +907,7 @@ class BaseGrammar:
             column=column, separator=separator, table=table or self.table
         )
 
-    def _table_column_string(self, column, separator="", action="select"):
+    def _table_column_string(self, column, separator=""):
         """Compiles a column into the column syntax.
 
         Arguments:
@@ -922,7 +923,7 @@ class BaseGrammar:
         if column and "." in column:
             table, column = column.split(".")
 
-        return self.column_strings.get(action).format(
+        return self.column_strings.get(self._action).format(
             column=column, separator=separator, table=table or self.table
         )
 
