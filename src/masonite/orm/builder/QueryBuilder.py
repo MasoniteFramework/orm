@@ -212,7 +212,10 @@ class QueryBuilder:
         if query:
             return self
 
-        return self.connection().make_connection().query(self.to_sql(), self._bindings)
+        self.connection().make_connection().query(self.to_sql(), self._bindings)
+        if self.owner:
+            return self.owner.hydrate(creates)
+        return creates
 
     def delete(self, column=None, value=None, query=False):
         """Specify the column and value to delete

@@ -32,8 +32,11 @@ class Model:
     _booted = False
     __primary_key__ = "id"
     __casts__ = {}
+    __dates__ = []
     __timestamps__ = True
     _global_scopes = {}
+    date_created_at = "created_at"
+    date_updated_at = "updated_at"
 
     __cast_map__ = {
         "bool": BoolCast,
@@ -267,6 +270,15 @@ class Model:
 
     def serialize(self):
         serialized_dictionary = self.__attributes__
+        print(serialized_dictionary, self.get_dates())
+
+        for date_column in self.get_dates():
+            if date_column in serialized_dictionary:
+                print("has", date_column)
+                serialized_dictionary[date_column] = self.get_new_serialized_date(
+                    serialized_dictionary[date_column]
+                )
+
         serialized_dictionary.update(self.__dirty_attributes__)
         return serialized_dictionary
 
@@ -352,3 +364,31 @@ class Model:
 
     def __getitem__(self, attribute):
         return getattr(self, attribute)
+
+    def get_dates(self):
+        """
+        Get the attributes that should be converted to dates.
+
+        :rtype: list
+        """
+        defaults = [self.date_created_at, self.date_updated_at]
+
+        return self.__dates__ + defaults
+
+    def get_new_date(self, datetime=None):
+        """
+        Get the attributes that should be converted to dates.
+
+        :rtype: list
+        """
+        import pendulum
+
+        return pendulum.instance(datetime)
+
+    def get_new_serialized_date(self, datetime):
+        """
+        Get the attributes that should be converted to dates.
+
+        :rtype: list
+        """
+        return self.get_new_date(datetime).isoformat()

@@ -1,9 +1,13 @@
+import json
+import os
 import unittest
-from src.masonite.orm.grammar.mssql_grammar import MSSQLGrammar
+
+import pendulum
+
 from app.User import User
 from src.masonite.orm.collection import Collection
+from src.masonite.orm.grammar.mssql_grammar import MSSQLGrammar
 from src.masonite.orm.models import Model
-import os
 
 if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
 
@@ -75,6 +79,11 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             profile = ProfileFillAsterisk.hydrate({"name": "Joe", "id": 1})
 
             self.assertEqual(profile.serialize(), {"name": "Joe", "id": 1})
+
+        def test_serialize_with_date(self):
+            user = User.hydrate({"name": "Joe", "created_at": pendulum.now()})
+
+            self.assertTrue(json.dumps(user.serialize()))
 
         def test_hydrate_with_none(self):
             profile = ProfileFillAsterisk.hydrate(None)

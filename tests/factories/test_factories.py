@@ -43,3 +43,7 @@ class TestFactories(unittest.TestCase):
     def test_can_make_named_factory(self):
         user = factory(User).make(name="admin")
         self.assertEqual(user.admin, 1)
+
+    def test_can_create(self):
+        user = factory(User).create()
+        self.assertTrue(user.name)

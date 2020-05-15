@@ -34,6 +34,7 @@ class Factory:
             called = self._factories[self.model][name](Faker())
             called.update(dictionary)
             return self.model.create(called)
+
         elif isinstance(dictionary, list):
             results = []
             for index in range(0, len(dictionary)):
@@ -42,10 +43,14 @@ class Factory:
                 results.append(called)
             return self.model.create(results)
         else:
+            full_collection = []
             for index in range(0, self.number):
                 called = self._factories[self.model][name](Faker())
                 called.update(dictionary)
+                full_collection.append(called)
                 self.model.create(called)
+
+            return self.model.hydrate(full_collection)
 
     @classmethod
     def register(cls, model, call, name="default"):

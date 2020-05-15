@@ -14,6 +14,12 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         return """SELECT * FROM "users\""""
 
+    def can_compile_order_by_and_first(self):
+        """
+        self.builder.order_by('id', 'asc').first()
+        """
+        return """SELECT * FROM "users" ORDER BY "users"."id" ASC LIMIT 1"""
+
     def can_compile_with_columns(self):
         """
         self.builder.select('username', 'password').to_sql()
