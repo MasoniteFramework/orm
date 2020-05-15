@@ -81,6 +81,10 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
 
             self.assertEqual(profile, None)
 
+        def test_can_find_first(self):
+            profile = User.find(1)
+            print(profile)
+
         def test_can_print_none(self):
             print(User.where("remember_token", "10").first())
 

@@ -11,7 +11,7 @@ class SQLiteConnection(BaseConnection):
         """This sets the connection on the connection class
         """
         connection_details = self.get_connection_details()
-        self._connection = sqlite3.connect(connection_details.get("db"))
+        self._connection = sqlite3.connect(connection_details.get("db"), isolation_level=None)
         self._connection.row_factory = sqlite3.Row
 
         return self
