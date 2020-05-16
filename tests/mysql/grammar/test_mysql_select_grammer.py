@@ -20,6 +20,12 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         return "SELECT `users`.`username`, `users`.`password` FROM `users`"
 
+    def can_compile_order_by_and_first(self):
+        """
+        self.builder.order_by('id', 'asc').first()
+        """
+        return """SELECT * FROM `users` ORDER BY `users`.`id` ASC LIMIT 1"""
+
     def can_compile_with_where(self):
         """
         self.builder.select('username', 'password').where('id', 1).to_sql()

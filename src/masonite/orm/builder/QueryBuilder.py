@@ -28,6 +28,7 @@ class QueryBuilder:
         scopes={},
         global_scopes={},
         owner=None,
+        dry=False
     ):
         """QueryBuilder initializer
 
@@ -49,6 +50,7 @@ class QueryBuilder:
             self._scopes.update(scopes)
         self.boot()
         self.set_action("select")
+        self._dry = dry
 
         # Get the connection and grammar class.
         if not self.grammar:
@@ -704,9 +706,10 @@ class QueryBuilder:
         )
         if self.owner._eager_load:
             for eager in self.owner._eager_load:
+                print(eager)
                 relationship_result = (
                     getattr(self.owner, eager)()
-                    .where_in("id", Collection(result).pluck("id"))
+                    .where_in("id", Collection(result).unique('id').pluck("id"))
                     .get()
                 )
                 self.owner._relationships[eager] = relationship_result

@@ -44,6 +44,12 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         return "SELECT SUM([users].[age]) AS age FROM [users]"
 
+    def can_compile_order_by_and_first(self):
+        """
+        self.builder.order_by('id', 'asc').first()
+        """
+        return """SELECT TOP 1 * FROM [users] ORDER BY [users].[id] ASC"""
+
     def can_compile_with_max(self):
         """
         self.builder.max('age').to_sql() 

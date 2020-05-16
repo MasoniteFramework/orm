@@ -206,6 +206,12 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         return """SELECT SUM("users"."age") AS age FROM "users" GROUP BY "users"."age" HAVING "users"."age" = '10'"""
 
+    def can_compile_order_by_and_first(self):
+        """
+        self.builder.order_by('id', 'asc').first()
+        """
+        return """SELECT * FROM "users" ORDER BY "users"."id" ASC LIMIT 1"""
+
     def can_compile_having_with_greater_than_expression(self):
         """
         builder.sum('age').group_by('age').having('age', '>', 10).to_sql()

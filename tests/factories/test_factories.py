@@ -44,6 +44,6 @@ class TestFactories(unittest.TestCase):
         user = factory(User).make(name="admin")
         self.assertEqual(user.admin, 1)
 
-    def test_can_create(self):
-        user = factory(User).create()
-        self.assertTrue(user.name)
+    # def test_can_create(self):
+    #     user = factory(User).create()
+    #     self.assertTrue(user.name)
