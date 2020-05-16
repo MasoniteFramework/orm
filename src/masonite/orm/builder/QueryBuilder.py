@@ -49,7 +49,6 @@ class QueryBuilder:
             self._scopes.update(scopes)
         self.boot()
         self.set_action("select")
-        self._dry = dry
 
         # Get the connection and grammar class.
         if not self.grammar:
