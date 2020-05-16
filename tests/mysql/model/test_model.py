@@ -3,6 +3,7 @@ import os
 import unittest
 
 import pendulum
+import datetime
 
 from app.User import User
 from src.masonite.orm.collection import Collection
@@ -84,6 +85,17 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             user = User.hydrate({"name": "Joe", "created_at": pendulum.now()})
 
             self.assertTrue(json.dumps(user.serialize()))
+
+        def test_set_as_date(self):
+            user = User.hydrate(
+                {
+                    "name": "Joe",
+                    "created_at": datetime.datetime.now() + datetime.timedelta(days=1),
+                }
+            )
+
+            self.assertTrue(user.created_at)
+            self.assertTrue(user.created_at.is_future())
 
         def test_hydrate_with_none(self):
             profile = ProfileFillAsterisk.hydrate(None)

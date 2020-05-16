@@ -237,7 +237,15 @@ class Model:
             return cls.new_collection(response)
         elif isinstance(dictionary, dict):
             model = cls()
-            model.__attributes__.update(dictionary or {})
+            dic = {}
+            for key, value in dictionary.items():
+                print(model.get_dates())
+                print(key)
+                if key in model.get_dates():
+                    print(key, "in dates", value)
+                    value = model.get_new_date(value)
+                dic.update({key: value})
+            model.__attributes__.update(dic or {})
             return model
         elif isinstance(dictionary, cls):
             model = cls()
@@ -388,6 +396,12 @@ class Model:
         :rtype: list
         """
         import pendulum
+
+        if not datetime:
+            return None
+
+        if isinstance(datetime, str):
+            return pendulum.parse(datetime)
 
         return pendulum.instance(datetime)
 
