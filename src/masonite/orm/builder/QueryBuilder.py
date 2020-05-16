@@ -329,6 +329,10 @@ class QueryBuilder:
 
         return self
 
+    def with_(self, *args, **kwargs):
+        self.owner.with_(*args, **kwargs)
+        return self
+
     def having(self, column, equality="", value=""):
         """Specifying a having expression.
 
