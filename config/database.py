@@ -3,6 +3,7 @@
 import os
 
 from masonite.environment import LoadEnvironment, env
+from src.masonite.orm.builder import QueryBuilder
 
 """
 |--------------------------------------------------------------------------
@@ -20,7 +21,7 @@ The connections here don't determine the database but determine the "connection"
 They can be named whatever you want.
 """
 
-CONNECTIONS = {
+DATABASES = {
     'default': 'mysql',
     'mysql': {
         'driver': 'mysql',
@@ -51,6 +52,8 @@ CONNECTIONS = {
         'prefix': ''
     }
 }
+
+DB = QueryBuilder(connection_details=DATABASES)
 
 # DATABASES = {
 #     'default': os.environ.get('DB_DRIVER'),

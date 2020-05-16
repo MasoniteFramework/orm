@@ -70,6 +70,10 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
                 user.is_admin = 1
                 user.save()
 
+        def test_relationship_serialize(self):
+            users = User.with_("articles").where("is_admin", 1).get()
+            self.assertTrue(users.first().serialize())
+
         def test_relationship_has(self):
             to_sql = User.has("articles").to_sql()
             self.assertEqual(

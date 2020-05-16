@@ -9,7 +9,6 @@ class BaseInsertGrammarTest:
     grammar = "postgres"
 
     def setUp(self):
-        print("test", self.grammar)
         self.builder = QueryBuilder(GrammarFactory.make("postgres"), table="users")
 
     def test_can_compile_insert(self):

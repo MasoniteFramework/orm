@@ -343,7 +343,11 @@ class Collection:
         attributes = []
 
         for item in self._items:
-            if self._make_comparison(item.get(key), value, op):
+            if isinstance(item, dict):
+                comparison = item.get(key)
+            else:
+                comparison = getattr(item, key)
+            if self._make_comparison(comparison, value, op):
                 attributes.append(item)
 
         return self.__class__(attributes)

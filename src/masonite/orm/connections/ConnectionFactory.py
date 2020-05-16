@@ -1,4 +1,7 @@
-from config.database import CONNECTIONS
+try:
+    from config.database import DATABASES
+except ImportError:
+    pass
 
 from .MySQLConnection import MySQLConnection
 from .SQLiteConnection import SQLiteConnection
@@ -43,13 +46,15 @@ class ConnectionFactory:
         Returns:
             masonite.orm.connection.BaseConnection -- Returns an instance of a BaseConnection class.
         """
+        from config.database import DATABASES
+
         if key == "default":
-            connection_details = CONNECTIONS.get(CONNECTIONS.get("default"))
+            connection_details = DATABASES.get(DATABASES.get("default"))
             connection = self._connections.get(connection_details.get("driver"))
             connection.set_connection_settings(connection_details)
         else:
             connection = self._connections.get(key)
-            connection.set_connection_settings(CONNECTIONS.get(key))
+            connection.set_connection_settings(DATABASES.get(key))
 
         if connection:
             return connection

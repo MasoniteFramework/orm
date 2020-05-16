@@ -46,7 +46,9 @@ class Model:
     def __init__(self):
         self.__attributes__ = {}
         self.__dirty_attributes__ = {}
-        self._relationships = {}
+        self.__appends__ = []
+        if not self._relationships:
+            self._relationships = {}
 
     def get_primary_key(self):
         return self.__primary_key__
@@ -239,10 +241,7 @@ class Model:
             model = cls()
             dic = {}
             for key, value in dictionary.items():
-                print(model.get_dates())
-                print(key)
                 if key in model.get_dates():
-                    print(key, "in dates", value)
                     value = model.get_new_date(value)
                 dic.update({key: value})
             model.__attributes__.update(dic or {})
@@ -284,16 +283,24 @@ class Model:
 
     def serialize(self):
         serialized_dictionary = self.__attributes__
-        print(serialized_dictionary, self.get_dates())
 
         for date_column in self.get_dates():
             if date_column in serialized_dictionary:
-                print("has", date_column)
                 serialized_dictionary[date_column] = self.get_new_serialized_date(
                     serialized_dictionary[date_column]
                 )
 
         serialized_dictionary.update(self.__dirty_attributes__)
+
+        # Serialize relationships as well
+        for key in self._registered_relationships.get(self.__class__, {}).keys():
+            loaded = self._relationships.get(key)
+            if loaded:
+                serialized_dictionary.update({key: loaded.serialize()})
+
+        for append in self.__appends__:
+            serialized_dictionary.update({append: getattr(self, append)})
+
         return serialized_dictionary
 
     def find_or_fail(self):
@@ -341,7 +348,6 @@ class Model:
             pass
 
     def save(self, query=False):
-
         builder = self.builder.where(
             self.get_primary_key(), self.get_primary_key_value()
         )
@@ -412,3 +418,12 @@ class Model:
         :rtype: list
         """
         return self.get_new_date(datetime).isoformat()
+
+    def set_appends(self, appends):
+        """
+        Get the attributes that should be converted to dates.
+
+        :rtype: list
+        """
+        self.__appends__ += appends
+        return self

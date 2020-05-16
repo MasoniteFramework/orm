@@ -9,7 +9,6 @@ class BaseInsertGrammarTest:
     grammar = "sqlite"
 
     def setUp(self):
-        print("test", self.grammar)
         self.builder = QueryBuilder(GrammarFactory.make("sqlite"), table="users")
 
     def test_can_compile_insert(self):

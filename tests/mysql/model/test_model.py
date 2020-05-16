@@ -27,7 +27,9 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
         pass
 
     class User(Model):
-        pass
+        @property
+        def meta(self):
+            return {"is_subscribed": True}
 
     class ProductNames(Model):
         pass
@@ -80,6 +82,16 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             profile = ProfileFillAsterisk.hydrate({"name": "Joe", "id": 1})
 
             self.assertEqual(profile.serialize(), {"name": "Joe", "id": 1})
+
+        def test_serialize_with_appends(self):
+            user = User.hydrate({"name": "Joe", "id": 1})
+
+            user.set_appends(["meta"])
+
+            serialized = user.serialize()
+            self.assertEqual(serialized["id"], 1)
+            self.assertEqual(serialized["name"], "Joe")
+            self.assertEqual(serialized["meta"]["is_subscribed"], True)
 
         def test_serialize_with_date(self):
             user = User.hydrate({"name": "Joe", "created_at": pendulum.now()})

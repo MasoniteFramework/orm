@@ -4,7 +4,6 @@ from ..blueprint import Blueprint
 
 class Schema:
 
-    _connection = ConnectionFactory().make("default")
     _grammer = None
     _default_string_length = "255"
     _dry = False
