@@ -52,7 +52,13 @@ class Model:
         return self.__primary_key__
 
     def get_primary_key_value(self):
-        return getattr(self, self.get_primary_key())
+        try:
+            return getattr(self, self.get_primary_key())
+        except AttributeError:
+            name = self.__class__.__name__
+            raise AttributeError(
+                f"class '{name}' has no attribute {self.get_primary_key()}. Did you set the primary key correctly on the model using the __primary_key__ attribute?"
+            )
 
     @classmethod
     def boot(cls):

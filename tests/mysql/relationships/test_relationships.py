@@ -20,9 +20,6 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
         __table__ = "logos"
 
     class User(Model):
-
-        _eager_loads = ()
-
         @belongs_to("id", "user_id")
         def profile(self):
             return Profile

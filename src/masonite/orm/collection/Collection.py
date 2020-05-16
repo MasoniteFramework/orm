@@ -326,9 +326,9 @@ class Collection:
         items = []
 
         for item in self:
-            if not item[key] in keys:
+            if not item.get(key) in keys:
                 items.append(item)
-                keys.add(item[key])
+                keys.add(item.get(key))
 
         return self.__class__(items)
 

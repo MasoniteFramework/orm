@@ -28,7 +28,6 @@ class QueryBuilder:
         scopes={},
         global_scopes={},
         owner=None,
-        dry=False
     ):
         """QueryBuilder initializer
 
@@ -706,10 +705,14 @@ class QueryBuilder:
         )
         if self.owner._eager_load:
             for eager in self.owner._eager_load:
-                print(eager)
+                relationship = self.owner._registered_relationships[self.owner][eager]
+                foreign_key, local_key = relationship["foreign"], relationship["local"]
                 relationship_result = (
                     getattr(self.owner, eager)()
-                    .where_in("id", Collection(result).unique('id').pluck("id"))
+                    .where_in(
+                        foreign_key,
+                        Collection(result).unique(local_key).pluck(local_key),
+                    )
                     .get()
                 )
                 self.owner._relationships[eager] = relationship_result

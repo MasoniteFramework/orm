@@ -2,6 +2,9 @@ from .BaseRelationship import BaseRelationship
 
 
 class HasMany(BaseRelationship):
+    """Has Many Relationship Class.
+    """
+
     def apply_query(self, foreign, owner, foreign_key, local_key):
         """Apply the query and return a dictionary to be hydrated
 
