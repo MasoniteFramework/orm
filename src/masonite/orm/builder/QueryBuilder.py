@@ -709,17 +709,45 @@ class QueryBuilder:
         )
         if self.owner._eager_load:
             for eager in self.owner._eager_load:
-                relationship = self.owner._registered_relationships[self.owner][eager]
-                foreign_key, local_key = relationship["foreign"], relationship["local"]
-                relationship_result = (
-                    getattr(self.owner, eager)()
-                    .where_in(
-                        foreign_key,
-                        Collection(result).unique(local_key).pluck(local_key),
+                if "." in eager:
+                    # Get nested relationship
+                    last_owner = self.owner
+                    for split_eager in eager.split("."):
+
+                        relationship = last_owner._registered_relationships[last_owner][
+                            split_eager
+                        ]
+                        foreign_key, local_key = (
+                            relationship["foreign"],
+                            relationship["local"],
+                        )
+
+                        related = getattr(last_owner, split_eager)()
+                        result = related.where_in(
+                            foreign_key,
+                            Collection(result).unique(local_key).pluck(local_key),
+                        ).get()
+
+                        last_owner = related.owner
+
+                        last_owner._relationships[split_eager] = result
+                else:
+                    relationship = self.owner._registered_relationships[self.owner][
+                        eager
+                    ]
+                    foreign_key, local_key = (
+                        relationship["foreign"],
+                        relationship["local"],
                     )
-                    .get()
-                )
-                self.owner._relationships[eager] = relationship_result
+                    relationship_result = (
+                        getattr(self.owner, eager)()
+                        .where_in(
+                            foreign_key,
+                            Collection(result).unique(local_key).pluck(local_key),
+                        )
+                        .get()
+                    )
+                    self.owner._relationships[eager] = relationship_result
         return self.owner.new_collection(result).map_into(self.owner, "hydrate")
 
     def set_action(self, action):

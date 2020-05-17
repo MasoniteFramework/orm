@@ -213,7 +213,6 @@ class Collection:
     def map_into(self, cls, method=None):
         results = []
         for item in self:
-
             if method:
                 results.append(getattr(cls, method)(item))
             else:
@@ -326,9 +325,13 @@ class Collection:
         items = []
 
         for item in self:
-            if not item.get(key) in keys:
+            if isinstance(item, dict):
+                comparison = item.get(key)
+            else:
+                comparison = getattr(item, key)
+            if not comparison in keys:
                 items.append(item)
-                keys.add(item.get(key))
+                keys.add(comparison)
 
         return self.__class__(items)
 

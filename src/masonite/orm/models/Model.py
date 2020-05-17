@@ -246,9 +246,13 @@ class Model:
                 dic.update({key: value})
             model.__attributes__.update(dic or {})
             return model
-        elif isinstance(dictionary, cls):
+        elif isinstance(dictionary, cls) or hasattr(dictionary, "__attributes__"):
             model = cls()
             model.__attributes__.update(dictionary.__attributes__ if dictionary else {})
+            return model
+        elif hasattr(dictionary, "serialize"):
+            model = cls()
+            model.__attributes__.update(dictionary.serialize())
             return model
         else:
             model = cls()
@@ -335,8 +339,18 @@ class Model:
     def __getattr__(self, attribute):
         if attribute in self.__dict__["__attributes__"]:
             return self.get_value(attribute)
-        name = self.__class__.__name__
-        raise AttributeError(f"class '{name}' has no attribute {attribute}")
+
+        if attribute in self.__dict__["_relationships"]:
+            return self.__dict__["_relationships"][attribute]
+
+
+        
+        if attribute not in self.__dict__:
+            name = self.__class__.__name__
+
+            raise AttributeError(f"class '{name}' has no attribute {attribute}")
+
+        return None
 
     def __setattr__(self, attribute, value):
         try:

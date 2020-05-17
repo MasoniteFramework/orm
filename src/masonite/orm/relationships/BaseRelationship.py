@@ -68,8 +68,10 @@ class BaseRelationship:
         """Check if the relationship is eager loaded and return that relationship instead
         """
         if self.fn.__name__ in instance._relationships:
-            return Collection(instance._relationships[self.fn.__name__]).where(
-                self.foreign_key, instance.get_primary_key_value()
+            return self.fetch_relation(
+                Collection(instance._relationships[self.fn.__name__]),
+                self.foreign_key,
+                instance.get_primary_key_value(),
             )
 
         """Apply the query needed to make this relationship work.
