@@ -50,6 +50,7 @@ class QueryBuilder:
         self.boot()
         self.builder = self
         self.set_action("select")
+        self._should_eager = True
 
         # Get the connection and grammar class.
         if not self.grammar:
@@ -680,12 +681,13 @@ class QueryBuilder:
         self.set_action("select")
         if query:
             return self.limit(1)
-
-        return self.owner.hydrate(
+        result = (
             self.connection()
             .make_connection()
             .query(self.limit(1).to_qmark(), self._bindings, results=1)
         )
+        self.eager_load_model(result)
+        return self.owner.hydrate(result)
 
     def all(self):
         """Returns all records from the table.
@@ -707,9 +709,18 @@ class QueryBuilder:
         result = (
             self.connection().make_connection().query(self.to_qmark(), self._bindings)
         )
-        if self.owner._eager_load:
+        self.eager_load_model(result)
+        return self.owner.new_collection(result).map_into(self.owner, "hydrate")
+
+    def without_eager(self):
+        self._should_eager = False
+        return self
+
+    def eager_load_model(self, result):
+        if self._should_eager and self.owner._eager_load:
             for eager in self.owner._eager_load:
                 if "." in eager:
+
                     # Get nested relationship
                     last_owner = self.owner
                     for split_eager in eager.split("."):
@@ -721,16 +732,21 @@ class QueryBuilder:
                             relationship["foreign"],
                             relationship["local"],
                         )
-
                         related = getattr(last_owner, split_eager)()
-                        result = related.where_in(
-                            foreign_key,
-                            Collection(result).unique(local_key).pluck(local_key),
-                        ).get()
 
+                        result = (
+                            related.without_eager()
+                            .where_in(
+                                foreign_key,
+                                Collection(result).unique(local_key).pluck(local_key),
+                            )
+                            .get()
+                        )
+                        if not last_owner in last_owner._relationships:
+                            last_owner._relationships[last_owner] = {}
+
+                        last_owner._relationships[last_owner][split_eager] = result
                         last_owner = related.owner
-
-                        last_owner._relationships[split_eager] = result
                 else:
                     relationship = self.owner._registered_relationships[self.owner][
                         eager
@@ -747,8 +763,10 @@ class QueryBuilder:
                         )
                         .get()
                     )
-                    self.owner._relationships[eager] = relationship_result
-        return self.owner.new_collection(result).map_into(self.owner, "hydrate")
+                    if not self.owner in self.owner._relationships:
+                        self.owner._relationships[self.owner] = {}
+
+                    self.owner._relationships[self.owner][eager] = relationship_result
 
     def set_action(self, action):
         """Sets the action that the query builder should take when the query is built.

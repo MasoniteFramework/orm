@@ -16,6 +16,10 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
         def logo(self):
             return Logo
 
+        @belongs_to("user_id", "id")
+        def user(self):
+            return User
+
     class Logo(Model):
         __table__ = "logos"
 
@@ -77,9 +81,26 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
                 .get()
                 .first()
             )
-            for article in user.articles:
-                for article in user.articles:
-                    print(article.logo)
+            print(user.serialize())
+            # for article in user.articles:
+            #     print(article.logo)
+
+        def test_multiple_with_first(self):
+            user = User.with_("articles", "articles.logo").where("is_admin", 1).first()
+            self.assertTrue(user.serialize()['articles'])
+
+        def test_multiple_with_reveresed(self):
+            user = User.with_("articles", "articles.user").where("is_admin", 1).first()
+
+            print(user.serialize())
+            self.assertTrue(user.serialize()['articles'])
+
+        # def test_multiple_double_multiple_relationships(self):
+        #     user = User.with_("articles.user").first()
+        #     print('final', user.serialize())
+        #     self.assertTrue(user.serialize()['articles'][0]['user'])
+        #     # for article in user.articles:
+        #     #     print(article.logo)
 
         def test_relationship_serialize(self):
             users = User.with_("articles").where("is_admin", 1).get()

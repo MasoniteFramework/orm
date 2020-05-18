@@ -235,11 +235,17 @@ class Collection:
             attributes = {}
         else:
             attributes = []
+
+        if isinstance(self._items, dict):
+            return [self._items.get(value)]
+
         for item in self:
             if isinstance(item, dict):
                 iterable = item.items()
-            else:
+            elif hasattr(item, "serialize"):
                 iterable = item.serialize().items()
+            else:
+                iterable = self.all().items()
 
             for k, v in iterable:
                 if k == value:
@@ -286,12 +292,14 @@ class Collection:
 
     def serialize(self):
         def _serialize(item):
-            if hasattr(item, "serialize"):
+            if hasattr(item, "__attributes__"):
+                return item.__attributes__
+            elif hasattr(item, "serialize"):
                 return item.serialize()
             elif hasattr(item, "to_dict"):
                 return item.to_dict()
             return item
-
+    
         return list(map(_serialize, self))
 
     def shift(self):
@@ -323,13 +331,17 @@ class Collection:
 
         keys = set()
         items = []
+        if isinstance(self.all(), dict):
+            return self
 
         for item in self:
             if isinstance(item, dict):
                 comparison = item.get(key)
+            elif isinstance(item, str):
+                comparison = item
             else:
                 comparison = getattr(item, key)
-            if not comparison in keys:
+            if comparison not in keys:
                 items.append(item)
                 keys.add(comparison)
 

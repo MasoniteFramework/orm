@@ -4,7 +4,6 @@ from src.masonite.orm.collection import Collection
 from src.masonite.orm.factories import Factory as factory
 from src.masonite.orm.models import Model
 
-
 class TestCollection(unittest.TestCase):
     def test_take(self):
         collection = Collection([1, 2, 3, 4])
@@ -472,6 +471,10 @@ class TestCollection(unittest.TestCase):
                 {"code": "USD"},
             ],
         )
+
+    # def test_serialize_models(self):
+    #     collection = Collection([Model.hydrate({'id': 1}), Model.hydrate({'id': 2})])
+    #     print(collection.serialize())
 
     def test_json(self):
         collection = Collection(

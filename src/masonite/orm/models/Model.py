@@ -47,8 +47,6 @@ class Model:
         self.__attributes__ = {}
         self.__dirty_attributes__ = {}
         self.__appends__ = []
-        if not self._relationships:
-            self._relationships = {}
 
     def get_primary_key(self):
         return self.__primary_key__
@@ -285,9 +283,11 @@ class Model:
     def get(self):
         pass
 
-    def serialize(self):
-        serialized_dictionary = self.__attributes__
+    def serialize(self, serialized_dictionary={}):
+        if not serialized_dictionary:
+            serialized_dictionary = self.__attributes__
 
+        
         for date_column in self.get_dates():
             if date_column in serialized_dictionary:
                 serialized_dictionary[date_column] = self.get_new_serialized_date(
@@ -297,10 +297,7 @@ class Model:
         serialized_dictionary.update(self.__dirty_attributes__)
 
         # Serialize relationships as well
-        for key in self._registered_relationships.get(self.__class__, {}).keys():
-            loaded = self._relationships.get(key)
-            if loaded:
-                serialized_dictionary.update({key: loaded.serialize()})
+        serialized_dictionary.update(self.relations_to_dict())
 
         for append in self.__appends__:
             serialized_dictionary.update({append: getattr(self, append)})
@@ -312,6 +309,26 @@ class Model:
 
     def update_or_create(self):
         pass
+
+    def relations_to_dict(self):
+        new_dic = {}
+        # for key in self._registered_relationships.get(self.__class__, {}).keys():
+
+        for relation, v in self._registered_relationships.items():
+            hydration = relation.hydrate(self._relationships.get(relation))
+            if hydration:
+                print('relation', hydration.__attributes__)
+
+            for key, value in self._relationships.items():
+                for k in value:
+                    print('k', k)
+                    # print('relationships', self, self._relationships.get(relation))
+                    # print(new_dic)
+                    if hydration:
+                        new_dic.update({k: hydration.__attributes__})
+                # print(key, value.serialize())
+
+        return new_dic
 
     def touch(self, date=None, query=True):
         """
@@ -340,11 +357,9 @@ class Model:
         if attribute in self.__dict__["__attributes__"]:
             return self.get_value(attribute)
 
-        if attribute in self.__dict__["_relationships"]:
+        if attribute in self.__dict__.get("_relationships", {}):
             return self.__dict__["_relationships"][attribute]
 
-
-        
         if attribute not in self.__dict__:
             name = self.__class__.__name__
 

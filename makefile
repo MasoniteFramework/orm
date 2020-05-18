@@ -28,5 +28,10 @@ publish:
 	twine upload dist/*
 	rm -fr build dist .egg masonite.egg-info
 	rm -rf dist/*
+pub:
+	python setup.py sdist
+	twine upload dist/*
+	rm -fr build dist .egg masonite.egg-info
+	rm -rf dist/*
 pypirc:
 	cp .pypirc ~/.pypirc
