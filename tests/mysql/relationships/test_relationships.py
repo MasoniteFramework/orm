@@ -16,13 +16,14 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
         def logo(self):
             return Logo
 
+        @belongs_to("user_id", "id")
+        def user(self):
+            return User
+
     class Logo(Model):
         __table__ = "logos"
 
     class User(Model):
-
-        _eager_loads = ()
-
         @belongs_to("id", "user_id")
         def profile(self):
             return Profile
@@ -61,10 +62,9 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             for user in users:
                 user
 
-        def test_casting(self):
-            users = User.with_("articles").where("is_admin", 1).get()
-            for user in users:
-                user
+        def test_casting_and_serialize(self):
+            users = User.with_("articles").where("is_admin", 1).first()
+            self.assertTrue(users.serialize()["articles"])
 
         def test_setting(self):
             users = User.with_("articles").where("is_admin", 1).get()
@@ -72,6 +72,39 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
                 user.name = "Joe"
                 user.is_admin = 1
                 user.save()
+
+        def test_multiple_with(self):
+            user = (
+                User.with_("articles", "articles.logo")
+                .where("is_admin", 1)
+                .get()
+                .first()
+            )
+            print(user.serialize())
+            # for article in user.articles:
+            #     print(article.logo)
+
+        def test_multiple_with_first(self):
+            user = User.with_("articles", "articles.logo").where("is_admin", 1).first()
+            self.assertTrue(user.serialize()["articles"])
+            self.assertTrue(user.serialize()["articles"][0]["logo"])
+
+        def test_multiple_with_reveresed(self):
+            user = User.with_("articles", "articles.user").where("is_admin", 1).first()
+
+            print(user.serialize())
+            self.assertTrue(user.serialize()["articles"])
+
+        # def test_multiple_double_multiple_relationships(self):
+        #     user = User.with_("articles.user").first()
+        #     print('final', user.serialize())
+        #     self.assertTrue(user.serialize()['articles'][0]['user'])
+        #     # for article in user.articles:
+        #     #     print(article.logo)
+
+        def test_relationship_serialize(self):
+            users = User.with_("articles").where("is_admin", 1).get()
+            self.assertTrue(users.first().serialize())
 
         def test_relationship_has(self):
             to_sql = User.has("articles").to_sql()

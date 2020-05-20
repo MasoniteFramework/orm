@@ -11,7 +11,9 @@ class SQLiteConnection(BaseConnection):
         """This sets the connection on the connection class
         """
         connection_details = self.get_connection_details()
-        self._connection = sqlite3.connect(connection_details.get("db"), isolation_level=None)
+        self._connection = sqlite3.connect(
+            connection_details.get("db"), isolation_level=None
+        )
         self._connection.row_factory = sqlite3.Row
 
         return self
@@ -24,8 +26,8 @@ class SQLiteConnection(BaseConnection):
         that should pass to your connection method
         """
         connection_details = {}
-        connection_details.setdefault("db", self.connections.get("database"))
-        connection_details.update(self.connections.get("options", {}))
+        connection_details.setdefault("db", self.connection_details.get("database"))
+        connection_details.update(self.connection_details.get("options", {}))
 
         return connection_details
 
@@ -62,6 +64,7 @@ class SQLiteConnection(BaseConnection):
             dict|None -- Returns a dictionary of results or None
         """
         query = query.replace("'?'", "?")
+        print("running query: ", query)
         try:
             cursor = self._connection.cursor()
             cursor.execute(query, bindings)

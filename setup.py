@@ -6,7 +6,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.0.3.6',
+    version='0.0.3.22',
     package_dir={'': 'src'},
 
     description='The Official Masonite ORM',
@@ -115,9 +115,9 @@ setup(
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow
     # pip to create the appropriate form of executable for the target platform.
-    ## entry_points={
-    ##     'console_scripts': [
-    ##         'sample=sample:main',
-    ##     ],
-    ## },
+    entry_points={
+        'console_scripts': [
+            'masonite-orm = masonite.orm.commands.Entry:application.run',
+        ],
+    },
 )

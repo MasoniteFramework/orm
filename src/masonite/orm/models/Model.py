@@ -27,13 +27,16 @@ class Model:
     __connection__ = "default"
     __resolved_connection__ = None
     _eager_load = ()
-    _relationships = {}
+
     _registered_relationships = {}
     _booted = False
     __primary_key__ = "id"
     __casts__ = {}
+    __dates__ = []
     __timestamps__ = True
     _global_scopes = {}
+    date_created_at = "created_at"
+    date_updated_at = "updated_at"
 
     __cast_map__ = {
         "bool": BoolCast,
@@ -44,12 +47,19 @@ class Model:
         self.__attributes__ = {}
         self.__dirty_attributes__ = {}
         self._relationships = {}
+        self.__appends__ = []
 
     def get_primary_key(self):
         return self.__primary_key__
 
     def get_primary_key_value(self):
-        return getattr(self, self.get_primary_key())
+        try:
+            return getattr(self, self.get_primary_key())
+        except AttributeError:
+            name = self.__class__.__name__
+            raise AttributeError(
+                f"class '{name}' has no attribute {self.get_primary_key()}. Did you set the primary key correctly on the model using the __primary_key__ attribute?"
+            )
 
     @classmethod
     def boot(cls):
@@ -60,6 +70,7 @@ class Model:
                 cls.__resolved_connection__,
                 table=cls.get_table_name(),
                 owner=cls,
+                eager_loads=cls._eager_load,
                 global_scopes=cls._global_scopes,
             )
 
@@ -216,8 +227,12 @@ class Model:
         cls.boot()
         return cls.builder.select(*args, **kwargs)
 
+    def add_relations(self, relations):
+        self._relationships.update(relations)
+        return self
+
     @classmethod
-    def hydrate(cls, dictionary):
+    def hydrate(cls, dictionary, relations={}):
         if dictionary is None:
             return None
 
@@ -228,11 +243,16 @@ class Model:
             return cls.new_collection(response)
         elif isinstance(dictionary, dict):
             model = cls()
-            model.__attributes__.update(dictionary or {})
-            return model
-        elif isinstance(dictionary, cls):
+            dic = {}
+            for key, value in dictionary.items():
+                if key in model.get_dates():
+                    value = model.get_new_date(value)
+                dic.update({key: value})
+            model.__attributes__.update(dic or {})
+            return model.add_relations(relations)
+        elif hasattr(dictionary, "serialize"):
             model = cls()
-            model.__attributes__.update(dictionary.__attributes__ if dictionary else {})
+            model.__attributes__.update(dictionary.serialize())
             return model
         else:
             model = cls()
@@ -265,9 +285,24 @@ class Model:
     def get(self):
         pass
 
-    def serialize(self):
-        serialized_dictionary = self.__attributes__
+    def serialize(self, serialized_dictionary={}):
+        if not serialized_dictionary:
+            serialized_dictionary = self.__attributes__
+
+        for date_column in self.get_dates():
+            if date_column in serialized_dictionary:
+                serialized_dictionary[date_column] = self.get_new_serialized_date(
+                    serialized_dictionary[date_column]
+                )
+
         serialized_dictionary.update(self.__dirty_attributes__)
+
+        # Serialize relationships as well
+        serialized_dictionary.update(self.relations_to_dict())
+
+        for append in self.__appends__:
+            serialized_dictionary.update({append: getattr(self, append)})
+
         return serialized_dictionary
 
     def find_or_fail(self):
@@ -275,6 +310,13 @@ class Model:
 
     def update_or_create(self):
         pass
+
+    def relations_to_dict(self):
+        new_dic = {}
+        for key, value in self._relationships.items():
+            new_dic.update({key: value.serialize()})
+
+        return new_dic
 
     def touch(self, date=None, query=True):
         """
@@ -302,8 +344,16 @@ class Model:
     def __getattr__(self, attribute):
         if attribute in self.__dict__["__attributes__"]:
             return self.get_value(attribute)
-        name = self.__class__.__name__
-        raise AttributeError(f"class '{name}' has no attribute {attribute}")
+
+        if attribute in self.__dict__.get("_relationships", {}):
+            return self.__dict__["_relationships"][attribute]
+
+        if attribute not in self.__dict__:
+            name = self.__class__.__name__
+
+            raise AttributeError(f"class '{name}' has no attribute {attribute}")
+
+        return None
 
     def __setattr__(self, attribute, value):
         try:
@@ -315,7 +365,6 @@ class Model:
             pass
 
     def save(self, query=False):
-
         builder = self.builder.where(
             self.get_primary_key(), self.get_primary_key_value()
         )
@@ -347,8 +396,50 @@ class Model:
     @classmethod
     def with_(cls, *eagers):
         cls.boot()
-        cls._eager_load += eagers
-        return cls.builder
+        return cls.builder.with_(eagers)
 
     def __getitem__(self, attribute):
         return getattr(self, attribute)
+
+    def get_dates(self):
+        """
+        Get the attributes that should be converted to dates.
+
+        :rtype: list
+        """
+        defaults = [self.date_created_at, self.date_updated_at]
+
+        return self.__dates__ + defaults
+
+    def get_new_date(self, datetime=None):
+        """
+        Get the attributes that should be converted to dates.
+
+        :rtype: list
+        """
+        import pendulum
+
+        if not datetime:
+            return pendulum.now()
+
+        if isinstance(datetime, str):
+            return pendulum.parse(datetime)
+
+        return pendulum.instance(datetime)
+
+    def get_new_serialized_date(self, datetime):
+        """
+        Get the attributes that should be converted to dates.
+
+        :rtype: list
+        """
+        return self.get_new_date(datetime).isoformat()
+
+    def set_appends(self, appends):
+        """
+        Get the attributes that should be converted to dates.
+
+        :rtype: list
+        """
+        self.__appends__ += appends
+        return self

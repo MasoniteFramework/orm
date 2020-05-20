@@ -16,6 +16,14 @@ class BaseTestCaseSelectGrammar:
         )()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_order_by_and_first(self):
+        to_sql = self.builder.order_by("id", "asc").first(query=True).to_sql()
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
     def test_can_compile_with_columns(self):
         to_sql = self.builder.select("username", "password").to_sql()
         sql = getattr(

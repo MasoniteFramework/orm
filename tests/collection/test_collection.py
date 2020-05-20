@@ -473,6 +473,10 @@ class TestCollection(unittest.TestCase):
             ],
         )
 
+    # def test_serialize_models(self):
+    #     collection = Collection([Model.hydrate({'id': 1}), Model.hydrate({'id': 2})])
+    #     print(collection.serialize())
+
     def test_json(self):
         collection = Collection(
             [

@@ -2,14 +2,14 @@ import inspect
 import unittest
 
 from src.masonite.orm.builder import QueryBuilder
-from src.masonite.orm.grammar import GrammarFactory, PostgresGrammar
+from src.masonite.orm.grammar import GrammarFactory
 
 
 class BaseInsertGrammarTest:
-    grammar = "postgres"
+    grammar = "sqlite"
 
     def setUp(self):
-        self.builder = QueryBuilder(GrammarFactory.make("postgres"), table="users")
+        self.builder = QueryBuilder(GrammarFactory.make("sqlite"), table="users")
 
     def test_can_compile_insert(self):
         to_sql = self.builder.create({"name": "Joe"}, query=True).to_sql()
@@ -28,9 +28,9 @@ class BaseInsertGrammarTest:
         self.assertEqual(to_sql, sql)
 
 
-class TestPostgresUpdateGrammar(BaseInsertGrammarTest, unittest.TestCase):
+class TestSqliteUpdateGrammar(BaseInsertGrammarTest, unittest.TestCase):
 
-    grammar = "postgres"
+    grammar = "sqlite"
 
     def can_compile_insert(self):
         """

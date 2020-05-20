@@ -12,5 +12,5 @@ class scope:
 
     def __call__(self, *args, **kwargs):
         # self.cls.boot()
-        self.fn(self.cls.builder, *args, **kwargs)
+        self.fn(self.cls, self.cls.builder, *args, **kwargs)
         return self.cls.builder

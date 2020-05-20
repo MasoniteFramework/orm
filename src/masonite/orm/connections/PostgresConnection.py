@@ -86,7 +86,7 @@ class PostgresConnection(BaseConnection):
         import psycopg2
 
         query = query.replace("'?'", "%s")
-        print("running query:", query)
+        print("running query:", query, bindings)
 
         if self._dry:
             return {}
@@ -96,7 +96,7 @@ class PostgresConnection(BaseConnection):
             ) as cursor:
                 cursor.execute(query, bindings)
                 if results == 1:
-                    return dict(cursor.fetchone())
+                    return dict(cursor.fetchone() or {})
                 else:
                     if "SELECT" in cursor.statusmessage:
                         return cursor.fetchall()

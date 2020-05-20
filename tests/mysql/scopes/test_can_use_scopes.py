@@ -8,11 +8,11 @@ from src.masonite.orm.models import Model
 
 class User(Model):
     @scope
-    def active(query, status):
+    def active(self, query, status):
         return query.where("active", status)
 
     @scope
-    def gender(query, status):
+    def gender(self, query, status):
         return query.where("gender", status)
 
 
