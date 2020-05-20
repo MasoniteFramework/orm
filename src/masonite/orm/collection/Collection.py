@@ -210,11 +210,11 @@ class Collection:
         items = [callback(x) for x in self]
         return self.__class__(items)
 
-    def map_into(self, cls, method=None):
+    def map_into(self, cls, method=None, **kwargs):
         results = []
         for item in self:
             if method:
-                results.append(getattr(cls, method)(item))
+                results.append(getattr(cls, method)(item, **kwargs))
             else:
                 results.append(cls(item))
 

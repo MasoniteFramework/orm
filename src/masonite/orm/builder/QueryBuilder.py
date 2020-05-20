@@ -707,8 +707,10 @@ class QueryBuilder:
         result = (
             self.connection().make_connection().query(self.to_qmark(), self._bindings)
         )
-        self.eager_load_model(result)
-        return self.owner.new_collection(result).map_into(self.owner, "hydrate")
+        relations = self.eager_load_model(result)
+        return self.owner.new_collection(result).map_into(
+            self.owner, "hydrate", relations=relations
+        )
 
     def without_eager(self):
         self._should_eager = False
@@ -728,6 +730,12 @@ class QueryBuilder:
                 last_owner = self.owner
                 last_eager = None
                 for split_eager in eager.split("."):
+                    if split_eager in eager_dic:
+                        related = getattr(last_owner, split_eager)()
+                        last_owner = related.owner
+                        last_eager = split_eager
+                        continue
+
                     relationship = last_owner._registered_relationships[last_owner][
                         split_eager
                     ]
@@ -736,6 +744,7 @@ class QueryBuilder:
                         relationship["local"],
                     )
                     related = getattr(last_owner, split_eager)()
+
                     result = (
                         related.without_eager()
                         .where_in(
@@ -763,6 +772,7 @@ class QueryBuilder:
 
                 result = (
                     getattr(self.owner, eager)()
+                    .without_eager()
                     .where_in(
                         foreign_key,
                         Collection(result).unique(local_key).pluck(local_key),
