@@ -4,6 +4,7 @@ from src.masonite.orm.collection import Collection
 from src.masonite.orm.factories import Factory as factory
 from src.masonite.orm.models import Model
 
+
 class TestCollection(unittest.TestCase):
     def test_take(self):
         collection = Collection([1, 2, 3, 4])
