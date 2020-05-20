@@ -27,6 +27,7 @@ class QueryBuilder:
         connection_details={},
         scopes={},
         global_scopes={},
+        eager_loads=(),
         owner=None,
     ):
         """QueryBuilder initializer
@@ -51,6 +52,7 @@ class QueryBuilder:
         self.builder = self
         self.set_action("select")
         self._should_eager = True
+        self._eager_loads = eager_loads
 
         # Get the connection and grammar class.
         if not self.grammar:
@@ -329,10 +331,6 @@ class QueryBuilder:
         else:
             self._wheres += ((QueryExpression(None, "EXISTS", value, "value")),)
 
-        return self
-
-    def with_(self, *args, **kwargs):
-        self.owner.with_(*args, **kwargs)
         return self
 
     def having(self, column, equality="", value=""):
@@ -686,8 +684,8 @@ class QueryBuilder:
             .make_connection()
             .query(self.limit(1).to_qmark(), self._bindings, results=1)
         )
-        self.eager_load_model(result)
-        return self.owner.hydrate(result)
+        relations = self.eager_load_model(result)
+        return self.owner.hydrate(result, relations=relations)
 
     def all(self):
         """Returns all records from the table.
@@ -716,57 +714,65 @@ class QueryBuilder:
         self._should_eager = False
         return self
 
+    def with_(self, eagers=()):
+        self._eager_loads += tuple(eagers)
+        return self
+
     def eager_load_model(self, result):
-        if self._should_eager and self.owner._eager_load:
-            for eager in self.owner._eager_load:
-                if "." in eager:
+        eager_dic = {}
+        if not self._should_eager:
+            return {}
 
-                    # Get nested relationship
-                    last_owner = self.owner
-                    for split_eager in eager.split("."):
-
-                        relationship = last_owner._registered_relationships[last_owner][
-                            split_eager
-                        ]
-                        foreign_key, local_key = (
-                            relationship["foreign"],
-                            relationship["local"],
-                        )
-                        related = getattr(last_owner, split_eager)()
-
-                        result = (
-                            related.without_eager()
-                            .where_in(
-                                foreign_key,
-                                Collection(result).unique(local_key).pluck(local_key),
-                            )
-                            .get()
-                        )
-                        if not last_owner in last_owner._relationships:
-                            last_owner._relationships[last_owner] = {}
-
-                        last_owner._relationships[last_owner][split_eager] = result
-                        last_owner = related.owner
-                else:
-                    relationship = self.owner._registered_relationships[self.owner][
-                        eager
+        for eager in self._eager_loads:
+            if "." in eager:
+                last_owner = self.owner
+                last_eager = None
+                for split_eager in eager.split("."):
+                    relationship = last_owner._registered_relationships[last_owner][
+                        split_eager
                     ]
                     foreign_key, local_key = (
                         relationship["foreign"],
                         relationship["local"],
                     )
-                    relationship_result = (
-                        getattr(self.owner, eager)()
+                    related = getattr(last_owner, split_eager)()
+                    result = (
+                        related.without_eager()
                         .where_in(
                             foreign_key,
                             Collection(result).unique(local_key).pluck(local_key),
                         )
                         .get()
                     )
-                    if not self.owner in self.owner._relationships:
-                        self.owner._relationships[self.owner] = {}
 
-                    self.owner._relationships[self.owner][eager] = relationship_result
+                    # try to load the inners into the outer query
+                    # For logo need to get articles and loop through collection
+                    if last_eager and last_eager in eager_dic:
+                        eager_dic[last_eager].add_relation({split_eager: result})
+                    else:
+                        eager_dic.update({split_eager: result})
+                    last_owner = related.owner
+                    last_eager = split_eager
+            else:
+                relationship = self.owner._registered_relationships[self.owner][eager]
+
+                foreign_key, local_key = (
+                    relationship["foreign"],
+                    relationship["local"],
+                )
+
+                result = (
+                    getattr(self.owner, eager)()
+                    .where_in(
+                        foreign_key,
+                        Collection(result).unique(local_key).pluck(local_key),
+                    )
+                    .get()
+                )
+
+                eager_dic.update({eager: result})
+
+        return eager_dic
 
     def set_action(self, action):
         """Sets the action that the query builder should take when the query is built.

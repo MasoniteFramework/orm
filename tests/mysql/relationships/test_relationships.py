@@ -62,10 +62,9 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             for user in users:
                 user
 
-        def test_casting(self):
-            users = User.with_("articles").where("is_admin", 1).get()
-            for user in users:
-                user
+        def test_casting_and_serialize(self):
+            users = User.with_("articles").where("is_admin", 1).first()
+            self.assertTrue(users.serialize()["articles"])
 
         def test_setting(self):
             users = User.with_("articles").where("is_admin", 1).get()
@@ -87,13 +86,14 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
 
         def test_multiple_with_first(self):
             user = User.with_("articles", "articles.logo").where("is_admin", 1).first()
-            self.assertTrue(user.serialize()['articles'])
+            self.assertTrue(user.serialize()["articles"])
+            self.assertTrue(user.serialize()["articles"][0]["logo"])
 
         def test_multiple_with_reveresed(self):
             user = User.with_("articles", "articles.user").where("is_admin", 1).first()
 
             print(user.serialize())
-            self.assertTrue(user.serialize()['articles'])
+            self.assertTrue(user.serialize()["articles"])
 
         # def test_multiple_double_multiple_relationships(self):
         #     user = User.with_("articles.user").first()

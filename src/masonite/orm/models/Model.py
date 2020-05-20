@@ -27,7 +27,7 @@ class Model:
     __connection__ = "default"
     __resolved_connection__ = None
     _eager_load = ()
-    _relationships = {}
+
     _registered_relationships = {}
     _booted = False
     __primary_key__ = "id"
@@ -46,6 +46,7 @@ class Model:
     def __init__(self):
         self.__attributes__ = {}
         self.__dirty_attributes__ = {}
+        self._relationships = {}
         self.__appends__ = []
 
     def get_primary_key(self):
@@ -69,6 +70,7 @@ class Model:
                 cls.__resolved_connection__,
                 table=cls.get_table_name(),
                 owner=cls,
+                eager_loads=cls._eager_load,
                 global_scopes=cls._global_scopes,
             )
 
@@ -225,8 +227,12 @@ class Model:
         cls.boot()
         return cls.builder.select(*args, **kwargs)
 
+    def add_relations(self, relations):
+        self._relationships.update(relations)
+        return self
+
     @classmethod
-    def hydrate(cls, dictionary):
+    def hydrate(cls, dictionary, relations={}):
         if dictionary is None:
             return None
 
@@ -243,11 +249,7 @@ class Model:
                     value = model.get_new_date(value)
                 dic.update({key: value})
             model.__attributes__.update(dic or {})
-            return model
-        elif isinstance(dictionary, cls) or hasattr(dictionary, "__attributes__"):
-            model = cls()
-            model.__attributes__.update(dictionary.__attributes__ if dictionary else {})
-            return model
+            return model.add_relations(relations)
         elif hasattr(dictionary, "serialize"):
             model = cls()
             model.__attributes__.update(dictionary.serialize())
@@ -287,7 +289,6 @@ class Model:
         if not serialized_dictionary:
             serialized_dictionary = self.__attributes__
 
-        
         for date_column in self.get_dates():
             if date_column in serialized_dictionary:
                 serialized_dictionary[date_column] = self.get_new_serialized_date(
@@ -312,21 +313,8 @@ class Model:
 
     def relations_to_dict(self):
         new_dic = {}
-        # for key in self._registered_relationships.get(self.__class__, {}).keys():
-
-        for relation, v in self._registered_relationships.items():
-            hydration = relation.hydrate(self._relationships.get(relation))
-            if hydration:
-                print('relation', hydration.__attributes__)
-
-            for key, value in self._relationships.items():
-                for k in value:
-                    print('k', k)
-                    # print('relationships', self, self._relationships.get(relation))
-                    # print(new_dic)
-                    if hydration:
-                        new_dic.update({k: hydration.__attributes__})
-                # print(key, value.serialize())
+        for key, value in self._relationships.items():
+            new_dic.update({key: value.serialize()})
 
         return new_dic
 
@@ -408,8 +396,7 @@ class Model:
     @classmethod
     def with_(cls, *eagers):
         cls.boot()
-        cls._eager_load += eagers
-        return cls.builder
+        return cls.builder.with_(eagers)
 
     def __getitem__(self, attribute):
         return getattr(self, attribute)
@@ -433,7 +420,7 @@ class Model:
         import pendulum
 
         if not datetime:
-            return None
+            return pendulum.now()
 
         if isinstance(datetime, str):
             return pendulum.parse(datetime)

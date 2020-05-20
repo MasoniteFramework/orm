@@ -292,15 +292,19 @@ class Collection:
 
     def serialize(self):
         def _serialize(item):
-            if hasattr(item, "__attributes__"):
-                return item.__attributes__
-            elif hasattr(item, "serialize"):
+            if hasattr(item, "serialize"):
                 return item.serialize()
             elif hasattr(item, "to_dict"):
                 return item.to_dict()
             return item
-    
+
         return list(map(_serialize, self))
+
+    def add_relation(self, result={}):
+        for model in self._items:
+            model.add_relations(result)
+
+        return self
 
     def shift(self):
         return self.pull(0)
