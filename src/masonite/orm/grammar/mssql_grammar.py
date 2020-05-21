@@ -95,6 +95,9 @@ class MSSQLGrammar(BaseGrammar):
     def where_in_string(self):
         return "WHERE IN ({values})"
 
+    def value_equal_string(self):
+        return "{keyword} {value1} = {value2}"
+
     def where_null_string(self):
         return "{keyword} {column} IS NULL"
 
