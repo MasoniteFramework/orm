@@ -269,6 +269,9 @@ class SQLiteGrammar(BaseGrammar):
     def where_null_string(self):
         return "{keyword} {column} IS NULL"
 
+    def value_equal_string(self):
+        return "{keyword} {value1} = {value2}"
+
     def where_not_null_string(self):
         return " {keyword} {column} IS NOT NULL"
 

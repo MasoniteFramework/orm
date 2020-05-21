@@ -413,7 +413,10 @@ class QueryBuilder:
         Returns:
             self
         """
-        if isinstance(wheres, QueryBuilder):
+        if not wheres:
+            self._wheres += ((QueryExpression(0, "=", 1, "value_equals")),)
+
+        elif isinstance(wheres, QueryBuilder):
             self._wheres += (
                 (QueryExpression(column, "IN", SubSelectExpression(wheres))),
             )

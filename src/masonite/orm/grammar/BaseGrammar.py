@@ -701,6 +701,10 @@ class BaseGrammar:
                     column=self._table_column_string(where.column),
                     keyword=keyword,
                 )
+            elif value_type == "value_equals":
+                sql_string = self.value_equal_string().format(
+                    value1=where.column, value2=where.value, keyword=keyword
+                )
             elif value_type == "NULL":
                 sql_string = self.where_null_string()
             elif value_type == "NOT NULL":
@@ -736,7 +740,8 @@ class BaseGrammar:
                 query_value = query_value.rstrip(",").rstrip(", ") + ")"
             elif qmark:
                 query_value = "'?'"
-                if value is not True:
+                print("qmark", value)
+                if value is not True and value_type != "value_equals":
                     self.add_binding(value)
             elif value_type == "value":
                 query_value = self.value_string().format(value=value, separator="")

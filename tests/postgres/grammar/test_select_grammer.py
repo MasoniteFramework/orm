@@ -80,6 +80,12 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         return """SELECT "users"."username" FROM "users" WHERE "users"."age" IN ('1','2','3')"""
 
+    def can_compile_where_in_empty(self):
+        """
+        self.builder.where_in('age', []).to_sql() 
+        """
+        return """SELECT * FROM "users" WHERE 0 = 1"""
+
     def can_compile_where_not_in(self):
         """
         self.builder.select('username').where_not_in('age', [1,2,3]).to_sql() 

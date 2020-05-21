@@ -128,6 +128,13 @@ class BaseTestCaseSelectGrammar:
         )()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_where_in_empty(self):
+        to_sql = self.builder.where_in("age", []).to_sql()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
     def test_can_compile_where_not_in(self):
         to_sql = self.builder.select("username").where_not_in("age", [1, 2, 3]).to_sql()
         sql = getattr(
