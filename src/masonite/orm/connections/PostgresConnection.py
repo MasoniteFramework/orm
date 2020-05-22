@@ -1,7 +1,7 @@
 import random
 
-from .BaseConnection import BaseConnection
 from ..exceptions import DriverNotFound
+from .BaseConnection import BaseConnection
 
 CONNECTION_POOL = []
 
