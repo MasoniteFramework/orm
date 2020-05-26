@@ -38,7 +38,9 @@ class Model:
     date_created_at = "created_at"
     date_updated_at = "updated_at"
 
-    __cast_map__ = {
+    __cast_map__ = {}
+
+    __internal_cast_map__ = {
         "bool": BoolCast,
         "json": JsonCast,
     }
@@ -386,10 +388,17 @@ class Model:
 
         return self.__attributes__[attribute]
 
+    def get_cast_map(self):
+        cast_map = self.__internal_cast_map__
+        cast_map.update(self.__cast_map__)
+        return cast_map
+
     def _cast_attribute(self, attribute):
         cast_method = self.__casts__[attribute]
+        cast_map = self.get_cast_map()
+
         if isinstance(cast_method, str):
-            return self.__cast_map__[cast_method]().get(attribute)
+            return cast_map[cast_method]().get(attribute)
 
         return cast_method(attribute)
 
