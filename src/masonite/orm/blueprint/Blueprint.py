@@ -400,6 +400,7 @@ class Blueprint:
         created_at = self.new_column(
             "timestamp", "created_at", None, nullable=False
         ).use_current()
+
         updated_at = self.new_column(
             "timestamp", "updated_at", None, nullable=False
         ).use_current()
