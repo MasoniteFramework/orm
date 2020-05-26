@@ -45,6 +45,16 @@ class TestMySQLScopes(unittest.TestCase):
             sql, User.apply_scope(SoftDeletes).where("name", "joe").to_sql()
         )
 
+    def test_can_use_global_scopes_on_delete(self):
+        sql = "UPDATE `users` SET `users`.`deleted_at` = 'now' WHERE `users`.`name` = 'joe'"
+        self.assertEqual(
+            sql,
+            User.apply_scope(SoftDeletes)
+            .where("name", "joe")
+            .delete(query=True)
+            .to_sql(),
+        )
+
     def test_can_use_global_scopes_on_time(self):
         sql = "INSERT INTO `users` (`users`.`name`, `users`.`updated_at`, `users`.`created_at`) VALUES ('Joe', 'now', 'now')"
         self.assertEqual(

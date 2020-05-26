@@ -100,10 +100,11 @@ class Model:
         boot_methods = [
             v for k, v in scope_class.__dict__.items() if k.startswith("boot_")
         ]
-        for method in boot_methods:
-            for action in ["select", "insert", "update", "delete"]:
 
-                cls._global_scopes[cls][action].append(method().get(action, []))
+        for method in boot_methods:
+            for action, value in method().items():
+                if value not in cls._global_scopes[cls][action]:
+                    cls._global_scopes[cls][action].append(value)
 
         return cls
 

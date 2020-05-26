@@ -499,6 +499,7 @@ class BaseGrammar:
                 sql += sql_string.format(
                     column=self._table_column_string(column),
                     value=value if not qmark else "?",
+                    separator=",",
                 )
                 if qmark:
                     self._bindings += (value,)

@@ -49,6 +49,7 @@ class QueryBuilder:
         if scopes:
             self._scopes.update(scopes)
         self.boot()
+        self._updates = ()
         self.builder = self
         self.set_action("select")
         self._should_eager = True
@@ -167,7 +168,7 @@ class QueryBuilder:
         self._sql_binding = ""
         self._bindings = ()
 
-        self._updates = {}
+        self._updates = ()
 
         self._wheres = ()
         self._order_by = ()
@@ -562,12 +563,27 @@ class QueryBuilder:
         Returns:
             self
         """
-        self._updates = (UpdateQueryExpression(updates),)
+        self._updates += (UpdateQueryExpression(updates),)
         self.set_action("update")
         if dry:
             return self
 
         return self.connection().make_connection().query(self.to_sql(), self._bindings)
+
+    def set_updates(self, updates: dict, dry=False):
+        """Specifies columns and values to be updated.
+
+        Arguments:
+            updates {dictionary} -- A dictionary of columns and values to update.
+
+        Keyword Arguments:
+            dry {bool} -- Whether the query should be executed. (default: {False})
+
+        Returns:
+            self
+        """
+        self._updates += (UpdateQueryExpression(updates),)
+        return self
 
     def increment(self, column, value=1):
         """Increments a column's value.
@@ -581,7 +597,9 @@ class QueryBuilder:
         Returns:
             self
         """
-        self._updates = (UpdateQueryExpression(column, value, update_type="increment"),)
+        self._updates += (
+            UpdateQueryExpression(column, value, update_type="increment"),
+        )
         self.set_action("update")
         return self
 
@@ -597,7 +615,9 @@ class QueryBuilder:
         Returns:
             self
         """
-        self._updates = (UpdateQueryExpression(column, value, update_type="decrement"),)
+        self._updates += (
+            UpdateQueryExpression(column, value, update_type="decrement"),
+        )
         self.set_action("update")
         return self
 
@@ -835,10 +855,11 @@ class QueryBuilder:
 
         if not self._action:
             self.set_action("select")
-
+        print(self._global_scopes.get(self.owner, {}).get(self._action, []))
         for scope in self._global_scopes.get(self.owner, {}).get(self._action, []):
             if not scope:
                 continue
+
             scope(self.owner, self)
 
         grammar = self.get_grammar()
