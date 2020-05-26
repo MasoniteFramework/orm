@@ -342,6 +342,9 @@ class Model:
         pass
 
     def __getattr__(self, attribute):
+        if ("get_" + attribute) in self.__class__.__dict__:
+            return self.__class__.__dict__.get(("get_" + attribute))(self)
+
         if attribute in self.__dict__["__attributes__"]:
             return self.get_value(attribute)
 
@@ -363,6 +366,9 @@ class Model:
                 self.__dict__[attribute] = value
         except KeyError:
             pass
+
+    def get_raw_attribute(self, attribute):
+        return self.__attributes__.get(attribute)
 
     def save(self, query=False):
         builder = self.builder.where(
