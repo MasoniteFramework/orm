@@ -20,6 +20,11 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
         __fillable__ = ["*"]
         __table__ = "profiles"
 
+    class ProfileSerialize(Model):
+        __fillable__ = ["*"]
+        __table__ = "profiles"
+        __hidden__ = ["password"]
+
     class Profile(Model):
         pass
 
@@ -82,6 +87,15 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             profile = ProfileFillAsterisk.hydrate({"name": "Joe", "id": 1})
 
             self.assertEqual(profile.serialize(), {"name": "Joe", "id": 1})
+
+        def test_serialize_with_hidden(self):
+            profile = ProfileSerialize.hydrate(
+                {"name": "Joe", "id": 1, "password": "secret"}
+            )
+
+            self.assertTrue(profile.serialize().get("name"))
+            self.assertTrue(profile.serialize().get("id"))
+            self.assertFalse(profile.serialize().get("password"))
 
         def test_serialize_with_appends(self):
             user = User.hydrate({"name": "Joe", "id": 1})

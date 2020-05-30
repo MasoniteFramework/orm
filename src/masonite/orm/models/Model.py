@@ -33,6 +33,7 @@ class Model:
     __primary_key__ = "id"
     __casts__ = {}
     __dates__ = []
+    __hidden__ = []
     __timestamps__ = True
     _global_scopes = {}
     date_created_at = "created_at"
@@ -291,6 +292,10 @@ class Model:
     def serialize(self, serialized_dictionary={}):
         if not serialized_dictionary:
             serialized_dictionary = self.__attributes__
+
+        for key in self.__hidden__:
+            if key in serialized_dictionary:
+                serialized_dictionary.pop(key)
 
         for date_column in self.get_dates():
             if date_column in serialized_dictionary:
