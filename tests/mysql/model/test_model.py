@@ -20,6 +20,10 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
         __fillable__ = ["*"]
         __table__ = "profiles"
 
+    class ProfileGuarded(Model):
+        __guarded__ = ["email"]
+        __table__ = "profiles"
+
     class ProfileSerialize(Model):
         __fillable__ = ["*"]
         __table__ = "profiles"
@@ -50,6 +54,25 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             )
 
         def test_can_use_fillable_asterisk(self):
+            sql = ProfileFillAsterisk.create(
+                {"name": "Joe", "email": "user@example.com"}, query=True
+            )
+
+            self.assertEqual(
+                sql,
+                "INSERT INTO `profiles` (`profiles`.`name`, `profiles`.`email`) VALUES ('Joe', 'user@example.com')",
+            )
+
+        def test_can_use_guarded(self):
+            sql = ProfileGuarded.create(
+                {"name": "Joe", "email": "user@example.com"}, query=True
+            )
+
+            self.assertEqual(
+                sql, "INSERT INTO `profiles` (`profiles`.`name`) VALUES ('Joe')"
+            )
+
+        def test_can_use_guarded_asterisk(self):
             sql = ProfileFillAsterisk.create(
                 {"name": "Joe", "email": "user@example.com"}, query=True
             )

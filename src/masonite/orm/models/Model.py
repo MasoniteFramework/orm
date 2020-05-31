@@ -278,6 +278,13 @@ class Model:
 
         if cls.__fillable__ != ["*"]:
             dictionary = {x: dictionary[x] for x in cls.__fillable__}
+
+        if cls.__guarded__ != ["*"]:
+            for x in cls.__guarded__:
+                dictionary.pop(x)
+
+        print(dictionary)
+
         if query:
             return cls.builder.create(dictionary, query=True).to_sql()
 
