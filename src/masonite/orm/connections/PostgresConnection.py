@@ -52,17 +52,17 @@ class PostgresConnection(BaseConnection):
     def commit(self):
         """Transaction
         """
-        pass
+        return self._connection.commit()
 
-    def begin_transaction(self):
+    def begin(self):
         """Transaction
         """
-        pass
+        return self._connection.begin()
 
     def rollback(self):
         """Transaction
         """
-        pass
+        self._connection.rollback()
 
     def transaction_level(self):
         """Transaction
@@ -87,10 +87,11 @@ class PostgresConnection(BaseConnection):
 
         query = query.replace("'?'", "%s")
         print("running query:", query, bindings)
-
         if self._dry:
             return {}
         try:
+            if self._connection.closed:
+                self.make_connection()
             with self._connection.cursor(
                 cursor_factory=psycopg2.extras.RealDictCursor
             ) as cursor:

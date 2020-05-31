@@ -57,28 +57,25 @@ class MySQLConnection(BaseConnection):
     def get_database_name(self):
         return self().get_connection_details().get("db")
 
-    def reconnect(self):
-        pass
-
     def commit(self):
         """Transaction
         """
-        pass
+        return self._connection.commit()
 
-    def begin_transaction(self):
+    def begin(self):
         """Transaction
         """
-        pass
+        return self._connection.begin()
 
     def rollback(self):
         """Transaction
         """
-        pass
+        self._connection.rollback()
 
-    def transaction_level(self):
-        """Transaction
-        """
-        pass
+    # def transaction_level(self):
+    #     """Transaction
+    #     """
+    #     pass
 
     def query(self, query, bindings=(), results="*"):
         """Make the actual query that will reach the database and come back with a result.

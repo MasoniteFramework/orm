@@ -70,6 +70,9 @@ class QueryBuilder:
             self.connection = ConnectionFactory().make(driver)
             self.grammar = GrammarFactory().make(grammar)
 
+        if self.connection:
+            self.connection = self.connection().make_connection()
+
         if not self.owner:
             from ..models import QueryResult
 
@@ -97,6 +100,50 @@ class QueryBuilder:
             self
         """
         return self._table
+
+    def get_connection(self):
+        """Sets a table on the query builder
+
+        Arguments:
+            table {string} -- The name of the table
+
+        Returns:
+            self
+        """
+        return self.connection
+
+    def begin(self):
+        """Sets a table on the query builder
+
+        Arguments:
+            table {string} -- The name of the table
+
+        Returns:
+            self
+        """
+        return self.connection.begin()
+
+    def commit(self):
+        """Sets a table on the query builder
+
+        Arguments:
+            table {string} -- The name of the table
+
+        Returns:
+            self
+        """
+        return self.connection.commit()
+
+    def rollback(self):
+        """Sets a table on the query builder
+
+        Arguments:
+            table {string} -- The name of the table
+
+        Returns:
+            self
+        """
+        return self.connection.rollback()
 
     def get_relation(self, key):
         """Sets a table on the query builder
@@ -217,7 +264,7 @@ class QueryBuilder:
         if query:
             return self
 
-        self.connection().make_connection().query(self.to_sql(), self._bindings)
+        self.connection.query(self.to_sql(), self._bindings)
         if self.owner:
             return self.owner.hydrate(creates)
         return creates
@@ -243,7 +290,7 @@ class QueryBuilder:
         if query:
             return self
 
-        return self.connection().make_connection().query(self.to_sql(), self._bindings)
+        return self.connection.query(self.to_sql(), self._bindings)
 
     def where(self, column, *args):
         """Specifies a where expression.
@@ -568,7 +615,7 @@ class QueryBuilder:
         if dry:
             return self
 
-        return self.connection().make_connection().query(self.to_sql(), self._bindings)
+        return self.connection.query(self.to_sql(), self._bindings)
 
     def set_updates(self, updates: dict, dry=False):
         """Specifies columns and values to be updated.
@@ -702,10 +749,8 @@ class QueryBuilder:
         self.set_action("select")
         if query:
             return self.limit(1)
-        result = (
-            self.connection()
-            .make_connection()
-            .query(self.limit(1).to_qmark(), self._bindings, results=1)
+        result = self.connection.query(
+            self.limit(1).to_qmark(), self._bindings, results=1
         )
         relations = self.eager_load_model(result)
         return self.owner.hydrate(result, relations=relations)
@@ -717,7 +762,7 @@ class QueryBuilder:
             dictionary -- Returns a dictionary of results.
         """
         return self.owner.hydrate(
-            self.connection().make_connection().query(self.to_qmark(), self._bindings)
+            self.connection.query(self.to_qmark(), self._bindings)
         )
 
     def get(self):
@@ -727,9 +772,7 @@ class QueryBuilder:
             self
         """
         self.set_action("select")
-        result = (
-            self.connection().make_connection().query(self.to_qmark(), self._bindings)
-        )
+        result = self.connection.query(self.to_qmark(), self._bindings)
         relations = self.eager_load_model(result)
         return self.owner.new_collection(result).map_into(
             self.owner, "hydrate", relations=relations
@@ -855,7 +898,6 @@ class QueryBuilder:
 
         if not self._action:
             self.set_action("select")
-        print(self._global_scopes.get(self.owner, {}).get(self._action, []))
         for scope in self._global_scopes.get(self.owner, {}).get(self._action, []):
             if not scope:
                 continue
