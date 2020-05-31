@@ -53,7 +53,7 @@ DATABASES = {
     }
 }
 
-DB = QueryBuilder(connection_details=DATABASES)
+# DB = QueryBuilder(connection_details=DATABASES)
 
 # DATABASES = {
 #     'default': os.environ.get('DB_DRIVER'),

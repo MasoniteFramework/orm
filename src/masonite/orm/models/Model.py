@@ -23,6 +23,7 @@ class Model:
 
     __fillable__ = ["*"]
     __guarded__ = ["*"]
+    __dry__ = False
     __table__ = None
     __connection__ = "default"
     __resolved_connection__ = None
@@ -69,12 +70,13 @@ class Model:
         if not cls._booted:
             cls.__resolved_connection__ = ConnectionFactory().make(cls.__connection__)
             cls.builder = QueryBuilder(
-                cls.__resolved_connection__.get_grammer(),
+                cls.__resolved_connection__.get_grammar(),
                 cls.__resolved_connection__,
                 table=cls.get_table_name(),
                 owner=cls,
                 eager_loads=cls._eager_load,
                 global_scopes=cls._global_scopes,
+                dry=cls.__dry__,
             )
 
             cls.builder.set_action("select")

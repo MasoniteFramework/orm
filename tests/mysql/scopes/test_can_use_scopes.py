@@ -7,6 +7,8 @@ from src.masonite.orm.models import Model
 
 
 class User(Model):
+    __dry__ = True
+
     @scope
     def active(self, query, status):
         return query.where("active", status)

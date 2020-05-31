@@ -292,18 +292,18 @@ class BaseTestQueryBuilder:
     def test_builder_alone(self):
         self.assertTrue(
             QueryBuilder(
+                dry=True,
                 connection_details={
-                    "default": "mysql",
-                    "mysql": {
-                        "driver": "mysql",
+                    "default": "postgres",
+                    "postgres": {
+                        "driver": "postgres",
                         "host": "localhost",
-                        "username": "root",
-                        "password": "",
+                        "user": "postgres",
+                        "password": "postgres",
                         "database": "orm",
-                        "port": "3306",
+                        "port": "5432",
                         "prefix": "",
-                        "grammar": "mysql",
-                        "options": {"charset": "utf8mb4",},
+                        "grammar": "postgres",
                     },
                 }
             ).table("users")
