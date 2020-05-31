@@ -292,6 +292,7 @@ class BaseTestQueryBuilder:
     def test_builder_alone(self):
         self.assertTrue(
             QueryBuilder(
+                dry=True,
                 connection_details={
                     "default": "postgres",
                     "postgres": {
