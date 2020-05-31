@@ -353,8 +353,17 @@ class Model:
         if ("get_" + attribute) in self.__class__.__dict__:
             return self.__class__.__dict__.get(("get_" + attribute))(self)
 
-        if attribute in self.__dict__["__attributes__"]:
+        if (
+            "__attributes__" in self.__dict__
+            and attribute in self.__dict__["__attributes__"]
+        ):
             return self.get_value(attribute)
+
+        if (
+            "__dirty_attributes__" in self.__dict__
+            and attribute in self.__dict__["__dirty_attributes__"]
+        ):
+            return self.get_dirty_value(attribute)
 
         if attribute in self.__dict__.get("_relationships", {}):
             return self.__dict__["_relationships"][attribute]
@@ -367,6 +376,10 @@ class Model:
         return None
 
     def __setattr__(self, attribute, value):
+        if hasattr(self, "set_" + attribute + "_attribute"):
+            method = getattr(self, "set_" + attribute + "_attribute")
+            value = method(value)
+
         try:
             if not attribute.startswith("_"):
                 self.__dict__["__dirty_attributes__"].update({attribute: value})
@@ -393,6 +406,12 @@ class Model:
             return self._cast_attribute(attribute)
 
         return self.__attributes__[attribute]
+
+    def get_dirty_value(self, attribute):
+        if attribute in self.__casts__:
+            return self._cast_attribute(attribute)
+
+        return self.__dirty_attributes__[attribute]
 
     def get_cast_map(self):
         cast_map = self.__internal_cast_map__
