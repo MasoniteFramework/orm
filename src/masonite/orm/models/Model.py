@@ -23,6 +23,7 @@ class Model:
 
     __fillable__ = ["*"]
     __guarded__ = ["*"]
+    __dry__ = False
     __table__ = None
     __connection__ = "default"
     __resolved_connection__ = None
@@ -75,6 +76,7 @@ class Model:
                 owner=cls,
                 eager_loads=cls._eager_load,
                 global_scopes=cls._global_scopes,
+                dry=cls.__dry__,
             )
 
             cls.builder.set_action("select")

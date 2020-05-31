@@ -311,6 +311,7 @@ class BaseTestQueryBuilder:
     def test_builder_alone(self):
         self.assertTrue(
             QueryBuilder(
+                dry=True,
                 connection_details={
                     "default": "mysql",
                     "mysql": {
@@ -324,7 +325,7 @@ class BaseTestQueryBuilder:
                         "grammar": "mysql",
                         "options": {"charset": "utf8mb4",},
                     },
-                }
+                },
             ).table("users")
         )
 

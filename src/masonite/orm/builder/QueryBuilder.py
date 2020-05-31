@@ -29,6 +29,7 @@ class QueryBuilder:
         global_scopes={},
         eager_loads=(),
         owner=None,
+        dry=False,
     ):
         """QueryBuilder initializer
 
@@ -70,7 +71,7 @@ class QueryBuilder:
             self.connection = ConnectionFactory().make(driver)
             self.grammar = GrammarFactory().make(grammar)
 
-        if self.connection:
+        if self.connection and dry is not True:
             self.connection = self.connection().make_connection()
 
         if not self.owner:

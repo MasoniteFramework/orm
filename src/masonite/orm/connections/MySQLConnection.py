@@ -13,6 +13,10 @@ class MySQLConnection(BaseConnection):
     def make_connection(self):
         """This sets the connection on the connection class
         """
+
+        if self._dry:
+            return
+
         try:
             import pymysql
         except ModuleNotFoundError:

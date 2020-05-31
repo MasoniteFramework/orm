@@ -293,17 +293,11 @@ class BaseTestQueryBuilder:
         self.assertTrue(
             QueryBuilder(
                 connection_details={
-                    "default": "mysql",
-                    "mysql": {
-                        "driver": "mysql",
-                        "host": "localhost",
-                        "username": "root",
-                        "password": "",
-                        "database": "orm",
-                        "port": "3306",
+                    "default": "sqlite",
+                    "sqlite": {
+                        "driver": "sqlite",
+                        "database": "orm.sqlite3",
                         "prefix": "",
-                        "grammar": "mysql",
-                        "options": {"charset": "utf8mb4",},
                     },
                 }
             ).table("users")
