@@ -322,6 +322,9 @@ class Model:
 
         return serialized_dictionary
 
+    def to_json(self):
+        return json.dumps(self.serialize())
+
     def find_or_fail(self):
         pass
 

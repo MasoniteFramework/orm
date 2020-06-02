@@ -111,6 +111,11 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
 
             self.assertEqual(profile.serialize(), {"name": "Joe", "id": 1})
 
+        def test_json(self):
+            profile = ProfileFillAsterisk.hydrate({"name": "Joe", "id": 1})
+
+            self.assertEqual(profile.to_json(), '{"name": "Joe", "id": 1}')
+
         def test_serialize_with_hidden(self):
             profile = ProfileSerialize.hydrate(
                 {"name": "Joe", "id": 1, "password": "secret"}
