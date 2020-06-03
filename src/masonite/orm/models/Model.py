@@ -54,9 +54,23 @@ class Model:
         self.__appends__ = []
 
     def get_primary_key(self):
+        """Gets the primary key column
+
+        Returns:
+            mixed
+        """
         return self.__primary_key__
 
     def get_primary_key_value(self):
+        """Gets the primary key value.
+
+        Raises:
+            AttributeError: Raises attribute error if the model does not have an
+                attribute with the primary key.
+
+        Returns:
+            str|int
+        """
         try:
             return getattr(self, self.get_primary_key())
         except AttributeError:
@@ -96,11 +110,21 @@ class Model:
             cls._loads = ()
 
     def _boot_parent_scopes(cls):
+        """Applies all parent scopes.
+        """
         for parent in cls.__bases__:
             cls.apply_scope(parent)
 
     @classmethod
     def apply_scope(cls, scope_class):
+        """Applies the scope to the current model.
+
+        Arguments:
+            scope_class {object} -- A scope class.
+
+        Returns:
+            cls
+        """
         cls.boot()
         boot_methods = [
             v for k, v in scope_class.__dict__.items() if k.startswith("boot_")
@@ -115,24 +139,52 @@ class Model:
 
     @classmethod
     def get_table_name(cls):
+        """Gets the table name.
+
+        Returns:
+            str
+        """
         return cls.__table__ or tableize(cls.__name__)
 
     @classmethod
     def get_database_name(cls):
+        """Gets the database name
+
+        Returns:
+            str
+        """
         cls.boot()
         return cls.__resolved_connection__
 
     @classmethod
     def first(cls):
+        """Gets the first record from the table.
+
+        Returns:
+            Model
+        """
         return cls.builder.first()
 
     @classmethod
     def all(cls):
+        """Gets all records from the table.
+
+        Returns:
+            Collection
+        """
         cls.boot()
         return cls.builder.set_action("select").all()
 
     @classmethod
     def find(cls, record_id):
+        """Finds a row by the primary key ID.
+
+        Arguments:
+            record_id {int} -- The ID of the primary key to fetch.
+
+        Returns:
+            Model
+        """
         cls._boot_if_not_booted()
         return cls.builder.where("id", record_id).first()
 
@@ -151,21 +203,41 @@ class Model:
 
     @classmethod
     def where(cls, *args, **kwargs):
+        """Specify a where clause.
+
+        Returns:
+            Builder
+        """
         cls.boot()
         return cls.builder.where(*args, **kwargs)
 
     @classmethod
     def order_by(cls, *args, **kwargs):
+        """Specify an order by clause.
+
+        Returns:
+            Builder
+        """
         cls.boot()
         return cls.builder.order_by(*args, **kwargs)
 
     @classmethod
     def where_in(cls, *args, **kwargs):
+        """Specify a where in clause.
+
+        Returns:
+            Builder
+        """
         cls.boot()
         return cls.builder.where(*args, **kwargs)
 
     @classmethod
     def has(cls, *has_relationships, **kwargs):
+        """Creates a clause that checks the existance of a relationship.
+
+        Returns:
+            Builder
+        """
         cls.boot()
         for has_relationship in has_relationships:
             if "." in has_relationship:
@@ -206,6 +278,11 @@ class Model:
 
     @classmethod
     def where_has(cls, has_relationship, callback):
+        """Creates a clause that checks the existance of a relationship.
+
+        Returns:
+            Builder
+        """
         cls.boot()
         relationship = getattr(cls, has_relationship)()
 

@@ -305,7 +305,7 @@ class BaseTestQueryBuilder:
                         "prefix": "",
                         "grammar": "postgres",
                     },
-                }
+                },
             ).table("users")
         )
 
