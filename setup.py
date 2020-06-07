@@ -33,7 +33,7 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'inflection==0.3.1',
-        'pendulum==2.1.0',
+        'pendulum>=2.1,<2.2',
         'faker==4.1.0',
     ],
 
