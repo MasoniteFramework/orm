@@ -32,9 +32,9 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'inflection==0.3.1',
+        'inflection>=0.3.1',
         'pendulum>=2.1,<2.2',
-        'faker==4.1.0',
+        'faker>=4.1.0',
     ],
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
