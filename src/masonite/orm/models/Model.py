@@ -108,6 +108,8 @@ class Model:
             }
 
             cls._loads = ()
+        
+        return cls
 
     def _boot_parent_scopes(cls):
         """Applies all parent scopes.

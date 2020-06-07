@@ -94,7 +94,7 @@ class Schema:
         query = grammar.column_exists(column).to_sql()
         if query_only:
             return query
-        return bool(cls._connection().make_connection().query(query))
+        return bool(cls._connection().make_connection().query(query, ()))
 
     @classmethod
     def set_default_string_length(cls, length):
@@ -107,7 +107,7 @@ class Schema:
         query = grammar.drop_table(table).to_sql()
         if query_only:
             return query
-        return bool(cls._connection().make_connection().query(query))
+        return bool(cls._connection().make_connection().query(query, ()))
 
     @classmethod
     def drop(cls, *args, **kwargs):
@@ -119,7 +119,7 @@ class Schema:
         query = grammar.drop_table_if_exists(table).to_sql()
         if query_only:
             return query
-        return bool(cls._connection().make_connection().query(query))
+        return bool(cls._connection().make_connection().query(query, ()))
 
     @classmethod
     def rename(cls, table, new_name, query_only=False):
@@ -153,4 +153,4 @@ class Schema:
         query = grammar.table_exists().to_sql()
         if query_only:
             return query
-        return bool(cls._connection().make_connection().query(query))
+        return bool(cls._connection().make_connection().query(query, ()))

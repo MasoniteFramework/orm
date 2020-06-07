@@ -555,7 +555,7 @@ class Blueprint:
         if self._dry:
             return
 
-        return self._connection.make_connection().query(self.to_sql())
+        return self._connection.make_connection().query(self.to_sql(), ())
 
     def nullable(self):
         """Sets the last column created as nullable

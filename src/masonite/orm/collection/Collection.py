@@ -237,7 +237,7 @@ class Collection:
             attributes = []
 
         if isinstance(self._items, dict):
-            return [self._items.get(value)]
+            return Collection([self._items.get(value)])
 
         for item in self:
             if isinstance(item, dict):
@@ -256,7 +256,7 @@ class Collection:
                     else:
                         attributes.append(v)
 
-        return attributes
+        return Collection(attributes)
 
     def pop(self):
         last = self._items.pop()

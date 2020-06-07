@@ -35,7 +35,7 @@ class SQLiteGrammar(BaseGrammar):
         "big_increments": "BIGINT",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
-        "increments": "INT UNSIGNED AUTO_INCREMENT PRIMARY KEY",
+        "increments": "INTEGER PRIMARY KEY",
         "binary": "LONGBLOB",
         "boolean": "BOOLEAN",
         "decimal": "DECIMAL",
@@ -148,7 +148,7 @@ class SQLiteGrammar(BaseGrammar):
 
     def table_exists_string(self):
         return (
-            "SELECT * from information_schema.tables where table_name='{clean_table}'"
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='{clean_table}'"
         )
 
     def add_column_string(self):

@@ -10,6 +10,8 @@ class MySQLConnection(BaseConnection):
     """MYSQL Connection class.
     """
 
+    name = "mysql"
+
     def make_connection(self):
         """This sets the connection on the connection class
         """
@@ -104,5 +106,7 @@ class MySQLConnection(BaseConnection):
                     return cursor.fetchone()
                 else:
                     return cursor.fetchall()
+        except Exception as e:
+            raise e
         finally:
             pass

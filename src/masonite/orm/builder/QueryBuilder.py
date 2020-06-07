@@ -12,6 +12,8 @@ from ..expressions.expressions import (
     HavingExpression,
 )
 
+from ..schema import Schema
+
 
 class QueryBuilder:
     """A builder class to manage the building and creation of query expressions.
@@ -123,6 +125,12 @@ class QueryBuilder:
             self
         """
         return self.connection.begin()
+
+    def begin_transaction(self, *args, **kwargs):
+        return self.begin(*args, **kwargs)
+
+    def get_schema_builder(self):
+        return Schema.on(self.connection.name)
 
     def commit(self):
         """Sets a table on the query builder
@@ -763,7 +771,8 @@ class QueryBuilder:
             dictionary -- Returns a dictionary of results.
         """
         return self.owner.hydrate(
-            self.connection.query(self.to_qmark(), self._bindings)
+            self.connection.query(
+                self.to_qmark(), self._bindings) or self.owner.new_collection([])
         )
 
     def get(self):

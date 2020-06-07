@@ -24,6 +24,7 @@ class TestCollection(unittest.TestCase):
     def test_pluck(self):
         collection = Collection([{"id": 1, "name": "Joe"}, {"id": 2, "name": "Bob"}])
         self.assertEqual(collection.pluck("id"), [1, 2])
+        self.assertEqual(collection.pluck("id").serialize(), [1, 2])
         self.assertEqual(collection.pluck("name", "id"), {1: "Joe", 2: "Bob"})
 
     def test_pluck_with_models(self):

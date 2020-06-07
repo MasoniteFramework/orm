@@ -10,6 +10,8 @@ class PostgresConnection(BaseConnection):
     """Postgres Connection class.
     """
 
+    name = "postgres"
+
     def make_connection(self):
         """This sets the connection on the connection class
         """
@@ -102,5 +104,7 @@ class PostgresConnection(BaseConnection):
                     if "SELECT" in cursor.statusmessage:
                         return cursor.fetchall()
                     return {}
+        except Exception as e:
+            raise e
         finally:
             self._connection.close()
