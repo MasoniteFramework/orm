@@ -772,7 +772,7 @@ class QueryBuilder:
         """
         return self.owner.hydrate(
             self.connection.query(
-                self.to_qmark(), self._bindings) or self.owner.new_collection([])
+                self.to_qmark(), self._bindings) or []
         )
 
     def get(self):
