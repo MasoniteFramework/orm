@@ -15,7 +15,7 @@ class User(Model):
 
     __casts__ = {"is_admin": "bool"}
 
-    def get_name(self):
+    def get_name_attribute(self):
         return f"Hello, {self.get_raw_attribute('name')}"
 
     def set_name_attribute(self, attribute):
