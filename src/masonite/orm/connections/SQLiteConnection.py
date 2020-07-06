@@ -92,4 +92,3 @@ class SQLiteConnection(BaseConnection):
             if self.__class__._connection and self.__class__._connection.isolation_level:
                 self.rollback()
             raise e
-
