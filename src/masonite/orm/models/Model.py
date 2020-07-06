@@ -108,7 +108,7 @@ class Model:
             }
 
             cls._loads = ()
-        
+
         return cls
 
     def _boot_parent_scopes(cls):
@@ -441,8 +441,11 @@ class Model:
         pass
 
     def __getattr__(self, attribute):
-        if ("get_" + attribute) in self.__class__.__dict__:
-            return self.__class__.__dict__.get(("get_" + attribute))(self)
+
+        new_name_accessor = "get_" + attribute + "_attribute"
+
+        if (new_name_accessor) in self.__class__.__dict__:
+            return self.__class__.__dict__.get(new_name_accessor)(self)
 
         if (
             "__attributes__" in self.__dict__
