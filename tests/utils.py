@@ -28,6 +28,7 @@ class MockSQLiteConnection(SQLiteConnection):
     def query(self, *args, **kwargs):
         return {}
 
+
 class MockConnectionFactory(ConnectionFactory):
     _connections = {
         "mysql": MockMySQLConnection,

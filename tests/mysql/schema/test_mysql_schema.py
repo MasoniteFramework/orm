@@ -661,7 +661,11 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.timestamp('logged_at')
         """
 
-        return "CREATE TABLE `users` (" "`logged_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP" ")"
+        return (
+            "CREATE TABLE `users` ("
+            "`logged_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+            ")"
+        )
 
     def can_compile_timestamps_columns_mixed_defaults_and_not_default(self):
         """

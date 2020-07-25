@@ -655,7 +655,9 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         """
 
         return (
-            """CREATE TABLE "users" (""" """\"logged_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP""" """)"""
+            """CREATE TABLE "users" ("""
+            """\"logged_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP"""
+            """)"""
         )
 
     def can_compile_timestamps_columns_mixed_defaults_and_not_default(self):
