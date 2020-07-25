@@ -661,7 +661,7 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.timestamp('logged_at')
         """
 
-        return "CREATE TABLE `users` (" "`logged_at` TIMESTAMP NOT NULL" ")"
+        return "CREATE TABLE `users` (" "`logged_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP" ")"
 
     def can_compile_timestamps_columns_mixed_defaults_and_not_default(self):
         """
@@ -675,8 +675,8 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             "CREATE TABLE `users` ("
             "`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
             "`updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
-            "`logged_at` TIMESTAMP NOT NULL, "
-            "`expirated_at` TIMESTAMP NOT NULL"
+            "`logged_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+            "`expirated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
             ")"
         )
 
@@ -686,11 +686,10 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.timestamp('logged_at')
             blueprint.timestamp('expirated_at').nullable()
         """
-
         return (
             "CREATE TABLE `users` ("
-            "`logged_at` TIMESTAMP NOT NULL, "
-            "`expirated_at` TIMESTAMP"
+            "`logged_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+            "`expirated_at` TIMESTAMP NULL DEFAULT NULL"
             ")"
         )
 

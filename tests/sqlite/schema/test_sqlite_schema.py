@@ -5,6 +5,9 @@ from src.masonite.orm.schema import Schema
 
 
 class BaseTestCreateGrammar:
+
+    maxDiff = None
+
     def setUp(self):
         pass
 
@@ -652,7 +655,7 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         """
 
         return (
-            """CREATE TABLE "users" (""" """\"logged_at" TIMESTAMP NOT NULL""" """)"""
+            """CREATE TABLE "users" (""" """\"logged_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP""" """)"""
         )
 
     def can_compile_timestamps_columns_mixed_defaults_and_not_default(self):
@@ -667,8 +670,8 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             """CREATE TABLE "users" ("""
             """\"created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, """
             """\"updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, """
-            """\"logged_at" TIMESTAMP NOT NULL, """
-            """\"expirated_at" TIMESTAMP NOT NULL"""
+            """\"logged_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, """
+            """\"expirated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP"""
             """)"""
         )
 
@@ -681,8 +684,8 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return (
             """CREATE TABLE "users" ("""
-            """\"logged_at" TIMESTAMP NOT NULL, """
-            """\"expirated_at" TIMESTAMP"""
+            """\"logged_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, """
+            """\"expirated_at" TIMESTAMP NULL DEFAULT NULL"""
             """)"""
         )
 

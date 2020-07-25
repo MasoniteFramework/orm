@@ -195,9 +195,7 @@ class BaseGrammar:
                 else ""
             )
 
-            mapped_time_value = self.timestamp_mapping.get(column.default)
-
-            default_value = mapped_time_value or column.default
+            default_value = self.timestamp_mapping.get(column.default, column.default)
 
             if hasattr(self, f"_type_{column.column_type}"):
                 sql += getattr(self, f"_type_{column.column_type}")(
@@ -210,12 +208,26 @@ class BaseGrammar:
                 "data_type": self.type_map.get(column.column_type),
                 "length": length_string,
             }
-
-            if default_value:
+            if default_value and not column.is_null:
                 attributes.update({"default_value": default_value})
                 sql += self.create_column_string_with_default().format(**attributes)
             else:
-                attributes.update({"nullable": "" if column.is_null else " NOT NULL"})
+                """Check if this data type has a default column type mapping on the grammar class.
+                """
+                if hasattr(self, f"{column.column_type}_null_map"):
+                    attributes.update(
+                        {
+                            "nullable": " "
+                            + getattr(self, f"{column.column_type}_null_map")[
+                                "null" if column.is_null else "not_null"
+                            ]
+                        }
+                    )
+                else:
+                    attributes.update(
+                        {"nullable": "" if column.is_null else " NOT NULL"}
+                    )
+
                 sql += self.create_column_string().format(**attributes)
 
         if not self._constraints:

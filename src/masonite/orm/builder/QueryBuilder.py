@@ -771,8 +771,7 @@ class QueryBuilder:
             dictionary -- Returns a dictionary of results.
         """
         return self.owner.hydrate(
-            self.connection.query(
-                self.to_qmark(), self._bindings) or []
+            self.connection.query(self.to_qmark(), self._bindings) or []
         )
 
     def get(self):

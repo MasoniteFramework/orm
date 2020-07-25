@@ -35,8 +35,7 @@ class SQLiteConnection(BaseConnection):
         that should pass to your connection method
         """
         connection_details = {}
-        connection_details.setdefault(
-            "db", self.connection_details.get("database"))
+        connection_details.setdefault("db", self.connection_details.get("database"))
         connection_details.update(self.connection_details.get("options", {}))
 
         return connection_details
@@ -47,20 +46,20 @@ class SQLiteConnection(BaseConnection):
     def commit(self):
         """Transaction
         """
-        print('commit transaction')
+        print("commit transaction")
         return self.__class__._connection.commit()
 
     def begin(self):
         """Transaction
         """
-        print('starting sqlite transaction', self, self.__class__._connection)
-        self.__class__._connection.isolation_level = 'DEFERRED'
+        print("starting sqlite transaction", self, self.__class__._connection)
+        self.__class__._connection.isolation_level = "DEFERRED"
         return self.__class__._connection
 
     def rollback(self):
         """Transaction
         """
-        print('rolling back transaction', self, self.__class__._connection)
+        print("rolling back transaction", self, self.__class__._connection)
         self.__class__._connection.rollback()
 
     def query(self, query, bindings, results="*"):
@@ -89,6 +88,9 @@ class SQLiteConnection(BaseConnection):
             else:
                 return [dict(row) for row in cursor.fetchall()]
         except Exception as e:
-            if self.__class__._connection and self.__class__._connection.isolation_level:
+            if (
+                self.__class__._connection
+                and self.__class__._connection.isolation_level
+            ):
                 self.rollback()
             raise e

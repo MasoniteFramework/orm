@@ -86,6 +86,11 @@ class PostgresGrammar(BaseGrammar):
 
     timestamp_mapping = {"current": "CURRENT_TIMESTAMP", "now": "NOW()"}
 
+    timestamp_null_map = {
+        "null": "NULL DEFAULT NULL",
+        "not_null": "NOT NULL DEFAULT CURRENT_TIMESTAMP",
+    }
+
     def select_format(self):
         return "SELECT {columns} FROM {table} {joins} {wheres} {group_by}{order_by} {limit} {offset} {having}"
 

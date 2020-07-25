@@ -388,6 +388,10 @@ class Blueprint:
         self._last_column = self.new_column(
             "timestamp", column, None, nullable, default=now
         )
+
+        if not now:
+            self._last_column.use_current()
+
         self._columns += (self._last_column,)
         return self
 
