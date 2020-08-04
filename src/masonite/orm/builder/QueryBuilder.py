@@ -76,6 +76,9 @@ class QueryBuilder:
         if self.connection and dry is not True:
             self.connection = self.connection().make_connection()
 
+        if self.connection and dry is True:
+            self.connection = self.connection().dry()
+
         if not self.owner:
             from ..models import QueryResult
 
@@ -764,12 +767,18 @@ class QueryBuilder:
         relations = self.eager_load_model(result)
         return self.owner.hydrate(result, relations=relations)
 
-    def all(self):
+    def all(self, query=False):
         """Returns all records from the table.
 
         Returns:
             dictionary -- Returns a dictionary of results.
         """
+
+        # scopes should be applied now
+        self.owner._boot_parent_scopes()
+        if query:
+            return self.to_sql()
+        
         return self.owner.hydrate(
             self.connection.query(self.to_qmark(), self._bindings) or []
         )

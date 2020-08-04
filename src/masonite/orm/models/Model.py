@@ -97,7 +97,10 @@ class Model:
             cls._booted = True
             cast_methods = [v for k, v in cls.__dict__.items() if k.startswith("get_")]
             for cast in cast_methods:
-                cls.__casts__[cast.__name__.replace("get_", "")] = cast
+                try:
+                    cls.__casts__[cast.__name__.replace("get_", "")] = cast
+                except AttributeError:
+                    pass
 
             # Set global scope defaults
             cls._global_scopes[cls] = {
@@ -111,10 +114,15 @@ class Model:
 
         return cls
 
+    @classmethod
     def _boot_parent_scopes(cls):
         """Applies all parent scopes.
         """
+
+        print('booing parent scopes')
+        
         for parent in cls.__bases__:
+            print()
             cls.apply_scope(parent)
 
     @classmethod
@@ -131,6 +139,8 @@ class Model:
         boot_methods = [
             v for k, v in scope_class.__dict__.items() if k.startswith("boot_")
         ]
+
+        print('boot methods', boot_methods)
 
         for method in boot_methods:
             for action, value in method().items():
@@ -168,14 +178,14 @@ class Model:
         return cls.builder.first()
 
     @classmethod
-    def all(cls):
+    def all(cls, query=False):
         """Gets all records from the table.
 
         Returns:
             Collection
         """
         cls.boot()
-        return cls.builder.set_action("select").all()
+        return cls.builder.set_action("select").all(query=query)
 
     @classmethod
     def find(cls, record_id):

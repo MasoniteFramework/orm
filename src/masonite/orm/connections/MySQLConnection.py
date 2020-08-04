@@ -11,6 +11,7 @@ class MySQLConnection(BaseConnection):
     """
 
     name = "mysql"
+    _dry = False
 
     def make_connection(self):
         """This sets the connection on the connection class
@@ -68,6 +69,12 @@ class MySQLConnection(BaseConnection):
         """
         return self._connection.commit()
 
+    def dry(self):
+        """Transaction
+        """
+        self._dry = True
+        return self
+
     def begin(self):
         """Transaction
         """
@@ -97,8 +104,13 @@ class MySQLConnection(BaseConnection):
         Returns:
             dict|None -- Returns a dictionary of results or None
         """
+        print('q', self, query)
         query = query.replace("'?'", "%s")
         print("running query", query, bindings)
+
+        if self._dry:
+            return {}
+
         try:
             with self._connection.cursor() as cursor:
                 cursor.execute(query, bindings)
