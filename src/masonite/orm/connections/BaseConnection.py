@@ -36,7 +36,6 @@ class BaseConnection:
         if "options" not in cls.connection_details:
             cls.connection_details.setdefault("options", {})
 
-    @classmethod
-    def dry(cls):
-        cls._dry = True
-        return cls
+    def dry(self):
+        self._dry = True
+        return self
