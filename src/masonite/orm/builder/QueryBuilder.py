@@ -776,7 +776,7 @@ class QueryBuilder:
 
         if query:
             return self.to_sql()
-        
+
         return self.owner.hydrate(
             self.connection.query(self.to_qmark(), self._bindings) or []
         )

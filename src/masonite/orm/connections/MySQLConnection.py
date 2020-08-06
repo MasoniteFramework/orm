@@ -104,7 +104,7 @@ class MySQLConnection(BaseConnection):
         Returns:
             dict|None -- Returns a dictionary of results or None
         """
-        print('q', self, query)
+        print("q", self, query)
         query = query.replace("'?'", "%s")
         print("running query", query, bindings)
 

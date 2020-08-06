@@ -121,8 +121,8 @@ class Model:
         """Applies all parent scopes.
         """
 
-        print('booing parent scopes')
-        
+        print("booing parent scopes")
+
         for parent in cls.__bases__:
             cls.apply_scope(parent)
 
@@ -141,7 +141,7 @@ class Model:
             v for k, v in scope_class.__dict__.items() if k.startswith("boot_")
         ]
 
-        print('boot methods', boot_methods)
+        print("boot methods", boot_methods)
 
         for method in boot_methods:
             for action, value in method().items():

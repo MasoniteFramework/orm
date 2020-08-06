@@ -17,6 +17,7 @@ class User(Model):
     def gender(self, query, status):
         return query.where("gender", status)
 
+
 class UserSoft(Model, SoftDeletes):
     __dry__ = True
 
@@ -68,6 +69,4 @@ class TestMySQLScopes(unittest.TestCase):
 
     def test_can_use_global_scopes_on_inherit(self):
         sql = "SELECT * FROM `user_softs` WHERE `user_softs`.`deleted_at` IS NOT NULL"
-        self.assertEqual(
-            sql, UserSoft.all(query=True)
-        )
+        self.assertEqual(sql, UserSoft.all(query=True))
