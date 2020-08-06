@@ -110,6 +110,8 @@ class Model:
                 "delete": [],
             }
 
+            cls._boot_parent_scopes()
+
             cls._loads = ()
 
         return cls
@@ -122,7 +124,6 @@ class Model:
         print('booing parent scopes')
         
         for parent in cls.__bases__:
-            print()
             cls.apply_scope(parent)
 
     @classmethod

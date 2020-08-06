@@ -774,8 +774,6 @@ class QueryBuilder:
             dictionary -- Returns a dictionary of results.
         """
 
-        # scopes should be applied now
-        self.owner._boot_parent_scopes()
         if query:
             return self.to_sql()
         
