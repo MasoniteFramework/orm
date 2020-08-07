@@ -47,6 +47,7 @@ class Migration:
             for f in listdir(directory_path)
             if isfile(join(directory_path, f)) and f != "__init__.py"
         ]
+        all_migrations.sort()
         unran_migrations = []
         database_migrations = MigrationModel.all()
         for migration in all_migrations:
