@@ -2,8 +2,8 @@ import inspect
 import unittest
 
 from app.User import User
-from src.masonite.orm.scopes import scope, SoftDeletes, TimeStamps
-from src.masonite.orm.models import Model
+from src.masoniteorm.orm.scopes import scope, SoftDeletes, TimeStamps
+from src.masoniteorm.orm.models import Model
 
 
 class User(Model):

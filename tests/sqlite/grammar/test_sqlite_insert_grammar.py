@@ -1,8 +1,8 @@
 import inspect
 import unittest
 
-from src.masonite.orm.builder import QueryBuilder
-from src.masonite.orm.grammar import GrammarFactory
+from src.masoniteorm.orm.builder import QueryBuilder
+from src.masoniteorm.orm.grammar import GrammarFactory
 
 
 class BaseInsertGrammarTest:

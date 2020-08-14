@@ -1,5 +1,5 @@
 import unittest
-from src.masonite.orm.seeds import Seeder
+from src.masoniteorm.orm.seeds import Seeder
 from databases.seeds.user_table_seeder import UserTableSeeder
 
 

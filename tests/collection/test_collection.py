@@ -1,8 +1,8 @@
 import unittest
 
-from src.masonite.orm.collection import Collection
-from src.masonite.orm.factories import Factory as factory
-from src.masonite.orm.models import Model
+from src.masoniteorm.orm.collection import Collection
+from src.masoniteorm.orm.factories import Factory as factory
+from src.masoniteorm.orm.models import Model
 
 
 class TestCollection(unittest.TestCase):

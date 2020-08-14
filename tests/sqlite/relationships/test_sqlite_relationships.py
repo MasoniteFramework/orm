@@ -1,8 +1,8 @@
 import os
 import unittest
 
-from src.masonite.orm.models import Model
-from src.masonite.orm.relationships import belongs_to, has_many
+from src.masoniteorm.orm.models import Model
+from src.masoniteorm.orm.relationships import belongs_to, has_many
 
 
 class Profile(Model):

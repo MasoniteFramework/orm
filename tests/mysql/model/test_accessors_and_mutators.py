@@ -6,9 +6,9 @@ import pendulum
 import datetime
 
 from app.User import User
-from src.masonite.orm.collection import Collection
-from src.masonite.orm.grammar.mssql_grammar import MSSQLGrammar
-from src.masonite.orm.models import Model
+from src.masoniteorm.orm.collection import Collection
+from src.masoniteorm.orm.grammar.mssql_grammar import MSSQLGrammar
+from src.masoniteorm.orm.models import Model
 
 
 class User(Model):

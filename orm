@@ -6,7 +6,7 @@ successfully import commands for you.
 """
 
 from cleo import Application
-from src.masonite.orm.commands import (
+from src.masoniteorm.orm.commands import (
     MigrateCommand, 
     MigrateRollbackCommand,
     MigrateRefreshCommand,

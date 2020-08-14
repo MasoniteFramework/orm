@@ -1,4 +1,4 @@
-from src.masonite.orm.migrations.Migration import Migration
+from src.masoniteorm.orm.migrations.Migration import Migration
 
 class CreateFriendsTable(Migration):
 
