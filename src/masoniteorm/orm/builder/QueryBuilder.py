@@ -773,7 +773,6 @@ class QueryBuilder:
         Returns:
             dictionary -- Returns a dictionary of results.
         """
-
         if query:
             return self.to_sql()
 

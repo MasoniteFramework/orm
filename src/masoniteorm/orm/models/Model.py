@@ -329,13 +329,14 @@ class Model:
 
     @classmethod
     def hydrate(cls, dictionary, relations={}):
+
         if dictionary is None:
             return None
 
         if isinstance(dictionary, (list, tuple)):
             response = []
             for element in dictionary:
-                response.append(element)
+                response.append(cls.hydrate(element))
             return cls.new_collection(response)
         elif isinstance(dictionary, dict):
             model = cls()
