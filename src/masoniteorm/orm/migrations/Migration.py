@@ -18,7 +18,7 @@ from ..schema import Schema
 class Migration:
     def __init__(
         self,
-        connection="mysql",
+        connection="default",
         dry=False,
         command_class=None,
         migration_directory="databases/migrations",
@@ -51,11 +51,10 @@ class Migration:
         unran_migrations = []
         database_migrations = MigrationModel.all()
         for migration in all_migrations:
-            if migration.replace(".py", "") not in database_migrations.pluck(
+            if migration not in database_migrations.pluck(
                 "migration"
             ):
                 unran_migrations.append(migration)
-
         return unran_migrations
 
     def get_rollback_migrations(self):
