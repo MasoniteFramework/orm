@@ -74,6 +74,7 @@ class Schema:
         cls._table = table
         return Blueprint(
             cls._connection.get_grammar(),
+            connection=cls._connection,
             table=table,
             action="alter",
             default_string_length=cls._default_string_length,
