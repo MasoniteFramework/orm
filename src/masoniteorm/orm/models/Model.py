@@ -176,6 +176,7 @@ class Model:
         Returns:
             Model
         """
+        cls.boot()
         return cls.builder.first()
 
     @classmethod

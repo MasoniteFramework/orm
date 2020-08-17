@@ -9,7 +9,7 @@ class SoftDeletes:
         }
 
     def query_where_null(owner_cls, query):
-        return query.where_not_null("deleted_at")
+        return query.where_null("deleted_at")
 
     def query_set_null(owner_cls, query):
         return query.set_action("update").set_updates({"deleted_at": "now"})
