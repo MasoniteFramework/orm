@@ -96,6 +96,8 @@ class BaseGrammar:
             foreign_keys=self._compile_alter_foreign_keys(),
         )
 
+        self._sql = self._sql.rstrip(', ')
+
         return self
 
     def _compile_alter_columns(self):
@@ -122,6 +124,7 @@ class BaseGrammar:
                 if column.length
                 else "",
                 nullable=nullable,
+                separator=",",
                 after=self.after_column_string().format(
                     after=self._compile_column(column.after_column)
                 )
@@ -130,7 +133,7 @@ class BaseGrammar:
             )
 
         # Fix any inconsistencies
-        sql = sql.rstrip(", ").replace(" ,", ",")
+        sql = sql.replace(" ,", ",")
 
         return sql
 
@@ -186,6 +189,17 @@ class BaseGrammar:
         """
         sql = ""
         for column in self._creates:
+            default = column.default
+            # Get the default value. Can fetch from premapped defaults. should default to the value on the column class.
+            if column.default is not None and column.default in self.premapped_defaults:
+                default = self.premapped_defaults.get(column.default)
+            elif default is not None:
+                default = self.default_string().format(default=column.default)
+
+
+            print('default', column.column_name, default)
+            if default is None:
+                default = ""
 
             length_string = (
                 self.create_column_length(column.column_type).format(
@@ -194,8 +208,6 @@ class BaseGrammar:
                 if column.length
                 else ""
             )
-
-            default_value = self.timestamp_mapping.get(column.default, column.default)
 
             if hasattr(self, f"_type_{column.column_type}"):
                 sql += getattr(self, f"_type_{column.column_type}")(
@@ -207,28 +219,21 @@ class BaseGrammar:
                 "column": self._compile_column(column.column_name),
                 "data_type": self.type_map.get(column.column_type),
                 "length": length_string,
+                "nullable": " ",
+                "default_value": default,
             }
-            if default_value and not column.is_null:
-                attributes.update({"default_value": default_value})
-                sql += self.create_column_string_with_default().format(**attributes)
-            else:
-                """Check if this data type has a default column type mapping on the grammar class.
-                """
-                if hasattr(self, f"{column.column_type}_null_map"):
-                    attributes.update(
-                        {
-                            "nullable": " "
-                            + getattr(self, f"{column.column_type}_null_map")[
-                                "null" if column.is_null else "not_null"
-                            ]
-                        }
-                    )
-                else:
-                    attributes.update(
-                        {"nullable": "" if column.is_null else " NOT NULL"}
-                    )
 
-                sql += self.create_column_string().format(**attributes)
+            
+
+            if not column.is_null:
+                attributes.update({
+                    'nullable': " NOT NULL"
+                })
+            else:
+                attributes.update({
+                    'nullable': " NULL"
+                })
+            sql += self.create_column_string().format(**attributes)
 
         if not self._constraints:
             sql = sql.rstrip(", ")
@@ -753,7 +758,6 @@ class BaseGrammar:
                 query_value = query_value.rstrip(",").rstrip(", ") + ")"
             elif qmark:
                 query_value = "'?'"
-                print("qmark", value)
                 if value is not True and value_type != "value_equals":
                     self.add_binding(value)
             elif value_type == "value":

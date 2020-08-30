@@ -39,6 +39,15 @@ class BaseTestCreateGrammar:
         )()
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_integer_with_default_length(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.integer("admin").default(0)
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_can_compile_not_null(self):
         with self.schema.create("users") as blueprint:
             blueprint.string("name")
@@ -388,7 +397,7 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return (
             "CREATE TABLE `users` ("
-            "`name` VARCHAR(255), "
+            "`name` VARCHAR(255) NULL, "
             "`age` INT(11) NOT NULL"
             ")"
         )
@@ -436,7 +445,7 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.enum('age', [1,2,3]).nullable()
         """
 
-        return "CREATE TABLE `users` (" "`age` ENUM('1','2','3')" ")"
+        return "CREATE TABLE `users` (" "`age` ENUM('1','2','3') NULL" ")"
 
     def unique_constraint(self):
         """
@@ -559,6 +568,17 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return "ALTER TABLE `users` " "DROP COLUMN `name`"
 
+    def integer_with_default_length(self):
+        """
+        with self.schema.table('users') as blueprint:
+            blueprint.drop_column('name')
+        """
+
+        return (
+            "CREATE TABLE `users` "
+            "(`admin` INT(11) NOT NULL DEFAULT 0)"
+        )
+
     def drop_multiple_column(self):
         """
         with self.schema.table('users') as blueprint:
@@ -598,7 +618,7 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             "`name` VARCHAR(255) NOT NULL, "
             "`email` VARCHAR(255) NOT NULL, "
             "`password` VARCHAR(255) NOT NULL, "
-            "`age` INT(11), "
+            "`age` INT(11) NULL, "
             "`quantity` INT UNSIGNED NOT NULL, "
             "`type` ENUM('Open','Closed') NOT NULL, "
             "`pick_up` DATETIME NOT NULL, "
@@ -608,7 +628,7 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             "`birthday` DATE NOT NULL, "
             "`credit` DECIMAL(17, 6) NOT NULL, "
             "`description` TEXT NOT NULL, "
-            "`bank` INT UNSIGNED, "
+            "`bank` INT UNSIGNED NULL, "
             "`percentage` DOUBLE NOT NULL, "
             "`clicks` BIGINT AUTO_INCREMENT NOT NULL)"
         )
@@ -642,8 +662,8 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return (
             "CREATE TABLE `users` ("
-            "`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
-            "`updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+            "`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
+            "`updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
             ")"
         )
 
@@ -653,7 +673,7 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.timestamp('logged_at', now=True)
         """
 
-        return "CREATE TABLE `users` (" "`logged_at` TIMESTAMP DEFAULT NOW()" ")"
+        return "CREATE TABLE `users` (" "`logged_at` TIMESTAMP NOT NULL DEFAULT NOW()" ")"
 
     def can_compile_timestamp_column_without_default(self):
         """
@@ -663,7 +683,7 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return (
             "CREATE TABLE `users` ("
-            "`logged_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+            "`logged_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
             ")"
         )
 
@@ -677,10 +697,10 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return (
             "CREATE TABLE `users` ("
-            "`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
-            "`updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
-            "`logged_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
-            "`expirated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+            "`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
+            "`updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
+            "`logged_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
+            "`expirated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
             ")"
         )
 
@@ -692,7 +712,7 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         """
         return (
             "CREATE TABLE `users` ("
-            "`logged_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+            "`logged_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
             "`expirated_at` TIMESTAMP NULL DEFAULT NULL"
             ")"
         )

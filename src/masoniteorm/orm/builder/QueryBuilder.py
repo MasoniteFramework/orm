@@ -798,6 +798,9 @@ class QueryBuilder:
         return self
 
     def with_(self, eagers=()):
+        if not isinstance(eagers, (tuple, list)):
+            eagers = (eagers,)
+            
         self._eager_loads += tuple(eagers)
         return self
 

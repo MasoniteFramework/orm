@@ -112,6 +112,132 @@ class Column:
         self.default = "current"
         return self
 
+class BaseColumn:
+
+    def __init__(
+        self,
+        column_name,
+        table=None,
+        length=None,
+        nullable=False,
+        action="add",
+        default=None,
+    ):
+        self.column_name = column_name
+        self.length = length
+        self.table = table
+        self.is_null = nullable
+        self.is_constraint = False
+        self.constraint_type = None
+        self.after_column = None
+        self.old_column = ""
+        self.use_current_timestamp = False
+        self.default = default
+        self._action = action
+        self._change = False
+
+    def nullable(self):
+        """Sets this column to be nullable
+
+        Returns:
+            self
+        """
+        self.is_null = True
+        return self
+
+    def not_nullable(self):
+        """Sets this column to be not nullable
+
+        Returns:
+            self
+        """
+        self.is_null = False
+        return self
+
+    def unique(self):
+        """Sets this column to be unique
+
+        Returns:
+            self
+        """
+        self.is_constraint = True
+        self.constraint_type = "unique"
+        return self
+
+    def rename(self, column):
+        """Renames this column to a new name
+
+        Arguments:
+            column {string} -- The old column name
+
+        Returns:
+            self
+        """
+        self.old_column = column
+        return self
+
+    def after(self, after_column):
+        """Sets the column that this new column should be created after.
+
+        This is useful for setting the location of the new column in the table schema.
+
+        Arguments:
+            after_column {string} -- The column that this new column should be created after
+
+        Returns:
+            self
+        """
+        self.after_column = after_column
+        return self
+
+    def default(self, value):
+        """Sets a default value for this column
+
+        Arguments:
+            value {string} -- A default value.
+
+        Returns:
+            self
+        """
+        self.default = value
+        return self
+
+    def change(self):
+        """Sets the schema to create a modify sql statement.
+
+        Returns:
+            self
+        """
+        self._action = "modify"
+        return self
+
+
+class TimestampColumn(BaseColumn):
+
+    column_type = 'timestamp'
+
+    def nullable(self):
+        """Sets this column to be nullable
+
+        Returns:
+            self
+        """
+        self.is_null = True
+        self.default = "null"
+        return self
+
+
+    def use_current(self):
+        """Sets the column to use a current timestamp.
+
+        Used for timestamp columns.
+
+        Returns:
+            self
+        """
+        self.default = "current"
+        return self
+
 
 class Constraint:
     def __init__(self, column, constraint_type, action="create"):
@@ -203,7 +329,7 @@ class Blueprint:
         length=255,
         nullable=False,
         action="add",
-        default=False,
+        default=None,
     ):
         """Creates a new column and sets the appropriate attributes for creating, modifying or altering the column.
 
@@ -223,14 +349,19 @@ class Blueprint:
         if length == 255:
             length = self._default_string_length or length
 
-        return Column(
+        return ColumnFactory().make(
             column_type,
-            column,
+            column_name=column,
             table=self.table,
             length=length,
             nullable=nullable,
             action=action,
             default=default,
+        )
+
+    def new_timestamp_column(self, column_name, default=None):
+        return ColumnFactory().make(
+            "timestamp", column_name=column_name, default=default
         )
 
     def integer(self, column, length=11, nullable=False):
@@ -320,6 +451,10 @@ class Blueprint:
         self._columns += (self._last_column,)
         return self
 
+    def default(self, value):
+        self._last_column.default = value
+        return self
+
     def char(self, column, length=1, nullable=False):
         """Sets a column to be the char representation for the table.
 
@@ -369,7 +504,7 @@ class Blueprint:
         self._columns += (self._last_column,)
         return self
 
-    def timestamp(self, column, nullable=False, now=False):
+    def timestamp(self, column, nullable=False, now=None):
         """Sets a column to be the timestamp representation for the table.
 
         Arguments:
@@ -385,9 +520,7 @@ class Blueprint:
         if now:
             now = "now"
 
-        self._last_column = self.new_column(
-            "timestamp", column, None, nullable, default=now
-        )
+        self._last_column = self.new_timestamp_column(column, default=now)
 
         if not now:
             self._last_column.use_current()
@@ -822,3 +955,21 @@ class Blueprint:
                 Constraint(index, constraint_type="foreign", action="drop"),
             )
         return self
+
+
+class ColumnFactory:
+
+    columns = {
+        "timestamp": TimestampColumn, 
+        "default": Column
+    }
+
+    def make(
+        self,
+        column_type,
+        **kwargs
+    ):
+        if column_type not in self.columns:
+            return self.columns['default'](column_type, **kwargs)
+        else:
+            return self.columns[column_type](**kwargs)

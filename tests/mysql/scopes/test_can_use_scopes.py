@@ -46,7 +46,7 @@ class TestMySQLScopes(unittest.TestCase):
         )
 
     def test_can_use_global_scopes_on_select(self):
-        sql = "SELECT * FROM `users` WHERE `users`.`name` = 'joe' AND `users`.`deleted_at` IS NOT NULL"
+        sql = "SELECT * FROM `users` WHERE `users`.`name` = 'joe' AND `users`.`deleted_at` IS NULL"
         self.assertEqual(
             sql, User.apply_scope(SoftDeletes).where("name", "joe").to_sql()
         )
@@ -68,5 +68,5 @@ class TestMySQLScopes(unittest.TestCase):
         )
 
     def test_can_use_global_scopes_on_inherit(self):
-        sql = "SELECT * FROM `user_softs` WHERE `user_softs`.`deleted_at` IS NOT NULL"
+        sql = "SELECT * FROM `user_softs` WHERE `user_softs`.`deleted_at` IS NULL"
         self.assertEqual(sql, UserSoft.all(query=True))

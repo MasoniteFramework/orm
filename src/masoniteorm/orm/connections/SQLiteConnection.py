@@ -77,7 +77,7 @@ class SQLiteConnection(BaseConnection):
             dict|None -- Returns a dictionary of results or None
         """
         query = query.replace("'?'", "?")
-        print("running query: ", query)
+        print("running query: ", query, bindings)
         try:
             cursor = self.__class__._connection.cursor()
             cursor.execute(query, bindings)

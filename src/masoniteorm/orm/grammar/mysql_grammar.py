@@ -97,11 +97,18 @@ class MySQLGrammar(BaseGrammar):
         "delete": "`{table}`.`{column}`{separator}",
     }
 
-    timestamp_mapping = {"current": "CURRENT_TIMESTAMP", "now": "NOW()"}
+    premapped_defaults = {
+        "current": " DEFAULT CURRENT_TIMESTAMP", 
+        "now": " DEFAULT NOW()",
+        "null": " DEFAULT NULL",
+    }
+
+    premapped_nulls = {
+        "null": " NULL ",
+        "not_null": " NOT NULL ",
+    }
 
     timestamp_null_map = {
-        "null": "NULL DEFAULT NULL",
-        "not_null": "NOT NULL DEFAULT CURRENT_TIMESTAMP",
     }
 
     def select_format(self):
@@ -153,10 +160,10 @@ class MySQLGrammar(BaseGrammar):
         return "{column} = {column} - '{value}'"
 
     def create_column_string(self):
-        return "{column} {data_type}{length}{nullable}, "
+        return "{column} {data_type}{length}{nullable}{default_value}, "
 
-    def create_column_string_with_default(self):
-        return "{column} {data_type}{length} DEFAULT {default_value}, "
+    def default_string(self):
+        return " DEFAULT {default} "
 
     def column_exists_string(self):
         return "SHOW COLUMNS FROM {table} LIKE {value}"
@@ -165,7 +172,7 @@ class MySQLGrammar(BaseGrammar):
         return "SELECT * from information_schema.tables where table_name='{clean_table}' AND table_schema = '{database}'"
 
     def add_column_string(self):
-        return "ADD {column} {data_type}{length}{nullable} {after}, "
+        return "ADD {column} {data_type}{length}{nullable} {after}{separator} "
 
     def drop_column_string(self):
         return "DROP COLUMN {column}, "

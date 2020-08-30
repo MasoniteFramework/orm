@@ -348,9 +348,9 @@ class BaseTestCreateGrammar:
         self.assertEqual(blueprint.to_sql(), sql)
 
 
-class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
+class TestSqliteCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
     def setUp(self):
-        self.schema = Schema.dry().on("postgres")
+        self.schema = Schema.dry().on("sqlite")
 
     def can_compile_column(self):
         """
@@ -478,7 +478,7 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return (
             """CREATE TABLE "users" ("""
-            """\"id" INTEGER NOT NULL, """
+            """\"id" INTEGER(11) NOT NULL, """
             """\"name" VARCHAR(255) NOT NULL, """
             """PRIMARY KEY ("id")"""
             """)"""
@@ -529,7 +529,7 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
         """
         self.schema.has_table('users', query_only=True)
         """
-        return "SELECT * from information_schema.tables where table_name='users'"
+        return "SELECT name FROM sqlite_master WHERE type='table' AND name='users'"
 
     def drop_table(self):
         """

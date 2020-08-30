@@ -29,7 +29,7 @@ class SQLiteGrammar(BaseGrammar):
     type_map = {
         "string": "VARCHAR",
         "char": "CHAR",
-        "integer": "INT",
+        "integer": "INTEGER",
         "big_integer": "BIGINT",
         "tiny_integer": "TINYINT",
         "big_increments": "BIGINT",
@@ -78,13 +78,17 @@ class SQLiteGrammar(BaseGrammar):
     }
 
     options = {
-        "create_constraints_as_separate_queries": False,  # Whether constraints should run as separate queries or part of the create table semantics
-        "alter_constraints_as_separate_queries": False,  # Whether constraints should run as separate queries or part of the alter table semantics
+        "create_constraints_as_separate_queries": True,  # Whether constraints should run as separate queries or part of the create table semantics
+        "alter_constraints_as_separate_queries": True,  # Whether constraints should run as separate queries or part of the alter table semantics
         "second_query_constraints": (),  # constraint types that should run as separate queries
         "can_compile_multiple_index": True,  # INDEX("column1", "column2")
     }
 
-    timestamp_mapping = {"current": "CURRENT_TIMESTAMP", "now": "NOW()"}
+    premapped_defaults = {
+        "current": " DEFAULT CURRENT_TIMESTAMP", 
+        "now": " DEFAULT NOW()",
+        "null": " DEFAULT NULL",
+    }
 
     def select_format(self):
         return "SELECT {columns} FROM {table} {joins} {wheres} {group_by}{order_by} {limit} {offset} {having}"

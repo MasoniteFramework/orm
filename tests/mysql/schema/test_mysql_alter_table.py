@@ -24,6 +24,14 @@ class TestMySQLAlterGrammar(unittest.TestCase):
         sql = "ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL, ADD `age` VARCHAR(255)"
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_can_add_column_and_foreign_key(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.unsigned_integer('playlist_id').nullable()
+            blueprint.foreign('playlist_id').references('id').on('playlists')
+
+        sql = "ALTER TABLE `users` ADD `playlist_id` INT UNSIGNED, ADD CONSTRAINT users_playlist_id_foreign FOREIGN KEY (`playlist_id`) REFERENCES `playlists`(`id`)"
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_can_alter_after_column(self):
         with self.schema.table("users") as blueprint:
             blueprint.string("name")
