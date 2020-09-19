@@ -227,7 +227,6 @@ class BaseGrammar:
             print(attributes)
             sql += self.create_column_string().format(**attributes)
 
-
         if not self._constraints:
             sql = sql.rstrip(", ")
         return sql.strip()
@@ -301,7 +300,7 @@ class BaseGrammar:
             ):
                 self._compile_create_constraint_as_query(column)
                 continue
-            print('here')
+            print("here")
             sql += getattr(
                 self, "{}_constraint_string".format(column.constraint_type)
             )().format(
@@ -363,10 +362,10 @@ class BaseGrammar:
             ) and column.constraint_type in self.options.get(
                 "second_query_constraints"
             ):
-                print('different queries')
+                print("different queries")
                 self._compile_alter_constraint_as_query(column, column.action)
                 continue
-            print('not different queries')
+            print("not different queries")
             sql += getattr(
                 self,
                 "{}_{}_column_string".format(column.action, column.constraint_type,),

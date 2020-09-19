@@ -359,7 +359,7 @@ class Blueprint:
         )
 
     def new_timestamp_column(self, column_name, default=None):
-        print('new column', 'default', default)
+        print("new column", "default", default)
         return ColumnFactory().make(
             "timestamp", column_name=column_name, default=default
         )

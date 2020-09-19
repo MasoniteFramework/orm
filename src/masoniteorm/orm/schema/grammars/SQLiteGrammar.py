@@ -55,7 +55,10 @@ class SQLiteGrammar(BaseGrammar):
     options = {
         "create_constraints_as_separate_queries": True,  # Whether constraints should run as separate queries or part of the create table semantics
         "alter_constraints_as_separate_queries": True,  # Whether constraints should run as separate queries or part of the alter table semantics
-        "second_query_constraints": ("index", "fulltext"),  # constraint types that should run as separate queries
+        "second_query_constraints": (
+            "index",
+            "fulltext",
+        ),  # constraint types that should run as separate queries
         "can_compile_multiple_index": False,  # INDEX("column1", "column2")
     }
 

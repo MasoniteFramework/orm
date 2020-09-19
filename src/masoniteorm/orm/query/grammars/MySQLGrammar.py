@@ -55,7 +55,6 @@ class MySQLGrammar(BaseGrammar):
         "unsigned_integer": "INT UNSIGNED",
     }
 
-
     """Column strings are formats for how columns and key values should be formatted
     on specific queries. These can be different depending on the type of query.
 
@@ -78,7 +77,6 @@ class MySQLGrammar(BaseGrammar):
         "update": "`{table}`.`{column}`{separator}",
         "delete": "`{table}`.`{column}`{separator}",
     }
-
 
     def select_format(self):
         return "SELECT {columns} FROM {table} {joins} {wheres} {group_by}{order_by} {limit} {offset} {having}"
