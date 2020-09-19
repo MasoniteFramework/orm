@@ -352,7 +352,6 @@ class BaseTestQueryBuilder:
         self.assertEqual(builder.to_sql(), sql)
 
 
-
 class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
 
     grammar = SQLiteGrammar
@@ -611,4 +610,3 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
             builder.where('age', '20').or_where('age','<', 20)
         """
         return """SELECT * FROM "users" WHERE "users"."age" = '20' OR "users"."age" < '20'"""
-

@@ -98,7 +98,7 @@ class MySQLGrammar(BaseGrammar):
     }
 
     premapped_defaults = {
-        "current": " DEFAULT CURRENT_TIMESTAMP", 
+        "current": " DEFAULT CURRENT_TIMESTAMP",
         "now": " DEFAULT NOW()",
         "null": " DEFAULT NULL",
     }
@@ -108,8 +108,7 @@ class MySQLGrammar(BaseGrammar):
         "not_null": " NOT NULL ",
     }
 
-    timestamp_null_map = {
-    }
+    timestamp_null_map = {}
 
     def select_format(self):
         return "SELECT {columns} FROM {table} {joins} {wheres} {group_by}{order_by} {limit} {offset} {having}"

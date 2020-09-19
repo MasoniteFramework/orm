@@ -71,7 +71,6 @@ class QueryBuilder:
             driver = connection_dictionary.get("driver")
             self.connection = ConnectionFactory().make(driver)
             self.grammar = GrammarFactory().make(grammar)
-        
 
         if self.connection:
             self.connection = self.connection().make_connection()
@@ -124,7 +123,7 @@ class QueryBuilder:
         Returns:
             self
         """
-        print('here', self.connection)
+        print("here", self.connection)
         return self.get_connection().begin()
 
     def begin_transaction(self, *args, **kwargs):
@@ -366,7 +365,11 @@ class QueryBuilder:
         if inspect.isfunction(column):
             builder = column(self.new())
             self._wheres += (
-                (QueryExpression(None, operator, SubGroupExpression(builder), keyword="or")),
+                (
+                    QueryExpression(
+                        None, operator, SubGroupExpression(builder), keyword="or"
+                    )
+                ),
             )
         elif isinstance(value, QueryBuilder):
             self._wheres += (
@@ -803,7 +806,7 @@ class QueryBuilder:
     def with_(self, eagers=()):
         if not isinstance(eagers, (tuple, list)):
             eagers = (eagers,)
-            
+
         self._eager_loads += tuple(eagers)
         return self
 
@@ -924,7 +927,7 @@ class QueryBuilder:
                 continue
 
             scope(self.owner, self)
-        print('compile to sql')
+        print("compile to sql")
         grammar = self.get_grammar()
         sql = grammar.compile(self._action).to_sql()
         self.boot()
@@ -965,7 +968,9 @@ class QueryBuilder:
             QueryBuilder -- The ORM QueryBuilder class.
         """
         builder = QueryBuilder(
-            grammar=self.grammar, connection=self.connection.__class__, table=self._table
+            grammar=self.grammar,
+            connection=self.connection.__class__,
+            table=self._table,
         )
 
         return builder

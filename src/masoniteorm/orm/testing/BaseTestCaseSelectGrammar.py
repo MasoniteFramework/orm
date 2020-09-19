@@ -3,17 +3,20 @@ import inspect
 from ..builder import QueryBuilder
 from ..grammar import GrammarFactory
 
+
 class MockConnection:
 
     connection_details = {}
-    
+
     def make_connection(self):
         return self
 
 
 class BaseTestCaseSelectGrammar:
     def setUp(self):
-        self.builder = QueryBuilder(GrammarFactory.make(self.grammar), table="users", connection=MockConnection)
+        self.builder = QueryBuilder(
+            GrammarFactory.make(self.grammar), table="users", connection=MockConnection
+        )
 
     def test_can_compile_select(self):
         to_sql = self.builder.to_sql()

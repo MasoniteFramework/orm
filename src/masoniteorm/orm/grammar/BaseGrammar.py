@@ -96,7 +96,7 @@ class BaseGrammar:
             foreign_keys=self._compile_alter_foreign_keys(),
         )
 
-        self._sql = self._sql.rstrip(', ')
+        self._sql = self._sql.rstrip(", ")
 
         return self
 
@@ -196,8 +196,7 @@ class BaseGrammar:
             elif default is not None:
                 default = self.default_string().format(default=column.default)
 
-
-            print('default', column.column_name, default)
+            print("default", column.column_name, default)
             if default is None:
                 default = ""
 
@@ -223,16 +222,10 @@ class BaseGrammar:
                 "default_value": default,
             }
 
-            
-
             if not column.is_null:
-                attributes.update({
-                    'nullable': " NOT NULL"
-                })
+                attributes.update({"nullable": " NOT NULL"})
             else:
-                attributes.update({
-                    'nullable': " NULL"
-                })
+                attributes.update({"nullable": " NULL"})
             sql += self.create_column_string().format(**attributes)
 
         if not self._constraints:
@@ -535,6 +528,7 @@ class BaseGrammar:
         for aggregates in self._aggregates:
             aggregate, column = aggregates
             aggregate_function = self.aggregate_options.get(aggregate, "")
+
             if column == "*":
                 aggregate_string = self.aggregate_string_without_alias()
             else:
@@ -665,115 +659,115 @@ class BaseGrammar:
         """
         sql = ""
         loop_count = 0
-        for where in self._wheres:
-            column = where.column
-            equality = where.equality
-            value = where.value
-            value_type = where.value_type
+        # for where in self._wheres:
+        #     column = where.column
+        #     equality = where.equality
+        #     value = where.value
+        #     value_type = where.value_type
 
-            """Need to get a specific keyword here. This keyword either needs to be
-            something like WHERE, AND, OR.
+        #     """Need to get a specific keyword here. This keyword either needs to be
+        #     something like WHERE, AND, OR.
 
-            Depending on the loop depends on the placement of the AND
-            """
-            if loop_count == 0:
-                if strip_first_where:
-                    keyword = ""
-                else:
-                    keyword = self.first_where_string()
-            elif where.keyword == "or":
-                keyword = self.or_where_string()
-            else:
-                keyword = " " + self.additional_where_string()
+        #     Depending on the loop depends on the placement of the AND
+        #     """
+        #     if loop_count == 0:
+        #         if strip_first_where:
+        #             keyword = ""
+        #         else:
+        #             keyword = self.first_where_string()
+        #     elif where.keyword == "or":
+        #         keyword = self.or_where_string()
+        #     else:
+        #         keyword = " " + self.additional_where_string()
 
-            if where.raw:
-                """If we have a raw query we just want to use the query supplied
-                and don't need to compile anything.
-                """
-                sql += self.raw_query_string().format(
-                    keyword=keyword, query=where.column
-                )
+        #     if where.raw:
+        #         """If we have a raw query we just want to use the query supplied
+        #         and don't need to compile anything.
+        #         """
+        #         sql += self.raw_query_string().format(
+        #             keyword=keyword, query=where.column
+        #         )
 
-                self.add_binding(where.bindings)
+        #         self.add_binding(where.bindings)
 
-                continue
+        #         continue
 
-            """The column is an easy compile
-            """
-            column = self._table_column_string(column)
+        #     """The column is an easy compile
+        #     """
+        #     column = self._table_column_string(column)
 
-            """Need to find which type of where string it is.
-            If it is a WHERE NULL, WHERE EXISTS, WHERE `col` = 'val' etc
-            """
-            if equality == "BETWEEN":
-                sql_string = self.between_string().format(
-                    low=self._compile_value(where.low),
-                    high=self._compile_value(where.high),
-                    column=self._table_column_string(where.column),
-                    keyword=keyword,
-                )
-            elif equality == "NOT BETWEEN":
-                sql_string = self.not_between_string().format(
-                    low=self._compile_value(where.low),
-                    high=self._compile_value(where.high),
-                    column=self._table_column_string(where.column),
-                    keyword=keyword,
-                )
-            elif value_type == "value_equals":
-                sql_string = self.value_equal_string().format(
-                    value1=where.column, value2=where.value, keyword=keyword
-                )
-            elif value_type == "NULL":
-                sql_string = self.where_null_string()
-            elif value_type == "NOT NULL":
-                sql_string = self.where_not_null_string()
-            elif equality == "EXISTS":
-                sql_string = self.where_exists_string()
-            else:
-                sql_string = self.where_string()
+        #     """Need to find which type of where string it is.
+        #     If it is a WHERE NULL, WHERE EXISTS, WHERE `col` = 'val' etc
+        #     """
+        #     if equality == "BETWEEN":
+        #         sql_string = self.between_string().format(
+        #             low=self._compile_value(where.low),
+        #             high=self._compile_value(where.high),
+        #             column=self._table_column_string(where.column),
+        #             keyword=keyword,
+        #         )
+        #     elif equality == "NOT BETWEEN":
+        #         sql_string = self.not_between_string().format(
+        #             low=self._compile_value(where.low),
+        #             high=self._compile_value(where.high),
+        #             column=self._table_column_string(where.column),
+        #             keyword=keyword,
+        #         )
+        #     elif value_type == "value_equals":
+        #         sql_string = self.value_equal_string().format(
+        #             value1=where.column, value2=where.value, keyword=keyword
+        #         )
+        #     elif value_type == "NULL":
+        #         sql_string = self.where_null_string()
+        #     elif value_type == "NOT NULL":
+        #         sql_string = self.where_not_null_string()
+        #     elif equality == "EXISTS":
+        #         sql_string = self.where_exists_string()
+        #     else:
+        #         sql_string = self.where_string()
 
-            """If the value should actually be a sub query then we need to wrap it in a query here
-            """
-            if isinstance(value, SubGroupExpression):
-                query_value = self.subquery_string().format(
-                    query=value.builder.get_grammar()._compile_wheres(
-                        strip_first_where=True
-                    )
-                )
-                sql_string = self.where_group_string()
-            elif isinstance(value, SubSelectExpression):
-                query_value = self.subquery_string().format(
-                    query=value.builder.to_sql()
-                )
-            elif isinstance(value, list):
-                query_value = "("
-                for val in value:
-                    if qmark:
-                        query_value += "'?', "
-                        self.add_binding(val)
-                    else:
-                        query_value += self.value_string().format(
-                            value=val, separator=","
-                        )
-                query_value = query_value.rstrip(",").rstrip(", ") + ")"
-            elif qmark:
-                query_value = "'?'"
-                if value is not True and value_type != "value_equals":
-                    self.add_binding(value)
-            elif value_type == "value":
-                query_value = self.value_string().format(value=value, separator="")
-            elif value_type == "column":
-                query_value = self._table_column_string(column=value, separator="")
-            elif value_type == "having":
-                query_value = self._table_column_string(column=value, separator="")
-            else:
-                query_value = ""
+        #     """If the value should actually be a sub query then we need to wrap it in a query here
+        #     """
+        #     if isinstance(value, SubGroupExpression):
+        #         query_value = self.subquery_string().format(
+        #             query=value.builder.get_grammar()._compile_wheres(
+        #                 strip_first_where=True
+        #             )
+        #         )
+        #         sql_string = self.where_group_string()
+        #     elif isinstance(value, SubSelectExpression):
+        #         query_value = self.subquery_string().format(
+        #             query=value.builder.to_sql()
+        #         )
+        #     elif isinstance(value, list):
+        #         query_value = "("
+        #         for val in value:
+        #             if qmark:
+        #                 query_value += "'?', "
+        #                 self.add_binding(val)
+        #             else:
+        #                 query_value += self.value_string().format(
+        #                     value=val, separator=","
+        #                 )
+        #         query_value = query_value.rstrip(",").rstrip(", ") + ")"
+        #     elif qmark:
+        #         query_value = "'?'"
+        #         if value is not True and value_type != "value_equals":
+        #             self.add_binding(value)
+        #     elif value_type == "value":
+        #         query_value = self.value_string().format(value=value, separator="")
+        #     elif value_type == "column":
+        #         query_value = self._table_column_string(column=value, separator="")
+        #     elif value_type == "having":
+        #         query_value = self._table_column_string(column=value, separator="")
+        #     else:
+        #         query_value = ""
 
-            sql += sql_string.format(
-                keyword=keyword, column=column, equality=equality, value=query_value,
-            )
+        #     sql += sql_string.format(
+        #         keyword=keyword, column=column, equality=equality, value=query_value,
+        #     )
 
-            loop_count += 1
+        #     loop_count += 1
 
         return sql
 
@@ -850,21 +844,22 @@ class BaseGrammar:
             self
         """
         sql = ""
-        if self._columns != "*":
-            for column in self._columns:
-                if isinstance(column, SelectExpression):
-                    if column.raw:
-                        sql += column.column
-                        continue
+        for column in self._columns:
+            if isinstance(column, SelectExpression):
+                if column.raw:
+                    sql += column.column
+                    continue
 
-                    column = column.column
-                sql += self._table_column_string(column, separator=separator)
+                column = column.column
+
+            sql += self._table_column_string(column, separator=separator)
 
         if self._aggregates:
             sql += self._compile_aggregates()
 
         if sql == "":
             return "*"
+
         return sql.rstrip(",").rstrip(", ")
 
     def _compile_insert_columns(self, separator=""):

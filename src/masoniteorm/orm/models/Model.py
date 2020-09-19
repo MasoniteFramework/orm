@@ -448,7 +448,7 @@ class Model:
 
     def _current_timestamp(self):
         return datetime.now()
-    
+
     def __call__(self):
         return self.builder
 

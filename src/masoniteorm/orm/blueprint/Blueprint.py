@@ -112,8 +112,8 @@ class Column:
         self.default = "current"
         return self
 
-class BaseColumn:
 
+class BaseColumn:
     def __init__(
         self,
         column_name,
@@ -214,7 +214,7 @@ class BaseColumn:
 
 class TimestampColumn(BaseColumn):
 
-    column_type = 'timestamp'
+    column_type = "timestamp"
 
     def nullable(self):
         """Sets this column to be nullable
@@ -225,7 +225,6 @@ class TimestampColumn(BaseColumn):
         self.is_null = True
         self.default = "null"
         return self
-
 
     def use_current(self):
         """Sets the column to use a current timestamp.
@@ -959,17 +958,10 @@ class Blueprint:
 
 class ColumnFactory:
 
-    columns = {
-        "timestamp": TimestampColumn, 
-        "default": Column
-    }
+    columns = {"timestamp": TimestampColumn, "default": Column}
 
-    def make(
-        self,
-        column_type,
-        **kwargs
-    ):
+    def make(self, column_type, **kwargs):
         if column_type not in self.columns:
-            return self.columns['default'](column_type, **kwargs)
+            return self.columns["default"](column_type, **kwargs)
         else:
             return self.columns[column_type](**kwargs)

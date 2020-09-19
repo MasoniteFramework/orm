@@ -85,7 +85,7 @@ class SQLiteGrammar(BaseGrammar):
     }
 
     premapped_defaults = {
-        "current": " DEFAULT CURRENT_TIMESTAMP", 
+        "current": " DEFAULT CURRENT_TIMESTAMP",
         "now": " DEFAULT NOW()",
         "null": " DEFAULT NULL",
     }
