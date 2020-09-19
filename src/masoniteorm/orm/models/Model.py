@@ -6,7 +6,7 @@ from inflection import tableize
 from ..builder import QueryBuilder
 from ..collection import Collection
 from ..connections import ConnectionFactory
-from ..grammar import MySQLGrammar
+from ..query.grammars import MySQLGrammar
 
 
 class BoolCast:

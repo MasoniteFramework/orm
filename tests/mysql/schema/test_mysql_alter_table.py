@@ -1,6 +1,6 @@
 from src.masoniteorm.orm.schema.grammars import MySQLGrammar
 from src.masoniteorm.orm.schema.Blueprint import Blueprint
-from src.masoniteorm.orm.grammar import GrammarFactory
+from src.masoniteorm.orm.query.grammars import GrammarFactory
 from src.masoniteorm.orm.schema import Schema
 import unittest
 
