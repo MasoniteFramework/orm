@@ -48,7 +48,7 @@ class Model(metaclass=ModelMeta):
     __hidden__ = []
     __timestamps__ = True
     _global_scopes = {}
-    _scopes = {}
+
     date_created_at = "created_at"
     date_updated_at = "updated_at"
 
@@ -78,6 +78,7 @@ class Model(metaclass=ModelMeta):
         self.__dirty_attributes__ = {}
         self._relationships = {}
         self.__appends__ = []
+        self._scopes = {}
 
         self.__resolved_connection__ = ConnectionFactory().make(self.__connection__)
 
@@ -170,12 +171,10 @@ class Model(metaclass=ModelMeta):
         Returns:
             cls
         """
-        print(self)
         boot_methods = [
             v for k, v in scope_class.__dict__.items() if k.startswith("boot_")
         ]
 
-        print("boot methods", boot_methods)
 
         for method in boot_methods:
             for action, value in method().items():
@@ -321,7 +320,6 @@ class Model(metaclass=ModelMeta):
                 if key in model.get_dates():
                     value = model.get_new_date(value)
                 dic.update({key: value})
-            print("dic", dic, model.__attributes__)
             model.__attributes__.update(dic or {})
             return model.add_relations(relations)
         elif hasattr(dictionary, "serialize"):
@@ -329,7 +327,6 @@ class Model(metaclass=ModelMeta):
             model.__attributes__.update(dictionary.serialize())
             return model
         else:
-            print("here too")
             model = cls()
             model.__attributes__.update(dict(dictionary))
             return model
@@ -343,7 +340,6 @@ class Model(metaclass=ModelMeta):
 
     @classmethod
     def create(cls, dictionary={}, query=False, **kwargs):
-        print("create", cls, dictionary)
         if not dictionary:
             dictionary = kwargs
 
@@ -426,7 +422,6 @@ class Model(metaclass=ModelMeta):
         return datetime.now()
 
     # def __call__(self):
-    #     print('called it')
     #     return self.builder
 
     @staticmethod
@@ -436,7 +431,6 @@ class Model(metaclass=ModelMeta):
     def __getattr__(self, attribute):
 
         if attribute in self.__passthrough__:
-            print("pass throughs", attribute)
 
             def method(*args, **kwargs):
                 return getattr(self.get_builder(), attribute)(*args, **kwargs)
