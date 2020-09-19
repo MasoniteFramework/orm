@@ -11,7 +11,7 @@ from tests.utils import MockConnectionFactory
 class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("sqlite")
-        return QueryBuilder(self.grammar, connection, table=table, owner=Model)
+        return QueryBuilder(self.grammar, connection=connection, table=table)
 
     def test_sum(self):
         builder = self.get_builder()
@@ -351,13 +351,6 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
-    def test_subgroup(self):
-        builder = self.get_builder()
-        builder.where(lambda q: q.where('age', 1))
-        sql = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
-        self.assertEqual(builder.to_sql(), sql)
 
 
 class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
@@ -619,9 +612,3 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         return """SELECT * FROM "users" WHERE "users"."age" = '20' OR "users"."age" < '20'"""
 
-    def subgroup(self):
-        """
-            builder = self.get_builder()
-            builder.where('age', '20').or_where('age','<', 20)
-        """
-        return """SELECT * FROM "users" WHERE ("users"."age" = '1')"""

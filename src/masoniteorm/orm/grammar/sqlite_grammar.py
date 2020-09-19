@@ -91,7 +91,7 @@ class SQLiteGrammar(BaseGrammar):
     }
 
     def select_format(self):
-        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by}{order_by} {limit} {offset} {having}"
+        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by} {order_by} {limit} {offset} {having}"
 
     def update_format(self):
         return "UPDATE {table} SET {key_equals} {wheres}"
@@ -110,6 +110,9 @@ class SQLiteGrammar(BaseGrammar):
 
     def subquery_string(self):
         return "({query})"
+
+    def default_string(self):
+        return " DEFAULT {default} "
 
     def raw_query_string(self):
         return "{keyword} {query}"

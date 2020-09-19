@@ -51,12 +51,11 @@ class QueryBuilder:
         self._global_scopes = global_scopes
         if scopes:
             self._scopes.update(scopes)
-        self.boot()
-        self._updates = ()
         self.builder = self
-        self.set_action("select")
         self._should_eager = True
         self._eager_loads = eager_loads
+        self.boot()
+        self.set_action("select")
 
         # Get the connection and grammar class.
         if not self.grammar:
@@ -72,12 +71,10 @@ class QueryBuilder:
             driver = connection_dictionary.get("driver")
             self.connection = ConnectionFactory().make(driver)
             self.grammar = GrammarFactory().make(grammar)
+        
 
-        if self.connection and dry is not True:
+        if self.connection:
             self.connection = self.connection().make_connection()
-
-        if self.connection and dry is True:
-            self.connection = self.connection.dry()
 
         if not self.owner:
             from ..models import QueryResult
@@ -127,7 +124,8 @@ class QueryBuilder:
         Returns:
             self
         """
-        return self.connection.begin()
+        print('here', self.connection)
+        return self.get_connection().begin()
 
     def begin_transaction(self, *args, **kwargs):
         return self.begin(*args, **kwargs)

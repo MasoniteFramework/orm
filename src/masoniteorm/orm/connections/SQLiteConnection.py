@@ -50,7 +50,7 @@ class SQLiteConnection(BaseConnection):
         return self.__class__._connection.commit()
 
     def begin(self):
-        """Transaction
+        """Sqlite Transaction
         """
         print("starting sqlite transaction", self, self.__class__._connection)
         self.__class__._connection.isolation_level = "DEFERRED"

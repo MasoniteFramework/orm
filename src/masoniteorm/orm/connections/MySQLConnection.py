@@ -76,8 +76,9 @@ class MySQLConnection(BaseConnection):
         return self
 
     def begin(self):
-        """Transaction
+        """Mysql Transaction
         """
+
         return self._connection.begin()
 
     def rollback(self):

@@ -57,7 +57,7 @@ class PostgresConnection(BaseConnection):
         return self._connection.commit()
 
     def begin(self):
-        """Transaction
+        """Postgres Transaction
         """
         return self._connection.begin()
 
