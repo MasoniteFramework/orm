@@ -121,7 +121,7 @@ class Model:
         """Applies all parent scopes.
         """
 
-        print("booing parent scopes")
+        print("booting parent scopes")
 
         for parent in cls.__bases__:
             cls.apply_scope(parent)

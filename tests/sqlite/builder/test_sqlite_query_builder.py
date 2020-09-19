@@ -351,8 +351,16 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_subgroup(self):
+        builder = self.get_builder()
+        builder.where(lambda q: q.where('age', 1))
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
 
-class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
+
+class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
 
     grammar = SQLiteGrammar
 
@@ -610,3 +618,10 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
             builder.where('age', '20').or_where('age','<', 20)
         """
         return """SELECT * FROM "users" WHERE "users"."age" = '20' OR "users"."age" < '20'"""
+
+    def subgroup(self):
+        """
+            builder = self.get_builder()
+            builder.where('age', '20').or_where('age','<', 20)
+        """
+        return """SELECT * FROM "users" WHERE ("users"."age" = '1')"""

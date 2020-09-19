@@ -77,7 +77,7 @@ class QueryBuilder:
             self.connection = self.connection().make_connection()
 
         if self.connection and dry is True:
-            self.connection = self.connection().dry()
+            self.connection = self.connection.dry()
 
         if not self.owner:
             from ..models import QueryResult
@@ -365,7 +365,12 @@ class QueryBuilder:
             [type] -- [description]
         """
         operator, value = self._extract_operator_value(*args)
-        if isinstance(value, QueryBuilder):
+        if inspect.isfunction(column):
+            builder = column(self.new())
+            self._wheres += (
+                (QueryExpression(None, operator, SubGroupExpression(builder), keyword="or")),
+            )
+        elif isinstance(value, QueryBuilder):
             self._wheres += (
                 (QueryExpression(column, operator, SubSelectExpression(value))),
             )
@@ -921,7 +926,7 @@ class QueryBuilder:
                 continue
 
             scope(self.owner, self)
-
+        print('compile to sql')
         grammar = self.get_grammar()
         sql = grammar.compile(self._action).to_sql()
         self.boot()
@@ -962,7 +967,7 @@ class QueryBuilder:
             QueryBuilder -- The ORM QueryBuilder class.
         """
         builder = QueryBuilder(
-            grammar=self.grammar, connection=self.connection, table=self._table
+            grammar=self.grammar, connection=self.connection.__class__, table=self._table
         )
 
         return builder
