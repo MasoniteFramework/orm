@@ -920,14 +920,12 @@ class QueryBuilder:
             self
         """
 
-        if not self._action:
-            self.set_action("select")
         for scope in self._global_scopes.get(self.owner, {}).get(self._action, []):
             if not scope:
                 continue
 
             scope(self.owner, self)
-        print("compile to sql")
+
         grammar = self.get_grammar()
         sql = grammar.compile(self._action).to_sql()
         self.boot()

@@ -1,6 +1,6 @@
 import re
 
-from ..expressions.expressions import (
+from ...expressions.expressions import (
     SubGroupExpression,
     SubSelectExpression,
     SelectExpression,

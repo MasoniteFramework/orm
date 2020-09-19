@@ -661,6 +661,7 @@ class Blueprint:
         Returns:
             string -- The SQL statement generated.
         """
+        print(self.grammar)
         if self._action == "create":
             return (
                 self.grammar(

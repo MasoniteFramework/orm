@@ -1,5 +1,5 @@
 from ..connections.ConnectionFactory import ConnectionFactory
-from ..blueprint import Blueprint
+from .Blueprint import Blueprint
 
 
 class Schema:
@@ -51,7 +51,7 @@ class Schema:
         cls._table = table
 
         return Blueprint(
-            cls._connection.get_grammar(),
+            cls._connection.get_schema_grammar(),
             connection=cls._connection,
             table=table,
             action="create",
@@ -73,7 +73,7 @@ class Schema:
         """
         cls._table = table
         return Blueprint(
-            cls._connection.get_grammar(),
+            cls._connection.get_schema_grammar(),
             connection=cls._connection,
             table=table,
             action="alter",
@@ -91,7 +91,7 @@ class Schema:
         Returns:
             masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
-        grammar = cls._connection.get_grammar()(table=table)
+        grammar = cls._connection.get_schema_grammar()(table=table)
         query = grammar.column_exists(column).to_sql()
         if query_only:
             return query
@@ -104,7 +104,7 @@ class Schema:
 
     @classmethod
     def drop_table(cls, table, query_only=False):
-        grammar = cls._connection.get_grammar()(table=table)
+        grammar = cls._connection.get_schema_grammar()(table=table)
         query = grammar.drop_table(table).to_sql()
         if query_only:
             return query
@@ -116,7 +116,7 @@ class Schema:
 
     @classmethod
     def drop_table_if_exists(cls, table, exists=False, query_only=True):
-        grammar = cls._connection.get_grammar()(table=table)
+        grammar = cls._connection.get_schema_grammar()(table=table)
         query = grammar.drop_table_if_exists(table).to_sql()
         if query_only:
             return query
@@ -124,7 +124,7 @@ class Schema:
 
     @classmethod
     def rename(cls, table, new_name, query_only=False):
-        grammar = cls._connection.get_grammar()(table=table)
+        grammar = cls._connection.get_schema_grammar()(table=table)
         query = grammar.rename_table(
             current_table_name=table, new_table_name=new_name
         ).to_sql()
@@ -134,7 +134,7 @@ class Schema:
 
     @classmethod
     def truncate(cls, table, query_only=True):
-        grammar = cls._connection.get_grammar()(table=table)
+        grammar = cls._connection.get_schema_grammar()(table=table)
         query = grammar.truncate_table(table=table).to_sql()
         if query_only:
             return query

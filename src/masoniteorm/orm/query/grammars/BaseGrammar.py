@@ -1,6 +1,6 @@
 import re
 
-from ..expressions.expressions import (
+from ...expressions.expressions import (
     SubGroupExpression,
     SubSelectExpression,
     SelectExpression,
@@ -34,9 +34,6 @@ class BaseGrammar:
         group_by=(),
         joins=(),
         having=(),
-        creates=(),
-        constraints=(),
-        foreign_keys=(),
         connection_details={},
     ):
         self._columns = columns
@@ -51,9 +48,6 @@ class BaseGrammar:
         self._group_by = group_by
         self._joins = joins
         self._having = having
-        self._creates = creates
-        self._constraints = constraints
-        self._foreign_keys = foreign_keys
         self._connection_details = connection_details
         self._column = None
 
@@ -69,313 +63,6 @@ class BaseGrammar:
         self._action = action
         return getattr(self, "_compile_" + action)()
 
-    def _compile_create(self):
-        """Compiles a query for creating new table schemas.
-
-        Returns:
-            self
-        """
-        self._sql = self.create_format().format(
-            table=self._compile_table(self.table),
-            columns=self._compile_create_columns(),
-            constraints=self._compile_create_constraints().rstrip(" "),
-            foreign_keys=self._compile_foreign_keys().rstrip(" "),
-        )
-        return self
-
-    def _compile_alter(self):
-        """Compiles a query for altering table schemas.
-
-        Returns:
-            self
-        """
-        self._sql = self.alter_format().format(
-            table=self._compile_table(self.table),
-            columns=self._compile_alter_columns(),
-            constraints=self._compile_alter_constraints(),
-            foreign_keys=self._compile_alter_foreign_keys(),
-        )
-
-        self._sql = self._sql.rstrip(", ")
-
-        return self
-
-    def _compile_alter_columns(self):
-        """Compiles the columns for alter statements.
-
-        Returns:
-            self
-        """
-        sql = ""
-        for column in self._creates:
-            nullable = ""
-            if column.is_null and column._action == "modify":
-                nullable = " NULL"
-            elif not column.is_null:
-                nullable = " NOT NULL"
-
-            sql += getattr(self, "{}_column_string".format(column._action))().format(
-                column=self._compile_column(column.column_name),
-                old_column=self._compile_column(column.old_column),
-                data_type=self.type_map.get(column.column_type, ""),
-                length=self.create_column_length(column.column_type).format(
-                    length=column.length
-                )
-                if column.length
-                else "",
-                nullable=nullable,
-                separator=",",
-                after=self.after_column_string().format(
-                    after=self._compile_column(column.after_column)
-                )
-                if column.after_column
-                else "",
-            )
-
-        # Fix any inconsistencies
-        sql = sql.replace(" ,", ",")
-
-        return sql
-
-    def _compile_foreign_keys(self):
-        """Compiles the foreign keys for creation statements.
-
-        Returns:
-            self
-        """
-        sql = ", "
-        for foreign_key in self._foreign_keys:
-            sql += self.foreign_key_string().format(
-                column=self._compile_column(foreign_key.column_name),
-                foreign_table=self._compile_table(foreign_key.foreign_table),
-                foreign_column=self._compile_column(foreign_key.foreign_column),
-                index_name=foreign_key.index_name,
-                separator=", ",
-            )
-
-        return sql.rstrip(", ")
-
-    def _compile_alter_foreign_keys(self):
-        """Compiles the foreign keys for alter statements.
-
-        Returns:
-            self
-        """
-        sql = " "
-        for foreign_key in self._foreign_keys:
-            if foreign_key._on_delete:
-                action = self.on_delete_mapping[foreign_key._on_delete]
-            elif foreign_key._on_update:
-                action = self.on_update_mapping[foreign_key._on_update]
-            else:
-                action = ""
-
-            sql += self.alter_foreign_key_string().format(
-                column=self._compile_column(foreign_key.column_name),
-                foreign_table=self._compile_table(foreign_key.foreign_table),
-                foreign_column=self._compile_column(foreign_key.foreign_column),
-                index_name=foreign_key.index_name,
-                action=action,
-                separator=", ",
-            )
-
-        return sql.rstrip(", ")
-
-    def _compile_create_columns(self):
-        """Compiles columns for create statements.
-
-        Returns:
-            self
-        """
-        sql = ""
-        for column in self._creates:
-            default = column.default
-            # Get the default value. Can fetch from premapped defaults. should default to the value on the column class.
-            if column.default is not None and column.default in self.premapped_defaults:
-                default = self.premapped_defaults.get(column.default)
-            elif default is not None:
-                default = self.default_string().format(default=column.default)
-
-            if default is None:
-                default = ""
-
-            length_string = (
-                self.create_column_length(column.column_type).format(
-                    length=column.length
-                )
-                if column.length
-                else ""
-            )
-
-            if hasattr(self, f"_type_{column.column_type}"):
-                sql += getattr(self, f"_type_{column.column_type}")(
-                    column, length_string, default_value
-                )
-                continue
-
-            attributes = {
-                "column": self._compile_column(column.column_name),
-                "data_type": self.type_map.get(column.column_type),
-                "length": length_string,
-                "nullable": " ",
-                "default_value": default,
-            }
-
-            if not column.is_null:
-                attributes.update({"nullable": " NOT NULL"})
-            else:
-                attributes.update({"nullable": " NULL"})
-            sql += self.create_column_string().format(**attributes)
-
-        if not self._constraints:
-            sql = sql.rstrip(", ")
-        return sql.strip()
-
-    def _get_multiple_columns(self, columns):
-        """Compiles a string or a list of strings into the grammars column syntax.
-
-        Arguments:
-            columns {string|list} -- A column or list of columns
-
-        Returns:
-            self
-        """
-        if isinstance(columns, list):
-            column_string = ""
-            for col in columns:
-                column_string += self._compile_column(col) + ", "
-            return column_string.rstrip(", ")
-
-        return self._compile_column(columns)
-
-    def _compile_create_constraint_as_query(self, column):
-        """Compiles constraints for creation schema.
-
-        Returns:
-            self
-        """
-        if not self.options["can_compile_multiple_index"] and isinstance(
-            column.column_name, list
-        ):
-            for index_column in column.column_name:
-                query = getattr(
-                    self, "{}_constraint_string".format(column.constraint_type)
-                )().format(
-                    column=self._compile_column(index_column),
-                    clean_column=index_column,
-                    index_name=column.index_name,
-                    table=self._compile_table(self.table),
-                    clean_table=self.table,
-                    separator="",
-                )
-                self.queries.append(query.rstrip(" "))
-        else:
-            query = getattr(
-                self, "{}_constraint_string".format(column.constraint_type)
-            )().format(
-                column=self._get_multiple_columns(column.column_name),
-                clean_column=column.column_name,
-                index_name=column.index_name,
-                table=self._compile_table(self.table),
-                clean_table=self.table,
-                separator="",
-            )
-            self.queries.append(query.rstrip(" "))
-
-    def _compile_create_constraints(self):
-        """Compiles constraints for creation schema.
-
-        Returns:
-            self
-        """
-        sql = " "
-
-        for column in self._constraints:
-            if self.options.get(
-                "create_constraints_as_separate_queries"
-            ) and column.constraint_type in self.options.get(
-                "second_query_constraints"
-            ):
-                self._compile_create_constraint_as_query(column)
-                continue
-
-            sql += getattr(
-                self, "{}_constraint_string".format(column.constraint_type)
-            )().format(
-                column=self._get_multiple_columns(column.column_name),
-                clean_column=column.column_name,
-                index_name=column.index_name,
-                table=self._compile_table(self.table),
-                clean_table=self.table,
-                separator=", ",
-            )
-
-        return sql.rstrip(", ")
-
-    def _compile_alter_constraint_as_query(self, column, action):
-        """Compiles constraints for creation schema.
-
-        Returns:
-            self
-        """
-        if not self.options["can_compile_multiple_index"] and isinstance(
-            column.column_name, list
-        ):
-            for index_column in column.column_name:
-                query = getattr(
-                    self, "{}_{}_column_string".format(action, column.constraint_type)
-                )().format(
-                    column=self._compile_column(index_column),
-                    clean_column=index_column,
-                    index_name=column.index_name,
-                    table=self._compile_table(self.table),
-                    clean_table=self.table,
-                    separator="",
-                )
-                self.queries.append(query.rstrip(" "))
-        else:
-            query = getattr(
-                self, "{}_{}_column_string".format(action, column.constraint_type)
-            )().format(
-                column=self._get_multiple_columns(column.column_name),
-                clean_column=column.column_name,
-                index_name=column.index_name,
-                table=self._compile_table(self.table),
-                clean_table=self.table,
-                separator="",
-            )
-            self.queries.append(query.rstrip(" "))
-
-    def _compile_alter_constraints(self):
-        """Compiles constraints for alter schema.
-
-        Returns:
-            self
-        """
-        sql = " "
-        for column in self._constraints:
-            if self.options.get(
-                "alter_constraints_as_separate_queries"
-            ) and column.constraint_type in self.options.get(
-                "second_query_constraints"
-            ):
-                self._compile_alter_constraint_as_query(column, column.action)
-                continue
-
-            sql += getattr(
-                self,
-                "{}_{}_column_string".format(column.action, column.constraint_type,),
-            )().format(
-                column=self._get_multiple_columns(column.column_name),
-                clean_column=column.column_name,
-                index_name=column.index_name,
-                table=self._compile_table(self.table),
-                clean_table=self.table,
-                separator=", ",
-            )
-
-        return sql.rstrip(", ")
-
     def _compile_select(self, qmark=False):
         """Compile a select query statement.
 
@@ -388,16 +75,16 @@ class BaseGrammar:
         self._sql = (
             self.select_format()
             .format(
-                columns=self._compile_columns(separator=", "),
-                table=self._compile_table(self.table),
-                wheres=self._compile_wheres(qmark=qmark),
-                limit=self._compile_limit(),
-                offset=self._compile_offset(),
-                aggregates=self._compile_aggregates(),
-                order_by=self._compile_order_by(),
-                group_by=self._compile_group_by(),
-                joins=self._compile_joins(),
-                having=self._compile_having(),
+                columns=self.process_columns(separator=", "),
+                table=self.process_table(self.table),
+                wheres=self.process_wheres(qmark=qmark),
+                limit=self.process_limit(),
+                offset=self.process_offset(),
+                aggregates=self.process_aggregates(),
+                order_by=self.process_order_by(),
+                group_by=self.process_group_by(),
+                joins=self.process_joins(),
+                having=self.process_having(),
             )
             .strip()
         )
@@ -415,34 +102,11 @@ class BaseGrammar:
         """
         self._sql = self.update_format().format(
             key_equals=self._compile_key_value_equals(qmark=qmark),
-            table=self._compile_table(self.table),
-            wheres=self._compile_wheres(qmark=qmark),
+            table=self.process_table(self.table),
+            wheres=self.process_wheres(qmark=qmark),
         )
 
         return self
-
-    def _compile_joins(self):
-        """Compiles a join expression.
-
-        Returns:
-            self
-        """
-        sql = ""
-        for join in self._joins:
-            local_table = join.column1.split(".")[0]
-            column1 = join.column1
-            column2 = join.column2
-            sql += self.join_string().format(
-                foreign_table=self._compile_table(join.foreign_table),
-                local_table=self._compile_table(local_table),
-                column1=self._table_column_string(column1),
-                equality=join.equality,
-                column2=self._table_column_string(column2),
-                keyword=self.join_keywords[join.clause],
-            )
-            sql += " "
-
-        return sql
 
     def _compile_insert(self):
         """Compiles an insert expression.
@@ -452,9 +116,9 @@ class BaseGrammar:
         """
         self._sql = self.insert_format().format(
             key_equals=self._compile_key_value_equals(),
-            table=self._compile_table(self.table),
-            columns=self._compile_columns(separator=", ", action="insert"),
-            values=self._compile_values(separator=", "),
+            table=self.process_table(self.table),
+            columns=self.process_columns(separator=", ", action="insert"),
+            values=self.process_values(separator=", "),
         )
 
         return self
@@ -467,12 +131,54 @@ class BaseGrammar:
         """
         self._sql = self.delete_format().format(
             key_equals=self._compile_key_value_equals(qmark=qmark),
-            table=self._compile_table(self.table),
-            wheres=self._compile_wheres(qmark=qmark),
+            table=self.process_table(self.table),
+            wheres=self.process_wheres(qmark=qmark),
         )
 
         return self
 
+    # TODO: Columnize?
+    def _get_multiple_columns(self, columns):
+        """Compiles a string or a list of strings into the grammars column syntax.
+
+        Arguments:
+            columns {string|list} -- A column or list of columns
+
+        Returns:
+            self
+        """
+        if isinstance(columns, list):
+            column_string = ""
+            for col in columns:
+                column_string += self.process_column(col) + ", "
+            return column_string.rstrip(", ")
+
+        return self.process_column(columns)
+
+    def process_joins(self):
+        """Compiles a join expression.
+
+        Returns:
+            self
+        """
+        sql = ""
+        for join in self._joins:
+            local_table = join.column1.split(".")[0]
+            column1 = join.column1
+            column2 = join.column2
+            sql += self.join_string().format(
+                foreign_table=self.process_table(join.foreign_table),
+                local_table=self.process_table(local_table),
+                column1=self._table_column_string(column1),
+                equality=join.equality,
+                column2=self._table_column_string(column2),
+                keyword=self.join_keywords[join.clause],
+            )
+            sql += " "
+
+        return sql
+
+    # TODO: Clean
     def _compile_key_value_equals(self, qmark=False):
         """Compiles key value pairs.
 
@@ -517,7 +223,7 @@ class BaseGrammar:
 
         return sql
 
-    def _compile_aggregates(self):
+    def process_aggregates(self):
         """Compiles aggregates to be used in a query expression.
 
         Returns:
@@ -535,12 +241,12 @@ class BaseGrammar:
             sql += aggregate_string.format(
                 aggregate_function=aggregate_function,
                 column="*" if column == "*" else self._table_column_string(column),
-                alias=self._compile_alias(column),
+                alias=self.process_alias(column),
             )
 
         return sql
 
-    def _compile_order_by(self):
+    def process_order_by(self):
         """Compiles an order by for a query expression.
 
         Returns:
@@ -555,7 +261,7 @@ class BaseGrammar:
 
         return sql
 
-    def _compile_group_by(self):
+    def process_group_by(self):
         """Compiles a group by for a query expression.
 
         Returns:
@@ -568,7 +274,7 @@ class BaseGrammar:
 
         return sql
 
-    def _compile_alias(self, column):
+    def process_alias(self, column):
         """Compiles an alias for a column.
 
         Arguments:
@@ -579,7 +285,7 @@ class BaseGrammar:
         """
         return column
 
-    def _compile_table(self, table):
+    def process_table(self, table):
         """Compiles a given table name.
 
         Arguments:
@@ -594,7 +300,7 @@ class BaseGrammar:
             prefix=self._connection_details.get("prefix", ""),
         )
 
-    def _compile_limit(self):
+    def process_limit(self):
         """Compiles the limit expression.
 
         Returns:
@@ -605,7 +311,7 @@ class BaseGrammar:
 
         return self.limit_string(offset=self._offset).format(limit=self._limit)
 
-    def _compile_offset(self):
+    def process_offset(self):
         """Compiles the offset expression.
 
         Returns:
@@ -616,7 +322,7 @@ class BaseGrammar:
 
         return self.offset_string().format(offset=self._offset, limit=self._limit)
 
-    def _compile_having(self, qmark=False):
+    def process_having(self, qmark=False):
         """Compiles having expression.
 
         Keyword Arguments:
@@ -644,7 +350,7 @@ class BaseGrammar:
 
         return sql
 
-    def _compile_wheres(self, qmark=False, strip_first_where=False):
+    def process_wheres(self, qmark=False, strip_first_where=False):
         """Compiles the where expression.
 
         Keyword Arguments:
@@ -728,7 +434,7 @@ class BaseGrammar:
             """
             if isinstance(value, SubGroupExpression):
                 query_value = self.subquery_string().format(
-                    query=value.builder.get_grammar()._compile_wheres(
+                    query=value.builder.get_grammar().process_wheres(
                         strip_first_where=True
                     )
                 )
@@ -788,7 +494,7 @@ class BaseGrammar:
             self
         """
         self._column = column
-        self._sql = self._compile_exists()
+        self._sql = self.process_exists()
         return self
 
     def table_exists(self):
@@ -798,20 +504,20 @@ class BaseGrammar:
             self
         """
         self._sql = self.table_exists_string().format(
-            table=self._compile_table(self.table),
+            table=self.process_table(self.table),
             database=self.database,
             clean_table=self.table,
         )
         return self
 
-    def _compile_exists(self):
+    def process_exists(self):
         """Specifies the column exists expression.
 
         Returns:
             self
         """
         return self.column_exists_string().format(
-            table=self._compile_table(self.table),
+            table=self.process_table(self.table),
             clean_table=self.table,
             value=self._compile_value(self._column),
         )
@@ -832,7 +538,8 @@ class BaseGrammar:
         """
         return re.sub(" +", " ", self._sql.strip())
 
-    def _compile_columns(self, separator="", action="select"):
+    # TODO: Inspect this can't just be used by another method. seems duplicative
+    def process_columns(self, separator="", action="select"):
         """Specifies the columns in a selection expression.
 
         Keyword Arguments:
@@ -853,41 +560,15 @@ class BaseGrammar:
             sql += self._table_column_string(column, separator=separator)
 
         if self._aggregates:
-            sql += self._compile_aggregates()
+            sql += self.process_aggregates()
 
         if sql == "":
             return "*"
 
         return sql.rstrip(",").rstrip(", ")
 
-    def _compile_insert_columns(self, separator=""):
-        """Specifies the columns in a selection expression.
-
-        Keyword Arguments:
-            separator {str} -- The separator used between columns (default: {""})
-
-        Returns:
-            self
-        """
-        sql = ""
-        if self._columns != "*":
-            for column in self._columns:
-                if isinstance(column, SelectExpression):
-                    if column.raw:
-                        sql += column.column
-                        continue
-
-                    column = column.column
-                sql += self._table_insert_column_string(column, separator=separator)
-
-        if self._aggregates:
-            sql += self._compile_aggregates()
-
-        if sql == "":
-            return "*"
-        return sql.rstrip(",").rstrip(", ")
-
-    def _compile_values(self, separator=""):
+    # TODO: Duplicative?
+    def process_values(self, separator=""):
         """Compiles column values for insert expressions.
 
         Keyword Arguments:
@@ -904,7 +585,7 @@ class BaseGrammar:
 
         return sql[:-2]
 
-    def _compile_column(self, column, separator=""):
+    def process_column(self, column, separator=""):
         """Compiles a column into the column syntax.
 
         Arguments:
@@ -966,7 +647,7 @@ class BaseGrammar:
         Returns:
             self
         """
-        self._sql = self.drop_table_string().format(table=self._compile_column(table))
+        self._sql = self.drop_table_string().format(table=self.process_column(table))
         return self
 
     def drop_table_if_exists(self, table):
@@ -979,7 +660,7 @@ class BaseGrammar:
             self
         """
         self._sql = self.drop_table_if_exists_string().format(
-            table=self._compile_column(table)
+            table=self.process_column(table)
         )
         return self
 
@@ -994,13 +675,12 @@ class BaseGrammar:
             self
         """
         self._sql = self.rename_table_string().format(
-            current_table_name=self._compile_column(current_table_name),
-            new_table_name=self._compile_column(new_table_name),
+            current_table_name=self.process_column(current_table_name),
+            new_table_name=self.process_column(new_table_name),
         )
         return self
 
     def truncate_table(self, table):
-        self._sql = self.truncate_table_string().format(
-            table=self._compile_table(table)
-        )
+        print(self)
+        self._sql = self.truncate_table_string().format(table=self.process_table(table))
         return self

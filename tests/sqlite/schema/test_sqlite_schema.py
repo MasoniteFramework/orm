@@ -508,7 +508,7 @@ class TestSqliteCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return (
             """CREATE TABLE "users" ("""
-            """\"user_id" INT NOT NULL, """
+            """\"user_id" INT UNSIGNED NOT NULL, """
             """CONSTRAINT users_user_id_foreign FOREIGN KEY ("user_id") REFERENCES "profile"("id"), """
             """CONSTRAINT users_fruit_id_foreign FOREIGN KEY ("fruit_id") REFERENCES "fruit"("id")"""
             """)"""
