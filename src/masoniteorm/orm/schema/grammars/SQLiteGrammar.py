@@ -55,13 +55,13 @@ class SQLiteGrammar(BaseGrammar):
     options = {
         "create_constraints_as_separate_queries": True,  # Whether constraints should run as separate queries or part of the create table semantics
         "alter_constraints_as_separate_queries": True,  # Whether constraints should run as separate queries or part of the alter table semantics
-        "second_query_constraints": (),  # constraint types that should run as separate queries
-        "can_compile_multiple_index": True,  # INDEX("column1", "column2")
+        "second_query_constraints": ("index", "fulltext"),  # constraint types that should run as separate queries
+        "can_compile_multiple_index": False,  # INDEX("column1", "column2")
     }
 
     premapped_defaults = {
         "current": " DEFAULT CURRENT_TIMESTAMP",
-        "now": " DEFAULT NOW()",
+        "now": " DEFAULT CURRENT_TIMESTAMP",
         "null": " DEFAULT NULL",
     }
 
@@ -72,7 +72,7 @@ class SQLiteGrammar(BaseGrammar):
         return "{keyword} {query}"
 
     def create_column_string(self):
-        return "{column} {data_type}{length}{nullable}, "
+        return "{column} {data_type}{length}{nullable}{default_value}, "
 
     def _type_enum(self, column, length_string, default=None):
         return f""""{column.column_name}" VARCHAR(255) CHECK ("{column.column_name}" in {length_string})"""

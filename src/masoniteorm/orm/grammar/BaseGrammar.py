@@ -199,6 +199,7 @@ class BaseGrammar:
             if default is None:
                 default = ""
 
+
             length_string = (
                 self.create_column_length(column.column_type).format(
                     length=column.length

@@ -376,8 +376,8 @@ class TestSqliteCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return (
             """CREATE TABLE "users" ("""
-            """\"name" VARCHAR(255), """
-            """\"age" INTEGER NOT NULL"""
+            """\"name" VARCHAR(255) NULL, """
+            """\"age" INTEGER(11) NOT NULL"""
             """)"""
         )
 
@@ -631,8 +631,8 @@ class TestSqliteCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return (
             """CREATE TABLE "users" ("""
-            """\"created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, """
-            """\"updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP"""
+            """\"created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, """
+            """\"updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"""
             """)"""
         )
 
@@ -644,7 +644,7 @@ class TestSqliteCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return (
             """CREATE TABLE "users" ("""
-            """\"logged_at" TIMESTAMP DEFAULT NOW()"""
+            """\"logged_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"""
             """)"""
         )
 
@@ -656,7 +656,7 @@ class TestSqliteCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return (
             """CREATE TABLE "users" ("""
-            """\"logged_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP"""
+            """\"logged_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"""
             """)"""
         )
 
@@ -670,10 +670,10 @@ class TestSqliteCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return (
             """CREATE TABLE "users" ("""
-            """\"created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, """
-            """\"updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, """
-            """\"logged_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, """
-            """\"expirated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP"""
+            """\"created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, """
+            """\"updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, """
+            """\"logged_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, """
+            """\"expirated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"""
             """)"""
         )
 
@@ -686,7 +686,7 @@ class TestSqliteCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return (
             """CREATE TABLE "users" ("""
-            """\"logged_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, """
+            """\"logged_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, """
             """\"expirated_at" TIMESTAMP NULL DEFAULT NULL"""
             """)"""
         )

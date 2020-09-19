@@ -195,8 +195,7 @@ class BaseGrammar:
                 default = self.premapped_defaults.get(column.default)
             elif default is not None:
                 default = self.default_string().format(default=column.default)
-
-            if default is None:
+            else:
                 default = ""
 
             length_string = (
@@ -209,7 +208,7 @@ class BaseGrammar:
 
             if hasattr(self, f"_type_{column.column_type}"):
                 sql += getattr(self, f"_type_{column.column_type}")(
-                    column, length_string, default_value
+                    column, length_string, default
                 )
                 continue
 
@@ -225,7 +224,9 @@ class BaseGrammar:
                 attributes.update({"nullable": " NOT NULL"})
             else:
                 attributes.update({"nullable": " NULL"})
+
             sql += self.create_column_string().format(**attributes)
+
 
         if not self._constraints:
             sql = sql.rstrip(", ")
@@ -270,6 +271,8 @@ class BaseGrammar:
                 )
                 self.queries.append(query.rstrip(" "))
         else:
+
+            print(column.index_name, column.constraint_type)
             query = getattr(
                 self, "{}_constraint_string".format(column.constraint_type)
             )().format(
@@ -298,7 +301,7 @@ class BaseGrammar:
             ):
                 self._compile_create_constraint_as_query(column)
                 continue
-
+            print('here')
             sql += getattr(
                 self, "{}_constraint_string".format(column.constraint_type)
             )().format(
@@ -354,14 +357,16 @@ class BaseGrammar:
         """
         sql = " "
         for column in self._constraints:
+            print(column.action, column.constraint_type)
             if self.options.get(
                 "alter_constraints_as_separate_queries"
             ) and column.constraint_type in self.options.get(
                 "second_query_constraints"
             ):
+                print('different queries')
                 self._compile_alter_constraint_as_query(column, column.action)
                 continue
-
+            print('not different queries')
             sql += getattr(
                 self,
                 "{}_{}_column_string".format(column.action, column.constraint_type,),
