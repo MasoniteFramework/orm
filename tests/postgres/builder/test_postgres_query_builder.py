@@ -2,10 +2,18 @@ import inspect
 import unittest
 
 from src.masoniteorm.orm.builder import QueryBuilder
-from src.masoniteorm.orm.grammar import PostgresGrammar
+from src.masoniteorm.orm.query.grammars import PostgresGrammar
 from src.masoniteorm.orm.connections import ConnectionFactory
 from src.masoniteorm.orm.models import Model
 from tests.utils import MockConnectionFactory
+
+
+class MockConnection:
+
+    connection_details = {}
+
+    def make_connection(self):
+        return self
 
 
 class BaseTestQueryBuilder:
@@ -292,7 +300,7 @@ class BaseTestQueryBuilder:
     def test_builder_alone(self):
         self.assertTrue(
             QueryBuilder(
-                dry=True,
+                connection=MockConnection,
                 connection_details={
                     "default": "postgres",
                     "postgres": {
@@ -358,7 +366,7 @@ class BaseTestQueryBuilder:
         self.assertEqual(builder.to_sql(), sql)
 
 
-class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
+class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
 
     grammar = PostgresGrammar
 

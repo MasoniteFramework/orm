@@ -2,7 +2,7 @@ import inspect
 import unittest
 
 from src.masoniteorm.orm.builder import QueryBuilder
-from src.masoniteorm.orm.grammar import MySQLGrammar
+from src.masoniteorm.orm.query.grammars import MySQLGrammar
 from src.masoniteorm.orm.models import Model
 from src.masoniteorm.orm.relationships import has_many
 from tests.utils import MockConnectionFactory
@@ -21,6 +21,7 @@ class User(Model):
 class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("default")
+        print(self.grammar)
         return QueryBuilder(self.grammar, connection, table=table, owner=User)
 
     def test_sum(self):

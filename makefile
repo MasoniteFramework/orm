@@ -14,12 +14,12 @@ format:
 	black tests/
 	make lint
 coverage:
-	python -m pytest --cov-report term --cov-report xml --cov=src/masonite tests/
+	python -m pytest --cov-report term --cov-report xml --cov=src/masoniteorm tests/
 	python -m coveralls
 show:
-	python -m pytest --cov-report term --cov-report html --cov=src/masonite tests/
+	python -m pytest --cov-report term --cov-report html --cov=src/masoniteorm tests/
 cov:
-	python -m pytest --cov-report term --cov-report xml --cov=src/masonite tests/
+	python -m pytest --cov-report term --cov-report xml --cov=src/masoniteorm tests/
 publish:
 	make format
 	make lint

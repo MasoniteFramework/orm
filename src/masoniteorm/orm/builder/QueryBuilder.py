@@ -59,7 +59,7 @@ class QueryBuilder:
 
         # Get the connection and grammar class.
         if not self.grammar:
-            from ..grammar.GrammarFactory import GrammarFactory
+            from ..query.grammars import GrammarFactory
             from ..connections.ConnectionFactory import ConnectionFactory
 
             connection_dictionary = self.connection_details.get(
@@ -69,7 +69,9 @@ class QueryBuilder:
                 "grammar", None
             ) or connection_dictionary.get("driver")
             driver = connection_dictionary.get("driver")
-            self.connection = ConnectionFactory().make(driver)
+            if not self.connection:
+                self.connection = ConnectionFactory().make(driver)
+
             self.grammar = GrammarFactory().make(grammar)
 
         if self.connection:
@@ -895,6 +897,8 @@ class QueryBuilder:
 
         # Either _creates when creating, otherwise use columns
         columns = self._creates or self._columns
+
+        print("grammar is", self.grammar)
 
         return self.grammar(
             columns=columns,

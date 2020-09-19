@@ -7,7 +7,7 @@ import datetime
 
 from app.User import User
 from src.masoniteorm.orm.collection import Collection
-from src.masoniteorm.orm.grammar.mssql_grammar import MSSQLGrammar
+from src.masoniteorm.orm.query.grammars import MSSQLGrammar
 from src.masoniteorm.orm.models import Model
 
 if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
