@@ -781,9 +781,10 @@ class QueryBuilder:
         Returns:
             dictionary -- Returns a dictionary of results.
         """
+        print("all")
         if query:
             return self.to_sql()
-
+        print("return hydration")
         return self.owner.hydrate(
             self.connection.query(self.to_qmark(), self._bindings) or []
         )

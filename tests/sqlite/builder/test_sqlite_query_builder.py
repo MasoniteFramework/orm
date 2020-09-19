@@ -1,7 +1,7 @@
 import inspect
 import unittest
 
-from src.masoniteorm.orm.builder import QueryBuilder
+from src.masoniteorm.orm.query import QueryBuilder
 from src.masoniteorm.orm.query.grammars import SQLiteGrammar
 from src.masoniteorm.orm.connections import ConnectionFactory
 from src.masoniteorm.orm.models import Model

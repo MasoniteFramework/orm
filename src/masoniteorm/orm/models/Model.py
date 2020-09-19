@@ -3,10 +3,19 @@ from datetime import datetime
 
 from inflection import tableize
 
-from ..builder import QueryBuilder
+from ..query import QueryBuilder
 from ..collection import Collection
 from ..connections import ConnectionFactory
 from ..query.grammars import MySQLGrammar
+
+"""This is a magic class that will help using models like User.first() instead of having to instatiate a class like 
+User().first()
+"""
+
+
+class ModelMeta(type):
+    def __getattr__(self, attribute, *args, **kwargs):
+        return getattr(self(), attribute)
 
 
 class BoolCast:
@@ -19,7 +28,9 @@ class JsonCast:
         return json.dumps(value)
 
 
-class Model:
+class Model(metaclass=ModelMeta):
+
+    __metaclass__ = ModelMeta
 
     __fillable__ = ["*"]
     __guarded__ = ["*"]
@@ -41,7 +52,19 @@ class Model:
     date_created_at = "created_at"
     date_updated_at = "updated_at"
 
-    __passthrough__ = ["where", "first", "all", "first"]
+    """Pass through will pass any method calls to the model directly through to the query builder.
+    """
+    __passthrough__ = [
+        "where",
+        "first",
+        "all",
+        "first",
+        "where_in",
+        "order_by",
+        "limit",
+        "select",
+        "with_",
+    ]
 
     __cast_map__ = {}
 
@@ -55,6 +78,21 @@ class Model:
         self.__dirty_attributes__ = {}
         self._relationships = {}
         self.__appends__ = []
+
+        self.__resolved_connection__ = ConnectionFactory().make(self.__connection__)
+
+        self.builder = QueryBuilder(
+            self.__resolved_connection__.get_grammar(),
+            self.__resolved_connection__,
+            table=self.get_table_name(),
+            owner=self,
+            eager_loads=self._eager_load,
+            global_scopes=self._global_scopes,
+            scopes=self._scopes,
+            dry=self.__dry__,
+        )
+
+        self.builder.set_action("select")
 
     def get_primary_key(self):
         """Gets the primary key column
@@ -84,7 +122,7 @@ class Model:
 
     def get_builder(self):
         self.__resolved_connection__ = ConnectionFactory().make(self.__connection__)
-        return QueryBuilder(
+        self.builder = QueryBuilder(
             self.__resolved_connection__.get_grammar(),
             self.__resolved_connection__,
             table=self.get_table_name(),
@@ -95,22 +133,12 @@ class Model:
             dry=self.__dry__,
         )
 
-    @classmethod
+        return self.builder
+
     def boot(cls):
         if not cls._booted:
             cls.__resolved_connection__ = ConnectionFactory().make(cls.__connection__)
-            cls.builder = QueryBuilder(
-                cls.__resolved_connection__.get_grammar(),
-                cls.__resolved_connection__,
-                table=cls.get_table_name(),
-                owner=cls,
-                eager_loads=cls._eager_load,
-                global_scopes=cls._global_scopes,
-                scopes=cls._scopes,
-                dry=cls.__dry__,
-            )
 
-            cls.builder.set_action("select")
             cls._booted = True
             cast_methods = [v for k, v in cls.__dict__.items() if k.startswith("get_")]
             for cast in cast_methods:
@@ -133,31 +161,7 @@ class Model:
 
         return cls
 
-    @classmethod
-    def _boot_parent_scopes(cls):
-        """Applies all parent scopes.
-        """
-
-        print("booting parent scopes")
-
-        for parent in cls.__bases__:
-            cls.apply_scope(parent)
-
-    @classmethod
-    def set_scope(self, cls, name):
-        """Sets a scope based on a class and maps it to a name.
-
-        Arguments:
-            cls {masonite.orm.Model} -- An ORM model class.
-            name {string} -- The name of the scope to use.
-
-        Returns:
-            self
-        """
-        cls._scopes.update({name: cls})
-
-    @classmethod
-    def apply_scope(cls, scope_class):
+    def apply_scope(self, scope_class):
         """Applies the scope to the current model.
 
         Arguments:
@@ -166,7 +170,7 @@ class Model:
         Returns:
             cls
         """
-        cls.boot()
+        print(self)
         boot_methods = [
             v for k, v in scope_class.__dict__.items() if k.startswith("boot_")
         ]
@@ -199,7 +203,8 @@ class Model:
         cls.boot()
         return cls.__resolved_connection__
 
-    def find(self, record_id):
+    @classmethod
+    def find(cls, record_id):
         """Finds a row by the primary key ID.
 
         Arguments:
@@ -208,7 +213,8 @@ class Model:
         Returns:
             Model
         """
-        return self.get_builder().where("id", record_id).first()
+
+        return cls().get_builder().where("id", record_id).first()
 
     @classmethod
     def _boot_if_not_booted(cls):
@@ -222,26 +228,6 @@ class Model:
 
     def first_or_create(self):
         pass
-
-    @classmethod
-    def order_by(cls, *args, **kwargs):
-        """Specify an order by clause.
-
-        Returns:
-            Builder
-        """
-        cls.boot()
-        return cls.builder.order_by(*args, **kwargs)
-
-    @classmethod
-    def where_in(cls, *args, **kwargs):
-        """Specify a where in clause.
-
-        Returns:
-            Builder
-        """
-        cls.boot()
-        return cls.builder.where(*args, **kwargs)
 
     @classmethod
     def has(cls, *has_relationships, **kwargs):
@@ -312,16 +298,6 @@ class Model:
 
         return cls.builder
 
-    @classmethod
-    def limit(cls, *args, **kwargs):
-        cls.boot()
-        return cls.builder.limit(*args, **kwargs)
-
-    @classmethod
-    def select(cls, *args, **kwargs):
-        cls.boot()
-        return cls.builder.select(*args, **kwargs)
-
     def add_relations(self, relations):
         self._relationships.update(relations)
         return self
@@ -337,6 +313,7 @@ class Model:
             for element in dictionary:
                 response.append(cls.hydrate(element))
             return cls.new_collection(response)
+
         elif isinstance(dictionary, dict):
             model = cls()
             dic = {}
@@ -344,6 +321,7 @@ class Model:
                 if key in model.get_dates():
                     value = model.get_new_date(value)
                 dic.update({key: value})
+            print("dic", dic, model.__attributes__)
             model.__attributes__.update(dic or {})
             return model.add_relations(relations)
         elif hasattr(dictionary, "serialize"):
@@ -351,6 +329,7 @@ class Model:
             model.__attributes__.update(dictionary.serialize())
             return model
         else:
+            print("here too")
             model = cls()
             model.__attributes__.update(dict(dictionary))
             return model
@@ -364,7 +343,7 @@ class Model:
 
     @classmethod
     def create(cls, dictionary={}, query=False, **kwargs):
-        cls.boot()
+        print("create", cls, dictionary)
         if not dictionary:
             dictionary = kwargs
 
@@ -374,8 +353,6 @@ class Model:
         if cls.__guarded__ != ["*"]:
             for x in cls.__guarded__:
                 dictionary.pop(x)
-
-        print(dictionary)
 
         if query:
             return cls.builder.create(dictionary, query=True).to_sql()
@@ -403,6 +380,8 @@ class Model:
                 )
 
         serialized_dictionary.update(self.__dirty_attributes__)
+
+        serialized_dictionary.pop("builder")
 
         # Serialize relationships as well
         serialized_dictionary.update(self.relations_to_dict())
@@ -432,7 +411,6 @@ class Model:
         """
         Update the timestamps's value from model
         """
-        self.boot()
 
         if not self.__timestamps__:
             return False
@@ -447,8 +425,9 @@ class Model:
     def _current_timestamp(self):
         return datetime.now()
 
-    def __call__(self):
-        return self.builder
+    # def __call__(self):
+    #     print('called it')
+    #     return self.builder
 
     @staticmethod
     def set_connection_resolver(self):
@@ -512,6 +491,8 @@ class Model:
             self.get_primary_key(), self.get_primary_key_value()
         )
 
+        self.__dirty_attributes__.pop("builder")
+
         if not query:
             return builder.update(self.__dirty_attributes__)
 
@@ -548,11 +529,6 @@ class Model:
         cls.boot()
         cls._loads += loads
         return cls.builder
-
-    @classmethod
-    def with_(cls, *eagers):
-        cls.boot()
-        return cls.builder.with_(eagers)
 
     def __getitem__(self, attribute):
         return getattr(self, attribute)
