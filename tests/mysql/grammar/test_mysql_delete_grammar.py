@@ -1,6 +1,6 @@
 from src.masoniteorm.orm.grammar.mysql_grammar import MySQLGrammar
 from src.masoniteorm.orm.builder import QueryBuilder
-from src.masoniteorm.orm.grammar import GrammarFactory
+from src.masoniteorm.orm.query.grammars import GrammarFactory
 import unittest, inspect
 
 

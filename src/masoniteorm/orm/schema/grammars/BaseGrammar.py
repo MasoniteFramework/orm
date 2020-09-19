@@ -224,7 +224,7 @@ class BaseGrammar:
                 attributes.update({"nullable": " NOT NULL"})
             else:
                 attributes.update({"nullable": " NULL"})
-
+            print(attributes)
             sql += self.create_column_string().format(**attributes)
 
 

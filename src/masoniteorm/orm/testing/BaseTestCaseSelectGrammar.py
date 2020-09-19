@@ -1,7 +1,7 @@
 import inspect
 
 from ..builder import QueryBuilder
-from ..grammar import GrammarFactory
+from ..query.grammars import GrammarFactory
 
 
 class MockConnection:

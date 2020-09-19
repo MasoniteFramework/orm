@@ -1,4 +1,7 @@
 from .SQLiteGrammar import SQLiteGrammar
+from .MySQLGrammar import MySQLGrammar
+from .PostgresGrammar import PostgresGrammar
+from .MSSQLGrammar import MSSQLGrammar
 
 
 class GrammarFactory:
@@ -8,6 +11,9 @@ class GrammarFactory:
     grammars = {
         # Base grammars that will be used with various drivers
         "sqlite": SQLiteGrammar,
+        "mysql": MySQLGrammar,
+        "postgres": PostgresGrammar,
+        "mssql": MSSQLGrammar
         # examples of using different versions of grammar here
     }
 
