@@ -37,6 +37,7 @@ class Model:
     __hidden__ = []
     __timestamps__ = True
     _global_scopes = {}
+    _scopes = {}
     date_created_at = "created_at"
     date_updated_at = "updated_at"
 
@@ -90,6 +91,7 @@ class Model:
                 owner=cls,
                 eager_loads=cls._eager_load,
                 global_scopes=cls._global_scopes,
+                scopes = cls._scopes,
                 dry=cls.__dry__,
             )
 
@@ -125,6 +127,19 @@ class Model:
 
         for parent in cls.__bases__:
             cls.apply_scope(parent)
+    
+    @classmethod
+    def set_scope(self, cls, name):
+        """Sets a scope based on a class and maps it to a name.
+
+        Arguments:
+            cls {masonite.orm.Model} -- An ORM model class.
+            name {string} -- The name of the scope to use.
+
+        Returns:
+            self
+        """
+        cls._scopes.update({name: cls})
 
     @classmethod
     def apply_scope(cls, scope_class):
