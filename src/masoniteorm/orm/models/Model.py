@@ -41,6 +41,8 @@ class Model:
     date_created_at = "created_at"
     date_updated_at = "updated_at"
 
+    __passthrough__ = ["where", "first", "all", "first"]
+
     __cast_map__ = {}
 
     __internal_cast_map__ = {
@@ -80,6 +82,19 @@ class Model:
                 f"class '{name}' has no attribute {self.get_primary_key()}. Did you set the primary key correctly on the model using the __primary_key__ attribute?"
             )
 
+    def get_builder(self):
+        self.__resolved_connection__ = ConnectionFactory().make(self.__connection__)
+        return QueryBuilder(
+            self.__resolved_connection__.get_grammar(),
+            self.__resolved_connection__,
+            table=self.get_table_name(),
+            owner=self,
+            eager_loads=self._eager_load,
+            global_scopes=self._global_scopes,
+            scopes=self._scopes,
+            dry=self.__dry__,
+        )
+
     @classmethod
     def boot(cls):
         if not cls._booted:
@@ -91,7 +106,7 @@ class Model:
                 owner=cls,
                 eager_loads=cls._eager_load,
                 global_scopes=cls._global_scopes,
-                scopes = cls._scopes,
+                scopes=cls._scopes,
                 dry=cls.__dry__,
             )
 
@@ -127,7 +142,7 @@ class Model:
 
         for parent in cls.__bases__:
             cls.apply_scope(parent)
-    
+
     @classmethod
     def set_scope(self, cls, name):
         """Sets a scope based on a class and maps it to a name.
@@ -184,28 +199,7 @@ class Model:
         cls.boot()
         return cls.__resolved_connection__
 
-    @classmethod
-    def first(cls):
-        """Gets the first record from the table.
-
-        Returns:
-            Model
-        """
-        cls.boot()
-        return cls.builder.first()
-
-    @classmethod
-    def all(cls, query=False):
-        """Gets all records from the table.
-
-        Returns:
-            Collection
-        """
-        cls.boot()
-        return cls.builder.set_action("select").all(query=query)
-
-    @classmethod
-    def find(cls, record_id):
+    def find(self, record_id):
         """Finds a row by the primary key ID.
 
         Arguments:
@@ -214,8 +208,7 @@ class Model:
         Returns:
             Model
         """
-        cls._boot_if_not_booted()
-        return cls.builder.where("id", record_id).first()
+        return self.get_builder().where("id", record_id).first()
 
     @classmethod
     def _boot_if_not_booted(cls):
@@ -229,16 +222,6 @@ class Model:
 
     def first_or_create(self):
         pass
-
-    @classmethod
-    def where(cls, *args, **kwargs):
-        """Specify a where clause.
-
-        Returns:
-            Builder
-        """
-        cls.boot()
-        return cls.builder.where(*args, **kwargs)
 
     @classmethod
     def order_by(cls, *args, **kwargs):
@@ -473,6 +456,14 @@ class Model:
 
     def __getattr__(self, attribute):
 
+        if attribute in self.__passthrough__:
+            print("pass throughs", attribute)
+
+            def method(*args, **kwargs):
+                return getattr(self.get_builder(), attribute)(*args, **kwargs)
+
+            return method
+
         new_name_accessor = "get_" + attribute + "_attribute"
 
         if (new_name_accessor) in self.__class__.__dict__:
@@ -496,7 +487,7 @@ class Model:
         if attribute not in self.__dict__:
             name = self.__class__.__name__
 
-            raise AttributeError(f"class '{name}' has no attribute {attribute}")
+            raise AttributeError(f"class model '{name}' has no attribute {attribute}")
 
         return None
 
