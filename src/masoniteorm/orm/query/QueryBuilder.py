@@ -201,7 +201,7 @@ class QueryBuilder:
 
         return self
 
-    def set_global_scope(self, action=None, callable=None):
+    def set_global_scope(self, name="", callable=None, action="select"):
         """Sets the global scopes that should be used before creating the SQL.
 
         Arguments:
@@ -211,18 +211,18 @@ class QueryBuilder:
         Returns:
             self
         """
-        if isinstance(action, BaseScope):
-            action.boot(self)
+        if isinstance(name, BaseScope):
+            name.on_boot(self)
             return self
 
         if not action in self._global_scopes:
-            self._global_scopes[action] = []
+            self._global_scopes[action] = {}
 
-        self._global_scopes[action].append(callable)
+        self._global_scopes[action].update({name: callable})
 
         return self
 
-    def remove_global_scope(self, scope):
+    def remove_global_scope(self, scope, action=None):
         """Sets the global scopes that should be used before creating the SQL.
 
         Arguments:
@@ -236,7 +236,7 @@ class QueryBuilder:
             scope.on_remove(self)
             return self
 
-        del self._scopes[scope]
+        del self._global_scopes.get(action, {})[scope]
 
         return self
 
@@ -261,6 +261,7 @@ class QueryBuilder:
 
             return method
 
+        print('macros', self._macros)
         if attribute in self._macros:
 
             def method(*args, **kwargs):
@@ -963,8 +964,8 @@ class QueryBuilder:
         Returns:
             self
         """
-
-        for scope in self._global_scopes.get(self._action, []):
+        print(self._global_scopes)
+        for name, scope in self._global_scopes.get(self._action, {}).items():
             scope(self)
 
         grammar = self.get_grammar()
@@ -980,7 +981,7 @@ class QueryBuilder:
 
         grammar = self.get_grammar()
 
-        for scope in self._global_scopes.get(self._action):
+        for name, scope in self._global_scopes.get(self._action, {}).items():
             scope(self)
 
         qmark = getattr(grammar, "_compile_{action}".format(action=self._action))(
@@ -1060,5 +1061,6 @@ class QueryBuilder:
         return self
 
     def macro(self, name, callable):
+        print('updating macros')
         self._macros.update({name: callable})
         return self

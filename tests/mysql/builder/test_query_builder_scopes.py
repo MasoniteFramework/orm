@@ -35,7 +35,7 @@ class BaseTestQueryBuilderScopes(unittest.TestCase):
 
     def test_global_scopes(self):
         builder = self.get_builder().set_global_scope(
-            "select", lambda q: q.where_not_null("deleted_at")
+            "where_not_null", lambda q: q.where_not_null("deleted_at"), action="select"
         )
 
         self.assertEqual(
@@ -66,4 +66,4 @@ class BaseTestQueryBuilderScopes(unittest.TestCase):
     def test_global_scope_adds_method(self):
         builder = self.get_builder().set_global_scope(SoftDeleteScope())
 
-        self.assertEqual(builder.with_trashed(), "")
+        self.assertEqual(builder.with_trashed().to_sql(), "SELECT * FROM `users`")

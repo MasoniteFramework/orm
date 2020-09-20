@@ -5,18 +5,19 @@ class SoftDeleteScope(BaseScope):
     """Global scope class to add soft deleting to models.
     """
 
-    def boot(self, builder):
-        builder.set_scope("query_where_null", self.query_where_null)
+    def on_boot(self, builder):
+        print('booting')
+        builder.set_global_scope("_where_null", self._where_null, action="select")
         builder.macro("with_trashed", self._with_trashed)
 
     def on_remove(self, builder):
-        pass
+        builder.remove_global_scope("_where_null", action="select")
 
-    def query_where_null(self, builder):
+    def _where_null(self, builder):
         return builder.where_null("deleted_at")
 
     def _with_trashed(self, model, builder):
-        builder.remove_global_scope("query_where_null")
+        builder.remove_global_scope("_where_null", action="select")
         return builder
 
     # def query_set_null(self, builder):
