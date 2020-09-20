@@ -12,14 +12,14 @@ from ..expressions.expressions import (
     HavingExpression,
 )
 
+from ..scopes import BaseScope
+
 from ..schema import Schema
 
 
 class QueryBuilder:
     """A builder class to manage the building and creation of query expressions.
     """
-
-    _action = "select"
 
     def __init__(
         self,
@@ -29,6 +29,7 @@ class QueryBuilder:
         connection_details={},
         model=None,
         scopes={},
+        global_scopes={},
         dry=False,
     ):
         """QueryBuilder initializer
@@ -65,6 +66,7 @@ class QueryBuilder:
         self._group_by = ()
         self._joins = ()
         self._having = ()
+        self._macros = {}
 
         self._aggregates = ()
 
@@ -77,9 +79,6 @@ class QueryBuilder:
         if self._connection_details:
             # setup the connection information
             self._connection_driver = self._connection_details.get("default")
-
-        # if self.connection:
-        #     self.connection = self.connection().make_connection()
 
     def get_connection_information(self):
         return {
@@ -202,7 +201,7 @@ class QueryBuilder:
 
         return self
 
-    def set_global_scope(self, cls, name):
+    def set_global_scope(self, action=None, callable=None):
         """Sets the global scopes that should be used before creating the SQL.
 
         Arguments:
@@ -212,7 +211,32 @@ class QueryBuilder:
         Returns:
             self
         """
-        self._global_scopes.update({name: cls})
+        if isinstance(action, BaseScope):
+            action.boot(self)
+            return self
+
+        if not action in self._global_scopes:
+            self._global_scopes[action] = []
+
+        self._global_scopes[action].append(callable)
+
+        return self
+
+    def remove_global_scope(self, scope):
+        """Sets the global scopes that should be used before creating the SQL.
+
+        Arguments:
+            cls {masonite.orm.Model} -- An ORM model class.
+            name {string} -- The name of the global scope.
+
+        Returns:
+            self
+        """
+        if isinstance(scope, BaseScope):
+            scope.on_remove(self)
+            return self
+
+        del self._scopes[scope]
 
         return self
 
@@ -237,6 +261,13 @@ class QueryBuilder:
 
             return method
 
+        if attribute in self._macros:
+
+            def method(*args, **kwargs):
+                return self._macros[attribute](self._model, self, *args, **kwargs)
+
+            return method
+
         raise AttributeError(
             "'QueryBuilder' object has no attribute '{}'".format(attribute)
         )
@@ -249,6 +280,7 @@ class QueryBuilder:
         """
         for column in args:
             self._columns += (SelectExpression(column),)
+
         return self
 
     def select_raw(self, string):
@@ -804,6 +836,7 @@ class QueryBuilder:
         Returns:
             self
         """
+
         result = self.new_connection().query(self.to_qmark(), self._bindings)
 
         return self.prepare_result(result)
@@ -931,6 +964,9 @@ class QueryBuilder:
             self
         """
 
+        for scope in self._global_scopes.get(self._action, []):
+            scope(self)
+
         grammar = self.get_grammar()
         sql = grammar.compile(self._action).to_sql()
         return sql
@@ -943,6 +979,9 @@ class QueryBuilder:
         """
 
         grammar = self.get_grammar()
+
+        for scope in self._global_scopes.get(self._action):
+            scope(self)
 
         qmark = getattr(grammar, "_compile_{action}".format(action=self._action))(
             qmark=True
@@ -1018,4 +1057,8 @@ class QueryBuilder:
         Returns:
             self
         """
+        return self
+
+    def macro(self, name, callable):
+        self._macros.update({name: callable})
         return self

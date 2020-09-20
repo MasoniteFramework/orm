@@ -10,7 +10,8 @@ class SQLiteConnection(BaseConnection):
     name = "sqlite"
     _connection = None
 
-    def __init__(self,
+    def __init__(
+        self,
         host=None,
         database=None,
         user=None,
@@ -19,7 +20,7 @@ class SQLiteConnection(BaseConnection):
         prefix=None,
         options={},
     ):
-        print('db', database)
+        print("db", database)
         self.host = host
         if port:
             self.port = int(port)
@@ -34,15 +35,11 @@ class SQLiteConnection(BaseConnection):
     def make_connection(self):
         """This sets the connection on the connection class
         """
-        self._connection = sqlite3.connect(
-            self.database, isolation_level=None
-        )
+        self._connection = sqlite3.connect(self.database, isolation_level=None)
 
         self._connection.row_factory = sqlite3.Row
 
-
         return self
-
 
     @classmethod
     def get_database_name(self):
@@ -109,9 +106,6 @@ class SQLiteConnection(BaseConnection):
             else:
                 return [dict(row) for row in cursor.fetchall()]
         except Exception as e:
-            if (
-                self._connection
-                and self._connection.isolation_level
-            ):
+            if self._connection and self._connection.isolation_level:
                 self.rollback()
             raise e
