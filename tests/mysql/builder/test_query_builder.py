@@ -391,7 +391,7 @@ class BaseTestQueryBuilder:
 
     def test_scopes(self):
         builder = self.get_builder().set_scope(
-            "gender", lambda q: q.where("gender", "w")
+            "gender", lambda model, q: q.where("gender", "w")
         )
         print(builder.gender().where("id", 1).to_sql())
 
