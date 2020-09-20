@@ -281,7 +281,6 @@ class Model(metaclass=ModelMeta):
         Returns:
             Builder
         """
-        cls.boot()
         relationship = getattr(cls, has_relationship)()
 
         local_key = cls._registered_relationships[cls][has_relationship]["local"]
