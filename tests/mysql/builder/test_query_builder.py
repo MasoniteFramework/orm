@@ -6,6 +6,7 @@ from src.masoniteorm.orm.query.grammars import MySQLGrammar
 from src.masoniteorm.orm.models import Model
 from src.masoniteorm.orm.relationships import has_many
 from tests.utils import MockConnectionFactory
+from config.database import DATABASES
 
 
 class Articles(Model):
@@ -21,8 +22,14 @@ class User(Model):
 class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("default")
-        print(self.grammar)
-        return QueryBuilder(self.grammar, connection, table=table, owner=User)
+        # print(self.grammar)
+        return QueryBuilder(
+            grammar=self.grammar,
+            connection=connection,
+            table=table,
+            model=User,
+            connection_details=DATABASES,
+        )
 
     def test_sum(self):
         builder = self.get_builder()
@@ -381,6 +388,12 @@ class BaseTestQueryBuilder:
     def test_get_schema_builder(self):
         builder = self.get_builder()
         self.assertTrue(builder.get_schema_builder())
+
+    def test_scopes(self):
+        builder = self.get_builder().set_scope(
+            "gender", lambda q: q.where("gender", "w")
+        )
+        print(builder.gender().where("id", 1).to_sql())
 
 
 class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):

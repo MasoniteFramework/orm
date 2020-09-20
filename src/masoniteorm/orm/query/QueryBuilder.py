@@ -25,12 +25,10 @@ class QueryBuilder:
         self,
         grammar=None,
         connection=None,
-        table="",
+        table=None,
         connection_details={},
+        model=None,
         scopes={},
-        global_scopes={},
-        eager_loads=(),
-        owner=None,
         dry=False,
     ):
         """QueryBuilder initializer
@@ -44,43 +42,66 @@ class QueryBuilder:
         """
         self.grammar = grammar
         self._table = table
-        self.owner = owner
         self.connection = connection
-        self.connection_details = connection_details
-        self._scopes = {}
-        self._global_scopes = global_scopes
-        if scopes:
-            self._scopes.update(scopes)
+        self._connection_details = connection_details
+        self._connection_driver = None
+        self._scopes = scopes
+        self._global_scopes = {}
         self.builder = self
         self._should_eager = True
-        self._eager_loads = eager_loads
-        self.boot()
+
+        self._eager_loads = ()
+        self._columns = ()
+        self._creates = {}
+
+        self._sql = ""
+        self._sql_binding = ""
+        self._bindings = ()
+
+        self._updates = ()
+
+        self._wheres = ()
+        self._order_by = ()
+        self._group_by = ()
+        self._joins = ()
+        self._having = ()
+
+        self._aggregates = ()
+
+        self._limit = False
+        self._offset = False
+        self._model = model
         self.set_action("select")
 
         # Get the connection and grammar class.
-        if not self.grammar:
-            from ..query.grammars import GrammarFactory
-            from ..connections.ConnectionFactory import ConnectionFactory
+        if self._connection_details:
+            # setup the connection information
+            self._connection_driver = self._connection_details.get("default")
 
-            connection_dictionary = self.connection_details.get(
-                self.connection_details.get("default")
-            )
-            grammar = connection_dictionary.get(
-                "grammar", None
-            ) or connection_dictionary.get("driver")
-            driver = connection_dictionary.get("driver")
-            if not self.connection:
-                self.connection = ConnectionFactory().make(driver)
+        # if self.connection:
+        #     self.connection = self.connection().make_connection()
 
-            self.grammar = GrammarFactory().make(grammar)
-
-        if self.connection:
-            self.connection = self.connection().make_connection()
-
-        if not self.owner:
-            from ..models import QueryResult
-
-            self.owner = QueryResult
+    def get_connection_information(self):
+        return {
+            "host": self._connection_details.get(self._connection_driver, {}).get(
+                "host"
+            ),
+            "database": self._connection_details.get(self._connection_driver, {}).get(
+                "database"
+            ),
+            "user": self._connection_details.get(self._connection_driver, {}).get(
+                "user"
+            ),
+            "port": self._connection_details.get(self._connection_driver, {}).get(
+                "port"
+            ),
+            "password": self._connection_details.get(self._connection_driver, {}).get(
+                "password"
+            ),
+            "prefix": self._connection_details.get(self._connection_driver, {}).get(
+                "prefix"
+            ),
+        }
 
     def table(self, table):
         """Sets a table on the query builder
@@ -125,8 +146,7 @@ class QueryBuilder:
         Returns:
             self
         """
-        print("here", self.connection)
-        return self.get_connection().begin()
+        return self.new_connection().begin()
 
     def begin_transaction(self, *args, **kwargs):
         return self.begin(*args, **kwargs)
@@ -167,7 +187,7 @@ class QueryBuilder:
         """
         return getattr(self.owner, key)
 
-    def set_scope(self, cls, name):
+    def set_scope(self, name, callable):
         """Sets a scope based on a class and maps it to a name.
 
         Arguments:
@@ -177,7 +197,8 @@ class QueryBuilder:
         Returns:
             self
         """
-        self._scopes.update({name: cls})
+        # setattr(self, name, callable)
+        self._scopes.update({name: callable})
 
         return self
 
@@ -210,35 +231,15 @@ class QueryBuilder:
             self
         """
         if attribute in self._scopes:
-            return getattr(self._scopes[attribute], attribute)
+
+            def method(*args, **kwargs):
+                return self._scopes[attribute](self._model, self, *args, **kwargs)
+
+            return method
 
         raise AttributeError(
             "'QueryBuilder' object has no attribute '{}'".format(attribute)
         )
-
-    def boot(self):
-        """Sets various attributes on the query builder class.
-        """
-        self._columns = ()
-        self._creates = {}
-
-        self._sql = ""
-        self._sql_binding = ""
-        self._bindings = ()
-
-        self._updates = ()
-
-        self._wheres = ()
-        self._order_by = ()
-        self._group_by = ()
-        self._joins = ()
-        self._having = ()
-
-        self._aggregates = ()
-
-        self._limit = False
-        self._offset = False
-        self.set_action("select")
 
     def select(self, *args):
         """Specifies columns that should be selected
@@ -766,14 +767,23 @@ class QueryBuilder:
         Returns:
             dictionary -- Returns a dictionary of results.
         """
-        self.set_action("select")
         if query:
             return self.limit(1)
-        result = self.connection.query(
+
+        result = self.new_connection().query(
             self.limit(1).to_qmark(), self._bindings, results=1
         )
-        relations = self.eager_load_model(result)
-        return self.owner.hydrate(result, relations=relations)
+
+        return self.prepare_result(result)
+
+    def prepare_result(self, result):
+        if self._model:
+            return self._model.hydrate(result)
+
+        if isinstance(result, (list, tuple,)):
+            return Collection(result)
+
+        return result
 
     def all(self, query=False):
         """Returns all records from the table.
@@ -781,13 +791,12 @@ class QueryBuilder:
         Returns:
             dictionary -- Returns a dictionary of results.
         """
-        print("all")
         if query:
             return self.to_sql()
-        print("return hydration")
-        return self.owner.hydrate(
-            self.connection.query(self.to_qmark(), self._bindings) or []
-        )
+
+        result = self.new_connection().query(self.to_qmark(), self._bindings) or []
+
+        return self.prepare_result(result)
 
     def get(self):
         """Runs the select query built from the query builder.
@@ -795,12 +804,13 @@ class QueryBuilder:
         Returns:
             self
         """
-        self.set_action("select")
-        result = self.connection.query(self.to_qmark(), self._bindings)
-        relations = self.eager_load_model(result)
-        return self.owner.new_collection(result).map_into(
-            self.owner, "hydrate", relations=relations
-        )
+        result = self.new_connection().query(self.to_qmark(), self._bindings)
+
+        return self.prepare_result(result)
+        return Collection(result)
+
+    def new_connection(self):
+        return self.connection(**self.get_connection_information()).make_connection()
 
     def without_eager(self):
         self._should_eager = False
@@ -899,8 +909,6 @@ class QueryBuilder:
         # Either _creates when creating, otherwise use columns
         columns = self._creates or self._columns
 
-        print("grammar is", self.grammar)
-
         return self.grammar(
             columns=columns,
             table=self._table,
@@ -913,9 +921,7 @@ class QueryBuilder:
             group_by=self._group_by,
             joins=self._joins,
             having=self._having,
-            connection_details=self.connection.connection_details
-            if self.connection
-            else self.connection_details,
+            # connection=self.connection
         )
 
     def to_sql(self):
@@ -925,15 +931,8 @@ class QueryBuilder:
             self
         """
 
-        for scope in self._global_scopes.get(self.owner, {}).get(self._action, []):
-            if not scope:
-                continue
-
-            scope(self.owner, self)
-
         grammar = self.get_grammar()
         sql = grammar.compile(self._action).to_sql()
-        self.boot()
         return sql
 
     def to_qmark(self):
@@ -943,22 +942,11 @@ class QueryBuilder:
             self
         """
 
-        if not self._action:
-            self.set_action("select")
-
-        for scope in self._global_scopes.get(self.owner, {}).get(self._action, []):
-            if not scope:
-                continue
-
-            scope(self.owner, self)
-
         grammar = self.get_grammar()
 
         qmark = getattr(grammar, "_compile_{action}".format(action=self._action))(
             qmark=True
         ).to_qmark()
-
-        self.boot()
 
         self._bindings = grammar._bindings
 

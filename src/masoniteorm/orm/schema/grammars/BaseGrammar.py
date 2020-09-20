@@ -846,7 +846,6 @@ class BaseGrammar:
             self
         """
         sql = ""
-        print("col", self._columns)
         for column in self._columns:
             if isinstance(column, SelectExpression):
                 if column.raw:

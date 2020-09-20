@@ -1,6 +1,6 @@
 import inspect
 
-from ..builder import QueryBuilder
+from ..query import QueryBuilder
 from ..query.grammars import GrammarFactory
 
 

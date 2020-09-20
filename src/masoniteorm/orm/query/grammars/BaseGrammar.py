@@ -378,9 +378,9 @@ class BaseGrammar:
                 if strip_first_where:
                     keyword = ""
                 else:
-                    keyword = self.first_where_string()
+                    keyword = " " + self.first_where_string()
             elif where.keyword == "or":
-                keyword = self.or_where_string()
+                keyword = " " + self.or_where_string()
             else:
                 keyword = " " + self.additional_where_string()
 
@@ -549,7 +549,6 @@ class BaseGrammar:
             self
         """
         sql = ""
-        print("col", self._columns)
         for column in self._columns:
             if isinstance(column, SelectExpression):
                 if column.raw:

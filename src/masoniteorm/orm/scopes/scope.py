@@ -6,9 +6,14 @@ class scope:
         self.fn = callback
 
     def __set_name__(self, cls, name):
-        cls.set_scope(cls, name)
+        cls._scopes.update({name: self.fn})
         self.cls = cls
 
     def __call__(self, *args, **kwargs):
-        self.fn(self.cls, self.cls.builder, *args, **kwargs)
-        return self.cls.builder
+        instantiated = self.cls()
+        builder = instantiated.get_builder()
+        return self.fn(instantiated, builder, *args, **kwargs)
+
+    #     print('calling')
+    #     self.fn(self.cls, self.cls().get_builder(), *args, **kwargs)
+    #     return self.cls.builder
