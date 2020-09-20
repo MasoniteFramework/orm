@@ -19,7 +19,7 @@ class MockConnection:
 class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("default")
-        return QueryBuilder(self.grammar, connection, table=table, owner=Model)
+        return QueryBuilder(self.grammar, connection, table=table, model=Model)
 
     def test_sum(self):
         builder = self.get_builder()

@@ -15,7 +15,8 @@ User().first()
 
 class ModelMeta(type):
     def __getattr__(self, attribute, *args, **kwargs):
-        return getattr(self(), attribute)
+        instantiated = self()
+        return getattr(instantiated, attribute)
 
 
 class BoolCast:
@@ -42,6 +43,7 @@ class Model(metaclass=ModelMeta):
 
     _registered_relationships = {}
     _booted = False
+    _scopes = {}
     __primary_key__ = "id"
     __casts__ = {}
     __dates__ = []
@@ -78,7 +80,6 @@ class Model(metaclass=ModelMeta):
         self.__dirty_attributes__ = {}
         self._relationships = {}
         self.__appends__ = []
-        self._scopes = {}
 
         self.__resolved_connection__ = ConnectionFactory().make(self.__connection__)
 
@@ -86,10 +87,6 @@ class Model(metaclass=ModelMeta):
             self.__resolved_connection__.get_grammar(),
             self.__resolved_connection__,
             table=self.get_table_name(),
-            owner=self,
-            eager_loads=self._eager_load,
-            global_scopes=self._global_scopes,
-            scopes=self._scopes,
             dry=self.__dry__,
         )
 
@@ -124,17 +121,21 @@ class Model(metaclass=ModelMeta):
     def get_builder(self):
         self.__resolved_connection__ = ConnectionFactory().make(self.__connection__)
         self.builder = QueryBuilder(
-            self.__resolved_connection__.get_grammar(),
-            self.__resolved_connection__,
+            grammar=self.__resolved_connection__.get_grammar(),
+            connection=self.__resolved_connection__,
             table=self.get_table_name(),
-            owner=self,
-            eager_loads=self._eager_load,
-            global_scopes=self._global_scopes,
+            connection_details=self.get_connection_details(),
+            model=self,
             scopes=self._scopes,
             dry=self.__dry__,
         )
 
         return self.builder
+
+    def get_connection_details(self):
+        from config.database import DATABASES
+
+        return DATABASES
 
     def boot(cls):
         if not cls._booted:
@@ -162,7 +163,8 @@ class Model(metaclass=ModelMeta):
 
         return cls
 
-    def apply_scope(self, scope_class):
+    @classmethod
+    def apply_scope(cls, scope_class):
         """Applies the scope to the current model.
 
         Arguments:
@@ -174,7 +176,6 @@ class Model(metaclass=ModelMeta):
         boot_methods = [
             v for k, v in scope_class.__dict__.items() if k.startswith("boot_")
         ]
-
 
         for method in boot_methods:
             for action, value in method().items():
@@ -280,7 +281,6 @@ class Model(metaclass=ModelMeta):
         Returns:
             Builder
         """
-        cls.boot()
         relationship = getattr(cls, has_relationship)()
 
         local_key = cls._registered_relationships[cls][has_relationship]["local"]

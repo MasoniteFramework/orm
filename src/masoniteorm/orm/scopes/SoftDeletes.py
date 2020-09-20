@@ -1,5 +1,5 @@
 class SoftDeletes:
-    """Scope class to add soft deleting to models.
+    """Global scope class to add soft deleting to models.
     """
 
     def boot_soft_delete():
