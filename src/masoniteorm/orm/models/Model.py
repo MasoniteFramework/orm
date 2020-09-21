@@ -298,6 +298,7 @@ class Model(metaclass=ModelMeta):
         if not dictionary:
             dictionary = kwargs
 
+        print('dic is', dictionary, cls.__fillable__)
         if cls.__fillable__ != ["*"]:
             dictionary = {x: dictionary[x] for x in cls.__fillable__}
 
