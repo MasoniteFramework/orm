@@ -44,62 +44,62 @@ class User(Model):
         return "You are an admin"
 
 
-# class TestRelationships(unittest.TestCase):
-#     maxDiff = None
+class TestRelationships(unittest.TestCase):
+    maxDiff = None
 
-#     def test_relationship_can_be_callable(self):
-#         self.assertEqual(
-#             User.profile().where("name", "Joe").to_sql(),
-#             """SELECT * FROM "profiles" WHERE "profiles"."name" = 'Joe'""",
-#         )
+    def test_relationship_can_be_callable(self):
+        self.assertEqual(
+            User.profile().where("name", "Joe").to_sql(),
+            """SELECT * FROM "profiles" WHERE "profiles"."name" = 'Joe'""",
+        )
 
-#     def test_can_access_relationship(self):
-#         for user in User.where("id", 1).get():
-#             self.assertIsInstance(user.profile, Profile)
+    def test_can_access_relationship(self):
+        for user in User.where("id", 1).get():
+            self.assertIsInstance(user.profile, Profile)
 
-#     def test_can_access_has_many_relationship(self):
-#         user = User.hydrate(User.where("id", 1).first())
-#         self.assertEqual(len(user.articles), 4)
+    def test_can_access_has_many_relationship(self):
+        user = User.hydrate(User.where("id", 1).first())
+        self.assertEqual(len(user.articles), 4)
 
-#     def test_can_access_relationship_multiple_times(self):
-#         user = User.hydrate(User.where("id", 1).first())
-#         self.assertEqual(len(user.articles), 4)
-#         self.assertEqual(len(user.articles), 4)
+    def test_can_access_relationship_multiple_times(self):
+        user = User.hydrate(User.where("id", 1).first())
+        self.assertEqual(len(user.articles), 4)
+        self.assertEqual(len(user.articles), 4)
 
-#     def test_loading(self):
-#         users = User.with_("articles").get()
-#         for user in users:
-#             user
+    def test_loading(self):
+        users = User.with_("articles").get()
+        for user in users:
+            user
 
-#     def test_casting(self):
-#         users = User.with_("articles").where("is_admin", True).get()
-#         for user in users:
-#             user
+    def test_casting(self):
+        users = User.with_("articles").where("is_admin", True).get()
+        for user in users:
+            user
 
-#     def test_setting(self):
-#         users = User.with_("articles").where("is_admin", True).get()
-#         for user in users:
-#             user.name = "Joe"
-#             user.is_admin = 1
-#             user.save()
+    def test_setting(self):
+        users = User.with_("articles").where("is_admin", True).get()
+        for user in users:
+            user.name = "Joe"
+            user.is_admin = 1
+            user.save()
 
-#     def test_relationship_has(self):
-#         to_sql = User.has("articles").to_sql()
-#         self.assertEqual(
-#             to_sql,
-#             """SELECT * FROM "users" WHERE EXISTS ("""
-#             """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id\""""
-#             """)""",
-#         )
+    # def test_relationship_has(self):
+    #     to_sql = User.has("articles").to_sql()
+    #     self.assertEqual(
+    #         to_sql,
+    #         """SELECT * FROM "users" WHERE EXISTS ("""
+    #         """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id\""""
+    #         """)""",
+    #     )
 
-#     def test_relationship_has_off_builder(self):
-#         to_sql = User.where("active", 1).has("articles").to_sql()
-#         self.assertEqual(
-#             to_sql,
-#             """SELECT * FROM "users" WHERE "users"."active" = '1' AND EXISTS ("""
-#             """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id\""""
-#             """)""",
-#         )
+    # def test_relationship_has_off_builder(self):
+    #     to_sql = User.where("active", 1).has("articles").to_sql()
+    #     self.assertEqual(
+    #         to_sql,
+    #         """SELECT * FROM "users" WHERE "users"."active" = '1' AND EXISTS ("""
+    #         """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id\""""
+    #         """)""",
+    #     )
 
 #     def test_relationship_multiple_has(self):
 #         to_sql = User.has("articles", "profile").to_sql()

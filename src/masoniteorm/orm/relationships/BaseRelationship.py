@@ -62,7 +62,6 @@ class BaseRelationship:
             In this case we want to return the builder so we can chain on additional methods
             """
             self.relationship = self.fn(self)
-            self.relationship.boot()
             return self.relationship.builder
 
         """Check if the relationship is eager loaded and return that relationship instead

@@ -27,9 +27,9 @@ class QueryBuilder:
         connection=None,
         table=None,
         connection_details={},
+        connection_driver=None,
         model=None,
         scopes={},
-        # global_scopes={},
         dry=False,
     ):
         """QueryBuilder initializer
@@ -45,7 +45,7 @@ class QueryBuilder:
         self._table = table
         self.connection = connection
         self._connection_details = connection_details
-        self._connection_driver = None
+        self._connection_driver = connection_driver
         self._scopes = scopes
         if model:
             self._global_scopes = model._global_scopes
@@ -79,12 +79,12 @@ class QueryBuilder:
         self._model = model
         self.set_action("select")
 
-        # Get the connection and grammar class.
-        if self._connection_details:
+        if self._connection_details and not self._connection_driver:
             # setup the connection information
             self._connection_driver = self._connection_details.get("default")
 
     def get_connection_information(self):
+        print('driver', self._connection_driver)
         return {
             "host": self._connection_details.get(self._connection_driver, {}).get(
                 "host"

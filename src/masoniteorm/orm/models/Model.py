@@ -121,6 +121,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
             table=self.get_table_name(),
             connection_details=self.get_connection_details(),
             model=self,
+            connection_driver=self.__connection__,
             scopes=self._scopes,
             dry=self.__dry__,
         )
