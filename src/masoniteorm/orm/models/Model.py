@@ -51,7 +51,6 @@ class Model(metaclass=ModelMeta):
     __dates__ = []
     __hidden__ = []
     __timestamps__ = True
-    # _global_scopes = {}
 
     date_created_at = "created_at"
     date_updated_at = "updated_at"
@@ -141,27 +140,6 @@ class Model(metaclass=ModelMeta):
 
             if class_name.endswith("Mixin"):
                 getattr(base_class(), "boot_" + class_name)(self.builder)
-
-    @classmethod
-    def apply_scope(cls, scope_class):
-        """Applies the scope to the current model.
-
-        Arguments:
-            scope_class {object} -- A scope class.
-
-        Returns:
-            cls
-        """
-        boot_methods = [
-            v for k, v in scope_class.__dict__.items() if k.startswith("boot_")
-        ]
-
-        for method in boot_methods:
-            for action, value in method().items():
-                if value not in cls._global_scopes[cls][action]:
-                    cls._global_scopes[cls][action].append(value)
-
-        return cls
 
     @classmethod
     def get_table_name(cls):
