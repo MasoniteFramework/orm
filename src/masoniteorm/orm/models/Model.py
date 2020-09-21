@@ -8,7 +8,7 @@ from ..query import QueryBuilder
 from ..collection import Collection
 from ..connections import ConnectionFactory
 from ..query.grammars import MySQLGrammar
-from ..scopes import BaseScope, SoftDeleteScope, SoftDeletesMixin
+from ..scopes import BaseScope, SoftDeleteScope, SoftDeletesMixin, TimeStampsMixin
 
 """This is a magic class that will help using models like User.first() instead of having to instatiate a class like 
 User().first()
@@ -31,7 +31,7 @@ class JsonCast:
         return json.dumps(value)
 
 
-class Model(metaclass=ModelMeta):
+class Model(TimeStampsMixin, metaclass=ModelMeta):
 
     __metaclass__ = ModelMeta
 
@@ -298,7 +298,7 @@ class Model(metaclass=ModelMeta):
         if not dictionary:
             dictionary = kwargs
 
-        print('dic is', dictionary, cls.__fillable__)
+        print("dic is", dictionary, cls.__fillable__)
         if cls.__fillable__ != ["*"]:
             dictionary = {x: dictionary[x] for x in cls.__fillable__}
 

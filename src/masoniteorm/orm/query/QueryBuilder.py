@@ -227,6 +227,10 @@ class QueryBuilder:
 
         return self
 
+    def without_global_scopes(self):
+        self._global_scopes = {}
+        return self
+
     def remove_global_scope(self, scope, action=None):
         """Sets the global scopes that should be used before creating the SQL.
 

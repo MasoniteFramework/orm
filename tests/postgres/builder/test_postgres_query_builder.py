@@ -96,7 +96,7 @@ class BaseTestQueryBuilder:
         self.assertEqual(builder.to_sql(), sql)
 
     def test_create(self):
-        builder = self.get_builder()
+        builder = self.get_builder().without_global_scopes()
         builder.create(
             {"name": "Corentin All", "email": "corentin@yopmail.com"}, query=True
         )
