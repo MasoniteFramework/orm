@@ -6,7 +6,6 @@ class TimeStampsScope(BaseScope):
     """
 
     def on_boot(self, builder):
-        print("booting soft deletes", builder)
         builder.set_global_scope(
             "_timestamps", self.set_timestamp_create, action="insert"
         )

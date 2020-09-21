@@ -6,5 +6,4 @@ class TimeStampsMixin:
     """
 
     def boot_TimeStampsMixin(self, builder):
-        print("bb", builder)
         builder.set_global_scope(TimeStampsScope())

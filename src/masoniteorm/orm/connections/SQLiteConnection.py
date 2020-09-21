@@ -20,7 +20,6 @@ class SQLiteConnection(BaseConnection):
         prefix=None,
         options={},
     ):
-        print("db", database)
         self.host = host
         if port:
             self.port = int(port)
@@ -64,20 +63,17 @@ class SQLiteConnection(BaseConnection):
     def commit(self):
         """Transaction
         """
-        print("commit transaction")
         return self.__class__._connection.commit()
 
     def begin(self):
         """Sqlite Transaction
         """
-        print("starting sqlite transaction", self, self.__class__._connection)
         self.__class__._connection.isolation_level = "DEFERRED"
         return self.__class__._connection
 
     def rollback(self):
         """Transaction
         """
-        print("rolling back transaction", self, self.__class__._connection)
         self.__class__._connection.rollback()
 
     def query(self, query, bindings, results="*"):

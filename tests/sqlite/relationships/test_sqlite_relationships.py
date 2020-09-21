@@ -101,6 +101,7 @@ class TestRelationships(unittest.TestCase):
     #         """)""",
     #     )
 
+
 #     def test_relationship_multiple_has(self):
 #         to_sql = User.has("articles", "profile").to_sql()
 #         self.assertEqual(
