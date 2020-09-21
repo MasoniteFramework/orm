@@ -29,7 +29,7 @@ class QueryBuilder:
         connection_details={},
         model=None,
         scopes={},
-        global_scopes={},
+        # global_scopes={},
         dry=False,
     ):
         """QueryBuilder initializer
@@ -47,7 +47,11 @@ class QueryBuilder:
         self._connection_details = connection_details
         self._connection_driver = None
         self._scopes = scopes
-        self._global_scopes = global_scopes
+        if model:
+            self._global_scopes = model._global_scopes
+        else:
+            self._global_scopes = {}
+
         self.builder = self
         self._should_eager = True
 
@@ -211,7 +215,7 @@ class QueryBuilder:
         Returns:
             self
         """
-        print("global scopes", self, self._global_scopes)
+        print("setting global scopes", self, self._global_scopes)
         if isinstance(name, BaseScope):
             name.on_boot(self)
             return self
@@ -965,7 +969,7 @@ class QueryBuilder:
         Returns:
             self
         """
-        print("global scopes to sql", self._global_scopes)
+        print("global scopes to sql", self._global_scopes, self)
         for name, scope in self._global_scopes.get(self._action, {}).items():
             scope(self)
 

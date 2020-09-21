@@ -84,8 +84,6 @@ class Model(metaclass=ModelMeta):
         self.__appends__ = []
         self._global_scopes = {}
 
-        self.__resolved_connection__ = ConnectionFactory().make(self.__connection__)
-
         self.get_builder()
         self.boot()
 
