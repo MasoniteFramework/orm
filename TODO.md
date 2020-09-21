@@ -1,8 +1,8 @@
-* fix scopes - need to find a new way to perform scopes
+- [x] fix scopes - need to find a new way to perform scopes
 
-* scopes need to be set on the model and then passed off to the query builder
+- [x] scopes need to be set on the model and then passed off to the query builder
 
-* global scopes
+- [x] global scopes
     - on select need to call a scope
     - on delete need to call a scope
     - need to be able to remove global scopes
