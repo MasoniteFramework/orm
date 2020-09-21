@@ -7,4 +7,4 @@
     - on delete need to call a scope
     - need to be able to remove global scopes
     - need to be able to able to call something like with_trashed()
-        - this needs to remove global scopes only from the soft deletes class
+        - this needs to remove global scopes only from the soft deletes class 
