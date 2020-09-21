@@ -1,8 +1,8 @@
 import inspect
 import unittest
 
-from src.masoniteorm.orm.builder import QueryBuilder
-from src.masoniteorm.orm.grammar import GrammarFactory, PostgresGrammar
+from src.masoniteorm.orm.query import QueryBuilder
+from src.masoniteorm.orm.query.grammars import GrammarFactory, PostgresGrammar
 
 
 class BaseInsertGrammarTest:

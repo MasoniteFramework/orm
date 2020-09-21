@@ -1,11 +1,13 @@
 import inspect
 import unittest
 
-from src.masoniteorm.orm.builder import QueryBuilder
-from src.masoniteorm.orm.grammar import MySQLGrammar
+from src.masoniteorm.orm.query import QueryBuilder
+from src.masoniteorm.orm.query.grammars import MySQLGrammar
 from src.masoniteorm.orm.models import Model
 from src.masoniteorm.orm.relationships import has_many
 from tests.utils import MockConnectionFactory
+from config.database import DATABASES
+from src.masoniteorm.orm.scopes import SoftDeleteScope
 
 
 class Articles(Model):
@@ -21,7 +23,14 @@ class User(Model):
 class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("default")
-        return QueryBuilder(self.grammar, connection, table=table, owner=User)
+        # print(self.grammar)
+        return QueryBuilder(
+            grammar=self.grammar,
+            connection=connection,
+            table=table,
+            model=User,
+            connection_details=DATABASES,
+        )
 
     def test_sum(self):
         builder = self.get_builder()
@@ -107,7 +116,7 @@ class BaseTestQueryBuilder:
         self.assertEqual(builder.to_sql(), sql)
 
     def test_create(self):
-        builder = self.get_builder()
+        builder = self.get_builder().without_global_scopes()
         builder.create(
             {"name": "Corentin All", "email": "corentin@yopmail.com"}, query=True
         )

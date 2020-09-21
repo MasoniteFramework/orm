@@ -574,10 +574,7 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.drop_column('name')
         """
 
-        return (
-            "CREATE TABLE `users` "
-            "(`admin` INT(11) NOT NULL DEFAULT 0)"
-        )
+        return "CREATE TABLE `users` " "(`admin` INT(11) NOT NULL DEFAULT 0)"
 
     def drop_multiple_column(self):
         """
@@ -673,7 +670,9 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.timestamp('logged_at', now=True)
         """
 
-        return "CREATE TABLE `users` (" "`logged_at` TIMESTAMP NOT NULL DEFAULT NOW()" ")"
+        return (
+            "CREATE TABLE `users` (" "`logged_at` TIMESTAMP NOT NULL DEFAULT NOW()" ")"
+        )
 
     def can_compile_timestamp_column_without_default(self):
         """

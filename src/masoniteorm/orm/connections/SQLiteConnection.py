@@ -1,5 +1,5 @@
 import sqlite3
-from ..grammar import GrammarFactory
+from ..query.grammars import GrammarFactory
 from .BaseConnection import BaseConnection
 
 
@@ -10,16 +10,34 @@ class SQLiteConnection(BaseConnection):
     name = "sqlite"
     _connection = None
 
+    def __init__(
+        self,
+        host=None,
+        database=None,
+        user=None,
+        port=None,
+        password=None,
+        prefix=None,
+        options={},
+    ):
+        print("db", database)
+        self.host = host
+        if port:
+            self.port = int(port)
+        else:
+            self.port = port
+        self.database = database
+        self.user = user
+        self.password = password
+        self.prefix = prefix
+        self.options = options
+
     def make_connection(self):
         """This sets the connection on the connection class
         """
-        connection_details = self.get_connection_details()
-        if self.__class__._connection:
-            return self
-        self.__class__._connection = sqlite3.connect(
-            connection_details.get("db"), isolation_level=None
-        )
-        self.__class__._connection.row_factory = sqlite3.Row
+        self._connection = sqlite3.connect(self.database, isolation_level=None)
+
+        self._connection.row_factory = sqlite3.Row
 
         return self
 
@@ -50,7 +68,7 @@ class SQLiteConnection(BaseConnection):
         return self.__class__._connection.commit()
 
     def begin(self):
-        """Transaction
+        """Sqlite Transaction
         """
         print("starting sqlite transaction", self, self.__class__._connection)
         self.__class__._connection.isolation_level = "DEFERRED"
@@ -79,7 +97,7 @@ class SQLiteConnection(BaseConnection):
         query = query.replace("'?'", "?")
         print("running query: ", query, bindings)
         try:
-            cursor = self.__class__._connection.cursor()
+            cursor = self._connection.cursor()
             cursor.execute(query, bindings)
             if results == 1:
                 result = [dict(row) for row in cursor.fetchall()]
@@ -88,9 +106,6 @@ class SQLiteConnection(BaseConnection):
             else:
                 return [dict(row) for row in cursor.fetchall()]
         except Exception as e:
-            if (
-                self.__class__._connection
-                and self.__class__._connection.isolation_level
-            ):
+            if self._connection and self._connection.isolation_level:
                 self.rollback()
             raise e

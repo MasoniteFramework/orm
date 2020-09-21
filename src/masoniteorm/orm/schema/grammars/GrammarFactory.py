@@ -1,7 +1,6 @@
-from .mysql_grammar import MySQLGrammar
-from .mssql_grammar import MSSQLGrammar
-from .sqlite_grammar import SQLiteGrammar
-from .postgres_grammar import PostgresGrammar
+from .SQLiteGrammar import SQLiteGrammar
+from .MySQLGrammar import MySQLGrammar
+from .PostgresGrammar import PostgresGrammar
 
 
 class GrammarFactory:
@@ -10,14 +9,10 @@ class GrammarFactory:
 
     grammars = {
         # Base grammars that will be used with various drivers
-        "mysql": MySQLGrammar,
         "sqlite": SQLiteGrammar,
-        "mssql": MSSQLGrammar,
-        "postgres": PostgresGrammar,
+        "mysql": MySQLGrammar,
+        "postgres": PostgresGrammar
         # examples of using different versions of grammar here
-        "mssql2008": MSSQLGrammar,
-        "mssql2012": MSSQLGrammar,
-        "mssql2016": MSSQLGrammar,
     }
 
     @staticmethod

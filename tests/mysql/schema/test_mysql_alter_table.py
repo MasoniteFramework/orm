@@ -1,6 +1,6 @@
-from src.masoniteorm.orm.grammar.mysql_grammar import MySQLGrammar
-from src.masoniteorm.orm.blueprint import Blueprint
-from src.masoniteorm.orm.grammar import GrammarFactory
+from src.masoniteorm.orm.schema.grammars import MySQLGrammar
+from src.masoniteorm.orm.schema.Blueprint import Blueprint
+from src.masoniteorm.orm.query.grammars import GrammarFactory
 from src.masoniteorm.orm.schema import Schema
 import unittest
 
@@ -26,8 +26,8 @@ class TestMySQLAlterGrammar(unittest.TestCase):
 
     def test_can_add_column_and_foreign_key(self):
         with self.schema.table("users") as blueprint:
-            blueprint.unsigned_integer('playlist_id').nullable()
-            blueprint.foreign('playlist_id').references('id').on('playlists')
+            blueprint.unsigned_integer("playlist_id").nullable()
+            blueprint.foreign("playlist_id").references("id").on("playlists")
 
         sql = "ALTER TABLE `users` ADD `playlist_id` INT UNSIGNED, ADD CONSTRAINT users_playlist_id_foreign FOREIGN KEY (`playlist_id`) REFERENCES `playlists`(`id`)"
         self.assertEqual(blueprint.to_sql(), sql)

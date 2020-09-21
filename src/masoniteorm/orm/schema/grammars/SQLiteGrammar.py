@@ -2,29 +2,11 @@ from .BaseGrammar import BaseGrammar
 import re
 
 
-class PostgresGrammar(BaseGrammar):
-    """Postgres grammar class.
+class SQLiteGrammar(BaseGrammar):
+    """SQLite grammar class.
     """
 
-    aggregate_options = {
-        "SUM": "SUM",
-        "MAX": "MAX",
-        "MIN": "MIN",
-        "AVG": "AVG",
-        "COUNT": "COUNT",
-        "AVG": "AVG",
-    }
-
-    join_keywords = {
-        "inner": "INNER JOIN",
-        "outer": "OUTER JOIN",
-        "left": "LEFT JOIN",
-        "right": "RIGHT JOIN",
-        "left_inner": "LEFT INNER JOIN",
-        "right_inner": "RIGHT INNER JOIN",
-    }
-
-    types_without_lengths = ["integer"]
+    types_without_lengths = []
 
     type_map = {
         "string": "VARCHAR",
@@ -40,7 +22,7 @@ class PostgresGrammar(BaseGrammar):
         "boolean": "BOOLEAN",
         "decimal": "DECIMAL",
         "double": "DOUBLE",
-        "enum": "VARCHAR(255) CHECK ",
+        "enum": "ENUM",
         "text": "TEXT",
         "float": "FLOAT",
         "geometry": "GEOMETRY",
@@ -54,8 +36,8 @@ class PostgresGrammar(BaseGrammar):
         "year": "YEAR",
         "datetime": "DATETIME",
         "tiny_increments": "TINYINT AUTO_INCREMENT",
-        "unsigned": "INT",
-        "unsigned_integer": "INT",
+        "unsigned": "INT UNSIGNED",
+        "unsigned_integer": "UNSIGNED INT",
     }
 
     on_delete_mapping = {
@@ -70,77 +52,30 @@ class PostgresGrammar(BaseGrammar):
         None: "",
     }
 
-    column_strings = {
-        "select": '"{table}"."{column}"{separator}',
-        "insert": '"{column}"{separator}',
-        "update": '"{column}"{separator}',
-        "delete": '"{table}"."{column}"{separator}',
-    }
-
     options = {
-        "create_constraints_as_separate_queries": True,
-        "alter_constraints_as_separate_queries": True,
-        "second_query_constraints": ("index", "fulltext"),
+        "create_constraints_as_separate_queries": True,  # Whether constraints should run as separate queries or part of the create table semantics
+        "alter_constraints_as_separate_queries": True,  # Whether constraints should run as separate queries or part of the alter table semantics
+        "second_query_constraints": (
+            "index",
+            "fulltext",
+        ),  # constraint types that should run as separate queries
         "can_compile_multiple_index": False,  # INDEX("column1", "column2")
     }
 
-    timestamp_mapping = {"current": "CURRENT_TIMESTAMP", "now": "NOW()"}
-
-    timestamp_null_map = {
-        "null": "NULL DEFAULT NULL",
-        "not_null": "NOT NULL DEFAULT CURRENT_TIMESTAMP",
+    premapped_defaults = {
+        "current": " DEFAULT CURRENT_TIMESTAMP",
+        "now": " DEFAULT CURRENT_TIMESTAMP",
+        "null": " DEFAULT NULL",
     }
 
-    def select_format(self):
-        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by}{order_by} {limit} {offset} {having}"
-
-    def update_format(self):
-        return "UPDATE {table} SET {key_equals} {wheres}"
-
-    def insert_format(self):
-        return "INSERT INTO {table} ({columns}) VALUES ({values})"
-
-    def delete_format(self):
-        return "DELETE FROM {table} {wheres}"
-
-    def aggregate_string_with_alias(self):
-        return "{aggregate_function}({column}) AS {alias}"
-
-    def aggregate_string_without_alias(self):
-        return "{aggregate_function}({column})"
-
-    def subquery_string(self):
-        return "({query})"
+    def default_string(self):
+        return " DEFAULT {default} "
 
     def raw_query_string(self):
         return "{keyword} {query}"
 
-    def where_group_string(self):
-        return "{keyword} {value}"
-
-    def between_string(self):
-        return "{keyword} {column} BETWEEN {low} AND {high}"
-
-    def not_between_string(self):
-        return "{keyword} {column} NOT BETWEEN {low} AND {high}"
-
-    def where_exists_string(self):
-        return "{keyword} EXISTS {value}"
-
-    def subquery_alias_string(self):
-        return "AS {alias}"
-
-    def key_value_string(self):
-        return "{column} = '{value}'{separator}"
-
-    def increment_string(self):
-        return "{column} = {column} + '{value}'"
-
-    def decrement_string(self):
-        return "{column} = {column} - '{value}'"
-
     def create_column_string(self):
-        return "{column} {data_type}{length}{nullable}, "
+        return "{column} {data_type}{length}{nullable}{default_value}, "
 
     def _type_enum(self, column, length_string, default=None):
         return f""""{column.column_name}" VARCHAR(255) CHECK ("{column.column_name}" in {length_string})"""
@@ -153,7 +88,7 @@ class PostgresGrammar(BaseGrammar):
 
     def table_exists_string(self):
         return (
-            "SELECT * from information_schema.tables where table_name='{clean_table}'"
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='{clean_table}'"
         )
 
     def add_column_string(self):
@@ -232,53 +167,14 @@ class PostgresGrammar(BaseGrammar):
     def table_string(self):
         return '"{table}"'
 
-    def order_by_string(self):
-        return "ORDER BY {column} {direction}"
-
     def column_string(self):
         return '"{column}"{separator}'
 
     def value_string(self):
         return "'{value}'{separator}"
 
-    def join_string(self):
-        return "{keyword} {foreign_table} ON {column1} {equality} {column2}"
-
-    def limit_string(self, offset=False):
-        return "LIMIT {limit}"
-
-    def offset_string(self):
-        return "OFFSET {offset}"
-
-    def first_where_string(self):
-        return "WHERE"
-
-    def additional_where_string(self):
-        return "AND"
-
-    def or_where_string(self):
-        return "OR"
-
-    def where_in_string(self):
-        return "WHERE IN ({values})"
-
     def value_equal_string(self):
         return "{keyword} {value1} = {value2}"
-
-    def where_string(self):
-        return " {keyword} {column} {equality} {value}"
-
-    def having_string(self):
-        return "HAVING {column}"
-
-    def having_equality_string(self):
-        return "HAVING {column} {equality} {value}"
-
-    def where_null_string(self):
-        return "{keyword} {column} IS NULL"
-
-    def where_not_null_string(self):
-        return " {keyword} {column} IS NOT NULL"
 
     def after_column_string(self):
         return "AFTER {after}"

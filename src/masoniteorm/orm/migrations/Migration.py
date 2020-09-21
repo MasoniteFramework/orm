@@ -51,9 +51,7 @@ class Migration:
         unran_migrations = []
         database_migrations = MigrationModel.all()
         for migration in all_migrations:
-            if migration not in database_migrations.pluck(
-                "migration"
-            ):
+            if migration not in database_migrations.pluck("migration"):
                 unran_migrations.append(migration)
         return unran_migrations
 

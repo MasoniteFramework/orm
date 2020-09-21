@@ -13,6 +13,26 @@ class MySQLConnection(BaseConnection):
     name = "mysql"
     _dry = False
 
+    def __init__(
+        self,
+        host=None,
+        database=None,
+        user=None,
+        port=None,
+        password=None,
+        prefix=None,
+        options={},
+    ):
+        self.host = host
+        self.port = port
+        if str(port).isdigit():
+            self.port = int(self.port)
+        self.database = database
+        self.user = user
+        self.password = password
+        self.prefix = prefix
+        self.options = options
+
     def make_connection(self):
         """This sets the connection on the connection class
         """
@@ -27,17 +47,16 @@ class MySQLConnection(BaseConnection):
                 "You must have the 'pymysql' package installed to make a connection to MySQL. Please install it using 'pip install pymysql'"
             )
 
-        if len(CONNECTION_POOL) < 10:
-            self._connection = pymysql.connect(
-                cursorclass=pymysql.cursors.DictCursor,
-                autocommit=True,
-                **self.get_connection_details(),
-            )
-            CONNECTION_POOL.append(self._connection)
-        else:
-            self._connection = CONNECTION_POOL[
-                random.randint(0, len(CONNECTION_POOL) - 1)
-            ]
+        self._connection = pymysql.connect(
+            cursorclass=pymysql.cursors.DictCursor,
+            autocommit=True,
+            host=self.host,
+            user=self.user,
+            password=self.password,
+            port=self.port,
+            db=self.database,
+            **self.options
+        )
 
         return self
 
@@ -76,8 +95,9 @@ class MySQLConnection(BaseConnection):
         return self
 
     def begin(self):
-        """Transaction
+        """Mysql Transaction
         """
+
         return self._connection.begin()
 
     def rollback(self):
@@ -104,7 +124,6 @@ class MySQLConnection(BaseConnection):
         Returns:
             dict|None -- Returns a dictionary of results or None
         """
-        print("q", self, query)
         query = query.replace("'?'", "%s")
         print("running query", query, bindings)
 
@@ -121,4 +140,4 @@ class MySQLConnection(BaseConnection):
         except Exception as e:
             raise e
         finally:
-            pass
+            self._connection.close()
