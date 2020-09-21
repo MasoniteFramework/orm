@@ -1,5 +1,5 @@
 from .scope import scope
 from .BaseScope import BaseScope
-from .SoftDeletes import SoftDeletes
+from .SoftDeletesMixin import SoftDeletesMixin
 from .SoftDeleteScope import SoftDeleteScope
 from .TimeStamps import TimeStamps

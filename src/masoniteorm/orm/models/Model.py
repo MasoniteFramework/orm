@@ -2,11 +2,13 @@ import json
 from datetime import datetime
 
 from inflection import tableize
+import inspect
 
 from ..query import QueryBuilder
 from ..collection import Collection
 from ..connections import ConnectionFactory
 from ..query.grammars import MySQLGrammar
+from ..scopes import BaseScope, SoftDeleteScope, SoftDeletesMixin
 
 """This is a magic class that will help using models like User.first() instead of having to instatiate a class like 
 User().first()
@@ -49,7 +51,7 @@ class Model(metaclass=ModelMeta):
     __dates__ = []
     __hidden__ = []
     __timestamps__ = True
-    _global_scopes = {}
+    # _global_scopes = {}
 
     date_created_at = "created_at"
     date_updated_at = "updated_at"
@@ -66,6 +68,7 @@ class Model(metaclass=ModelMeta):
         "limit",
         "select",
         "with_",
+        "set_global_scope",
     ]
 
     __cast_map__ = {}
@@ -80,17 +83,12 @@ class Model(metaclass=ModelMeta):
         self.__dirty_attributes__ = {}
         self._relationships = {}
         self.__appends__ = []
+        self._global_scopes = {}
 
         self.__resolved_connection__ = ConnectionFactory().make(self.__connection__)
 
-        self.builder = QueryBuilder(
-            self.__resolved_connection__.get_grammar(),
-            self.__resolved_connection__,
-            table=self.get_table_name(),
-            dry=self.__dry__,
-        )
-
-        self.builder.set_action("select")
+        self.get_builder()
+        self.boot()
 
     def get_primary_key(self):
         """Gets the primary key column
@@ -137,31 +135,12 @@ class Model(metaclass=ModelMeta):
 
         return DATABASES
 
-    def boot(cls):
-        if not cls._booted:
-            cls.__resolved_connection__ = ConnectionFactory().make(cls.__connection__)
+    def boot(self):
+        for base_class in inspect.getmro(self.__class__):
+            class_name = base_class.__name__
 
-            cls._booted = True
-            cast_methods = [v for k, v in cls.__dict__.items() if k.startswith("get_")]
-            for cast in cast_methods:
-                try:
-                    cls.__casts__[cast.__name__.replace("get_", "")] = cast
-                except AttributeError:
-                    pass
-
-            # Set global scope defaults
-            cls._global_scopes[cls] = {
-                "select": [],
-                "insert": [],
-                "update": [],
-                "delete": [],
-            }
-
-            cls._boot_parent_scopes()
-
-            cls._loads = ()
-
-        return cls
+            if class_name.endswith("Mixin"):
+                getattr(base_class(), "boot_" + class_name)(self.builder)
 
     @classmethod
     def apply_scope(cls, scope_class):

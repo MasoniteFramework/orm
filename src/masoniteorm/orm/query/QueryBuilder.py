@@ -47,7 +47,7 @@ class QueryBuilder:
         self._connection_details = connection_details
         self._connection_driver = None
         self._scopes = scopes
-        self._global_scopes = {}
+        self._global_scopes = global_scopes
         self.builder = self
         self._should_eager = True
 
@@ -211,6 +211,7 @@ class QueryBuilder:
         Returns:
             self
         """
+        print("global scopes", self, self._global_scopes)
         if isinstance(name, BaseScope):
             name.on_boot(self)
             return self
@@ -261,7 +262,7 @@ class QueryBuilder:
 
             return method
 
-        print('macros', self._macros)
+        print("macros", self._macros)
         if attribute in self._macros:
 
             def method(*args, **kwargs):
@@ -964,7 +965,7 @@ class QueryBuilder:
         Returns:
             self
         """
-        print(self._global_scopes)
+        print("global scopes to sql", self._global_scopes)
         for name, scope in self._global_scopes.get(self._action, {}).items():
             scope(self)
 
@@ -1061,6 +1062,6 @@ class QueryBuilder:
         return self
 
     def macro(self, name, callable):
-        print('updating macros')
+        print("updating macros")
         self._macros.update({name: callable})
         return self

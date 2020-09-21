@@ -6,7 +6,7 @@ class SoftDeleteScope(BaseScope):
     """
 
     def on_boot(self, builder):
-        print('booting')
+        print("booting soft deletes", builder)
         builder.set_global_scope("_where_null", self._where_null, action="select")
         builder.macro("with_trashed", self._with_trashed)
 

@@ -2,7 +2,7 @@ import inspect
 import unittest
 
 from app.User import User
-from src.masoniteorm.orm.scopes import scope, SoftDeletes, TimeStamps
+from src.masoniteorm.orm.scopes import scope, SoftDeletesMixin, TimeStamps
 from src.masoniteorm.orm.models import Model
 
 
@@ -18,7 +18,7 @@ class User(Model):
         return query.where("gender", status)
 
 
-class UserSoft(Model, SoftDeletes):
+class UserSoft(Model, SoftDeletesMixin):
     __dry__ = True
 
 
