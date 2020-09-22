@@ -171,14 +171,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
             Model
         """
 
-        return cls().get_builder().where("id", record_id).first()
-
-    @classmethod
-    def _boot_if_not_booted(cls):
-        if not cls._booted:
-            cls.boot()
-
-        return cls
+        return cls().where(self.get_primary_key(), record_id).first()
 
     def first_or_new(self):
         pass
