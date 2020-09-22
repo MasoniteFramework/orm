@@ -9,14 +9,20 @@ from src.masoniteorm.orm.relationships import belongs_to
 from tests.utils import MockConnectionFactory
 
 
+class Logo(Model):
+    __connection__ = "sqlite"
+
+
 class Article(Model):
     __connection__ = "sqlite"
-    pass
+
+    @belongs_to("id", "article_id")
+    def logo(self):
+        return Logo
 
 
 class Profile(Model):
     __connection__ = "sqlite"
-    pass
 
 
 class User(Model):
@@ -60,4 +66,11 @@ class BaseTestQueryRelationships(unittest.TestCase):
             """) AND EXISTS ("""
             """SELECT * FROM "profiles" WHERE "profiles"."user_id" = "users"."id\""""
             """)""",
+        )
+
+    def test_nested_has(self):
+        to_sql = User.has("articles.logo").to_sql()
+        self.assertEqual(
+            to_sql,
+            """SELECT * FROM "users" WHERE EXISTS (SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id" AND EXISTS (SELECT * FROM "logos" WHERE "logos"."article_id" = "articles"."id"))""",
         )

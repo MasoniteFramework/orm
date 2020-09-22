@@ -533,19 +533,67 @@ class QueryBuilder:
             self._wheres += ((QueryExpression(column, "IN", wheres)),)
         return self
 
-    def has(self, *relationships):
-        # print('mm', self._model)
-        for relationship in relationships:
-            related = getattr(self._model, relationship)
-            related_builder = related.get_builder()
-            self.where_exists(
-                related_builder.where_column(
-                    f"{related_builder.get_table_name()}.{related.foreign_key}",
-                    f"{self.get_table_name()}.{related.local_key}",
-                )
+    #         if "." in has_relationship:
+    #             # Get nested relationship
+    #             last_builder = cls.builder
+    #             for split_has_relationship in has_relationship.split("."):
+    #                 local_key = cls._registered_relationships[last_builder.owner][
+    #                     split_has_relationship
+    #                 ]["local"]
+    #                 foreign_key = cls._registered_relationships[last_builder.owner][
+    #                     split_has_relationship
+    #                 ]["foreign"]
+    #                 relationship = last_builder.get_relation(split_has_relationship)()
+
+    #                 last_builder.where_exists(
+    #                     relationship.where_column(
+    #                         f"{relationship.get_table_name()}.{foreign_key}",
+    #                         f"{last_builder.get_table_name()}.{local_key}",
+    #                     )
+    #                 )
+
+    #                 last_builder = relationship
+
+    def get_relation(self, relationship, builder=None):
+        if not builder:
+            builder = self
+
+        if not builder._model:
+            raise AttributeError(
+                "You must specify a model in order to use relationship methods"
             )
+
+        return getattr(builder._model, relationship)
+
+    def has(self, *relationships):
+        if not self._model:
+            raise AttributeError(
+                "You must specify a model in order to use 'has' relationship methods"
+            )
+
+        for relationship in relationships:
+            if "." in relationship:
+                last_builder = self._model.builder
+                for split_relationship in relationship.split("."):
+                    related = last_builder.get_relation(split_relationship)
+                    related_builder = related.get_builder()
+                    last_builder.where_exists(
+                        related_builder.where_column(
+                            f"{related_builder.get_table_name()}.{related.foreign_key}",
+                            f"{last_builder.get_table_name()}.{related.local_key}",
+                        )
+                    )
+                    last_builder = related_builder
+            else:
+                related = getattr(self._model, relationship)
+                related_builder = related.get_builder()
+                self.where_exists(
+                    related_builder.where_column(
+                        f"{related_builder.get_table_name()}.{related.foreign_key}",
+                        f"{self.get_table_name()}.{related.local_key}",
+                    )
+                )
         return self
-        # return self.owner.has(*args, **kwargs)
 
     def where_has(self, *args, **kwargs):
         return self.owner.where_has(*args, **kwargs)
