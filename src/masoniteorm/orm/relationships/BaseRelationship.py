@@ -18,17 +18,7 @@ class BaseRelationship:
         Arguments:
             name {object} -- The model class.
         """
-
-        # Register relationships to the model instance
-        if cls not in cls._registered_relationships:
-            cls._registered_relationships[cls] = {}
-
-        cls._registered_relationships[cls][self.fn.__name__] = {}
-        cls._registered_relationships[cls][self.fn.__name__][
-            "foreign"
-        ] = self.foreign_key
-        cls._registered_relationships[cls][self.fn.__name__]["local"] = self.local_key
-        self.cls = cls
+        pass
 
     def __call__(self, fn=None, *args, **kwargs):
         """This method is called when the decorator contains arguments.
@@ -44,6 +34,9 @@ class BaseRelationship:
 
         return self
 
+    def get_builder(self):
+        return self._related_builder
+
     def __get__(self, instance, owner):
         """This method is called when the decorated method is accessed.
 
@@ -56,34 +49,22 @@ class BaseRelationship:
         Returns:
             object -- Either returns a builder or a hydrated model.
         """
-        relationship = self.fn(self)
-        if not instance:
-            """This means the user called the attribute rather than accessed it.
-            In this case we want to return the builder so we can chain on additional methods
-            """
-            self.relationship = self.fn(self)
-            self.relationship.boot()
-            return self.relationship.builder
+        relationship = self.fn(self)()
+        self._related_builder = relationship.builder
+        # return self
 
-        """Check if the relationship is eager loaded and return that relationship instead
-        """
-        if self.fn.__name__ in instance._relationships:
-            return self.fetch_relation(
-                Collection(instance._relationships[self.fn.__name__]),
-                self.foreign_key,
-                instance.get_primary_key_value(),
+        if instance.is_loaded():
+            result = self.apply_query(
+                self._related_builder, instance, self.foreign_key, self.local_key
             )
 
-        """Apply the query needed to make this relationship work.
-        """
-        result = self.apply_query(
-            relationship, instance, self.foreign_key, self.local_key
-        )
+            return result
+        else:
+            return self
 
-        if isinstance(result, dict):
-            return relationship.hydrate(result)
-
-        return result
+    def __getattr__(self, attribute):
+        relationship = self.fn(self)()
+        return getattr(relationship.builder, attribute)
 
     def apply_query(self, foreign, owner, foreign_key, local_key):
         """Apply the query and return a dictionary to be hydrated

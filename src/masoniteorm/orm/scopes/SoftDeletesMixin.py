@@ -6,5 +6,4 @@ class SoftDeletesMixin:
     """
 
     def boot_SoftDeletesMixin(self, builder):
-        print("bb", builder)
         builder.set_global_scope(SoftDeleteScope())

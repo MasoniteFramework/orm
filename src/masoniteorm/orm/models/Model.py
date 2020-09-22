@@ -68,6 +68,8 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         "select",
         "with_",
         "set_global_scope",
+        "has",
+        "where_has",
     ]
 
     __cast_map__ = {}
@@ -121,6 +123,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
             table=self.get_table_name(),
             connection_details=self.get_connection_details(),
             model=self,
+            connection_driver=self.__connection__,
             scopes=self._scopes,
             dry=self.__dry__,
         )
@@ -169,14 +172,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
             Model
         """
 
-        return cls().get_builder().where("id", record_id).first()
-
-    @classmethod
-    def _boot_if_not_booted(cls):
-        if not cls._booted:
-            cls.boot()
-
-        return cls
+        return cls().where(self.get_primary_key(), record_id).first()
 
     def first_or_new(self):
         pass
@@ -184,73 +180,8 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     def first_or_create(self):
         pass
 
-    @classmethod
-    def has(cls, *has_relationships, **kwargs):
-        """Creates a clause that checks the existance of a relationship.
-
-        Returns:
-            Builder
-        """
-        cls.boot()
-        for has_relationship in has_relationships:
-            if "." in has_relationship:
-                # Get nested relationship
-                last_builder = cls.builder
-                for split_has_relationship in has_relationship.split("."):
-                    local_key = cls._registered_relationships[last_builder.owner][
-                        split_has_relationship
-                    ]["local"]
-                    foreign_key = cls._registered_relationships[last_builder.owner][
-                        split_has_relationship
-                    ]["foreign"]
-                    relationship = last_builder.get_relation(split_has_relationship)()
-
-                    last_builder.where_exists(
-                        relationship.where_column(
-                            f"{relationship.get_table_name()}.{foreign_key}",
-                            f"{last_builder.get_table_name()}.{local_key}",
-                        )
-                    )
-
-                    last_builder = relationship
-            else:
-                relationship = getattr(cls, has_relationship)()
-                local_key = cls._registered_relationships[cls][has_relationship][
-                    "local"
-                ]
-                foreign_key = cls._registered_relationships[cls][has_relationship][
-                    "foreign"
-                ]
-                cls.builder.where_exists(
-                    relationship.where_column(
-                        f"{relationship.get_table_name()}.{foreign_key}",
-                        f"{cls.builder.get_table_name()}.{local_key}",
-                    )
-                )
-        return cls.builder
-
-    @classmethod
-    def where_has(cls, has_relationship, callback):
-        """Creates a clause that checks the existance of a relationship.
-
-        Returns:
-            Builder
-        """
-        relationship = getattr(cls, has_relationship)()
-
-        local_key = cls._registered_relationships[cls][has_relationship]["local"]
-        foreign_key = cls._registered_relationships[cls][has_relationship]["foreign"]
-
-        callback(
-            relationship.where_column(
-                f"{relationship.get_table_name()}.{foreign_key}",
-                f"{cls.builder.get_table_name()}.{local_key}",
-            )
-        )
-
-        cls.builder.where_exists(relationship)
-
-        return cls.builder
+    def is_loaded(self):
+        return bool(self.__attributes__)
 
     def add_relations(self, relations):
         self._relationships.update(relations)
@@ -298,7 +229,6 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         if not dictionary:
             dictionary = kwargs
 
-        print("dic is", dictionary, cls.__fillable__)
         if cls.__fillable__ != ["*"]:
             dictionary = {x: dictionary[x] for x in cls.__fillable__}
 
@@ -389,7 +319,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         if attribute in self.__passthrough__:
 
             def method(*args, **kwargs):
-                return getattr(self.get_builder(), attribute)(*args, **kwargs)
+                return getattr(self.builder, attribute)(*args, **kwargs)
 
             return method
 

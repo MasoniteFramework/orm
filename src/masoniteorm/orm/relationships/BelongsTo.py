@@ -17,6 +17,7 @@ class BelongsTo(BaseRelationship):
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
+        # pass
         return foreign.where(foreign_key, owner.__attributes__[local_key]).first()
 
     def fetch_relation(self, relation, foreign, primary_key_value):

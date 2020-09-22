@@ -12,8 +12,6 @@ from ..expressions.expressions import (
     HavingExpression,
 )
 
-from ..scopes import BaseScope
-
 from ..schema import Schema
 
 
@@ -21,15 +19,18 @@ class QueryBuilder:
     """A builder class to manage the building and creation of query expressions.
     """
 
+    _action = "select"
+
     def __init__(
         self,
         grammar=None,
         connection=None,
-        table=None,
+        table="",
         connection_details={},
-        connection_driver=None,
-        model=None,
         scopes={},
+        global_scopes={},
+        eager_loads=(),
+        owner=None,
         dry=False,
     ):
         """QueryBuilder initializer
@@ -43,67 +44,45 @@ class QueryBuilder:
         """
         self.grammar = grammar
         self._table = table
+        self.owner = owner
         self.connection = connection
-        self._connection_details = connection_details
-        self._connection_driver = connection_driver
-        self._scopes = scopes
-        if model:
-            self._global_scopes = model._global_scopes
-        else:
-            self._global_scopes = {}
-
-        self.builder = self
-        self._should_eager = True
-
-        self._eager_loads = ()
-        self._columns = ()
-        self._creates = {}
-
-        self._sql = ""
-        self._sql_binding = ""
-        self._bindings = ()
-
+        self.connection_details = connection_details
+        self._scopes = {}
+        self._global_scopes = global_scopes
+        if scopes:
+            self._scopes.update(scopes)
+        self.boot()
         self._updates = ()
-
-        self._wheres = ()
-        self._order_by = ()
-        self._group_by = ()
-        self._joins = ()
-        self._having = ()
-        self._macros = {}
-
-        self._aggregates = ()
-
-        self._limit = False
-        self._offset = False
-        self._model = model
+        self.builder = self
         self.set_action("select")
+        self._should_eager = True
+        self._eager_loads = eager_loads
 
-        if self._connection_details and not self._connection_driver:
-            # setup the connection information
-            self._connection_driver = self._connection_details.get("default")
+        # Get the connection and grammar class.
+        if not self.grammar:
+            from ..grammar.GrammarFactory import GrammarFactory
+            from ..connections.ConnectionFactory import ConnectionFactory
 
-    def get_connection_information(self):
-        return {
-            "host": self._connection_details.get(self._connection_driver, {}).get(
-                "host"
-            ),
-            "database": self._connection_details.get(self._connection_driver, {}).get(
-                "database"
-            ),
-            "user": self._connection_details.get(self._connection_driver, {}).get(
-                "user"
-            ),
-            "port": self._connection_details.get(self._connection_driver, {}).get(
-                "port"
-            ),
-            "password": self._connection_details.get(self._connection_driver, {}).get(
-                "password"
-            ),
-            "prefix": self._connection_details.get(self._connection_driver, {}).get(
-                "prefix"
-            ),
-        }
+            connection_dictionary = self.connection_details.get(
+                self.connection_details.get("default")
+            )
+            grammar = connection_dictionary.get(
+                "grammar", None
+            ) or connection_dictionary.get("driver")
+            driver = connection_dictionary.get("driver")
+            self.connection = ConnectionFactory().make(driver)
+            self.grammar = GrammarFactory().make(grammar)
+
+        if self.connection and dry is not True:
+            self.connection = self.connection().make_connection()
+
+        if self.connection and dry is True:
+            self.connection = self.connection.dry()
+
+        if not self.owner:
+            from ..models import QueryResult
+
+            self.owner = QueryResult
 
     def table(self, table):
         """Sets a table on the query builder
@@ -148,7 +127,7 @@ class QueryBuilder:
         Returns:
             self
         """
-        return self.new_connection().begin()
+        return self.connection.begin()
 
     def begin_transaction(self, *args, **kwargs):
         return self.begin(*args, **kwargs)
@@ -189,7 +168,7 @@ class QueryBuilder:
         """
         return getattr(self.owner, key)
 
-    def set_scope(self, name, callable):
+    def set_scope(self, cls, name):
         """Sets a scope based on a class and maps it to a name.
 
         Arguments:
@@ -199,12 +178,11 @@ class QueryBuilder:
         Returns:
             self
         """
-        # setattr(self, name, callable)
-        self._scopes.update({name: callable})
+        self._scopes.update({name: cls})
 
         return self
 
-    def set_global_scope(self, name="", callable=None, action="select"):
+    def set_global_scope(self, cls, name):
         """Sets the global scopes that should be used before creating the SQL.
 
         Arguments:
@@ -214,36 +192,7 @@ class QueryBuilder:
         Returns:
             self
         """
-        if isinstance(name, BaseScope):
-            name.on_boot(self)
-            return self
-
-        if not action in self._global_scopes:
-            self._global_scopes[action] = {}
-
-        self._global_scopes[action].update({name: callable})
-
-        return self
-
-    def without_global_scopes(self):
-        self._global_scopes = {}
-        return self
-
-    def remove_global_scope(self, scope, action=None):
-        """Sets the global scopes that should be used before creating the SQL.
-
-        Arguments:
-            cls {masonite.orm.Model} -- An ORM model class.
-            name {string} -- The name of the global scope.
-
-        Returns:
-            self
-        """
-        if isinstance(scope, BaseScope):
-            scope.on_remove(self)
-            return self
-
-        del self._global_scopes.get(action, {})[scope]
+        self._global_scopes.update({name: cls})
 
         return self
 
@@ -262,22 +211,35 @@ class QueryBuilder:
             self
         """
         if attribute in self._scopes:
-
-            def method(*args, **kwargs):
-                return self._scopes[attribute](self._model, self, *args, **kwargs)
-
-            return method
-
-        if attribute in self._macros:
-
-            def method(*args, **kwargs):
-                return self._macros[attribute](self._model, self, *args, **kwargs)
-
-            return method
+            return getattr(self._scopes[attribute], attribute)
 
         raise AttributeError(
             "'QueryBuilder' object has no attribute '{}'".format(attribute)
         )
+
+    def boot(self):
+        """Sets various attributes on the query builder class.
+        """
+        self._columns = ()
+        self._creates = {}
+
+        self._sql = ""
+        self._sql_binding = ""
+        self._bindings = ()
+
+        self._updates = ()
+
+        self._wheres = ()
+        self._order_by = ()
+        self._group_by = ()
+        self._joins = ()
+        self._having = ()
+
+        self._aggregates = ()
+
+        self._limit = False
+        self._offset = False
+        self.set_action("select")
 
     def select(self, *args):
         """Specifies columns that should be selected
@@ -287,7 +249,6 @@ class QueryBuilder:
         """
         for column in args:
             self._columns += (SelectExpression(column),)
-
         return self
 
     def select_raw(self, string):
@@ -533,82 +494,11 @@ class QueryBuilder:
             self._wheres += ((QueryExpression(column, "IN", wheres)),)
         return self
 
-    #         if "." in has_relationship:
-    #             # Get nested relationship
-    #             last_builder = cls.builder
-    #             for split_has_relationship in has_relationship.split("."):
-    #                 local_key = cls._registered_relationships[last_builder.owner][
-    #                     split_has_relationship
-    #                 ]["local"]
-    #                 foreign_key = cls._registered_relationships[last_builder.owner][
-    #                     split_has_relationship
-    #                 ]["foreign"]
-    #                 relationship = last_builder.get_relation(split_has_relationship)()
+    def has(self, *args, **kwargs):
+        return self.owner.has(*args, **kwargs)
 
-    #                 last_builder.where_exists(
-    #                     relationship.where_column(
-    #                         f"{relationship.get_table_name()}.{foreign_key}",
-    #                         f"{last_builder.get_table_name()}.{local_key}",
-    #                     )
-    #                 )
-
-    #                 last_builder = relationship
-
-    def get_relation(self, relationship, builder=None):
-        if not builder:
-            builder = self
-
-        if not builder._model:
-            raise AttributeError(
-                "You must specify a model in order to use relationship methods"
-            )
-
-        return getattr(builder._model, relationship)
-
-    def has(self, *relationships):
-        if not self._model:
-            raise AttributeError(
-                "You must specify a model in order to use 'has' relationship methods"
-            )
-
-        for relationship in relationships:
-            if "." in relationship:
-                last_builder = self._model.builder
-                for split_relationship in relationship.split("."):
-                    related = last_builder.get_relation(split_relationship)
-                    related_builder = related.get_builder()
-                    last_builder.where_exists(
-                        related_builder.where_column(
-                            f"{related_builder.get_table_name()}.{related.foreign_key}",
-                            f"{last_builder.get_table_name()}.{related.local_key}",
-                        )
-                    )
-                    last_builder = related_builder
-            else:
-                related = getattr(self._model, relationship)
-                related_builder = related.get_builder()
-                self.where_exists(
-                    related_builder.where_column(
-                        f"{related_builder.get_table_name()}.{related.foreign_key}",
-                        f"{self.get_table_name()}.{related.local_key}",
-                    )
-                )
-        return self
-
-    def where_has(self, relationship, callback):
-        related = getattr(self._model, relationship)
-        related_builder = related.get_builder()
-        self.where_exists(
-            related_builder.where_column(
-                f"{related_builder.get_table_name()}.{related.foreign_key}",
-                f"{self.get_table_name()}.{related.local_key}",
-            )
-        )
-
-        callback(related_builder)
-
-        return self
-        # return self.owner.where_has(*args, **kwargs)
+    def where_has(self, *args, **kwargs):
+        return self.owner.where_has(*args, **kwargs)
 
     def where_not_in(self, column, wheres=[]):
         """Specifies where a column does not contain a list of a values.
@@ -877,23 +767,14 @@ class QueryBuilder:
         Returns:
             dictionary -- Returns a dictionary of results.
         """
+        self.set_action("select")
         if query:
             return self.limit(1)
-
-        result = self.new_connection().query(
+        result = self.connection.query(
             self.limit(1).to_qmark(), self._bindings, results=1
         )
-
-        return self.prepare_result(result)
-
-    def prepare_result(self, result):
-        if self._model:
-            return self._model.hydrate(result)
-
-        if isinstance(result, (list, tuple,)):
-            return Collection(result)
-
-        return result
+        relations = self.eager_load_model(result)
+        return self.owner.hydrate(result, relations=relations)
 
     def all(self, query=False):
         """Returns all records from the table.
@@ -904,9 +785,9 @@ class QueryBuilder:
         if query:
             return self.to_sql()
 
-        result = self.new_connection().query(self.to_qmark(), self._bindings) or []
-
-        return self.prepare_result(result)
+        return self.owner.hydrate(
+            self.connection.query(self.to_qmark(), self._bindings) or []
+        )
 
     def get(self):
         """Runs the select query built from the query builder.
@@ -914,14 +795,12 @@ class QueryBuilder:
         Returns:
             self
         """
-
-        result = self.new_connection().query(self.to_qmark(), self._bindings)
-
-        return self.prepare_result(result)
-        return Collection(result)
-
-    def new_connection(self):
-        return self.connection(**self.get_connection_information()).make_connection()
+        self.set_action("select")
+        result = self.connection.query(self.to_qmark(), self._bindings)
+        relations = self.eager_load_model(result)
+        return self.owner.new_collection(result).map_into(
+            self.owner, "hydrate", relations=relations
+        )
 
     def without_eager(self):
         self._should_eager = False
@@ -1032,7 +911,9 @@ class QueryBuilder:
             group_by=self._group_by,
             joins=self._joins,
             having=self._having,
-            # connection=self.connection
+            connection_details=self.connection.connection_details
+            if self.connection
+            else self.connection_details,
         )
 
     def to_sql(self):
@@ -1041,11 +922,17 @@ class QueryBuilder:
         Returns:
             self
         """
-        for name, scope in self._global_scopes.get(self._action, {}).items():
-            scope(self)
 
+        if not self._action:
+            self.set_action("select")
+        for scope in self._global_scopes.get(self.owner, {}).get(self._action, []):
+            if not scope:
+                continue
+
+            scope(self.owner, self)
         grammar = self.get_grammar()
         sql = grammar.compile(self._action).to_sql()
+        self.boot()
         return sql
 
     def to_qmark(self):
@@ -1055,14 +942,22 @@ class QueryBuilder:
             self
         """
 
-        grammar = self.get_grammar()
+        if not self._action:
+            self.set_action("select")
 
-        for name, scope in self._global_scopes.get(self._action, {}).items():
-            scope(self)
+        for scope in self._global_scopes.get(self.owner, {}).get(self._action, []):
+            if not scope:
+                continue
+
+            scope(self.owner, self)
+
+        grammar = self.get_grammar()
 
         qmark = getattr(grammar, "_compile_{action}".format(action=self._action))(
             qmark=True
         ).to_qmark()
+
+        self.boot()
 
         self._bindings = grammar._bindings
 
@@ -1077,7 +972,6 @@ class QueryBuilder:
         builder = QueryBuilder(
             grammar=self.grammar,
             connection=self.connection.__class__,
-            connection_driver=self._connection_driver,
             table=self._table,
         )
 
@@ -1135,8 +1029,4 @@ class QueryBuilder:
         Returns:
             self
         """
-        return self
-
-    def macro(self, name, callable):
-        self._macros.update({name: callable})
         return self
