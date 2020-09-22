@@ -477,6 +477,3 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         """
         self.__appends__ += appends
         return self
-
-    def registered_relationship(self):
-        return self
