@@ -186,6 +186,9 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     def first_or_create(self):
         pass
 
+    def is_loaded(self):
+        return bool(self.__attributes__)
+
     # @classmethod
     # def has(cls, *has_relationships, **kwargs):
     #     """Creates a clause that checks the existance of a relationship.

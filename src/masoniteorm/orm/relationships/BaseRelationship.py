@@ -51,27 +51,21 @@ class BaseRelationship:
         """
         relationship = self.fn(self)()
         self._related_builder = relationship.builder
-        return self
+        # return self
 
-        """Check if the relationship is eager loaded and return that relationship instead
-        """
-        # if self.fn.__name__ in instance._relationships:
-        #     return self.fetch_relation(
-        #         Collection(instance._relationships[self.fn.__name__]),
-        #         self.foreign_key,
-        #         instance.get_primary_key_value(),
-        #     )
 
-        # """Apply the query needed to make this relationship work.
-        # """
-        # result = self.apply_query(
-        #     relationship, instance, self.foreign_key, self.local_key
-        # )
+        if (instance.is_loaded()):
+            result = self.apply_query(
+                self._related_builder, instance, self.foreign_key, self.local_key
+            )
 
-        # if isinstance(result, dict):
-        #     return relationship.hydrate(result)
+            return result
+        else:
+            return self
 
-        # return result
+    def __getattr__(self, attribute):
+        relationship = self.fn(self)()
+        return getattr(relationship.builder, attribute)
 
     def apply_query(self, foreign, owner, foreign_key, local_key):
         """Apply the query and return a dictionary to be hydrated
