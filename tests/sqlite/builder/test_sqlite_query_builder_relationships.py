@@ -57,8 +57,29 @@ class BaseTestQueryRelationships(unittest.TestCase):
             """)""",
         )
 
+    def test_where_has_query(self):
+        builder = self.get_builder()
+        sql = builder.where_has("articles", lambda q: q.where("active", 1)).to_sql()
+        self.assertEqual(
+            sql,
+            """SELECT * FROM "users" WHERE EXISTS ("""
+            """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id" AND "articles"."active" = '1'"""
+            """)""",
+        )
+
     def test_relationship_multiple_has(self):
         to_sql = User.has("articles", "profile").to_sql()
+        self.assertEqual(
+            to_sql,
+            """SELECT * FROM "users" WHERE EXISTS ("""
+            """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id\""""
+            """) AND EXISTS ("""
+            """SELECT * FROM "profiles" WHERE "profiles"."user_id" = "users"."id\""""
+            """)""",
+        )
+
+    def test_relationship_multiple_has_calls(self):
+        to_sql = User.has("articles").has("profile").to_sql()
         self.assertEqual(
             to_sql,
             """SELECT * FROM "users" WHERE EXISTS ("""

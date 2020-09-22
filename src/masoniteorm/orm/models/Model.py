@@ -69,6 +69,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         "with_",
         "set_global_scope",
         "has",
+        "where_has",
     ]
 
     __cast_map__ = {}
@@ -181,29 +182,6 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
     def is_loaded(self):
         return bool(self.__attributes__)
-
-    @classmethod
-    def where_has(cls, has_relationship, callback):
-        """Creates a clause that checks the existance of a relationship.
-
-        Returns:
-            Builder
-        """
-        relationship = getattr(cls, has_relationship)()
-
-        local_key = cls._registered_relationships[cls][has_relationship]["local"]
-        foreign_key = cls._registered_relationships[cls][has_relationship]["foreign"]
-
-        callback(
-            relationship.where_column(
-                f"{relationship.get_table_name()}.{foreign_key}",
-                f"{cls.builder.get_table_name()}.{local_key}",
-            )
-        )
-
-        cls.builder.where_exists(relationship)
-
-        return cls.builder
 
     def add_relations(self, relations):
         self._relationships.update(relations)
