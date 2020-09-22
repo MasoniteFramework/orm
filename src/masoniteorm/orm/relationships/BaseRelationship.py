@@ -53,8 +53,7 @@ class BaseRelationship:
         self._related_builder = relationship.builder
         # return self
 
-
-        if (instance.is_loaded()):
+        if instance.is_loaded():
             result = self.apply_query(
                 self._related_builder, instance, self.foreign_key, self.local_key
             )
