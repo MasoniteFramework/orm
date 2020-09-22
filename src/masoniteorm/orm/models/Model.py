@@ -68,6 +68,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         "select",
         "with_",
         "set_global_scope",
+        "has",
     ]
 
     __cast_map__ = {}
@@ -185,50 +186,50 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     def first_or_create(self):
         pass
 
-    @classmethod
-    def has(cls, *has_relationships, **kwargs):
-        """Creates a clause that checks the existance of a relationship.
+    # @classmethod
+    # def has(cls, *has_relationships, **kwargs):
+    #     """Creates a clause that checks the existance of a relationship.
 
-        Returns:
-            Builder
-        """
-        cls.boot()
-        for has_relationship in has_relationships:
-            if "." in has_relationship:
-                # Get nested relationship
-                last_builder = cls.builder
-                for split_has_relationship in has_relationship.split("."):
-                    local_key = cls._registered_relationships[last_builder.owner][
-                        split_has_relationship
-                    ]["local"]
-                    foreign_key = cls._registered_relationships[last_builder.owner][
-                        split_has_relationship
-                    ]["foreign"]
-                    relationship = last_builder.get_relation(split_has_relationship)()
+    #     Returns:
+    #         Builder
+    #     """
+    #     cls.boot()
+    #     for has_relationship in has_relationships:
+    #         if "." in has_relationship:
+    #             # Get nested relationship
+    #             last_builder = cls.builder
+    #             for split_has_relationship in has_relationship.split("."):
+    #                 local_key = cls._registered_relationships[last_builder.owner][
+    #                     split_has_relationship
+    #                 ]["local"]
+    #                 foreign_key = cls._registered_relationships[last_builder.owner][
+    #                     split_has_relationship
+    #                 ]["foreign"]
+    #                 relationship = last_builder.get_relation(split_has_relationship)()
 
-                    last_builder.where_exists(
-                        relationship.where_column(
-                            f"{relationship.get_table_name()}.{foreign_key}",
-                            f"{last_builder.get_table_name()}.{local_key}",
-                        )
-                    )
+    #                 last_builder.where_exists(
+    #                     relationship.where_column(
+    #                         f"{relationship.get_table_name()}.{foreign_key}",
+    #                         f"{last_builder.get_table_name()}.{local_key}",
+    #                     )
+    #                 )
 
-                    last_builder = relationship
-            else:
-                relationship = getattr(cls, has_relationship)()
-                local_key = cls._registered_relationships[cls][has_relationship][
-                    "local"
-                ]
-                foreign_key = cls._registered_relationships[cls][has_relationship][
-                    "foreign"
-                ]
-                cls.builder.where_exists(
-                    relationship.where_column(
-                        f"{relationship.get_table_name()}.{foreign_key}",
-                        f"{cls.builder.get_table_name()}.{local_key}",
-                    )
-                )
-        return cls.builder
+    #                 last_builder = relationship
+    #         else:
+    #             relationship = getattr(cls, has_relationship)()
+    #             local_key = cls._registered_relationships[cls][has_relationship][
+    #                 "local"
+    #             ]
+    #             foreign_key = cls._registered_relationships[cls][has_relationship][
+    #                 "foreign"
+    #             ]
+    #             cls.builder.where_exists(
+    #                 relationship.where_column(
+    #                     f"{relationship.get_table_name()}.{foreign_key}",
+    #                     f"{cls.builder.get_table_name()}.{local_key}",
+    #                 )
+    #             )
+    #     return cls.builder
 
     @classmethod
     def where_has(cls, has_relationship, callback):
@@ -389,7 +390,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         if attribute in self.__passthrough__:
 
             def method(*args, **kwargs):
-                return getattr(self.get_builder(), attribute)(*args, **kwargs)
+                return getattr(self.builder, attribute)(*args, **kwargs)
 
             return method
 
@@ -524,4 +525,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         :rtype: list
         """
         self.__appends__ += appends
+        return self
+
+    def registered_relationship(self):
         return self

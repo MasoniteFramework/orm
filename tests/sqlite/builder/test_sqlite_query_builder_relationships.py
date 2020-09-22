@@ -14,6 +14,11 @@ class Article(Model):
     pass
 
 
+class Profile(Model):
+    __connection__ = "sqlite"
+    pass
+
+
 class User(Model):
     __connection__ = "sqlite"
 
@@ -21,8 +26,15 @@ class User(Model):
     def articles(self):
         return Article
 
+    @belongs_to("id", "user_id")
+    def profile(self):
+        return Profile
+
 
 class BaseTestQueryRelationships(unittest.TestCase):
+
+    maxDiff = None
+
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("sqlite")
         return QueryBuilder(
@@ -36,5 +48,16 @@ class BaseTestQueryRelationships(unittest.TestCase):
             sql,
             """SELECT * FROM "users" WHERE EXISTS ("""
             """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id\""""
+            """)""",
+        )
+
+    def test_relationship_multiple_has(self):
+        to_sql = User.has("articles", "profile").to_sql()
+        self.assertEqual(
+            to_sql,
+            """SELECT * FROM "users" WHERE EXISTS ("""
+            """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id\""""
+            """) AND EXISTS ("""
+            """SELECT * FROM "profiles" WHERE "profiles"."user_id" = "users"."id\""""
             """)""",
         )

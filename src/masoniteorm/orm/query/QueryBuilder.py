@@ -533,17 +533,18 @@ class QueryBuilder:
             self._wheres += ((QueryExpression(column, "IN", wheres)),)
         return self
 
-    def has(self, relationship):
+    def has(self, *relationships):
         # print('mm', self._model)
-        keys = self._model._registered_relationships[self._model][relationship]
-        local_key, foreign_key = keys["local"], keys["foreign"]
-        print(local_key, foreign_key)
-        rel = self.where_exists(
-            getattr(self._model, relationship)
-            .new()
-            .where_column(foreign_key, "users.id")
-        )
-        return rel
+        for relationship in relationships:
+            related = getattr(self._model, relationship)
+            related_builder = related.get_builder()
+            self.where_exists(
+                related_builder.where_column(
+                    f"{related_builder.get_table_name()}.{related.foreign_key}",
+                    f"{self.get_table_name()}.{related.local_key}",
+                )
+            )
+        return self
         # return self.owner.has(*args, **kwargs)
 
     def where_has(self, *args, **kwargs):
