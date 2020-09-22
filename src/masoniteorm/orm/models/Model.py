@@ -17,23 +17,49 @@ User().first()
 
 class ModelMeta(type):
     def __getattr__(self, attribute, *args, **kwargs):
+        """This method is called between a Model and accessing a property. This is a quick and easy 
+        way to instantiate a class before the first method is called. This is to avoid needing
+        to do this: 
+
+        User().where(..)
+
+        and instead, with this class inherited as a meta class, we can do this:
+
+        User.where(...)
+
+        This class (potentially magically) instantiates the class even though we really didn't instantiate it.
+
+        Args:
+            attribute (string): The name of the attribute
+
+        Returns:
+            Model|mixed: An instantiated model's attribute
+        """        
         instantiated = self()
         return getattr(instantiated, attribute)
 
 
 class BoolCast:
+    """Casts a value to a boolean
+    """    
     def get(self, value):
         return bool(value)
 
 
 class JsonCast:
+    """Casts a value to JSON
+    """    
     def get(self, value):
         return json.dumps(value)
 
 
 class Model(TimeStampsMixin, metaclass=ModelMeta):
+    """The ORM Model class
 
-    __metaclass__ = ModelMeta
+    Base Classes:
+        TimeStampsMixin (TimeStampsMixin): Adds scopes to add timestamps when something is inserted
+        metaclass (ModelMeta, optional): Helps instantiate a class when it hasn't been instantiated. Defaults to ModelMeta.
+    """    
 
     __fillable__ = ["*"]
     __guarded__ = ["*"]
@@ -43,7 +69,6 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     __resolved_connection__ = None
     _eager_load = ()
 
-    _registered_relationships = {}
     _booted = False
     _scopes = {}
     __primary_key__ = "id"
@@ -56,24 +81,26 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     date_updated_at = "updated_at"
 
     """Pass through will pass any method calls to the model directly through to the query builder.
+    Anytime one of these methods are called on the model it will actually be called on the query builder class.
     """
     __passthrough__ = [
-        "where",
-        "first",
         "all",
         "first",
-        "where_in",
-        "order_by",
-        "limit",
-        "select",
-        "with_",
-        "set_global_scope",
+        "get",
         "has",
+        "limit",
+        "order_by",
+        "select",
+        "set_global_scope",
         "where_has",
+        "where_in",
+        "where",
+        "with_",
     ]
 
     __cast_map__ = {}
 
+        
     __internal_cast_map__ = {
         "bool": BoolCast,
         "json": JsonCast,
@@ -136,11 +163,14 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         return DATABASES
 
     def boot(self):
-        for base_class in inspect.getmro(self.__class__):
-            class_name = base_class.__name__
+        if not self._booted:
+            for base_class in inspect.getmro(self.__class__):
+                class_name = base_class.__name__
 
-            if class_name.endswith("Mixin"):
-                getattr(base_class(), "boot_" + class_name)(self.builder)
+                if class_name.endswith("Mixin"):
+                    getattr(base_class(), "boot_" + class_name)(self.builder)
+            
+            self._booted = True
 
     @classmethod
     def get_table_name(cls):
@@ -188,44 +218,72 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         return self
 
     @classmethod
-    def hydrate(cls, dictionary, relations={}):
+    def hydrate(cls, result, relations={}):
+        """Takes a result and loads it into a model
 
-        if dictionary is None:
+        Args:
+            result ([type]): [description]
+            relations (dict, optional): [description]. Defaults to {}.
+
+        Returns:
+            [type]: [description]
+        """        
+
+        if result is None:
             return None
 
-        if isinstance(dictionary, (list, tuple)):
+        if isinstance(result, (list, tuple)):
             response = []
-            for element in dictionary:
+            for element in result:
                 response.append(cls.hydrate(element))
             return cls.new_collection(response)
 
-        elif isinstance(dictionary, dict):
+        elif isinstance(result, dict):
             model = cls()
             dic = {}
-            for key, value in dictionary.items():
+            for key, value in result.items():
                 if key in model.get_dates():
                     value = model.get_new_date(value)
                 dic.update({key: value})
             model.__attributes__.update(dic or {})
             return model.add_relations(relations)
-        elif hasattr(dictionary, "serialize"):
+        elif hasattr(result, "serialize"):
             model = cls()
-            model.__attributes__.update(dictionary.serialize())
+            model.__attributes__.update(result.serialize())
             return model
         else:
             model = cls()
-            model.__attributes__.update(dict(dictionary))
+            model.__attributes__.update(dict(result))
             return model
 
     @classmethod
-    def new_collection(cls, collection_data):
-        return Collection(collection_data)
+    def new_collection(cls, data):
+        """Takes a result and puts it into a new collection. 
+        This is designed to be able to be overidden by the user.
+
+        Args:
+            data (list|dict): Could be any data type but will be loaded directly into a collection.
+
+        Returns:
+            Collection
+        """        
+        return Collection(data)
 
     def fill(self):
         pass
 
     @classmethod
     def create(cls, dictionary={}, query=False, **kwargs):
+        """Creates new records based off of a dictionary as well as data set on the model
+        such as fillable values.
+
+        Args:
+            dictionary (dict, optional): [description]. Defaults to {}.
+            query (bool, optional): [description]. Defaults to False.
+
+        Returns:
+            self: A hydrated version of a model
+        """        
         if not dictionary:
             dictionary = kwargs
 
@@ -241,13 +299,16 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
         return cls.builder.create(dictionary)
 
-    def delete(self):
-        pass
-
-    def get(self):
-        pass
-
     def serialize(self, serialized_dictionary={}):
+        """Takes the data as a model and converts it into a dictionary
+
+        Args:
+            serialized_dictionary (dict, optional): A dictionary to start from. 
+            If not specified then the models attributes will be used. Defaults to {}.
+
+        Returns:
+            dict
+        """        
         if not serialized_dictionary:
             serialized_dictionary = self.__attributes__
 
@@ -263,6 +324,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
         serialized_dictionary.update(self.__dirty_attributes__)
 
+        # The builder is inside the attributes but should not be serialized
         serialized_dictionary.pop("builder")
 
         # Serialize relationships as well
@@ -274,6 +336,11 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         return serialized_dictionary
 
     def to_json(self):
+        """Converts a model to JSON
+
+        Returns:
+            string
+        """        
         return json.dumps(self.serialize())
 
     def find_or_fail(self):
@@ -283,6 +350,11 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         pass
 
     def relations_to_dict(self):
+        """Converts a models relationships to a dictionary
+
+        Returns:
+            [type]: [description]
+        """        
         new_dic = {}
         for key, value in self._relationships.items():
             new_dic.update({key: value.serialize()})
@@ -290,8 +362,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         return new_dic
 
     def touch(self, date=None, query=True):
-        """
-        Update the timestamps's value from model
+        """Updates the current timestamps on the model
         """
 
         if not self.__timestamps__:
@@ -302,19 +373,29 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         return self.save(query=query)
 
     def _update_timestamps(self, date=None):
+        """Sets the updated at date to the current time or a specified date
+
+        Args:
+            date (datetime.datetime, optional): a date. If none is specified then it will use the current date Defaults to None.
+        """        
         self.updated_at = date or self._current_timestamp()
 
     def _current_timestamp(self):
         return datetime.now()
-
-    # def __call__(self):
-    #     return self.builder
 
     @staticmethod
     def set_connection_resolver(self):
         pass
 
     def __getattr__(self, attribute):
+        """Magic method that is called when an attribute does not exist on the model.
+
+        Args:
+            attribute (string): the name of the attribute being accessed or called.
+
+        Returns:
+            mixed: Could be anything that a method can return.
+        """        
 
         if attribute in self.__passthrough__:
 
@@ -364,6 +445,14 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
             pass
 
     def get_raw_attribute(self, attribute):
+        """Gets an attribute without having to call the models magic methods. Gets around infinite recursion loops.
+
+        Args:
+            attribute (string): The attribute to fetch 
+
+        Returns:
+            mixed: Any value an attribute can be.
+        """        
         return self.__attributes__.get(attribute)
 
     def save(self, query=False):
