@@ -21,9 +21,6 @@ class HasMany(BaseRelationship):
         result = foreign.where(foreign_key, owner.__attributes__[local_key]).get()
         return result
 
-    def fetch_relation(self, relation, foreign, primary_key_value):
-        return relation.where(foreign, primary_key_value)
-
     def get_related(self, relation):
         builder = self.get_builder()
         if isinstance(relation, Collection):
