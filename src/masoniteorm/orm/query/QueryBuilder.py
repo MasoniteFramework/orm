@@ -895,8 +895,20 @@ class QueryBuilder:
         return related.eager_load_from_collection(collection)
 
     def _register_relationships_to_model(
-        self, related_result, hydrated_model, relation_key=None
+        self, related_result, hydrated_model, relation_key
     ):
+        """Takes a related result and a hydrated model and registers them to eachother using the relation key.
+
+        Args:
+            related_result (Model|Collection): Will be the related result based on the type of relationship.
+            hydrated_model (Model|Collection): If a collection we will need to loop through the collection of models
+                                                and register each one individually. Else we can just load the 
+                                                related_result into the hydrated_models
+            relation_key (string): A key to bind the relationship with. Defaults to None.
+
+        Returns:
+            self
+        """
         if isinstance(hydrated_model, Collection):
             for model in hydrated_model:
                 if isinstance(related_result, Collection):
