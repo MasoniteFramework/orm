@@ -936,7 +936,6 @@ class QueryBuilder:
                 for eager in self._eager_loads:
                     related = getattr(self._model, eager)
                     related_result = related.get_related(hydrated_model)
-                    print("related_result", related_result, hydrated_model)
                     self._register_relationships_to_model(
                         related_result, hydrated_model, relation_key=eager
                     )
