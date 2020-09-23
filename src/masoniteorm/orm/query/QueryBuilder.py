@@ -899,13 +899,16 @@ class QueryBuilder:
     ):
         if isinstance(hydrated_model, Collection):
             for model in hydrated_model:
-                model.add_relation(
-                    {
-                        relation_key: hydrated_model.where(
-                            model.get_primary_key(), model.get_primary_key_value()
-                        )
-                    }
-                )
+                if isinstance(related_result, Collection):
+                    model.add_relation(
+                        {
+                            relation_key: hydrated_model.where(
+                                model.get_primary_key(), model.get_primary_key_value()
+                            )
+                        }
+                    )
+                else:
+                    model.add_relation({relation_key: related_result})
         else:
             hydrated_model.add_relation({relation_key: related_result})
         return self
@@ -921,7 +924,7 @@ class QueryBuilder:
                 for eager in self._eager_loads:
                     related = getattr(self._model, eager)
                     related_result = related.get_related(hydrated_model)
-                    # related_result = related.eager_load_from_collection(hydrated_model)
+                    print('related_result', related_result, hydrated_model)
                     self._register_relationships_to_model(
                         related_result, hydrated_model, relation_key=eager
                     )
