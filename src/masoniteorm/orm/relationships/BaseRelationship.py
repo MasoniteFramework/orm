@@ -49,10 +49,15 @@ class BaseRelationship:
         Returns:
             object -- Either returns a builder or a hydrated model.
         """
+        attribute = self.fn.__name__
         relationship = self.fn(self)()
+
         self._related_builder = relationship.builder
 
         if instance.is_loaded():
+            if attribute in instance._relationships:
+                return instance._relationships[attribute]
+        
             result = self.apply_query(
                 self._related_builder, instance, self.foreign_key, self.local_key
             )

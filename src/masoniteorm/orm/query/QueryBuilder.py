@@ -897,8 +897,6 @@ class QueryBuilder:
     def _register_relationships_to_model(
         self, related_result, hydrated_model, relation_key=None
     ):
-        # print('need to register', related_result)
-        # print('hydrated_model', hydrated_model)
         if isinstance(hydrated_model, Collection):
             for model in hydrated_model:
                 model.add_relation(
@@ -909,8 +907,7 @@ class QueryBuilder:
                     }
                 )
         else:
-            print("related_result", related_result)
-            print("hydrated_model", hydrated_model)
+            hydrated_model.add_relation({relation_key: related_result})
         return self
 
     def get_primary_key(self):
@@ -925,7 +922,9 @@ class QueryBuilder:
                     related = getattr(self._model, eager)
                     related_result = related.get_related(hydrated_model)
                     # related_result = related.eager_load_from_collection(hydrated_model)
-                    # self._register_relationships_to_model(related_result, hydrated_model, relation_key=eager)
+                    self._register_relationships_to_model(
+                        related_result, hydrated_model, relation_key=eager
+                    )
 
             return hydrated_model
 
