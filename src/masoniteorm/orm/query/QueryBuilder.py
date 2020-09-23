@@ -889,6 +889,24 @@ class QueryBuilder:
         )
 
         return self.prepare_result(result)
+    
+    def _get_eager_load_result(self, related, collection):
+        related_builder = related.get_builder()
+        return related.eager_load_from_collection(collection)
+    
+    def _register_relationships_to_model(self, related_result, hydrated_model, relation_key=None):
+        # print('need to register', related_result)
+        # print('hydrated_model', hydrated_model)
+        if isinstance(hydrated_model, Collection):
+            for model in hydrated_model:
+                model.add_relation({relation_key: hydrated_model.where(model.get_primary_key(), model.get_primary_key_value())})
+        else:
+            print('related_result', related_result)
+            print('hydrated_model', hydrated_model)
+        return self
+    
+    def get_primary_key(self):
+        return self._model.get_primary_key()
 
     def prepare_result(self, result, wrap=None):
         if self._model:
@@ -896,17 +914,11 @@ class QueryBuilder:
             hydrated_model = self._model.hydrate(result)
             if self._eager_loads:
                 for eager in self._eager_loads:
-                    # print('result', self.get_relation('profile').build_relationship().to_sql())
-
-                    # TODO: move this eager loading into the relationship class?
                     related = getattr(self._model, eager)
-                    related_builder = related.get_builder()
-                    related_result = related_builder.where_in(
-                        f"{related_builder.get_table_name()}.{related.foreign_key}",
-                        hydrated_model.pluck(self._model.get_primary_key()),
-                    ).get()
+                    related_result = related.get_related(hydrated_model)
+                    # related_result = related.eager_load_from_collection(hydrated_model)
+                    # self._register_relationships_to_model(related_result, hydrated_model, relation_key=eager)
 
-                    print(related_result)
             return hydrated_model
 
         return result

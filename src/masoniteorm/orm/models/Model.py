@@ -215,7 +215,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     def is_loaded(self):
         return bool(self.__attributes__)
 
-    def add_relations(self, relations):
+    def add_relation(self, relations):
         self._relationships.update(relations)
         return self
 
@@ -248,7 +248,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
                     value = model.get_new_date(value)
                 dic.update({key: value})
             model.__attributes__.update(dic or {})
-            return model.add_relations(relations)
+            return model.add_relation(relations)
         elif hasattr(result, "serialize"):
             model = cls()
             model.__attributes__.update(result.serialize())

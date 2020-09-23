@@ -1,4 +1,5 @@
 from .BaseRelationship import BaseRelationship
+from ..collection import Collection
 
 
 class BelongsTo(BaseRelationship):
@@ -22,3 +23,16 @@ class BelongsTo(BaseRelationship):
 
     def fetch_relation(self, relation, foreign, primary_key_value):
         return relation.where(foreign, primary_key_value).first()
+    
+    def get_related(self, relation):
+        builder = self.get_builder()
+        if isinstance(relation, Collection):
+            return builder.where_in(
+                f"{builder.get_table_name()}.{self.foreign_key}",
+                relation.pluck(self.local_key),
+            ).first()
+        else:
+            return builder.where(
+                f"{builder.get_table_name()}.{self.foreign_key}",
+                relation.get_primary_key_value(),
+            ).first()
