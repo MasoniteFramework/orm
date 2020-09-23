@@ -56,9 +56,9 @@ class BaseTestQueryRelationships(unittest.TestCase):
         builder = self.get_builder()
         result = builder.with_("profile").get()
         for model in result:
-            print('rrr', model._relationships)
+            print("rrr", model._relationships)
 
     def test_with_first(self):
         builder = self.get_builder()
-        result = builder.with_("profile").where('id', 2).first()
-        self.assertEqual(result.profile.title, 'title')
+        result = builder.with_("profile").where("id", 2).first()
+        self.assertEqual(result.profile.title, "title")

@@ -889,22 +889,30 @@ class QueryBuilder:
         )
 
         return self.prepare_result(result)
-    
+
     def _get_eager_load_result(self, related, collection):
         related_builder = related.get_builder()
         return related.eager_load_from_collection(collection)
-    
-    def _register_relationships_to_model(self, related_result, hydrated_model, relation_key=None):
+
+    def _register_relationships_to_model(
+        self, related_result, hydrated_model, relation_key=None
+    ):
         # print('need to register', related_result)
         # print('hydrated_model', hydrated_model)
         if isinstance(hydrated_model, Collection):
             for model in hydrated_model:
-                model.add_relation({relation_key: hydrated_model.where(model.get_primary_key(), model.get_primary_key_value())})
+                model.add_relation(
+                    {
+                        relation_key: hydrated_model.where(
+                            model.get_primary_key(), model.get_primary_key_value()
+                        )
+                    }
+                )
         else:
-            print('related_result', related_result)
-            print('hydrated_model', hydrated_model)
+            print("related_result", related_result)
+            print("hydrated_model", hydrated_model)
         return self
-    
+
     def get_primary_key(self):
         return self._model.get_primary_key()
 

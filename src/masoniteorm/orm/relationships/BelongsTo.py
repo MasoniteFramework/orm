@@ -23,7 +23,7 @@ class BelongsTo(BaseRelationship):
 
     def fetch_relation(self, relation, foreign, primary_key_value):
         return relation.where(foreign, primary_key_value).first()
-    
+
     def get_related(self, relation):
         builder = self.get_builder()
         if isinstance(relation, Collection):
