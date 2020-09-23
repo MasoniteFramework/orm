@@ -59,7 +59,7 @@ class BaseRelationship:
                 return instance._relationships[attribute]
 
             result = self.apply_query(
-                self._related_builder, instance, self.foreign_key, self.local_key
+                self._related_builder, instance
             )
 
             return result
