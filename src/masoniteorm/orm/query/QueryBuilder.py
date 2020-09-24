@@ -929,7 +929,7 @@ class QueryBuilder:
             hydrated_model = self._model.hydrate(result)
             print("ll", self._eager_loads)
             if self._eager_loads and hydrated_model:
-                for eager in self._eager_loads:
+                for eager in set(self._eager_loads):
                     related = getattr(self._model, eager)
                     print("hh", hydrated_model)
                     related_result = related.get_related(hydrated_model)
