@@ -47,15 +47,16 @@ class QueryBuilder:
         self._connection_details = connection_details
         self._connection_driver = connection_driver
         self._scopes = scopes
+        self._eager_loads = ()
         if model:
             self._global_scopes = model._global_scopes
+            if model.__with__:
+                self.with_(model.__with__)
         else:
             self._global_scopes = {}
 
         self.builder = self
-        self._should_eager = True
 
-        self._eager_loads = ()
         self._columns = ()
         self._creates = {}
 
@@ -278,6 +279,10 @@ class QueryBuilder:
         raise AttributeError(
             "'QueryBuilder' object has no attribute '{}'".format(attribute)
         )
+
+    def on(self, driver):
+        self._connection_driver = driver
+        return self
 
     def select(self, *args):
         """Specifies columns that should be selected
@@ -886,12 +891,53 @@ class QueryBuilder:
 
         return self.prepare_result(result)
 
-    def prepare_result(self, result):
-        if self._model:
-            return self._model.hydrate(result)
+    def _get_eager_load_result(self, related, collection):
+        related_builder = related.get_builder()
+        return related.eager_load_from_collection(collection)
 
-        if isinstance(result, (list, tuple,)):
-            return Collection(result)
+    def _register_relationships_to_model(
+        self, related, related_result, hydrated_model, relation_key
+    ):
+        """Takes a related result and a hydrated model and registers them to eachother using the relation key.
+
+        Args:
+            related_result (Model|Collection): Will be the related result based on the type of relationship.
+            hydrated_model (Model|Collection): If a collection we will need to loop through the collection of models
+                                                and register each one individually. Else we can just load the 
+                                                related_result into the hydrated_models
+            relation_key (string): A key to bind the relationship with. Defaults to None.
+
+        Returns:
+            self
+        """
+        if isinstance(hydrated_model, Collection):
+            for model in hydrated_model:
+                if isinstance(related_result, Collection):
+                    related.register_related(relation_key, model, related_result)
+                else:
+                    model.add_relation({relation_key: related_result})
+        else:
+            hydrated_model.add_relation({relation_key: related_result})
+        return self
+
+    def get_primary_key(self):
+        return self._model.get_primary_key()
+
+    def prepare_result(self, result, wrap=None):
+        if self._model:
+            # eager load here
+            hydrated_model = self._model.hydrate(result)
+            print("ll", self._eager_loads)
+            if self._eager_loads and hydrated_model:
+                for eager in set(self._eager_loads):
+                    related = getattr(self._model, eager)
+                    print("hh", hydrated_model)
+                    related_result = related.get_related(hydrated_model)
+                    self._register_relationships_to_model(
+                        related, related_result, hydrated_model, relation_key=eager
+                    )
+
+            return hydrated_model
 
         return result
 
@@ -914,11 +960,9 @@ class QueryBuilder:
         Returns:
             self
         """
-
         result = self.new_connection().query(self.to_qmark(), self._bindings)
 
         return self.prepare_result(result)
-        return Collection(result)
 
     def new_connection(self):
         return self.connection(**self.get_connection_information()).make_connection()
@@ -934,69 +978,69 @@ class QueryBuilder:
         self._eager_loads += tuple(eagers)
         return self
 
-    def eager_load_model(self, result):
-        eager_dic = {}
-        if not self._should_eager:
-            return {}
+    # def eager_load_model(self, result):
+    #     eager_dic = {}
+    #     if not self._should_eager:
+    #         return {}
 
-        for eager in self._eager_loads:
-            if "." in eager:
-                last_owner = self.owner
-                last_eager = None
-                for split_eager in eager.split("."):
-                    if split_eager in eager_dic:
-                        related = getattr(last_owner, split_eager)()
-                        last_owner = related.owner
-                        last_eager = split_eager
-                        continue
+    #     for eager in self._eager_loads:
+    #         if "." in eager:
+    #             last_owner = self.owner
+    #             last_eager = None
+    #             for split_eager in eager.split("."):
+    #                 if split_eager in eager_dic:
+    #                     related = getattr(last_owner, split_eager)()
+    #                     last_owner = related.owner
+    #                     last_eager = split_eager
+    #                     continue
 
-                    relationship = last_owner._registered_relationships[last_owner][
-                        split_eager
-                    ]
-                    foreign_key, local_key = (
-                        relationship["foreign"],
-                        relationship["local"],
-                    )
-                    related = getattr(last_owner, split_eager)()
+    #                 relationship = last_owner._registered_relationships[last_owner][
+    #                     split_eager
+    #                 ]
+    #                 foreign_key, local_key = (
+    #                     relationship["foreign"],
+    #                     relationship["local"],
+    #                 )
+    #                 related = getattr(last_owner, split_eager)()
 
-                    result = (
-                        related.without_eager()
-                        .where_in(
-                            foreign_key,
-                            Collection(result).unique(local_key).pluck(local_key),
-                        )
-                        .get()
-                    )
+    #                 result = (
+    #                     related.without_eager()
+    #                     .where_in(
+    #                         foreign_key,
+    #                         Collection(result).unique(local_key).pluck(local_key),
+    #                     )
+    #                     .get()
+    #                 )
 
-                    # try to load the inners into the outer query
-                    # For logo need to get articles and loop through collection
-                    if last_eager and last_eager in eager_dic:
-                        eager_dic[last_eager].add_relation({split_eager: result})
-                    else:
-                        eager_dic.update({split_eager: result})
-                    last_owner = related.owner
-                    last_eager = split_eager
-            else:
-                relationship = self.owner._registered_relationships[self.owner][eager]
+    #                 # try to load the inners into the outer query
+    #                 # For logo need to get articles and loop through collection
+    #                 if last_eager and last_eager in eager_dic:
+    #                     eager_dic[last_eager].add_relation({split_eager: result})
+    #                 else:
+    #                     eager_dic.update({split_eager: result})
+    #                 last_owner = related.owner
+    #                 last_eager = split_eager
+    #         else:
+    #             relationship = self.owner._registered_relationships[self.owner][eager]
 
-                foreign_key, local_key = (
-                    relationship["foreign"],
-                    relationship["local"],
-                )
+    #             foreign_key, local_key = (
+    #                 relationship["foreign"],
+    #                 relationship["local"],
+    #             )
 
-                result = (
-                    getattr(self.owner, eager)()
-                    .without_eager()
-                    .where_in(
-                        foreign_key,
-                        Collection(result).unique(local_key).pluck(local_key),
-                    )
-                    .get()
-                )
+    #             result = (
+    #                 getattr(self.owner, eager)()
+    #                 .without_eager()
+    #                 .where_in(
+    #                     foreign_key,
+    #                     Collection(result).unique(local_key).pluck(local_key),
+    #                 )
+    #                 .get()
+    #             )
 
-                eager_dic.update({eager: result})
+    #             eager_dic.update({eager: result})
 
-        return eager_dic
+    #     return eager_dic
 
     def set_action(self, action):
         """Sets the action that the query builder should take when the query is built.

@@ -34,21 +34,23 @@ class ModelMeta(type):
 
         Returns:
             Model|mixed: An instantiated model's attribute
-        """        
+        """
         instantiated = self()
         return getattr(instantiated, attribute)
 
 
 class BoolCast:
     """Casts a value to a boolean
-    """    
+    """
+
     def get(self, value):
         return bool(value)
 
 
 class JsonCast:
     """Casts a value to JSON
-    """    
+    """
+
     def get(self, value):
         return json.dumps(value)
 
@@ -59,7 +61,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     Base Classes:
         TimeStampsMixin (TimeStampsMixin): Adds scopes to add timestamps when something is inserted
         metaclass (ModelMeta, optional): Helps instantiate a class when it hasn't been instantiated. Defaults to ModelMeta.
-    """    
+    """
 
     __fillable__ = ["*"]
     __guarded__ = ["*"]
@@ -67,7 +69,6 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     __table__ = None
     __connection__ = "default"
     __resolved_connection__ = None
-    _eager_load = ()
 
     _booted = False
     _scopes = {}
@@ -76,6 +77,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     __dates__ = []
     __hidden__ = []
     __timestamps__ = True
+    __with__ = ()
 
     date_created_at = "created_at"
     date_updated_at = "updated_at"
@@ -100,7 +102,6 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
     __cast_map__ = {}
 
-        
     __internal_cast_map__ = {
         "bool": BoolCast,
         "json": JsonCast,
@@ -116,6 +117,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         self.get_builder()
         self.boot()
 
+    @classmethod
     def get_primary_key(self):
         """Gets the primary key column
 
@@ -144,6 +146,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
     def get_builder(self):
         self.__resolved_connection__ = ConnectionFactory().make(self.__connection__)
+        # print('with it', self.__with__)
         self.builder = QueryBuilder(
             grammar=self.__resolved_connection__.get_grammar(),
             connection=self.__resolved_connection__,
@@ -169,7 +172,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
                 if class_name.endswith("Mixin"):
                     getattr(base_class(), "boot_" + class_name)(self.builder)
-            
+
             self._booted = True
 
     @classmethod
@@ -213,7 +216,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     def is_loaded(self):
         return bool(self.__attributes__)
 
-    def add_relations(self, relations):
+    def add_relation(self, relations):
         self._relationships.update(relations)
         return self
 
@@ -227,7 +230,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
         Returns:
             [type]: [description]
-        """        
+        """
 
         if result is None:
             return None
@@ -246,7 +249,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
                     value = model.get_new_date(value)
                 dic.update({key: value})
             model.__attributes__.update(dic or {})
-            return model.add_relations(relations)
+            return model.add_relation(relations)
         elif hasattr(result, "serialize"):
             model = cls()
             model.__attributes__.update(result.serialize())
@@ -266,7 +269,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
         Returns:
             Collection
-        """        
+        """
         return Collection(data)
 
     def fill(self):
@@ -283,7 +286,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
         Returns:
             self: A hydrated version of a model
-        """        
+        """
         if not dictionary:
             dictionary = kwargs
 
@@ -308,7 +311,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
         Returns:
             dict
-        """        
+        """
         if not serialized_dictionary:
             serialized_dictionary = self.__attributes__
 
@@ -340,7 +343,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
         Returns:
             string
-        """        
+        """
         return json.dumps(self.serialize())
 
     def find_or_fail(self):
@@ -354,7 +357,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
         Returns:
             [type]: [description]
-        """        
+        """
         new_dic = {}
         for key, value in self._relationships.items():
             new_dic.update({key: value.serialize()})
@@ -377,7 +380,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
         Args:
             date (datetime.datetime, optional): a date. If none is specified then it will use the current date Defaults to None.
-        """        
+        """
         self.updated_at = date or self._current_timestamp()
 
     def _current_timestamp(self):
@@ -395,7 +398,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
         Returns:
             mixed: Could be anything that a method can return.
-        """        
+        """
 
         if attribute in self.__passthrough__:
 
@@ -452,7 +455,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
         Returns:
             mixed: Any value an attribute can be.
-        """        
+        """
         return self.__attributes__.get(attribute)
 
     def save(self, query=False):
