@@ -30,7 +30,6 @@ class QueryBuilder:
         connection_driver=None,
         model=None,
         scopes={},
-        eager_loads=(),
         dry=False,
     ):
         """QueryBuilder initializer
@@ -48,14 +47,16 @@ class QueryBuilder:
         self._connection_details = connection_details
         self._connection_driver = connection_driver
         self._scopes = scopes
+        self._eager_loads = ()
         if model:
             self._global_scopes = model._global_scopes
+            if model.__with__:
+                self.with_(model.__with__)
         else:
             self._global_scopes = {}
 
         self.builder = self
 
-        self._eager_loads = eager_loads
         self._columns = ()
         self._creates = {}
 
@@ -926,9 +927,11 @@ class QueryBuilder:
         if self._model:
             # eager load here
             hydrated_model = self._model.hydrate(result)
-            if self._eager_loads:
+            print("ll", self._eager_loads)
+            if self._eager_loads and hydrated_model:
                 for eager in self._eager_loads:
                     related = getattr(self._model, eager)
+                    print("hh", hydrated_model)
                     related_result = related.get_related(hydrated_model)
                     self._register_relationships_to_model(
                         related, related_result, hydrated_model, relation_key=eager

@@ -29,6 +29,8 @@ class Profile(Model):
 class User(Model):
     __connection__ = "sqlite"
 
+    __with__ = ("profile",)
+
     @belongs_to("id", "user_id")
     def articles(self):
         return Article
@@ -41,7 +43,8 @@ class User(Model):
 class EagerUser(Model):
     __connection__ = "sqlite"
 
-    __with__ = ["profile"]
+    __with__ = ("profile",)
+    __table__ = "users"
 
     @belongs_to("id", "user_id")
     def profile(self):
@@ -52,13 +55,13 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
     maxDiff = None
 
-    def get_builder(self, table="users"):
+    def get_builder(self, table="users", model=User):
         connection = ConnectionFactory().make("sqlite")
         return QueryBuilder(
             grammar=SQLiteGrammar,
             connection=connection,
             table=table,
-            model=User,
+            model=model,
             connection_details=DATABASES,
         ).on("sqlite")
 
@@ -70,13 +73,13 @@ class BaseTestQueryRelationships(unittest.TestCase):
                 self.assertEqual(model.profile.title, "title")
 
     def test_with_from_model(self):
-        builder = self.get_builder()
-        result = builder.with_("profile").get()
+        builder = EagerUser
+        result = builder.get()
         for model in result:
             if model.profile:
                 self.assertEqual(model.profile.title, "title")
 
     def test_with_first(self):
         builder = self.get_builder()
-        result = builder.with_("profile").where("id", 2).first()
+        result = builder.with_("profile").where("id", 1).first()
         self.assertEqual(result.profile.title, "title")

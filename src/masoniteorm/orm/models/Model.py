@@ -69,7 +69,6 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     __table__ = None
     __connection__ = "default"
     __resolved_connection__ = None
-    _eager_load = ()
 
     _booted = False
     _scopes = {}
@@ -78,6 +77,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     __dates__ = []
     __hidden__ = []
     __timestamps__ = True
+    __with__ = ()
 
     date_created_at = "created_at"
     date_updated_at = "updated_at"
@@ -146,6 +146,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
     def get_builder(self):
         self.__resolved_connection__ = ConnectionFactory().make(self.__connection__)
+        # print('with it', self.__with__)
         self.builder = QueryBuilder(
             grammar=self.__resolved_connection__.get_grammar(),
             connection=self.__resolved_connection__,
