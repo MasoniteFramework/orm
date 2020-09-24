@@ -16,7 +16,9 @@ class HasMany(BaseRelationship):
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-        result = foreign.where(self.foreign_key, owner.__attributes__[self.local_key]).get()
+        result = foreign.where(
+            self.foreign_key, owner.__attributes__[self.local_key]
+        ).get()
         return result
 
     def get_related(self, relation):

@@ -58,9 +58,7 @@ class BaseRelationship:
             if attribute in instance._relationships:
                 return instance._relationships[attribute]
 
-            result = self.apply_query(
-                self._related_builder, instance
-            )
+            result = self.apply_query(self._related_builder, instance)
 
             return result
         else:

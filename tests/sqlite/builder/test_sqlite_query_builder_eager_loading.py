@@ -38,6 +38,16 @@ class User(Model):
         return Profile
 
 
+class EagerUser(Model):
+    __connection__ = "sqlite"
+
+    __with__ = ["profile"]
+
+    @belongs_to("id", "user_id")
+    def profile(self):
+        return Profile
+
+
 class BaseTestQueryRelationships(unittest.TestCase):
 
     maxDiff = None
@@ -53,6 +63,13 @@ class BaseTestQueryRelationships(unittest.TestCase):
         ).on("sqlite")
 
     def test_with(self):
+        builder = self.get_builder()
+        result = builder.with_("profile").get()
+        for model in result:
+            if model.profile:
+                self.assertEqual(model.profile.title, "title")
+
+    def test_with_from_model(self):
         builder = self.get_builder()
         result = builder.with_("profile").get()
         for model in result:

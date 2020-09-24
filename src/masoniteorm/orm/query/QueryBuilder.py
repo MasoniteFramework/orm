@@ -30,6 +30,7 @@ class QueryBuilder:
         connection_driver=None,
         model=None,
         scopes={},
+        eager_loads=(),
         dry=False,
     ):
         """QueryBuilder initializer
@@ -53,9 +54,8 @@ class QueryBuilder:
             self._global_scopes = {}
 
         self.builder = self
-        self._should_eager = True
 
-        self._eager_loads = ()
+        self._eager_loads = eager_loads
         self._columns = ()
         self._creates = {}
 
@@ -895,7 +895,7 @@ class QueryBuilder:
         return related.eager_load_from_collection(collection)
 
     def _register_relationships_to_model(
-        self, related_result, hydrated_model, relation_key
+        self, related, related_result, hydrated_model, relation_key
     ):
         """Takes a related result and a hydrated model and registers them to eachother using the relation key.
 
@@ -912,13 +912,7 @@ class QueryBuilder:
         if isinstance(hydrated_model, Collection):
             for model in hydrated_model:
                 if isinstance(related_result, Collection):
-                    model.add_relation(
-                        {
-                            relation_key: hydrated_model.where(
-                                model.get_primary_key(), model.get_primary_key_value()
-                            )
-                        }
-                    )
+                    related.register_related(relation_key, model, related_result)
                 else:
                     model.add_relation({relation_key: related_result})
         else:
@@ -937,7 +931,7 @@ class QueryBuilder:
                     related = getattr(self._model, eager)
                     related_result = related.get_related(hydrated_model)
                     self._register_relationships_to_model(
-                        related_result, hydrated_model, relation_key=eager
+                        related, related_result, hydrated_model, relation_key=eager
                     )
 
             return hydrated_model
