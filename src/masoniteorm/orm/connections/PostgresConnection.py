@@ -85,7 +85,7 @@ class PostgresConnection(BaseConnection):
         Returns:
             dict|None -- Returns a dictionary of results or None
         """
-        import psycopg2
+        from psycopg2.extras import RealDictCursor
 
         query = query.replace("'?'", "%s")
         print("running query:", query, bindings)
@@ -95,7 +95,7 @@ class PostgresConnection(BaseConnection):
             if self._connection.closed:
                 self.make_connection()
             with self._connection.cursor(
-                cursor_factory=psycopg2.extras.RealDictCursor
+                cursor_factory=RealDictCursor
             ) as cursor:
                 cursor.execute(query, bindings)
                 if results == 1:
