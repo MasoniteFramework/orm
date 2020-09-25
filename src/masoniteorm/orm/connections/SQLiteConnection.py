@@ -30,6 +30,7 @@ class SQLiteConnection(BaseConnection):
         self.password = password
         self.prefix = prefix
         self.options = options
+        self._cursor = None
 
     def make_connection(self):
         """This sets the connection on the connection class
@@ -76,6 +77,9 @@ class SQLiteConnection(BaseConnection):
         """
         self.__class__._connection.rollback()
 
+    def get_cursor(self):
+        return self._cursor
+
     def query(self, query, bindings, results="*"):
         """Make the actual query that will reach the database and come back with a result.
 
@@ -93,14 +97,15 @@ class SQLiteConnection(BaseConnection):
         query = query.replace("'?'", "?")
         print("running query: ", query, bindings)
         try:
-            cursor = self._connection.cursor()
-            cursor.execute(query, bindings)
+            self._cursor = self._connection.cursor()
+            self._cursor.execute(query, bindings)
+            print("executed")
             if results == 1:
-                result = [dict(row) for row in cursor.fetchall()]
+                result = [dict(row) for row in self._cursor.fetchall()]
                 if result:
                     return result[0]
             else:
-                return [dict(row) for row in cursor.fetchall()]
+                return [dict(row) for row in self._cursor.fetchall()]
         except Exception as e:
             if self._connection and self._connection.isolation_level:
                 self.rollback()

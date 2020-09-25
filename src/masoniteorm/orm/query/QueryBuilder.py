@@ -16,6 +16,8 @@ from ..scopes import BaseScope
 
 from ..schema import Schema
 
+from .processors import QueryProcessor
+
 
 class QueryBuilder:
     """A builder class to manage the building and creation of query expressions.
@@ -44,6 +46,7 @@ class QueryBuilder:
         self.grammar = grammar
         self._table = table
         self.connection = connection
+        self._connection = None
         self._connection_details = connection_details
         self._connection_driver = connection_driver
         self._scopes = scopes
@@ -315,15 +318,22 @@ class QueryBuilder:
         """
         if not creates:
             creates = kwargs
+
         self.set_action("insert")
         self._creates.update(creates)
         if query:
             return self
 
-        self.connection.query(self.to_sql(), self._bindings)
-        if self.owner:
-            return self.owner.hydrate(creates)
-        return creates
+        connection = self.new_connection()
+        result = connection.query(self.to_sql(), self._bindings)
+
+        if self._model:
+            processed_results = QueryProcessor().process_insert_get_id(
+                self, self._creates, self._model.get_primary_key()
+            )
+            return self._model.hydrate(processed_results)
+
+        return self._creates
 
     def delete(self, column=None, value=None, query=False):
         """Specify the column and value to delete
@@ -965,7 +975,13 @@ class QueryBuilder:
         return self.prepare_result(result)
 
     def new_connection(self):
-        return self.connection(**self.get_connection_information()).make_connection()
+        self._connection = self.connection(
+            **self.get_connection_information()
+        ).make_connection()
+        return self._connection
+
+    def get_connection(self):
+        return self._connection
 
     def without_eager(self):
         self._should_eager = False
