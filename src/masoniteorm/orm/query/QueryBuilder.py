@@ -16,7 +16,7 @@ from ..scopes import BaseScope
 
 from ..schema import Schema
 
-from .processors import QueryProcessor
+from .processors import QueryProcessor, ProcessorFactory
 
 
 class QueryBuilder:
@@ -306,8 +306,12 @@ class QueryBuilder:
         """
         self._columns += (SelectExpression(string, raw=True),)
         return self
+    
+    def get_processor(self):
+        return ProcessorFactory().make(self._connection_driver)()
 
-    def create(self, creates={}, query=False, **kwargs):
+
+    def create(self, creates={}, query=False, id_key="id", **kwargs):
         """Specifies a dictionary that should be used to create new values.
 
         Arguments:
@@ -328,12 +332,16 @@ class QueryBuilder:
         result = connection.query(self.to_sql(), self._bindings)
 
         if self._model:
-            processed_results = QueryProcessor().process_insert_get_id(
-                self, self._creates, self._model.get_primary_key()
-            )
+            id_key = self._model.get_primary_key()
+
+        processed_results = self.get_processor().process_insert_get_id(
+            self, self._creates, id_key
+        )
+
+        if self._model:
             return self._model.hydrate(processed_results)
 
-        return self._creates
+        return processed_results
 
     def delete(self, column=None, value=None, query=False):
         """Specify the column and value to delete

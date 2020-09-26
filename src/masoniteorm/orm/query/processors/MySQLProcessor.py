@@ -1,4 +1,4 @@
-class QueryProcessor:
+class MySQLProcessor:
 
     def process_insert_get_id(self, builder, results, id_key):
 

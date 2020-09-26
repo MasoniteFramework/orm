@@ -25,7 +25,7 @@ class BaseTestQueryRelationships(unittest.TestCase):
             grammar=SQLiteGrammar,
             connection=connection,
             table=table,
-            model=User,
+            # model=User,
             connection_details=DATABASES,
         ).on("sqlite")
 
