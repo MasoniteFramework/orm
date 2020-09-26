@@ -329,7 +329,6 @@ class QueryBuilder:
 
         connection = self.new_connection()
         result = connection.query(self.to_sql(), self._bindings, results=1)
-        print("result", result)
 
         if self._model:
             id_key = self._model.get_primary_key()
@@ -944,11 +943,9 @@ class QueryBuilder:
         if self._model:
             # eager load here
             hydrated_model = self._model.hydrate(result)
-            print("ll", self._eager_loads)
             if self._eager_loads and hydrated_model:
                 for eager in set(self._eager_loads):
                     related = getattr(self._model, eager)
-                    print("hh", hydrated_model)
                     related_result = related.get_related(hydrated_model)
                     self._register_relationships_to_model(
                         related, related_result, hydrated_model, relation_key=eager
