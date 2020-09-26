@@ -94,6 +94,9 @@ class PostgresConnection(BaseConnection):
         """
         pass
 
+    def get_cursor(self):
+        return self._cursor
+
     def query(self, query, bindings=(), results="*"):
         """Make the actual query that will reach the database and come back with a result.
 
