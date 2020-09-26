@@ -41,7 +41,7 @@ DATABASES = {
         'host': 'localhost',
         'user': 'postgres',
         'password': 'postgres',
-        'database': 'orm',
+        'database': 'personal',
         'port': '5432',
         'prefix': '',
         'grammar': 'postgres',

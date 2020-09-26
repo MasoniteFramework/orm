@@ -22,8 +22,8 @@ class BelongsTo(BaseRelationship):
 
     def get_related(self, relation):
         """Gets the relation needed between the relation and the related builder. If the relation is a collection
-        then will need to pluck out all the keys from the collection and fetch from the related builder. If 
-        relation is just a Model then we can just call the model based on the value of the related 
+        then will need to pluck out all the keys from the collection and fetch from the related builder. If
+        relation is just a Model then we can just call the model based on the value of the related
         builders primary key.
 
         Args:

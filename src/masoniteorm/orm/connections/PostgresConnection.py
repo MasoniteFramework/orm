@@ -12,6 +12,29 @@ class PostgresConnection(BaseConnection):
 
     name = "postgres"
 
+    def __init__(
+        self,
+        host=None,
+        database=None,
+        user=None,
+        port=None,
+        password=None,
+        prefix=None,
+        options={},
+    ):
+
+        self.host = host
+        if port:
+            self.port = int(port)
+        else:
+            self.port = port
+        self.database = database
+        self.user = user
+        self.password = password
+        self.prefix = prefix
+        self.options = options
+        self._cursor = None
+
     def make_connection(self):
         """This sets the connection on the connection class
         """

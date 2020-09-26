@@ -222,7 +222,7 @@ class QueryBuilder:
             name.on_boot(self)
             return self
 
-        if not action in self._global_scopes:
+        if action not in self._global_scopes:
             self._global_scopes[action] = {}
 
         self._global_scopes[action].update({name: callable})
@@ -328,13 +328,14 @@ class QueryBuilder:
             return self
 
         connection = self.new_connection()
-        result = connection.query(self.to_sql(), self._bindings)
+        result = connection.query(self.to_sql(), self._bindings, results=1)
+        print("result", result)
 
         if self._model:
             id_key = self._model.get_primary_key()
 
         processed_results = self.get_processor().process_insert_get_id(
-            self, self._creates, id_key
+            self, result or self._creates, id_key
         )
 
         if self._model:
@@ -909,7 +910,6 @@ class QueryBuilder:
         return self.prepare_result(result)
 
     def _get_eager_load_result(self, related, collection):
-        related_builder = related.get_builder()
         return related.eager_load_from_collection(collection)
 
     def _register_relationships_to_model(
@@ -920,7 +920,7 @@ class QueryBuilder:
         Args:
             related_result (Model|Collection): Will be the related result based on the type of relationship.
             hydrated_model (Model|Collection): If a collection we will need to loop through the collection of models
-                                                and register each one individually. Else we can just load the 
+                                                and register each one individually. Else we can just load the
                                                 related_result into the hydrated_models
             relation_key (string): A key to bind the relationship with. Defaults to None.
 
