@@ -1,5 +1,4 @@
 class SQLiteProcessor:
-
     def process_insert_get_id(self, builder, results, id_key="id"):
         results.update({id_key: builder.get_connection().get_cursor().lastrowid})
 

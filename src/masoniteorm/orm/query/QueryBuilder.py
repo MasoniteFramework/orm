@@ -306,10 +306,9 @@ class QueryBuilder:
         """
         self._columns += (SelectExpression(string, raw=True),)
         return self
-    
+
     def get_processor(self):
         return ProcessorFactory().make(self._connection_driver)()
-
 
     def create(self, creates={}, query=False, id_key="id", **kwargs):
         """Specifies a dictionary that should be used to create new values.
