@@ -16,7 +16,7 @@ from ..scopes import BaseScope
 
 from ..schema import Schema
 
-from .processors import QueryProcessor, ProcessorFactory
+from .processors import ProcessorFactory
 
 
 class QueryBuilder:

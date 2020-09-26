@@ -1,4 +1,4 @@
-class SQLiteProcessor:
+class PostgresPostProcessor:
     """Post processor classes are responsable for modifying the result after a query.
 
     Post Processors are called after the connection calls the database in the
@@ -11,7 +11,7 @@ class SQLiteProcessor:
     the results
     """
 
-    def process_insert_get_id(self, builder, results, id_key="id"):
+    def process_insert_get_id(self, builder, results, id_key):
         """Process the results from the query to the database.
 
         Args:
@@ -23,6 +23,5 @@ class SQLiteProcessor:
         Returns:
             dictionary: Should return the modified dictionary.
         """
-        results.update({id_key: builder.get_connection().get_cursor().lastrowid})
 
         return results

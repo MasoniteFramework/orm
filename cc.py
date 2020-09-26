@@ -13,10 +13,10 @@ builder = QueryBuilder(connection=PostgresConnection, grammar=PostgresGrammar, c
 
 class User(Model):
     __connection__ = "postgres"
-    pass
+    __table__ = """public"."users"""
 
-print(User.all().count())
-user = User.create({"name": "john", "email": "john"})
+user = User.create({"name": "phill", "email": "phill"})
+print(User.get().serialize())
 
 print(user.serialize())
 # print(User.first())

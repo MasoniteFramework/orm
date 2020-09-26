@@ -1,14 +1,14 @@
-from .SQLiteProcessor import SQLiteProcessor
-from .MySQLProcessor import MySQLProcessor
-from .PostgresProcessor import PostgresProcessor
+from .SQLitePostProcessor import SQLitePostProcessor
+from .MySQLPostProcessor import MySQLPostProcessor
+from .PostgresPostProcessor import PostgresPostProcessor
 
 
 class ProcessorFactory:
 
     processors = {
-        "sqlite": SQLiteProcessor,
-        "mysql": MySQLProcessor,
-        "postgres": PostgresProcessor,
+        "sqlite": SQLitePostProcessor,
+        "mysql": MySQLPostProcessor,
+        "postgres": PostgresPostProcessor,
     }
 
     def make(self, processor):
