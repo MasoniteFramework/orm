@@ -778,7 +778,7 @@ class QueryBuilder:
         if dry:
             return self
 
-        return self.connection.query(self.to_sql(), self._bindings)
+        return self.new_connection().query(self.to_sql(), self._bindings)
 
     def set_updates(self, updates: dict, dry=False):
         """Specifies columns and values to be updated.
