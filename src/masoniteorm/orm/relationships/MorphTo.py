@@ -32,14 +32,14 @@ class MorphTo(BaseRelationship):
         self._related_builder = instance.builder
 
         if instance.is_loaded():
-            #     if attribute in instance._relationships:
-            #         return instance._relationships[attribute]
+            if self.morph_key in instance._relationships:
+                return instance._relationships[self.morph_key]
 
             result = self.apply_query(self._related_builder, instance)
 
             return result
-        # else:
-        #     return self
+        else:
+            return self
 
     def __getattr__(self, attribute):
         relationship = self.fn(self)()
