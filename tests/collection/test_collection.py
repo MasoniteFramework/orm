@@ -539,3 +539,23 @@ class TestCollection(unittest.TestCase):
         flattened = collection.flatten()
 
         self.assertEqual(flattened.all(), [1, 2, 3, 4, 5, "bar"])
+
+    def test_group_by(self):
+        collection = Collection(
+            [
+                {"name": "Corentin", "age": 10},
+                {"name": "Joe", "age": 10},
+                {"name": "Marlysson", "age": 20},
+            ]
+        )
+
+        grouped = collection.group_by("age")
+
+        self.assertIsInstance(grouped, Collection)
+        self.assertEqual(
+            grouped,
+            {
+                10: [{"name": "Corentin", "age": 10}, {"name": "Joe", "age": 10}],
+                20: [{"name": "Marlysson", "age": 20}],
+            },
+        )

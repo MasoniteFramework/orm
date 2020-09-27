@@ -146,7 +146,6 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
     def get_builder(self):
         self.__resolved_connection__ = ConnectionFactory().make(self.__connection__)
-        # print('with it', self.__with__)
         self.builder = QueryBuilder(
             grammar=self.__resolved_connection__.get_grammar(),
             connection=self.__resolved_connection__,

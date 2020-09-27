@@ -309,8 +309,13 @@ class Collection:
     def shift(self):
         return self.pull(0)
 
-    def sort(self):
+    def sort(self, key=None):
+        if key:
+            self._items.sort(key=lambda x: x[key], reverse=False)
+            return self
+
         self._items = sorted(self)
+        return self
 
     def sum(self, key=None):
         result = 0
@@ -323,6 +328,19 @@ class Collection:
 
     def to_json(self, **kwargs):
         return json.dumps(self.serialize(), **kwargs)
+
+    def group_by(self, key):
+
+        from itertools import groupby
+
+        self.sort(key)
+
+        new_dict = {}
+
+        for k, v in groupby(self._items, key=lambda x: x[key]):
+            new_dict.update({k: list(v)})
+
+        return Collection(new_dict)
 
     def transform(self, callback):
         self._check_is_callable(callback)

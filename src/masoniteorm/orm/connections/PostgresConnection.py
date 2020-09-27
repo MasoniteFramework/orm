@@ -121,9 +121,7 @@ class PostgresConnection(BaseConnection):
         try:
             if self._connection.closed:
                 self.make_connection()
-            with self._connection.cursor(
-                cursor_factory=RealDictCursor
-            ) as cursor:
+            with self._connection.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(query, bindings)
                 if results == 1:
                     return dict(cursor.fetchone() or {})
