@@ -22,5 +22,7 @@ class MySQLPostProcessor:
             dictionary: Should return the modified dictionary.
         """
 
-        results.update({id_key: builder.get_connection().get_cursor().lastrowid})
+        last_id = builder.new_connection().query(f"SELECT LAST_INSERT_ID() AS `id`")
+
+        results.update({id_key: last_id[0]["id"]})
         return results
