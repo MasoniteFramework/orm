@@ -6,9 +6,7 @@ class SQLitePostProcessor:
 
     We can use this oppurtunity to get things like the inserted ID.
 
-    For the Postgres Post Processor we have a RETURNING * string in the insert so the result
-    will already have the full inserted record in the results. Therefore, we can just return
-    the results
+    For the SQLite Post Processor we have an attribute on the connection class we can use to fetch the ID.
     """
 
     def process_insert_get_id(self, builder, results, id_key="id"):
