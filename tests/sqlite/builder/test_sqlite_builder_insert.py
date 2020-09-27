@@ -11,6 +11,7 @@ from config.database import DATABASES
 
 
 class User(Model):
+    __connection__ = "sqlite"
     __timestamps__ = False
     pass
 

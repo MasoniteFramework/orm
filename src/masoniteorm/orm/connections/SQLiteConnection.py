@@ -64,18 +64,22 @@ class SQLiteConnection(BaseConnection):
     def commit(self):
         """Transaction
         """
-        return self.__class__._connection.commit()
+        print(self._connection.commit())
+        self._connection.isolation_level = None
+        return self
 
     def begin(self):
         """Sqlite Transaction
         """
-        self.__class__._connection.isolation_level = "DEFERRED"
-        return self.__class__._connection
+        self._connection.isolation_level = "DEFERRED"
+        return self
 
     def rollback(self):
         """Transaction
         """
-        self.__class__._connection.rollback()
+        self._connection.rollback()
+        self._connection.isolation_level = None
+        return self
 
     def get_cursor(self):
         return self._cursor
@@ -95,7 +99,7 @@ class SQLiteConnection(BaseConnection):
             dict|None -- Returns a dictionary of results or None
         """
         query = query.replace("'?'", "?")
-        print("running query: ", query, bindings)
+        print("running query: ", self, query, bindings)
         try:
             self._cursor = self._connection.cursor()
             self._cursor.execute(query, bindings)
@@ -107,6 +111,6 @@ class SQLiteConnection(BaseConnection):
             else:
                 return [dict(row) for row in self._cursor.fetchall()]
         except Exception as e:
-            if self._connection and self._connection.isolation_level:
-                self.rollback()
+            # if self._connection and self._connection.isolation_level:
+            # self.rollback()
             raise e

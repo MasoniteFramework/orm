@@ -87,6 +87,15 @@ class QueryBuilder:
             # setup the connection information
             self._connection_driver = self._connection_details.get("default")
 
+    def reset(self):
+        """Resets the query builder instance so you can make multiple calls with the same builder instance
+        """
+
+        self.set_action("select")
+        self._wheres = ()
+
+        return self
+
     def get_connection_information(self):
         return {
             "host": self._connection_details.get(self._connection_driver, {}).get(
@@ -169,7 +178,7 @@ class QueryBuilder:
         Returns:
             self
         """
-        return self.connection.commit()
+        return self._connection.commit()
 
     def rollback(self):
         """Sets a table on the query builder
@@ -180,7 +189,8 @@ class QueryBuilder:
         Returns:
             self
         """
-        return self.connection.rollback()
+        self._connection.rollback()
+        return self
 
     def get_relation(self, key):
         """Sets a table on the query builder
@@ -979,6 +989,9 @@ class QueryBuilder:
         return self.prepare_result(result)
 
     def new_connection(self):
+        if self._connection:
+            return self._connection
+
         self._connection = self.connection(
             **self.get_connection_information()
         ).make_connection()
@@ -1110,6 +1123,7 @@ class QueryBuilder:
 
         grammar = self.get_grammar()
         sql = grammar.compile(self._action).to_sql()
+        self.reset()
         return sql
 
     def to_qmark(self):
@@ -1127,6 +1141,8 @@ class QueryBuilder:
         qmark = getattr(grammar, "_compile_{action}".format(action=self._action))(
             qmark=True
         ).to_qmark()
+
+        self.reset()
 
         self._bindings = grammar._bindings
 

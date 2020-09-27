@@ -12,11 +12,11 @@ builder = QueryBuilder(connection=PostgresConnection, grammar=PostgresGrammar, c
 # print(builder.where("id", 1).or_where(lambda q: q.where('id', 2).or_where('id', 3)).get())
 
 class User(Model):
-    __connection__ = "postgres"
+    __connection__ = "sqlite"
     __table__ = "users"
 
-user = User.create({"name": "phill", "email": "phill"})
-print(User.get().serialize())
+# user = User.create({"name": "phill", "email": "phill"})
+print(User.get().count())
 
 print(user.serialize())
 # print(User.first())
