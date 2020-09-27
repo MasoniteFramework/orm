@@ -16,6 +16,8 @@ from ..scopes import BaseScope
 
 from ..schema import Schema
 
+from .processors import PostProcessorFactory
+
 
 class QueryBuilder:
     """A builder class to manage the building and creation of query expressions.
@@ -44,6 +46,7 @@ class QueryBuilder:
         self.grammar = grammar
         self._table = table
         self.connection = connection
+        self._connection = None
         self._connection_details = connection_details
         self._connection_driver = connection_driver
         self._scopes = scopes
@@ -219,7 +222,7 @@ class QueryBuilder:
             name.on_boot(self)
             return self
 
-        if not action in self._global_scopes:
+        if action not in self._global_scopes:
             self._global_scopes[action] = {}
 
         self._global_scopes[action].update({name: callable})
@@ -304,7 +307,10 @@ class QueryBuilder:
         self._columns += (SelectExpression(string, raw=True),)
         return self
 
-    def create(self, creates={}, query=False, **kwargs):
+    def get_processor(self):
+        return PostProcessorFactory().make(self._connection_driver)()
+
+    def create(self, creates={}, query=False, id_key="id", **kwargs):
         """Specifies a dictionary that should be used to create new values.
 
         Arguments:
@@ -315,15 +321,26 @@ class QueryBuilder:
         """
         if not creates:
             creates = kwargs
+
         self.set_action("insert")
         self._creates.update(creates)
         if query:
             return self
 
-        self.connection.query(self.to_sql(), self._bindings)
-        if self.owner:
-            return self.owner.hydrate(creates)
-        return creates
+        connection = self.new_connection()
+        query_result = connection.query(self.to_sql(), self._bindings, results=1)
+
+        if self._model:
+            id_key = self._model.get_primary_key()
+
+        processed_results = self.get_processor().process_insert_get_id(
+            self, query_result or self._creates, id_key
+        )
+
+        if self._model:
+            return self._model.hydrate(processed_results)
+
+        return processed_results
 
     def delete(self, column=None, value=None, query=False):
         """Specify the column and value to delete
@@ -892,7 +909,6 @@ class QueryBuilder:
         return self.prepare_result(result)
 
     def _get_eager_load_result(self, related, collection):
-        related_builder = related.get_builder()
         return related.eager_load_from_collection(collection)
 
     def _register_relationships_to_model(
@@ -903,7 +919,7 @@ class QueryBuilder:
         Args:
             related_result (Model|Collection): Will be the related result based on the type of relationship.
             hydrated_model (Model|Collection): If a collection we will need to loop through the collection of models
-                                                and register each one individually. Else we can just load the 
+                                                and register each one individually. Else we can just load the
                                                 related_result into the hydrated_models
             relation_key (string): A key to bind the relationship with. Defaults to None.
 
@@ -927,11 +943,9 @@ class QueryBuilder:
         if self._model:
             # eager load here
             hydrated_model = self._model.hydrate(result)
-            print("ll", self._eager_loads)
             if self._eager_loads and hydrated_model:
                 for eager in set(self._eager_loads):
                     related = getattr(self._model, eager)
-                    print("hh", hydrated_model)
                     related_result = related.get_related(hydrated_model)
                     self._register_relationships_to_model(
                         related, related_result, hydrated_model, relation_key=eager
@@ -965,7 +979,13 @@ class QueryBuilder:
         return self.prepare_result(result)
 
     def new_connection(self):
-        return self.connection(**self.get_connection_information()).make_connection()
+        self._connection = self.connection(
+            **self.get_connection_information()
+        ).make_connection()
+        return self._connection
+
+    def get_connection(self):
+        return self._connection
 
     def without_eager(self):
         self._should_eager = False

@@ -10,16 +10,16 @@ from ..connections import ConnectionFactory
 from ..query.grammars import MySQLGrammar
 from ..scopes import BaseScope, SoftDeleteScope, SoftDeletesMixin, TimeStampsMixin
 
-"""This is a magic class that will help using models like User.first() instead of having to instatiate a class like 
+"""This is a magic class that will help using models like User.first() instead of having to instatiate a class like
 User().first()
 """
 
 
 class ModelMeta(type):
     def __getattr__(self, attribute, *args, **kwargs):
-        """This method is called between a Model and accessing a property. This is a quick and easy 
+        """This method is called between a Model and accessing a property. This is a quick and easy
         way to instantiate a class before the first method is called. This is to avoid needing
-        to do this: 
+        to do this:
 
         User().where(..)
 
@@ -261,7 +261,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
     @classmethod
     def new_collection(cls, data):
-        """Takes a result and puts it into a new collection. 
+        """Takes a result and puts it into a new collection.
         This is designed to be able to be overidden by the user.
 
         Args:
@@ -306,7 +306,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         """Takes the data as a model and converts it into a dictionary
 
         Args:
-            serialized_dictionary (dict, optional): A dictionary to start from. 
+            serialized_dictionary (dict, optional): A dictionary to start from.
             If not specified then the models attributes will be used. Defaults to {}.
 
         Returns:
@@ -451,7 +451,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         """Gets an attribute without having to call the models magic methods. Gets around infinite recursion loops.
 
         Args:
-            attribute (string): The attribute to fetch 
+            attribute (string): The attribute to fetch
 
         Returns:
             mixed: Any value an attribute can be.

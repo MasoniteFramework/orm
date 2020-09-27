@@ -438,7 +438,7 @@ class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
             builder = get_builder()
             builder.create({"name": "Corentin All", 'email': 'corentin@yopmail.com'})
         """
-        return """INSERT INTO "users" ("name", "email") VALUES ('Corentin All', 'corentin@yopmail.com')"""
+        return """INSERT INTO "users" ("name", "email") VALUES ('Corentin All', 'corentin@yopmail.com') RETURNING *"""
 
     def delete(self):
         """

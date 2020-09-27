@@ -32,6 +32,7 @@ class MySQLConnection(BaseConnection):
         self.password = password
         self.prefix = prefix
         self.options = options
+        self._cursor = None
 
     def make_connection(self):
         """This sets the connection on the connection class
@@ -109,6 +110,9 @@ class MySQLConnection(BaseConnection):
     #     """Transaction
     #     """
     #     pass
+
+    def get_cursor(self):
+        return self._cursor
 
     def query(self, query, bindings=(), results="*"):
         """Make the actual query that will reach the database and come back with a result.

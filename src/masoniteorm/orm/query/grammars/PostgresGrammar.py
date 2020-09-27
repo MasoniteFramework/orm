@@ -38,7 +38,7 @@ class PostgresGrammar(BaseGrammar):
         return "UPDATE {table} SET {key_equals} {wheres}"
 
     def insert_format(self):
-        return "INSERT INTO {table} ({columns}) VALUES ({values})"
+        return "INSERT INTO {table} ({columns}) VALUES ({values}) RETURNING *"
 
     def delete_format(self):
         return "DELETE FROM {table} {wheres}"

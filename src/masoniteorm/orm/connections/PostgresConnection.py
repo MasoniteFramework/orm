@@ -12,6 +12,29 @@ class PostgresConnection(BaseConnection):
 
     name = "postgres"
 
+    def __init__(
+        self,
+        host=None,
+        database=None,
+        user=None,
+        port=None,
+        password=None,
+        prefix=None,
+        options={},
+    ):
+
+        self.host = host
+        if port:
+            self.port = int(port)
+        else:
+            self.port = port
+        self.database = database
+        self.user = user
+        self.password = password
+        self.prefix = prefix
+        self.options = options
+        self._cursor = None
+
     def make_connection(self):
         """This sets the connection on the connection class
         """
@@ -23,6 +46,7 @@ class PostgresConnection(BaseConnection):
             )
 
         self._connection = psycopg2.connect(**self.get_connection_details())
+        self._connection.autocommit = True
 
         return self
 
@@ -70,6 +94,9 @@ class PostgresConnection(BaseConnection):
         """Transaction
         """
         pass
+
+    def get_cursor(self):
+        return self._cursor
 
     def query(self, query, bindings=(), results="*"):
         """Make the actual query that will reach the database and come back with a result.
