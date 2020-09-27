@@ -16,7 +16,7 @@ from ..scopes import BaseScope
 
 from ..schema import Schema
 
-from .processors import ProcessorFactory
+from .processors import PostProcessorFactory
 
 
 class QueryBuilder:
@@ -308,7 +308,7 @@ class QueryBuilder:
         return self
 
     def get_processor(self):
-        return ProcessorFactory().make(self._connection_driver)()
+        return PostProcessorFactory().make(self._connection_driver)()
 
     def create(self, creates={}, query=False, id_key="id", **kwargs):
         """Specifies a dictionary that should be used to create new values.
@@ -328,13 +328,13 @@ class QueryBuilder:
             return self
 
         connection = self.new_connection()
-        result = connection.query(self.to_sql(), self._bindings, results=1)
+        query_result = connection.query(self.to_sql(), self._bindings, results=1)
 
         if self._model:
             id_key = self._model.get_primary_key()
 
         processed_results = self.get_processor().process_insert_get_id(
-            self, result or self._creates, id_key
+            self, query_result or self._creates, id_key
         )
 
         if self._model:

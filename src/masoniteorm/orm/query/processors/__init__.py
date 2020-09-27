@@ -1,4 +1,4 @@
-from .ProcessorFactory import ProcessorFactory
+from .PostProcessorFactory import PostProcessorFactory
 from .MySQLPostProcessor import MySQLPostProcessor
 from .PostgresPostProcessor import PostgresPostProcessor
 from .SQLitePostProcessor import SQLitePostProcessor

@@ -3,7 +3,7 @@ from .MySQLPostProcessor import MySQLPostProcessor
 from .PostgresPostProcessor import PostgresPostProcessor
 
 
-class ProcessorFactory:
+class PostProcessorFactory:
 
     processors = {
         "sqlite": SQLitePostProcessor,
