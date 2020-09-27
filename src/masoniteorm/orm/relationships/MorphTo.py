@@ -28,8 +28,6 @@ class MorphTo(BaseRelationship):
         Returns:
             object -- Either returns a builder or a hydrated model.
         """
-        attribute = self.fn.__name__
-        relationship = self.fn(self)()
 
         self._related_builder = instance.builder
 
