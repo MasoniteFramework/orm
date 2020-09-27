@@ -310,7 +310,6 @@ class Collection:
         return self.pull(0)
 
     def sort(self, key=None):
-        print(self._items)
         if key:
             self._items.sort(key=lambda x: x[key], reverse=False)
             return self
@@ -331,24 +330,15 @@ class Collection:
         return json.dumps(self.serialize(), **kwargs)
 
     def group_by(self, key):
-        # items = self._items
 
         from itertools import groupby
 
         self.sort(key)
 
-        print(self._items)
-
         new_dict = {}
 
         for k, v in groupby(self._items, key=lambda x: x[key]):
             new_dict.update({k: list(v)})
-            # print(k, list(v))
-
-        # print(self._items)
-        # for item in items:
-        # for key, value in sorted(enumerate(items)):
-        #     v.setdefault(value, [])
 
         return Collection(new_dict)
 
