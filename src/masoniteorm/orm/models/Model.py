@@ -503,7 +503,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         return cls.builder
 
     def __getitem__(self, attribute):
-        print('gettatr', attribute)
+        print("gettatr", attribute)
         return getattr(self, attribute)
 
     def get_dates(self):

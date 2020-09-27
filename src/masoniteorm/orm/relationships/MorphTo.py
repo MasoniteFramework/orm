@@ -1,4 +1,5 @@
 from .BaseRelationship import BaseRelationship
+from ..collection import Collection
 
 
 class MorphTo(BaseRelationship):
@@ -74,26 +75,10 @@ class MorphTo(BaseRelationship):
         Returns:
             Model|Collection
         """
-        builder = self.get_builder()
-        if isinstance(relation, Collection):
-            return builder.where_in(
-                f"{builder.get_table_name()}.{self.foreign_key}",
-                relation.pluck(self.local_key),
-            ).get()
-        else:
-            return builder.where(
-                f"{builder.get_table_name()}.{self.foreign_key}",
-                relation.get_primary_key_value(),
-            ).first()
+        raise NotImplementedError
 
     def register_related(self, key, model, collection):
-        model.add_relation(
-            {
-                key: collection.where(
-                    self.foreign_key, model.get_primary_key_value()
-                ).first()
-            }
-        )
+        raise NotImplementedError
 
     def morph_map(self):
         return self._morph_map

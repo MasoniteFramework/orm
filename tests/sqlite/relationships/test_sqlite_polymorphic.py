@@ -50,3 +50,8 @@ class TestRelationships(unittest.TestCase):
         likes = Like.get()
         for like in likes:
             self.assertIsInstance(like.record, (Articles, User))
+
+    # def test_can_get_eager_load_polymorphic_relation(self):
+    #     likes = Like.with_('record').get()
+    #     for like in likes:
+    #         self.assertIsInstance(like.record, (Articles, User))
