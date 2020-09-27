@@ -13,7 +13,7 @@ builder = QueryBuilder(connection=PostgresConnection, grammar=PostgresGrammar, c
 
 class User(Model):
     __connection__ = "postgres"
-    __table__ = """public"."users"""
+    __table__ = "users"
 
 user = User.create({"name": "phill", "email": "phill"})
 print(User.get().serialize())
