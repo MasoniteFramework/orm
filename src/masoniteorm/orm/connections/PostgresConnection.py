@@ -85,7 +85,7 @@ class PostgresConnection(BaseConnection):
     def begin(self):
         """Postgres Transaction
         """
-        self._connection.autocommit = False 
+        self._connection.autocommit = False
         return self._connection
 
     def rollback(self):
@@ -137,5 +137,5 @@ class PostgresConnection(BaseConnection):
             raise e
         finally:
             if self._connection.autocommit is True:
-                print('close connection')
+                print("close connection")
                 self._connection.close()

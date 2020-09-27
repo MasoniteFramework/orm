@@ -143,7 +143,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
             raise AttributeError(
                 f"class '{name}' has no attribute {self.get_primary_key()}. Did you set the primary key correctly on the model using the __primary_key__ attribute?"
             )
-    
+
     def query(self):
         return self.builder
 
