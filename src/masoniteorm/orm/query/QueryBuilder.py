@@ -961,9 +961,9 @@ class QueryBuilder:
                         related, related_result, hydrated_model, relation_key=eager
                     )
 
-            return hydrated_model
+            return hydrated_model or None
 
-        return result
+        return result or None
 
     def all(self, query=False):
         """Returns all records from the table.
