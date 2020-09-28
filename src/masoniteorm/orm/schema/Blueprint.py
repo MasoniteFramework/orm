@@ -359,7 +359,6 @@ class Blueprint:
         )
 
     def new_timestamp_column(self, column_name, default=None):
-        print("new column", "default", default)
         return ColumnFactory().make(
             "timestamp", column_name=column_name, default=default
         )
@@ -662,7 +661,6 @@ class Blueprint:
         Returns:
             string -- The SQL statement generated.
         """
-        print(self.grammar)
         if self._action == "create":
             return (
                 self.grammar(

@@ -80,9 +80,6 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
                 .get()
                 .first()
             )
-            print(user.serialize())
-            # for article in user.articles:
-            #     print(article.logo)
 
         def test_multiple_with_first(self):
             user = User.with_("articles", "articles.logo").where("is_admin", 1).first()
@@ -92,7 +89,6 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
         def test_multiple_with_reveresed(self):
             user = User.with_("articles", "articles.user").where("is_admin", 1).first()
 
-            print(user.serialize())
             self.assertTrue(user.serialize()["articles"])
 
         # def test_multiple_double_multiple_relationships(self):

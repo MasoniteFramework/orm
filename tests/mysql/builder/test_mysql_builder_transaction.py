@@ -36,7 +36,6 @@ if os.getenv("RUN_MYSQL_DATABASE") == "True":
             builder.create({"name": "phillip2", "email": "phillip2"})
             # builder.commit()
             user = builder.where("name", "phillip2").first()
-            print(user)
             self.assertEqual(user["name"], "phillip2")
             builder.rollback()
             user = builder.where("name", "phillip2").first()
