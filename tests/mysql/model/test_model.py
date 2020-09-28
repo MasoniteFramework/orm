@@ -104,6 +104,8 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
 
         def test_returns_correct_data_type(self):
             self.assertIsInstance(User.all(), Collection)
+            # self.assertIsInstance(User.first(), User)
+            # self.assertIsInstance(User.first(), User)
 
         def test_serialize(self):
             profile = ProfileFillAsterisk.hydrate({"name": "Joe", "id": 1})
@@ -157,8 +159,6 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
 
         def test_can_find_first(self):
             profile = User.find(1)
-
-        def test_can_print_none(self):
 
         def test_serialize_with_dirty_attribute(self):
             profile = ProfileFillAsterisk.hydrate({"name": "Joe", "id": 1})
