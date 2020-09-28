@@ -3,6 +3,7 @@ import random
 from ..exceptions import DriverNotFound
 from .BaseConnection import BaseConnection
 
+
 CONNECTION_POOL = []
 
 
@@ -34,6 +35,7 @@ class PostgresConnection(BaseConnection):
         self.prefix = prefix
         self.options = options
         self._cursor = None
+        self.transaction_level = 0
 
     def make_connection(self):
         """This sets the connection on the connection class
@@ -78,22 +80,32 @@ class PostgresConnection(BaseConnection):
     def commit(self):
         """Transaction
         """
-        return self._connection.commit()
+        if self.get_transaction_level() == 1:
+            self._connection.commit()
+            self._connection.autocommit = True
+
+        self.transaction_level -= 1
 
     def begin(self):
         """Postgres Transaction
         """
-        return self._connection.begin()
+        self._connection.autocommit = False
+        self.transaction_level += 1
+        return self._connection
 
     def rollback(self):
         """Transaction
         """
-        self._connection.rollback()
+        if self.get_transaction_level() == 1:
+            self._connection.rollback()
+            self._connection.autocommit = True
 
-    def transaction_level(self):
+        self.transaction_level -= 1
+
+    def get_transaction_level(self):
         """Transaction
         """
-        pass
+        return self.transaction_level
 
     def get_cursor(self):
         return self._cursor
@@ -132,4 +144,5 @@ class PostgresConnection(BaseConnection):
         except Exception as e:
             raise e
         finally:
-            self._connection.close()
+            if self.get_transaction_level() <= 0:
+                self._connection.close()

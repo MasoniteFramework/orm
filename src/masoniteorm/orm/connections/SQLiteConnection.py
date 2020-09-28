@@ -31,6 +31,7 @@ class SQLiteConnection(BaseConnection):
         self.prefix = prefix
         self.options = options
         self._cursor = None
+        self.transaction_level = 0
 
     def make_connection(self):
         """This sets the connection on the connection class
@@ -64,21 +65,35 @@ class SQLiteConnection(BaseConnection):
     def commit(self):
         """Transaction
         """
-        return self.__class__._connection.commit()
+        if self.get_transaction_level() == 1:
+            self._connection.commit()
+            self._connection.isolation_level = None
+
+        self.transaction_level -= 1
+        return self
 
     def begin(self):
         """Sqlite Transaction
         """
-        self.__class__._connection.isolation_level = "DEFERRED"
-        return self.__class__._connection
+        self._connection.isolation_level = "DEFERRED"
+        self.transaction_level += 1
+        return self
 
     def rollback(self):
         """Transaction
         """
-        self.__class__._connection.rollback()
+        if self.get_transaction_level() == 1:
+            self._connection.rollback()
+            self._connection.isolation_level = None
+
+        self.transaction_level -= 1
+        return self
 
     def get_cursor(self):
         return self._cursor
+
+    def get_transaction_level(self):
+        return self.transaction_level
 
     def query(self, query, bindings, results="*"):
         """Make the actual query that will reach the database and come back with a result.
@@ -95,7 +110,7 @@ class SQLiteConnection(BaseConnection):
             dict|None -- Returns a dictionary of results or None
         """
         query = query.replace("'?'", "?")
-        print("running query: ", query, bindings)
+        print("running query: ", self, query, bindings)
         try:
             self._cursor = self._connection.cursor()
             self._cursor.execute(query, bindings)
@@ -107,6 +122,7 @@ class SQLiteConnection(BaseConnection):
             else:
                 return [dict(row) for row in self._cursor.fetchall()]
         except Exception as e:
-            if self._connection and self._connection.isolation_level:
-                self.rollback()
             raise e
+        finally:
+            if self.get_transaction_level() <= 0:
+                self._connection.close()

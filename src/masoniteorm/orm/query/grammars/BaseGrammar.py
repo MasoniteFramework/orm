@@ -108,7 +108,7 @@ class BaseGrammar:
 
         return self
 
-    def _compile_insert(self):
+    def _compile_insert(self, qmark=False):
         """Compiles an insert expression.
 
         Returns:

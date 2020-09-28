@@ -13,7 +13,6 @@ from config.database import DATABASES
 class User(Model):
     __connection__ = "sqlite"
     __timestamps__ = False
-    pass
 
 
 class BaseTestQueryRelationships(unittest.TestCase):
@@ -30,10 +29,12 @@ class BaseTestQueryRelationships(unittest.TestCase):
             connection_details=DATABASES,
         ).on("sqlite")
 
-    def test_insert(self):
+    def test_transaction(self):
         builder = self.get_builder()
-        result = builder.create(
-            {"name": "Joe", "email": "joe@masoniteproject.com", "password": "secret",}
-        )
-
-        self.assertIsInstance(result["id"], int)
+        builder.begin()
+        builder.create({"name": "phillip3", "email": "phillip3"})
+        user = builder.where("name", "phillip3").first()
+        self.assertEqual(user["name"], "phillip3")
+        builder.rollback()
+        user = builder.where("name", "phillip3").first()
+        self.assertEqual(user, None)
