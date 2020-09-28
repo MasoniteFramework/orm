@@ -31,6 +31,7 @@ class SQLiteConnection(BaseConnection):
         self.prefix = prefix
         self.options = options
         self._cursor = None
+        self.transaction_level = 0
 
     def make_connection(self):
         """This sets the connection on the connection class
@@ -66,12 +67,14 @@ class SQLiteConnection(BaseConnection):
         """
         print(self._connection.commit())
         self._connection.isolation_level = None
+        self.transaction_level -= 1
         return self
 
     def begin(self):
         """Sqlite Transaction
         """
         self._connection.isolation_level = "DEFERRED"
+        self.transaction_level += 1
         return self
 
     def rollback(self):
@@ -79,10 +82,14 @@ class SQLiteConnection(BaseConnection):
         """
         self._connection.rollback()
         self._connection.isolation_level = None
+        self.transaction_level -= 1
         return self
 
     def get_cursor(self):
         return self._cursor
+
+    def get_transaction_level(self):
+        return self.transaction_level
 
     def query(self, query, bindings, results="*"):
         """Make the actual query that will reach the database and come back with a result.
@@ -111,6 +118,7 @@ class SQLiteConnection(BaseConnection):
             else:
                 return [dict(row) for row in self._cursor.fetchall()]
         except Exception as e:
-            # if self._connection and self._connection.isolation_level:
-            # self.rollback()
             raise e
+        finally:
+            if self.get_transaction_level() <= 0:
+                self._connection.close()

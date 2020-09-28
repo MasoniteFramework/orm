@@ -33,6 +33,7 @@ class MySQLConnection(BaseConnection):
         self.prefix = prefix
         self.options = options
         self._cursor = None
+        self.transaction_level = 0
 
     def make_connection(self):
         """This sets the connection on the connection class
@@ -87,7 +88,8 @@ class MySQLConnection(BaseConnection):
     def commit(self):
         """Transaction
         """
-        return self._connection.commit()
+        self._connection.commit()
+        self.transaction_level -= 1
 
     def dry(self):
         """Transaction
@@ -98,18 +100,19 @@ class MySQLConnection(BaseConnection):
     def begin(self):
         """Mysql Transaction
         """
-
-        return self._connection.begin()
+        self._connection.begin()
+        self.transaction_level += 1
 
     def rollback(self):
         """Transaction
         """
         self._connection.rollback()
+        self.transaction_level -= 1
 
-    # def transaction_level(self):
-    #     """Transaction
-    #     """
-    #     pass
+    def get_transaction_level(self):
+        """Transaction
+        """
+        return self.transaction_level
 
     def get_cursor(self):
         return self._cursor
@@ -144,4 +147,6 @@ class MySQLConnection(BaseConnection):
         except Exception as e:
             raise e
         finally:
-            self._connection.close()
+            print(self.get_transaction_level())
+            if self.get_transaction_level() <= 0:
+                self._connection.close()

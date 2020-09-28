@@ -35,6 +35,7 @@ class PostgresConnection(BaseConnection):
         self.prefix = prefix
         self.options = options
         self._cursor = None
+        self.transaction_level = 0
 
     def make_connection(self):
         """This sets the connection on the connection class
@@ -81,11 +82,13 @@ class PostgresConnection(BaseConnection):
         """
         self._connection.commit()
         self._connection.autocommit = True
+        self.transaction_level -= 1
 
     def begin(self):
         """Postgres Transaction
         """
         self._connection.autocommit = False
+        self.transaction_level += 1
         return self._connection
 
     def rollback(self):
@@ -93,11 +96,12 @@ class PostgresConnection(BaseConnection):
         """
         self._connection.rollback()
         self._connection.autocommit = True
+        self.transaction_level -= 1
 
-    def transaction_level(self):
+    def get_transaction_level(self):
         """Transaction
         """
-        pass
+        return self.transaction_level
 
     def get_cursor(self):
         return self._cursor
@@ -136,6 +140,5 @@ class PostgresConnection(BaseConnection):
         except Exception as e:
             raise e
         finally:
-            if self._connection.autocommit is True:
-                print("close connection")
+            if self.get_transaction_level() <= 0:
                 self._connection.close()
