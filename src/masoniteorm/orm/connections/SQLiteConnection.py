@@ -65,8 +65,10 @@ class SQLiteConnection(BaseConnection):
     def commit(self):
         """Transaction
         """
-        print(self._connection.commit())
-        self._connection.isolation_level = None
+        if self.get_transaction_level() == 1:
+            self._connection.commit()
+            self._connection.isolation_level = None
+
         self.transaction_level -= 1
         return self
 
@@ -80,8 +82,10 @@ class SQLiteConnection(BaseConnection):
     def rollback(self):
         """Transaction
         """
-        self._connection.rollback()
-        self._connection.isolation_level = None
+        if self.get_transaction_level() == 1:
+            self._connection.rollback()
+            self._connection.isolation_level = None
+
         self.transaction_level -= 1
         return self
 

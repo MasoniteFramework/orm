@@ -80,8 +80,10 @@ class PostgresConnection(BaseConnection):
     def commit(self):
         """Transaction
         """
-        self._connection.commit()
-        self._connection.autocommit = True
+        if self.get_transaction_level() == 1:
+            self._connection.commit()
+            self._connection.autocommit = True
+
         self.transaction_level -= 1
 
     def begin(self):
@@ -94,8 +96,10 @@ class PostgresConnection(BaseConnection):
     def rollback(self):
         """Transaction
         """
-        self._connection.rollback()
-        self._connection.autocommit = True
+        if self.get_transaction_level() == 1:
+            self._connection.rollback()
+            self._connection.autocommit = True
+
         self.transaction_level -= 1
 
     def get_transaction_level(self):
