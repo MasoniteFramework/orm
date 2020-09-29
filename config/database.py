@@ -2,7 +2,6 @@
 
 import os
 
-from masonite.environment import LoadEnvironment, env
 from src.masoniteorm.query import QueryBuilder
 
 """
@@ -14,7 +13,6 @@ from src.masoniteorm.query import QueryBuilder
 |
 """
 
-LoadEnvironment()
 
 """
 The connections here don't determine the database but determine the "connection".
