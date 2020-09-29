@@ -1,7 +1,7 @@
 import inspect
 import unittest
 
-from app.User import User
+from tests.User import User
 from src.masoniteorm.scopes import scope, SoftDeletesMixin
 from src.masoniteorm.models import Model
 

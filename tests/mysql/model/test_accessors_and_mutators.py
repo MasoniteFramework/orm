@@ -5,7 +5,7 @@ import unittest
 import pendulum
 import datetime
 
-from app.User import User
+from tests.User import User
 from src.masoniteorm.collection import Collection
 from src.masoniteorm.query.grammars import MSSQLGrammar
 from src.masoniteorm.models import Model
