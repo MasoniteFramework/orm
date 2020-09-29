@@ -19,6 +19,7 @@ class Seeder:
         database_seeder = pydoc.locate(
             f"{self.seed_module}.database_seeder.DatabaseSeeder"
         )
+
         self.ran_seeds.append(database_seeder)
 
         if not self.dry:
