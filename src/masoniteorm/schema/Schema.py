@@ -61,7 +61,6 @@ class Schema:
         """
         self._table = table
 
-
         return Blueprint(
             self.grammar,
             connection=self.new_connection(),
@@ -188,9 +187,7 @@ class Schema:
         """
         print("checking table exists")
         if self._dry:
-            grammar = self.grammar(
-                table=table, database="orm"
-            )
+            grammar = self.grammar(table=table, database="orm")
         else:
             grammar = self.grammar(
                 table=table, database=self.new_connection().get_database_name()

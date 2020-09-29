@@ -353,7 +353,12 @@ class BaseTestCreateGrammar:
 
 class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
     def setUp(self):
-        self.schema = Schema(connection=PostgresConnection, grammar=PostgresGrammar, dry=True, connection_driver="postgres")
+        self.schema = Schema(
+            connection=PostgresConnection,
+            grammar=PostgresGrammar,
+            dry=True,
+            connection_driver="postgres",
+        )
 
     def can_compile_column(self):
         """

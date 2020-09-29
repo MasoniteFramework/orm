@@ -25,6 +25,7 @@ class GrammarFactory:
             self
         """
         from config.database import DATABASES
+
         if key == "default":
             key = DATABASES.get(key)
 

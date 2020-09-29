@@ -8,16 +8,13 @@ import unittest
 
 
 class TestSqliteAlterGrammar(unittest.TestCase):
-
-
-
     def setUp(self):
         self.schema = Schema(
             connection=SQLiteConnection,
             grammar=SQLiteGrammar,
             connection_details=DATABASES,
             connection_driver="sqlite",
-            dry=True
+            dry=True,
         )
 
     def test_can_compile_alter_column(self):

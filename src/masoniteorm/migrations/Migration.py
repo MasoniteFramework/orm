@@ -28,8 +28,14 @@ class Migration:
         connection_class = ConnectionFactory().make(connection)
         grammar = GrammarFactory().make(connection)
         from config.database import DATABASES
+
         driver = DATABASES.get("default")
-        self.schema = Schema(connection=connection_class, connection_details=DATABASES, grammar=grammar, connection_driver=driver)
+        self.schema = Schema(
+            connection=connection_class,
+            connection_details=DATABASES,
+            grammar=grammar,
+            connection_driver=driver,
+        )
         self._dry = dry
         self.migration_directory = migration_directory.replace("/", ".")
         self.last_migrations_ran = []

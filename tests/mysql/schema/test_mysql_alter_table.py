@@ -8,7 +8,12 @@ import unittest
 
 class TestMySQLAlterGrammar(unittest.TestCase):
     def setUp(self):
-        self.schema = Schema(connection=MySQLConnection, grammar=MySQLGrammar, dry=True, connection_driver="mysql")
+        self.schema = Schema(
+            connection=MySQLConnection,
+            grammar=MySQLGrammar,
+            dry=True,
+            connection_driver="mysql",
+        )
 
     def test_can_compile_alter_column(self):
         with self.schema.table("users") as blueprint:

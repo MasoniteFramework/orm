@@ -8,7 +8,12 @@ import unittest
 
 class TestPostgresAlterGrammar(unittest.TestCase):
     def setUp(self):
-        self.schema = Schema(connection=PostgresConnection, grammar=PostgresGrammar, dry=True, connection_driver="postgres")
+        self.schema = Schema(
+            connection=PostgresConnection,
+            grammar=PostgresGrammar,
+            dry=True,
+            connection_driver="postgres",
+        )
 
     def test_can_compile_alter_column(self):
         with self.schema.table("users") as blueprint:

@@ -8,7 +8,6 @@ from config.database import DATABASES
 
 
 class BaseTestCreateGrammar:
-
     def setUp(self):
         self.maxDiff = None
 
@@ -370,7 +369,12 @@ class BaseTestCreateGrammar:
 
 class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
     def setUp(self):
-        self.schema = Schema(connection=MySQLConnection, grammar=MySQLGrammar, dry=True, connection_driver="mysql")
+        self.schema = Schema(
+            connection=MySQLConnection,
+            grammar=MySQLGrammar,
+            dry=True,
+            connection_driver="mysql",
+        )
         self.maxDiff = None
 
     def can_compile_column(self):
