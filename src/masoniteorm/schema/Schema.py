@@ -138,7 +138,7 @@ class Schema:
         query = grammar.column_exists(column).to_sql()
         if query_only:
             return query
-        return self.connection().make_connection().query(query, ())
+        return self.new_connection().query(query, ())
 
     @classmethod
     def set_default_string_length(cls, length):
@@ -151,7 +151,7 @@ class Schema:
         if query_only:
             return query
 
-        return self.connection().make_connection().query(query, ())
+        return self.new_connection().make_connection().query(query, ())
 
     def drop(self, *args, **kwargs):
         return self.drop_table(*args, **kwargs)
@@ -170,14 +170,14 @@ class Schema:
         ).to_sql()
         if query_only:
             return query
-        return bool(self.connection().make_connection().query(query, ()))
+        return bool(self.new_connection().query(query, ()))
 
     def truncate(self, table, query_only=True):
         grammar = self.grammar(table=table)
         query = grammar.truncate_table(table=table).to_sql()
         if query_only:
             return query
-        return bool(self.connection().make_connection().query(query, ()))
+        return bool(self.new_connection().query(query, ()))
 
     def has_table(self, table, query_only=False):
         """Checks if the a database has a specific table
