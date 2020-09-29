@@ -1,4 +1,4 @@
-class PostgresPostProcessor:
+class MySQLPostProcessor:
     """Post processor classes are responsable for modifying the result after a query.
 
     Post Processors are called after the connection calls the database in the
@@ -6,16 +6,14 @@ class PostgresPostProcessor:
 
     We can use this oppurtunity to get things like the inserted ID.
 
-    For the Postgres Post Processor we have a RETURNING * string in the insert so the result
-    will already have the full inserted record in the results. Therefore, we can just return
-    the results
+    For the SQLite Post Processor we have an attribute on the connection class we can use to fetch the ID.
     """
 
     def process_insert_get_id(self, builder, results, id_key):
         """Process the results from the query to the database.
 
         Args:
-            builder (masoniteorm.orm.builder.QueryBuilder): The query builder class
+            builder (masoniteorm.builder.QueryBuilder): The query builder class
             results (dict): The result from an insert query or the creates from the query builder.
             This is usually a dictionary.
             id_key (string): The key to set the primary key to. This is usually the primary key of the table.
@@ -24,4 +22,7 @@ class PostgresPostProcessor:
             dictionary: Should return the modified dictionary.
         """
 
+        last_id = builder.new_connection().query(f"SELECT LAST_INSERT_ID() AS `id`")
+
+        results.update({id_key: last_id[0]["id"]})
         return results

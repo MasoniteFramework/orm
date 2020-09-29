@@ -1,6 +1,6 @@
-from src.masoniteorm.orm.query.grammars import MySQLGrammar
-from src.masoniteorm.orm.query import QueryBuilder
-from src.masoniteorm.orm.query.grammars import GrammarFactory
+from src.masoniteorm.query.grammars import MySQLGrammar
+from src.masoniteorm.query import QueryBuilder
+from src.masoniteorm.query.grammars import GrammarFactory
 import unittest
 
 

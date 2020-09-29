@@ -1,6 +1,6 @@
 """ User Model """
 
-from src.masoniteorm.orm import Model
+from src.masoniteorm import Model
 
 
 class User(Model):

@@ -1,10 +1,10 @@
 import inspect
 import unittest
 
-from src.masoniteorm.orm.query import QueryBuilder
-from src.masoniteorm.orm.query.grammars import SQLiteGrammar
-from src.masoniteorm.orm.connections import ConnectionFactory
-from src.masoniteorm.orm.models import Model
+from src.masoniteorm.query import QueryBuilder
+from src.masoniteorm.query.grammars import SQLiteGrammar
+from src.masoniteorm.connections import ConnectionFactory
+from src.masoniteorm.models import Model
 from tests.utils import MockConnectionFactory
 
 

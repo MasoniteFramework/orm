@@ -1,10 +1,10 @@
 import os
 import unittest
 
-from src.masoniteorm.orm import Factory as factory
-from src.masoniteorm.orm.query import QueryBuilder
-from src.masoniteorm.orm.query.grammars import GrammarFactory, MySQLGrammar
-from src.masoniteorm.orm.models import Model
+from src.masoniteorm import Factory as factory
+from src.masoniteorm.query import QueryBuilder
+from src.masoniteorm.query.grammars import GrammarFactory, MySQLGrammar
+from src.masoniteorm.models import Model
 
 
 class User(Model):

@@ -1,5 +1,5 @@
-from src.masoniteorm.orm.schema.grammars import GrammarFactory
-from src.masoniteorm.orm.schema import Schema, Blueprint
+from src.masoniteorm.schema.grammars import GrammarFactory
+from src.masoniteorm.schema import Schema, Blueprint
 import unittest
 
 

@@ -1,7 +1,7 @@
 import inspect
 import unittest
 
-from src.masoniteorm.orm.schema import Schema
+from src.masoniteorm.schema import Schema
 
 
 class BaseTestCreateGrammar:

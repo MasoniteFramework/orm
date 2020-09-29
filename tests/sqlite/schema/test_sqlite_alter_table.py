@@ -1,6 +1,6 @@
-from src.masoniteorm.orm.schema.Blueprint import Blueprint
-from src.masoniteorm.orm.schema.grammars import GrammarFactory
-from src.masoniteorm.orm.schema import Schema
+from src.masoniteorm.schema.Blueprint import Blueprint
+from src.masoniteorm.schema.grammars import GrammarFactory
+from src.masoniteorm.schema import Schema
 import unittest
 
 

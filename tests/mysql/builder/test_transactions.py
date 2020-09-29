@@ -2,12 +2,12 @@ import inspect
 import unittest
 import os
 
-from src.masoniteorm.orm.connections.ConnectionFactory import ConnectionFactory
+from src.masoniteorm.connections.ConnectionFactory import ConnectionFactory
 
-from src.masoniteorm.orm.query import QueryBuilder
-from src.masoniteorm.orm.query.grammars import MySQLGrammar
-from src.masoniteorm.orm.models import Model
-from src.masoniteorm.orm.relationships import has_many
+from src.masoniteorm.query import QueryBuilder
+from src.masoniteorm.query.grammars import MySQLGrammar
+from src.masoniteorm.models import Model
+from src.masoniteorm.relationships import has_many
 from tests.utils import MockConnectionFactory
 
 

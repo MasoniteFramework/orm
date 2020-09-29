@@ -1,7 +1,7 @@
 import inspect
 import unittest
 
-from src.masoniteorm.orm.testing import BaseTestCaseSelectGrammar
+from src.masoniteorm.testing import BaseTestCaseSelectGrammar
 
 
 class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):

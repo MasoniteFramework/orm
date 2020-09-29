@@ -1,8 +1,8 @@
 from unittest import mock
 
-from src.masoniteorm.orm.connections.ConnectionFactory import ConnectionFactory
-from src.masoniteorm.orm.connections.MySQLConnection import MySQLConnection
-from src.masoniteorm.orm.connections.SQLiteConnection import SQLiteConnection
+from src.masoniteorm.connections.ConnectionFactory import ConnectionFactory
+from src.masoniteorm.connections.MySQLConnection import MySQLConnection
+from src.masoniteorm.connections.SQLiteConnection import SQLiteConnection
 
 
 class MockMySQLConnection(MySQLConnection):

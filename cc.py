@@ -1,8 +1,8 @@
-from src.masoniteorm.orm.query import QueryBuilder
-from src.masoniteorm.orm.connections import MySQLConnection, PostgresConnection
-from src.masoniteorm.orm.query.grammars import MySQLGrammar, PostgresGrammar
+from src.masoniteorm.query import QueryBuilder
+from src.masoniteorm.connections import MySQLConnection, PostgresConnection
+from src.masoniteorm.query.grammars import MySQLGrammar, PostgresGrammar
 from config.database import DATABASES
-from src.masoniteorm.orm.models import Model
+from src.masoniteorm.models import Model
 
 
 builder = QueryBuilder(connection=PostgresConnection, grammar=PostgresGrammar, connection_details=DATABASES).table("users").on("postgres")

@@ -1,13 +1,13 @@
 import inspect
 import unittest
 
-from src.masoniteorm.orm.query import QueryBuilder
-from src.masoniteorm.orm.query.grammars import MySQLGrammar
-from src.masoniteorm.orm.models import Model
-from src.masoniteorm.orm.relationships import has_many
+from src.masoniteorm.query import QueryBuilder
+from src.masoniteorm.query.grammars import MySQLGrammar
+from src.masoniteorm.models import Model
+from src.masoniteorm.relationships import has_many
 from tests.utils import MockConnectionFactory
 from config.database import DATABASES
-from src.masoniteorm.orm.scopes import SoftDeleteScope
+from src.masoniteorm.scopes import SoftDeleteScope
 
 
 class Articles(Model):

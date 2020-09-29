@@ -2,13 +2,13 @@ import inspect
 import unittest
 
 
-from src.masoniteorm.orm.scopes import (
+from src.masoniteorm.scopes import (
     scope,
     SoftDeletesMixin,
     TimeStampsMixin,
     SoftDeleteScope,
 )
-from src.masoniteorm.orm.models import Model
+from src.masoniteorm.models import Model
 
 
 class UserSoft(Model, SoftDeletesMixin):

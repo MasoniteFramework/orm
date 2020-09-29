@@ -1,8 +1,8 @@
 import os
 import unittest
 
-from src.masoniteorm.orm.migrations.Migration import Migration
-from src.masoniteorm.orm.models.MigrationModel import MigrationModel
+from src.masoniteorm.migrations.Migration import Migration
+from src.masoniteorm.models.MigrationModel import MigrationModel
 from inflection import camelize
 from pydoc import locate
 
