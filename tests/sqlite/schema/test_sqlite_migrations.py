@@ -12,11 +12,15 @@ class BaseTestSqliteMigration(unittest.TestCase):
 
     maxDiff = None
 
-    schema = Schema(connection=SQLiteConnection, grammar=SQLiteGrammar, connection_details=DATABASES, connection_driver="sqlite")
+    schema = Schema(
+        connection=SQLiteConnection,
+        grammar=SQLiteGrammar,
+        connection_details=DATABASES,
+        connection_driver="sqlite",
+    )
 
     def test_can_compile_column(self):
         with self.schema.create("testfile3") as blueprint:
             blueprint.string("name")
-        
-        print('dropped?', self.schema.drop_table_if_exists("testfile3"))
-        
+
+        print("dropped?", self.schema.drop_table_if_exists("testfile3"))

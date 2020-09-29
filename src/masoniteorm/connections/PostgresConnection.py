@@ -8,8 +8,7 @@ CONNECTION_POOL = []
 
 
 class PostgresConnection(BaseConnection):
-    """Postgres Connection class.
-    """
+    """Postgres Connection class."""
 
     name = "postgres"
 
@@ -38,8 +37,7 @@ class PostgresConnection(BaseConnection):
         self.transaction_level = 0
 
     def make_connection(self):
-        """This sets the connection on the connection class
-        """
+        """This sets the connection on the connection class"""
         try:
             import psycopg2
         except ModuleNotFoundError:
@@ -78,8 +76,7 @@ class PostgresConnection(BaseConnection):
         pass
 
     def commit(self):
-        """Transaction
-        """
+        """Transaction"""
         if self.get_transaction_level() == 1:
             self._connection.commit()
             self._connection.autocommit = True
@@ -87,15 +84,13 @@ class PostgresConnection(BaseConnection):
         self.transaction_level -= 1
 
     def begin(self):
-        """Postgres Transaction
-        """
+        """Postgres Transaction"""
         self._connection.autocommit = False
         self.transaction_level += 1
         return self._connection
 
     def rollback(self):
-        """Transaction
-        """
+        """Transaction"""
         if self.get_transaction_level() == 1:
             self._connection.rollback()
             self._connection.autocommit = True
@@ -103,8 +98,7 @@ class PostgresConnection(BaseConnection):
         self.transaction_level -= 1
 
     def get_transaction_level(self):
-        """Transaction
-        """
+        """Transaction"""
         return self.transaction_level
 
     def get_cursor(self):

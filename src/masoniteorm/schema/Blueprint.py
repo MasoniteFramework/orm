@@ -1,6 +1,5 @@
 class Column:
-    """Used for creating or modifying columns.
-    """
+    """Used for creating or modifying columns."""
 
     def __init__(
         self,
@@ -278,8 +277,7 @@ class ForeignKey:
 
 
 class Blueprint:
-    """Used for building schemas for creating, modifying or altering schema.
-    """
+    """Used for building schemas for creating, modifying or altering schema."""
 
     def __init__(
         self,
@@ -682,9 +680,6 @@ class Blueprint:
                 ._compile_alter()
                 .to_sql()
             )
-
-
-
 
     def __enter__(self):
         return self

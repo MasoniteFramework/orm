@@ -4,8 +4,7 @@ from .PostgresGrammar import PostgresGrammar
 
 
 class GrammarFactory:
-    """Class for controlling the registration and creation of grammars.
-    """
+    """Class for controlling the registration and creation of grammars."""
 
     grammars = {
         # Base grammars that will be used with various drivers

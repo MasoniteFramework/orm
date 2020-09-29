@@ -2,8 +2,7 @@ from .BaseScope import BaseScope
 
 
 class TimeStampsScope(BaseScope):
-    """Global scope class to add soft deleting to models.
-    """
+    """Global scope class to add soft deleting to models."""
 
     def on_boot(self, builder):
         builder.set_global_scope(

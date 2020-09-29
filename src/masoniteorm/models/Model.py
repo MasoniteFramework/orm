@@ -40,16 +40,14 @@ class ModelMeta(type):
 
 
 class BoolCast:
-    """Casts a value to a boolean
-    """
+    """Casts a value to a boolean"""
 
     def get(self, value):
         return bool(value)
 
 
 class JsonCast:
-    """Casts a value to JSON
-    """
+    """Casts a value to JSON"""
 
     def get(self, value):
         return json.dumps(value)
@@ -367,8 +365,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         return new_dic
 
     def touch(self, date=None, query=True):
-        """Updates the current timestamps on the model
-        """
+        """Updates the current timestamps on the model"""
 
         if not self.__timestamps__:
             return False

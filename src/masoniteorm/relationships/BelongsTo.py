@@ -3,8 +3,7 @@ from ..collection import Collection
 
 
 class BelongsTo(BaseRelationship):
-    """Belongs To Relationship Class.
-    """
+    """Belongs To Relationship Class."""
 
     def apply_query(self, foreign, owner):
         """Apply the query and return a dictionary to be hydrated

@@ -7,8 +7,7 @@ CONNECTION_POOL = []
 
 
 class MySQLConnection(BaseConnection):
-    """MYSQL Connection class.
-    """
+    """MYSQL Connection class."""
 
     name = "mysql"
     _dry = False
@@ -36,8 +35,7 @@ class MySQLConnection(BaseConnection):
         self.transaction_level = 0
 
     def make_connection(self):
-        """This sets the connection on the connection class
-        """
+        """This sets the connection on the connection class"""
 
         if self._dry:
             return
@@ -86,32 +84,27 @@ class MySQLConnection(BaseConnection):
         return self().get_connection_details().get("db")
 
     def commit(self):
-        """Transaction
-        """
+        """Transaction"""
         self._connection.commit()
         self.transaction_level -= 1
 
     def dry(self):
-        """Transaction
-        """
+        """Transaction"""
         self._dry = True
         return self
 
     def begin(self):
-        """Mysql Transaction
-        """
+        """Mysql Transaction"""
         self._connection.begin()
         self.transaction_level += 1
 
     def rollback(self):
-        """Transaction
-        """
+        """Transaction"""
         self._connection.rollback()
         self.transaction_level -= 1
 
     def get_transaction_level(self):
-        """Transaction
-        """
+        """Transaction"""
         return self.transaction_level
 
     def get_cursor(self):

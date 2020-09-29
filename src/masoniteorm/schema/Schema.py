@@ -6,7 +6,14 @@ class Schema:
 
     _default_string_length = "255"
 
-    def __init__(self, dry=False, connection=None, grammar=None, connection_details={}, connection_driver=None):
+    def __init__(
+        self,
+        dry=False,
+        connection=None,
+        grammar=None,
+        connection_details={},
+        connection_driver=None,
+    ):
         self._dry = dry
         self.connection = connection
         self._connection = None
@@ -25,10 +32,9 @@ class Schema:
             cls
         """
         self.connection = ConnectionFactory().make(connection)
-        
+
         return self
 
-    
     def dry(self):
         """Change the connection from the default connection
 
@@ -55,8 +61,7 @@ class Schema:
         """
         self._table = table
 
-
-        print('driver', self)
+        print("driver", self)
 
         return Blueprint(
             self.grammar,
@@ -136,7 +141,7 @@ class Schema:
         query = grammar.column_exists(column).to_sql()
         if query_only:
             return query
-        return bool(self.connection().make_connection().query(query, ()))
+        return self.connection().make_connection().query(query, ())
 
     @classmethod
     def set_default_string_length(cls, length):
@@ -148,12 +153,11 @@ class Schema:
         query = grammar.drop_table(table).to_sql()
         if query_only:
             return query
-        return bool(self.connection().make_connection().query(query, ()))
 
+        return self.connection().make_connection().query(query, ())
 
     def drop(self, *args, **kwargs):
         return self.drop_table(*args, **kwargs)
-
 
     def drop_table_if_exists(self, table, exists=False, query_only=False):
         grammar = self.grammar(table=table)

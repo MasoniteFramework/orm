@@ -20,8 +20,7 @@ from .processors import PostProcessorFactory
 
 
 class QueryBuilder:
-    """A builder class to manage the building and creation of query expressions.
-    """
+    """A builder class to manage the building and creation of query expressions."""
 
     def __init__(
         self,
@@ -83,14 +82,15 @@ class QueryBuilder:
         self._model = model
         self.set_action("select")
 
-        if self._connection_details and (not self._connection_driver or self._connection_driver == "default"):
+        if self._connection_details and (
+            not self._connection_driver or self._connection_driver == "default"
+        ):
             # setup the connection information
             self._connection_driver = self._connection_details.get("default")
             print("connection driver is!!!", self._connection_driver)
 
     def reset(self):
-        """Resets the query builder instance so you can make multiple calls with the same builder instance
-        """
+        """Resets the query builder instance so you can make multiple calls with the same builder instance"""
 
         self.set_action("select")
         self._wheres = ()
