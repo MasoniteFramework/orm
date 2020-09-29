@@ -619,7 +619,7 @@ class Blueprint:
         self._columns += (self._last_column,)
         return self
 
-    def unsigned(self, column, length=None, nullable=False):
+    def unsigned(self, column=None, length=None, nullable=False):
         """Sets a column to be the unsigned integer representation for the table.
 
         Arguments:
@@ -632,6 +632,9 @@ class Blueprint:
         Returns:
             self
         """
+        if not column:
+            self._last_column.nullable()
+            return self
         self._last_column = self.new_column("unsigned", column, length, nullable)
         self._columns += (self._last_column,)
         return self
