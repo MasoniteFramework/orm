@@ -114,7 +114,6 @@ class SQLiteConnection(BaseConnection):
         try:
             self._cursor = self._connection.cursor()
             self._cursor.execute(query, bindings)
-            print("executed")
             if results == 1:
                 result = [dict(row) for row in self._cursor.fetchall()]
                 if result:

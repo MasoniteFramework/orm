@@ -23,7 +23,6 @@ class User(Model):
 class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("default")
-        # print(self.grammar)
         return QueryBuilder(
             grammar=self.grammar,
             connection=connection,

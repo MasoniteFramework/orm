@@ -91,13 +91,6 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
 
             self.assertTrue(user.serialize()["articles"])
 
-        # def test_multiple_double_multiple_relationships(self):
-        #     user = User.with_("articles.user").first()
-        #     print('final', user.serialize())
-        #     self.assertTrue(user.serialize()['articles'][0]['user'])
-        #     # for article in user.articles:
-        #     #     print(article.logo)
-
         def test_relationship_serialize(self):
             users = User.with_("articles").where("is_admin", 1).get()
             self.assertTrue(users.first().serialize())
