@@ -23,4 +23,3 @@ class BaseTestSqliteMigration(unittest.TestCase):
         with self.schema.create("testfile3") as blueprint:
             blueprint.string("name")
 
-        print("dropped?", self.schema.drop_table_if_exists("testfile3"))

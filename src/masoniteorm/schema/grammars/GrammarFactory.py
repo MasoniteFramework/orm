@@ -24,4 +24,8 @@ class GrammarFactory:
         Returns:
             self
         """
+        from config.database import DATABASES
+        if key == "default":
+            key = DATABASES.get(key)
+
         return GrammarFactory.grammars.get(key)

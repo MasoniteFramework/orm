@@ -2,11 +2,12 @@ import inspect
 import unittest
 
 from src.masoniteorm.schema import Schema
+from masoniteorm.connections import MySQLConnection
+from masoniteorm.schema.grammars.MySQLGrammar import MySQLGrammar
+from config.database import DATABASES
 
 
 class BaseTestCreateGrammar:
-
-    schema = Schema.dry().on("mysql")
 
     def setUp(self):
         self.maxDiff = None
@@ -369,7 +370,7 @@ class BaseTestCreateGrammar:
 
 class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
     def setUp(self):
-        self.schema = Schema.on("mysql")
+        self.schema = Schema(connection=MySQLConnection, grammar=MySQLGrammar, dry=True, connection_driver="mysql")
         self.maxDiff = None
 
     def can_compile_column(self):

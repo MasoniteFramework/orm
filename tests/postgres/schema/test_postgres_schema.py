@@ -2,6 +2,9 @@ import inspect
 import unittest
 
 from src.masoniteorm.schema import Schema
+from masoniteorm.connections import PostgresConnection
+from masoniteorm.schema.grammars.PostgresGrammar import PostgresGrammar
+from config.database import DATABASES
 
 
 class BaseTestCreateGrammar:
@@ -350,7 +353,7 @@ class BaseTestCreateGrammar:
 
 class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
     def setUp(self):
-        self.schema = Schema.dry().on("postgres")
+        self.schema = Schema(connection=PostgresConnection, grammar=PostgresGrammar, dry=True, connection_driver="postgres")
 
     def can_compile_column(self):
         """

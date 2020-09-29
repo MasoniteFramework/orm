@@ -61,7 +61,6 @@ class Schema:
         """
         self._table = table
 
-        print("driver", self)
 
         return Blueprint(
             self.grammar,
@@ -85,7 +84,7 @@ class Schema:
         """
         self._table = table
         return Blueprint(
-            self.connection.get_schema_grammar(),
+            self.grammar,
             connection=self.new_connection(),
             table=table,
             action="alter",
@@ -94,6 +93,7 @@ class Schema:
         )
 
     def get_connection_information(self):
+
         return {
             "host": self.connection_details.get(self._connection_driver, {}).get(
                 "host"
@@ -119,9 +119,6 @@ class Schema:
         if self._dry:
             return
 
-        elif self._connection:
-            return self._connection
-
         self._connection = self.connection(
             **self.get_connection_information()
         ).make_connection()
@@ -137,7 +134,7 @@ class Schema:
         Returns:
             masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
-        grammar = self.connection.get_schema_grammar()(table=table)
+        grammar = self.grammar(table=table)
         query = grammar.column_exists(column).to_sql()
         if query_only:
             return query
@@ -149,7 +146,7 @@ class Schema:
         return cls
 
     def drop_table(self, table, query_only=False):
-        grammar = self.connection.get_schema_grammar()(table=table)
+        grammar = self.grammar(table=table)
         query = grammar.drop_table(table).to_sql()
         if query_only:
             return query
@@ -167,7 +164,7 @@ class Schema:
         self.new_connection().make_connection().query(query, (), results=1)
 
     def rename(self, table, new_name, query_only=False):
-        grammar = self.connection.get_schema_grammar()(table=table)
+        grammar = self.grammar(table=table)
         query = grammar.rename_table(
             current_table_name=table, new_table_name=new_name
         ).to_sql()
@@ -176,7 +173,7 @@ class Schema:
         return bool(self.connection().make_connection().query(query, ()))
 
     def truncate(self, table, query_only=True):
-        grammar = self.connection.get_schema_grammar()(table=table)
+        grammar = self.grammar(table=table)
         query = grammar.truncate_table(table=table).to_sql()
         if query_only:
             return query
@@ -189,10 +186,17 @@ class Schema:
         Returns:
             masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
-        grammar = self.grammar(
-            table=table, database=self.connection.get_database_name()
-        )
+        print("checking table exists")
+        if self._dry:
+            grammar = self.grammar(
+                table=table, database="orm"
+            )
+        else:
+            grammar = self.grammar(
+                table=table, database=self.new_connection().get_database_name()
+            )
+
         query = grammar.table_exists().to_sql()
         if query_only:
             return query
-        return bool(self.connection().make_connection().query(query, ()))
+        return bool(self.new_connection().make_connection().query(query, ()))

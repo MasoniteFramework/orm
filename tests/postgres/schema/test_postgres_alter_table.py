@@ -1,11 +1,14 @@
 from src.masoniteorm.schema.grammars import GrammarFactory
 from src.masoniteorm.schema import Schema, Blueprint
+from masoniteorm.connections import PostgresConnection
+from masoniteorm.schema.grammars.PostgresGrammar import PostgresGrammar
+from config.database import DATABASES
 import unittest
 
 
 class TestPostgresAlterGrammar(unittest.TestCase):
     def setUp(self):
-        self.schema = Schema.dry().on("postgres")
+        self.schema = Schema(connection=PostgresConnection, grammar=PostgresGrammar, dry=True, connection_driver="postgres")
 
     def test_can_compile_alter_column(self):
         with self.schema.table("users") as blueprint:

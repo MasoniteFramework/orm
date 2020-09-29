@@ -13,6 +13,8 @@ from inflection import camelize
 
 from ..models.MigrationModel import MigrationModel
 from ..schema import Schema
+from ..connections import ConnectionFactory
+from ..schema.grammars import GrammarFactory
 
 
 class Migration:
@@ -23,7 +25,11 @@ class Migration:
         command_class=None,
         migration_directory="databases/migrations",
     ):
-        self.schema = Schema.on(connection)
+        connection_class = ConnectionFactory().make(connection)
+        grammar = GrammarFactory().make(connection)
+        from config.database import DATABASES
+        driver = DATABASES.get("default")
+        self.schema = Schema(connection=connection_class, connection_details=DATABASES, grammar=grammar, connection_driver=driver)
         self._dry = dry
         self.migration_directory = migration_directory.replace("/", ".")
         self.last_migrations_ran = []

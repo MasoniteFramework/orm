@@ -5,3 +5,4 @@ class MigrationModel(Model):
 
     __table__ = "migrations"
     __fillable__ = ["migration", "batch"]
+    __timestamps__ = None
