@@ -4,12 +4,17 @@ from .Blueprint import Blueprint
 
 class Schema:
 
-    _grammar = None
     _default_string_length = "255"
-    _dry = False
 
-    @classmethod
-    def on(cls, connection):
+    def __init__(self, dry=False, connection=None, grammar=None, connection_details={}, connection_driver=None):
+        self._dry = dry
+        self.connection = connection
+        self._connection = None
+        self.grammar = grammar
+        self.connection_details = connection_details
+        self._connection_driver = connection_driver
+
+    def on(self, connection):
         """Change the connection from the default connection
 
         Arguments:
@@ -19,11 +24,12 @@ class Schema:
         Returns:
             cls
         """
-        cls._connection = ConnectionFactory().make(connection)
-        return cls
+        self.connection = ConnectionFactory().make(connection)
+        
+        return self
 
-    @classmethod
-    def dry(cls):
+    
+    def dry(self):
         """Change the connection from the default connection
 
         Arguments:
@@ -33,11 +39,10 @@ class Schema:
         Returns:
             cls
         """
-        cls._dry = True
-        return cls
+        self._dry = True
+        return self
 
-    @classmethod
-    def create(cls, table):
+    def create(self, table):
         """Sets the table and returns the blueprint.
 
         This should be used as a context manager.
@@ -48,19 +53,21 @@ class Schema:
         Returns:
             masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
-        cls._table = table
+        self._table = table
+
+
+        print('driver', self)
 
         return Blueprint(
-            cls._connection.get_schema_grammar(),
-            connection=cls._connection,
+            self.grammar,
+            connection=self.new_connection(),
             table=table,
             action="create",
-            default_string_length=cls._default_string_length,
-            dry=cls._dry,
+            default_string_length=self._default_string_length,
+            dry=self._dry,
         )
 
-    @classmethod
-    def table(cls, table):
+    def table(self, table):
         """Sets the table and returns the blueprint.
 
         This should be used as a context manager.
@@ -71,18 +78,52 @@ class Schema:
         Returns:
             masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
-        cls._table = table
+        self._table = table
         return Blueprint(
-            cls._connection.get_schema_grammar(),
-            connection=cls._connection,
+            self.connection.get_schema_grammar(),
+            connection=self.new_connection(),
             table=table,
             action="alter",
-            default_string_length=cls._default_string_length,
-            dry=cls._dry,
+            default_string_length=self._default_string_length,
+            dry=self._dry,
         )
 
-    @classmethod
-    def has_column(cls, table, column, query_only=False):
+    def get_connection_information(self):
+        return {
+            "host": self.connection_details.get(self._connection_driver, {}).get(
+                "host"
+            ),
+            "database": self.connection_details.get(self._connection_driver, {}).get(
+                "database"
+            ),
+            "user": self.connection_details.get(self._connection_driver, {}).get(
+                "user"
+            ),
+            "port": self.connection_details.get(self._connection_driver, {}).get(
+                "port"
+            ),
+            "password": self.connection_details.get(self._connection_driver, {}).get(
+                "password"
+            ),
+            "prefix": self.connection_details.get(self._connection_driver, {}).get(
+                "prefix"
+            ),
+        }
+
+    def new_connection(self):
+        if self._dry:
+            return
+
+        elif self._connection:
+            return self._connection
+
+        self._connection = self.connection(
+            **self.get_connection_information()
+        ).make_connection()
+
+        return self._connection
+
+    def has_column(self, table, column, query_only=False):
         """Checks if the a table has a specific column
 
         Arguments:
@@ -91,67 +132,63 @@ class Schema:
         Returns:
             masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
-        grammar = cls._connection.get_schema_grammar()(table=table)
+        grammar = self.connection.get_schema_grammar()(table=table)
         query = grammar.column_exists(column).to_sql()
         if query_only:
             return query
-        return bool(cls._connection().make_connection().query(query, ()))
+        return bool(self.connection().make_connection().query(query, ()))
 
     @classmethod
     def set_default_string_length(cls, length):
         cls._default_string_length = length
         return cls
 
-    @classmethod
-    def drop_table(cls, table, query_only=False):
-        grammar = cls._connection.get_schema_grammar()(table=table)
+    def drop_table(self, table, query_only=False):
+        grammar = self.connection.get_schema_grammar()(table=table)
         query = grammar.drop_table(table).to_sql()
         if query_only:
             return query
-        return bool(cls._connection().make_connection().query(query, ()))
+        return bool(self.connection().make_connection().query(query, ()))
 
-    @classmethod
-    def drop(cls, *args, **kwargs):
-        return cls.drop_table(*args, **kwargs)
 
-    @classmethod
-    def drop_table_if_exists(cls, table, exists=False, query_only=True):
-        grammar = cls._connection.get_schema_grammar()(table=table)
+    def drop(self, *args, **kwargs):
+        return self.drop_table(*args, **kwargs)
+
+
+    def drop_table_if_exists(self, table, exists=False, query_only=False):
+        grammar = self.grammar(table=table)
         query = grammar.drop_table_if_exists(table).to_sql()
         if query_only:
             return query
-        return bool(cls._connection().make_connection().query(query, ()))
+        self.new_connection().make_connection().query(query, (), results=1)
 
-    @classmethod
-    def rename(cls, table, new_name, query_only=False):
-        grammar = cls._connection.get_schema_grammar()(table=table)
+    def rename(self, table, new_name, query_only=False):
+        grammar = self.connection.get_schema_grammar()(table=table)
         query = grammar.rename_table(
             current_table_name=table, new_table_name=new_name
         ).to_sql()
         if query_only:
             return query
-        return bool(cls._connection().make_connection().query(query, ()))
+        return bool(self.connection().make_connection().query(query, ()))
 
-    @classmethod
-    def truncate(cls, table, query_only=True):
-        grammar = cls._connection.get_schema_grammar()(table=table)
+    def truncate(self, table, query_only=True):
+        grammar = self.connection.get_schema_grammar()(table=table)
         query = grammar.truncate_table(table=table).to_sql()
         if query_only:
             return query
-        return bool(cls._connection().make_connection().query(query, ()))
+        return bool(self.connection().make_connection().query(query, ()))
 
-    @classmethod
-    def has_table(cls, table, query_only=False):
+    def has_table(self, table, query_only=False):
         """Checks if the a database has a specific table
         Arguments:
             table {string} -- The name of a table like 'users'
         Returns:
             masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
-        grammar = cls._connection.get_grammar()(
-            table=table, database=cls._connection.get_database_name()
+        grammar = self.grammar(
+            table=table, database=self.connection.get_database_name()
         )
         query = grammar.table_exists().to_sql()
         if query_only:
             return query
-        return bool(cls._connection().make_connection().query(query, ()))
+        return bool(self.connection().make_connection().query(query, ()))

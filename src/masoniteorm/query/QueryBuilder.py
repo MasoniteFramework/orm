@@ -83,9 +83,10 @@ class QueryBuilder:
         self._model = model
         self.set_action("select")
 
-        if self._connection_details and not self._connection_driver:
+        if self._connection_details and (not self._connection_driver or self._connection_driver == "default"):
             # setup the connection information
             self._connection_driver = self._connection_details.get("default")
+            print("connection driver is!!!", self._connection_driver)
 
     def reset(self):
         """Resets the query builder instance so you can make multiple calls with the same builder instance

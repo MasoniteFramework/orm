@@ -2,6 +2,9 @@ import inspect
 import unittest
 
 from src.masoniteorm.schema import Schema
+from src.masoniteorm.connections import SQLiteConnection
+from src.masoniteorm.schema.grammars import SQLiteGrammar
+from config.database import DATABASES
 
 
 class BaseTestCreateGrammar:
@@ -350,7 +353,7 @@ class BaseTestCreateGrammar:
 
 class TestSqliteCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
     def setUp(self):
-        self.schema = Schema.dry().on("sqlite")
+        self.schema = Schema(dry=True, connection=SQLiteConnection, grammar=SQLiteGrammar, connection_details=DATABASES).on("sqlite")
 
     def can_compile_column(self):
         """

@@ -301,8 +301,7 @@ class Blueprint:
         self._action = action
         self._default_string_length = default_string_length
         self._dry = dry
-        if connection:
-            self._connection = connection()
+        self.connection = connection
 
     def string(self, column, length=255, nullable=False):
         """Sets a column to be the string representation for the table.
@@ -684,6 +683,9 @@ class Blueprint:
                 .to_sql()
             )
 
+
+
+
     def __enter__(self):
         return self
 
@@ -691,7 +693,7 @@ class Blueprint:
         if self._dry:
             return
 
-        return self._connection.make_connection().query(self.to_sql(), ())
+        return self.connection.query(self.to_sql(), ())
 
     def nullable(self):
         """Sets the last column created as nullable
