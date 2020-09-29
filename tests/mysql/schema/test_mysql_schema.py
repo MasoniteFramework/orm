@@ -178,6 +178,15 @@ class BaseTestCreateGrammar:
         )()
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_can_compile_unsigned_integer(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.integer('age').unsigned()
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_can_compile_timestamp_column_without_default(self):
         with self.schema.create("users") as blueprint:
             blueprint.timestamp("logged_at")
@@ -800,3 +809,10 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.rename("name", "first_name")
         """
         return "ALTER TABLE `users` CHANGE COLUMN `name` `first_name`"
+
+    def can_compile_unsigned_integer(self):
+        """
+        with self.schema.table("users") as blueprint:
+            blueprint.rename("name", "first_name")
+        """
+        return "CREATE TABLE `users` (`age` INT UNSIGNED NOT NULL)"
