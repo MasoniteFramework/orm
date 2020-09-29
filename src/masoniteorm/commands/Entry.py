@@ -15,8 +15,6 @@ from . import (
     SeedRunCommand,
 )
 
-from wsgi import container
-
 application = Application("ORM Version:", 0.1)
 
 application.add(MigrateCommand())
