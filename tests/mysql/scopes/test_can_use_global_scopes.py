@@ -36,8 +36,8 @@ class TestMySQLGlobalScopes(unittest.TestCase):
     #     )
 
     def test_can_use_global_scopes_on_time(self):
-        sql = "INSERT INTO `users` (`users`.`name`, `users`.`updated_at`, `users`.`created_at`) VALUES ('Joe', 'now', 'now')"
-        self.assertEqual(sql, User.create({"name": "Joe"}, query=True))
+        sql = "INSERT INTO `users` (`users`.`name`, `users`.`updated_at`, `users`.`created_at`) VALUES ('Joe'"
+        self.assertTrue(User.create({"name": "Joe"}, query=True).startswith(sql))
 
     # def test_can_use_global_scopes_on_inherit(self):
     #     sql = "SELECT * FROM `user_softs` WHERE `user_softs`.`deleted_at` IS NULL"
