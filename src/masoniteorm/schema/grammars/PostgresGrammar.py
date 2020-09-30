@@ -31,10 +31,10 @@ class PostgresGrammar(BaseGrammar):
         "integer": "INTEGER",
         "big_integer": "BIGINT",
         "tiny_integer": "TINYINT",
-        "big_increments": "BIGINT",
+        "big_increments": "SERIAL UNIQUE",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
-        "increments": "INTEGER PRIMARY KEY",
+        "increments": "SERIAL UNIQUE",
         "binary": "LONGBLOB",
         "boolean": "BOOLEAN",
         "decimal": "DECIMAL",
@@ -51,7 +51,7 @@ class PostgresGrammar(BaseGrammar):
         "timestamp": "TIMESTAMP",
         "date": "DATE",
         "year": "YEAR",
-        "datetime": "DATETIME",
+        "datetime": "TIMESTAMP",
         "tiny_increments": "TINYINT AUTO_INCREMENT",
         "unsigned": "INT",
         "unsigned_integer": "INT",
@@ -237,6 +237,9 @@ class PostgresGrammar(BaseGrammar):
 
     def column_string(self):
         return '"{column}"{separator}'
+
+    def default_string(self):
+        return " DEFAULT {default} "
 
     def value_string(self):
         return "'{value}'{separator}"
