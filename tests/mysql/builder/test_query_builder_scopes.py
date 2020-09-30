@@ -6,7 +6,6 @@ from src.masoniteorm.query.grammars import MySQLGrammar
 from src.masoniteorm.models import Model
 from src.masoniteorm.relationships import has_many
 from tests.utils import MockConnectionFactory
-from config.database import DATABASES
 from src.masoniteorm.scopes import SoftDeleteScope
 
 
@@ -19,7 +18,6 @@ class BaseTestQueryBuilderScopes(unittest.TestCase):
             grammar=MySQLGrammar,
             connection=connection,
             table=table,
-            model=None,
             connection_details=DATABASES,
         )
 

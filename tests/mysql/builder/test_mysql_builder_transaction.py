@@ -8,7 +8,6 @@ from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.relationships import belongs_to
 from src.masoniteorm.models import Model
 from tests.utils import MockConnectionFactory
-from config.database import DATABASES
 
 if os.getenv("RUN_MYSQL_DATABASE") == "True":
 
@@ -26,8 +25,6 @@ if os.getenv("RUN_MYSQL_DATABASE") == "True":
                 grammar=MySQLGrammar,
                 connection=connection,
                 table=table,
-                # model=User,
-                connection_details=DATABASES,
             ).on("mysql")
 
         def test_transaction(self):
