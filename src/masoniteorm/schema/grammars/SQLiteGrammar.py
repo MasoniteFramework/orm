@@ -108,9 +108,6 @@ class SQLiteGrammar(BaseGrammar):
     def alter_format(self):
         return "ALTER TABLE {table} {columns}{constraints}{foreign_keys}"
 
-    def alter_start(self):
-        return "ALTER TABLE {table} "
-
     def create_column_length(self, column_type):
         if column_type in self.types_without_lengths:
             return ""
