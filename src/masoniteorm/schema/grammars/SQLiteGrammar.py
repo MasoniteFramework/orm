@@ -36,7 +36,7 @@ class SQLiteGrammar(BaseGrammar):
         "year": "YEAR",
         "datetime": "DATETIME",
         "tiny_increments": "TINYINT AUTO_INCREMENT",
-        "unsigned": "INT UNSIGNED",
+        "unsigned": "UNSIGNED INT",
         "unsigned_integer": "UNSIGNED INT",
     }
 
@@ -159,10 +159,10 @@ class SQLiteGrammar(BaseGrammar):
         return "PRIMARY KEY ({column}){separator}"
 
     def foreign_key_string(self):
-        return "CONSTRAINT {index_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){separator}"
+        return "ADD CONSTRAINT {index_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){separator}"
 
     def alter_foreign_key_string(self):
-        return "ADD CONSTRAINT {index_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}) {action}{separator}"
+        return "CONSTRAINT {index_name} REFERENCES {foreign_table}({foreign_column}) {action}{separator}"
 
     def table_string(self):
         return '"{table}"'

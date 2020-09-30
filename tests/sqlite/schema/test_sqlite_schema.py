@@ -246,17 +246,6 @@ class BaseTestCreateGrammar:
         )()
         self.assertEqual(blueprint.to_sql(), sql)
 
-    def test_foreign_key_constraint(self):
-        with self.schema.create("users") as blueprint:
-            blueprint.unsigned("user_id")
-            blueprint.foreign("user_id").references("id").on("profile")
-            blueprint.foreign("fruit_id").references("id").on("fruit")
-
-        sql = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
-        self.assertEqual(blueprint.to_sql(), sql)
-
     def test_multiple_index_constraint(self):
         with self.schema.create("users") as blueprint:
             blueprint.string("name")
@@ -497,23 +486,7 @@ class TestSqliteCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             """); CREATE INDEX users_email_index ON "users"("email"); """
             """CREATE INDEX users_name_index ON "users"("name")"""
         )
-
-    def foreign_key_constraint(self):
-        """
-        with self.schema.create("users") as blueprint:
-            blueprint.integer("user_id").unsigned()
-            blueprint.foreign('user_id').references('id').on('profile')
-            blueprint.foreign('fruit_id').references('id').on('fruit')
-        """
-
-        return (
-            """CREATE TABLE "users" ("""
-            """\"user_id" INT UNSIGNED NOT NULL, """
-            """CONSTRAINT users_user_id_foreign FOREIGN KEY ("user_id") REFERENCES "profile"("id"), """
-            """CONSTRAINT users_fruit_id_foreign FOREIGN KEY ("fruit_id") REFERENCES "fruit"("id")"""
-            """)"""
-        )
-
+    
     def column_exists(self):
         """
         self.schema.has_column('users', 'email', query_only=True)
