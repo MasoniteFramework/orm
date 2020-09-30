@@ -148,7 +148,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     def get_builder(self):
         self.__resolved_connection__ = ConnectionFactory().make(self.__connection__)
         self.builder = QueryBuilder(
-            grammar=self.__resolved_connection__.get_grammar(),
+            grammar=self.__resolved_connection__.get_default_query_grammar(),
             connection=self.__resolved_connection__,
             table=self.get_table_name(),
             connection_details=self.get_connection_details(),

@@ -18,7 +18,8 @@ from ..schema import Schema
 
 from .processors import PostProcessorFactory
 
-from ..connections import ConnectionResolver
+from ..connections import ConnectionResolver, ConnectionFactory
+from ..query.grammars import GrammarFactory
 
 
 class QueryBuilder:
@@ -30,7 +31,7 @@ class QueryBuilder:
         connection=None,
         table=None,
         connection_details={},
-        connection_driver=None,
+        connection_driver="default",
         model=None,
         scopes={},
         dry=False,
@@ -86,6 +87,13 @@ class QueryBuilder:
 
         if not self._connection_details:
             self._connection_details = ConnectionResolver.get_connection_details()
+        
+        if not connection:
+            print('no connection so need a new one')
+            self.connection = ConnectionFactory().make(self._connection_driver)
+        
+        if not grammar:
+            self.grammar = self.connection.get_default_query_grammar()
 
         if self._connection_details and (
             not self._connection_driver or self._connection_driver == "default"
@@ -300,6 +308,10 @@ class QueryBuilder:
 
     def on(self, driver):
         self._connection_driver = driver
+        self.connection = ConnectionFactory().make(driver)
+        self.grammar = self.connection.get_default_query_grammar()
+        print('swap driver')
+        print('nn', self.connection, driver)
         return self
 
     def select(self, *args):
@@ -1000,8 +1012,10 @@ class QueryBuilder:
         return self.prepare_result(result, collection=True)
 
     def new_connection(self):
+        print('making new connection', self.connection)
         if self._connection:
             return self._connection
+
 
         self._connection = self.connection(
             **self.get_connection_information()

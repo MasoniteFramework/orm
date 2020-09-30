@@ -2,6 +2,7 @@ import random
 
 from ..exceptions import DriverNotFound
 from .BaseConnection import BaseConnection
+from ..query.grammars import PostgresGrammar
 
 
 CONNECTION_POOL = []
@@ -74,6 +75,10 @@ class PostgresConnection(BaseConnection):
     @classmethod
     def get_database_name(self):
         return self().get_connection_details().get("db")
+    
+    @classmethod
+    def get_default_query_grammar(cls):
+        return PostgresGrammar
 
     def reconnect(self):
         pass

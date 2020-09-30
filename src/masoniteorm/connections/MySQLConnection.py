@@ -2,6 +2,7 @@ import random
 
 from ..exceptions import DriverNotFound
 from .BaseConnection import BaseConnection
+from ..query.grammars import MySQLGrammar
 
 CONNECTION_POOL = []
 
@@ -63,6 +64,10 @@ class MySQLConnection(BaseConnection):
     def reconnect(self):
         self._connection.connect()
         return self
+
+    @classmethod
+    def get_default_query_grammar(cls):
+        return MySQLGrammar
 
     def get_connection_details(self):
         """This is responsible for standardizing the normal connection

@@ -15,6 +15,10 @@ class MockConnection:
     def make_connection(self):
         return self
 
+    @classmethod
+    def get_default_query_grammar(cls):
+        return
+
 
 class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
