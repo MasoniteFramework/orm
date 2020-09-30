@@ -143,6 +143,7 @@ class Migration:
         ran_migrations = []
         for migration in self.get_all_migrations():
             self.locate(migration)().down()
+            self.delete_migration(migration)
             ran_migrations.append(migration)
 
         self.delete_migrations(ran_migrations)
