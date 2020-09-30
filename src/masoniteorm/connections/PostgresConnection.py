@@ -46,8 +46,9 @@ class PostgresConnection(BaseConnection):
             )
 
         self._connection = psycopg2.connect(
-            database=self.database, user=self.user, password=self.password
+            database=self.database, user=self.user, password=self.password, host=self.host, port=self.port
         )
+
         self._connection.autocommit = True
 
         return self
