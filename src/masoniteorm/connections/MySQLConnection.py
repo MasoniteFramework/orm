@@ -3,7 +3,6 @@ import random
 from ..exceptions import DriverNotFound
 from .BaseConnection import BaseConnection
 
-
 CONNECTION_POOL = []
 
 
@@ -60,7 +59,7 @@ class MySQLConnection(BaseConnection):
         )
 
         return self
-    
+
     def reconnect(self):
         self._connection.connect()
         return self
@@ -131,10 +130,12 @@ class MySQLConnection(BaseConnection):
         """
         query = query.replace("'?'", "%s")
         print("running query", query, bindings)
-        from pymysql.err import Error
 
         if self._dry:
             return {}
+
+        if not self._connection.open:
+            self._connection.connect()
 
         try:
             with self._connection.cursor() as cursor:
@@ -143,12 +144,8 @@ class MySQLConnection(BaseConnection):
                     return cursor.fetchone()
                 else:
                     return cursor.fetchall()
-        except Error as e:
-            error = str(e).lower()
-            raise ValueError(error)
-            # if error in ['already closed']:
-            #     self.reconnect().query(query, bindings=bindings, results=results)
-            # raise Exception("something went wrong")
+        except Exception as e:
+            raise Exception(str(e))
         finally:
             if self.get_transaction_level() <= 0:
                 self._connection.close()

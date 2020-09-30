@@ -132,12 +132,12 @@ class Migration:
 
             self.locate(migration)().down()
 
+            self.delete_migration(migration)
+
             if self.command_class:
                 self.command_class.line(
                     f"<info>Rolled back:</info> <question>{migration}</question>"
                 )
-
-        self.delete_last_batch()
 
     def rollback_all(self):
         ran_migrations = []

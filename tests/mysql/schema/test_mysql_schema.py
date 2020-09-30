@@ -180,7 +180,7 @@ class BaseTestCreateGrammar:
 
     def test_can_compile_unsigned_integer(self):
         with self.schema.create("users") as blueprint:
-            blueprint.integer('age').unsigned()
+            blueprint.integer("age").unsigned()
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
