@@ -45,7 +45,9 @@ class PostgresConnection(BaseConnection):
                 "You must have the 'psycopg2' package installed to make a connection to Postgres. Please install it using 'pip install psycopg2-binary'"
             )
 
-        self._connection = psycopg2.connect(database=self.database, user=self.user, password=self.password)
+        self._connection = psycopg2.connect(
+            database=self.database, user=self.user, password=self.password
+        )
         self._connection.autocommit = True
 
         return self
