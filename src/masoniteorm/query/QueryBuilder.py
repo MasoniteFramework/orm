@@ -954,7 +954,7 @@ class QueryBuilder:
     def get_primary_key(self):
         return self._model.get_primary_key()
 
-    def prepare_result(self, result, wrap=None, collection=False):
+    def prepare_result(self, result, collection=False):
         if self._model:
             # eager load here
             hydrated_model = self._model.hydrate(result)
@@ -967,9 +967,9 @@ class QueryBuilder:
                     )
 
             if collection:
-                return hydrated_model or Collection([])
+                return hydrated_model if result else Collection([])
             else:
-                return hydrated_model or None
+                return hydrated_model if result else None
 
         if collection:
             return result or Collection([])
