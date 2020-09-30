@@ -571,7 +571,7 @@ class TestSqliteCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             "`birthday` DATE NOT NULL, "
             "`credit` DECIMAL(17, 6) NOT NULL, "
             "`description` TEXT NOT NULL, "
-            "`bank` INT UNSIGNED"
+            "`bank` INTEGER"
             ")"
         )
 

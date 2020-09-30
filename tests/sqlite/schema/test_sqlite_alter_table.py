@@ -82,7 +82,7 @@ class TestSqliteAlterGrammar(unittest.TestCase):
             blueprint.unsigned_integer('profile_id').nullable()
             blueprint.foreign("profile_id").references("id").on("profile")
 
-        sql = """ALTER TABLE "users" ADD "profile_id" UNSIGNED INT, CONSTRAINT users_profile_id_foreign REFERENCES "profile"("id")"""
+        sql = """ALTER TABLE "users" ADD "profile_id" INTEGER, CONSTRAINT users_profile_id_foreign REFERENCES "profile"("id")"""
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_can_alter_foreign_key_with_on_delete(self):
@@ -92,7 +92,7 @@ class TestSqliteAlterGrammar(unittest.TestCase):
                 "cascade"
             )
 
-        sql = """ALTER TABLE "users" ADD "profile_id" UNSIGNED INT, CONSTRAINT users_profile_id_foreign REFERENCES "profile"("id") ON DELETE CASCADE"""
+        sql = """ALTER TABLE "users" ADD "profile_id" INTEGER, CONSTRAINT users_profile_id_foreign REFERENCES "profile"("id") ON DELETE CASCADE"""
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_can_alter_foreign_key_with_on_update(self):
@@ -102,7 +102,7 @@ class TestSqliteAlterGrammar(unittest.TestCase):
                 "cascade"
             )
 
-        sql = """ALTER TABLE "users" ADD "profile_id" UNSIGNED INT, CONSTRAINT users_profile_id_foreign REFERENCES "profile"("id") ON UPDATE CASCADE"""
+        sql = """ALTER TABLE "users" ADD "profile_id" INTEGER, CONSTRAINT users_profile_id_foreign REFERENCES "profile"("id") ON UPDATE CASCADE"""
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_can_alter_modify_column(self):
@@ -122,7 +122,7 @@ class TestSqliteAlterGrammar(unittest.TestCase):
 
         return (
             """CREATE TABLE "users" ("""
-            """\"user_id" UNSIGNED INT NOT NULL, """
+            """\"user_id" INTEGER NOT NULL, """
             """ADD CONSTRAINT users_user_id_foreign FOREIGN KEY ("user_id") REFERENCES "profile"("id"), """
             """ADD CONSTRAINT users_fruit_id_foreign FOREIGN KEY ("fruit_id") REFERENCES "fruit"("id")"""
             """)"""
@@ -137,7 +137,7 @@ class TestSqliteAlterGrammar(unittest.TestCase):
 
         return (
             """ALTER TABLE "videos" """
-            """ADD "playlist_id" UNSIGNED INT, """
+            """ADD "playlist_id" INTEGER, """
             """CONSTRAINT videos_playlist_id_foreign """
             """REFERENCES "playlists"("id")"""
         )

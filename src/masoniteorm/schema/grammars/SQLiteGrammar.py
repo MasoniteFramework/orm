@@ -36,8 +36,8 @@ class SQLiteGrammar(BaseGrammar):
         "year": "YEAR",
         "datetime": "DATETIME",
         "tiny_increments": "TINYINT AUTO_INCREMENT",
-        "unsigned": "UNSIGNED INT",
-        "unsigned_integer": "UNSIGNED INT",
+        "unsigned": "INTEGER",
+        "unsigned_integer": "INTEGER",
     }
 
     on_delete_mapping = {
