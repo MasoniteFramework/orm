@@ -9,8 +9,7 @@ from .PostgresConnection import PostgresConnection
 
 
 class ConnectionFactory:
-    """Class for controlling the registration and creation of connection types.
-    """
+    """Class for controlling the registration and creation of connection types."""
 
     _connections = {
         "mysql": MySQLConnection,

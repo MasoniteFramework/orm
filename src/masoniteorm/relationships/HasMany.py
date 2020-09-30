@@ -3,8 +3,7 @@ from ..collection import Collection
 
 
 class HasMany(BaseRelationship):
-    """Has Many Relationship Class.
-    """
+    """Has Many Relationship Class."""
 
     def apply_query(self, foreign, owner):
         """Apply the query and return a dictionary to be hydrated

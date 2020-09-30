@@ -1,6 +1,5 @@
 class Column:
-    """Used for creating or modifying columns.
-    """
+    """Used for creating or modifying columns."""
 
     def __init__(
         self,
@@ -278,8 +277,7 @@ class ForeignKey:
 
 
 class Blueprint:
-    """Used for building schemas for creating, modifying or altering schema.
-    """
+    """Used for building schemas for creating, modifying or altering schema."""
 
     def __init__(
         self,
@@ -301,8 +299,7 @@ class Blueprint:
         self._action = action
         self._default_string_length = default_string_length
         self._dry = dry
-        if connection:
-            self._connection = connection()
+        self.connection = connection
 
     def string(self, column, length=255, nullable=False):
         """Sets a column to be the string representation for the table.
@@ -622,7 +619,7 @@ class Blueprint:
         self._columns += (self._last_column,)
         return self
 
-    def unsigned(self, column, length=None, nullable=False):
+    def unsigned(self, column=None, length=None, nullable=False):
         """Sets a column to be the unsigned integer representation for the table.
 
         Arguments:
@@ -635,6 +632,10 @@ class Blueprint:
         Returns:
             self
         """
+        if not column:
+            self._last_column.column_type = "unsigned_integer"
+            self._last_column.length = None
+            return self
         self._last_column = self.new_column("unsigned", column, length, nullable)
         self._columns += (self._last_column,)
         return self
@@ -691,7 +692,7 @@ class Blueprint:
         if self._dry:
             return
 
-        return self._connection.make_connection().query(self.to_sql(), ())
+        return self.connection.query(self.to_sql(), ())
 
     def nullable(self):
         """Sets the last column created as nullable

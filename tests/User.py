@@ -4,11 +4,10 @@ from src.masoniteorm import Model
 
 
 class User(Model):
-    """User Model 
-    """
+    """User Model"""
 
-    __fillable__ = ['name', 'email', 'password']
+    __fillable__ = ["name", "email", "password"]
 
-    __connection__ = 'mysql'
+    __connection__ = "mysql"
 
-    __auth__ = 'email'
+    __auth__ = "email"

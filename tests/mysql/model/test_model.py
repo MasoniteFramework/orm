@@ -164,7 +164,14 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             profile = ProfileFillAsterisk.hydrate({"name": "Joe", "id": 1})
 
             profile.age = 18
-            self.assertEqual(profile.serialize(), {"age": 18, "name": "Joe", "id": 1,})
+            self.assertEqual(
+                profile.serialize(),
+                {
+                    "age": 18,
+                    "name": "Joe",
+                    "id": 1,
+                },
+            )
 
         def test_attribute_check_with_hasattr(self):
             self.assertFalse(hasattr(Profile(), "__password__"))

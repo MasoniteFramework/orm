@@ -1,6 +1,5 @@
 class QueryExpression:
-    """A helper class to manage query expressions.
-    """
+    """A helper class to manage query expressions."""
 
     def __init__(
         self,
@@ -22,8 +21,7 @@ class QueryExpression:
 
 
 class HavingExpression:
-    """A helper class to manage having expressions.
-    """
+    """A helper class to manage having expressions."""
 
     def __init__(self, column, equality=None, value=None):
         self.column = column
@@ -38,8 +36,7 @@ class HavingExpression:
 
 
 class JoinExpression:
-    """A helper class to manage join expressions.
-    """
+    """A helper class to manage join expressions."""
 
     def __init__(self, foreign_table, column1, equality, column2, clause="inner"):
         self.foreign_table = foreign_table
@@ -50,8 +47,7 @@ class JoinExpression:
 
 
 class UpdateQueryExpression:
-    """A helper class to manage update expressions.
-    """
+    """A helper class to manage update expressions."""
 
     def __init__(self, column, value=None, update_type="keyvalue"):
         self.column = column
@@ -60,8 +56,7 @@ class UpdateQueryExpression:
 
 
 class BetweenExpression:
-    """A helper class to manage where between expressions.
-    """
+    """A helper class to manage where between expressions."""
 
     def __init__(self, column, low, high, equality="BETWEEN"):
         self.column = column
@@ -74,24 +69,21 @@ class BetweenExpression:
 
 
 class SubSelectExpression:
-    """A helper class to manage subselect expressions.
-    """
+    """A helper class to manage subselect expressions."""
 
     def __init__(self, builder):
         self.builder = builder
 
 
 class SubGroupExpression:
-    """A helper class to manage subgroup expressions.
-    """
+    """A helper class to manage subgroup expressions."""
 
     def __init__(self, builder):
         self.builder = builder
 
 
 class SelectExpression:
-    """A helper class to manage select expressions.
-    """
+    """A helper class to manage select expressions."""
 
     def __init__(self, column, raw=False):
         self.column = column

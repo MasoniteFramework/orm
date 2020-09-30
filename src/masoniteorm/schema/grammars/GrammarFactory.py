@@ -4,8 +4,7 @@ from .PostgresGrammar import PostgresGrammar
 
 
 class GrammarFactory:
-    """Class for controlling the registration and creation of grammars.
-    """
+    """Class for controlling the registration and creation of grammars."""
 
     grammars = {
         # Base grammars that will be used with various drivers
@@ -25,4 +24,9 @@ class GrammarFactory:
         Returns:
             self
         """
+        from config.database import DATABASES
+
+        if key == "default":
+            key = DATABASES.get(key)
+
         return GrammarFactory.grammars.get(key)
