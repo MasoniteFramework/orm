@@ -362,10 +362,7 @@ class BaseGrammar:
                 continue
             sql += getattr(
                 self,
-                "{}_{}_column_string".format(
-                    column.action,
-                    column.constraint_type,
-                ),
+                "{}_{}_column_string".format(column.action, column.constraint_type,),
             )().format(
                 column=self._get_multiple_columns(column.column_name),
                 clean_column=column.column_name,
@@ -551,8 +548,7 @@ class BaseGrammar:
         for order_bys in self._order_by:
             column, direction = order_bys
             sql += self.order_by_string().format(
-                column=self._table_column_string(column),
-                direction=direction.upper(),
+                column=self._table_column_string(column), direction=direction.upper(),
             )
 
         return sql
@@ -764,10 +760,7 @@ class BaseGrammar:
                 query_value = ""
 
             sql += sql_string.format(
-                keyword=keyword,
-                column=column,
-                equality=equality,
-                value=query_value,
+                keyword=keyword, column=column, equality=equality, value=query_value,
             )
 
             loop_count += 1

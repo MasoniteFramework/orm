@@ -21,9 +21,5 @@ class TestMSSQLQmark(unittest.TestCase):
         sql = "UPDATE [users] SET [users].[name] = '?' WHERE [users].[name] = '?'"
         self.assertEqual(mark.to_qmark(), sql)
         self.assertEqual(
-            mark._bindings,
-            (
-                "Bob",
-                "Joe",
-            ),
+            mark._bindings, ("Bob", "Joe",),
         )

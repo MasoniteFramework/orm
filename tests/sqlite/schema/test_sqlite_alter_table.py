@@ -64,7 +64,7 @@ class TestSqliteAlterGrammar(unittest.TestCase):
 
         sql = """ALTER TABLE "users" ADD CONSTRAINT name_unique UNIQUE("name")"""
         self.assertEqual(blueprint.to_sql(), sql)
-    
+
     def test_foreign_key_constraint(self):
         with self.schema.create("users") as blueprint:
             blueprint.unsigned("user_id")
@@ -75,11 +75,11 @@ class TestSqliteAlterGrammar(unittest.TestCase):
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
         self.assertEqual(blueprint.to_sql(), sql)
-    
+
     def test_a_second_foreign_key_constraint(self):
-        with self.schema.table('videos') as blueprint:
-            blueprint.unsigned_integer('playlist_id').nullable()
-            blueprint.foreign('playlist_id').references('id').on('playlists')
+        with self.schema.table("videos") as blueprint:
+            blueprint.unsigned_integer("playlist_id").nullable()
+            blueprint.foreign("playlist_id").references("id").on("playlists")
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -88,7 +88,7 @@ class TestSqliteAlterGrammar(unittest.TestCase):
 
     def test_can_alter_foreign_key(self):
         with self.schema.table("users") as blueprint:
-            blueprint.unsigned_integer('profile_id').nullable()
+            blueprint.unsigned_integer("profile_id").nullable()
             blueprint.foreign("profile_id").references("id").on("profile")
 
         sql = """ALTER TABLE "users" ADD "profile_id" INTEGER, CONSTRAINT users_profile_id_foreign REFERENCES "profile"("id")"""
@@ -96,7 +96,7 @@ class TestSqliteAlterGrammar(unittest.TestCase):
 
     def test_can_alter_foreign_key_with_on_delete(self):
         with self.schema.table("users") as blueprint:
-            blueprint.unsigned_integer('profile_id').nullable()
+            blueprint.unsigned_integer("profile_id").nullable()
             blueprint.foreign("profile_id").references("id").on("profile").on_delete(
                 "cascade"
             )
@@ -106,7 +106,7 @@ class TestSqliteAlterGrammar(unittest.TestCase):
 
     def test_can_alter_foreign_key_with_on_update(self):
         with self.schema.table("users") as blueprint:
-            blueprint.unsigned_integer('profile_id').nullable()
+            blueprint.unsigned_integer("profile_id").nullable()
             blueprint.foreign("profile_id").references("id").on("profile").on_update(
                 "cascade"
             )
@@ -136,7 +136,7 @@ class TestSqliteAlterGrammar(unittest.TestCase):
             """ADD CONSTRAINT users_fruit_id_foreign FOREIGN KEY ("fruit_id") REFERENCES "fruit"("id")"""
             """)"""
         )
-    
+
     def a_second_foreign_key_constraint(self):
         """
         with self.schema.table('videos') as table:

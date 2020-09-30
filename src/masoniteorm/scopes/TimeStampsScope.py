@@ -18,4 +18,9 @@ class TimeStampsScope(BaseScope):
     def set_timestamp_create(self, builder):
         if not builder._model.__timestamps__:
             return builder
-        builder._creates.update({"updated_at": builder._model.get_new_date().to_datetime_string(), "created_at": builder._model.get_new_date().to_datetime_string()})
+        builder._creates.update(
+            {
+                "updated_at": builder._model.get_new_date().to_datetime_string(),
+                "created_at": builder._model.get_new_date().to_datetime_string(),
+            }
+        )

@@ -78,10 +78,7 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         """
         return (
             "UPDATE `users` SET `users`.`name` = '?' WHERE `users`.`name` = '?'",
-            (
-                "Bob",
-                "Joe",
-            ),
+            ("Bob", "Joe",),
         )
 
     def can_compile_where_in(self):

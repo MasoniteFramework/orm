@@ -494,7 +494,7 @@ class TestSqliteCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             """); CREATE INDEX users_email_index ON "users"("email"); """
             """CREATE INDEX users_name_index ON "users"("name")"""
         )
-    
+
     def column_exists(self):
         """
         self.schema.has_column('users', 'email', query_only=True)
