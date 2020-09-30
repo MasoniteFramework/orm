@@ -20,5 +20,7 @@ class BaseTestSqliteMigration(unittest.TestCase):
     )
 
     def test_can_compile_column(self):
-        with self.schema.create("testfile3") as blueprint:
+        with self.schema.create("testfile4") as blueprint:
             blueprint.string("name")
+
+        self.schema.drop_table_if_exists("testfile4")

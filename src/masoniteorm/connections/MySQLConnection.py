@@ -145,7 +145,7 @@ class MySQLConnection(BaseConnection):
                 else:
                     return cursor.fetchall()
         except Exception as e:
-            raise Exception(str(e))
+            raise e
         finally:
             if self.get_transaction_level() <= 0:
                 self._connection.close()
