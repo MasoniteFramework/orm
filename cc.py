@@ -1,11 +1,10 @@
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.connections import MySQLConnection, PostgresConnection
 from src.masoniteorm.query.grammars import MySQLGrammar, PostgresGrammar
-from config.database import DATABASES
 from src.masoniteorm.models import Model
 
 
-builder = QueryBuilder(connection=PostgresConnection, grammar=PostgresGrammar, connection_details=DATABASES).table("users").on("postgres")
+builder = QueryBuilder(connection=PostgresConnection, grammar=PostgresGrammar).table("users").on("postgres")
 
 
 
@@ -15,7 +14,7 @@ class User(Model):
     __connection__ = "sqlite"
     __table__ = "users"
 
-# user = User.create({"name": "phill", "email": "phill"})
+user = User.create({"name": "phill", "email": "phill"})
 print(User.get().count())
 
 print(user.serialize())

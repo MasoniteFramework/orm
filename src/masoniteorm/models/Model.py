@@ -6,7 +6,7 @@ import inspect
 
 from ..query import QueryBuilder
 from ..collection import Collection
-from ..connections import ConnectionFactory
+from ..connections import ConnectionFactory, ConnectionResolver
 from ..query.grammars import MySQLGrammar
 from ..scopes import BaseScope, SoftDeleteScope, SoftDeletesMixin, TimeStampsMixin
 
@@ -161,9 +161,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         return self.builder
 
     def get_connection_details(self):
-        from config.database import DATABASES
-
-        return DATABASES
+        return ConnectionResolver.get_connection_details()
 
     def boot(self):
         if not self._booted:

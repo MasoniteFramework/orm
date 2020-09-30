@@ -13,7 +13,7 @@ from inflection import camelize
 
 from ..models.MigrationModel import MigrationModel
 from ..schema import Schema
-from ..connections import ConnectionFactory
+from ..connections import ConnectionFactory, ConnectionResolver
 from ..schema.grammars import GrammarFactory
 
 
@@ -27,7 +27,7 @@ class Migration:
     ):
         connection_class = ConnectionFactory().make(connection)
         grammar = GrammarFactory().make(connection)
-        from config.database import DATABASES
+        DATABASES = ConnectionResolver.get_connection_details()
 
         driver = DATABASES.get("default")
         self.schema = Schema(

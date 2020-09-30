@@ -18,6 +18,8 @@ from ..schema import Schema
 
 from .processors import PostProcessorFactory
 
+from ..connections import ConnectionResolver
+
 
 class QueryBuilder:
     """A builder class to manage the building and creation of query expressions."""
@@ -81,6 +83,9 @@ class QueryBuilder:
         self._offset = False
         self._model = model
         self.set_action("select")
+
+        if not self._connection_details:
+            self._connection_details = ConnectionResolver.get_connection_details()
 
         if self._connection_details and (
             not self._connection_driver or self._connection_driver == "default"
