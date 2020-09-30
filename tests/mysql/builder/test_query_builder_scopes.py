@@ -19,7 +19,6 @@ class BaseTestQueryBuilderScopes(unittest.TestCase):
             grammar=MySQLGrammar,
             connection=connection,
             table=table,
-            model=None,
             connection_details=DATABASES,
         )
 

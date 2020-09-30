@@ -1,6 +1,7 @@
 from .SQLiteGrammar import SQLiteGrammar
 from .MySQLGrammar import MySQLGrammar
 from .PostgresGrammar import PostgresGrammar
+from ...connections import ConnectionResolver
 
 
 class GrammarFactory:
@@ -24,9 +25,8 @@ class GrammarFactory:
         Returns:
             self
         """
-        from config.database import DATABASES
 
         if key == "default":
-            key = DATABASES.get(key)
+            key = ConnectionResolver.get_connection_details().get(key)
 
         return GrammarFactory.grammars.get(key)
