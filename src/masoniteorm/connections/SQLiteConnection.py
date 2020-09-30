@@ -4,8 +4,7 @@ from .BaseConnection import BaseConnection
 
 
 class SQLiteConnection(BaseConnection):
-    """SQLite Connection class.
-    """
+    """SQLite Connection class."""
 
     name = "sqlite"
     _connection = None
@@ -34,8 +33,9 @@ class SQLiteConnection(BaseConnection):
         self.transaction_level = 0
 
     def make_connection(self):
-        """This sets the connection on the connection class
-        """
+        """This sets the connection on the connection class"""
+        print("db", self.database)
+
         self._connection = sqlite3.connect(self.database, isolation_level=None)
 
         self._connection.row_factory = sqlite3.Row
@@ -63,8 +63,7 @@ class SQLiteConnection(BaseConnection):
         pass
 
     def commit(self):
-        """Transaction
-        """
+        """Transaction"""
         if self.get_transaction_level() == 1:
             self._connection.commit()
             self._connection.isolation_level = None
@@ -73,15 +72,13 @@ class SQLiteConnection(BaseConnection):
         return self
 
     def begin(self):
-        """Sqlite Transaction
-        """
+        """Sqlite Transaction"""
         self._connection.isolation_level = "DEFERRED"
         self.transaction_level += 1
         return self
 
     def rollback(self):
-        """Transaction
-        """
+        """Transaction"""
         if self.get_transaction_level() == 1:
             self._connection.rollback()
             self._connection.isolation_level = None

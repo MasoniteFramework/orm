@@ -13,6 +13,8 @@ from inflection import camelize
 
 from ..models.MigrationModel import MigrationModel
 from ..schema import Schema
+from ..connections import ConnectionFactory, ConnectionResolver
+from ..schema.grammars import GrammarFactory
 
 
 class Migration:
@@ -23,7 +25,17 @@ class Migration:
         command_class=None,
         migration_directory="databases/migrations",
     ):
-        self.schema = Schema.on(connection)
+        connection_class = ConnectionFactory().make(connection)
+        grammar = GrammarFactory().make(connection)
+        DATABASES = ConnectionResolver.get_connection_details()
+
+        driver = DATABASES.get("default")
+        self.schema = Schema(
+            connection=connection_class,
+            connection_details=DATABASES,
+            grammar=grammar,
+            connection_driver=driver,
+        )
         self._dry = dry
         self.migration_directory = migration_directory.replace("/", ".")
         self.last_migrations_ran = []
@@ -120,17 +132,18 @@ class Migration:
 
             self.locate(migration)().down()
 
+            self.delete_migration(migration)
+
             if self.command_class:
                 self.command_class.line(
                     f"<info>Rolled back:</info> <question>{migration}</question>"
                 )
 
-        self.delete_last_batch()
-
     def rollback_all(self):
         ran_migrations = []
         for migration in self.get_all_migrations():
             self.locate(migration)().down()
+            self.delete_migration(migration)
             ran_migrations.append(migration)
 
         self.delete_migrations(ran_migrations)

@@ -27,13 +27,17 @@ class BaseTestQueryRelationships(unittest.TestCase):
             connection=connection,
             table=table,
             # model=User,
-            connection_details=DATABASES,
+            connection_details={},
         ).on("sqlite")
 
     def test_insert(self):
         builder = self.get_builder()
         result = builder.create(
-            {"name": "Joe", "email": "joe@masoniteproject.com", "password": "secret",}
+            {
+                "name": "Joe",
+                "email": "joe@masoniteproject.com",
+                "password": "secret",
+            }
         )
 
         self.assertIsInstance(result["id"], int)

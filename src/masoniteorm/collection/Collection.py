@@ -4,8 +4,7 @@ from functools import reduce
 
 
 class Collection:
-    """Wraps various data types to make working with them easier.
-    """
+    """Wraps various data types to make working with them easier."""
 
     def __init__(self, items=[]):
         self._items = items

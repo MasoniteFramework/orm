@@ -3,8 +3,7 @@ import re
 
 
 class PostgresGrammar(BaseGrammar):
-    """Postgres grammar class.
-    """
+    """Postgres grammar class."""
 
     aggregate_options = {
         "SUM": "SUM",

@@ -2,8 +2,7 @@ from .BaseGrammar import BaseGrammar
 
 
 class MySQLGrammar(BaseGrammar):
-    """MySQL grammar class.
-    """
+    """MySQL grammar class."""
 
     type_map = {
         "string": "VARCHAR",
@@ -115,9 +114,6 @@ class MySQLGrammar(BaseGrammar):
 
     def alter_format(self):
         return "ALTER TABLE {table} {columns}{constraints}{foreign_keys}"
-
-    def alter_start(self):
-        return "ALTER TABLE {table} "
 
     def create_column_length(self, column_type):
         return "({length})"

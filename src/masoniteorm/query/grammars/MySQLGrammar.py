@@ -2,8 +2,7 @@ from .BaseGrammar import BaseGrammar
 
 
 class MySQLGrammar(BaseGrammar):
-    """MySQL grammar class.
-    """
+    """MySQL grammar class."""
 
     aggregate_options = {
         "SUM": "SUM",

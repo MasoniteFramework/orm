@@ -3,8 +3,7 @@ import re
 
 
 class SQLiteGrammar(BaseGrammar):
-    """SQLite grammar class.
-    """
+    """SQLite grammar class."""
 
     aggregate_options = {
         "SUM": "SUM",

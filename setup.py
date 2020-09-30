@@ -35,7 +35,8 @@ setup(
         'inflection>=0.3.1,<0.4.0',
         'pendulum>=2.1,<2.2',
         'faker>=4.1.0,<5.0',
-        'cleo>=0.8.0,<0.9'
+        'cleo>=0.8.0,<0.9',
+        
     ],
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers

@@ -2,8 +2,7 @@ from .BaseGrammar import BaseGrammar
 
 
 class MSSQLGrammar(BaseGrammar):
-    """Microsoft SQL Server grammar class.
-    """
+    """Microsoft SQL Server grammar class."""
 
     aggregate_options = {
         "SUM": "SUM",

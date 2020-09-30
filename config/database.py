@@ -3,6 +3,7 @@
 import os
 
 from src.masoniteorm.query import QueryBuilder
+from src.masoniteorm.connections import ConnectionResolver
 
 """
 |--------------------------------------------------------------------------
@@ -50,6 +51,8 @@ DATABASES = {
         'prefix': ''
     }
 }
+
+ConnectionResolver.set_connection_details(DATABASES)
 
 # DB = QueryBuilder(connection_details=DATABASES)
 

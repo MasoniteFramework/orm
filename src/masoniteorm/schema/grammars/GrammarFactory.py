@@ -1,11 +1,11 @@
 from .SQLiteGrammar import SQLiteGrammar
 from .MySQLGrammar import MySQLGrammar
 from .PostgresGrammar import PostgresGrammar
+from ...connections import ConnectionResolver
 
 
 class GrammarFactory:
-    """Class for controlling the registration and creation of grammars.
-    """
+    """Class for controlling the registration and creation of grammars."""
 
     grammars = {
         # Base grammars that will be used with various drivers
@@ -25,4 +25,8 @@ class GrammarFactory:
         Returns:
             self
         """
+
+        if key == "default":
+            key = ConnectionResolver.get_connection_details().get(key)
+
         return GrammarFactory.grammars.get(key)

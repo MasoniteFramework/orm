@@ -2,6 +2,9 @@ import inspect
 import unittest
 
 from src.masoniteorm.schema import Schema
+from src.masoniteorm.connections import SQLiteConnection
+from src.masoniteorm.schema.grammars import SQLiteGrammar
+from config.database import DATABASES
 
 
 class BaseTestCreateGrammar:
@@ -339,7 +342,12 @@ class BaseTestCreateGrammar:
 
 class TestSqliteCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
     def setUp(self):
-        self.schema = Schema.dry().on("sqlite")
+        self.schema = Schema(
+            dry=True,
+            connection=SQLiteConnection,
+            grammar=SQLiteGrammar,
+            connection_details=DATABASES,
+        ).on("sqlite")
 
     def can_compile_column(self):
         """
@@ -666,64 +674,64 @@ class TestSqliteCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
     def rename_table(self):
         """
-            to_sql = self.schema.rename("users", "core", query_only=True)
+        to_sql = self.schema.rename("users", "core", query_only=True)
         """
 
         return """ALTER TABLE "users" RENAME TO "core\""""
 
     def truncate_table(self):
         """
-            to_sql = self.schema.truncate("users", query_only=True)
+        to_sql = self.schema.truncate("users", query_only=True)
         """
 
         return """TRUNCATE "users\""""
 
     def drop_index(self):
         """
-         with self.schema.table("users") as blueprint:
-            blueprint.drop_index('name_index')
+        with self.schema.table("users") as blueprint:
+           blueprint.drop_index('name_index')
         """
         return """DROP INDEX "name_index\";"""
 
     def drop_multiple_index(self):
         """
-         with self.schema.table("users") as blueprint:
-            blueprint.drop_index(['name_index', 'email_index'])
+        with self.schema.table("users") as blueprint:
+           blueprint.drop_index(['name_index', 'email_index'])
         """
         return """DROP INDEX "name_index"; """ """DROP INDEX "email_index";"""
 
     def drop_unique(self):
         """
-         with self.schema.table("users") as blueprint:
-            blueprint.drop_unique('name_unique')
+        with self.schema.table("users") as blueprint:
+           blueprint.drop_unique('name_unique')
         """
         return """ALTER TABLE "users" DROP CONSTRAINT name_unique"""
 
     def drop_multiple_unique(self):
         """
-         with self.schema.table("users") as blueprint:
-            blueprint.drop_unique(['name_unique', 'email_unique'])
+        with self.schema.table("users") as blueprint:
+           blueprint.drop_unique(['name_unique', 'email_unique'])
         """
         return """ALTER TABLE "users" DROP CONSTRAINT name_unique, DROP CONSTRAINT email_unique"""
 
     def drop_primary(self):
         """
-         with self.schema.table("users") as blueprint:
-            blueprint.drop_primary()
+        with self.schema.table("users") as blueprint:
+           blueprint.drop_primary()
         """
         return """ALTER TABLE "users" DROP CONSTRAINT users_primary"""
 
     def drop_foreign(self):
         """
-         with self.schema.table("users") as blueprint:
-            blueprint.drop_foreign('users_article_id_foreign')
+        with self.schema.table("users") as blueprint:
+           blueprint.drop_foreign('users_article_id_foreign')
         """
         return """ALTER TABLE "users" """ """DROP CONSTRAINT users_article_id_foreign"""
 
     def drop_multiple_foreign(self):
         """
-         with self.schema.table("users") as blueprint:
-            blueprint.drop_foreign(('article_id', 'post_id'))
+        with self.schema.table("users") as blueprint:
+           blueprint.drop_foreign(('article_id', 'post_id'))
         """
         return (
             """ALTER TABLE "users" """

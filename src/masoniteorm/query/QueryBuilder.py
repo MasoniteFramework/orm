@@ -18,10 +18,11 @@ from ..schema import Schema
 
 from .processors import PostProcessorFactory
 
+from ..connections import ConnectionResolver
+
 
 class QueryBuilder:
-    """A builder class to manage the building and creation of query expressions.
-    """
+    """A builder class to manage the building and creation of query expressions."""
 
     def __init__(
         self,
@@ -83,13 +84,17 @@ class QueryBuilder:
         self._model = model
         self.set_action("select")
 
-        if self._connection_details and not self._connection_driver:
+        if not self._connection_details:
+            self._connection_details = ConnectionResolver.get_connection_details()
+
+        if self._connection_details and (
+            not self._connection_driver or self._connection_driver == "default"
+        ):
             # setup the connection information
             self._connection_driver = self._connection_details.get("default")
 
     def reset(self):
-        """Resets the query builder instance so you can make multiple calls with the same builder instance
-        """
+        """Resets the query builder instance so you can make multiple calls with the same builder instance"""
 
         self.set_action("select")
         self._wheres = ()
@@ -167,7 +172,7 @@ class QueryBuilder:
         return self.begin(*args, **kwargs)
 
     def get_schema_builder(self):
-        return Schema.on(self.connection.name)
+        return Schema(connection=self.connection, grammar=self.grammar)
 
     def commit(self):
         """Sets a table on the query builder
@@ -373,7 +378,7 @@ class QueryBuilder:
         if query:
             return self
 
-        return self.connection.query(self.to_sql(), self._bindings)
+        return self.new_connection().query(self.to_sql(), self._bindings)
 
     def where(self, column, *args):
         """Specifies a where expression.
@@ -949,7 +954,7 @@ class QueryBuilder:
     def get_primary_key(self):
         return self._model.get_primary_key()
 
-    def prepare_result(self, result, wrap=None):
+    def prepare_result(self, result, wrap=None, collection=False):
         if self._model:
             # eager load here
             hydrated_model = self._model.hydrate(result)
@@ -961,9 +966,15 @@ class QueryBuilder:
                         related, related_result, hydrated_model, relation_key=eager
                     )
 
-            return hydrated_model or None
+            if collection:
+                return hydrated_model or Collection([])
+            else:
+                return hydrated_model or None
 
-        return result or None
+        if collection:
+            return result or Collection([])
+        else:
+            return result or None
 
     def all(self, query=False):
         """Returns all records from the table.
@@ -976,7 +987,7 @@ class QueryBuilder:
 
         result = self.new_connection().query(self.to_qmark(), self._bindings) or []
 
-        return self.prepare_result(result)
+        return self.prepare_result(result, collection=True)
 
     def get(self):
         """Runs the select query built from the query builder.
@@ -986,7 +997,7 @@ class QueryBuilder:
         """
         result = self.new_connection().query(self.to_qmark(), self._bindings)
 
-        return self.prepare_result(result)
+        return self.prepare_result(result, collection=True)
 
     def new_connection(self):
         if self._connection:

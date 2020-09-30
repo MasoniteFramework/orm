@@ -2,12 +2,12 @@ import inspect
 import unittest
 
 from src.masoniteorm.schema import Schema
+from masoniteorm.connections import MySQLConnection
+from masoniteorm.schema.grammars.MySQLGrammar import MySQLGrammar
+from config.database import DATABASES
 
 
 class BaseTestCreateGrammar:
-
-    schema = Schema.dry().on("mysql")
-
     def setUp(self):
         self.maxDiff = None
 
@@ -172,6 +172,15 @@ class BaseTestCreateGrammar:
     def test_can_compile_timestamps_columns_with_default(self):
         with self.schema.create("users") as blueprint:
             blueprint.timestamps()
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_can_compile_unsigned_integer(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.integer("age").unsigned()
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -369,7 +378,12 @@ class BaseTestCreateGrammar:
 
 class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
     def setUp(self):
-        self.schema = Schema.on("mysql")
+        self.schema = Schema(
+            connection=MySQLConnection,
+            grammar=MySQLGrammar,
+            dry=True,
+            connection_driver="mysql",
+        )
         self.maxDiff = None
 
     def can_compile_column(self):
@@ -718,29 +732,29 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
     def rename_table(self):
         """
-            to_sql = self.schema.rename("users", "core", query_only=True)
+        to_sql = self.schema.rename("users", "core", query_only=True)
         """
 
         return "RENAME TABLE `users` TO `core`"
 
     def truncate_table(self):
         """
-            to_sql = self.schema.truncate("users", query_only=True)
+        to_sql = self.schema.truncate("users", query_only=True)
         """
 
         return "TRUNCATE TABLE `users`"
 
     def drop_index(self):
         """
-         with self.schema.table("users") as blueprint:
-            blueprint.drop_index('name_index')
+        with self.schema.table("users") as blueprint:
+           blueprint.drop_index('name_index')
         """
         return "ALTER TABLE `users` DROP INDEX `name_index`"
 
     def drop_multiple_index(self):
         """
-         with self.schema.table("users") as blueprint:
-            blueprint.drop_index(['name_index', 'email_index'])
+        with self.schema.table("users") as blueprint:
+           blueprint.drop_index(['name_index', 'email_index'])
         """
         return (
             "ALTER TABLE `users` " "DROP INDEX `name_index` " "DROP INDEX `email_index`"
@@ -748,15 +762,15 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
     def drop_unique(self):
         """
-         with self.schema.table("users") as blueprint:
-            blueprint.drop_index('name_unique')
+        with self.schema.table("users") as blueprint:
+           blueprint.drop_index('name_unique')
         """
         return "ALTER TABLE `users` DROP INDEX `name_unique`"
 
     def drop_multiple_unique(self):
         """
-         with self.schema.table("users") as blueprint:
-            blueprint.drop_index(['name_unique', 'email_unique'])
+        with self.schema.table("users") as blueprint:
+           blueprint.drop_index(['name_unique', 'email_unique'])
         """
         return (
             "ALTER TABLE `users` "
@@ -766,22 +780,22 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
     def drop_primary(self):
         """
-         with self.schema.table("users") as blueprint:
-            blueprint.drop_primary()
+        with self.schema.table("users") as blueprint:
+           blueprint.drop_primary()
         """
         return "ALTER TABLE `users` " "DROP PRIMARY KEY"
 
     def drop_foreign(self):
         """
-         with self.schema.table("users") as blueprint:
-            blueprint.drop_foreign('users_article_id_foreign')
+        with self.schema.table("users") as blueprint:
+           blueprint.drop_foreign('users_article_id_foreign')
         """
         return "ALTER TABLE `users` " "DROP FOREIGN KEY `users_article_id_foreign`"
 
     def drop_multiple_foreign(self):
         """
-         with self.schema.table("users") as blueprint:
-            blueprint.drop_foreign(('article_id', 'post_id'))
+        with self.schema.table("users") as blueprint:
+           blueprint.drop_foreign(('article_id', 'post_id'))
         """
         return (
             "ALTER TABLE `users` "
@@ -795,3 +809,10 @@ class TestMySQLCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.rename("name", "first_name")
         """
         return "ALTER TABLE `users` CHANGE COLUMN `name` `first_name`"
+
+    def can_compile_unsigned_integer(self):
+        """
+        with self.schema.table("users") as blueprint:
+            blueprint.rename("name", "first_name")
+        """
+        return "CREATE TABLE `users` (`age` INT UNSIGNED NOT NULL)"

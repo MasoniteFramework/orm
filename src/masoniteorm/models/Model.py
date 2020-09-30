@@ -6,7 +6,7 @@ import inspect
 
 from ..query import QueryBuilder
 from ..collection import Collection
-from ..connections import ConnectionFactory
+from ..connections import ConnectionFactory, ConnectionResolver
 from ..query.grammars import MySQLGrammar
 from ..scopes import BaseScope, SoftDeleteScope, SoftDeletesMixin, TimeStampsMixin
 
@@ -40,16 +40,14 @@ class ModelMeta(type):
 
 
 class BoolCast:
-    """Casts a value to a boolean
-    """
+    """Casts a value to a boolean"""
 
     def get(self, value):
         return bool(value)
 
 
 class JsonCast:
-    """Casts a value to JSON
-    """
+    """Casts a value to JSON"""
 
     def get(self, value):
         return json.dumps(value)
@@ -163,9 +161,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         return self.builder
 
     def get_connection_details(self):
-        from config.database import DATABASES
-
-        return DATABASES
+        return ConnectionResolver.get_connection_details()
 
     def boot(self):
         if not self._booted:
@@ -367,8 +363,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         return new_dic
 
     def touch(self, date=None, query=True):
-        """Updates the current timestamps on the model
-        """
+        """Updates the current timestamps on the model"""
 
         if not self.__timestamps__:
             return False
