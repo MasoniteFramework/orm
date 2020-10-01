@@ -959,6 +959,18 @@ class QueryBuilder:
 
             hydrated_model.add_relation({relation_key: related_result or {}})
         return self
+    
+    def find(self, record_id):
+        """Finds a row by the primary key ID. Requires a model
+
+        Arguments:
+            record_id {int} -- The ID of the primary key to fetch.
+
+        Returns:
+            Model
+        """
+
+        return self.where(self._model.get_primary_key(), record_id).first()
 
     def get_primary_key(self):
         return self._model.get_primary_key()
