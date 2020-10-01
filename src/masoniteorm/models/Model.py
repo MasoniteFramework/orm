@@ -348,7 +348,10 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         """
         new_dic = {}
         for key, value in self._relationships.items():
-            new_dic.update({key: value.serialize()})
+            if value == {}:
+                new_dic.update({key: {}})
+            else:
+                new_dic.update({key: value.serialize()})
 
         return new_dic
 

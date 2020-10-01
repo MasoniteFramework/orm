@@ -954,9 +954,10 @@ class QueryBuilder:
                 if isinstance(related_result, Collection):
                     related.register_related(relation_key, model, related_result)
                 else:
-                    model.add_relation({relation_key: related_result})
+                    model.add_relation({relation_key: related_result or {}})
         else:
-            hydrated_model.add_relation({relation_key: related_result})
+
+            hydrated_model.add_relation({relation_key: related_result or {}})
         return self
 
     def get_primary_key(self):
