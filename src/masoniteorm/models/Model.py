@@ -183,16 +183,6 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         return cls.__table__ or tableize(cls.__name__)
 
     @classmethod
-    def get_database_name(cls):
-        """Gets the database name
-
-        Returns:
-            str
-        """
-        cls.boot()
-        return cls.__resolved_connection__
-
-    @classmethod
     def find(cls, record_id):
         """Finds a row by the primary key ID.
 
