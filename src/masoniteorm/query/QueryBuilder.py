@@ -925,6 +925,7 @@ class QueryBuilder:
 
         if query:
             return self.limit(1)
+
         result = self.new_connection().query(
             self.limit(1).to_qmark(), self._bindings, results=1
         )
