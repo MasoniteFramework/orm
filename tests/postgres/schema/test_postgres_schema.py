@@ -2,8 +2,8 @@ import inspect
 import unittest
 
 from src.masoniteorm.schema import Schema
-from masoniteorm.connections import PostgresConnection
-from masoniteorm.schema.grammars.PostgresGrammar import PostgresGrammar
+from src.masoniteorm.connections import PostgresConnection
+from src.masoniteorm.schema.grammars.PostgresGrammar import PostgresGrammar
 from config.database import DATABASES
 
 
@@ -406,7 +406,7 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return (
             """CREATE TABLE "users" ("""
-            """\"id" INTEGER PRIMARY KEY NOT NULL, """
+            """\"id" SERIAL UNIQUE NOT NULL, """
             """\"name" VARCHAR(255) NOT NULL"""
             """)"""
         )
@@ -420,7 +420,7 @@ class TestPostgresCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
 
         return (
             """CREATE TABLE "users" ("""
-            """\"id" INTEGER PRIMARY KEY NOT NULL, """
+            """\"id" SERIAL UNIQUE NOT NULL, """
             """\"name" VARCHAR(255) NOT NULL, """
             """CONSTRAINT name_unique UNIQUE (name)"""
             """)"""

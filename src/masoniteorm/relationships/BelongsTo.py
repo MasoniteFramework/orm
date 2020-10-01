@@ -40,7 +40,7 @@ class BelongsTo(BaseRelationship):
         else:
             return builder.where(
                 f"{builder.get_table_name()}.{self.foreign_key}",
-                relation.get_primary_key_value(),
+                getattr(relation, self.local_key),
             ).first()
 
     def register_related(self, key, model, collection):

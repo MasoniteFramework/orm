@@ -2,8 +2,8 @@ import inspect
 import unittest
 
 from src.masoniteorm.schema import Schema
-from masoniteorm.connections import MySQLConnection
-from masoniteorm.schema.grammars.MySQLGrammar import MySQLGrammar
+from src.masoniteorm.connections import MySQLConnection
+from src.masoniteorm.schema.grammars.MySQLGrammar import MySQLGrammar
 from config.database import DATABASES
 
 

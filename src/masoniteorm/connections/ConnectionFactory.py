@@ -44,13 +44,13 @@ class ConnectionFactory:
         """
 
         connections = ConnectionResolver.get_connection_details()
+
         if key == "default":
             connection_details = connections.get(connections.get("default"))
             connection = self._connections.get(connection_details.get("driver"))
-            connection.set_connection_settings(connection_details)
         else:
-            connection = self._connections.get(key)
-            connection.set_connection_settings(connections.get(key))
+            connection_details = connections.get(key)
+            connection = self._connections.get(connection_details.get("driver"))
 
         if connection:
             return connection

@@ -1,5 +1,5 @@
 import sqlite3
-from ..query.grammars import GrammarFactory
+from ..query.grammars import SQLiteGrammar
 from .BaseConnection import BaseConnection
 
 
@@ -41,6 +41,10 @@ class SQLiteConnection(BaseConnection):
         self._connection.row_factory = sqlite3.Row
 
         return self
+
+    @classmethod
+    def get_default_query_grammar(cls):
+        return SQLiteGrammar
 
     @classmethod
     def get_database_name(self):

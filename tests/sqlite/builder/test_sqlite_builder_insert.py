@@ -27,7 +27,7 @@ class BaseTestQueryRelationships(unittest.TestCase):
             connection=connection,
             table=table,
             # model=User,
-            connection_details={},
+            connection_details=DATABASES,
         ).on("sqlite")
 
     def test_insert(self):

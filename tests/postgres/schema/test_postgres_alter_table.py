@@ -1,7 +1,7 @@
 from src.masoniteorm.schema.grammars import GrammarFactory
 from src.masoniteorm.schema import Schema, Blueprint
-from masoniteorm.connections import PostgresConnection
-from masoniteorm.schema.grammars.PostgresGrammar import PostgresGrammar
+from src.masoniteorm.connections import PostgresConnection
+from src.masoniteorm.schema.grammars.PostgresGrammar import PostgresGrammar
 from config.database import DATABASES
 import unittest
 

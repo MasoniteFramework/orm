@@ -2,7 +2,7 @@ from src.masoniteorm.schema.grammars import MySQLGrammar
 from src.masoniteorm.schema.Blueprint import Blueprint
 from src.masoniteorm.query.grammars import GrammarFactory
 from src.masoniteorm.schema import Schema
-from masoniteorm.connections import MySQLConnection
+from src.masoniteorm.connections import MySQLConnection
 import unittest
 
 

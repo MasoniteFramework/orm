@@ -15,11 +15,15 @@ class MockConnection:
     def make_connection(self):
         return self
 
+    @classmethod
+    def get_default_query_grammar(cls):
+        return
+
 
 class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("default")
-        return QueryBuilder(self.grammar, connection, table=table, model=Model)
+        return QueryBuilder(self.grammar, connection, table=table, model=Model())
 
     def test_sum(self):
         builder = self.get_builder()

@@ -96,6 +96,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         "where_in",
         "where",
         "with_",
+        "update",
     ]
 
     __cast_map__ = {}
@@ -148,7 +149,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     def get_builder(self):
         self.__resolved_connection__ = ConnectionFactory().make(self.__connection__)
         self.builder = QueryBuilder(
-            grammar=self.__resolved_connection__.get_grammar(),
+            grammar=self.__resolved_connection__.get_default_query_grammar(),
             connection=self.__resolved_connection__,
             table=self.get_table_name(),
             connection_details=self.get_connection_details(),
@@ -183,16 +184,6 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         return cls.__table__ or tableize(cls.__name__)
 
     @classmethod
-    def get_database_name(cls):
-        """Gets the database name
-
-        Returns:
-            str
-        """
-        cls.boot()
-        return cls.__resolved_connection__
-
-    @classmethod
     def find(cls, record_id):
         """Finds a row by the primary key ID.
 
@@ -203,7 +194,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
             Model
         """
 
-        return cls().where(self.get_primary_key(), record_id).first()
+        return cls().where(cls.get_primary_key(), record_id).first()
 
     def first_or_new(self):
         pass
@@ -358,7 +349,10 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         """
         new_dic = {}
         for key, value in self._relationships.items():
-            new_dic.update({key: value.serialize()})
+            if value == {}:
+                new_dic.update({key: {}})
+            else:
+                new_dic.update({key: value.serialize()})
 
         return new_dic
 

@@ -83,3 +83,8 @@ class BaseTestQueryRelationships(unittest.TestCase):
         builder = self.get_builder()
         result = builder.with_("profile").where("id", 1).first()
         self.assertEqual(result.profile.title, "title")
+
+    def test_with_where_no_relation(self):
+        builder = self.get_builder()
+        result = builder.with_("profile").where("id", 5).first()
+        print(result.serialize())

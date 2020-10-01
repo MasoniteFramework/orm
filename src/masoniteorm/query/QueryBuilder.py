@@ -18,7 +18,8 @@ from ..schema import Schema
 
 from .processors import PostProcessorFactory
 
-from ..connections import ConnectionResolver
+from ..connections import ConnectionResolver, ConnectionFactory
+from ..query.grammars import GrammarFactory
 
 
 class QueryBuilder:
@@ -30,7 +31,7 @@ class QueryBuilder:
         connection=None,
         table=None,
         connection_details={},
-        connection_driver=None,
+        connection_driver="default",
         model=None,
         scopes={},
         dry=False,
@@ -46,6 +47,7 @@ class QueryBuilder:
         """
         self.grammar = grammar
         self._table = table
+        self.dry = dry
         self.connection = connection
         self._connection = None
         self._connection_details = connection_details
@@ -86,6 +88,12 @@ class QueryBuilder:
 
         if not self._connection_details:
             self._connection_details = ConnectionResolver.get_connection_details()
+
+        if not connection:
+            self.connection = ConnectionFactory().make(self._connection_driver)
+
+        if not grammar:
+            self.grammar = self.connection.get_default_query_grammar()
 
         if self._connection_details and (
             not self._connection_driver or self._connection_driver == "default"
@@ -300,6 +308,8 @@ class QueryBuilder:
 
     def on(self, driver):
         self._connection_driver = driver
+        self.connection = ConnectionFactory().make(driver)
+        self.grammar = self.connection.get_default_query_grammar()
         return self
 
     def select(self, *args):
@@ -392,7 +402,6 @@ class QueryBuilder:
         Returns:
             self
         """
-
         operator, value = self._extract_operator_value(*args)
 
         if value is None:
@@ -778,9 +787,14 @@ class QueryBuilder:
         Returns:
             self
         """
+        if self._model and self._model.is_loaded():
+            self.where(
+                self._model.get_primary_key(), self._model.get_primary_key_value()
+            )
+
         self._updates += (UpdateQueryExpression(updates),)
         self.set_action("update")
-        if dry:
+        if dry or self.dry:
             return self
 
         return self.new_connection().query(self.to_sql(), self._bindings)
@@ -914,6 +928,7 @@ class QueryBuilder:
         Returns:
             dictionary -- Returns a dictionary of results.
         """
+
         if query:
             return self.limit(1)
 
@@ -946,15 +961,28 @@ class QueryBuilder:
                 if isinstance(related_result, Collection):
                     related.register_related(relation_key, model, related_result)
                 else:
-                    model.add_relation({relation_key: related_result})
+                    model.add_relation({relation_key: related_result or {}})
         else:
-            hydrated_model.add_relation({relation_key: related_result})
+
+            hydrated_model.add_relation({relation_key: related_result or {}})
         return self
+
+    def find(self, record_id):
+        """Finds a row by the primary key ID. Requires a model
+
+        Arguments:
+            record_id {int} -- The ID of the primary key to fetch.
+
+        Returns:
+            Model
+        """
+
+        return self.where(self._model.get_primary_key(), record_id).first()
 
     def get_primary_key(self):
         return self._model.get_primary_key()
 
-    def prepare_result(self, result, wrap=None, collection=False):
+    def prepare_result(self, result, collection=False):
         if self._model:
             # eager load here
             hydrated_model = self._model.hydrate(result)
@@ -967,9 +995,9 @@ class QueryBuilder:
                     )
 
             if collection:
-                return hydrated_model or Collection([])
+                return hydrated_model if result else Collection([])
             else:
-                return hydrated_model or None
+                return hydrated_model if result else None
 
         if collection:
             return result or Collection([])
