@@ -48,20 +48,7 @@ class SQLiteConnection(BaseConnection):
 
     @classmethod
     def get_database_name(self):
-        return self().get_connection_details().get("db")
-
-    def get_connection_details(self):
-        """This is responsible for standardizing the normal connection
-        details and passing it into the connection.
-
-        This will eventually be unpacked so make sure the keys are the same as the keywords
-        that should pass to your connection method
-        """
-        connection_details = {}
-        connection_details.setdefault("db", self.connection_details.get("database"))
-        connection_details.update(self.connection_details.get("options", {}))
-
-        return connection_details
+        return self().database
 
     def reconnect(self):
         pass
