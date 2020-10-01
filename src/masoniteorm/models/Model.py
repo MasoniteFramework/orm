@@ -96,6 +96,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         "where_in",
         "where",
         "with_",
+        "update",
     ]
 
     __cast_map__ = {}
