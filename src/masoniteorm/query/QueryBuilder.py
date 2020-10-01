@@ -353,7 +353,7 @@ class QueryBuilder:
             return self
 
         connection = self.new_connection()
-        query_result = connection.query(self.to_sql(), self._bindings, results=1)
+        query_result = connection.query(self.to_qmark(), self._bindings, results=1)
 
         if self._model:
             id_key = self._model.get_primary_key()
@@ -388,7 +388,7 @@ class QueryBuilder:
         if query:
             return self
 
-        return self.new_connection().query(self.to_sql(), self._bindings)
+        return self.new_connection().query(self.to_qmark(), self._bindings)
 
     def where(self, column, *args):
         """Specifies a where expression.
@@ -797,7 +797,7 @@ class QueryBuilder:
         if dry or self.dry:
             return self
 
-        return self.new_connection().query(self.to_sql(), self._bindings)
+        return self.new_connection().query(self.to_qmark(), self._bindings)
 
     def set_updates(self, updates: dict, dry=False):
         """Specifies columns and values to be updated.
@@ -1161,7 +1161,7 @@ class QueryBuilder:
             scope(self)
 
         grammar = self.get_grammar()
-        sql = grammar.compile(self._action).to_sql()
+        sql = grammar.compile(self._action, qmark=False).to_sql()
         self.reset()
         return sql
 
@@ -1177,15 +1177,14 @@ class QueryBuilder:
         for name, scope in self._global_scopes.get(self._action, {}).items():
             scope(self)
 
-        qmark = getattr(grammar, "_compile_{action}".format(action=self._action))(
-            qmark=True
-        ).to_qmark()
+        grammar = self.get_grammar()
+        sql = grammar.compile(self._action, qmark=True).to_sql()
 
         self.reset()
 
         self._bindings = grammar._bindings
 
-        return qmark
+        return sql
 
     def new(self):
         """Creates a new QueryBuilder class.

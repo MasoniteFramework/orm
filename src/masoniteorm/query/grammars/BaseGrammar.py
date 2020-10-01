@@ -59,9 +59,9 @@ class BaseGrammar:
         self._action = "select"
         self.queries = []
 
-    def compile(self, action):
+    def compile(self, action, qmark=False):
         self._action = action
-        return getattr(self, "_compile_" + action)()
+        return getattr(self, "_compile_" + action)(qmark=qmark)
 
     def _compile_select(self, qmark=False):
         """Compile a select query statement.
@@ -115,7 +115,7 @@ class BaseGrammar:
             self
         """
         self._sql = self.insert_format().format(
-            key_equals=self._compile_key_value_equals(),
+            key_equals=self._compile_key_value_equals(qmark=qmark),
             table=self.process_table(self.table),
             columns=self.process_columns(separator=", ", action="insert"),
             values=self.process_values(separator=", "),

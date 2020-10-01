@@ -1,13 +1,14 @@
 from src.masoniteorm.query.grammars import MySQLGrammar
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import GrammarFactory
+from src.masoniteorm.connections import PostgresConnection
 import unittest
 import inspect
 
 
 class BaseTestCaseUpdateGrammar:
     def setUp(self):
-        self.builder = QueryBuilder(GrammarFactory.make("postgres"), table="users")
+        self.builder = QueryBuilder(GrammarFactory.make("postgres"), connection=PostgresConnection, table="users")
 
     def test_can_compile_update(self):
         to_sql = (
