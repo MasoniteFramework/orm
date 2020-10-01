@@ -203,7 +203,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
             Model
         """
 
-        return cls().where(self.get_primary_key(), record_id).first()
+        return cls().where(cls.get_primary_key(), record_id).first()
 
     def first_or_new(self):
         pass
