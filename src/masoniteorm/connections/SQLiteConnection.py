@@ -36,7 +36,9 @@ class SQLiteConnection(BaseConnection):
         """This sets the connection on the connection class"""
 
         self._connection = sqlite3.connect(self.database, isolation_level=None)
-        self._connection.query("PRAGMA foreign_keys = ON")
+
+        self._cursor = self._connection.cursor()
+        self._cursor.execute("PRAGMA foreign_keys = ON", ())
 
         self._connection.row_factory = sqlite3.Row
 
