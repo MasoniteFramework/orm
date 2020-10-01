@@ -27,7 +27,7 @@ class BaseTestQueryBuilder:
             grammar=self.grammar,
             connection=connection,
             table=table,
-            model=User,
+            model=User(),
             connection_details=DATABASES,
         )
 

@@ -47,6 +47,7 @@ class QueryBuilder:
         """
         self.grammar = grammar
         self._table = table
+        self.dry = dry
         self.connection = connection
         self._connection = None
         self._connection_details = connection_details
@@ -786,9 +787,14 @@ class QueryBuilder:
         Returns:
             self
         """
+        if self._model and self._model.is_loaded():
+            self.where(
+                self._model.get_primary_key(), self._model.get_primary_key_value()
+            )
+
         self._updates += (UpdateQueryExpression(updates),)
         self.set_action("update")
-        if dry:
+        if dry or self.dry:
             return self
 
         return self.new_connection().query(self.to_sql(), self._bindings)
@@ -960,7 +966,7 @@ class QueryBuilder:
 
             hydrated_model.add_relation({relation_key: related_result or {}})
         return self
-    
+
     def find(self, record_id):
         """Finds a row by the primary key ID. Requires a model
 
