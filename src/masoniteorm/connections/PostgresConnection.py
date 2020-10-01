@@ -47,7 +47,11 @@ class PostgresConnection(BaseConnection):
             )
 
         self._connection = psycopg2.connect(
-            database=self.database, user=self.user, password=self.password, host=self.host, port=self.port
+            database=self.database,
+            user=self.user,
+            password=self.password,
+            host=self.host,
+            port=self.port,
         )
 
         self._connection.autocommit = True
@@ -75,7 +79,7 @@ class PostgresConnection(BaseConnection):
     @classmethod
     def get_database_name(self):
         return self().get_connection_details().get("db")
-    
+
     @classmethod
     def get_default_query_grammar(cls):
         return PostgresGrammar

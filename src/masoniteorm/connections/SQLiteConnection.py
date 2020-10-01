@@ -41,7 +41,7 @@ class SQLiteConnection(BaseConnection):
         self._connection.row_factory = sqlite3.Row
 
         return self
-    
+
     @classmethod
     def get_default_query_grammar(cls):
         return SQLiteGrammar
