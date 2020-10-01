@@ -58,9 +58,8 @@ class PostgresConnection(BaseConnection):
 
         return self
 
-    @classmethod
     def get_database_name(self):
-        return self().database
+        return self.database
 
     @classmethod
     def get_default_query_grammar(cls):

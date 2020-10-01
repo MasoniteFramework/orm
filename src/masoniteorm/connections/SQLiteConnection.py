@@ -46,9 +46,8 @@ class SQLiteConnection(BaseConnection):
     def get_default_query_grammar(cls):
         return SQLiteGrammar
 
-    @classmethod
     def get_database_name(self):
-        return self().database
+        return self.database
 
     def reconnect(self):
         pass
