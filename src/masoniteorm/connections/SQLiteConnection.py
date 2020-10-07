@@ -110,17 +110,22 @@ class SQLiteConnection(BaseConnection):
         Returns:
             dict|None -- Returns a dictionary of results or None
         """
-        query = query.replace("'?'", "?")
-        print("running query: ", self, query, bindings)
+
         try:
             self._cursor = self._connection.cursor()
-            self._cursor.execute(query, bindings)
-            if results == 1:
-                result = [dict(row) for row in self._cursor.fetchall()]
-                if result:
-                    return result[0]
+            if isinstance(query, list):
+                for query in query:
+                    self._cursor.execute(query, ())
             else:
-                return [dict(row) for row in self._cursor.fetchall()]
+                query = query.replace("'?'", "?")
+                print("running query: ", self, query, bindings)
+                self._cursor.execute(query, bindings)
+                if results == 1:
+                    result = [dict(row) for row in self._cursor.fetchall()]
+                    if result:
+                        return result[0]
+                else:
+                    return [dict(row) for row in self._cursor.fetchall()]
         except Exception as e:
             raise e
         finally:

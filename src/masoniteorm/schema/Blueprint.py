@@ -669,6 +669,7 @@ class Blueprint:
                     constraints=self._constraints,
                     foreign_keys=self._foreign_keys,
                     table=self.table,
+                    connection=self.connection
                 )
                 ._compile_create()
                 .to_sql()
@@ -680,6 +681,7 @@ class Blueprint:
                     constraints=self._constraints,
                     foreign_keys=self._foreign_keys,
                     table=self.table,
+                    connection=self.connection
                 )
                 ._compile_alter()
                 .to_sql()
@@ -711,6 +713,10 @@ class Blueprint:
         """
         self._last_column.change()
         return self
+    
+    def soft_deletes(self, name="deleted_at"):
+        return self.datetime(name, nullable=True).nullable()
+
 
     def unique(self, column=None):
         """Sets the last column to be unique if no column name is passed.

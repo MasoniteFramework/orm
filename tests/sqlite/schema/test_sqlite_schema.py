@@ -21,6 +21,7 @@ class BaseTestCreateGrammar:
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
+
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_can_compile_column_constraint(self):
@@ -344,6 +345,15 @@ class BaseTestCreateGrammar:
     def test_drop_multiple_foreign(self):
         with self.schema.table("users") as blueprint:
             blueprint.drop_foreign(["article_id", "post_id"])
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_soft_deletes(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.soft_deletes()
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -772,3 +782,10 @@ class TestSqliteCreateGrammar(BaseTestCreateGrammar, unittest.TestCase):
             blueprint.rename("name", "first_name")
         """
         return """ALTER TABLE "users" RENAME COLUMN "name" TO "first_name\""""
+
+    def soft_deletes(self):
+        """
+        with self.schema.table("users") as blueprint:
+            blueprint.soft_deletes()
+        """
+        return """ALTER TABLE "users" ADD "deleted_at" DATETIME NULL"""
