@@ -36,7 +36,7 @@ setup(
         'pendulum>=2.1,<2.2',
         'faker>=4.1.0,<5.0',
         'cleo>=0.8.0,<0.9',
-        
+
     ],
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -84,6 +84,7 @@ setup(
         'masoniteorm.factories',
         'masoniteorm.migrations',
         'masoniteorm.models',
+        'masoniteorm.providers',
         'masoniteorm.query',
         'masoniteorm.query.grammars',
         'masoniteorm.query.processors',
