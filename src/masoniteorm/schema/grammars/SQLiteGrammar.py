@@ -159,10 +159,10 @@ class SQLiteGrammar(BaseGrammar):
         return return_columns
 
     def get_column_names_from_action(self, action=()):
-        names = []
+        names = ()
         for column in self._creates:
             if column._action in action:
-                names.append(column.column_name)
+                names += (column.column_name,)
 
         return names
 
@@ -178,6 +178,8 @@ class SQLiteGrammar(BaseGrammar):
         columns = ()
         columns += self.get_table_columns()
         columns = self.remove_columns_by_name(self.get_column_names_from_action(["drop"]), columns)
+        columns = self.remove_columns_by_name(self.get_column_names_from_action(["modify"]), columns)
+        columns += self.get_columns_from_action(["modify"])
 
         return columns
 

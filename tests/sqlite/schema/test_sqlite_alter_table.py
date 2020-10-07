@@ -126,10 +126,10 @@ class TestSqliteAlterGrammar(unittest.TestCase):
             blueprint.string("name", 50).nullable().change()
 
         sql = [
-            'CREATE TEMPORARY TABLE __temp__users as select age, name, email from "users"',
+            'CREATE TEMPORARY TABLE __temp__users as select age, email, name from "users"',
             'DROP TABLE "users"',
-            'CREATE TABLE "users" ("age" INTEGER NOT NULL, "name" VARCHAR(50) NULL, "email" VARCHAR NOT NULL)',
-            'INSERT INTO "users" (age, name, email) select age, name, email from __temp__users',
+            'CREATE TABLE "users" ("age" INTEGER NOT NULL, "email" VARCHAR NOT NULL, "name" VARCHAR(50) NULL)',
+            'INSERT INTO "users" (age, email, name) select age, email, name from __temp__users',
         ]
 
         print(blueprint.to_sql())
