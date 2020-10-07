@@ -46,8 +46,13 @@ class SQLitePlatform:
     def compile_alter_sql(self, diff):
         sql = []
 
+        if diff.removed_indexes:
+            for name, index in diff.removed_indexes.items():
+                sql.append("DROP INDEX {name}".format(name=index.name))
+
         if diff.new_name:
             sql.append("ALTER TABLE {old_name} RENAME TO {new_name}".format(old_name=diff.name, new_name=diff.new_name))
+        
 
         return sql
 

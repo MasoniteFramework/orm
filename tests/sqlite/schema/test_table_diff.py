@@ -12,13 +12,38 @@ class TestTableDiff(unittest.TestCase):
     def test_rename_table(self):
         table = Table("users")
         table.add_column("name", "string")
-        table.add_constraint("name", "unique")
 
         diff = TableDiff("users")
         diff.from_table = table
         diff.new_name = "clients"
-        diff.remove_constraint("name")
 
         sql = ["ALTER TABLE users RENAME TO clients"]
+
+        self.assertEqual(sql, self.platform.compile_alter_sql(diff))
+
+    def test_drop_index(self):
+        table = Table("users")
+        table.add_index("name", "unique")
+        
+
+        diff = TableDiff("users")
+        diff.from_table = table
+        diff.remove_index("name")
+
+        sql = ["DROP INDEX name"]
+
+        self.assertEqual(sql, self.platform.compile_alter_sql(diff))
+
+    def test_drop_index_and_rename_table(self):
+        table = Table("users")
+        table.add_index("name", "unique")
+        
+
+        diff = TableDiff("users")
+        diff.from_table = table
+        diff.new_name = "clients"
+        diff.remove_index("name")
+
+        sql = ["DROP INDEX name", "ALTER TABLE users RENAME TO clients"]
 
         self.assertEqual(sql, self.platform.compile_alter_sql(diff))

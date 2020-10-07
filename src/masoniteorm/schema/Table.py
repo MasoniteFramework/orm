@@ -1,5 +1,6 @@
 from .Column import Column
 from .Constraint import Constraint
+from .Index import Index
 
 class Table:
 
@@ -7,6 +8,7 @@ class Table:
         self.name = table
         self.added_columns = {}
         self.added_constraints = {}
+        self.added_indexes = {}
         self.renamed_columns = {}
         self.drop_indexes = {}
         self.foreign_keys = {}
@@ -39,8 +41,11 @@ class Table:
     def add_foreign_key_constraint(self):
         pass
 
-    def add_index(self):
-        pass
+    def add_index(self, name, index_type):
+        self.added_indexes.update({name: Index(name, index_type)})
+
+    def get_index(self, name):
+        return self.added_indexes[name]
 
     def drop_index(self, index):
         pass
