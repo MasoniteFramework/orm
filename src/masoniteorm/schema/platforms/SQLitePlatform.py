@@ -53,6 +53,13 @@ class SQLitePlatform:
         if diff.new_name:
             sql.append("ALTER TABLE {old_name} RENAME TO {new_name}".format(old_name=diff.name, new_name=diff.new_name))
         
+        if diff.added_columns:
+            for name, column in diff.added_columns.items():
+                sql.append("ALTER TABLE {table} ADD COLUMN {name} {data_type}".format(
+                    table=diff.name, 
+                    name=column.name,
+                    data_type=self.type_map.get(column.column_type, ""),
+                ).strip())
 
         return sql
 

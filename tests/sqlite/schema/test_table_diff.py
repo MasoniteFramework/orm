@@ -47,3 +47,27 @@ class TestTableDiff(unittest.TestCase):
         sql = ["DROP INDEX name", "ALTER TABLE users RENAME TO clients"]
 
         self.assertEqual(sql, self.platform.compile_alter_sql(diff))
+
+    def test_alter_add_column(self):
+        table = Table("users")
+        
+        diff = TableDiff("users")
+        diff.from_table = table
+        diff.add_column("name", 'string')
+        diff.add_column("email", 'string')
+
+        sql = ["ALTER TABLE users ADD COLUMN name VARCHAR", "ALTER TABLE users ADD COLUMN email VARCHAR"]
+
+        self.assertEqual(sql, self.platform.compile_alter_sql(diff))
+
+    # def test_alter_rename(self):
+    #     table = Table("users")
+        
+    #     diff = TableDiff("users")
+    #     diff.from_table = table
+    #     diff.add_column("name", 'string')
+    #     diff.add_column("email", 'string')
+
+    #     sql = ["ALTER TABLE users ADD COLUMN name VARCHAR", "ALTER TABLE users ADD COLUMN email VARCHAR"]
+
+    #     self.assertEqual(sql, self.platform.compile_alter_sql(diff))
