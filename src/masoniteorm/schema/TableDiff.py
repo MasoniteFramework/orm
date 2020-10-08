@@ -8,7 +8,9 @@ class TableDiff:
         self.new_name = None
         self.removed_indexes = {}
         self.added_columns = {}
+        self.renamed_columns = {}
         self.removed_constraints = {}
+        self.added_constraints = {}
 
     def from_table(self, from_table):
         self.from_table = from_table
@@ -23,9 +25,20 @@ class TableDiff:
         self.added_columns.update({name: Column(name, column_type)})
         return self
 
+    def get_added_columns(self):
+        return self.added_columns
+
+    def rename_column(self, original_name, new_name, column_type=None, length=None, nullable=False, default=None):
+        self.renamed_columns.update({
+            original_name: 
+            Column(new_name, column_type, length=length, nullable=nullable, default=default)
+        })
+
     def remove_index(self, name):
         self.removed_indexes.update({name: self.from_table.get_index(name)}) 
 
+    def get_added_constraints(self):
+        return self.added_constraints
 
     
 

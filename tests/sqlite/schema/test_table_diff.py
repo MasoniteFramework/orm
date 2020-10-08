@@ -60,14 +60,20 @@ class TestTableDiff(unittest.TestCase):
 
         self.assertEqual(sql, self.platform.compile_alter_sql(diff))
 
-    # def test_alter_rename(self):
-    #     table = Table("users")
+    def test_alter_rename(self):
+        table = Table("users")
+        table.add_column("post", "integer")
         
-    #     diff = TableDiff("users")
-    #     diff.from_table = table
-    #     diff.add_column("name", 'string')
-    #     diff.add_column("email", 'string')
+        diff = TableDiff("users")
+        diff.from_table = table
+        diff.rename_column("post", "comment", "integer")
 
-    #     sql = ["ALTER TABLE users ADD COLUMN name VARCHAR", "ALTER TABLE users ADD COLUMN email VARCHAR"]
+        sql = [
+            "CREATE TEMPORARY TABLE __temp__users AS SELECT post FROM users", 
+            "DROP TABLE users",
+            'CREATE TABLE "users" (comment INTEGER)',
+            'INSERT INTO "users" (comment) SELECT post FROM __temp__users',
+            'DROP TABLE __temp__users',
+        ]
 
-    #     self.assertEqual(sql, self.platform.compile_alter_sql(diff))
+        self.assertEqual(sql, self.platform.compile_alter_sql(diff))

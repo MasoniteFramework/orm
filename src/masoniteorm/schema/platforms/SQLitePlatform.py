@@ -60,6 +60,26 @@ class SQLitePlatform:
                     name=column.name,
                     data_type=self.type_map.get(column.column_type, ""),
                 ).strip())
+        
+        if diff.renamed_columns:
+            sql.append("CREATE TEMPORARY TABLE __temp__{table} AS SELECT {original_column_names} FROM {table}".format(
+                table=diff.name,
+                original_column_names=', '.join(diff.from_table.added_columns.keys())
+            ))
+            sql.append("DROP TABLE {table}".format(table=diff.name))
+            sql.append(self.create_format().format(
+                table=self.table_string().format(table=diff.name).strip(),
+                columns=', '.join(self.columnize(diff.renamed_columns)).strip(),
+                constraints=', ' + ', '.join(self.constraintize(diff.get_added_constraints())) if diff.get_added_constraints() else ""
+            ))
+            sql.append("INSERT INTO {quoted_table} (comment) SELECT {columns} FROM __temp__{table}".format(
+                quoted_table=self.table_string().format(table=diff.name).strip(),
+                table=diff.name,
+                columns=', '.join(diff.renamed_columns.keys())
+            ))
+            sql.append("DROP TABLE __temp__{table}".format(
+                table=diff.name
+            ))
 
         return sql
 
