@@ -49,9 +49,6 @@ class SQLitePlatform:
         if diff.removed_indexes:
             for name, index in diff.removed_indexes.items():
                 sql.append("DROP INDEX {name}".format(name=index.name))
-
-        if diff.new_name:
-            sql.append("ALTER TABLE {old_name} RENAME TO {new_name}".format(old_name=diff.name, new_name=diff.new_name))
         
         if diff.added_columns:
             for name, column in diff.added_columns.items():
@@ -67,19 +64,28 @@ class SQLitePlatform:
                 original_column_names=', '.join(diff.from_table.added_columns.keys())
             ))
             sql.append("DROP TABLE {table}".format(table=diff.name))
+
+            columns = diff.from_table.added_columns
+            columns.update(diff.renamed_columns)
+
             sql.append(self.create_format().format(
                 table=self.table_string().format(table=diff.name).strip(),
-                columns=', '.join(self.columnize(diff.renamed_columns)).strip(),
+                columns=', '.join(self.columnize(columns)).strip(),
                 constraints=', ' + ', '.join(self.constraintize(diff.get_added_constraints())) if diff.get_added_constraints() else ""
             ))
-            sql.append("INSERT INTO {quoted_table} (comment) SELECT {columns} FROM __temp__{table}".format(
+
+            sql.append("INSERT INTO {quoted_table} ({new_columns}) SELECT {original_column_names} FROM __temp__{table}".format(
                 quoted_table=self.table_string().format(table=diff.name).strip(),
                 table=diff.name,
-                columns=', '.join(diff.renamed_columns.keys())
+                new_columns=', '.join(self.columnize_names(columns)),
+                original_column_names=', '.join(diff.from_table.added_columns.keys())
             ))
             sql.append("DROP TABLE __temp__{table}".format(
                 table=diff.name
             ))
+
+        if diff.new_name:
+            sql.append("ALTER TABLE {old_name} RENAME TO {new_name}".format(old_name=diff.name, new_name=diff.new_name))
 
         return sql
 
@@ -128,3 +134,10 @@ class SQLitePlatform:
             ).strip())
         
         return sql
+
+    def columnize_names(self, columns):
+        names = []
+        for name, column in columns.items():
+            names.append(column.name)
+        
+        return names
