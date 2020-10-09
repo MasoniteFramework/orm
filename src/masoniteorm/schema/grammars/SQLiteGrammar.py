@@ -1,5 +1,4 @@
 from .BaseGrammar import BaseGrammar
-from ..Blueprint import Column
 import re
 
 
@@ -70,15 +69,11 @@ class SQLiteGrammar(BaseGrammar):
 
     null_map = {False: "NOT NULL", True: "NULL"}
 
-
     def process_table_columns_string(self):
         return "PRAGMA table_info(users);"
 
     def get_table_columns(self):
-        columns = (
-            Column("integer", "age", nullable=False),
-            Column("string", "name", nullable=False),
-        )
+        columns = ()
         return columns
 
     def default_string(self):

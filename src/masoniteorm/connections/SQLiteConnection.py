@@ -46,7 +46,7 @@ class SQLiteConnection(BaseConnection):
     @classmethod
     def get_default_query_grammar(cls):
         return SQLiteGrammar
-    
+
     @classmethod
     def get_default_platform(cls):
         return SQLitePlatform

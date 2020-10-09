@@ -7,7 +7,6 @@ class Column:
         column_type,
         length=None,
         nullable=False,
-        action="add",
         default=None,
     ):
         self.column_type = column_type

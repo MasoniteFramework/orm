@@ -1,5 +1,7 @@
 class SQLitePlatform:
 
+    types_without_lengths = ["integer"]
+
     type_map = {
         "string": "VARCHAR",
         "char": "CHAR",

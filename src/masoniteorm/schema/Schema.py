@@ -10,6 +10,7 @@ class Schema:
         self,
         dry=False,
         connection=None,
+        platform=None,
         grammar=None,
         connection_details={},
         connection_driver=None,
@@ -18,6 +19,7 @@ class Schema:
         self.connection = connection
         self._connection = None
         self.grammar = grammar
+        self.platform = platform
         self.connection_details = connection_details
         self._connection_driver = connection_driver
 
@@ -66,6 +68,7 @@ class Schema:
             connection=self.new_connection(),
             table=table,
             action="create",
+            platform=self.platform,
             default_string_length=self._default_string_length,
             dry=self._dry,
         )
