@@ -3,6 +3,7 @@ from src.masoniteorm.schema import Table
 from src.masoniteorm.schema import Column
 from src.masoniteorm.schema.platforms.SQLitePlatform import SQLitePlatform
 
+
 class TestTable(unittest.TestCase):
 
     maxDiff = None
@@ -14,7 +15,7 @@ class TestTable(unittest.TestCase):
         table = Table("users")
         table.add_column("name", "string")
 
-        self.assertIsInstance(table.added_columns['name'], Column)
+        self.assertIsInstance(table.added_columns["name"], Column)
 
     def test_primary_key(self):
         table = Table("users")
@@ -47,7 +48,9 @@ class TestTable(unittest.TestCase):
         table.add_constraint("name", "unique", ["name"])
         table.set_primary_key("id")
 
-        sql = 'CREATE TABLE "users" (id INTEGER PRIMARY KEY, name VARCHAR, UNIQUE(name))'
+        sql = (
+            'CREATE TABLE "users" (id INTEGER PRIMARY KEY, name VARCHAR, UNIQUE(name))'
+        )
         self.platform.constraintize(table.get_added_constraints())
         self.assertEqual(self.platform.compile_create_sql(table), sql)
 
@@ -85,10 +88,11 @@ class TestTable(unittest.TestCase):
         table.add_foreign_key("comment_id", "comments", "id")
         table.set_primary_key("id")
 
-        sql = ('CREATE TABLE "users" ('
-            'id INTEGER PRIMARY KEY, profile_id INTEGER, comment_id INTEGER, '
-            'CONSTRAINT profile_id_users_profiles_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id), '
-            'CONSTRAINT comment_id_users_comments_id_foreign FOREIGN KEY (comment_id) REFERENCES comments(id))'
+        sql = (
+            'CREATE TABLE "users" ('
+            "id INTEGER PRIMARY KEY, profile_id INTEGER, comment_id INTEGER, "
+            "CONSTRAINT profile_id_users_profiles_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id), "
+            "CONSTRAINT comment_id_users_comments_id_foreign FOREIGN KEY (comment_id) REFERENCES comments(id))"
         )
 
         self.platform.constraintize(table.get_added_constraints())

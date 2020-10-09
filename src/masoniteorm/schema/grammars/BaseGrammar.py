@@ -29,7 +29,7 @@ class BaseGrammar:
         constraints=(),
         foreign_keys=(),
         connection_details={},
-        connection=None
+        connection=None,
     ):
         self._columns = columns
         self.table = table
@@ -38,7 +38,7 @@ class BaseGrammar:
         self._constraints = constraints
         self._foreign_keys = foreign_keys
         self._connection_details = connection_details
-        self.connection=connection
+        self.connection = connection
         self._column = None
 
         self._bindings = ()
@@ -98,7 +98,7 @@ class BaseGrammar:
             elif not column.is_null:
                 nullable = " NOT NULL"
 
-            print('nullable', nullable)
+            print("nullable", nullable)
             sql += getattr(self, "{}_column_string".format(column._action))().format(
                 column=self._compile_column(column.column_name),
                 old_column=self._compile_column(column.old_column),

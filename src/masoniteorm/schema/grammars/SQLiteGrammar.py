@@ -68,14 +68,12 @@ class SQLiteGrammar(BaseGrammar):
         "null": " DEFAULT NULL",
     }
 
-    null_map = {
-        False: "NOT NULL",
-        True: "NULL"
-    }
+    null_map = {False: "NOT NULL", True: "NULL"}
 
     """
     @override
-    """    
+    """
+
     def _compile_alter(self):
         """Compiles a query for altering table schemas.
 
@@ -94,20 +92,31 @@ class SQLiteGrammar(BaseGrammar):
         #         constraints=self._compile_alter_constraints(),
         #         foreign_keys=self._compile_alter_foreign_keys(),
         #     ).strip().rstrip(','))
-        
+
         # Need to drop columns now. So need to get the existing columns on the table and remove any columns we need to drop
         modifying_columns = self.get_columns_to_modify()
-        sql += self.complex_alter_format().format(
-            table=self._compile_table(self.table),
-            clean_table=self.table,
-            column_names=', '.join(self.columnize_names(modifying_columns)),
-            columns=', '.join(self.columnize(self.with_columns_to_add(modifying_columns))),
-            constraints=',' + self._compile_alter_constraints() if self._constraints else "",
-            foreign_keys=',' + self._compile_alter_foreign_keys() if self._foreign_keys else "",
-        ).strip().rstrip(',').split(';')
+        sql += (
+            self.complex_alter_format()
+            .format(
+                table=self._compile_table(self.table),
+                clean_table=self.table,
+                column_names=", ".join(self.columnize_names(modifying_columns)),
+                columns=", ".join(
+                    self.columnize(self.with_columns_to_add(modifying_columns))
+                ),
+                constraints="," + self._compile_alter_constraints()
+                if self._constraints
+                else "",
+                foreign_keys="," + self._compile_alter_foreign_keys()
+                if self._foreign_keys
+                else "",
+            )
+            .strip()
+            .rstrip(",")
+            .split(";")
+        )
 
         self._sql = sql
-        
 
         return self
 
@@ -115,33 +124,37 @@ class SQLiteGrammar(BaseGrammar):
         columns += self.get_columns_to_add()
         return columns
 
-    
-    
     def columnize(self, columns):
         sql = []
-        print('columnize')
+        print("columnize")
         for column in columns:
             print(column.length)
             if column.length:
-                length = self.create_column_length(column.column_type).format(length=column.length)
+                length = self.create_column_length(column.column_type).format(
+                    length=column.length
+                )
             else:
                 length = ""
-            sql.append(self.columnize_string().format(
-                name=self._compile_column(column.column_name),
-                data_type=self.type_map.get(column.column_type, ""),
-                length=length,
-                nullable=self.null_map.get(column.is_null) or ""
-            ).strip())
-        
+            sql.append(
+                self.columnize_string()
+                .format(
+                    name=self._compile_column(column.column_name),
+                    data_type=self.type_map.get(column.column_type, ""),
+                    length=length,
+                    nullable=self.null_map.get(column.is_null) or "",
+                )
+                .strip()
+            )
+
         return sql
-    
+
     def columnize_names(self, columns):
         sql = []
         for column in columns:
             sql.append(column.column_name)
-        
+
         return sql
-    
+
     def get_columns_to_add(self):
         columns = ()
         for column in self._creates:
@@ -153,7 +166,7 @@ class SQLiteGrammar(BaseGrammar):
     def remove_columns_by_name(self, name, columns):
         return_columns = ()
         for column in columns:
-            if not column.column_name in name:
+            if column.column_name not in name:
                 return_columns += (column,)
 
         return return_columns
@@ -173,12 +186,16 @@ class SQLiteGrammar(BaseGrammar):
                 columns += (column,)
 
         return columns
-    
+
     def get_columns_to_modify(self):
         columns = ()
         columns += self.get_table_columns()
-        columns = self.remove_columns_by_name(self.get_column_names_from_action(["drop"]), columns)
-        columns = self.remove_columns_by_name(self.get_column_names_from_action(["modify"]), columns)
+        columns = self.remove_columns_by_name(
+            self.get_column_names_from_action(["drop"]), columns
+        )
+        columns = self.remove_columns_by_name(
+            self.get_column_names_from_action(["modify"]), columns
+        )
         columns += self.get_columns_from_action(["modify"])
 
         return columns
@@ -196,7 +213,7 @@ class SQLiteGrammar(BaseGrammar):
         elif not column.is_null:
             nullable = " NOT NULL"
 
-        print('nullable', nullable)
+        print("nullable", nullable)
         sql += getattr(self, "{}_column_string".format(column._action))().format(
             column=self._compile_column(column.column_name),
             old_column=self._compile_column(column.old_column),
@@ -222,9 +239,12 @@ class SQLiteGrammar(BaseGrammar):
 
     def process_table_columns_string(self):
         return "PRAGMA table_info(users);"
-    
+
     def get_table_columns(self):
-        columns = (Column("integer", "age", nullable=False), Column("string", "name", nullable=False))
+        columns = (
+            Column("integer", "age", nullable=False),
+            Column("string", "name", nullable=False),
+        )
         return columns
 
     def default_string(self):
@@ -249,7 +269,7 @@ class SQLiteGrammar(BaseGrammar):
         return (
             "SELECT name FROM sqlite_master WHERE type='table' AND name='{clean_table}'"
         )
-    
+
     def columnize_string(self):
         return "{name} {data_type}{length} {nullable}"
 
@@ -292,12 +312,9 @@ class SQLiteGrammar(BaseGrammar):
         return (
             """CREATE INDEX {clean_table}_{clean_column}_index ON {table}({column})"""
         )
-    
+
     def only_foreign_keys(self):
-        return self._foreign_keys and not (
-            self._creates and
-            self._constraints
-        )
+        return self._foreign_keys and not (self._creates and self._constraints)
 
     def to_sql(self):
         """Cleans up the SQL string and returns the SQL
