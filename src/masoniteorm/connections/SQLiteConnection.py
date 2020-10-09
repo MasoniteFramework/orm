@@ -1,6 +1,7 @@
 import sqlite3
 from ..query.grammars import SQLiteGrammar
 from .BaseConnection import BaseConnection
+from ..schema.platforms import SQLitePlatform
 
 
 class SQLiteConnection(BaseConnection):
@@ -45,6 +46,10 @@ class SQLiteConnection(BaseConnection):
     @classmethod
     def get_default_query_grammar(cls):
         return SQLiteGrammar
+    
+    @classmethod
+    def get_default_platform(cls):
+        return SQLitePlatform
 
     def get_database_name(self):
         return self.database
