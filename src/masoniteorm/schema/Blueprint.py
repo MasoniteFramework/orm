@@ -41,6 +41,7 @@ class Blueprint:
         self._last_column = self.table.add_column(
             column, "string", length=length, nullable=nullable
         )
+
         return self
 
     def integer(self, column, length=11, nullable=False):
@@ -199,12 +200,11 @@ class Blueprint:
         if now:
             now = "now"
 
-        self._last_column = self.new_timestamp_column(column, default=now)
+        self._last_column = self.table.add_column(column, "timestamp", nullable=nullable)
 
         if not now:
             self._last_column.use_current()
 
-        self._columns += (self._last_column,)
         return self
 
     def timestamps(self):
@@ -213,19 +213,12 @@ class Blueprint:
         Returns:
             self
         """
-        created_at = self.new_column(
-            "timestamp", "created_at", None, nullable=False
+        created_at = self.table.add_column("created_at", "timestamp", nullable=False
         ).use_current()
 
-        updated_at = self.new_column(
-            "timestamp", "updated_at", None, nullable=False
+        updated_at = self.table.add_column( "updated_at", "timestamp", nullable=False
         ).use_current()
 
-        self._last_column = updated_at
-        self._columns += (
-            created_at,
-            updated_at,
-        )
         return self
 
     def decimal(self, column, length=17, precision=6, nullable=False):
@@ -396,10 +389,10 @@ class Blueprint:
             self
         """
         if column is None:
-            self.table.add_constraint(self._last_column.column_name, "unique")
+            self.table.add_constraint(self._last_column.name, "unique", columns=[self._last_column.name])
             return self
 
-        self.table.add_constraint(column, "unique")
+        self.table.add_constraint(column, "unique", columns=[column])
 
         return self
 
