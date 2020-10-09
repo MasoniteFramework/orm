@@ -117,3 +117,27 @@ class TestTableDiff(unittest.TestCase):
         ]
 
         self.assertEqual(sql, self.platform.compile_alter_sql(diff))
+
+    def test_alter_rename_column_and_rename_table_and_drop_index(self):
+        table = Table("users")
+        table.add_column("post", "integer")
+        table.add_index("name", "unique")
+        
+        diff = TableDiff("users")
+        diff.from_table = table
+        diff.new_name = "clients"
+        diff.rename_column("post", "comment", "integer")
+        diff.remove_index("name")
+
+        sql = [
+            "DROP INDEX name",
+            "CREATE TEMPORARY TABLE __temp__users AS SELECT post FROM users", 
+            "DROP TABLE users",
+            'CREATE TABLE "users" (comment INTEGER)',
+            'INSERT INTO "users" (comment) SELECT post FROM __temp__users',
+            'DROP TABLE __temp__users',
+            "ALTER TABLE users RENAME TO clients"
+        ]
+
+        self.assertEqual(sql, self.platform.compile_alter_sql(diff))
+
