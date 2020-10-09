@@ -200,7 +200,9 @@ class Blueprint:
         if now:
             now = "now"
 
-        self._last_column = self.table.add_column(column, "timestamp", nullable=nullable)
+        self._last_column = self.table.add_column(
+            column, "timestamp", nullable=nullable
+        )
 
         if not now:
             self._last_column.use_current()
@@ -213,10 +215,12 @@ class Blueprint:
         Returns:
             self
         """
-        created_at = self.table.add_column("created_at", "timestamp", nullable=False
+        created_at = self.table.add_column(
+            "created_at", "timestamp", nullable=False
         ).use_current()
 
-        updated_at = self.table.add_column( "updated_at", "timestamp", nullable=False
+        updated_at = self.table.add_column(
+            "updated_at", "timestamp", nullable=False
         ).use_current()
 
         return self
@@ -389,7 +393,9 @@ class Blueprint:
             self
         """
         if column is None:
-            self.table.add_constraint(self._last_column.name, "unique", columns=[self._last_column.name])
+            self.table.add_constraint(
+                self._last_column.name, "unique", columns=[self._last_column.name]
+            )
             return self
 
         self.table.add_constraint(column, "unique", columns=[column])
