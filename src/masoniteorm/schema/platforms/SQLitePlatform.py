@@ -36,11 +36,13 @@ class SQLitePlatform:
 
     def compile_create_sql(self, table):
         columns = self.columnize(table.get_added_columns())
+
         
         return self.create_format().format(
             table=self.table_string().format(table=table.name).strip(),
             columns=', '.join(self.columnize(table.get_added_columns())).strip(),
-            constraints=', ' + ', '.join(self.constraintize(table.get_added_constraints())) if table.get_added_constraints() else ""
+            constraints=', ' + ', '.join(self.constraintize(table.get_added_constraints())) if table.get_added_constraints() else "",
+            foreign_keys=', ' + ', '.join(self.foreign_key_constraintize(table.name, table.added_foreign_keys)) if table.added_foreign_keys else ""
         )
 
     def compile_alter_sql(self, diff):
@@ -71,7 +73,8 @@ class SQLitePlatform:
             sql.append(self.create_format().format(
                 table=self.table_string().format(table=diff.name).strip(),
                 columns=', '.join(self.columnize(columns)).strip(),
-                constraints=', ' + ', '.join(self.constraintize(diff.get_added_constraints())) if diff.get_added_constraints() else ""
+                constraints=', ' + ', '.join(self.constraintize(diff.get_added_constraints())) if diff.get_added_constraints() else "",
+                foreign_keys=', ' + ', '.join(self.foreign_key_constraintize(diff.name, diff.added_foreign_keys)) if diff.added_foreign_keys else ""
             ))
 
             sql.append("INSERT INTO {quoted_table} ({new_columns}) SELECT {original_column_names} FROM __temp__{table}".format(
@@ -90,7 +93,7 @@ class SQLitePlatform:
         return sql
 
     def create_format(self):
-        return "CREATE TABLE {table} ({columns}{constraints})"
+        return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
 
     def table_string(self):
         return '"{table}"'
@@ -105,17 +108,31 @@ class SQLitePlatform:
 
     def get_unique_constraint_string(self):
         return "UNIQUE({columns})"
+    
+    def get_foreign_key_constraint_string(self):
+        return "CONSTRAINT {column}_{table}_{foreign_table}_{foreign_column}_foreign FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column})"
 
     def constraintize(self, constraints):
         sql = []
         for name, constraint in constraints.items():
-            print('cc', constraint.columns)
             sql.append(
                 getattr(self, f"get_{constraint.constraint_type}_constraint_string")().format(
-                    columns=', '.join(constraint.columns)
+                    columns=', '.join(constraint.columns),
                 )
             )
-            print(constraint)
+        return sql
+
+    def foreign_key_constraintize(self, table, foreign_keys):
+        sql = []
+        for name, foreign_key in foreign_keys.items():
+            sql.append(
+                self.get_foreign_key_constraint_string().format(
+                    column=foreign_key.column,
+                    table=table,
+                    foreign_table=foreign_key.foreign_table,
+                    foreign_column=foreign_key.foreign_column
+                )
+            )
         return sql
 
     def columnize(self, columns):

@@ -11,6 +11,7 @@ class TableDiff:
         self.renamed_columns = {}
         self.removed_constraints = {}
         self.added_constraints = {}
+        self.added_foreign_keys = {}
 
     def from_table(self, from_table):
         self.from_table = from_table
@@ -39,6 +40,12 @@ class TableDiff:
 
     def get_added_constraints(self):
         return self.added_constraints
+
+    def add_foreign_key(self, column, table, foreign_column):
+        self.added_foreign_keys.update({column: ForeignKeyConstraint(column, table, foreign_column)})
+
+    def get_added_foreign_keys(self):
+        return self.added_foreign_keys  
 
     
 
