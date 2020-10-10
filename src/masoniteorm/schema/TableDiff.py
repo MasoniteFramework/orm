@@ -8,6 +8,7 @@ class TableDiff:
         self.new_name = None
         self.removed_indexes = {}
         self.added_columns = {}
+        self.dropped_columns = []
         self.renamed_columns = {}
         self.removed_constraints = {}
         self.added_constraints = {}
@@ -65,3 +66,9 @@ class TableDiff:
 
     def get_added_foreign_keys(self):
         return self.added_foreign_keys
+    
+    def drop_column(self, name):
+        self.dropped_columns.append(name)
+
+    def get_dropped_columns(self, name):
+        self.dropped_columns.append(name)

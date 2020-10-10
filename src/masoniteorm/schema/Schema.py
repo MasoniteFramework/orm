@@ -1,5 +1,7 @@
 from ..connections.ConnectionFactory import ConnectionFactory
 from .Blueprint import Blueprint
+from .Table import Table
+from .TableDiff import TableDiff
 
 
 class Schema:
@@ -66,7 +68,7 @@ class Schema:
         return Blueprint(
             self.grammar,
             connection=self.new_connection(),
-            table=table,
+            table=Table(table),
             action="create",
             platform=self.platform,
             default_string_length=self._default_string_length,
@@ -88,8 +90,9 @@ class Schema:
         return Blueprint(
             self.grammar,
             connection=self.new_connection(),
-            table=table,
+            table=TableDiff(table),
             action="alter",
+            platform=self.platform,
             default_string_length=self._default_string_length,
             dry=self._dry,
         )

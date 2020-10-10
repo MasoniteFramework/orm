@@ -15,7 +15,7 @@ class Blueprint:
         dry=False,
     ):
         self.grammar = grammar
-        self.table = Table(table)
+        self.table = table
         self._last_column = None
         self._default_string_length = default_string_length
         self.platform = platform
@@ -344,17 +344,7 @@ class Blueprint:
         if self._action == "create":
             return self.platform().compile_create_sql(self.table)
         else:
-            return (
-                self.grammar(
-                    creates=self._columns,
-                    constraints=self._constraints,
-                    foreign_keys=self._foreign_keys,
-                    table=self.table,
-                    connection=self.connection,
-                )
-                ._compile_alter()
-                .to_sql()
-            )
+            return self.platform().compile_alter_sql(self.table)
 
     def __enter__(self):
         return self
@@ -494,7 +484,7 @@ class Blueprint:
         self._last_foreign.on_update(action)
         return self
 
-    def rename(self, old_column, new_column):
+    def rename(self, old_column, new_column, data_type):
         """Rename a column from the old value to a new value.
 
         Arguments:
@@ -504,10 +494,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.new_column(
-            None, new_column, action="rename", length=None, nullable=True
-        ).rename(old_column)
-        self._columns += (self._last_column,)
+        self.table.rename_column(old_column, new_column, data_type)
         return self
 
     def after(self, old_column):
@@ -531,8 +518,7 @@ class Blueprint:
             self
         """
         for column in columns:
-            self._last_column = self.new_column(None, column, None, None, action="drop")
-            self._columns += (self._last_column,)
+            self.table.drop_column(column)
 
         return self
 
