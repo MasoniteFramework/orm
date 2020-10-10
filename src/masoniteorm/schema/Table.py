@@ -51,9 +51,9 @@ class Table:
     def rename_column(self, column, to):
         pass
 
-    def set_primary_key(self, key):
-        self.primary_key = key
-        self.added_columns[key].set_as_primary()
+    def set_primary_key(self, column_name):
+        self.primary_key = column_name
+        self.added_columns[column_name].set_as_primary()
         return self
 
     def add_index(self, name, index_type):
