@@ -7,7 +7,6 @@ from src.masoniteorm.schema.Table import Table
 
 
 class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
-
     def setUp(self):
         self.schema = Schema(
             connection=SQLiteConnection,
