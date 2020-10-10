@@ -215,9 +215,9 @@ class Blueprint:
         Returns:
             self
         """
-        self.table.add_column("created_at", "timestamp", nullable=False).use_current()
+        self.table.add_column("created_at", "timestamp", nullable=True).use_current()
 
-        self.table.add_column("updated_at", "timestamp", nullable=False).use_current()
+        self.table.add_column("updated_at", "timestamp", nullable=True).use_current()
 
         return self
 
