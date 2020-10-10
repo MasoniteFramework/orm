@@ -14,7 +14,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             connection_details=DATABASES,
             platform=PostgresPlatform,
             dry=True,
-        ).on("sqlite")
+        )
 
     def test_can_add_columns(self):
         with self.schema.create("users") as blueprint:

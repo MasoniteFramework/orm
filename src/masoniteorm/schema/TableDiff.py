@@ -32,6 +32,9 @@ class TableDiff:
     def get_added_columns(self):
         return self.added_columns
 
+    def get_renamed_columns(self):
+        return self.renamed_columns
+
     def rename_column(
         self,
         original_name,
@@ -70,5 +73,5 @@ class TableDiff:
     def drop_column(self, name):
         self.dropped_columns.append(name)
 
-    def get_dropped_columns(self, name):
-        self.dropped_columns.append(name)
+    def get_dropped_columns(self):
+        return self.dropped_columns

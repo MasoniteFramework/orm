@@ -48,6 +48,9 @@ class Table:
     def get_added_columns(self):
         return self.added_columns
 
+    def get_renamed_columns(self):
+        return self.added_columns
+
     def rename_column(self, column, to):
         pass
 
