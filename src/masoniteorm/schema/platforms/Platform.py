@@ -54,3 +54,6 @@ class Platform:
                 )
             )
         return sql
+
+    def wrap_table(self, table_name):
+        return self.get_table_string().format(table=table_name)
