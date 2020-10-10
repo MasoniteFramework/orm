@@ -66,7 +66,7 @@ class TableDiff:
 
     def get_added_foreign_keys(self):
         return self.added_foreign_keys
-    
+
     def drop_column(self, name):
         self.dropped_columns.append(name)
 
