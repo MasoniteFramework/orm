@@ -72,10 +72,6 @@ class SQLiteGrammar(BaseGrammar):
     def process_table_columns_string(self):
         return "PRAGMA table_info(users);"
 
-    def get_table_columns(self):
-        columns = ()
-        return columns
-
     def default_string(self):
         return " DEFAULT {default} "
 
@@ -120,9 +116,6 @@ class SQLiteGrammar(BaseGrammar):
     def alter_format(self):
         return "ALTER TABLE {table} {columns}{constraints}{foreign_keys}"
 
-    def complex_alter_format(self):
-        return "CREATE TEMPORARY TABLE __temp__{clean_table} as select {column_names} from {table};DROP TABLE {table};CREATE TABLE {table} ({columns}{constraints}{foreign_keys});INSERT INTO {table} ({column_names}) select {column_names} from __temp__{clean_table}"
-
     def create_column_length(self, column_type):
         if column_type in self.types_without_lengths:
             return ""
@@ -141,9 +134,6 @@ class SQLiteGrammar(BaseGrammar):
         return (
             """CREATE INDEX {clean_table}_{clean_column}_index ON {table}({column})"""
         )
-
-    def only_foreign_keys(self):
-        return self._foreign_keys and not (self._creates and self._constraints)
 
     def to_sql(self):
         """Cleans up the SQL string and returns the SQL
