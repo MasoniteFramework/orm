@@ -141,3 +141,23 @@ class TestTableDiff(unittest.TestCase):
         ]
 
         self.assertEqual(sql, self.platform.compile_alter_sql(diff))
+
+    def test_alter_can_drop_column(self):
+        table = Table("users")
+        table.add_column("post", "integer")
+        table.add_column("name", "string")
+        table.add_column("email", "string")
+
+        diff = TableDiff("users")
+        diff.from_table = table
+        diff.drop_column("post")
+
+        sql = [
+            "CREATE TEMPORARY TABLE __temp__users AS SELECT name, email FROM users",
+            "DROP TABLE users",
+            'CREATE TABLE "users" (name VARCHAR, email VARCHAR)',
+            'INSERT INTO "users" (name, email) SELECT name, email FROM __temp__users',
+            "DROP TABLE __temp__users",
+        ]
+
+        self.assertEqual(sql, self.platform.compile_alter_sql(diff))

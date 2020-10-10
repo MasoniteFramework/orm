@@ -67,7 +67,12 @@ class SQLitePlatform:
                     ).strip()
                 )
 
-        if diff.renamed_columns:
+        if diff.renamed_columns or diff.dropped_columns:
+            original_columns = diff.from_table.added_columns
+            # pop off the dropped columns. No need for them here
+            for column in diff.dropped_columns:
+                original_columns.pop(column)
+
             sql.append(
                 "CREATE TEMPORARY TABLE __temp__{table} AS SELECT {original_column_names} FROM {table}".format(
                     table=diff.name,
