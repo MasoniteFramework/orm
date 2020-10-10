@@ -107,4 +107,4 @@ class TestTable(unittest.TestCase):
             "table_schema",
         )
 
-        self.assertEqual(len(table.added_columns), 3)
+        self.assertEqual(len(table.added_columns), 4)
