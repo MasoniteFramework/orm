@@ -1,3 +1,6 @@
+from ..Table import Table
+
+
 class SQLitePlatform:
 
     types_without_lengths = ["integer"]
@@ -71,6 +74,7 @@ class SQLitePlatform:
             original_columns = diff.from_table.added_columns
             # pop off the dropped columns. No need for them here
             for column in diff.dropped_columns:
+                # TODO: Add exception here
                 original_columns.pop(column)
 
             sql.append(
@@ -200,3 +204,21 @@ class SQLitePlatform:
             names.append(column.name)
 
         return names
+
+    def get_current_schema(self, connection, table_name):
+        sql = f"PRAGMA table_info({table_name})"
+
+        reversed_type_map = {v: k for k, v in self.type_map.items()}
+        table = Table(table_name)
+
+        result = connection.query(sql, ())
+        for column in result:
+            table.add_column(
+                column["name"],
+                reversed_type_map.get(column["type"]),
+                default=column.get("dflt_value"),
+            )
+            if column.get("pk") == 1:
+                table.set_primary_key(column["name"])
+
+        return table

@@ -35,6 +35,7 @@ class Schema:
         Returns:
             cls
         """
+        self._connection_driver = self.connection_details.get(connection).get("driver")
         self.connection = ConnectionFactory().make(connection)
 
         return self
@@ -98,6 +99,8 @@ class Schema:
         )
 
     def get_connection_information(self):
+
+        print("conn", self._connection_driver)
 
         return {
             "host": self.connection_details.get(self._connection_driver, {}).get(

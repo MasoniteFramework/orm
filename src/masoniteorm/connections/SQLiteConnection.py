@@ -32,6 +32,7 @@ class SQLiteConnection(BaseConnection):
         self.options = options
         self._cursor = None
         self.transaction_level = 0
+        self.open = 0
 
     def make_connection(self):
         """This sets the connection on the connection class"""
@@ -40,6 +41,7 @@ class SQLiteConnection(BaseConnection):
         self._connection = sqlite3.connect(self.database, isolation_level=None)
 
         self._connection.row_factory = sqlite3.Row
+        self.open = 1
 
         return self
 
@@ -102,6 +104,9 @@ class SQLiteConnection(BaseConnection):
             dict|None -- Returns a dictionary of results or None
         """
 
+        if not self.open:
+            self.make_connection()
+
         try:
             self._cursor = self._connection.cursor()
             if isinstance(query, list):
@@ -122,3 +127,4 @@ class SQLiteConnection(BaseConnection):
         finally:
             if self.get_transaction_level() <= 0:
                 self._connection.close()
+                self.open = 0

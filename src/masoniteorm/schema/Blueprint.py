@@ -344,6 +344,13 @@ class Blueprint:
         if self._action == "create":
             return self.platform().compile_create_sql(self.table)
         else:
+            if not self._dry:
+                # get current table schema
+                table = self.platform().get_current_schema(
+                    self.connection, "table_schema"
+                )
+                self.table.from_table = table
+
             return self.platform().compile_alter_sql(self.table)
 
     def __enter__(self):
