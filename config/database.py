@@ -4,6 +4,7 @@ import os
 
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.connections import ConnectionResolver
+from dotenv import load_dotenv
 
 """
 |--------------------------------------------------------------------------
@@ -13,6 +14,8 @@ from src.masoniteorm.connections import ConnectionResolver
 | Loads in the environment variables when this page is imported.
 |
 """
+
+load_dotenv()
 
 
 """
@@ -37,11 +40,11 @@ DATABASES = {
     },
     'postgres': {
         'driver': 'postgres',
-        'host': 'localhost',
-        'user': 'postgres',
-        'password': 'postgres',
-        'database': 'personal',
-        'port': '5432',
+        'host': os.getenv('POSTGRES_DATABASE_HOST'),
+        'user': os.getenv('POSTGRES_DATABASE_USER'),
+        'password': os.getenv('POSTGRES_DATABASE_PASSWORD'),
+        'database': os.getenv('POSTGRES_DATABASE_PORT'),
+        'port': os.getenv('POSTGRES_DATABASE_PORT'),
         'prefix': '',
         'grammar': 'postgres',
     },
