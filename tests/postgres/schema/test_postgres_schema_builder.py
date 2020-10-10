@@ -72,8 +72,8 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.to_sql(),
             (
                 'CREATE TABLE "users" (id SERIAL UNIQUE, name VARCHAR(255), email VARCHAR(255), '
-                'password VARCHAR(255), admin INTEGER, remember_token VARCHAR(255), verified_at TIMESTAMP, '
-                'created_at TIMESTAMP, updated_at TIMESTAMP, CONSTRAINT users_email_unique UNIQUE (email))'
+                "password VARCHAR(255), admin INTEGER, remember_token VARCHAR(255), verified_at TIMESTAMP, "
+                "created_at TIMESTAMP, updated_at TIMESTAMP, CONSTRAINT users_email_unique UNIQUE (email))"
             ),
         )
 
@@ -98,9 +98,9 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.to_sql(),
             (
                 'CREATE TABLE "users" (id SERIAL UNIQUE, name VARCHAR(255), '
-                'duration VARCHAR(255), url VARCHAR(255), published_at TIMESTAMP, '
-                'thumbnail VARCHAR(255), premium INTEGER, author_id INT, description TEXT, '
-                'created_at TIMESTAMP, updated_at TIMESTAMP, '
-                'CONSTRAINT author_id_users_authors_id_foreign FOREIGN KEY (author_id) REFERENCES authors(id))'
+                "duration VARCHAR(255), url VARCHAR(255), published_at TIMESTAMP, "
+                "thumbnail VARCHAR(255), premium INTEGER, author_id INT, description TEXT, "
+                "created_at TIMESTAMP, updated_at TIMESTAMP, "
+                "CONSTRAINT author_id_users_authors_id_foreign FOREIGN KEY (author_id) REFERENCES authors(id))"
             ),
         )

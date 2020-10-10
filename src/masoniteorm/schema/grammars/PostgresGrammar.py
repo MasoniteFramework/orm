@@ -94,7 +94,6 @@ class PostgresGrammar(BaseGrammar):
         "not_null": " NOT NULL ",
     }
 
-
     def create_column_string(self):
         return "{column} {data_type}{length}{nullable}{default_value}, "
 
