@@ -35,7 +35,7 @@ class Schema:
         Returns:
             cls
         """
-        if connection == 'default':
+        if connection == "default":
             connection = self.connection_details.get("default")
 
         self._connection_driver = self.connection_details.get(connection).get("driver")
@@ -103,7 +103,6 @@ class Schema:
         )
 
     def get_connection_information(self):
-
 
         return {
             "host": self.connection_details.get(self._connection_driver, {}).get(
