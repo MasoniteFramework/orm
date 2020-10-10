@@ -1,5 +1,7 @@
 from ..connections.ConnectionFactory import ConnectionFactory
 from .Blueprint import Blueprint
+from .Table import Table
+from .TableDiff import TableDiff
 
 
 class Schema:
@@ -10,6 +12,7 @@ class Schema:
         self,
         dry=False,
         connection=None,
+        platform=None,
         grammar=None,
         connection_details={},
         connection_driver=None,
@@ -18,6 +21,7 @@ class Schema:
         self.connection = connection
         self._connection = None
         self.grammar = grammar
+        self.platform = platform
         self.connection_details = connection_details
         self._connection_driver = connection_driver
 
@@ -31,6 +35,7 @@ class Schema:
         Returns:
             cls
         """
+        self._connection_driver = self.connection_details.get(connection).get("driver")
         self.connection = ConnectionFactory().make(connection)
 
         return self
@@ -64,8 +69,9 @@ class Schema:
         return Blueprint(
             self.grammar,
             connection=self.new_connection(),
-            table=table,
+            table=Table(table),
             action="create",
+            platform=self.platform,
             default_string_length=self._default_string_length,
             dry=self._dry,
         )
@@ -85,13 +91,16 @@ class Schema:
         return Blueprint(
             self.grammar,
             connection=self.new_connection(),
-            table=table,
+            table=TableDiff(table),
             action="alter",
+            platform=self.platform,
             default_string_length=self._default_string_length,
             dry=self._dry,
         )
 
     def get_connection_information(self):
+
+        print("conn", self._connection_driver)
 
         return {
             "host": self.connection_details.get(self._connection_driver, {}).get(

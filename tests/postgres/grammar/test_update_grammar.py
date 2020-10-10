@@ -8,7 +8,11 @@ import inspect
 
 class BaseTestCaseUpdateGrammar:
     def setUp(self):
-        self.builder = QueryBuilder(GrammarFactory.make("postgres"), connection=PostgresConnection, table="users")
+        self.builder = QueryBuilder(
+            GrammarFactory.make("postgres"),
+            connection=PostgresConnection,
+            table="users",
+        )
 
     def test_can_compile_update(self):
         to_sql = (

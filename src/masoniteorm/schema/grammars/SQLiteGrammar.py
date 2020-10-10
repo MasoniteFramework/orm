@@ -67,6 +67,11 @@ class SQLiteGrammar(BaseGrammar):
         "null": " DEFAULT NULL",
     }
 
+    null_map = {False: "NOT NULL", True: "NULL"}
+
+    def process_table_columns_string(self):
+        return "PRAGMA table_info(users);"
+
     def default_string(self):
         return " DEFAULT {default} "
 
@@ -89,6 +94,9 @@ class SQLiteGrammar(BaseGrammar):
         return (
             "SELECT name FROM sqlite_master WHERE type='table' AND name='{clean_table}'"
         )
+
+    def columnize_string(self):
+        return "{name} {data_type}{length} {nullable}"
 
     def add_column_string(self):
         return "ADD {column} {data_type}{length}{nullable} {after}, "
@@ -117,7 +125,7 @@ class SQLiteGrammar(BaseGrammar):
         return "CONSTRAINT {index_name} UNIQUE ({clean_column}){separator}"
 
     def create_unique_column_string(self):
-        return "ADD CONSTRAINT {index_name} UNIQUE({column}){separator}"
+        return "CONSTRAINT {index_name} UNIQUE({clean_column}){separator}"
 
     def primary_key_string(self):
         return "{table}_primary"
@@ -133,20 +141,7 @@ class SQLiteGrammar(BaseGrammar):
         Returns:
             string
         """
-
-        if self.queries and (not self._columns and not self._creates):
-            sql = ""
-            for query in self.queries:
-                query += "; "
-                sql += re.sub(" +", " ", query)
-            return sql.rstrip(" ")
-        else:
-            sql = re.sub(" +", " ", self._sql.strip().replace(",)", ")"))
-            for query in self.queries:
-                sql += "; "
-                sql += re.sub(" +", " ", query.strip())
-
-            return sql
+        return self._sql
 
     def fulltext_constraint_string(self):
         return "CREATE INDEX {clean_table}_{clean_column}_index ON {table}({column})"
@@ -158,7 +153,7 @@ class SQLiteGrammar(BaseGrammar):
         return "CONSTRAINT {index_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){separator}"
 
     def alter_foreign_key_string(self):
-        return "ADD CONSTRAINT {index_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}) {action}{separator}"
+        return "CONSTRAINT {index_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}) {action}{separator}"
 
     def table_string(self):
         return '"{table}"'
@@ -173,7 +168,7 @@ class SQLiteGrammar(BaseGrammar):
         return "{keyword} {value1} = {value2}"
 
     def after_column_string(self):
-        return "AFTER {after}"
+        return ""
 
     def drop_table_string(self):
         return "DROP TABLE {table}"

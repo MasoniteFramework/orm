@@ -1,279 +1,4 @@
-class Column:
-    """Used for creating or modifying columns."""
-
-    def __init__(
-        self,
-        column_type,
-        column_name,
-        table=None,
-        length=None,
-        nullable=False,
-        action="add",
-        default=None,
-    ):
-        self.column_type = column_type
-        self.column_name = column_name
-        self.length = length
-        self.table = table
-        self.is_null = nullable
-        self.is_constraint = False
-        self.constraint_type = None
-        self.after_column = None
-        self.old_column = ""
-        self.use_current_timestamp = False
-        self.default = default
-        self._action = action
-        self._change = False
-
-    def nullable(self):
-        """Sets this column to be nullable
-
-        Returns:
-            self
-        """
-        self.is_null = True
-        return self
-
-    def not_nullable(self):
-        """Sets this column to be not nullable
-
-        Returns:
-            self
-        """
-        self.is_null = False
-        return self
-
-    def unique(self):
-        """Sets this column to be unique
-
-        Returns:
-            self
-        """
-        self.is_constraint = True
-        self.constraint_type = "unique"
-        return self
-
-    def rename(self, column):
-        """Renames this column to a new name
-
-        Arguments:
-            column {string} -- The old column name
-
-        Returns:
-            self
-        """
-        self.old_column = column
-        return self
-
-    def after(self, after_column):
-        """Sets the column that this new column should be created after.
-
-        This is useful for setting the location of the new column in the table schema.
-
-        Arguments:
-            after_column {string} -- The column that this new column should be created after
-
-        Returns:
-            self
-        """
-        self.after_column = after_column
-        return self
-
-    def default(self, value):
-        """Sets a default value for this column
-
-        Arguments:
-            value {string} -- A default value.
-
-        Returns:
-            self
-        """
-        self.default = value
-        return self
-
-    def change(self):
-        """Sets the schema to create a modify sql statement.
-
-        Returns:
-            self
-        """
-        self._action = "modify"
-        return self
-
-    def use_current(self):
-        """Sets the column to use a current timestamp.
-
-        Used for timestamp columns.
-
-        Returns:
-            self
-        """
-        self.default = "current"
-        return self
-
-
-class BaseColumn:
-    def __init__(
-        self,
-        column_name,
-        table=None,
-        length=None,
-        nullable=False,
-        action="add",
-        default=None,
-    ):
-        self.column_name = column_name
-        self.length = length
-        self.table = table
-        self.is_null = nullable
-        self.is_constraint = False
-        self.constraint_type = None
-        self.after_column = None
-        self.old_column = ""
-        self.use_current_timestamp = False
-        self.default = default
-        self._action = action
-        self._change = False
-
-    def nullable(self):
-        """Sets this column to be nullable
-
-        Returns:
-            self
-        """
-        self.is_null = True
-        return self
-
-    def not_nullable(self):
-        """Sets this column to be not nullable
-
-        Returns:
-            self
-        """
-        self.is_null = False
-        return self
-
-    def unique(self):
-        """Sets this column to be unique
-
-        Returns:
-            self
-        """
-        self.is_constraint = True
-        self.constraint_type = "unique"
-        return self
-
-    def rename(self, column):
-        """Renames this column to a new name
-
-        Arguments:
-            column {string} -- The old column name
-
-        Returns:
-            self
-        """
-        self.old_column = column
-        return self
-
-    def after(self, after_column):
-        """Sets the column that this new column should be created after.
-
-        This is useful for setting the location of the new column in the table schema.
-
-        Arguments:
-            after_column {string} -- The column that this new column should be created after
-
-        Returns:
-            self
-        """
-        self.after_column = after_column
-        return self
-
-    def default(self, value):
-        """Sets a default value for this column
-
-        Arguments:
-            value {string} -- A default value.
-
-        Returns:
-            self
-        """
-        self.default = value
-        return self
-
-    def change(self):
-        """Sets the schema to create a modify sql statement.
-
-        Returns:
-            self
-        """
-        self._action = "modify"
-        return self
-
-
-class TimestampColumn(BaseColumn):
-
-    column_type = "timestamp"
-
-    def nullable(self):
-        """Sets this column to be nullable
-
-        Returns:
-            self
-        """
-        self.is_null = True
-        self.default = "null"
-        return self
-
-    def use_current(self):
-        """Sets the column to use a current timestamp.
-
-        Used for timestamp columns.
-
-        Returns:
-            self
-        """
-        self.default = "current"
-        return self
-
-
-class Constraint:
-    def __init__(self, column, constraint_type, action="create"):
-        self.column_name = column
-        self.action = action
-        self.constraint_type = constraint_type
-        if isinstance(column, (list, tuple)):
-            self.index_name = "_".join(column)
-        else:
-            self.index_name = column
-        if "_" + constraint_type not in self.index_name:
-            self.index_name += "_" + constraint_type
-
-
-class ForeignKey:
-    def __init__(self, column, current_table, foreign_table=None, foreign_column=None):
-        self.column_name = column
-        self.current_table = current_table
-        self.foreign_table = foreign_table
-        self.foreign_column = foreign_column
-        self._on_delete = None
-        self._on_update = None
-        self.index_name = ""
-
-    def references(self, foreign_column):
-        self.foreign_column = foreign_column
-
-    def on(self, foreign_table):
-        self.foreign_table = foreign_table
-        self.index_name = f"{self.current_table}_{self.column_name}_foreign"
-
-    def on_update(self, action):
-        self._on_update = action
-        return self
-
-    def on_delete(self, action):
-        self._on_delete = action
-        return self
+from .Table import Table
 
 
 class Blueprint:
@@ -284,22 +9,21 @@ class Blueprint:
         grammar,
         table="",
         connection=None,
+        platform=None,
         action=None,
         default_string_length=None,
         dry=False,
     ):
         self.grammar = grammar
         self.table = table
-        self._sql = ""
-        self._columns = ()
-
-        self._constraints = ()
-        self._foreign_keys = ()
         self._last_column = None
-        self._action = action
         self._default_string_length = default_string_length
+        self.platform = platform
         self._dry = dry
+        self._action = action
         self.connection = connection
+        if not platform:
+            self.platform = self.connection.get_default_platform()
 
     def string(self, column, length=255, nullable=False):
         """Sets a column to be the string representation for the table.
@@ -314,51 +38,11 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.new_column("string", column, length, nullable)
-        self._columns += (self._last_column,)
+        self._last_column = self.table.add_column(
+            column, "string", length=length, nullable=nullable
+        )
+
         return self
-
-    def new_column(
-        self,
-        column_type,
-        column,
-        length=255,
-        nullable=False,
-        action="add",
-        default=None,
-    ):
-        """Creates a new column and sets the appropriate attributes for creating, modifying or altering the column.
-
-        Arguments:
-            column_type {string} -- The type of the column
-            column {string} -- The column name.
-
-        Keyword Arguments:
-            length {int} -- The length of the column. (default: {255})
-            nullable {bool} -- Whether the column is nullable. (default: {False})
-            action {string} -- The action the column should take. (default: {"add"})
-            default {string|int} -- The default value for the column. (default: {False})
-
-        Returns:
-            masonite.orm.blueprint.Column - A column class.
-        """
-        if length == 255:
-            length = self._default_string_length or length
-
-        return ColumnFactory().make(
-            column_type,
-            column_name=column,
-            table=self.table,
-            length=length,
-            nullable=nullable,
-            action=action,
-            default=default,
-        )
-
-    def new_timestamp_column(self, column_name, default=None):
-        return ColumnFactory().make(
-            "timestamp", column_name=column_name, default=default
-        )
 
     def integer(self, column, length=11, nullable=False):
         """Sets a column to be the integer representation for the table.
@@ -373,8 +57,9 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.new_column("integer", column, length, nullable)
-        self._columns += (self._last_column,)
+        self._last_column = self.table.add_column(
+            column, "integer", length=length, nullable=nullable
+        )
         return self
 
     def _compile_create(self):
@@ -395,8 +80,9 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.new_column("increments", column, None, nullable)
-        self._columns += (self._last_column,)
+        self._last_column = self.table.add_column(
+            column, "increments", nullable=nullable
+        )
         return self
 
     def big_increments(self, column, nullable=False):
@@ -411,8 +97,9 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.new_column("big_increments", column, None, nullable)
-        self._columns += (self._last_column,)
+        self._last_column = self.table.add_column(
+            column, "big_increments", nullable=nullable
+        )
         return self
 
     def binary(self, column, nullable=False):
@@ -427,8 +114,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.new_column("binary", column, None, nullable)
-        self._columns += (self._last_column,)
+        self._last_column = self.table.add_column(column, "binary", nullable=nullable)
         return self
 
     def boolean(self, column, nullable=False):
@@ -443,8 +129,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.new_column("boolean", column, None, nullable)
-        self._columns += (self._last_column,)
+        self._last_column = self.table.add_column(column, "boolean", nullable=nullable)
         return self
 
     def default(self, value):
@@ -464,8 +149,9 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.new_column("char", column, length, nullable)
-        self._columns += (self._last_column,)
+        self._last_column = self.table.add_column(
+            column, "char", length=length, nullable=nullable
+        )
         return self
 
     def date(self, column, nullable=False):
@@ -480,8 +166,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.new_column("date", column, None, nullable)
-        self._columns += (self._last_column,)
+        self._last_column = self.table.add_column(column, "date", nullable=nullable)
         return self
 
     def datetime(self, column, nullable=False):
@@ -496,8 +181,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.new_column("datetime", column, None, nullable)
-        self._columns += (self._last_column,)
+        self._last_column = self.table.add_column(column, "datetime", nullable=nullable)
         return self
 
     def timestamp(self, column, nullable=False, now=None):
@@ -516,12 +200,13 @@ class Blueprint:
         if now:
             now = "now"
 
-        self._last_column = self.new_timestamp_column(column, default=now)
+        self._last_column = self.table.add_column(
+            column, "timestamp", nullable=nullable
+        )
 
         if not now:
             self._last_column.use_current()
 
-        self._columns += (self._last_column,)
         return self
 
     def timestamps(self):
@@ -530,19 +215,10 @@ class Blueprint:
         Returns:
             self
         """
-        created_at = self.new_column(
-            "timestamp", "created_at", None, nullable=False
-        ).use_current()
+        self.table.add_column("created_at", "timestamp", nullable=False).use_current()
 
-        updated_at = self.new_column(
-            "timestamp", "updated_at", None, nullable=False
-        ).use_current()
+        self.table.add_column("updated_at", "timestamp", nullable=False).use_current()
 
-        self._last_column = updated_at
-        self._columns += (
-            created_at,
-            updated_at,
-        )
         return self
 
     def decimal(self, column, length=17, precision=6, nullable=False):
@@ -559,10 +235,9 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.new_column(
-            "decimal", column, "{}, {}".format(length, precision), nullable
+        self._last_column = self.table.add_column(
+            column, "decimal", length=(length, precision), nullable=nullable
         )
-        self._columns += (self._last_column,)
         return self
 
     def double(self, column, nullable=False):
@@ -577,8 +252,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.new_column("double", column, None, nullable)
-        self._columns += (self._last_column,)
+        self._last_column = self.table.add_column(column, "double", nullable=nullable)
         return self
 
     def enum(self, column, options=[], nullable=False):
@@ -598,8 +272,9 @@ class Blueprint:
         for option in options:
             new_options += "'{}',".format(option)
         new_options = new_options.rstrip(",")
-        self._last_column = self.new_column("enum", column, new_options, nullable)
-        self._columns += (self._last_column,)
+        self._last_column = self.table.add_column(
+            column, "enum", length=new_options, nullable=nullable
+        )
         return self
 
     def text(self, column, length=None, nullable=False):
@@ -615,8 +290,9 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.new_column("text", column, length, nullable)
-        self._columns += (self._last_column,)
+        self._last_column = self.table.add_column(
+            column, "text", length=length, nullable=nullable
+        )
         return self
 
     def unsigned(self, column=None, length=None, nullable=False):
@@ -636,8 +312,10 @@ class Blueprint:
             self._last_column.column_type = "unsigned_integer"
             self._last_column.length = None
             return self
-        self._last_column = self.new_column("unsigned", column, length, nullable)
-        self._columns += (self._last_column,)
+
+        self._last_column = self.table.add_column(
+            column, "unsigned", length=length, nullable=nullable
+        )
         return self
 
     def unsigned_integer(self, column, nullable=False):
@@ -652,8 +330,9 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.new_column("unsigned_integer", column, None, nullable)
-        self._columns += (self._last_column,)
+        self._last_column = self.table.add_column(
+            column, "unsigned_integer", nullable=nullable
+        )
         return self
 
     def to_sql(self):
@@ -663,27 +342,16 @@ class Blueprint:
             string -- The SQL statement generated.
         """
         if self._action == "create":
-            return (
-                self.grammar(
-                    creates=self._columns,
-                    constraints=self._constraints,
-                    foreign_keys=self._foreign_keys,
-                    table=self.table,
-                )
-                ._compile_create()
-                .to_sql()
-            )
+            return self.platform().compile_create_sql(self.table)
         else:
-            return (
-                self.grammar(
-                    creates=self._columns,
-                    constraints=self._constraints,
-                    foreign_keys=self._foreign_keys,
-                    table=self.table,
+            if not self._dry:
+                # get current table schema
+                table = self.platform().get_current_schema(
+                    self.connection, "table_schema"
                 )
-                ._compile_alter()
-                .to_sql()
-            )
+                self.table.from_table = table
+
+            return self.platform().compile_alter_sql(self.table)
 
     def __enter__(self):
         return self
@@ -703,14 +371,8 @@ class Blueprint:
         self._last_column.nullable()
         return self
 
-    def change(self):
-        """Sets the column to be set to modify instead of altering.
-
-        Returns:
-            self
-        """
-        self._last_column.change()
-        return self
+    def soft_deletes(self, name="deleted_at"):
+        return self.datetime(name, nullable=True).nullable()
 
     def unique(self, column=None):
         """Sets the last column to be unique if no column name is passed.
@@ -724,9 +386,12 @@ class Blueprint:
             self
         """
         if column is None:
-            column = self._last_column.column_name
+            self.table.add_constraint(
+                self._last_column.name, "unique", columns=[self._last_column.name]
+            )
+            return self
 
-        self._constraints += (Constraint(column, constraint_type="unique"),)
+        self.table.add_constraint(column, "unique", columns=[column])
 
         return self
 
@@ -739,7 +404,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._constraints += (Constraint(column, constraint_type="index"),)
+        self.table.add_constraint(column, "index")
         return self
 
     def fulltext(self, column):
@@ -751,7 +416,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._constraints += (Constraint(column, constraint_type="fulltext"),)
+        self.table.add_constraint(column, "fulltext")
         return self
 
     def primary(self, column):
@@ -763,7 +428,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._constraints += (Constraint(column, constraint_type="primary"),)
+        self.table.set_primary_key([column])
         return self
 
     def foreign(self, column):
@@ -775,7 +440,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_foreign = ForeignKey(column, self.table)
+        self._last_foreign = self.table.add_foreign_key(column)
         return self
 
     def references(self, column):
@@ -800,7 +465,6 @@ class Blueprint:
             self
         """
         self._last_foreign.on(table)
-        self._foreign_keys += (self._last_foreign,)
         return self
 
     def on_delete(self, action):
@@ -827,7 +491,7 @@ class Blueprint:
         self._last_foreign.on_update(action)
         return self
 
-    def rename(self, old_column, new_column):
+    def rename(self, old_column, new_column, data_type):
         """Rename a column from the old value to a new value.
 
         Arguments:
@@ -837,10 +501,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.new_column(
-            None, new_column, action="rename", length=None, nullable=True
-        ).rename(old_column)
-        self._columns += (self._last_column,)
+        self.table.rename_column(old_column, new_column, data_type)
         return self
 
     def after(self, old_column):
@@ -864,8 +525,7 @@ class Blueprint:
             self
         """
         for column in columns:
-            self._last_column = self.new_column(None, column, None, None, action="drop")
-            self._columns += (self._last_column,)
+            self.table.drop_column(column)
 
         return self
 
@@ -955,14 +615,3 @@ class Blueprint:
                 Constraint(index, constraint_type="foreign", action="drop"),
             )
         return self
-
-
-class ColumnFactory:
-
-    columns = {"timestamp": TimestampColumn, "default": Column}
-
-    def make(self, column_type, **kwargs):
-        if column_type not in self.columns:
-            return self.columns["default"](column_type, **kwargs)
-        else:
-            return self.columns[column_type](**kwargs)

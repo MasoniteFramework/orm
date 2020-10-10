@@ -1,6 +1,7 @@
 import sqlite3
 from ..query.grammars import SQLiteGrammar
 from .BaseConnection import BaseConnection
+from ..schema.platforms import SQLitePlatform
 
 
 class SQLiteConnection(BaseConnection):
@@ -31,6 +32,7 @@ class SQLiteConnection(BaseConnection):
         self.options = options
         self._cursor = None
         self.transaction_level = 0
+        self.open = 0
 
     def make_connection(self):
         """This sets the connection on the connection class"""
@@ -39,12 +41,17 @@ class SQLiteConnection(BaseConnection):
         self._connection = sqlite3.connect(self.database, isolation_level=None)
 
         self._connection.row_factory = sqlite3.Row
+        self.open = 1
 
         return self
 
     @classmethod
     def get_default_query_grammar(cls):
         return SQLiteGrammar
+
+    @classmethod
+    def get_default_platform(cls):
+        return SQLitePlatform
 
     def get_database_name(self):
         return self.database
@@ -96,19 +103,28 @@ class SQLiteConnection(BaseConnection):
         Returns:
             dict|None -- Returns a dictionary of results or None
         """
-        query = query.replace("'?'", "?")
-        print("running query: ", self, query, bindings)
+
+        if not self.open:
+            self.make_connection()
+
         try:
             self._cursor = self._connection.cursor()
-            self._cursor.execute(query, bindings)
-            if results == 1:
-                result = [dict(row) for row in self._cursor.fetchall()]
-                if result:
-                    return result[0]
+            if isinstance(query, list):
+                for query in query:
+                    self._cursor.execute(query, ())
             else:
-                return [dict(row) for row in self._cursor.fetchall()]
+                query = query.replace("'?'", "?")
+                print("running query: ", self, query, bindings)
+                self._cursor.execute(query, bindings)
+                if results == 1:
+                    result = [dict(row) for row in self._cursor.fetchall()]
+                    if result:
+                        return result[0]
+                else:
+                    return [dict(row) for row in self._cursor.fetchall()]
         except Exception as e:
             raise e
         finally:
             if self.get_transaction_level() <= 0:
                 self._connection.close()
+                self.open = 0

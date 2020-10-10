@@ -8,7 +8,7 @@ from masoniteorm.commands import (
     MigrateCommand,
     MigrateRefreshCommand,
     MigrateRollbackCommand,
-    SeedRunCommand
+    SeedRunCommand,
 )
 
 
@@ -26,7 +26,7 @@ class ORMProvider(ServiceProvider):
             MigrateCommand(),
             MigrateRefreshCommand(),
             MigrateRollbackCommand(),
-            SeedRunCommand()
+            SeedRunCommand(),
         )
 
     def boot(self):

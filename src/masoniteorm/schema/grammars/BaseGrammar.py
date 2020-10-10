@@ -25,36 +25,20 @@ class BaseGrammar:
         columns=(),
         table="users",
         database=None,
-        wheres=(),
-        limit=False,
-        offset=False,
-        updates={},
-        aggregates=(),
-        order_by=(),
-        group_by=(),
-        joins=(),
-        having=(),
         creates=(),
         constraints=(),
         foreign_keys=(),
         connection_details={},
+        connection=None,
     ):
         self._columns = columns
         self.table = table
         self.database = database
-        self._wheres = wheres
-        self._limit = limit
-        self._offset = offset
-        self._updates = updates
-        self._aggregates = aggregates
-        self._order_by = order_by
-        self._group_by = group_by
-        self._joins = joins
-        self._having = having
         self._creates = creates
         self._constraints = constraints
         self._foreign_keys = foreign_keys
         self._connection_details = connection_details
+        self.connection = connection
         self._column = None
 
         self._bindings = ()
@@ -109,11 +93,12 @@ class BaseGrammar:
         sql = ""
         for column in self._creates:
             nullable = ""
-            if column.is_null and column._action == "modify":
+            if column.is_null and column._action in ("add", "modify"):
                 nullable = " NULL"
             elif not column.is_null:
                 nullable = " NOT NULL"
 
+            print("nullable", nullable)
             sql += getattr(self, "{}_column_string".format(column._action))().format(
                 column=self._compile_column(column.column_name),
                 old_column=self._compile_column(column.old_column),
@@ -376,103 +361,6 @@ class BaseGrammar:
             )
 
         return sql.rstrip(", ")
-
-    def _compile_select(self, qmark=False):
-        """Compile a select query statement.
-
-        Keyword Arguments:
-            qmark {bool} -- [description] (default: {False})
-
-        Returns:
-            [type] -- [description]
-        """
-        self._sql = (
-            self.select_format()
-            .format(
-                columns=self._compile_columns(separator=", "),
-                table=self._compile_table(self.table),
-                wheres=self._compile_wheres(qmark=qmark),
-                limit=self._compile_limit(),
-                offset=self._compile_offset(),
-                aggregates=self._compile_aggregates(),
-                order_by=self._compile_order_by(),
-                group_by=self._compile_group_by(),
-                joins=self._compile_joins(),
-                having=self._compile_having(),
-            )
-            .strip()
-        )
-
-        return self
-
-    def _compile_update(self, qmark=False):
-        """Compiles an update query statement.
-
-        Keyword Arguments:
-            qmark {bool} -- Whether the query should use qmark. (default: {False})
-
-        Returns:
-            self
-        """
-        self._sql = self.update_format().format(
-            key_equals=self._compile_key_value_equals(qmark=qmark),
-            table=self._compile_table(self.table),
-            wheres=self._compile_wheres(qmark=qmark),
-        )
-
-        return self
-
-    def _compile_joins(self):
-        """Compiles a join expression.
-
-        Returns:
-            self
-        """
-        sql = ""
-        for join in self._joins:
-            local_table = join.column1.split(".")[0]
-            column1 = join.column1
-            column2 = join.column2
-            sql += self.join_string().format(
-                foreign_table=self._compile_table(join.foreign_table),
-                local_table=self._compile_table(local_table),
-                column1=self._table_column_string(column1),
-                equality=join.equality,
-                column2=self._table_column_string(column2),
-                keyword=self.join_keywords[join.clause],
-            )
-            sql += " "
-
-        return sql
-
-    def _compile_insert(self):
-        """Compiles an insert expression.
-
-        Returns:
-            self
-        """
-        self._sql = self.insert_format().format(
-            key_equals=self._compile_key_value_equals(),
-            table=self._compile_table(self.table),
-            columns=self._compile_columns(separator=", ", action="insert"),
-            values=self._compile_values(separator=", "),
-        )
-
-        return self
-
-    def _compile_delete(self, qmark=False):
-        """Compiles a delete expression.
-
-        Returns:
-            self
-        """
-        self._sql = self.delete_format().format(
-            key_equals=self._compile_key_value_equals(qmark=qmark),
-            table=self._compile_table(self.table),
-            wheres=self._compile_wheres(qmark=qmark),
-        )
-
-        return self
 
     def _compile_key_value_equals(self, qmark=False):
         """Compiles key value pairs.
