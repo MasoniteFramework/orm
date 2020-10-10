@@ -71,7 +71,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         schema = Schema(
             connection=PostgresConnection,
             connection_details=DATABASES,
-        )
+        ).on("postgres")
 
         with schema.table("table_schema") as blueprint:
             blueprint.drop_column("name")

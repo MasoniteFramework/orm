@@ -35,7 +35,11 @@ class Schema:
         Returns:
             cls
         """
+        if connection == 'default':
+            connection = self.connection_details.get("default")
+
         self._connection_driver = self.connection_details.get(connection).get("driver")
+
         self.connection = ConnectionFactory().make(connection)
 
         return self
@@ -100,7 +104,7 @@ class Schema:
 
     def get_connection_information(self):
 
-        print("conn", self._connection_driver)
+        print("driver", self._connection_driver)
 
         return {
             "host": self.connection_details.get(self._connection_driver, {}).get(
@@ -126,6 +130,8 @@ class Schema:
     def new_connection(self):
         if self._dry:
             return
+
+        print(self.get_connection_information())
 
         self._connection = self.connection(
             **self.get_connection_information()

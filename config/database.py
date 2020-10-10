@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 |
 """
 
-load_dotenv()
+load_dotenv('.env')
 
 
 """
@@ -43,7 +43,7 @@ DATABASES = {
         'host': os.getenv('POSTGRES_DATABASE_HOST'),
         'user': os.getenv('POSTGRES_DATABASE_USER'),
         'password': os.getenv('POSTGRES_DATABASE_PASSWORD'),
-        'database': os.getenv('POSTGRES_DATABASE_PORT'),
+        'database': os.getenv('POSTGRES_DATABASE_DATABASE'),
         'port': os.getenv('POSTGRES_DATABASE_PORT'),
         'prefix': '',
         'grammar': 'postgres',
@@ -54,6 +54,8 @@ DATABASES = {
         'prefix': ''
     }
 }
+
+print('dd', DATABASES)
 
 ConnectionResolver.set_connection_details(DATABASES)
 
