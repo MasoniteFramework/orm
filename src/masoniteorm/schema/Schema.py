@@ -104,7 +104,6 @@ class Schema:
 
     def get_connection_information(self):
 
-        print("driver", self._connection_driver)
 
         return {
             "host": self.connection_details.get(self._connection_driver, {}).get(
@@ -130,8 +129,6 @@ class Schema:
     def new_connection(self):
         if self._dry:
             return
-
-        print(self.get_connection_information())
 
         self._connection = self.connection(
             **self.get_connection_information()
@@ -200,7 +197,6 @@ class Schema:
         Returns:
             masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
-        print("checking table exists")
         if self._dry:
             grammar = self.grammar(table=table, database="orm")
         else:

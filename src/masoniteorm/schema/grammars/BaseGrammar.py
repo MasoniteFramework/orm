@@ -98,7 +98,6 @@ class BaseGrammar:
             elif not column.is_null:
                 nullable = " NOT NULL"
 
-            print("nullable", nullable)
             sql += getattr(self, "{}_column_string".format(column._action))().format(
                 column=self._compile_column(column.column_name),
                 old_column=self._compile_column(column.old_column),

@@ -87,4 +87,4 @@ class BaseTestQueryRelationships(unittest.TestCase):
     def test_with_where_no_relation(self):
         builder = self.get_builder()
         result = builder.with_("profile").where("id", 5).first()
-        print(result.serialize())
+        result.serialize()
