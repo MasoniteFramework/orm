@@ -9,13 +9,10 @@ class MigrateStatusCommand(Command):
 
     migrate:status
         {--c|connection=default : The connection you want to run migrations on}
-        {--f|force : Force migrations without prompt in production}
     """
 
     def handle(self):
         from config.database import ConnectionResolver
-
-        # prompt user for confirmation in production
 
         migration = Migration(command_class=self, connection=self.option("connection"))
         migration.create_table_if_not_exists()
