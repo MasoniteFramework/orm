@@ -25,6 +25,9 @@ class Schema:
         self.connection_details = connection_details
         self._connection_driver = connection_driver
 
+        if not self.platform:
+            self.platform = connection.get_default_platform()
+
     def on(self, connection):
         """Change the connection from the default connection
 
@@ -35,8 +38,12 @@ class Schema:
         Returns:
             cls
         """
+        if connection == "default":
+            connection = self.connection_details.get("default")
+
         self._connection_driver = self.connection_details.get(connection).get("driver")
-        self.connection = ConnectionFactory().make(connection)
+
+        self.connection = ConnectionFactory().make(self._connection_driver)
 
         return self
 
@@ -99,9 +106,6 @@ class Schema:
         )
 
     def get_connection_information(self):
-
-        print("conn", self._connection_driver)
-
         return {
             "host": self.connection_details.get(self._connection_driver, {}).get(
                 "host"
@@ -142,11 +146,12 @@ class Schema:
         Returns:
             masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
-        grammar = self.grammar(table=table)
-        query = grammar.column_exists(column).to_sql()
-        if query_only:
-            return query
-        return self.new_connection().query(query, ())
+        sql = self.platform().compile_column_exists(table, column)
+
+        if self._dry:
+            return sql
+
+        return bool(self.new_connection().query(sql, ()))
 
     @classmethod
     def set_default_string_length(cls, length):
@@ -154,38 +159,39 @@ class Schema:
         return cls
 
     def drop_table(self, table, query_only=False):
-        grammar = self.grammar(table=table)
-        query = grammar.drop_table(table).to_sql()
-        if query_only:
-            return query
+        sql = self.platform().compile_drop_table(table)
 
-        return self.new_connection().make_connection().query(query, ())
+        if self._dry:
+            return sql
+
+        return bool(self.new_connection().query(sql, ()))
 
     def drop(self, *args, **kwargs):
         return self.drop_table(*args, **kwargs)
 
     def drop_table_if_exists(self, table, exists=False, query_only=False):
-        grammar = self.grammar(table=table)
-        query = grammar.drop_table_if_exists(table).to_sql()
-        if query_only:
-            return query
-        self.new_connection().make_connection().query(query, (), results=1)
+        sql = self.platform().compile_drop_table_if_exists(table)
 
-    def rename(self, table, new_name, query_only=False):
-        grammar = self.grammar(table=table)
-        query = grammar.rename_table(
-            current_table_name=table, new_table_name=new_name
-        ).to_sql()
-        if query_only:
-            return query
-        return bool(self.new_connection().query(query, ()))
+        if self._dry:
+            return sql
 
-    def truncate(self, table, query_only=True):
-        grammar = self.grammar(table=table)
-        query = grammar.truncate_table(table=table).to_sql()
-        if query_only:
-            return query
-        return bool(self.new_connection().query(query, ()))
+        return bool(self.new_connection().query(sql, ()))
+
+    def rename(self, table, new_name):
+        sql = self.platform().compile_rename_table(table, new_name)
+
+        if self._dry:
+            return sql
+
+        return bool(self.new_connection().query(sql, ()))
+
+    def truncate(self, table):
+        sql = self.platform().compile_truncate(table)
+
+        if self._dry:
+            return sql
+
+        return bool(self.new_connection().query(sql, ()))
 
     def has_table(self, table, query_only=False):
         """Checks if the a database has a specific table
@@ -194,15 +200,11 @@ class Schema:
         Returns:
             masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
-        print("checking table exists")
-        if self._dry:
-            grammar = self.grammar(table=table, database="orm")
-        else:
-            grammar = self.grammar(
-                table=table, database=self.new_connection().get_database_name()
-            )
+        sql = self.platform().compile_table_exists(
+            table, database=self.get_connection_information().get("database")
+        )
 
-        query = grammar.table_exists().to_sql()
-        if query_only:
-            return query
-        return bool(self.new_connection().make_connection().query(query, ()))
+        if self._dry:
+            return sql
+
+        return bool(self.new_connection().query(sql, ()))

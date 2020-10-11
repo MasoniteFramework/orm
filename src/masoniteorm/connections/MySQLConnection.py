@@ -3,6 +3,7 @@ import random
 from ..exceptions import DriverNotFound
 from .BaseConnection import BaseConnection
 from ..query.grammars import MySQLGrammar
+from ..schema.platforms import MySQLPlatform
 
 CONNECTION_POOL = []
 
@@ -69,6 +70,10 @@ class MySQLConnection(BaseConnection):
     def get_default_query_grammar(cls):
         return MySQLGrammar
 
+    @classmethod
+    def get_default_platform(cls):
+        return MySQLPlatform
+
     def get_database_name(self):
         return self.database
 
@@ -113,8 +118,6 @@ class MySQLConnection(BaseConnection):
         Returns:
             dict|None -- Returns a dictionary of results or None
         """
-        query = query.replace("'?'", "%s")
-        print("running query", query, bindings)
 
         if self._dry:
             return {}
@@ -124,6 +127,15 @@ class MySQLConnection(BaseConnection):
 
         try:
             with self._connection.cursor() as cursor:
+                if isinstance(query, list):
+                    for q in query:
+                        q = q.replace("'?'", "%s")
+                        print("running query from list: ", q, bindings)
+                        cursor.execute(q, ())
+                    return
+
+                query = query.replace("'?'", "%s")
+                print("running query", query, bindings)
                 cursor.execute(query, bindings)
                 if results == 1:
                     return cursor.fetchone()

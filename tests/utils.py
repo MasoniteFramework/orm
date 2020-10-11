@@ -3,6 +3,7 @@ from unittest import mock
 from src.masoniteorm.connections.ConnectionFactory import ConnectionFactory
 from src.masoniteorm.connections.MySQLConnection import MySQLConnection
 from src.masoniteorm.connections.SQLiteConnection import SQLiteConnection
+from src.masoniteorm.schema.platforms import MySQLPlatform
 
 
 class MockMySQLConnection(MySQLConnection):
@@ -10,6 +11,10 @@ class MockMySQLConnection(MySQLConnection):
         self._connection = mock.MagicMock()
 
         return self
+
+    @classmethod
+    def get_default_platform(cls):
+        return MySQLPlatform
 
 
 class MockPostgresConnection(MySQLConnection):

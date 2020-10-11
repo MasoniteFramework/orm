@@ -404,7 +404,7 @@ class Blueprint:
         Returns:
             self
         """
-        self.table.add_constraint(column, "index")
+        self.table.add_index(column, f"{self.table.name}_{column}_index", "index")
         return self
 
     def fulltext(self, column):
@@ -529,7 +529,7 @@ class Blueprint:
 
         return self
 
-    def drop_index(self, indexes):
+    def drop_index(self, index):
         """Specifies indexes that should be dropped.
 
         Arguments:
@@ -538,20 +538,17 @@ class Blueprint:
         Returns:
             self
         """
-        if isinstance(indexes, str):
-            indexes = [indexes]
+        if isinstance(index, list):
+            for column in index:
+                self.table.remove_index(f"{self.table.name}_{column}_index")
 
-        for index in indexes:
-            # self._last_column = self.new_column(
-            #     None, index, None, None, action="drop_index"
-            # )
-            # self._columns += (self._last_column,)
-            self._constraints += (
-                Constraint(index, constraint_type="index", action="drop"),
-            )
+            return self
+
+        self.table.remove_index(index)
+
         return self
 
-    def drop_unique(self, indexes):
+    def drop_unique(self, index):
         """Drops a unique index.
 
         Arguments:
@@ -560,36 +557,15 @@ class Blueprint:
         Returns:
             self
         """
-        if isinstance(indexes, str):
-            indexes = [indexes]
+        if isinstance(index, list):
+            for column in index:
+                self.table.remove_index(f"{self.table.name}_{column}_unique")
 
-        for index in indexes:
-            # self._last_column = self.new_column(
-            #     None, index, None, None, action="drop_unique"
-            # )
-            self._constraints += (
-                Constraint(index, constraint_type="unique", action="drop"),
-            )
-        return self
+            return self
 
-    def drop_primary(self, index=""):
-        """Drops a primary key index.
+        self.table.remove_index(index)
 
-        Returns:
-            self
-        """
-        # self._last_column = self.new_column(
-        #     None, None, None, None, action="drop_primary"
-        # )
-
-        index = self.grammar().primary_key_string().format(table=self.table)
-        self._constraints += (
-            Constraint(index, constraint_type="primary", action="drop"),
-        )
-        # self._columns += (self._last_column,)
-        return self
-
-    def drop_foreign(self, indexes):
+    def drop_foreign(self, index):
         """Drops foreign key indexes.
 
         Arguments:
@@ -598,20 +574,12 @@ class Blueprint:
         Returns:
             self
         """
-        if isinstance(indexes, str):
-            indexes = [indexes]
+        if isinstance(index, list):
+            for column in index:
+                self.table.drop_foreign(f"{self.table.name}_{column}_foreign")
 
-        for index in indexes:
-            if not index.startswith(self.table):
-                index = self.table + "_" + index
-            if not index.endswith("foreign"):
-                index = index + "_foreign"
+            return self
 
-            # self._last_column = self.new_column(
-            #     None, key, None, None, action="drop_foreign"
-            # )
-            # self._last_column.is_constraint = True
-            self._constraints += (
-                Constraint(index, constraint_type="foreign", action="drop"),
-            )
+        self.table.drop_foreign(index)
+
         return self

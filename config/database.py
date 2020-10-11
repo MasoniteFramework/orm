@@ -4,6 +4,7 @@ import os
 
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.connections import ConnectionResolver
+from dotenv import load_dotenv
 
 """
 |--------------------------------------------------------------------------
@@ -13,6 +14,8 @@ from src.masoniteorm.connections import ConnectionResolver
 | Loads in the environment variables when this page is imported.
 |
 """
+
+load_dotenv('.env')
 
 
 """
@@ -24,26 +27,24 @@ DATABASES = {
     'default': 'mysql',
     'mysql': {
         'driver': 'mysql',
-        'host': 'localhost',
-        'user': 'root',
-        'password': '',
-        'database': 'orm',
-        'port': '3306',
+        'host': os.getenv('MYSQL_DATABASE_HOST'),
+        'user': os.getenv('MYSQL_DATABASE_USER'),
+        'password': os.getenv('MYSQL_DATABASE_PASSWORD'),
+        'database': os.getenv('MYSQL_DATABASE_DATABASE'),
+        'port': os.getenv('MYSQL_DATABASE_PORT'),
         'prefix': '',
-        'grammar': 'mysql',
         'options': {
             'charset': 'utf8mb4',
         },
     },
     'postgres': {
         'driver': 'postgres',
-        'host': 'localhost',
-        'user': 'postgres',
-        'password': 'postgres',
-        'database': 'personal',
-        'port': '5432',
+        'host': os.getenv('POSTGRES_DATABASE_HOST'),
+        'user': os.getenv('POSTGRES_DATABASE_USER'),
+        'password': os.getenv('POSTGRES_DATABASE_PASSWORD'),
+        'database': os.getenv('POSTGRES_DATABASE_DATABASE'),
+        'port': os.getenv('POSTGRES_DATABASE_PORT'),
         'prefix': '',
-        'grammar': 'postgres',
     },
     'sqlite': {
         'driver': 'sqlite',

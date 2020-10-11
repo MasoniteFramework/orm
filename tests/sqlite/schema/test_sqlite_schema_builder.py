@@ -6,6 +6,8 @@ from src.masoniteorm.schema.platforms import SQLitePlatform
 
 
 class TestSQLiteSchemaBuilder(unittest.TestCase):
+    maxDiff = None
+
     def setUp(self):
         self.schema = Schema(
             connection=SQLiteConnection,
@@ -51,7 +53,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             "age INTEGER, "
             "profile_id INTEGER, "
             "UNIQUE(name), "
-            "CONSTRAINT profile_id_users_profiles_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))",
+            "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))",
         )
 
     def test_can_advanced_table_creation(self):
@@ -69,12 +71,10 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             (
-                'CREATE TABLE "users" '
-                "(id INTEGER PRIMARY KEY, name VARCHAR(255), "
-                "email VARCHAR(255), password VARCHAR(255), "
-                "admin INTEGER, remember_token VARCHAR(255), "
-                "verified_at TIMESTAMP, created_at TIMESTAMP, "
-                "updated_at TIMESTAMP, UNIQUE(email))"
+                'CREATE TABLE "users" (id INTEGER PRIMARY KEY, name VARCHAR(255), email VARCHAR(255), '
+                "password VARCHAR(255), admin INTEGER DEFAULT 0, remember_token VARCHAR(255), "
+                "verified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, UNIQUE(email))"
             ),
         )
 
@@ -98,12 +98,45 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             (
-                'CREATE TABLE "users" '
-                "(id INTEGER PRIMARY KEY, name VARCHAR(255), "
-                "duration VARCHAR(255), url VARCHAR(255), "
-                "published_at DATETIME, thumbnail VARCHAR(255), "
-                "premium INTEGER, author_id UNSIGNED INT, description TEXT, "
-                "created_at TIMESTAMP, updated_at TIMESTAMP, "
-                "CONSTRAINT author_id_users_users_id_foreign FOREIGN KEY (author_id) REFERENCES users(id))"
+                'CREATE TABLE "users" (id INTEGER PRIMARY KEY, name VARCHAR(255), duration VARCHAR(255), '
+                "url VARCHAR(255), published_at DATETIME, thumbnail VARCHAR(255), premium INTEGER, "
+                "author_id UNSIGNED INT, description TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                "CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES users(id))"
             ),
+        )
+
+    def test_has_table(self):
+        schema_sql = self.schema.has_table("users")
+
+        sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='users'"
+
+        self.assertEqual(schema_sql, sql)
+
+    def test_can_truncate(self):
+        sql = self.schema.truncate("users")
+
+        self.assertEqual(sql, 'TRUNCATE "users"')
+
+    def test_can_rename_table(self):
+        sql = self.schema.rename("users", "clients")
+
+        self.assertEqual(sql, 'ALTER TABLE "users" RENAME TO "clients"')
+
+    def test_can_drop_table_if_exists(self):
+        sql = self.schema.drop_table_if_exists("users", "clients")
+
+        self.assertEqual(sql, 'DROP TABLE IF EXISTS "users"')
+
+    def test_can_drop_table(self):
+        sql = self.schema.drop_table("users", "clients")
+
+        self.assertEqual(sql, 'DROP TABLE "users"')
+
+    def test_has_column(self):
+        sql = self.schema.has_column("users", "name")
+
+        self.assertEqual(
+            sql,
+            "SELECT column_name FROM information_schema.columns WHERE table_name='users' and column_name='name'",
         )

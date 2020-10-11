@@ -3,6 +3,7 @@ import random
 from ..exceptions import DriverNotFound
 from .BaseConnection import BaseConnection
 from ..query.grammars import PostgresGrammar
+from ..schema.platforms import PostgresPlatform
 
 
 CONNECTION_POOL = []
@@ -65,6 +66,10 @@ class PostgresConnection(BaseConnection):
     def get_default_query_grammar(cls):
         return PostgresGrammar
 
+    @classmethod
+    def get_default_platform(cls):
+        return PostgresPlatform
+
     def reconnect(self):
         pass
 
@@ -113,14 +118,18 @@ class PostgresConnection(BaseConnection):
         """
         from psycopg2.extras import RealDictCursor
 
-        query = query.replace("'?'", "%s")
-        print("running query:", query, bindings)
-        if self._dry:
-            return {}
         try:
             if self._connection.closed:
                 self.make_connection()
             with self._connection.cursor(cursor_factory=RealDictCursor) as cursor:
+                if isinstance(query, list) and not self._dry:
+                    for q in query:
+                        print("running query:", q, ())
+                        cursor.execute(q, ())
+                    return
+
+                print("running query", query, bindings)
+                query = query.replace("'?'", "%s")
                 cursor.execute(query, bindings)
                 if results == 1:
                     return dict(cursor.fetchone() or {})

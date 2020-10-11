@@ -43,6 +43,8 @@ class ConnectionFactory:
             masonite.orm.connection.BaseConnection -- Returns an instance of a BaseConnection class.
         """
 
+        from config.database import ConnectionResolver
+
         connections = ConnectionResolver.get_connection_details()
 
         if key == "default":

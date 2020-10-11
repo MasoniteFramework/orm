@@ -6,7 +6,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.6.3b',
+    version='0.7.0b',
     package_dir={'': 'src'},
 
     description='The Official Masonite ORM',
@@ -91,6 +91,7 @@ setup(
         'masoniteorm.relationships',
         'masoniteorm.schema',
         'masoniteorm.schema.grammars',
+        'masoniteorm.schema.platforms',
         'masoniteorm.scopes',
         'masoniteorm.seeds',
         'masoniteorm.testing',

@@ -36,7 +36,6 @@ class SQLiteConnection(BaseConnection):
 
     def make_connection(self):
         """This sets the connection on the connection class"""
-        print("db", self.database)
 
         self._connection = sqlite3.connect(self.database, isolation_level=None)
 
@@ -111,10 +110,11 @@ class SQLiteConnection(BaseConnection):
             self._cursor = self._connection.cursor()
             if isinstance(query, list):
                 for query in query:
+                    print("running query from list: ", query, ())
                     self._cursor.execute(query, ())
             else:
                 query = query.replace("'?'", "?")
-                print("running query: ", self, query, bindings)
+                print("running query: ", query, bindings)
                 self._cursor.execute(query, bindings)
                 if results == 1:
                     result = [dict(row) for row in self._cursor.fetchall()]

@@ -93,8 +93,8 @@ class TestTable(unittest.TestCase):
         sql = (
             'CREATE TABLE "users" ('
             "id INTEGER PRIMARY KEY, profile_id INTEGER, comment_id INTEGER, "
-            "CONSTRAINT profile_id_users_profiles_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id), "
-            "CONSTRAINT comment_id_users_comments_id_foreign FOREIGN KEY (comment_id) REFERENCES comments(id))"
+            "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id), "
+            "CONSTRAINT users_comment_id_foreign FOREIGN KEY (comment_id) REFERENCES comments(id))"
         )
 
         self.platform.constraintize(table.get_added_constraints())

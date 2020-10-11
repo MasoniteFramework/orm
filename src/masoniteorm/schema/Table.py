@@ -48,19 +48,16 @@ class Table:
     def get_added_columns(self):
         return self.added_columns
 
-    def rename_column(self, column, to):
-        pass
+    def get_renamed_columns(self):
+        return self.added_columns
 
     def set_primary_key(self, column_name):
         self.primary_key = column_name
         self.added_columns[column_name].set_as_primary()
         return self
 
-    def add_index(self, name, index_type):
-        self.added_indexes.update({name: Index(name, index_type)})
+    def add_index(self, column, name, index_type):
+        self.added_indexes.update({name: Index(column, name, index_type)})
 
     def get_index(self, name):
         return self.added_indexes[name]
-
-    def drop_index(self, index):
-        pass

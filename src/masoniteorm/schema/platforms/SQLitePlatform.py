@@ -1,7 +1,8 @@
 from ..Table import Table
+from .Platform import Platform
 
 
-class SQLitePlatform:
+class SQLitePlatform(Platform):
 
     types_without_lengths = ["integer"]
 
@@ -37,9 +38,20 @@ class SQLitePlatform:
         "unsigned_integer": "UNSIGNED INT",
     }
 
+    premapped_defaults = {
+        "current": " DEFAULT CURRENT_TIMESTAMP",
+        "now": " DEFAULT NOW()",
+        "null": " DEFAULT NULL",
+    }
+
+    premapped_nulls = {
+        True: "NULL",
+        False: "NOT NULL",
+    }
+
     def compile_create_sql(self, table):
         return self.create_format().format(
-            table=self.table_string().format(table=table.name).strip(),
+            table=self.get_table_string().format(table=table.name).strip(),
             columns=", ".join(self.columnize(table.get_added_columns())).strip(),
             constraints=", "
             + ", ".join(self.constraintize(table.get_added_constraints()))
@@ -57,8 +69,8 @@ class SQLitePlatform:
         sql = []
 
         if diff.removed_indexes:
-            for name, index in diff.removed_indexes.items():
-                sql.append("DROP INDEX {name}".format(name=index.name))
+            for name in diff.removed_indexes:
+                sql.append("DROP INDEX {name}".format(name=name))
 
         if diff.added_columns:
             for name, column in diff.added_columns.items():
@@ -92,7 +104,7 @@ class SQLitePlatform:
 
             sql.append(
                 self.create_format().format(
-                    table=self.table_string().format(table=diff.name).strip(),
+                    table=self.get_table_string().format(table=diff.name).strip(),
                     columns=", ".join(self.columnize(columns)).strip(),
                     constraints=", "
                     + ", ".join(self.constraintize(diff.get_added_constraints()))
@@ -111,7 +123,9 @@ class SQLitePlatform:
 
             sql.append(
                 "INSERT INTO {quoted_table} ({new_columns}) SELECT {original_column_names} FROM __temp__{table}".format(
-                    quoted_table=self.table_string().format(table=diff.name).strip(),
+                    quoted_table=self.get_table_string()
+                    .format(table=diff.name)
+                    .strip(),
                     table=diff.name,
                     new_columns=", ".join(self.columnize_names(columns)),
                     original_column_names=", ".join(
@@ -133,7 +147,7 @@ class SQLitePlatform:
     def create_format(self):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
 
-    def table_string(self):
+    def get_table_string(self):
         return '"{table}"'
 
     def create_column_length(self, column_type):
@@ -142,13 +156,13 @@ class SQLitePlatform:
         return "({length})"
 
     def columnize_string(self):
-        return "{name} {data_type}{length} {constraint}"
+        return "{name} {data_type}{length}{default} {constraint}"
 
     def get_unique_constraint_string(self):
         return "UNIQUE({columns})"
 
     def get_foreign_key_constraint_string(self):
-        return "CONSTRAINT {column}_{table}_{foreign_table}_{foreign_column}_foreign FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column})"
+        return "CONSTRAINT {table}_{column}_foreign FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column})"
 
     def constraintize(self, constraints):
         sql = []
@@ -175,29 +189,6 @@ class SQLitePlatform:
             )
         return sql
 
-    def columnize(self, columns):
-        sql = []
-        for name, column in columns.items():
-            if column.length:
-                length = self.create_column_length(column.column_type).format(
-                    length=column.length
-                )
-            else:
-                length = ""
-            sql.append(
-                self.columnize_string()
-                .format(
-                    name=column.name,
-                    data_type=self.type_map.get(column.column_type, ""),
-                    length=length,
-                    constraint="PRIMARY KEY" if column.primary else ""
-                    # nullable=self.null_map.get(column.is_null) or ""
-                )
-                .strip()
-            )
-
-        return sql
-
     def columnize_names(self, columns):
         names = []
         for name, column in columns.items():
@@ -222,3 +213,21 @@ class SQLitePlatform:
                 table.set_primary_key(column["name"])
 
         return table
+
+    def compile_table_exists(self, table, database=None):
+        return f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}'"
+
+    def compile_column_exists(self, table, column):
+        return f"SELECT column_name FROM information_schema.columns WHERE table_name='{table}' and column_name='{column}'"
+
+    def compile_truncate(self, table):
+        return f"TRUNCATE {self.wrap_table(table)}"
+
+    def compile_rename_table(self, current_table, new_name):
+        return f"ALTER TABLE {self.wrap_table(current_table)} RENAME TO {self.wrap_table(new_name)}"
+
+    def compile_drop_table_if_exists(self, current_table):
+        return f"DROP TABLE IF EXISTS {self.wrap_table(current_table)}"
+
+    def compile_drop_table(self, current_table):
+        return f"DROP TABLE {self.wrap_table(current_table)}"

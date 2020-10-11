@@ -94,54 +94,6 @@ class PostgresGrammar(BaseGrammar):
         "not_null": " NOT NULL ",
     }
 
-    def select_format(self):
-        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by}{order_by} {limit} {offset} {having}"
-
-    def update_format(self):
-        return "UPDATE {table} SET {key_equals} {wheres}"
-
-    def insert_format(self):
-        return "INSERT INTO {table} ({columns}) VALUES ({values})"
-
-    def delete_format(self):
-        return "DELETE FROM {table} {wheres}"
-
-    def aggregate_string_with_alias(self):
-        return "{aggregate_function}({column}) AS {alias}"
-
-    def aggregate_string_without_alias(self):
-        return "{aggregate_function}({column})"
-
-    def subquery_string(self):
-        return "({query})"
-
-    def raw_query_string(self):
-        return "{keyword} {query}"
-
-    def where_group_string(self):
-        return "{keyword} {value}"
-
-    def between_string(self):
-        return "{keyword} {column} BETWEEN {low} AND {high}"
-
-    def not_between_string(self):
-        return "{keyword} {column} NOT BETWEEN {low} AND {high}"
-
-    def where_exists_string(self):
-        return "{keyword} EXISTS {value}"
-
-    def subquery_alias_string(self):
-        return "AS {alias}"
-
-    def key_value_string(self):
-        return "{column} = '{value}'{separator}"
-
-    def increment_string(self):
-        return "{column} = {column} + '{value}'"
-
-    def decrement_string(self):
-        return "{column} = {column} - '{value}'"
-
     def create_column_string(self):
         return "{column} {data_type}{length}{nullable}{default_value}, "
 
