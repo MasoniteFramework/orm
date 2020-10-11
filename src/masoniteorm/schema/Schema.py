@@ -185,8 +185,6 @@ class Schema:
 
         return bool(self.new_connection().query(sql, ()))
 
-        
-
     def truncate(self, table):
         sql = self.platform().compile_truncate(table)
 
