@@ -3,6 +3,7 @@ import random
 from ..exceptions import DriverNotFound
 from .BaseConnection import BaseConnection
 from ..query.grammars import MySQLGrammar
+from ..schema.platforms import MySQLPlatform
 
 CONNECTION_POOL = []
 
@@ -68,6 +69,10 @@ class MySQLConnection(BaseConnection):
     @classmethod
     def get_default_query_grammar(cls):
         return MySQLGrammar
+
+    @classmethod
+    def get_default_platform(cls):
+        return MySQLPlatform
 
     def get_database_name(self):
         return self.database
