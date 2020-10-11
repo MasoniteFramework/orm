@@ -1,20 +1,20 @@
 import unittest
 from config.database import DATABASES
 from src.masoniteorm.schema import Schema
-from src.masoniteorm.connections import PostgresConnection
-from src.masoniteorm.schema.platforms import PostgresPlatform
+from src.masoniteorm.connections import MySQLConnection
+from src.masoniteorm.schema.platforms import MySQLPlatform
 from src.masoniteorm.schema.Table import Table
 
 
-class TestPostgresSchemaBuilderAlter(unittest.TestCase):
+class TestMySQLSchemaBuilderAlter(unittest.TestCase):
     maxDiff = None
 
     def setUp(self):
 
         self.schema = Schema(
-            connection=PostgresConnection,
+            connection=MySQLConnection,
             connection_details=DATABASES,
-            platform=PostgresPlatform,
+            platform=MySQLPlatform,
             dry=True,
         ).on("postgres")
 
@@ -26,7 +26,7 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
 
         sql = [
-            'ALTER TABLE "users" ADD COLUMN name VARCHAR(255), ADD COLUMN age INTEGER',
+            "ALTER TABLE `users` ADD name VARCHAR(255), ADD age INT(11)",
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)
@@ -39,7 +39,7 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         table.add_column("post", "integer")
         blueprint.table.from_table = table
 
-        sql = ['ALTER TABLE "users" RENAME COLUMN post TO comment']
+        sql = ["ALTER TABLE `users` RENAME COLUMN post TO comment"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -53,17 +53,17 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         blueprint.table.from_table = table
 
         sql = [
-            'ALTER TABLE "users" ADD COLUMN name VARCHAR(255)',
-            'ALTER TABLE "users" RENAME COLUMN post TO comment',
+            "ALTER TABLE `users` ADD name VARCHAR(255)",
+            "ALTER TABLE `users` RENAME COLUMN post TO comment",
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
-    def test_alter_drop(self):
+    def test_alter_drop1(self):
         with self.schema.table("users") as blueprint:
             blueprint.drop_column("post")
 
-        sql = ['ALTER TABLE "users" DROP COLUMN post']
+        sql = ["ALTER TABLE `users` DROP COLUMN post"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -73,8 +73,8 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
             blueprint.foreign("playlist_id").references("id").on("playlists")
 
         sql = [
-            'ALTER TABLE "users" ADD COLUMN playlist_id INT',
-            'ALTER TABLE "users" ADD CONSTRAINT users_playlist_id_foreign FOREIGN KEY (playlist_id) REFERENCES playlists(id)',
+            "ALTER TABLE `users` ADD playlist_id INT UNSIGNED",
+            "ALTER TABLE `users` ADD CONSTRAINT users_playlist_id_foreign FOREIGN KEY (playlist_id) REFERENCES playlists(id)",
         ]
 
         print(blueprint.table.added_foreign_keys)
@@ -85,7 +85,7 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.drop_foreign("users_playlist_id_foreign")
 
-        sql = ['ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_foreign']
+        sql = ["ALTER TABLE `users` DROP CONSTRAINT users_playlist_id_foreign"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -93,7 +93,7 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.drop_foreign(["playlist_id"])
 
-        sql = ['ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_foreign']
+        sql = ["ALTER TABLE `users` DROP CONSTRAINT users_playlist_id_foreign"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -101,7 +101,7 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.drop_unique("users_playlist_id_unique")
 
-        sql = ['ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_unique']
+        sql = ["ALTER TABLE `users` DROP CONSTRAINT users_playlist_id_unique"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -117,7 +117,7 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.drop_index("users_playlist_id_index")
 
-        sql = ['ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_index']
+        sql = ["ALTER TABLE `users` DROP CONSTRAINT users_playlist_id_index"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -125,7 +125,7 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.drop_index(["playlist_id"])
 
-        sql = ['ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_index']
+        sql = ["ALTER TABLE `users` DROP CONSTRAINT users_playlist_id_index"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -133,7 +133,7 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.drop_unique(["playlist_id"])
 
-        sql = ['ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_unique']
+        sql = ["ALTER TABLE `users` DROP CONSTRAINT users_playlist_id_unique"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -153,9 +153,9 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
 
     def test_alter_drop_on_table_schema_table(self):
         schema = Schema(
-            connection=PostgresConnection,
+            connection=MySQLConnection,
             connection_details=DATABASES,
-        ).on("postgres")
+        ).on("mysql")
 
         with schema.table("table_schema") as blueprint:
             blueprint.drop_column("name")

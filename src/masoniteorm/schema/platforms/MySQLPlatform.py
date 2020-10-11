@@ -1,4 +1,5 @@
 from .Platform import Platform
+from ..Table import Table
 
 
 class MySQLPlatform(Platform):
@@ -58,6 +59,119 @@ class MySQLPlatform(Platform):
 
         return sql[0]
 
+    def compile_alter_sql(self, table):
+        sql = []
+
+        if table.added_columns:
+            add_columns = []
+
+            for name, column in table.get_added_columns().items():
+                if column.length:
+                    length = self.create_column_length(column.column_type).format(
+                        length=column.length
+                    )
+                else:
+                    length = ""
+                add_columns.append(
+                    self.add_column_string()
+                    .format(
+                        name=column.name,
+                        data_type=self.type_map.get(column.column_type, ""),
+                        length=length,
+                        constraint="PRIMARY KEY" if column.primary else "",
+                    )
+                    .strip()
+                )
+
+            sql.append(
+                self.alter_format().format(
+                    table=self.wrap_table(table.name),
+                    columns=", ".join(add_columns).strip(),
+                )
+            )
+
+        if table.renamed_columns:
+            renamed_sql = []
+
+            for name, column in table.get_renamed_columns().items():
+                if column.length:
+                    length = self.create_column_length(column.column_type).format(
+                        length=column.length
+                    )
+                else:
+                    length = ""
+
+                renamed_sql.append(
+                    self.rename_column_string()
+                    .format(
+                        to=column.name,
+                        old=name,
+                    )
+                    .strip()
+                )
+
+            sql.append(
+                self.alter_format().format(
+                    table=self.wrap_table(table.name),
+                    columns=", ".join(renamed_sql).strip(),
+                )
+            )
+
+        if table.dropped_columns:
+            dropped_sql = []
+
+            for name in table.get_dropped_columns():
+                dropped_sql.append(self.drop_column_string().format(name=name).strip())
+
+            sql.append(
+                self.alter_format().format(
+                    table=self.wrap_table(table.name),
+                    columns=", ".join(dropped_sql),
+                )
+            )
+
+        if table.added_foreign_keys:
+            for (
+                column,
+                foreign_key_constraint,
+            ) in table.get_added_foreign_keys().items():
+                sql.append(
+                    f"ALTER TABLE {self.wrap_table(table.name)} ADD "
+                    + self.get_foreign_key_constraint_string().format(
+                        column=column,
+                        table=table.name,
+                        foreign_table=foreign_key_constraint.foreign_table,
+                        foreign_column=foreign_key_constraint.foreign_column,
+                    )
+                )
+
+        if table.dropped_foreign_keys or table.removed_indexes:
+            constraints = table.dropped_foreign_keys
+            constraints += table.removed_indexes
+            for constraint in constraints:
+                sql.append(
+                    f"ALTER TABLE {self.wrap_table(table.name)} DROP CONSTRAINT {constraint}"
+                )
+
+        if table.added_indexes:
+            for name, index in table.added_indexes.items():
+                sql.append(
+                    "CREATE INDEX {name} ON {table}({column})".format(
+                        name=index.name, table=table.name, column=index.column
+                    )
+                )
+
+        return sql
+
+    def add_column_string(self):
+        return "ADD {name} {data_type}{length}"
+
+    def drop_column_string(self):
+        return "DROP COLUMN {name}"
+
+    def rename_column_string(self):
+        return "RENAME COLUMN {old} TO {to}"
+
     def constraintize(self, constraints, table):
         sql = []
         for name, constraint in constraints.items():
@@ -70,6 +184,7 @@ class MySQLPlatform(Platform):
                     table=table.name,
                 )
             )
+
         return sql
 
     def get_table_string(self):
@@ -77,6 +192,9 @@ class MySQLPlatform(Platform):
 
     def create_format(self):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
+
+    def alter_format(self):
+        return "ALTER TABLE {table} {columns}"
 
     def get_foreign_key_constraint_string(self):
         return "CONSTRAINT {table}_{column}_foreign FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column})"
@@ -101,3 +219,6 @@ class MySQLPlatform(Platform):
 
     def compile_column_exists(self, table, column):
         return f"SELECT column_name FROM information_schema.columns WHERE table_name='{table}' and column_name='{column}'"
+
+    def get_current_schema(self, connection, table_name):
+        return Table(table_name)

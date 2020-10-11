@@ -5,7 +5,7 @@ from src.masoniteorm.connections import PostgresConnection
 from src.masoniteorm.schema.platforms import PostgresPlatform
 
 
-class TestSQLiteSchemaBuilder(unittest.TestCase):
+class TestPostgresSchemaBuilder(unittest.TestCase):
     maxDiff = None
 
     def setUp(self):

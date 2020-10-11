@@ -114,22 +114,22 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
     def test_can_truncate(self):
         sql = self.schema.truncate("users")
 
-        self.assertEqual(sql, 'TRUNCATE `users`')
+        self.assertEqual(sql, "TRUNCATE `users`")
 
     def test_can_rename_table(self):
         sql = self.schema.rename("users", "clients")
 
-        self.assertEqual(sql, 'ALTER TABLE `users` RENAME TO `clients`')
+        self.assertEqual(sql, "ALTER TABLE `users` RENAME TO `clients`")
 
     def test_can_drop_table_if_exists(self):
         sql = self.schema.drop_table_if_exists("users", "clients")
 
-        self.assertEqual(sql, 'DROP TABLE IF EXISTS `users`')
+        self.assertEqual(sql, "DROP TABLE IF EXISTS `users`")
 
     def test_can_drop_table(self):
         sql = self.schema.drop_table("users", "clients")
 
-        self.assertEqual(sql, 'DROP TABLE `users`')
+        self.assertEqual(sql, "DROP TABLE `users`")
 
     def test_has_column(self):
         sql = self.schema.has_column("users", "name")
