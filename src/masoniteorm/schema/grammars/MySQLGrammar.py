@@ -72,9 +72,9 @@ class MySQLGrammar(BaseGrammar):
     """
 
     premapped_defaults = {
-        "current": " DEFAULT CURRENT_TIMESTAMP",
-        "now": " DEFAULT NOW()",
-        "null": " DEFAULT NULL",
+        "current": "DEFAULT CURRENT_TIMESTAMP",
+        "now": "DEFAULT NOW()",
+        "null": "DEFAULT NULL",
     }
 
     premapped_nulls = {

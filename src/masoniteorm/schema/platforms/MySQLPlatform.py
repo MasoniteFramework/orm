@@ -37,6 +37,17 @@ class MySQLPlatform(Platform):
         "unsigned_integer": "INT UNSIGNED",
     }
 
+    premapped_nulls = {
+        True: "NULL",
+        False: "NOT NULL",
+    }
+
+    premapped_defaults = {
+        "current": " DEFAULT CURRENT_TIMESTAMP",
+        "now": " DEFAULT NOW()",
+        "null": " DEFAULT NULL",
+    }
+
     def compile_create_sql(self, table):
         sql = []
 
@@ -145,12 +156,11 @@ class MySQLPlatform(Platform):
                     )
                 )
 
-        if table.dropped_foreign_keys or table.removed_indexes:
+        if table.dropped_foreign_keys:
             constraints = table.dropped_foreign_keys
-            constraints += table.removed_indexes
             for constraint in constraints:
                 sql.append(
-                    f"ALTER TABLE {self.wrap_table(table.name)} DROP CONSTRAINT {constraint}"
+                    f"ALTER TABLE {self.wrap_table(table.name)} DROP FOREIGN KEY {constraint}"
                 )
 
         if table.added_indexes:
@@ -159,6 +169,13 @@ class MySQLPlatform(Platform):
                     "CREATE INDEX {name} ON {table}({column})".format(
                         name=index.name, table=table.name, column=index.column
                     )
+                )
+
+        if table.removed_indexes:
+            constraints = table.removed_indexes
+            for constraint in constraints:
+                sql.append(
+                    f"ALTER TABLE {self.wrap_table(table.name)} DROP INDEX {constraint}"
                 )
 
         return sql
@@ -171,6 +188,9 @@ class MySQLPlatform(Platform):
 
     def rename_column_string(self):
         return "RENAME COLUMN {old} TO {to}"
+
+    def columnize_string(self):
+        return "{name} {data_type}{length} {nullable}{default} {constraint}"    
 
     def constraintize(self, constraints, table):
         sql = []
@@ -202,8 +222,8 @@ class MySQLPlatform(Platform):
     def get_unique_constraint_string(self):
         return "CONSTRAINT {table}_{name_columns}_unique UNIQUE ({columns})"
 
-    def compile_table_exists(self, table):
-        return f"SELECT * from information_schema.tables where table_name='{table}'"
+    def compile_table_exists(self, table, database):
+        return f"SELECT * from information_schema.tables where table_name='{table}' AND table_schema = '{database}'"
 
     def compile_truncate(self, table):
         return f"TRUNCATE {self.wrap_table(table)}"

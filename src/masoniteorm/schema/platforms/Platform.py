@@ -8,22 +8,36 @@ class Platform:
                 )
             else:
                 length = ""
+
+            print(column.is_null, self.premapped_nulls.get(column.is_null))
+            if column.default in (0,):
+                default = f" DEFAULT {column.default}"
+            elif column.default in self.premapped_defaults:
+                default = self.premapped_defaults.get(column.default)
+            elif column.default:
+                default = f" DEFAULT {column.default}"
+            else:
+                default = ""
+
             sql.append(
                 self.columnize_string()
                 .format(
                     name=column.name,
                     data_type=self.type_map.get(column.column_type, ""),
                     length=length,
-                    constraint="PRIMARY KEY" if column.primary else ""
-                    # nullable=self.null_map.get(column.is_null) or ""
+                    constraint="PRIMARY KEY" if column.primary else "",
+                    nullable=self.premapped_nulls.get(column.is_null) or "",
+                    default=default
                 )
                 .strip()
             )
 
+        print(sql)
+
         return sql
 
     def columnize_string(self):
-        return "{name} {data_type}{length} {constraint}"
+        raise NotImplementedError
 
     def create_column_length(self, column_type):
         if column_type in self.types_without_lengths:

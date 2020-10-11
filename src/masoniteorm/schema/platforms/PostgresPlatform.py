@@ -209,7 +209,7 @@ class PostgresPlatform(Platform):
     def table_information_string(self):
         return "SELECT * FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '{table}'"
 
-    def compile_table_exists(self, table):
+    def compile_table_exists(self, table, database=None):
         return f"SELECT * from information_schema.tables where table_name='{table}'"
 
     def compile_truncate(self, table):
