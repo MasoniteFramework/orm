@@ -563,7 +563,6 @@ class Blueprint:
 
             return self
 
-
         self.table.remove_index(index)
 
     def drop_foreign(self, index):
@@ -580,7 +579,6 @@ class Blueprint:
                 self.table.drop_foreign(f"{self.table.name}_{column}_foreign")
 
             return self
-
 
         self.table.drop_foreign(index)
 

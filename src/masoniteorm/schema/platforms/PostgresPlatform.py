@@ -158,7 +158,9 @@ class PostgresPlatform(Platform):
         if table.added_indexes:
             for name, index in table.added_indexes.items():
                 sql.append(
-                    "CREATE INDEX {name} ON {table}({column})".format(name=index.name, table=table.name, column=index.column)
+                    "CREATE INDEX {name} ON {table}({column})".format(
+                        name=index.name, table=table.name, column=index.column
+                    )
                 )
 
         return sql

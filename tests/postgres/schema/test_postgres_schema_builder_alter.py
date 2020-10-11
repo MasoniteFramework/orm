@@ -85,19 +85,15 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.drop_foreign("users_playlist_id_foreign")
 
-        sql = [
-            'ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_foreign'
-        ]
+        sql = ['ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_foreign']
 
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_alter_drop_foreign_key_shortcut(self):
         with self.schema.table("users") as blueprint:
-            blueprint.drop_foreign(['playlist_id'])
+            blueprint.drop_foreign(["playlist_id"])
 
-        sql = [
-            'ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_foreign'
-        ]
+        sql = ['ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_foreign']
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -105,9 +101,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.drop_unique("users_playlist_id_unique")
 
-        sql = [
-            'ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_unique'
-        ]
+        sql = ['ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_unique']
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -115,9 +109,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.index("playlist_id")
 
-        sql = [
-            'CREATE INDEX users_playlist_id_index ON users(playlist_id)'
-        ]
+        sql = ["CREATE INDEX users_playlist_id_index ON users(playlist_id)"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -125,9 +117,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.drop_index("users_playlist_id_index")
 
-        sql = [
-            'ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_index'
-        ]
+        sql = ['ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_index']
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -135,9 +125,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.drop_index(["playlist_id"])
 
-        sql = [
-            'ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_index'
-        ]
+        sql = ['ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_index']
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -145,9 +133,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.drop_unique(["playlist_id"])
 
-        sql = [
-            'ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_unique'
-        ]
+        sql = ['ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_unique']
 
         self.assertEqual(blueprint.to_sql(), sql)
 
