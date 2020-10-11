@@ -13,7 +13,7 @@ from inflection import camelize
 
 from ..models.MigrationModel import MigrationModel
 from ..schema import Schema
-from ..connections import ConnectionFactory, ConnectionResolver
+from ..connections import ConnectionFactory
 from ..schema.grammars import GrammarFactory
 
 
@@ -25,8 +25,10 @@ class Migration:
         command_class=None,
         migration_directory="databases/migrations",
     ):
+        self.connection = connection
         connection_class = ConnectionFactory().make(connection)
         grammar = GrammarFactory().make(connection)
+        from config.database import ConnectionResolver
         DATABASES = ConnectionResolver.get_connection_details()
 
         driver = DATABASES.get("default")
@@ -34,12 +36,13 @@ class Migration:
             connection=connection_class,
             connection_details=DATABASES,
             grammar=grammar,
-            connection_driver=driver,
-        )
+        ).on(self.connection)
+
         self._dry = dry
         self.migration_directory = migration_directory.replace("/", ".")
         self.last_migrations_ran = []
         self.command_class = command_class
+        self.migration_model = MigrationModel.on(self.connection)
 
     def create_table_if_not_exists(self):
         if not self.schema.has_table("migrations"):
@@ -61,7 +64,8 @@ class Migration:
         ]
         all_migrations.sort()
         unran_migrations = []
-        database_migrations = MigrationModel.all()
+
+        database_migrations = self.migration_model.all()
         for migration in all_migrations:
             if migration not in database_migrations.pluck("migration"):
                 unran_migrations.append(migration)
@@ -69,7 +73,7 @@ class Migration:
 
     def get_rollback_migrations(self):
         return (
-            MigrationModel.where("batch", MigrationModel.all().max("batch"))
+            self.migration_model.where("batch", self.migration_model.all().max("batch"))
             .order_by("migration_id", "desc")
             .get()
             .pluck("migration")
@@ -78,16 +82,16 @@ class Migration:
     def get_all_migrations(self, reverse=False):
         if reverse:
             return (
-                MigrationModel.order_by("migration_id", "desc").get().pluck("migration")
+                self.migration_model.order_by("migration_id", "desc").get().pluck("migration")
             )
 
-        return MigrationModel.all().pluck("migration")
+        return self.migration_model.all().pluck("migration")
 
     def get_last_batch_number(self):
-        return MigrationModel.select("batch").get().max("batch")
+        return self.migration_model.select("batch").get().max("batch")
 
     def delete_migration(self, file_path):
-        return MigrationModel.where("migration", file_path).delete()
+        return self.migration_model.where("migration", file_path).delete()
 
     def locate(self, file_name):
         migration_name = camelize("_".join(file_name.split("_")[4:]).replace(".py", ""))
@@ -114,14 +118,14 @@ class Migration:
                     f"<comment>Migrating:</comment> <question>{migration}</question>"
                 )
 
-            migration_class().up()
+            migration_class(connection=self.connection).up()
 
             if self.command_class:
                 self.command_class.line(
                     f"<info>Migrated:</info> <question>{migration}</question>"
                 )
 
-            MigrationModel.create({"batch": batch, "migration": migration})
+            self.migration_model.create({"batch": batch, "migration": migration})
 
     def rollback(self):
         for migration in self.get_rollback_migrations():
@@ -149,10 +153,10 @@ class Migration:
         self.delete_migrations(ran_migrations)
 
     def delete_migrations(self, migrations=[]):
-        return MigrationModel.where_in("migration", migrations).delete()
+        return self.migration_model.where_in("migration", migrations).delete()
 
     def delete_last_batch(self):
-        return MigrationModel.where("batch", self.get_last_batch_number()).delete()
+        return self.migration_model.where("batch", self.get_last_batch_number()).delete()
 
     def refresh(self):
         for migration in self.get_all_migrations(reverse=True):

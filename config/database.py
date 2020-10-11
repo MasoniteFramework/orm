@@ -46,7 +46,6 @@ DATABASES = {
         'database': os.getenv('POSTGRES_DATABASE_DATABASE'),
         'port': os.getenv('POSTGRES_DATABASE_PORT'),
         'prefix': '',
-        'grammar': 'postgres',
     },
     'sqlite': {
         'driver': 'sqlite',

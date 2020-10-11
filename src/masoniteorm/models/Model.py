@@ -162,6 +162,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         return self.builder
 
     def get_connection_details(self):
+        from config.database import ConnectionResolver
         return ConnectionResolver.get_connection_details()
 
     def boot(self):
@@ -538,3 +539,8 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         """
         self.__appends__ += appends
         return self
+
+    @classmethod
+    def on(cls, connection):
+        cls.__connection__ = connection
+        return cls
