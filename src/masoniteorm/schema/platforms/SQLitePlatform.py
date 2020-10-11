@@ -38,6 +38,17 @@ class SQLitePlatform(Platform):
         "unsigned_integer": "UNSIGNED INT",
     }
 
+    premapped_defaults = {
+        "current": " DEFAULT CURRENT_TIMESTAMP",
+        "now": " DEFAULT NOW()",
+        "null": " DEFAULT NULL",
+    }
+
+    premapped_nulls = {
+        True: "NULL",
+        False: "NOT NULL",
+    }
+
     def compile_create_sql(self, table):
         return self.create_format().format(
             table=self.get_table_string().format(table=table.name).strip(),
@@ -145,7 +156,7 @@ class SQLitePlatform(Platform):
         return "({length})"
 
     def columnize_string(self):
-        return "{name} {data_type}{length} {constraint}"
+        return "{name} {data_type}{length}{default} {constraint}"
 
     def get_unique_constraint_string(self):
         return "UNIQUE({columns})"
@@ -176,29 +187,6 @@ class SQLitePlatform(Platform):
                     foreign_column=foreign_key.foreign_column,
                 )
             )
-        return sql
-
-    def columnize(self, columns):
-        sql = []
-        for name, column in columns.items():
-            if column.length:
-                length = self.create_column_length(column.column_type).format(
-                    length=column.length
-                )
-            else:
-                length = ""
-            sql.append(
-                self.columnize_string()
-                .format(
-                    name=column.name,
-                    data_type=self.type_map.get(column.column_type, ""),
-                    length=length,
-                    constraint="PRIMARY KEY" if column.primary else ""
-                    # nullable=self.null_map.get(column.is_null) or ""
-                )
-                .strip()
-            )
-
         return sql
 
     def columnize_names(self, columns):

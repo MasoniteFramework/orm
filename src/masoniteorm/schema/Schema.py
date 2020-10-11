@@ -200,7 +200,9 @@ class Schema:
         Returns:
             masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
-        sql = self.platform().compile_table_exists(table, database=self.get_connection_information().get('database'))
+        sql = self.platform().compile_table_exists(
+            table, database=self.get_connection_information().get("database")
+        )
 
         if self._dry:
             return sql

@@ -23,7 +23,8 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
-            blueprint.to_sql(), "CREATE TABLE users (name VARCHAR(255) NOT NULL, age INT(11) NOT NULL)"
+            blueprint.to_sql(),
+            "CREATE TABLE users (name VARCHAR(255) NOT NULL, age INT(11) NOT NULL)",
         )
 
     def test_can_add_columns_with_constaint(self):

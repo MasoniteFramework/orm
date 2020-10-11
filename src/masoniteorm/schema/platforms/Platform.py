@@ -9,7 +9,6 @@ class Platform:
             else:
                 length = ""
 
-            print(column.is_null, self.premapped_nulls.get(column.is_null))
             if column.default in (0,):
                 default = f" DEFAULT {column.default}"
             elif column.default in self.premapped_defaults:
@@ -27,7 +26,7 @@ class Platform:
                     length=length,
                     constraint="PRIMARY KEY" if column.primary else "",
                     nullable=self.premapped_nulls.get(column.is_null) or "",
-                    default=default
+                    default=default,
                 )
                 .strip()
             )

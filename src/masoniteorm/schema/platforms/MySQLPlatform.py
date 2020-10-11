@@ -190,7 +190,7 @@ class MySQLPlatform(Platform):
         return "RENAME COLUMN {old} TO {to}"
 
     def columnize_string(self):
-        return "{name} {data_type}{length} {nullable}{default} {constraint}"    
+        return "{name} {data_type}{length} {nullable}{default} {constraint}"
 
     def constraintize(self, constraints, table):
         sql = []

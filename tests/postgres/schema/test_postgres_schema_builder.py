@@ -23,7 +23,8 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
-            blueprint.to_sql(), 'CREATE TABLE "users" (name VARCHAR(255), age INTEGER)'
+            blueprint.to_sql(),
+            'CREATE TABLE "users" (name VARCHAR(255) NOT NULL, age INTEGER NOT NULL)',
         )
 
     def test_can_truncate(self):
@@ -63,7 +64,7 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
             blueprint.to_sql(),
-            'CREATE TABLE "users" (name VARCHAR(255), age INTEGER, CONSTRAINT users_name_unique UNIQUE (name))',
+            'CREATE TABLE "users" (name VARCHAR(255) NOT NULL, age INTEGER NOT NULL, CONSTRAINT users_name_unique UNIQUE (name))',
         )
 
     def test_can_add_columns_with_foreign_key_constaint(self):
@@ -76,11 +77,8 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 3)
         self.assertEqual(
             blueprint.to_sql(),
-            'CREATE TABLE "users" '
-            "(name VARCHAR(255), "
-            "age INTEGER, "
-            "profile_id INTEGER, "
-            "CONSTRAINT users_name_unique UNIQUE (name), "
+            'CREATE TABLE "users" (name VARCHAR(255) NOT NULL, age INTEGER NOT NULL, '
+            "profile_id INTEGER NOT NULL, CONSTRAINT users_name_unique UNIQUE (name), "
             "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))",
         )
 
@@ -99,9 +97,11 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             (
-                'CREATE TABLE "users" (id SERIAL UNIQUE, name VARCHAR(255), email VARCHAR(255), '
-                "password VARCHAR(255), admin INTEGER, remember_token VARCHAR(255), verified_at TIMESTAMP, "
-                "created_at TIMESTAMP, updated_at TIMESTAMP, CONSTRAINT users_email_unique UNIQUE (email))"
+                'CREATE TABLE "users" (id SERIAL UNIQUE NOT NULL, name VARCHAR(255) NOT NULL, '
+                "email VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, admin INTEGER NOT NULL DEFAULT 0, "
+                "remember_token VARCHAR(255) NULL, verified_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
+                "created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
+                "CONSTRAINT users_email_unique UNIQUE (email))"
             ),
         )
 
@@ -125,10 +125,11 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             (
-                'CREATE TABLE "users" (id SERIAL UNIQUE, name VARCHAR(255), '
-                "duration VARCHAR(255), url VARCHAR(255), published_at TIMESTAMP, "
-                "thumbnail VARCHAR(255), premium INTEGER, author_id INT, description TEXT, "
-                "created_at TIMESTAMP, updated_at TIMESTAMP, "
+                'CREATE TABLE "users" (id SERIAL UNIQUE NOT NULL, name VARCHAR(255) NOT NULL, '
+                "duration VARCHAR(255) NOT NULL, url VARCHAR(255) NOT NULL, published_at TIMESTAMP NOT NULL, "
+                "thumbnail VARCHAR(255) NULL, premium INTEGER NOT NULL, author_id INT NULL, "
+                "description TEXT NOT NULL, created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
+                "updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
                 "CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES authors(id))"
             ),
         )

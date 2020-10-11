@@ -6,6 +6,8 @@ from src.masoniteorm.schema.platforms import SQLitePlatform
 
 
 class TestSQLiteSchemaBuilder(unittest.TestCase):
+    maxDiff = None
+
     def setUp(self):
         self.schema = Schema(
             connection=SQLiteConnection,
@@ -69,12 +71,10 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             (
-                'CREATE TABLE "users" '
-                "(id INTEGER PRIMARY KEY, name VARCHAR(255), "
-                "email VARCHAR(255), password VARCHAR(255), "
-                "admin INTEGER, remember_token VARCHAR(255), "
-                "verified_at TIMESTAMP, created_at TIMESTAMP, "
-                "updated_at TIMESTAMP, UNIQUE(email))"
+                'CREATE TABLE "users" (id INTEGER PRIMARY KEY, name VARCHAR(255), email VARCHAR(255), '
+                "password VARCHAR(255), admin INTEGER DEFAULT 0, remember_token VARCHAR(255), "
+                "verified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, UNIQUE(email))"
             ),
         )
 
@@ -98,12 +98,10 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             (
-                'CREATE TABLE "users" '
-                "(id INTEGER PRIMARY KEY, name VARCHAR(255), "
-                "duration VARCHAR(255), url VARCHAR(255), "
-                "published_at DATETIME, thumbnail VARCHAR(255), "
-                "premium INTEGER, author_id UNSIGNED INT, description TEXT, "
-                "created_at TIMESTAMP, updated_at TIMESTAMP, "
+                'CREATE TABLE "users" (id INTEGER PRIMARY KEY, name VARCHAR(255), duration VARCHAR(255), '
+                "url VARCHAR(255), published_at DATETIME, thumbnail VARCHAR(255), premium INTEGER, "
+                "author_id UNSIGNED INT, description TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
                 "CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES users(id))"
             ),
         )

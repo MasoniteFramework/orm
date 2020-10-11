@@ -39,6 +39,17 @@ class PostgresPlatform(Platform):
 
     table_info_map = {"CHARACTER VARYING": "string"}
 
+    premapped_defaults = {
+        "current": " DEFAULT CURRENT_TIMESTAMP",
+        "now": " DEFAULT NOW()",
+        "null": " DEFAULT NULL",
+    }
+
+    premapped_nulls = {
+        True: "NULL",
+        False: "NOT NULL",
+    }
+
     def compile_create_sql(self, table):
         sql = []
 
@@ -179,6 +190,9 @@ class PostgresPlatform(Platform):
 
     def rename_column_string(self):
         return "RENAME COLUMN {old} TO {to}"
+
+    def columnize_string(self):
+        return "{name} {data_type}{length} {nullable}{default} {constraint}"
 
     def constraintize(self, constraints, table):
         sql = []
