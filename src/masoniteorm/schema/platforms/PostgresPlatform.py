@@ -212,6 +212,21 @@ class PostgresPlatform(Platform):
     def compile_table_exists(self, table):
         return f"SELECT * from information_schema.tables where table_name='{table}'"
 
+    def compile_truncate(self, table):
+        return f"TRUNCATE {self.wrap_table(table)}"
+
+    def compile_rename_table(self, current_name, new_name):
+        return f"ALTER TABLE {self.wrap_table(current_name)} RENAME TO {self.wrap_table(new_name)}"
+
+    def compile_drop_table_if_exists(self, table):
+        return f"DROP TABLE IF EXISTS {self.wrap_table(table)}"
+
+    def compile_drop_table(self, table):
+        return f"DROP TABLE {self.wrap_table(table)}"
+
+    def compile_column_exists(self, table, column):
+        return f"SELECT column_name FROM information_schema.columns WHERE table_name='{table}' and column_name='{column}'"
+
     def get_current_schema(self, connection, table_name):
         sql = self.table_information_string().format(table=table_name)
 
