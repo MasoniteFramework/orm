@@ -151,14 +151,14 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(schema_sql, sql)
 
-    def test_alter_drop_on_table_schema_table(self):
-        schema = Schema(
-            connection=MySQLConnection,
-            connection_details=DATABASES,
-        ).on("mysql")
+    # def test_alter_drop_on_table_schema_table(self):
+    #     schema = Schema(
+    #         connection=MySQLConnection,
+    #         connection_details=DATABASES,
+    #     ).on("mysql")
 
-        with schema.table("table_schema") as blueprint:
-            blueprint.drop_column("name")
+    #     with schema.table("table_schema") as blueprint:
+    #         blueprint.drop_column("name")
 
-        with schema.table("table_schema") as blueprint:
-            blueprint.string("name")
+    #     with schema.table("table_schema") as blueprint:
+    #         blueprint.string("name")
