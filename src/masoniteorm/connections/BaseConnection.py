@@ -1,5 +1,4 @@
 from ..query.grammars import GrammarFactory
-from ..schema.grammars import GrammarFactory as SchemaGrammarFactory
 
 
 class BaseConnection:

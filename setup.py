@@ -90,7 +90,6 @@ setup(
         'masoniteorm.query.processors',
         'masoniteorm.relationships',
         'masoniteorm.schema',
-        'masoniteorm.schema.grammars',
         'masoniteorm.schema.platforms',
         'masoniteorm.scopes',
         'masoniteorm.seeds',
