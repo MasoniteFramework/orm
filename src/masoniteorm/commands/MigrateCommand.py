@@ -14,6 +14,7 @@ class MigrateCommand(Command):
 
     def handle(self):
         from config.database import ConnectionResolver
+
         # prompt user for confirmation in production
         if os.getenv("APP_ENV") == "production" and not self.option("force"):
             answer = ""
@@ -25,7 +26,7 @@ class MigrateCommand(Command):
                 self.info("Migrations cancelled")
                 exit(0)
         self.info("starting migration class")
-        migration = Migration(command_class=self, connection=self.option('connection'))
+        migration = Migration(command_class=self, connection=self.option("connection"))
         self.info("creating table if not exists")
         migration.create_table_if_not_exists()
         print("all done now lets get unran migrations")

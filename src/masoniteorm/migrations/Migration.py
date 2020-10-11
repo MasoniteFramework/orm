@@ -29,6 +29,7 @@ class Migration:
         connection_class = ConnectionFactory().make(connection)
         grammar = GrammarFactory().make(connection)
         from config.database import ConnectionResolver
+
         DATABASES = ConnectionResolver.get_connection_details()
 
         driver = DATABASES.get("default")
@@ -82,7 +83,9 @@ class Migration:
     def get_all_migrations(self, reverse=False):
         if reverse:
             return (
-                self.migration_model.order_by("migration_id", "desc").get().pluck("migration")
+                self.migration_model.order_by("migration_id", "desc")
+                .get()
+                .pluck("migration")
             )
 
         return self.migration_model.all().pluck("migration")
@@ -156,7 +159,9 @@ class Migration:
         return self.migration_model.where_in("migration", migrations).delete()
 
     def delete_last_batch(self):
-        return self.migration_model.where("batch", self.get_last_batch_number()).delete()
+        return self.migration_model.where(
+            "batch", self.get_last_batch_number()
+        ).delete()
 
     def refresh(self):
         for migration in self.get_all_migrations(reverse=True):
