@@ -72,6 +72,7 @@ class Migration:
         return unran_migrations
 
     def get_rollback_migrations(self):
+        print("last batch", self.migration_model.all().max("batch"))
         return (
             self.migration_model.where("batch", self.migration_model.all().max("batch"))
             .order_by("migration_id", "desc")
@@ -130,14 +131,17 @@ class Migration:
             self.migration_model.create({"batch": batch, "migration": migration})
 
     def rollback(self):
+        print("rolling back now")
         for migration in self.get_rollback_migrations():
             if self.command_class:
                 self.command_class.line(
                     f"<comment>Rolling back:</comment> <question>{migration}</question>"
                 )
 
+            print("running", migration)
             self.locate(migration)().down()
 
+            print("ran down", "delete migration")
             self.delete_migration(migration)
 
             if self.command_class:

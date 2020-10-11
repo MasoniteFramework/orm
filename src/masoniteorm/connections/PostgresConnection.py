@@ -127,6 +127,9 @@ class PostgresConnection(BaseConnection):
                         print("running query:", q, ())
                         cursor.execute(q, ())
                     return
+
+                print("running query", query, bindings)
+                query = query.replace("'?'", "%s")
                 cursor.execute(query, bindings)
                 if results == 1:
                     return dict(cursor.fetchone() or {})

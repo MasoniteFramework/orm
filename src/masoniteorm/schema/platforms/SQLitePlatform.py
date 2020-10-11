@@ -148,7 +148,7 @@ class SQLitePlatform:
         return "UNIQUE({columns})"
 
     def get_foreign_key_constraint_string(self):
-        return "CONSTRAINT {column}_{table}_{foreign_table}_{foreign_column}_foreign FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column})"
+        return "CONSTRAINT {table}_{column}_foreign FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column})"
 
     def constraintize(self, constraints):
         sql = []

@@ -52,7 +52,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             "age INT(11), "
             "profile_id INT(11), "
             "CONSTRAINT users_name_unique UNIQUE (name), "
-            "CONSTRAINT profile_id_users_profiles_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))",
+            "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))",
         )
 
     def test_can_advanced_table_creation(self):
@@ -100,7 +100,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
                 "CREATE TABLE users (id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), "
                 "duration VARCHAR(255), url VARCHAR(255), published_at DATETIME, thumbnail VARCHAR(255), "
                 "premium INT(11), author_id INT UNSIGNED, description TEXT, created_at TIMESTAMP, "
-                "updated_at TIMESTAMP, CONSTRAINT author_id_users_users_id_foreign FOREIGN KEY (author_id) REFERENCES users(id))"
+                "updated_at TIMESTAMP, CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES users(id))"
             ),
         )
 

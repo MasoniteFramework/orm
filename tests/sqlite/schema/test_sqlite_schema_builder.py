@@ -51,7 +51,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             "age INTEGER, "
             "profile_id INTEGER, "
             "UNIQUE(name), "
-            "CONSTRAINT profile_id_users_profiles_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))",
+            "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))",
         )
 
     def test_can_advanced_table_creation(self):
@@ -104,7 +104,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
                 "published_at DATETIME, thumbnail VARCHAR(255), "
                 "premium INTEGER, author_id UNSIGNED INT, description TEXT, "
                 "created_at TIMESTAMP, updated_at TIMESTAMP, "
-                "CONSTRAINT author_id_users_users_id_foreign FOREIGN KEY (author_id) REFERENCES users(id))"
+                "CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES users(id))"
             ),
         )
 

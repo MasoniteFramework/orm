@@ -589,7 +589,7 @@ class Blueprint:
         # self._columns += (self._last_column,)
         return self
 
-    def drop_foreign(self, indexes):
+    def drop_foreign(self, index):
         """Drops foreign key indexes.
 
         Arguments:
@@ -598,20 +598,7 @@ class Blueprint:
         Returns:
             self
         """
-        if isinstance(indexes, str):
-            indexes = [indexes]
 
-        for index in indexes:
-            if not index.startswith(self.table):
-                index = self.table + "_" + index
-            if not index.endswith("foreign"):
-                index = index + "_foreign"
+        self.table.drop_foreign(index)
 
-            # self._last_column = self.new_column(
-            #     None, key, None, None, action="drop_foreign"
-            # )
-            # self._last_column.is_constraint = True
-            self._constraints += (
-                Constraint(index, constraint_type="foreign", action="drop"),
-            )
         return self

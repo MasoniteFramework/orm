@@ -26,7 +26,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
 
         sql = [
-            'ALTER TABLE "users" ADD COLUMN name VARCHAR, ADD COLUMN age INTEGER',
+            'ALTER TABLE "users" ADD COLUMN name VARCHAR(255), ADD COLUMN age INTEGER',
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)
@@ -53,7 +53,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         blueprint.table.from_table = table
 
         sql = [
-            'ALTER TABLE "users" ADD COLUMN name VARCHAR',
+            'ALTER TABLE "users" ADD COLUMN name VARCHAR(255)',
             'ALTER TABLE "users" RENAME COLUMN post TO comment',
         ]
 
@@ -64,6 +64,32 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
             blueprint.drop_column("post")
 
         sql = ['ALTER TABLE "users" DROP COLUMN post']
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_alter_add_column_and_foreign_key(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.unsigned_integer("playlist_id").nullable()
+            blueprint.foreign("playlist_id").references("id").on("playlists")
+
+        sql = [
+            'ALTER TABLE "users" ADD COLUMN playlist_id INT',
+            'ALTER TABLE "users" ADD CONSTRAINT users_playlist_id_foreign FOREIGN KEY (playlist_id) REFERENCES playlists(id)',
+        ]
+
+        print(blueprint.table.added_foreign_keys)
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_alter_drop_foreign_key(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.drop_foreign("playlist_id_users_playlists_id_foreign")
+
+        sql = [
+            'ALTER TABLE "users" DROP CONSTRAINT playlist_id_users_playlists_id_foreign'
+        ]
+
+        print(blueprint.table.dropped_foreign_keys)
 
         self.assertEqual(blueprint.to_sql(), sql)
 

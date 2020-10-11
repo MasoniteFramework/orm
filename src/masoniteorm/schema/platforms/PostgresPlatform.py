@@ -89,20 +89,6 @@ class PostgresPlatform(Platform):
                 self.alter_format().format(
                     table=self.wrap_table(table.name),
                     columns=", ".join(add_columns).strip(),
-                    constraints=", "
-                    + ", ".join(
-                        self.constraintize(table.get_added_constraints(), table)
-                    )
-                    if table.get_added_constraints()
-                    else "",
-                    foreign_keys=", "
-                    + ", ".join(
-                        self.foreign_key_constraintize(
-                            table.name, table.added_foreign_keys
-                        )
-                    )
-                    if table.added_foreign_keys
-                    else "",
                 )
             )
 
@@ -130,20 +116,6 @@ class PostgresPlatform(Platform):
                 self.alter_format().format(
                     table=self.wrap_table(table.name),
                     columns=", ".join(renamed_sql).strip(),
-                    constraints=", "
-                    + ", ".join(
-                        self.constraintize(table.get_added_constraints(), table)
-                    )
-                    if table.get_added_constraints()
-                    else "",
-                    foreign_keys=", "
-                    + ", ".join(
-                        self.foreign_key_constraintize(
-                            table.name, table.added_foreign_keys
-                        )
-                    )
-                    if table.added_foreign_keys
-                    else "",
                 )
             )
 
@@ -157,27 +129,37 @@ class PostgresPlatform(Platform):
                 self.alter_format().format(
                     table=self.wrap_table(table.name),
                     columns=", ".join(dropped_sql),
-                    constraints=", "
-                    + ", ".join(
-                        self.constraintize(table.get_added_constraints(), table)
-                    )
-                    if table.get_added_constraints()
-                    else "",
-                    foreign_keys=", "
-                    + ", ".join(
-                        self.foreign_key_constraintize(
-                            table.name, table.added_foreign_keys
-                        )
-                    )
-                    if table.added_foreign_keys
-                    else "",
                 )
             )
+
+        if table.added_foreign_keys:
+            for (
+                column,
+                foreign_key_constraint,
+            ) in table.get_added_foreign_keys().items():
+                sql.append(
+                    f"ALTER TABLE {self.wrap_table(table.name)} ADD "
+                    + self.get_foreign_key_constraint_string().format(
+                        column=column,
+                        table=table.name,
+                        foreign_table=foreign_key_constraint.foreign_table,
+                        foreign_column=foreign_key_constraint.foreign_column,
+                    )
+                )
+
+        if table.dropped_foreign_keys:
+            for constraint in table.dropped_foreign_keys:
+                sql.append(
+                    f"ALTER TABLE {self.wrap_table(table.name)} DROP CONSTRAINT {constraint}"
+                )
 
         return sql
 
     def alter_format(self):
-        return "ALTER TABLE {table} {columns}{constraints}{foreign_keys}"
+        return "ALTER TABLE {table} {columns}"
+
+    def alter_format_add_foreign_key(self):
+        return "ALTER TABLE {table} {columns}"
 
     def add_column_string(self):
         return "ADD COLUMN {name} {data_type}{length} {constraint}"
@@ -206,7 +188,7 @@ class PostgresPlatform(Platform):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
 
     def get_foreign_key_constraint_string(self):
-        return "CONSTRAINT {column}_{table}_{foreign_table}_{foreign_column}_foreign FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column})"
+        return "CONSTRAINT {table}_{column}_foreign FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column})"
 
     def get_unique_constraint_string(self):
         return "CONSTRAINT {table}_{name_columns}_unique UNIQUE ({columns})"

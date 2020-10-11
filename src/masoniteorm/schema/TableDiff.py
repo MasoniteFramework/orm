@@ -1,4 +1,5 @@
 from .Column import Column
+from .ForeignKeyConstraint import ForeignKeyConstraint
 
 
 class TableDiff:
@@ -9,6 +10,7 @@ class TableDiff:
         self.removed_indexes = {}
         self.added_columns = {}
         self.dropped_columns = []
+        self.dropped_foreign_keys = []
         self.renamed_columns = {}
         self.removed_constraints = {}
         self.added_constraints = {}
@@ -26,8 +28,11 @@ class TableDiff:
     def add_column(
         self, name=None, column_type=None, length=None, nullable=False, default=None
     ):
-        self.added_columns.update({name: Column(name, column_type)})
-        return self
+        column = Column(
+            name, column_type, length=length, nullable=nullable, default=default
+        )
+        self.added_columns.update({name: column})
+        return column
 
     def get_added_columns(self):
         return self.added_columns
@@ -62,10 +67,11 @@ class TableDiff:
     def get_added_constraints(self):
         return self.added_constraints
 
-    def add_foreign_key(self, column, table, foreign_column):
-        self.added_foreign_keys.update(
-            {column: ForeignKeyConstraint(column, table, foreign_column)}
-        )
+    def add_foreign_key(self, column, table=None, foreign_column=None):
+        foreign_key = ForeignKeyConstraint(column, table, foreign_column)
+        self.added_foreign_keys.update({column: foreign_key})
+
+        return foreign_key
 
     def get_added_foreign_keys(self):
         return self.added_foreign_keys
@@ -75,3 +81,10 @@ class TableDiff:
 
     def get_dropped_columns(self):
         return self.dropped_columns
+
+    def get_dropped_foreign_keys(self):
+        return self.dropped_foreign_keys
+
+    def drop_foreign(self, name):
+        self.dropped_foreign_keys.append(name)
+        return self
