@@ -529,7 +529,7 @@ class Blueprint:
 
         return self
 
-    def drop_index(self, indexes):
+    def drop_index(self, index):
         """Specifies indexes that should be dropped.
 
         Arguments:
@@ -538,17 +538,14 @@ class Blueprint:
         Returns:
             self
         """
-        if isinstance(indexes, str):
-            indexes = [indexes]
+        if isinstance(index, list):
+            for column in index:
+                self.table.remove_index(f"{self.table.name}_{column}_index")
 
-        for index in indexes:
-            # self._last_column = self.new_column(
-            #     None, index, None, None, action="drop_index"
-            # )
-            # self._columns += (self._last_column,)
-            self._constraints += (
-                Constraint(index, constraint_type="index", action="drop"),
-            )
+            return self
+
+        self.table.remove_index(index)
+
         return self
 
     def drop_unique(self, index):
