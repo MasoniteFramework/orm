@@ -14,7 +14,6 @@ from inflection import camelize
 from ..models.MigrationModel import MigrationModel
 from ..schema import Schema
 from ..connections import ConnectionFactory
-from ..schema.grammars import GrammarFactory
 
 
 class Migration:
@@ -27,7 +26,6 @@ class Migration:
     ):
         self.connection = connection
         connection_class = ConnectionFactory().make(connection)
-        grammar = GrammarFactory().make(connection)
         from config.database import ConnectionResolver
 
         DATABASES = ConnectionResolver.get_connection_details()
@@ -35,7 +33,6 @@ class Migration:
         self.schema = Schema(
             connection=connection_class,
             connection_details=DATABASES,
-            grammar=grammar,
         ).on(self.connection)
 
         self._dry = dry
