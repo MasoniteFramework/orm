@@ -27,13 +27,12 @@ DATABASES = {
     'default': 'mysql',
     'mysql': {
         'driver': 'mysql',
-        'host': 'localhost',
-        'user': 'root',
-        'password': '',
-        'database': 'orm',
-        'port': '3306',
+        'host': os.getenv('MYSQL_DATABASE_HOST'),
+        'user': os.getenv('MYSQL_DATABASE_USER'),
+        'password': os.getenv('MYSQL_DATABASE_PASSWORD'),
+        'database': os.getenv('MYSQL_DATABASE_DATABASE'),
+        'port': os.getenv('MYSQL_DATABASE_PORT'),
         'prefix': '',
-        'grammar': 'mysql',
         'options': {
             'charset': 'utf8mb4',
         },
