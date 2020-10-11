@@ -23,7 +23,7 @@ class TestTableDiff(unittest.TestCase):
 
     def test_drop_index(self):
         table = Table("users")
-        table.add_index("name", "unique")
+        table.add_index("name", "name_index", "unique")
 
         diff = TableDiff("users")
         diff.from_table = table
@@ -35,14 +35,14 @@ class TestTableDiff(unittest.TestCase):
 
     def test_drop_index_and_rename_table(self):
         table = Table("users")
-        table.add_index("name", "unique")
+        table.add_index("name", "name_unique", "unique")
 
         diff = TableDiff("users")
         diff.from_table = table
         diff.new_name = "clients"
-        diff.remove_index("name")
+        diff.remove_index("name_unique")
 
-        sql = ["DROP INDEX name", "ALTER TABLE users RENAME TO clients"]
+        sql = ["DROP INDEX name_unique", "ALTER TABLE users RENAME TO clients"]
 
         self.assertEqual(sql, self.platform.compile_alter_sql(diff))
 
@@ -122,7 +122,7 @@ class TestTableDiff(unittest.TestCase):
     def test_alter_rename_column_and_rename_table_and_drop_index(self):
         table = Table("users")
         table.add_column("post", "integer")
-        table.add_index("name", "unique")
+        table.add_index("name", "name_unique", "unique")
 
         diff = TableDiff("users")
         diff.from_table = table

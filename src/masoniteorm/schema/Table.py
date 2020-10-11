@@ -59,8 +59,8 @@ class Table:
         self.added_columns[column_name].set_as_primary()
         return self
 
-    def add_index(self, name, index_type):
-        self.added_indexes.update({name: Index(name, index_type)})
+    def add_index(self, column, name, index_type):
+        self.added_indexes.update({name: Index(column, name, index_type)})
 
     def get_index(self, name):
         return self.added_indexes[name]

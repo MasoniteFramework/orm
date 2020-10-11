@@ -57,8 +57,8 @@ class SQLitePlatform:
         sql = []
 
         if diff.removed_indexes:
-            for name, index in diff.removed_indexes.items():
-                sql.append("DROP INDEX {name}".format(name=index.name))
+            for name in diff.removed_indexes:
+                sql.append("DROP INDEX {name}".format(name=name))
 
         if diff.added_columns:
             for name, column in diff.added_columns.items():
