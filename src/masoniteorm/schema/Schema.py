@@ -45,7 +45,6 @@ class Schema:
 
         self.connection = ConnectionFactory().make(self._connection_driver)
 
-        print("on????", self._connection_driver, self.connection)
 
         return self
 
@@ -75,7 +74,6 @@ class Schema:
         """
         self._table = table
 
-        print("creating???")
 
         return Blueprint(
             self.grammar,
@@ -110,7 +108,6 @@ class Schema:
         )
 
     def get_connection_information(self):
-        print("connection info", self._connection_driver)
         return {
             "host": self.connection_details.get(self._connection_driver, {}).get(
                 "host"
@@ -136,12 +133,10 @@ class Schema:
         if self._dry:
             return
 
-        print("making new connection")
         self._connection = self.connection(
             **self.get_connection_information()
         ).make_connection()
 
-        print("connection object is", self._connection)
 
         return self._connection
 
@@ -206,12 +201,9 @@ class Schema:
         Returns:
             masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
-        print("compiling table exists")
         sql = self.platform().compile_table_exists(table)
 
         if self._dry:
             return sql
 
-        print("making new connection", self.new_connection())
-        print("has a table?", bool(self.new_connection().query(sql, ())))
         return bool(self.new_connection().query(sql, ()))

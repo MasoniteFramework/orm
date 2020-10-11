@@ -25,12 +25,11 @@ class MigrateCommand(Command):
             if answer != "y":
                 self.info("Migrations cancelled")
                 exit(0)
-        self.info("starting migration class")
+        self.info("Starting Migration Class ..")
         migration = Migration(command_class=self, connection=self.option("connection"))
-        self.info("creating table if not exists")
+        self.info("Creating Migration Table If Not Exists ..")
         migration.create_table_if_not_exists()
-        print("all done now lets get unran migrations")
         if not migration.get_unran_migrations():
-            self.info("Nothing to migrate")
+            self.info("Nothing To Migrate!")
 
         migration.migrate()
