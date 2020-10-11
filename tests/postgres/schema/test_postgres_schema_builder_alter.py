@@ -101,6 +101,36 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_alter_drop_unique_constraint(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.drop_unique("users_playlist_id_unique")
+
+        sql = [
+            'ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_unique'
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_alter_add_index(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.index("playlist_id")
+
+        sql = [
+            'CREATE INDEX users_playlist_id_index ON users(playlist_id)'
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_alter_drop_drop_unique_constraint_shortcut(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.drop_unique(["playlist_id"])
+
+        sql = [
+            'ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_unique'
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_has_table(self):
         schema_sql = self.schema.has_table("users")
 

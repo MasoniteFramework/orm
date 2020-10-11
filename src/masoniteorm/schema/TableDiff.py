@@ -1,5 +1,7 @@
 from .Column import Column
 from .ForeignKeyConstraint import ForeignKeyConstraint
+from .Constraint import Constraint
+from .Index import Index
 
 
 class TableDiff:
@@ -7,7 +9,8 @@ class TableDiff:
         self.name = name
         self.from_table = None
         self.new_name = None
-        self.removed_indexes = {}
+        self.removed_indexes = []
+        self.added_indexes = {}
         self.added_columns = {}
         self.dropped_columns = []
         self.dropped_foreign_keys = []
@@ -62,7 +65,15 @@ class TableDiff:
         )
 
     def remove_index(self, name):
-        self.removed_indexes.update({name: self.from_table.get_index(name)})
+        self.removed_indexes.append(name)
+
+    def add_index(self, column, name, index_type):
+        self.added_indexes.update({column: Index(column, name, index_type)})
+
+    def add_constraint(self, name, constraint_type, columns=[]):
+        self.added_constraints.update(
+            {name: Constraint(name, constraint_type, columns=columns)}
+        )
 
     def get_added_constraints(self):
         return self.added_constraints

@@ -404,7 +404,7 @@ class Blueprint:
         Returns:
             self
         """
-        self.table.add_constraint(column, "index")
+        self.table.add_index(column, f"{self.table.name}_{column}_index", "index")
         return self
 
     def fulltext(self, column):
@@ -551,7 +551,7 @@ class Blueprint:
             )
         return self
 
-    def drop_unique(self, indexes):
+    def drop_unique(self, index):
         """Drops a unique index.
 
         Arguments:
@@ -560,17 +560,14 @@ class Blueprint:
         Returns:
             self
         """
-        if isinstance(indexes, str):
-            indexes = [indexes]
+        if isinstance(index, list):
+            for column in index:
+                self.table.remove_index(f"{self.table.name}_{column}_unique")
 
-        for index in indexes:
-            # self._last_column = self.new_column(
-            #     None, index, None, None, action="drop_unique"
-            # )
-            self._constraints += (
-                Constraint(index, constraint_type="unique", action="drop"),
-            )
-        return self
+            return self
+
+
+        self.table.remove_index(index)
 
     def drop_primary(self, index=""):
         """Drops a primary key index.
