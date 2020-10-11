@@ -32,7 +32,6 @@ class Migration:
 
         DATABASES = ConnectionResolver.get_connection_details()
 
-        driver = DATABASES.get("default")
         self.schema = Schema(
             connection=connection_class,
             connection_details=DATABASES,
