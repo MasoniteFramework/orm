@@ -1,7 +1,8 @@
 from ..Table import Table
+from .Platform import Platform
 
 
-class SQLitePlatform:
+class SQLitePlatform(Platform):
 
     types_without_lengths = ["integer"]
 
@@ -39,7 +40,7 @@ class SQLitePlatform:
 
     def compile_create_sql(self, table):
         return self.create_format().format(
-            table=self.table_string().format(table=table.name).strip(),
+            table=self.get_table_string().format(table=table.name).strip(),
             columns=", ".join(self.columnize(table.get_added_columns())).strip(),
             constraints=", "
             + ", ".join(self.constraintize(table.get_added_constraints()))
@@ -92,7 +93,7 @@ class SQLitePlatform:
 
             sql.append(
                 self.create_format().format(
-                    table=self.table_string().format(table=diff.name).strip(),
+                    table=self.get_table_string().format(table=diff.name).strip(),
                     columns=", ".join(self.columnize(columns)).strip(),
                     constraints=", "
                     + ", ".join(self.constraintize(diff.get_added_constraints()))
@@ -111,7 +112,9 @@ class SQLitePlatform:
 
             sql.append(
                 "INSERT INTO {quoted_table} ({new_columns}) SELECT {original_column_names} FROM __temp__{table}".format(
-                    quoted_table=self.table_string().format(table=diff.name).strip(),
+                    quoted_table=self.get_table_string()
+                    .format(table=diff.name)
+                    .strip(),
                     table=diff.name,
                     new_columns=", ".join(self.columnize_names(columns)),
                     original_column_names=", ".join(
@@ -133,7 +136,7 @@ class SQLitePlatform:
     def create_format(self):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
 
-    def table_string(self):
+    def get_table_string(self):
         return '"{table}"'
 
     def create_column_length(self, column_type):
@@ -225,3 +228,18 @@ class SQLitePlatform:
 
     def compile_table_exists(self, table):
         return f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}'"
+
+    def compile_column_exists(self, table, column):
+        return f"SELECT column_name FROM information_schema.columns WHERE table_name='{table}' and column_name='{column}'"
+
+    def compile_truncate(self, table):
+        return f"TRUNCATE {self.wrap_table(table)}"
+
+    def compile_rename_table(self, current_table, new_name):
+        return f"ALTER TABLE {self.wrap_table(current_table)} RENAME TO {self.wrap_table(new_name)}"
+
+    def compile_drop_table_if_exists(self, current_table):
+        return f"DROP TABLE IF EXISTS {self.wrap_table(current_table)}"
+
+    def compile_drop_table(self, current_table):
+        return f"DROP TABLE {self.wrap_table(current_table)}"
