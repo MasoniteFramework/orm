@@ -598,6 +598,12 @@ class Blueprint:
         Returns:
             self
         """
+        if isinstance(index, list):
+            for column in index:
+                self.table.drop_foreign(f"{self.table.name}_{column}_foreign")
+
+            return self
+
 
         self.table.drop_foreign(index)
 

@@ -49,6 +49,8 @@ class MySQLConnection(BaseConnection):
                 "You must have the 'pymysql' package installed to make a connection to MySQL. Please install it using 'pip install pymysql'"
             )
 
+        print('mysql making connection')
+
         self._connection = pymysql.connect(
             cursorclass=pymysql.cursors.DictCursor,
             autocommit=True,

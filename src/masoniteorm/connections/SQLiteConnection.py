@@ -110,10 +110,11 @@ class SQLiteConnection(BaseConnection):
             self._cursor = self._connection.cursor()
             if isinstance(query, list):
                 for query in query:
+                    print("running query from list: ", query, ())
                     self._cursor.execute(query, ())
             else:
                 query = query.replace("'?'", "?")
-                print("running query: ", self, query, bindings)
+                print("running query: ", query, bindings)
                 self._cursor.execute(query, bindings)
                 if results == 1:
                     result = [dict(row) for row in self._cursor.fetchall()]

@@ -83,17 +83,32 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
 
     def test_alter_drop_foreign_key(self):
         with self.schema.table("users") as blueprint:
-            blueprint.drop_foreign("playlist_id_users_playlists_id_foreign")
+            blueprint.drop_foreign("users_playlist_id_foreign")
 
         sql = [
-            'ALTER TABLE "users" DROP CONSTRAINT playlist_id_users_playlists_id_foreign'
+            'ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_foreign'
         ]
 
-        print(blueprint.table.dropped_foreign_keys)
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_alter_drop_foreign_key_shortcut(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.drop_foreign(['playlist_id'])
+
+        sql = [
+            'ALTER TABLE "users" DROP CONSTRAINT users_playlist_id_foreign'
+        ]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_has_table(self):
+        schema_sql = self.schema.has_table("users")
+
+        sql = "SELECT * from information_schema.tables where table_name='users'"
+
+        self.assertEqual(schema_sql, sql)
+
+    def test_drop_table(self):
         schema_sql = self.schema.has_table("users")
 
         sql = "SELECT * from information_schema.tables where table_name='users'"
