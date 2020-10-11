@@ -566,23 +566,6 @@ class Blueprint:
 
         self.table.remove_index(index)
 
-    def drop_primary(self, index=""):
-        """Drops a primary key index.
-
-        Returns:
-            self
-        """
-        # self._last_column = self.new_column(
-        #     None, None, None, None, action="drop_primary"
-        # )
-
-        index = self.grammar().primary_key_string().format(table=self.table)
-        self._constraints += (
-            Constraint(index, constraint_type="primary", action="drop"),
-        )
-        # self._columns += (self._last_column,)
-        return self
-
     def drop_foreign(self, index):
         """Drops foreign key indexes.
 
