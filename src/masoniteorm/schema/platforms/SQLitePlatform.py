@@ -222,3 +222,6 @@ class SQLitePlatform:
                 table.set_primary_key(column["name"])
 
         return table
+
+    def compile_table_exists(self, table):
+        return f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}'"

@@ -103,3 +103,10 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
                 "updated_at TIMESTAMP, CONSTRAINT author_id_users_users_id_foreign FOREIGN KEY (author_id) REFERENCES users(id))"
             ),
         )
+
+    def test_has_table(self):
+        schema_sql = self.schema.has_table("users")
+
+        sql = "SELECT * from information_schema.tables where table_name='users'"
+
+        self.assertEqual(schema_sql, sql)

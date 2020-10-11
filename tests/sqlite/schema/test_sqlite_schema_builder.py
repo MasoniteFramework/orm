@@ -107,3 +107,10 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
                 "CONSTRAINT author_id_users_users_id_foreign FOREIGN KEY (author_id) REFERENCES users(id))"
             ),
         )
+
+    def test_has_table(self):
+        schema_sql = self.schema.has_table("users")
+
+        sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='users'"
+
+        self.assertEqual(schema_sql, sql)

@@ -45,7 +45,6 @@ class Schema:
 
         self.connection = ConnectionFactory().make(self._connection_driver)
 
-
         return self
 
     def dry(self):
@@ -73,7 +72,6 @@ class Schema:
             masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
         self._table = table
-
 
         return Blueprint(
             self.grammar,
@@ -136,7 +134,6 @@ class Schema:
         self._connection = self.connection(
             **self.get_connection_information()
         ).make_connection()
-
 
         return self._connection
 

@@ -80,3 +80,6 @@ class MySQLPlatform(Platform):
 
     def get_unique_constraint_string(self):
         return "CONSTRAINT {table}_{name_columns}_unique UNIQUE ({columns})"
+
+    def compile_table_exists(self, table):
+        return f"SELECT * from information_schema.tables where table_name='{table}'"
