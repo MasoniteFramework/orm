@@ -99,7 +99,20 @@ class Migration:
         return locate(f"{self.migration_directory}.{file_name}.{migration_name}")
 
     def get_ran_migrations(self):
-        pass
+        directory_path = os.path.join(os.getcwd(), "databases/migrations")
+        all_migrations = [
+            f
+            for f in listdir(directory_path)
+            if isfile(join(directory_path, f)) and f != "__init__.py"
+        ]
+        all_migrations.sort()
+        ran = []
+
+        database_migrations = self.migration_model.all()
+        for migration in all_migrations:
+            if migration in database_migrations.pluck("migration"):
+                ran.append(migration)
+        return ran
 
     def migrate(self):
         batch = self.get_last_batch_number() + 1
