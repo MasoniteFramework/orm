@@ -20,11 +20,11 @@ class MigrateStatusCommand(Command):
         table.set_header_row(["Ran?", "Migration"])
         migrations = []
 
-        for migration in migration.get_ran_migrations():
-            migrations.append(["<info>Y</info>", f"<comment>{migration}</comment>"])
+        for migration_file in migration.get_ran_migrations():
+            migrations.append(["<info>Y</info>", f"<comment>{migration_file}</comment>"])
 
-        for migration in migration.get_unran_migrations():
-            migrations.append(["<error>N</error>", f"<comment>{migration}</comment>"])
+        for migration_file in migration.get_unran_migrations():
+            migrations.append(["<error>N</error>", f"<comment>{migration_file}</comment>"])
 
         table.set_rows(migrations)
 
