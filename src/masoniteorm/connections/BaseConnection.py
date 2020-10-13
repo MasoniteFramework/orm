@@ -17,7 +17,7 @@ class BaseConnection:
         specify a grammar it will use the same grammar as the name of the driver.
 
         Returns:
-            masonite.orm.grammar.Grammar -- A Masonite ORM Grammar class
+            masoniteorm.grammar.Grammar -- A Masonite ORM Grammar class
         """
         if "grammar" in cls.connection_details:
             grammar_driver = cls.connection_details.get("grammar")

@@ -1,9 +1,10 @@
 """__MIGRATION_NAME__ Migration."""
 
-from masonite.orm.migrations import Migration
+from masoniteorm.migrations import Migration
 
 
 class __MIGRATION_NAME__(Migration):
+
     def up(self):
         """
         Run the migrations.

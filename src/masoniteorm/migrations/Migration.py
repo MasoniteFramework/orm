@@ -176,7 +176,7 @@ class Migration:
             "batch", self.get_last_batch_number()
         ).delete()
 
-    def refresh(self):
+    def reset(self):
         for migration in self.get_all_migrations(reverse=True):
             if self.command_class:
                 self.command_class.line(
@@ -185,12 +185,18 @@ class Migration:
 
             self.locate(migration)().down()
 
+            self.delete_migration(migration)
+
             if self.command_class:
                 self.command_class.line(
                     f"<info>Rolled back:</info> <question>{migration}</question>"
                 )
 
             self.delete_migrations([migration])
+
         if self.command_class:
             self.command_class.line("")
+
+    def refresh(self):
+        self.reset()
         self.migrate()
