@@ -5,6 +5,7 @@ import os
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.connections import ConnectionResolver
 from dotenv import load_dotenv
+import logging
 
 """
 |--------------------------------------------------------------------------
@@ -54,6 +55,22 @@ DATABASES = {
 }
 
 ConnectionResolver.set_connection_details(DATABASES)
+
+logger = logging.getLogger('masoniteorm.connection.queries')
+logger.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter(
+    'It executed the query %(query)s'
+)
+
+handler = logging.StreamHandler()
+# handler.setFormatter(formatter)
+
+logger.addHandler(handler)
+
+handler = logging.FileHandler("queries.log")
+logger.addHandler(handler)
+
 
 # DB = QueryBuilder(connection_details=DATABASES)
 
