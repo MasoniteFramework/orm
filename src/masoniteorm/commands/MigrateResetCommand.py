@@ -11,5 +11,5 @@ class MigrateResetCommand(Command):
     """
 
     def handle(self):
-        migration = Migration(command_class=self, connection=self.option('connection'))
+        migration = Migration(command_class=self, connection=self.option("connection"))
         migration.reset()

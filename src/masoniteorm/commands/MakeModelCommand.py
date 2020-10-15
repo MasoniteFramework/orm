@@ -23,19 +23,19 @@ class MakeModelCommand(Command):
         model_directory = "app"
 
         with open(
-            os.path.join(
-                pathlib.Path(__file__).parent.absolute(), f"stubs/model.stub"
-            )
+            os.path.join(pathlib.Path(__file__).parent.absolute(), f"stubs/model.stub")
         ) as fp:
             output = fp.read()
             output = output.replace("__CLASS__", camelize(name))
-        
+
         file_name = f"{camelize(name)}.py"
 
         full_directory_path = os.path.join(os.getcwd(), model_directory)
 
         if os.path.exists(os.path.join(full_directory_path, file_name)):
-            self.line(f'<error>Model "{name}" Already Exists ({full_directory_path}/{file_name})</error>')
+            self.line(
+                f'<error>Model "{name}" Already Exists ({full_directory_path}/{file_name})</error>'
+            )
             return
 
         os.makedirs(os.path.dirname(os.path.join(full_directory_path)), exist_ok=True)
