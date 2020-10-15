@@ -11,6 +11,7 @@ from . import (
     MigrateRollbackCommand,
     MigrateRefreshCommand,
     MakeMigrationCommand,
+    MakeModelCommand,
     MigrateStatusCommand,
     MigrateResetCommand,
     MakeSeedCommand,
@@ -23,6 +24,7 @@ application.add(MigrateCommand())
 application.add(MigrateRollbackCommand())
 application.add(MigrateRefreshCommand())
 application.add(MakeMigrationCommand())
+application.add(MakeModelCommand())
 application.add(MigrateResetCommand())
 application.add(MigrateStatusCommand())
 application.add(MakeSeedCommand())
