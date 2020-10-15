@@ -1,4 +1,5 @@
 from ..query.grammars import GrammarFactory
+import logging
 
 
 class BaseConnection:
@@ -57,3 +58,10 @@ class BaseConnection:
     def dry(self):
         self._dry = True
         return self
+
+    def log(self, query, bindings, logger="masoniteorm.connections.queries"):
+        logger = logging.getLogger("masoniteorm.connection.queries")
+        logger.debug(
+            f"Running query {query}, {bindings}",
+            extra={"query": query, "bindings": bindings},
+        )

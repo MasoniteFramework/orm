@@ -124,11 +124,11 @@ class PostgresConnection(BaseConnection):
             with self._connection.cursor(cursor_factory=RealDictCursor) as cursor:
                 if isinstance(query, list) and not self._dry:
                     for q in query:
-                        print("running query:", q, ())
+                        self.log(query, ())
                         cursor.execute(q, ())
                     return
 
-                print("running query", query, bindings)
+                self.log(query, bindings)
                 query = query.replace("'?'", "%s")
                 cursor.execute(query, bindings)
                 if results == 1:

@@ -130,12 +130,12 @@ class MySQLConnection(BaseConnection):
                 if isinstance(query, list):
                     for q in query:
                         q = q.replace("'?'", "%s")
-                        print("running query from list: ", q, bindings)
+                        self.log(q, ())
                         cursor.execute(q, ())
                     return
 
                 query = query.replace("'?'", "%s")
-                print("running query", query, bindings)
+                self.log(query, bindings)
                 cursor.execute(query, bindings)
                 if results == 1:
                     return cursor.fetchone()
