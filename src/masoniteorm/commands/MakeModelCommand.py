@@ -18,7 +18,6 @@ class MakeModelCommand(Command):
 
     def handle(self):
         name = self.argument("name")
-        now = datetime.datetime.today()
 
         model_directory = "app"
 
