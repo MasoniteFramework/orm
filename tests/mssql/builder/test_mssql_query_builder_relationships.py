@@ -52,8 +52,8 @@ class BaseTestQueryRelationships(unittest.TestCase):
         sql = builder.has("articles").to_sql()
         self.assertEqual(
             sql,
-            """SELECT * FROM "users" WHERE EXISTS ("""
-            """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id\""""
+            """SELECT * FROM [users] WHERE EXISTS ("""
+            """SELECT * FROM [articles] WHERE [articles].[user_id] = [users].[id]"""
             """)""",
         )
 
@@ -71,10 +71,10 @@ class BaseTestQueryRelationships(unittest.TestCase):
         to_sql = User.has("articles", "profile").to_sql()
         self.assertEqual(
             to_sql,
-            """SELECT * FROM "users" WHERE EXISTS ("""
-            """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id\""""
+            """SELECT * FROM [users] WHERE EXISTS ("""
+            """SELECT * FROM [articles] WHERE [articles].[user_id] = [users].[id]"""
             """) AND EXISTS ("""
-            """SELECT * FROM "profiles" WHERE "profiles"."user_id" = "users"."id\""""
+            """SELECT * FROM [profiles] WHERE [profiles].[user_id] = [users].[id]"""
             """)""",
         )
 
@@ -82,10 +82,10 @@ class BaseTestQueryRelationships(unittest.TestCase):
         to_sql = User.has("articles").has("profile").to_sql()
         self.assertEqual(
             to_sql,
-            """SELECT * FROM "users" WHERE EXISTS ("""
-            """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id\""""
+            """SELECT * FROM [users] WHERE EXISTS ("""
+            """SELECT * FROM [articles] WHERE [articles].[user_id] = [users].[id]"""
             """) AND EXISTS ("""
-            """SELECT * FROM "profiles" WHERE "profiles"."user_id" = "users"."id\""""
+            """SELECT * FROM [profiles] WHERE [profiles].[user_id] = [users].[id]"""
             """)""",
         )
 
@@ -93,5 +93,5 @@ class BaseTestQueryRelationships(unittest.TestCase):
         to_sql = User.has("articles.logo").to_sql()
         self.assertEqual(
             to_sql,
-            """SELECT * FROM "users" WHERE EXISTS (SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id" AND EXISTS (SELECT * FROM "logos" WHERE "logos"."article_id" = "articles"."id"))""",
+            """SELECT * FROM [users] WHERE EXISTS (SELECT * FROM [articles] WHERE [articles].[user_id] = [users].[id] AND EXISTS (SELECT * FROM [logos] WHERE [logos].[article_id] = [articles].[id]))""",
         )
