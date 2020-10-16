@@ -3,6 +3,7 @@ from .ConnectionResolver import ConnectionResolver
 from .MySQLConnection import MySQLConnection
 from .SQLiteConnection import SQLiteConnection
 from .PostgresConnection import PostgresConnection
+from .MSSQLConnection import MSSQLConnection
 
 
 class ConnectionFactory:
@@ -10,7 +11,7 @@ class ConnectionFactory:
 
     _connections = {
         "mysql": MySQLConnection,
-        "mssql": "",
+        "mssql": MSSQLConnection,
         "postgres": PostgresConnection,
         "sqlite": SQLiteConnection,
         "oracle": "",

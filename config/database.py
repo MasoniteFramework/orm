@@ -51,7 +51,17 @@ DATABASES = {
         'driver': 'sqlite',
         'database': 'orm.sqlite3',
         'prefix': ''
-    }
+    },
+    'mssql': {
+        'driver': 'mssql',
+        'host': os.getenv('POSTGRES_DATABASE_HOST'),
+        'user': os.getenv('POSTGRES_DATABASE_USER'),
+        'password': os.getenv('POSTGRES_DATABASE_PASSWORD'),
+        'database': os.getenv('POSTGRES_DATABASE_DATABASE'),
+        'port': os.getenv('POSTGRES_DATABASE_PORT'),
+        'prefix': ''
+    },
+
 }
 
 ConnectionResolver.set_connection_details(DATABASES)
