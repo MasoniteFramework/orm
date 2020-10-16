@@ -69,7 +69,6 @@ class Migration:
         return unran_migrations
 
     def get_rollback_migrations(self):
-        print("last batch", self.migration_model.all().max("batch"))
         return (
             self.migration_model.where("batch", self.migration_model.all().max("batch"))
             .order_by("migration_id", "desc")

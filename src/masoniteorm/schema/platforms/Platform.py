@@ -31,8 +31,6 @@ class Platform:
                 .strip()
             )
 
-        print(sql)
-
         return sql
 
     def columnize_string(self):
