@@ -121,16 +121,15 @@ class PostgresConnection(BaseConnection):
         try:
             if self._connection.closed:
                 self.make_connection()
-            with self._connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            self._cursor = self._connection.cursor(cursor_factory=RealDictCursor)
+            with self._cursor as cursor:
                 if isinstance(query, list) and not self._dry:
                     for q in query:
-                        self.log(query, ())
-                        cursor.execute(q, ())
+                        self.statement(q, ())
                     return
 
-                self.log(query, bindings)
                 query = query.replace("'?'", "%s")
-                cursor.execute(query, bindings)
+                self.statement(query, bindings)
                 if results == 1:
                     return dict(cursor.fetchone() or {})
                 else:

@@ -77,8 +77,6 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
             'ALTER TABLE "users" ADD CONSTRAINT users_playlist_id_foreign FOREIGN KEY (playlist_id) REFERENCES playlists(id)',
         ]
 
-        print(blueprint.table.added_foreign_keys)
-
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_alter_drop_foreign_key(self):

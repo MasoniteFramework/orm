@@ -9,6 +9,7 @@ from src.masoniteorm.schema.platforms import MySQLPlatform
 class MockMySQLConnection(MySQLConnection):
     def make_connection(self):
         self._connection = mock.MagicMock()
+        self._cursor = mock.MagicMock()
 
         return self
 
