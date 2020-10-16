@@ -452,9 +452,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         return self.__attributes__.get(attribute)
 
     def save(self, query=False):
-        builder = self.builder.where(
-            self.get_primary_key(), self.get_primary_key_value()
-        )
+        builder = self.builder
 
         self.__dirty_attributes__.pop("builder")
 

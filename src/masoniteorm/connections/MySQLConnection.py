@@ -125,8 +125,10 @@ class MySQLConnection(BaseConnection):
         if not self._connection.open:
             self._connection.connect()
 
+        self._cursor = self._connection.cursor()
+
         try:
-            with self._connection.cursor() as cursor:
+            with self._cursor as cursor:
                 if isinstance(query, list):
                     for q in query:
                         q = q.replace("'?'", "%s")
