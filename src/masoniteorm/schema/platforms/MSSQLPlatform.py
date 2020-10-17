@@ -38,10 +38,7 @@ class MSSQLPlatform(Platform):
         "unsigned_integer": "INT",
     }
 
-    premapped_nulls = {
-        True: "NULL",
-        False: "NOT NULL",
-    }
+    premapped_nulls = {True: "NULL", False: "NOT NULL"}
 
     premapped_defaults = {
         "current": " DEFAULT CURRENT_TIMESTAMP",
@@ -98,12 +95,11 @@ class MSSQLPlatform(Platform):
             sql.append(
                 self.alter_format().format(
                     table=self.wrap_table(table.name),
-                    columns=", ".join(add_columns).strip(),
+                    columns="ADD " + ", ".join(add_columns).strip(),
                 )
             )
 
         if table.renamed_columns:
-            renamed_sql = []
 
             for name, column in table.get_renamed_columns().items():
                 if column.length:
@@ -113,21 +109,9 @@ class MSSQLPlatform(Platform):
                 else:
                     length = ""
 
-                renamed_sql.append(
-                    self.rename_column_string()
-                    .format(
-                        to=column.name,
-                        old=name,
-                    )
-                    .strip()
+                sql.append(
+                    self.rename_column_string(table.name, name, column.name).strip()
                 )
-
-            sql.append(
-                self.alter_format().format(
-                    table=self.wrap_table(table.name),
-                    columns=", ".join(renamed_sql).strip(),
-                )
-            )
 
         if table.dropped_columns:
             dropped_sql = []
@@ -138,7 +122,7 @@ class MSSQLPlatform(Platform):
             sql.append(
                 self.alter_format().format(
                     table=self.wrap_table(table.name),
-                    columns=", ".join(dropped_sql),
+                    columns="DROP COLUMN " + ", ".join(dropped_sql),
                 )
             )
 
@@ -182,12 +166,13 @@ class MSSQLPlatform(Platform):
         return sql
 
     def add_column_string(self):
-        return "ADD {name} {data_type}{length}"
+        return "{name} {data_type}{length}"
 
     def drop_column_string(self):
-        return "DROP COLUMN {name}"
+        return "{name}"
 
-    def rename_column_string(self):
+    def rename_column_string(self, table, old, new):
+        return f"EXEC sp_rename 'users.post', 'comment', 'COLUMN';"
         return "RENAME COLUMN {old} TO {to}"
 
     def columnize_string(self):

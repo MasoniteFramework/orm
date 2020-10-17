@@ -3,7 +3,7 @@ import random
 from ..exceptions import DriverNotFound
 from .BaseConnection import BaseConnection
 from ..query.grammars import MSSQLGrammar
-from ..schema.platforms import PostgresPlatform
+from ..schema.platforms import MSSQLPlatform
 
 
 CONNECTION_POOL = []
@@ -12,7 +12,7 @@ CONNECTION_POOL = []
 class MSSQLConnection(BaseConnection):
     """Postgres Connection class."""
 
-    name = "postgres"
+    name = "mssql"
 
     def __init__(
         self,
@@ -37,22 +37,30 @@ class MSSQLConnection(BaseConnection):
         self.options = options
         self._cursor = None
         self.transaction_level = 0
+        self.closed = 0
 
     def make_connection(self):
         """This sets the connection on the connection class"""
         try:
-            import psycopg2
+            import pyodbc
         except ModuleNotFoundError:
             raise DriverNotFound(
-                "You must have the 'psycopg2' package installed to make a connection to Postgres. Please install it using 'pip install psycopg2-binary'"
+                "You must have the 'pyodbc' package installed to make a connection to Postgres. Please install it using 'pip install pyodbc'"
             )
+        print(
+            self.host,
+            "DRIVER=ODBC Driver 17 for SQL Server;SERVER="
+            + self.host
+            + ";DATABASE="
+            + self.database
+            + ";UID="
+            + self.user
+            + ";PWD=y34S0r3Th_m#;PORT=9433",
+        )
 
-        self._connection = psycopg2.connect(
-            database=self.database,
-            user=self.user,
-            password=self.password,
-            host=self.host,
-            port=self.port,
+        self._connection = pyodbc.connect(
+            f"DRIVER={'ODBC Driver 17 for SQL Server'};SERVER={self.host},{self.port};DATABASE={self.database};UID={self.user};PWD={self.password}",
+            autocommit=True,
         )
 
         self._connection.autocommit = True
@@ -68,7 +76,7 @@ class MSSQLConnection(BaseConnection):
 
     @classmethod
     def get_default_platform(cls):
-        return PostgresPlatform
+        return MSSQLPlatform
 
     def reconnect(self):
         pass
@@ -119,9 +127,9 @@ class MSSQLConnection(BaseConnection):
         from psycopg2.extras import RealDictCursor
 
         try:
-            if self._connection.closed:
+            if self.closed:
                 self.make_connection()
-            self._cursor = self._connection.cursor(cursor_factory=RealDictCursor)
+            self._cursor = self._connection.cursor()
             with self._cursor as cursor:
                 if isinstance(query, list) and not self._dry:
                     for q in query:
@@ -133,11 +141,11 @@ class MSSQLConnection(BaseConnection):
                 if results == 1:
                     return dict(cursor.fetchone() or {})
                 else:
-                    if "SELECT" in cursor.statusmessage:
-                        return cursor.fetchall()
-                    return {}
+                    return cursor.fetchall()
+                return {}
         except Exception as e:
             raise e
         finally:
-            if self.get_transaction_level() <= 0:
-                self._connection.close()
+            pass
+            # if self.get_transaction_level() <= 0:
+            #     self._connection.close()
