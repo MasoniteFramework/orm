@@ -108,7 +108,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
     def test_has_table(self):
         schema_sql = self.schema.has_table("users")
 
-        sql = "SELECT * from information_schema.tables where table_name='users' AND table_schema = 'orm'"
+        sql = f"SELECT * from information_schema.tables where table_name='users' AND table_schema = '{os.getenv('MYSQL_DATABASE_DATABASE')}'"
 
         self.assertEqual(schema_sql, sql)
 
