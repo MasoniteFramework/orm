@@ -1,4 +1,5 @@
 class Platform:
+
     def columnize(self, columns):
         sql = []
         for name, column in columns.items():
@@ -47,6 +48,7 @@ class Platform:
             sql.append(
                 self.get_foreign_key_constraint_string().format(
                     column=foreign_key.column,
+                    clean_column=foreign_key.column,
                     table=table,
                     foreign_table=foreign_key.foreign_table,
                     foreign_column=foreign_key.foreign_column,

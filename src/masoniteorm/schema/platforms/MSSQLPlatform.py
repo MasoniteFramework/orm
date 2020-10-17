@@ -12,10 +12,10 @@ class MSSQLPlatform(Platform):
         "integer": "INT",
         "big_integer": "BIGINT",
         "tiny_integer": "TINYINT",
-        "big_increments": "BIGINT PRIMARY KEY",
+        "big_increments": "BIGINT IDENTITY PRIMARY KEY",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
-        "increments": "INT PRIMARY KEY",
+        "increments": "INT IDENTITY PRIMARY KEY",
         "binary": "LONGBLOB",
         "boolean": "BOOLEAN",
         "decimal": "DECIMAL",
@@ -33,7 +33,7 @@ class MSSQLPlatform(Platform):
         "date": "DATE",
         "year": "YEAR",
         "datetime": "DATETIME",
-        "tiny_increments": "TINYINT AUTO_INCREMENT",
+        "tiny_increments": "TINYINT IDENTITY",
         "unsigned": "INT",
         "unsigned_integer": "INT",
     }
@@ -84,7 +84,7 @@ class MSSQLPlatform(Platform):
                 add_columns.append(
                     self.add_column_string()
                     .format(
-                        name=column.name,
+                        name=self.wrap_table(column.name),
                         data_type=self.type_map.get(column.column_type, ""),
                         length=length,
                         constraint="PRIMARY KEY" if column.primary else "",
@@ -134,10 +134,11 @@ class MSSQLPlatform(Platform):
                 sql.append(
                     f"ALTER TABLE {self.wrap_table(table.name)} ADD "
                     + self.get_foreign_key_constraint_string().format(
-                        column=column,
+                        clean_column=column,
+                        column=self.wrap_table(column),
                         table=table.name,
                         foreign_table=foreign_key_constraint.foreign_table,
-                        foreign_column=foreign_key_constraint.foreign_column,
+                        foreign_column=self.wrap_table(foreign_key_constraint.foreign_column),
                     )
                 )
 
@@ -176,7 +177,7 @@ class MSSQLPlatform(Platform):
         return "RENAME COLUMN {old} TO {to}"
 
     def columnize_string(self):
-        return "{name} {data_type}{length} {nullable}{default} {constraint}"
+        return "[{name}] {data_type}{length} {nullable}{default} {constraint}"
 
     def constraintize(self, constraints, table):
         sql = []
@@ -203,7 +204,7 @@ class MSSQLPlatform(Platform):
         return "ALTER TABLE {table} {columns}"
 
     def get_foreign_key_constraint_string(self):
-        return "CONSTRAINT {table}_{column}_foreign FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column})"
+        return "CONSTRAINT {table}_{clean_column}_foreign FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column})"
 
     def get_unique_constraint_string(self):
         return "CONSTRAINT {table}_{name_columns}_unique UNIQUE ({columns})"

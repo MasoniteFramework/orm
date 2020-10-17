@@ -63,6 +63,8 @@ class MSSQLConnection(BaseConnection):
             autocommit=True,
         )
 
+        self._connection.cursor()
+
         self._connection.autocommit = True
 
         return self
@@ -124,7 +126,8 @@ class MSSQLConnection(BaseConnection):
         Returns:
             dict|None -- Returns a dictionary of results or None
         """
-        from psycopg2.extras import RealDictCursor
+
+        print('running', query)
 
         try:
             if self.closed:
@@ -139,9 +142,17 @@ class MSSQLConnection(BaseConnection):
                 query = query.replace("'?'", "%s")
                 self.statement(query, bindings)
                 if results == 1:
-                    return dict(cursor.fetchone() or {})
+                    columnNames = [column[0] for column in cursor.description]
+                    result = cursor.fetchone()
+                    return dict( zip( columnNames , result ) )
                 else:
-                    return cursor.fetchall()
+                    insertObject = []
+                    columnNames = [column[0] for column in cursor.description]
+                    results = []
+                    for record in cursor.fetchall():
+                        results.append( dict( zip( columnNames , record ) ) )
+                    return results
+
                 return {}
         except Exception as e:
             raise e

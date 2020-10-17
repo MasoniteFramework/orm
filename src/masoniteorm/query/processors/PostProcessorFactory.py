@@ -1,6 +1,7 @@
 from .SQLitePostProcessor import SQLitePostProcessor
 from .MySQLPostProcessor import MySQLPostProcessor
 from .PostgresPostProcessor import PostgresPostProcessor
+from .MSSQLPostProcessor import MSSQLPostProcessor
 
 
 class PostProcessorFactory:
@@ -9,6 +10,7 @@ class PostProcessorFactory:
         "sqlite": SQLitePostProcessor,
         "mysql": MySQLPostProcessor,
         "postgres": PostgresPostProcessor,
+        "mssql": MSSQLPostProcessor
     }
 
     def make(self, processor):
