@@ -144,13 +144,12 @@ class MSSQLConnection(BaseConnection):
                 if results == 1:
                     columnNames = [column[0] for column in cursor.description]
                     result = cursor.fetchone()
-                    return dict( zip( columnNames , result ) )
+                    return dict(zip(columnNames, result))
                 else:
-                    insertObject = []
                     columnNames = [column[0] for column in cursor.description]
                     results = []
                     for record in cursor.fetchall():
-                        results.append( dict( zip( columnNames , record ) ) )
+                        results.append(dict(zip(columnNames, record)))
                     return results
 
                 return {}
