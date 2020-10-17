@@ -47,16 +47,6 @@ class MSSQLConnection(BaseConnection):
             raise DriverNotFound(
                 "You must have the 'pyodbc' package installed to make a connection to Postgres. Please install it using 'pip install pyodbc'"
             )
-        print(
-            self.host,
-            "DRIVER=ODBC Driver 17 for SQL Server;SERVER="
-            + self.host
-            + ";DATABASE="
-            + self.database
-            + ";UID="
-            + self.user
-            + ";PWD=y34S0r3Th_m#;PORT=9433",
-        )
 
         self._connection = pyodbc.connect(
             f"DRIVER={'ODBC Driver 17 for SQL Server'};SERVER={self.host},{self.port};DATABASE={self.database};UID={self.user};PWD={self.password}",
@@ -127,8 +117,6 @@ class MSSQLConnection(BaseConnection):
             dict|None -- Returns a dictionary of results or None
         """
 
-        print('running', query)
-
         try:
             if self.closed:
                 self.make_connection()
@@ -138,10 +126,12 @@ class MSSQLConnection(BaseConnection):
                     for q in query:
                         self.statement(q, ())
                     return
-
+                print('qq', query)
                 query = query.replace("'?'", "%s")
                 self.statement(query, bindings)
                 if results == 1:
+                    if not cursor.description:
+                        return {}
                     columnNames = [column[0] for column in cursor.description]
                     result = cursor.fetchone()
                     return dict(zip(columnNames, result))
