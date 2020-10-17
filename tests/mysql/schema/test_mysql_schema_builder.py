@@ -3,6 +3,7 @@ from config.database import DATABASES
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.connections import MySQLConnection
 from src.masoniteorm.schema.platforms import MySQLPlatform
+import os
 
 
 class TestMySQLSchemaBuilder(unittest.TestCase):
