@@ -24,7 +24,7 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
             blueprint.to_sql(),
-            "CREATE TABLE [users] (name VARCHAR(255) NOT NULL, age INT NOT NULL)",
+            "CREATE TABLE [users] ([name] VARCHAR(255) NOT NULL, [age] INT NOT NULL)",
         )
 
     def test_can_add_columns_with_constaint(self):
@@ -36,7 +36,7 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
             blueprint.to_sql(),
-            "CREATE TABLE [users] (name VARCHAR(255) NOT NULL, age INT NOT NULL, CONSTRAINT users_name_unique UNIQUE (name))",
+            "CREATE TABLE [users] ([name] VARCHAR(255) NOT NULL, [age] INT NOT NULL, CONSTRAINT users_name_unique UNIQUE (name))",
         )
 
     def test_can_add_columns_with_foreign_key_constaint(self):
@@ -51,9 +51,9 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             "CREATE TABLE [users] "
-            "(name VARCHAR(255) NOT NULL, "
-            "age INT NOT NULL, "
-            "profile_id INT NOT NULL, "
+            "([name] VARCHAR(255) NOT NULL, "
+            "[age] INT NOT NULL, "
+            "[profile_id] INT NOT NULL, "
             "CONSTRAINT users_name_unique UNIQUE (name), "
             "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))",
         )
@@ -74,10 +74,10 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             (
-                "CREATE TABLE [users] (id INT PRIMARY KEY NOT NULL, name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, "
-                "password VARCHAR(255) NOT NULL, admin INT NOT NULL DEFAULT 0, remember_token VARCHAR(255) NULL, "
-                "verified_at DATETIME NULL DEFAULT CURRENT_TIMESTAMP, created_at DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
-                "updated_at DATETIME NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_email_unique UNIQUE (email))"
+                "CREATE TABLE [users] ([id] INT IDENTITY PRIMARY KEY NOT NULL, [name] VARCHAR(255) NOT NULL, [email] VARCHAR(255) NOT NULL, "
+                "[password] VARCHAR(255) NOT NULL, [admin] INT NOT NULL DEFAULT 0, [remember_token] VARCHAR(255) NULL, "
+                "[verified_at] DATETIME NULL DEFAULT CURRENT_TIMESTAMP, [created_at] DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
+                "[updated_at] DATETIME NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_email_unique UNIQUE (email))"
             ),
         )
 
@@ -101,10 +101,10 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             (
-                "CREATE TABLE [users] (id INT PRIMARY KEY NOT NULL, name VARCHAR(255) NOT NULL, duration VARCHAR(255) NOT NULL, "
-                "url VARCHAR(255) NOT NULL, published_at DATETIME NOT NULL, thumbnail VARCHAR(255) NULL, premium INT NOT NULL, "
-                "author_id INT NULL, description TEXT NOT NULL, created_at DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
-                "updated_at DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
+                "CREATE TABLE [users] ([id] INT IDENTITY PRIMARY KEY NOT NULL, [name] VARCHAR(255) NOT NULL, [duration] VARCHAR(255) NOT NULL, "
+                "[url] VARCHAR(255) NOT NULL, [published_at] DATETIME NOT NULL, [thumbnail] VARCHAR(255) NULL, [premium] INT NOT NULL, "
+                "[author_id] INT NULL, [description] TEXT NOT NULL, [created_at] DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
+                "[updated_at] DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
                 "CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES users(id))"
             ),
         )
