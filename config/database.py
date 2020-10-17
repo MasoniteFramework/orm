@@ -54,11 +54,11 @@ DATABASES = {
     },
     'mssql': {
         'driver': 'mssql',
-        'host': os.getenv('POSTGRES_DATABASE_HOST'),
-        'user': os.getenv('POSTGRES_DATABASE_USER'),
-        'password': os.getenv('POSTGRES_DATABASE_PASSWORD'),
-        'database': os.getenv('POSTGRES_DATABASE_DATABASE'),
-        'port': os.getenv('POSTGRES_DATABASE_PORT'),
+        'host': os.getenv('MSSQL_DATABASE_HOST'),
+        'user': os.getenv('MSSQL_DATABASE_USER'),
+        'password': os.getenv('MSSQL_DATABASE_PASSWORD'),
+        'database': os.getenv('MSSQL_DATABASE_DATABASE'),
+        'port': os.getenv('MSSQL_DATABASE_PORT'),
         'prefix': ''
     },
 
