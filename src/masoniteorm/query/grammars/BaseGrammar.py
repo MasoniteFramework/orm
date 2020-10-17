@@ -118,7 +118,7 @@ class BaseGrammar:
             key_equals=self._compile_key_value_equals(qmark=qmark),
             table=self.process_table(self.table),
             columns=self.process_columns(separator=", ", action="insert"),
-            values=self.process_values(separator=", "),
+            values=self.process_values(separator=", ", qmark=qmark),
         )
 
         return self
@@ -571,7 +571,7 @@ class BaseGrammar:
         return sql.rstrip(",").rstrip(", ")
 
     # TODO: Duplicative?
-    def process_values(self, separator=""):
+    def process_values(self, separator="", qmark=False):
         """Compiles column values for insert expressions.
 
         Keyword Arguments:
@@ -584,9 +584,16 @@ class BaseGrammar:
         if self._columns == "*":
             return self._columns
         for column, value in dict(self._columns).items():
-            sql += self._compile_value(value, separator=separator)
+            if qmark:
+                self.add_binding(value)
+                sql += f"'?'{separator}".strip()
+            else:
+                sql += self._compile_value(value, separator=separator)
 
-        return sql[:-2]
+        if not qmark:
+            return sql[:-2]
+
+        return sql.rstrip(separator.strip())
 
     def process_column(self, column, separator=""):
         """Compiles a column into the column syntax.

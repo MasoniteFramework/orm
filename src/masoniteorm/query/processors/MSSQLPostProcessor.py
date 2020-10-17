@@ -24,7 +24,8 @@ class MSSQLPostProcessor:
             dictionary: Should return the modified dictionary.
         """
 
-        last_id = builder.new_connection().query(f"SELECT SCOPE_IDENTITY() as [id]", results=1)
+        last_id = builder.new_connection().query(f"SELECT @@Identity as [id]", results=1)
+
         id = last_id['id']
 
         if str(id).isdigit():
@@ -33,6 +34,4 @@ class MSSQLPostProcessor:
             id = str(id)
 
         results.update({id_key: id})
-        return results
-
         return results

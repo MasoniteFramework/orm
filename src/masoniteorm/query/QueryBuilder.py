@@ -1043,11 +1043,14 @@ class QueryBuilder:
         self._should_eager = False
         return self
 
-    def with_(self, eagers=()):
+    def with_(self, eagers=(), *others):
         if not isinstance(eagers, (tuple, list)):
             eagers = (eagers,)
 
-        self._eager_loads += tuple(eagers)
+        if others:
+            eagers += others
+
+        self._eager_loads += eagers
         return self
 
     # def eager_load_model(self, result):
