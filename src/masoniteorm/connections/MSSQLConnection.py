@@ -45,17 +45,13 @@ class MSSQLConnection(BaseConnection):
             import pyodbc
         except ModuleNotFoundError:
             raise DriverNotFound(
-                "You must have the 'pyodbc' package installed to make a connection to Postgres. Please install it using 'pip install pyodbc'"
+                "You must have the 'pyodbc' package installed to make a connection to Microsoft SQL Server. Please install it using 'pip install pyodbc'"
             )
 
         self._connection = pyodbc.connect(
             f"DRIVER={'ODBC Driver 17 for SQL Server'};SERVER={self.host},{self.port};DATABASE={self.database};UID={self.user};PWD={self.password}",
             autocommit=True,
         )
-
-        self._connection.cursor()
-
-        self._connection.autocommit = True
 
         return self
 
