@@ -17,6 +17,7 @@ class MockMySQLConnection(MySQLConnection):
     def get_default_platform(cls):
         return MySQLPlatform
 
+
 class MockMSSQLConnection(MySQLConnection):
     def make_connection(self):
         self._connection = mock.MagicMock()
