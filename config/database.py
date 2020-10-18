@@ -54,7 +54,7 @@ DATABASES = {
     }
 }
 
-ConnectionResolver.set_connection_details(DATABASES)
+ConnectionResolver().set_connection_details(DATABASES)
 
 logger = logging.getLogger('masoniteorm.connection.queries')
 logger.setLevel(logging.DEBUG)

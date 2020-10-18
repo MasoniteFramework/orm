@@ -9,6 +9,7 @@ class SQLiteConnection(BaseConnection):
     """SQLite Connection class."""
 
     name = "sqlite"
+
     _connection = None
 
     def __init__(
