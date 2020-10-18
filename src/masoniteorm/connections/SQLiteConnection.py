@@ -21,6 +21,7 @@ class SQLiteConnection(BaseConnection):
         port=None,
         password=None,
         prefix=None,
+        full_details={},
         options={},
     ):
         self.host = host
@@ -32,6 +33,7 @@ class SQLiteConnection(BaseConnection):
         self.user = user
         self.password = password
         self.prefix = prefix
+        self.full_details = full_details
         self.options = options
         self._cursor = None
         self.transaction_level = 0

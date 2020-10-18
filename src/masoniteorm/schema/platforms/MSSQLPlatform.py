@@ -148,7 +148,7 @@ class MSSQLPlatform(Platform):
             constraints = table.dropped_foreign_keys
             for constraint in constraints:
                 sql.append(
-                    f"ALTER TABLE {self.wrap_table(table.name)} DROP FOREIGN KEY {constraint}"
+                    f"ALTER TABLE {self.wrap_table(table.name)} DROP CONSTRAINT {constraint}"
                 )
 
         if table.added_indexes:
@@ -163,7 +163,7 @@ class MSSQLPlatform(Platform):
             constraints = table.removed_indexes
             for constraint in constraints:
                 sql.append(
-                    f"ALTER TABLE {self.wrap_table(table.name)} DROP INDEX {constraint}"
+                    f"DROP INDEX {self.wrap_table(table.name)}.{self.wrap_table(constraint)}"
                 )
 
         return sql
@@ -175,7 +175,7 @@ class MSSQLPlatform(Platform):
         return "{name}"
 
     def rename_column_string(self, table, old, new):
-        return f"EXEC sp_rename '{table}.{old}', '{new}', 'COLUMN';"
+        return f"EXEC sp_rename '{table}.{old}', '{new}', 'COLUMN'"
 
     def columnize_string(self):
         return "[{name}] {data_type}{length} {nullable}{default} {constraint}"

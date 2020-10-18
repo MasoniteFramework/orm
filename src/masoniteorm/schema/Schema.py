@@ -125,6 +125,12 @@ class Schema:
             "prefix": self.connection_details.get(self._connection_driver, {}).get(
                 "prefix"
             ),
+            "options": self.connection_details.get(self._connection_driver, {}).get(
+                "options", {}
+            ),
+            "full_details": self.connection_details.get(
+                self._connection_driver, {}
+            ).get("full_details"),
         }
 
     def new_connection(self):

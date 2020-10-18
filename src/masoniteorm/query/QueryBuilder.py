@@ -126,6 +126,10 @@ class QueryBuilder:
             "prefix": self._connection_details.get(self._connection_driver, {}).get(
                 "prefix"
             ),
+            "options": self._connection_details.get(self._connection_driver, {}).get(
+                "options", {}
+            ),
+            "full_details": self._connection_details.get(self._connection_driver, {}),
         }
 
     def table(self, table):

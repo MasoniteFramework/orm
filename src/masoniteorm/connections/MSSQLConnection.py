@@ -4,6 +4,7 @@ from ..exceptions import DriverNotFound
 from .BaseConnection import BaseConnection
 from ..query.grammars import MSSQLGrammar
 from ..schema.platforms import MSSQLPlatform
+from ..query.processors import MSSQLPostProcessor
 
 
 CONNECTION_POOL = []
@@ -23,6 +24,7 @@ class MSSQLConnection(BaseConnection):
         password=None,
         prefix=None,
         options={},
+        full_details={},
     ):
 
         self.host = host
@@ -34,6 +36,7 @@ class MSSQLConnection(BaseConnection):
         self.user = user
         self.password = password
         self.prefix = prefix
+        self.full_details = full_details
         self.options = options
         self._cursor = None
         self.transaction_level = 0
@@ -48,8 +51,10 @@ class MSSQLConnection(BaseConnection):
                 "You must have the 'pyodbc' package installed to make a connection to Microsoft SQL Server. Please install it using 'pip install pyodbc'"
             )
 
+        mssql_driver = self.options.get("driver", "ODBC Driver 17 for SQL Server")
+
         self._connection = pyodbc.connect(
-            f"DRIVER={'ODBC Driver 17 for SQL Server'};SERVER={self.host},{self.port};DATABASE={self.database};UID={self.user};PWD={self.password}",
+            f"DRIVER={mssql_driver};SERVER={self.host},{self.port};DATABASE={self.database};UID={self.user};PWD={self.password}",
             autocommit=True,
         )
 
@@ -65,6 +70,10 @@ class MSSQLConnection(BaseConnection):
     @classmethod
     def get_default_platform(cls):
         return MSSQLPlatform
+
+    @classmethod
+    def get_default_post_processor(cls):
+        return MSSQLPostProcessor
 
     def reconnect(self):
         pass
@@ -131,6 +140,8 @@ class MSSQLConnection(BaseConnection):
                     result = cursor.fetchone()
                     return dict(zip(columnNames, result))
                 else:
+                    if not cursor.description:
+                        return {}
                     columnNames = [column[0] for column in cursor.description]
                     results = []
                     for record in cursor.fetchall():
