@@ -3,7 +3,12 @@ class ConnectionResolver:
     _connection_details = {}
 
     def __init__(self):
-        from ..connections import SQLiteConnection, PostgresConnection, MySQLConnection, MSSQLConnection
+        from ..connections import (
+            SQLiteConnection,
+            PostgresConnection,
+            MySQLConnection,
+            MSSQLConnection,
+        )
 
         self.register(SQLiteConnection)
         self.register(PostgresConnection)

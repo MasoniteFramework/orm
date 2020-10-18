@@ -1,5 +1,4 @@
 class Platform:
-
     def columnize(self, columns):
         sql = []
         for name, column in columns.items():

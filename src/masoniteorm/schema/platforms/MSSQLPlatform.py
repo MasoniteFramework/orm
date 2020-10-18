@@ -138,7 +138,9 @@ class MSSQLPlatform(Platform):
                         column=self.wrap_table(column),
                         table=table.name,
                         foreign_table=foreign_key_constraint.foreign_table,
-                        foreign_column=self.wrap_table(foreign_key_constraint.foreign_column),
+                        foreign_column=self.wrap_table(
+                            foreign_key_constraint.foreign_column
+                        ),
                     )
                 )
 

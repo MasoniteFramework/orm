@@ -34,7 +34,5 @@ class TestMSSQLQmark(unittest.TestCase):
         self.assertEqual(mark.to_qmark(), sql)
         self.assertEqual(
             mark._bindings,
-            (
-                "Bob",
-            ),
+            ("Bob",),
         )

@@ -10,7 +10,7 @@ class ConnectionFactory:
     """Class for controlling the registration and creation of connection types."""
 
     _connections = {
-        # 
+        #
     }
 
     @classmethod
