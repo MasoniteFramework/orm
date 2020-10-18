@@ -2,6 +2,7 @@ import sqlite3
 from ..query.grammars import SQLiteGrammar
 from .BaseConnection import BaseConnection
 from ..schema.platforms import SQLitePlatform
+from ..query.processors import SQLitePostProcessor
 import logging
 
 
@@ -53,6 +54,10 @@ class SQLiteConnection(BaseConnection):
     @classmethod
     def get_default_platform(cls):
         return SQLitePlatform
+
+    @classmethod
+    def get_default_post_processor(cls):
+        return SQLitePostProcessor
 
     def get_database_name(self):
         return self.database

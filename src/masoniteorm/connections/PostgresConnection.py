@@ -4,6 +4,7 @@ from ..exceptions import DriverNotFound
 from .BaseConnection import BaseConnection
 from ..query.grammars import PostgresGrammar
 from ..schema.platforms import PostgresPlatform
+from ..query.processors import PostgresPostProcessor
 
 
 CONNECTION_POOL = []
@@ -69,6 +70,10 @@ class PostgresConnection(BaseConnection):
     @classmethod
     def get_default_platform(cls):
         return PostgresPlatform
+
+    @classmethod
+    def get_default_post_processor(cls):
+        return PostgresPostProcessor
 
     def reconnect(self):
         pass
