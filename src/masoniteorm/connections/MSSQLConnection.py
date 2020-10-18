@@ -78,7 +78,7 @@ class MSSQLConnection(BaseConnection):
         self.transaction_level -= 1
 
     def begin(self):
-        """Postgres Transaction"""
+        """MSSQL Transaction"""
         self._connection.autocommit = False
         self.transaction_level += 1
         return self._connection
