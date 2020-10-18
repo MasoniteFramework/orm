@@ -1,5 +1,5 @@
 import inspect
-
+import uuid
 from ..collection.Collection import Collection
 from ..expressions.expressions import (
     SubGroupExpression,
@@ -349,6 +349,13 @@ class QueryBuilder:
             creates = kwargs
 
         self.set_action("insert")
+
+        # before insertion generates new uuid if ORM_PK_TYPE is UUID
+        ORM_PK_TYPE = "uuid"  # to be defined in configuration
+        if ORM_PK_TYPE == "uuid":
+            new_pk = uuid.uuid4()
+            self._creates.update({id_key: new_pk})
+
         self._creates.update(creates)
         if query:
             return self
