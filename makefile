@@ -14,6 +14,9 @@ format:
 	black src/masoniteorm
 	black tests/
 	make lint
+sort:
+	isort tests
+	isort src/masoniteorm
 coverage:
 	python -m pytest --cov-report term --cov-report xml --cov=src/masoniteorm tests/
 	python -m coveralls
