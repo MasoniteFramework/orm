@@ -175,8 +175,7 @@ class MSSQLPlatform(Platform):
         return "{name}"
 
     def rename_column_string(self, table, old, new):
-        return f"EXEC sp_rename 'users.post', 'comment', 'COLUMN';"
-        return "RENAME COLUMN {old} TO {to}"
+        return f"EXEC sp_rename '{table}.{old}', '{new}', 'COLUMN';"
 
     def columnize_string(self):
         return "[{name}] {data_type}{length} {nullable}{default} {constraint}"
