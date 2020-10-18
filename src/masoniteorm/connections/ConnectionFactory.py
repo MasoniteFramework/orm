@@ -43,6 +43,7 @@ class ConnectionFactory:
         """
 
         from config.database import ConnectionResolver
+
         connections = ConnectionResolver().get_connection_details()
 
         if key == "default":

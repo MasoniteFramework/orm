@@ -6,7 +6,6 @@ from src.masoniteorm.query.grammars import SQLiteGrammar
 
 
 class BaseInsertGrammarTest:
-
     def setUp(self):
         self.builder = QueryBuilder(SQLiteGrammar, table="users")
 

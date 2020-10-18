@@ -6,7 +6,6 @@ from src.masoniteorm.query.grammars import PostgresGrammar
 
 
 class BaseInsertGrammarTest:
-
     def setUp(self):
         self.builder = QueryBuilder(PostgresGrammar, table="users")
 

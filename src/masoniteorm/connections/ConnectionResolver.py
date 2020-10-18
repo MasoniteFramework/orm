@@ -4,6 +4,7 @@ class ConnectionResolver:
 
     def __init__(self):
         from ..connectors import SQLiteConnector, PostgresConnector, MySQLConnector
+
         self.register(SQLiteConnector())
         self.register(PostgresConnector())
         self.register(MySQLConnector())
@@ -17,4 +18,5 @@ class ConnectionResolver:
 
     def register(self, connector):
         from ..connections import ConnectionFactory
+
         ConnectionFactory.register(connector.name, connector.get_connection())
