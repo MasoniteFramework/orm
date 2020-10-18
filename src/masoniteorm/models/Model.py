@@ -164,7 +164,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     def get_connection_details(self):
         from config.database import ConnectionResolver
 
-        return ConnectionResolver.get_connection_details()
+        return ConnectionResolver().get_connection_details()
 
     def boot(self):
         if not self._booted:

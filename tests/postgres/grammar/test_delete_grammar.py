@@ -1,12 +1,11 @@
-from src.masoniteorm.query.grammars import MySQLGrammar
+from src.masoniteorm.query.grammars import PostgresGrammar
 from src.masoniteorm.query import QueryBuilder
-from src.masoniteorm.query.grammars import GrammarFactory
 import unittest, inspect
 
 
 class BaseDeleteGrammarTest:
     def setUp(self):
-        self.builder = QueryBuilder(GrammarFactory.make("postgres"), table="users")
+        self.builder = QueryBuilder(PostgresGrammar, table="users")
 
     def test_can_compile_delete(self):
         to_sql = self.builder.delete("id", 1, query=True).to_sql()

@@ -2,14 +2,13 @@ import inspect
 import unittest
 
 from src.masoniteorm.query import QueryBuilder
-from src.masoniteorm.query.grammars import GrammarFactory
+from src.masoniteorm.query.grammars import SQLiteGrammar
 
 
 class BaseInsertGrammarTest:
-    grammar = "sqlite"
 
     def setUp(self):
-        self.builder = QueryBuilder(GrammarFactory.make("sqlite"), table="users")
+        self.builder = QueryBuilder(SQLiteGrammar, table="users")
 
     def test_can_compile_insert(self):
         to_sql = self.builder.create({"name": "Joe"}, query=True).to_sql()

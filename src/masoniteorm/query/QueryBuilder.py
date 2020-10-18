@@ -19,7 +19,6 @@ from ..schema import Schema
 from .processors import PostProcessorFactory
 
 from ..connections import ConnectionResolver, ConnectionFactory
-from ..query.grammars import GrammarFactory
 
 
 class QueryBuilder:
@@ -87,7 +86,7 @@ class QueryBuilder:
         self.set_action("select")
 
         if not self._connection_details:
-            self._connection_details = ConnectionResolver.get_connection_details()
+            self._connection_details = ConnectionResolver().get_connection_details()
 
         if not connection:
             self.connection = ConnectionFactory().make(self._connection_driver)

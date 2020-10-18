@@ -1,12 +1,11 @@
-from src.masoniteorm.query.grammars import MySQLGrammar
+from src.masoniteorm.query.grammars import MSSQLGrammar
 from src.masoniteorm.query import QueryBuilder
-from src.masoniteorm.query.grammars import GrammarFactory
 import unittest
 
 
 class TestMySQLInsertGrammar(unittest.TestCase):
     def setUp(self):
-        self.builder = QueryBuilder(GrammarFactory.make("mssql"), table="users")
+        self.builder = QueryBuilder(MSSQLGrammar, table="users")
 
     def test_can_compile_insert(self):
 

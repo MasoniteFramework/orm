@@ -3,7 +3,6 @@ import unittest
 
 from src.masoniteorm import Factory as factory
 from src.masoniteorm.query import QueryBuilder
-from src.masoniteorm.query.grammars import GrammarFactory, MySQLGrammar
 from src.masoniteorm.models import Model
 
 
