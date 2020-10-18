@@ -10,7 +10,7 @@ CONNECTION_POOL = []
 
 
 class MSSQLConnection(BaseConnection):
-    """Postgres Connection class."""
+    """MSSQL Connection class."""
 
     name = "mssql"
 
