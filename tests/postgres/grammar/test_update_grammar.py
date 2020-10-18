@@ -1,6 +1,5 @@
-from src.masoniteorm.query.grammars import MySQLGrammar
+from src.masoniteorm.query.grammars import PostgresGrammar
 from src.masoniteorm.query import QueryBuilder
-from src.masoniteorm.query.grammars import GrammarFactory
 from src.masoniteorm.connections import PostgresConnection
 import unittest
 import inspect
@@ -9,7 +8,7 @@ import inspect
 class BaseTestCaseUpdateGrammar:
     def setUp(self):
         self.builder = QueryBuilder(
-            GrammarFactory.make("postgres"),
+            PostgresGrammar,
             connection=PostgresConnection,
             table="users",
         )

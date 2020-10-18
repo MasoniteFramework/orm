@@ -1,12 +1,12 @@
 from src.masoniteorm.query import QueryBuilder
-from src.masoniteorm.query.grammars import GrammarFactory, MySQLGrammar
+from src.masoniteorm.query.grammars import MySQLGrammar
 import unittest
 import inspect
 
 
 class BaseQMarkTest:
     def setUp(self):
-        self.builder = QueryBuilder(GrammarFactory.make("mysql"), table="users")
+        self.builder = QueryBuilder(grammar=MySQLGrammar, table="users")
 
     def test_can_compile_select(self):
         mark = self.builder.select("username").where("name", "Joe")

@@ -1,11 +1,11 @@
 from src.masoniteorm.query import QueryBuilder
-from src.masoniteorm.query.grammars import GrammarFactory
+from src.masoniteorm.query.grammars import MSSQLGrammar
 import unittest
 
 
 class TestMySQLDeleteGrammar(unittest.TestCase):
     def setUp(self):
-        self.builder = QueryBuilder(GrammarFactory.make("mssql"), table="users")
+        self.builder = QueryBuilder(MSSQLGrammar, table="users")
 
     def test_can_compile_delete(self):
         to_sql = self.builder.delete("id", 1, query=True).to_sql()

@@ -28,7 +28,7 @@ class Migration:
         connection_class = ConnectionFactory().make(connection)
         from config.database import ConnectionResolver
 
-        DATABASES = ConnectionResolver.get_connection_details()
+        DATABASES = ConnectionResolver().get_connection_details()
 
         self.schema = Schema(
             connection=connection_class,

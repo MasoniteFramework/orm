@@ -2,11 +2,12 @@ import inspect
 import unittest
 
 from src.masoniteorm.testing import BaseTestCaseSelectGrammar
+from src.masoniteorm.query.grammars import PostgresGrammar
 
 
 class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
 
-    grammar = "postgres"
+    grammar = PostgresGrammar
 
     def can_compile_select(self):
         """

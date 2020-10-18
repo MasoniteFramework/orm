@@ -2,11 +2,12 @@ import inspect
 import unittest
 
 from src.masoniteorm.testing import BaseTestCaseSelectGrammar
+from src.masoniteorm.query.grammars import SQLiteGrammar
 
 
 class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
 
-    grammar = "sqlite"
+    grammar = SQLiteGrammar
 
     def can_compile_select(self):
         """

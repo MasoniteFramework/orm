@@ -1,6 +1,5 @@
 from src.masoniteorm.query.grammars import MySQLGrammar
 from src.masoniteorm.query import QueryBuilder
-from src.masoniteorm.query.grammars import GrammarFactory
 from src.masoniteorm.models import Model
 import unittest
 import os
@@ -15,7 +14,7 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
 
     class TestMySQLSelectConnection(unittest.TestCase):
         def setUp(self):
-            self.builder = QueryBuilder(GrammarFactory.make("mysql"), table="users")
+            self.builder = QueryBuilder(MySQLGrammar, table="users")
 
         def test_can_compile_select(self):
             to_sql = MockUser.where("id", 1).to_sql()
