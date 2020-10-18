@@ -16,10 +16,7 @@ from ..scopes import BaseScope
 
 from ..schema import Schema
 
-from .processors import PostProcessorFactory
-
 from ..connections import ConnectionResolver, ConnectionFactory
-from ..query.grammars import GrammarFactory
 
 
 class QueryBuilder:
@@ -87,7 +84,7 @@ class QueryBuilder:
         self.set_action("select")
 
         if not self._connection_details:
-            self._connection_details = ConnectionResolver.get_connection_details()
+            self._connection_details = ConnectionResolver().get_connection_details()
 
         if not connection:
             self.connection = ConnectionFactory().make(self._connection_driver)
@@ -333,7 +330,7 @@ class QueryBuilder:
         return self
 
     def get_processor(self):
-        return PostProcessorFactory().make(self._connection_driver)()
+        return self.connection.get_default_post_processor()()
 
     def create(self, creates={}, query=False, id_key="id", **kwargs):
         """Specifies a dictionary that should be used to create new values.

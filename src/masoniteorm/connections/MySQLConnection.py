@@ -4,6 +4,7 @@ from ..exceptions import DriverNotFound
 from .BaseConnection import BaseConnection
 from ..query.grammars import MySQLGrammar
 from ..schema.platforms import MySQLPlatform
+from ..query.processors import MySQLPostProcessor
 
 CONNECTION_POOL = []
 
@@ -73,6 +74,10 @@ class MySQLConnection(BaseConnection):
     @classmethod
     def get_default_platform(cls):
         return MySQLPlatform
+
+    @classmethod
+    def get_default_post_processor(cls):
+        return MySQLPostProcessor
 
     def get_database_name(self):
         return self.database

@@ -1,7 +1,6 @@
 import inspect
 
 from ..query import QueryBuilder
-from ..query.grammars import GrammarFactory
 from ..models import Model
 
 
@@ -16,7 +15,7 @@ class MockConnection:
 class BaseTestCaseSelectGrammar:
     def setUp(self):
         self.builder = QueryBuilder(
-            GrammarFactory.make(self.grammar),
+            self.grammar,
             table="users",
             connection=MockConnection,
             model=Model(),

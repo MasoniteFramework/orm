@@ -2,11 +2,12 @@ import inspect
 import unittest
 
 from src.masoniteorm.testing import BaseTestCaseSelectGrammar
+from src.masoniteorm.query.grammars import MySQLGrammar
 
 
 class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
 
-    grammar = "mysql"
+    grammar = MySQLGrammar
 
     def can_compile_select(self):
         """

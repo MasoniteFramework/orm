@@ -2,14 +2,12 @@ import inspect
 import unittest
 
 from src.masoniteorm.query import QueryBuilder
-from src.masoniteorm.query.grammars import GrammarFactory, PostgresGrammar
+from src.masoniteorm.query.grammars import PostgresGrammar
 
 
 class BaseInsertGrammarTest:
-    grammar = "postgres"
-
     def setUp(self):
-        self.builder = QueryBuilder(GrammarFactory.make("postgres"), table="users")
+        self.builder = QueryBuilder(PostgresGrammar, table="users")
 
     def test_can_compile_insert(self):
         to_sql = self.builder.create({"name": "Joe"}, query=True).to_sql()

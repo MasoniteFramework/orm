@@ -1,13 +1,12 @@
-from src.masoniteorm.query.grammars import MySQLGrammar
+from src.masoniteorm.query.grammars import SQLiteGrammar
 from src.masoniteorm.query import QueryBuilder
-from src.masoniteorm.query.grammars import GrammarFactory
 import unittest
 import inspect
 
 
 class BaseTestCaseUpdateGrammar:
     def setUp(self):
-        self.builder = QueryBuilder(GrammarFactory.make("sqlite"), table="users")
+        self.builder = QueryBuilder(SQLiteGrammar, table="users")
 
     def test_can_compile_update(self):
         to_sql = (

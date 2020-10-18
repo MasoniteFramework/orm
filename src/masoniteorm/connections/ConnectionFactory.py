@@ -9,10 +9,9 @@ class ConnectionFactory:
     """Class for controlling the registration and creation of connection types."""
 
     _connections = {
-        "mysql": MySQLConnection,
+        # "mysql": MySQLConnection,
         "mssql": "",
-        "postgres": PostgresConnection,
-        "sqlite": SQLiteConnection,
+        # "sqlite": SQLiteConnection,
         "oracle": "",
     }
 
@@ -27,7 +26,7 @@ class ConnectionFactory:
         Returns:
             cls
         """
-        cls.update({key: connection})
+        cls._connections.update({key: connection})
         return cls
 
     def make(self, key):
@@ -45,7 +44,7 @@ class ConnectionFactory:
 
         from config.database import ConnectionResolver
 
-        connections = ConnectionResolver.get_connection_details()
+        connections = ConnectionResolver().get_connection_details()
 
         if key == "default":
             connection_details = connections.get(connections.get("default"))
