@@ -85,8 +85,8 @@ class Blueprint:
         )
         return self
 
-    def uuid_increments(self, column, nullable=False):
-        """Sets a column to be the UUID primary key representation for the table.
+    def uuid(self, column, nullable=False):
+        """Sets a column to be the UUID4 representation for the table.
 
         Arguments:
             column {string} -- The column name.
@@ -97,9 +97,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "uuid_increments", nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "uuid", nullable=nullable)
         return self
 
     def big_increments(self, column, nullable=False):
@@ -445,7 +443,7 @@ class Blueprint:
         Returns:
             self
         """
-        self.table.set_primary_key([column])
+        self.table.set_primary_key(column)
         return self
 
     def foreign(self, column):
