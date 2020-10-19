@@ -16,6 +16,7 @@ class MSSQLPlatform(Platform):
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
         "increments": "INT IDENTITY PRIMARY KEY",
+        "uuid": "CHAR(36)",
         "binary": "LONGBLOB",
         "boolean": "BOOLEAN",
         "decimal": "DECIMAL",

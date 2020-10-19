@@ -15,6 +15,7 @@ class PostgresPlatform(Platform):
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
         "increments": "SERIAL UNIQUE",
+        "uuid": "CHAR(36)",
         "binary": "LONGBLOB",
         "boolean": "BOOLEAN",
         "decimal": "DECIMAL",
