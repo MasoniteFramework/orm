@@ -51,7 +51,17 @@ DATABASES = {
         'driver': 'sqlite',
         'database': 'orm.sqlite3',
         'prefix': ''
-    }
+    },
+    'mssql': {
+        'driver': 'mssql',
+        'host': os.getenv('MSSQL_DATABASE_HOST'),
+        'user': os.getenv('MSSQL_DATABASE_USER'),
+        'password': os.getenv('MSSQL_DATABASE_PASSWORD'),
+        'database': os.getenv('MSSQL_DATABASE_DATABASE'),
+        'port': os.getenv('MSSQL_DATABASE_PORT'),
+        'prefix': ''
+    },
+
 }
 
 ConnectionResolver().set_connection_details(DATABASES)

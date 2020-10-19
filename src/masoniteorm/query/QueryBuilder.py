@@ -126,6 +126,10 @@ class QueryBuilder:
             "prefix": self._connection_details.get(self._connection_driver, {}).get(
                 "prefix"
             ),
+            "options": self._connection_details.get(self._connection_driver, {}).get(
+                "options", {}
+            ),
+            "full_details": self._connection_details.get(self._connection_driver, {}),
         }
 
     def table(self, table):
@@ -1040,11 +1044,14 @@ class QueryBuilder:
         self._should_eager = False
         return self
 
-    def with_(self, eagers=()):
+    def with_(self, eagers=(), *others):
         if not isinstance(eagers, (tuple, list)):
             eagers = (eagers,)
 
-        self._eager_loads += tuple(eagers)
+        if others:
+            eagers += others
+
+        self._eager_loads += eagers
         return self
 
     # def eager_load_model(self, result):

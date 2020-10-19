@@ -26,3 +26,13 @@ class TestMSSQLQmark(unittest.TestCase):
                 "Joe",
             ),
         )
+
+    def test_can_compile_insert(self):
+        mark = self.builder.create({"name": "Bob"}, query=True)
+
+        sql = "INSERT INTO [users] ([users].[name]) VALUES ('?')"
+        self.assertEqual(mark.to_qmark(), sql)
+        self.assertEqual(
+            mark._bindings,
+            ("Bob",),
+        )

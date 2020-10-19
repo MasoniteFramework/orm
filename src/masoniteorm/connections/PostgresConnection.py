@@ -24,6 +24,7 @@ class PostgresConnection(BaseConnection):
         password=None,
         prefix=None,
         options={},
+        full_details={},
     ):
 
         self.host = host
@@ -35,6 +36,7 @@ class PostgresConnection(BaseConnection):
         self.user = user
         self.password = password
         self.prefix = prefix
+        self.full_details = full_details
         self.options = options
         self._cursor = None
         self.transaction_level = 0

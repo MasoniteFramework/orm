@@ -18,6 +18,18 @@ class MockMySQLConnection(MySQLConnection):
         return MySQLPlatform
 
 
+class MockMSSQLConnection(MySQLConnection):
+    def make_connection(self):
+        self._connection = mock.MagicMock()
+        self._cursor = mock.MagicMock()
+
+        return self
+
+    @classmethod
+    def get_default_platform(cls):
+        return MySQLPlatform
+
+
 class MockPostgresConnection(MySQLConnection):
     def make_connection(self):
         self._connection = mock.MagicMock()
@@ -38,7 +50,7 @@ class MockSQLiteConnection(SQLiteConnection):
 class MockConnectionFactory(ConnectionFactory):
     _connections = {
         "mysql": MockMySQLConnection,
-        "mssql": "",
+        "mssql": MockMSSQLConnection,
         "postgres": MockPostgresConnection,
         "sqlite": MockSQLiteConnection,
         "oracle": "",

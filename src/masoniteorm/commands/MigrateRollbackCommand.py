@@ -12,4 +12,4 @@ class MigrateRollbackCommand(Command):
     """
 
     def handle(self):
-        Migration(command_class=self).rollback()
+        Migration(command_class=self, connection=self.option("connection")).rollback()

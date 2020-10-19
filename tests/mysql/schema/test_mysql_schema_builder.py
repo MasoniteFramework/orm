@@ -3,6 +3,7 @@ from config.database import DATABASES
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.connections import MySQLConnection
 from src.masoniteorm.schema.platforms import MySQLPlatform
+import os
 
 
 class TestMySQLSchemaBuilder(unittest.TestCase):
@@ -108,7 +109,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
     def test_has_table(self):
         schema_sql = self.schema.has_table("users")
 
-        sql = "SELECT * from information_schema.tables where table_name='users' AND table_schema = 'guxlot5e1pbklqak'"
+        sql = f"SELECT * from information_schema.tables where table_name='users' AND table_schema = '{os.getenv('MYSQL_DATABASE_DATABASE')}'"
 
         self.assertEqual(schema_sql, sql)
 
