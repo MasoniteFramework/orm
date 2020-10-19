@@ -1,6 +1,7 @@
-from src.masoniteorm.query.grammars import MSSQLGrammar
-from src.masoniteorm.query import QueryBuilder
 import unittest
+
+from src.masoniteorm.query import QueryBuilder
+from src.masoniteorm.query.grammars import MSSQLGrammar
 
 
 class TestMySQLInsertGrammar(unittest.TestCase):

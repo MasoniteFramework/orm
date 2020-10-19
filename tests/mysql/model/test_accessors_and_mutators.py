@@ -1,14 +1,14 @@
+import datetime
 import json
 import os
 import unittest
 
 import pendulum
-import datetime
 
-from tests.User import User
 from src.masoniteorm.collection import Collection
-from src.masoniteorm.query.grammars import MSSQLGrammar
 from src.masoniteorm.models import Model
+from src.masoniteorm.query.grammars import MSSQLGrammar
+from tests.User import User
 
 
 class User(Model):

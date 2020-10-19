@@ -1,13 +1,13 @@
 import inspect
 import unittest
 
+from config.database import DATABASES
+from src.masoniteorm.connections import ConnectionFactory
+from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
-from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.relationships import belongs_to
-from src.masoniteorm.models import Model
 from tests.utils import MockConnectionFactory
-from config.database import DATABASES
 
 
 class User(Model):

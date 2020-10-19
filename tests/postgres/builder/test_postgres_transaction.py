@@ -2,13 +2,13 @@ import inspect
 import os
 import unittest
 
+from config.database import DATABASES
+from src.masoniteorm.connections import ConnectionFactory
+from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import PostgresGrammar
-from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.relationships import belongs_to
-from src.masoniteorm.models import Model
 from tests.utils import MockConnectionFactory
-from config.database import DATABASES
 
 if os.getenv("RUN_POSTGRES_DATABASE") == "True":
 

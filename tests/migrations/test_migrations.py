@@ -1,10 +1,11 @@
 import os
 import unittest
+from pydoc import locate
+
+from inflection import camelize
 
 from src.masoniteorm.migrations.Migration import Migration
 from src.masoniteorm.models.MigrationModel import MigrationModel
-from inflection import camelize
-from pydoc import locate
 
 
 class TestMigrations(unittest.TestCase):

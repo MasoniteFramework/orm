@@ -1,6 +1,7 @@
+import unittest
+
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import MSSQLGrammar
-import unittest
 
 
 class TestMySQLDeleteGrammar(unittest.TestCase):

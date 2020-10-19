@@ -1,7 +1,8 @@
 import unittest
+
 from config.database import DATABASES
-from src.masoniteorm.schema import Schema
 from src.masoniteorm.connections import SQLiteConnection
+from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import SQLitePlatform
 from src.masoniteorm.schema.Table import Table
 

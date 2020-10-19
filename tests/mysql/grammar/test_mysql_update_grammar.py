@@ -1,7 +1,8 @@
-from src.masoniteorm.query.grammars import MySQLGrammar
-from src.masoniteorm.query import QueryBuilder
-import unittest
 import inspect
+import unittest
+
+from src.masoniteorm.query import QueryBuilder
+from src.masoniteorm.query.grammars import MySQLGrammar
 
 
 class BaseTestCaseUpdateGrammar:

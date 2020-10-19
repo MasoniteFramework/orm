@@ -1,7 +1,8 @@
+import inspect
+import unittest
+
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import MySQLGrammar
-import unittest
-import inspect
 
 
 class BaseInsertGrammarTest:

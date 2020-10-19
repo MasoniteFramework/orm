@@ -2,11 +2,11 @@ import inspect
 import os
 import unittest
 
+from src.masoniteorm.connections import ConnectionFactory
+from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import MySQLGrammar
-from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.relationships import belongs_to
-from src.masoniteorm.models import Model
 from tests.utils import MockConnectionFactory
 
 if os.getenv("RUN_MYSQL_DATABASE") == "True":

@@ -1,9 +1,9 @@
 import unittest
+
 from config.database import DATABASES
-from src.masoniteorm.schema import Table
-from src.masoniteorm.schema import Column
-from src.masoniteorm.schema.platforms.SQLitePlatform import SQLitePlatform
 from src.masoniteorm.connections import SQLiteConnection
+from src.masoniteorm.schema import Column, Table
+from src.masoniteorm.schema.platforms.SQLitePlatform import SQLitePlatform
 
 
 class TestTable(unittest.TestCase):

@@ -1,8 +1,9 @@
-from src.masoniteorm.query.grammars import PostgresGrammar
-from src.masoniteorm.query import QueryBuilder
-from src.masoniteorm.connections import PostgresConnection
-import unittest
 import inspect
+import unittest
+
+from src.masoniteorm.connections import PostgresConnection
+from src.masoniteorm.query import QueryBuilder
+from src.masoniteorm.query.grammars import PostgresGrammar
 
 
 class BaseTestCaseUpdateGrammar:

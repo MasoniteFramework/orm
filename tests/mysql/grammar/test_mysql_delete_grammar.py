@@ -1,6 +1,8 @@
-from src.masoniteorm.query.grammars import MySQLGrammar
+import inspect
+import unittest
+
 from src.masoniteorm.query import QueryBuilder
-import unittest, inspect
+from src.masoniteorm.query.grammars import MySQLGrammar
 
 
 class BaseDeleteGrammarTest:

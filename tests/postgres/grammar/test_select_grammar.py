@@ -1,8 +1,8 @@
 import inspect
 import unittest
 
-from src.masoniteorm.testing import BaseTestCaseSelectGrammar
 from src.masoniteorm.query.grammars import PostgresGrammar
+from src.masoniteorm.testing import BaseTestCaseSelectGrammar
 
 
 class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):

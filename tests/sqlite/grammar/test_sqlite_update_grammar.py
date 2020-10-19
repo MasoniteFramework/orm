@@ -1,7 +1,8 @@
-from src.masoniteorm.query.grammars import SQLiteGrammar
-from src.masoniteorm.query import QueryBuilder
-import unittest
 import inspect
+import unittest
+
+from src.masoniteorm.query import QueryBuilder
+from src.masoniteorm.query.grammars import SQLiteGrammar
 
 
 class BaseTestCaseUpdateGrammar:
