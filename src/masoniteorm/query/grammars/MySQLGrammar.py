@@ -32,7 +32,6 @@ class MySQLGrammar(BaseGrammar):
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
         "increments": "INT UNSIGNED AUTO_INCREMENT PRIMARY KEY",
-        "uuid_increments": "CHAR PRIMARY KEY",
         "binary": "LONGBLOB",
         "boolean": "BOOLEAN",
         "decimal": "DECIMAL",
