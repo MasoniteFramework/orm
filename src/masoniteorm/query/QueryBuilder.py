@@ -1,5 +1,4 @@
 import inspect
-import uuid
 from ..collection.Collection import Collection
 from ..expressions.expressions import (
     SubGroupExpression,
@@ -12,7 +11,7 @@ from ..expressions.expressions import (
     HavingExpression,
 )
 
-from ..scopes import BaseScope
+from ..scopes import BaseScope, UUIDPrimaryKeyScope
 
 from ..schema import Schema
 
@@ -349,6 +348,11 @@ class QueryBuilder:
             creates = kwargs
 
         self.set_action("insert")
+
+        # here is an not a right place to do that but somewhere we should do this:
+        # TODO: if pk column is of type uuid, (how?)
+        # then add scope
+        self.set_global_scope(UUIDPrimaryKeyScope())
 
         self._creates.update(creates)
         if query:
