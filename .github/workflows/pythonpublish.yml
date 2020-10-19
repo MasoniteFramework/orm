@@ -14,6 +14,17 @@ jobs:
       with:
         python-version: '3.x'
     - name: Install dependencies
+      env:
+        POSTGRES_DATABASE_HOST: ${{ secrets.POSTGRES_DATABASE_HOST}}
+        POSTGRES_DATABASE_DATABASE: ${{ secrets.POSTGRES_DATABASE_DATABASE}}
+        POSTGRES_DATABASE_USER: ${{ secrets.POSTGRES_DATABASE_USER}}
+        POSTGRES_DATABASE_PASSWORD: ${{ secrets.POSTGRES_DATABASE_PASSWORD}}
+        POSTGRES_DATABASE_PORT: ${{ secrets.POSTGRES_DATABASE_PORT}}
+        MYSQL_DATABASE_HOST: ${{ secrets.MYSQL_DATABASE_HOST}}
+        MYSQL_DATABASE_DATABASE: ${{ secrets.MYSQL_DATABASE_DATABASE}}
+        MYSQL_DATABASE_USER: ${{ secrets.MYSQL_DATABASE_USER}}
+        MYSQL_DATABASE_PASSWORD: ${{ secrets.MYSQL_DATABASE_PASSWORD}}
+        MYSQL_DATABASE_PORT: ${{ secrets.MYSQL_DATABASE_PORT}}
       run: |
         python -m pip install --upgrade pip
         pip install setuptools wheel twine
