@@ -15,7 +15,7 @@ class MySQLPlatform(Platform):
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
         "increments": "INT UNSIGNED AUTO_INCREMENT PRIMARY KEY",
-        "uuid": "CHAR(36)",
+        "uuid": "CHAR",
         "binary": "LONGBLOB",
         "boolean": "BOOLEAN",
         "decimal": "DECIMAL",

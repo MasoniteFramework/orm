@@ -85,7 +85,7 @@ class Blueprint:
         )
         return self
 
-    def uuid(self, column, nullable=False):
+    def uuid(self, column, nullable=False, length=36):
         """Sets a column to be the UUID4 representation for the table.
 
         Arguments:
@@ -97,7 +97,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(column, "uuid", nullable=nullable)
+        self._last_column = self.table.add_column(column, "uuid", nullable=nullable, length=length)
         return self
 
     def big_increments(self, column, nullable=False):
