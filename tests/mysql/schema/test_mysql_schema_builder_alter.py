@@ -1,4 +1,5 @@
 import unittest
+import os
 
 from config.database import DATABASES
 from src.masoniteorm.connections import MySQLConnection
@@ -17,7 +18,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
             connection_details=DATABASES,
             platform=MySQLPlatform,
             dry=True,
-        ).on("postgres")
+        ).on("mysql")
 
     def test_can_add_columns(self):
         with self.schema.table("users") as blueprint:
@@ -139,14 +140,14 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
     # def test_has_table(self):
     #     schema_sql = self.schema.has_table("users")
 
-    #     sql = "SELECT * from information_schema.tables where table_name='users' AND table_schema = 'd4lp6tfohhjbf7'"
+        # sql = f"SELECT * from information_schema.tables where table_name='users' AND table_schema = '{os.getenv('MYSQL_DATABASE_DATABASE')}'"
 
     #     self.assertEqual(schema_sql, sql)
 
     # def test_drop_table(self):
     #     schema_sql = self.schema.has_table("users")
 
-    #     sql = "SELECT * from information_schema.tables where table_name='users' AND table_schema = 'd4lp6tfohhjbf7'"
+        # sql = f"SELECT * from information_schema.tables where table_name='users' AND table_schema = '{os.getenv('MYSQL_DATABASE_DATABASE')}'"
 
     #     self.assertEqual(schema_sql, sql)
 
