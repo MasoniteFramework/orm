@@ -17,7 +17,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
             connection_details=DATABASES,
             platform=MySQLPlatform,
             dry=True,
-        ).on("postgres")
+        ).on("mysql")
 
     def test_can_add_columns(self):
         with self.schema.table("users") as blueprint:
