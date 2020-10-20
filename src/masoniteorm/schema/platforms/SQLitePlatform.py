@@ -16,6 +16,7 @@ class SQLitePlatform(Platform):
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
         "increments": "INTEGER PRIMARY KEY",
+        "uuid": "CHAR",
         "binary": "LONGBLOB",
         "boolean": "BOOLEAN",
         "decimal": "DECIMAL",
