@@ -10,14 +10,8 @@ from src.masoniteorm.scopes import (
     scope,
 )
 
-from tests.Article import Article
-
 
 class UserSoft(Model, SoftDeletesMixin):
-    __dry__ = True
-
-
-class Article(Article, UUIDPrimaryeKeyMixin):
     __dry__ = True
 
 
@@ -47,7 +41,3 @@ class TestMySQLGlobalScopes(unittest.TestCase):
     # def test_can_use_global_scopes_on_inherit(self):
     #     sql = "SELECT * FROM `user_softs` WHERE `user_softs`.`deleted_at` IS NULL"
     #     self.assertEqual(sql, UserSoft.all(query=True))
-
-    def test_can_use_global_scopes_on_insert(self):
-        sql = "INSERT INTO `articles` (`articles`.`title`, `articles`.`id`,) VALUES ('Joe'"
-        self.assertTrue(User.create({"name": "Joe"}, query=True).startswith(sql))
