@@ -31,5 +31,6 @@ class MigrateCommand(Command):
         migration.create_table_if_not_exists()
         if not migration.get_unran_migrations():
             self.info("Nothing To Migrate!")
+            return
 
         migration.migrate()

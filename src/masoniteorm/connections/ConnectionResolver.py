@@ -11,10 +11,18 @@ class ConnectionResolver:
             MSSQLConnection,
         )
 
+        from ..connections import ConnectionFactory
+
+        self.connection_factory = ConnectionFactory()
+
+        print('init, register')
+
         self.register(SQLiteConnection)
         self.register(PostgresConnection)
         self.register(MySQLConnection)
         self.register(MSSQLConnection)
+
+
 
     def set_connection_details(self, connection_details):
         self.__class__._connection_details = connection_details
@@ -30,18 +38,15 @@ class ConnectionResolver:
         self._connections.pop(name)
 
     def register(self, connection):
-        from ..connections import ConnectionFactory
-
-        ConnectionFactory.register(connection.name, connection)
+        self.connection_factory.register(connection.name, connection)
 
     def begin_transaction(self, name=None):
-        from ..connections import ConnectionFactory
 
         if name is None:
             name = self.get_connection_details()["default"]
 
         connection = (
-            ConnectionFactory()
+            self.connection_factory
             .make(name)(**self.get_connection_information(name))
             .make_connection()
             .begin()

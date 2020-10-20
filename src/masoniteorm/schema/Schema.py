@@ -1,4 +1,5 @@
-from ..connections.ConnectionFactory import ConnectionFactory
+# from ..connections.ConnectionFactory import ConnectionFactory
+
 from .Blueprint import Blueprint
 from .Table import Table
 from .TableDiff import TableDiff
@@ -38,12 +39,13 @@ class Schema:
         Returns:
             cls
         """
+        from config.database import db
         if connection == "default":
             connection = self.connection_details.get("default")
 
         self._connection_driver = self.connection_details.get(connection).get("driver")
 
-        self.connection = ConnectionFactory().make(self._connection_driver)
+        self.connection = db.connection_factory.make(self._connection_driver)
 
         return self
 

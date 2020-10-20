@@ -8,6 +8,7 @@ class Collection:
 
     def __init__(self, items=[]):
         self._items = items
+        self.__appends__ = []
 
     def take(self, number: int):
         """Takes a specific number of results from the items.
@@ -291,6 +292,9 @@ class Collection:
 
     def serialize(self):
         def _serialize(item):
+            if self.__appends__:
+                item.set_appends(self.__appends__)
+                
             if hasattr(item, "serialize"):
                 return item.serialize()
             elif hasattr(item, "to_dict"):
@@ -398,6 +402,15 @@ class Collection:
         for x, y in zip(self, items):
             _items.append([x, y])
         return self.__class__(_items)
+
+    def set_appends(self, appends):
+        """
+        Set the attributes that should be appended to the Collection.
+
+        :rtype: list
+        """
+        self.__appends__ += appends
+        return self
 
     def _get_value(self, key):
         if not key:
