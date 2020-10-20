@@ -319,7 +319,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         serialized_dictionary.update(self.__dirty_attributes__)
 
         # The builder is inside the attributes but should not be serialized
-        if 'builder' in serialized_dictionary:
+        if "builder" in serialized_dictionary:
             serialized_dictionary.pop("builder")
 
         # Serialize relationships as well

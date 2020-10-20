@@ -33,29 +33,33 @@ class ConnectionResolver:
         from ..connections import ConnectionFactory
 
         ConnectionFactory.register(connection.name, connection)
-    
+
     def begin_transaction(self, name=None):
         from ..connections import ConnectionFactory
-        if name is None:
-            name = self.get_connection_details()['default']
 
-        connection = ConnectionFactory().make(name)(**self.get_connection_information(name)).make_connection().begin()
-        self.__class__._connections.update({
-            name: connection
-        })
+        if name is None:
+            name = self.get_connection_details()["default"]
+
+        connection = (
+            ConnectionFactory()
+            .make(name)(**self.get_connection_information(name))
+            .make_connection()
+            .begin()
+        )
+        self.__class__._connections.update({name: connection})
 
         return connection
-    
+
     def commit(self, name=None):
         if name is None:
-            name = self.get_connection_details()['default']
+            name = self.get_connection_details()["default"]
         connection = self.get_global_connections()[name]
         self.remove_global_connection(name)
         connection.commit()
 
     def rollback(self, name=None):
         if name is None:
-            name = self.get_connection_details()['default']
+            name = self.get_connection_details()["default"]
 
         connection = self.get_global_connections()[name]
         self.remove_global_connection(name)
@@ -64,27 +68,12 @@ class ConnectionResolver:
     def get_connection_information(self, name):
         details = self.get_connection_details()
         return {
-            "host": details.get(name, {}).get(
-                "host"
-            ),
-            "database": details.get(name, {}).get(
-                "database"
-            ),
-            "user": details.get(name, {}).get(
-                "user"
-            ),
-            "port": details.get(name, {}).get(
-                "port"
-            ),
-            "password": details.get(name, {}).get(
-                "password"
-            ),
-            "prefix": details.get(name, {}).get(
-                "prefix"
-            ),
-            "options": details.get(name, {}).get(
-                "options", {}
-            ),
+            "host": details.get(name, {}).get("host"),
+            "database": details.get(name, {}).get("database"),
+            "user": details.get(name, {}).get("user"),
+            "port": details.get(name, {}).get("port"),
+            "password": details.get(name, {}).get("password"),
+            "prefix": details.get(name, {}).get("prefix"),
+            "options": details.get(name, {}).get("options", {}),
             "full_details": details.get(name, {}),
         }
-
