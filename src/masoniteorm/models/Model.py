@@ -148,6 +148,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
     def get_builder(self):
         from config.database import db
+
         self.__resolved_connection__ = db.connection_factory.make(self.__connection__)
         self.builder = QueryBuilder(
             grammar=self.__resolved_connection__.get_default_query_grammar(),
