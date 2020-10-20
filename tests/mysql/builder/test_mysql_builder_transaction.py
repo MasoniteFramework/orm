@@ -8,6 +8,7 @@ from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import MySQLGrammar
 from src.masoniteorm.relationships import belongs_to
 from tests.utils import MockConnectionFactory
+from config.database import db
 
 if os.getenv("RUN_MYSQL_DATABASE") == "True":
 
@@ -37,3 +38,10 @@ if os.getenv("RUN_MYSQL_DATABASE") == "True":
             builder.rollback()
             user = builder.where("name", "phillip2").first()
             self.assertEqual(user, None)
+
+        def test_transaction_default_globally(self):
+            connection = db.begin_transaction()
+            self.assertEqual(connection, self.get_builder().new_connection())
+            db.commit()
+            db.begin_transaction()
+            db.rollback()

@@ -1,5 +1,6 @@
 import logging
 from timeit import default_timer as timer
+from .ConnectionResolver import ConnectionResolver
 
 
 class BaseConnection:
@@ -37,3 +38,9 @@ class BaseConnection:
         self._cursor.execute(query, bindings)
         end = "{:.2f}".format(timer() - start)
         self.log(query, bindings, query_time=end)
+
+    def has_global_connection(self):
+        return self.name in ConnectionResolver().get_global_connections()
+
+    def get_global_connection(self):
+        return ConnectionResolver().get_global_connections()[self.name]

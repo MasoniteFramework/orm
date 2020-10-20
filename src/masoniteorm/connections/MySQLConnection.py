@@ -52,6 +52,9 @@ class MySQLConnection(BaseConnection):
                 "You must have the 'pymysql' package installed to make a connection to MySQL. Please install it using 'pip install pymysql'"
             )
 
+        if self.has_global_connection():
+            return self.get_global_connection()
+
         self._connection = pymysql.connect(
             cursorclass=pymysql.cursors.DictCursor,
             autocommit=True,
@@ -98,6 +101,7 @@ class MySQLConnection(BaseConnection):
         """Mysql Transaction"""
         self._connection.begin()
         self.transaction_level += 1
+        return self
 
     def rollback(self):
         """Transaction"""
