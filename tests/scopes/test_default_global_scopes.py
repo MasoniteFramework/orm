@@ -35,10 +35,11 @@ class UserSoft(Model, SoftDeletesMixin):
 class TestUUIDPrimaryKeyScope(unittest.TestCase):
 
     def setUp(self):
-        self.builder =  MockBuilder(UserWithUUID)
+        self.builder = MockBuilder(UserWithUUID)
         self.scope = UUIDPrimaryKeyScope()
-        # reset User attrs before each test
+        # reset User attributes before each test
         try:
+            UserWithUUID.__primary_key__ = "id"
             del UserWithUUID.__uuid_version__
             del UserWithUUID.__uuid_namespace__
             del UserWithUUID.__uuid_name__
@@ -60,8 +61,10 @@ class TestUUIDPrimaryKeyScope(unittest.TestCase):
             uuid_value = uuid.UUID(self.builder._creates["id"])
             self.assertEqual(version, uuid_value.version)
 
-    def test_can_change_primary_key_column(self):
-        pass
+    def test_works_with_custom_pk_column(self):
+        UserWithUUID.__primary_key__ = "ref"
+        self.scope.set_uuid_create(self.builder)
+        self.assertIn("ref", self.builder._creates)
 
 
 class TestSoftDeletesScope(unittest.TestCase):
@@ -72,8 +75,12 @@ class TestSoftDeletesScope(unittest.TestCase):
 class TestTimeStampsScope(unittest.TestCase):
 
     def setUp(self):
-        self.builder =  MockBuilder(UserWithTimeStamps)
+        self.builder = MockBuilder(UserWithTimeStamps)
         self.scope = TimeStampsScope()
+        try:
+            del UserWithTimeStamps.__timestamps__
+        except:
+            pass
 
     def test_updated_and_created_dates_are_set_when_create(self):
         self.scope.set_timestamp_create(self.builder)
@@ -84,5 +91,8 @@ class TestTimeStampsScope(unittest.TestCase):
         self.assertIsInstance(created_at, pendulum.DateTime)
         self.assertIsInstance(updated_at, pendulum.DateTime)
 
-    def test_timestamps_column_can_be_modified(self):
-        pass
+    def test_timestamps_can_be_disabled(self):
+        UserWithTimeStamps.__timestamps__ = False
+        self.scope.set_timestamp_create(self.builder)
+        self.assertNotIn("created_at", self.builder._creates)
+        self.assertNotIn("updated_at", self.builder._creates)
