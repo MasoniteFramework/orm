@@ -6,7 +6,6 @@ from src.masoniteorm.scopes import (
     SoftDeleteScope,
     SoftDeletesMixin,
     TimeStampsMixin,
-    UUIDPrimaryeKeyMixin,
     scope,
 )
 
@@ -16,6 +15,7 @@ class UserSoft(Model, SoftDeletesMixin):
 
 
 class User(Model):
+
     __dry__ = True
 
 
