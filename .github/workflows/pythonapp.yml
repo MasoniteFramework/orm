@@ -5,44 +5,66 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:10.8
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          # will assign a random free host port
+          - 5432/tcp
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: orm
+        ports:
+          - 3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     strategy:
       matrix:
-          python-version: [ '3.6', '3.7', '3.8', '3.9' ]
+        python-version: ["3.6", "3.7", "3.8", "3.9"]
     name: Python ${{ matrix.python-version }}
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
+      - uses: actions/checkout@v1
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
           python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        make init
-    - name: Test with pytest
-      env:
-        POSTGRES_DATABASE_HOST: ${{ secrets.POSTGRES_DATABASE_HOST}}
-        POSTGRES_DATABASE_DATABASE: ${{ secrets.POSTGRES_DATABASE_DATABASE}}
-        POSTGRES_DATABASE_USER: ${{ secrets.POSTGRES_DATABASE_USER}}
-        POSTGRES_DATABASE_PASSWORD: ${{ secrets.POSTGRES_DATABASE_PASSWORD}}
-        POSTGRES_DATABASE_PORT: ${{ secrets.POSTGRES_DATABASE_PORT}}
-        MYSQL_DATABASE_HOST: ${{ secrets.MYSQL_DATABASE_HOST}}
-        MYSQL_DATABASE_DATABASE: ${{ secrets.MYSQL_DATABASE_DATABASE}}
-        MYSQL_DATABASE_USER: ${{ secrets.MYSQL_DATABASE_USER}}
-        MYSQL_DATABASE_PASSWORD: ${{ secrets.MYSQL_DATABASE_PASSWORD}}
-        MYSQL_DATABASE_PORT: ${{ secrets.MYSQL_DATABASE_PORT}}
-      run: |
-        make test
+      - name: Install dependencies
+        run: |
+          make init
+      - name: Test with pytest
+        env:
+          POSTGRES_DATABASE_HOST: localhost
+          POSTGRES_DATABASE_DATABASE: postgres
+          POSTGRES_DATABASE_USER: postgres
+          POSTGRES_DATABASE_PASSWORD: postgres
+          POSTGRES_DATABASE_PORT: ${{ job.services.postgres.ports[5432] }}
+          MYSQL_DATABASE_HOST: localhost
+          MYSQL_DATABASE_DATABASE: orm
+          MYSQL_DATABASE_USER: root
+          MYSQL_DATABASE_PORT: ${{ job.services.mysql.ports[3306] }}
+        run: |
+          make test
   lint:
     runs-on: ubuntu-latest
     name: Lint
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python 3.6
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.6
-    - name: Install Flake8
-      run: |
-        pip install flake8==3.7.9
-    - name: Lint
-      run: make lint
+      - uses: actions/checkout@v1
+      - name: Set up Python 3.6
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.6
+      - name: Install Flake8
+        run: |
+          pip install flake8==3.7.9
+      - name: Lint
+        run: make lint
