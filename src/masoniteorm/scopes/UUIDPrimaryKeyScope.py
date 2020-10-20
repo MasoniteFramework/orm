@@ -14,9 +14,10 @@ class UUIDPrimaryKeyScope(BaseScope):
         pass
 
     def set_uuid_create(self, builder):
+        uuid_version = builder._model.__uuid_version__ or 4
+        uuid_generator = getattr(uuid, "uuid{uuid_version}")
         builder._creates.update(
             {
-                # TODO: later how to fetch uuid version here ?
-                builder._model.__primary_key__: uuid.uuid4(),
+                builder._model.__primary_key__: uuid_generator(),
             }
         )
