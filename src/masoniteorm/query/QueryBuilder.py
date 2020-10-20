@@ -1,4 +1,5 @@
 import inspect
+
 from ..collection.Collection import Collection
 from ..expressions.expressions import (
     SubGroupExpression,
