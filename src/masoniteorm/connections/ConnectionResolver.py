@@ -15,7 +15,6 @@ class ConnectionResolver:
 
         self.connection_factory = ConnectionFactory()
 
-        print("init, register")
 
         self.register(SQLiteConnection)
         self.register(PostgresConnection)

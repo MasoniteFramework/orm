@@ -109,8 +109,9 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     def __init__(self):
         self.__attributes__ = {}
         self.__dirty_attributes__ = {}
+        if not hasattr(self, '__appends__'):
+            self.__appends__ = []
         self._relationships = {}
-        self.__appends__ = []
         self._global_scopes = {}
 
         self.get_builder()
@@ -326,7 +327,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
         # Serialize relationships as well
         serialized_dictionary.update(self.relations_to_dict())
-
+        print(self.__appends__)
         for append in self.__appends__:
             serialized_dictionary.update({append: getattr(self, append)})
 
