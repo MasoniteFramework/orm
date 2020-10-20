@@ -97,7 +97,9 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(column, "uuid", nullable=nullable, length=length)
+        self._last_column = self.table.add_column(
+            column, "uuid", nullable=nullable, length=length
+        )
         return self
 
     def big_increments(self, column, nullable=False):

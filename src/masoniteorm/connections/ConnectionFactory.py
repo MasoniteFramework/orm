@@ -43,7 +43,6 @@ class ConnectionFactory:
         from config.database import ConnectionResolver
 
         connections = ConnectionResolver().get_connection_details()
-        print('cc', self._connections)
 
         if key == "default":
             connection_details = connections.get(connections.get("default"))
@@ -53,7 +52,6 @@ class ConnectionFactory:
             connection = self._connections.get(connection_details.get("driver"))
 
         if connection:
-            print('found connection')
             return connection
 
         raise Exception(

@@ -12,8 +12,8 @@ from src.masoniteorm.scopes import (
     UUIDPrimaryKeyMixin,
 )
 
-class MockBuilder:
 
+class MockBuilder:
     def __init__(self, model):
         self._model = model()
         self._creates = {}
@@ -33,7 +33,6 @@ class UserSoft(Model, SoftDeletesMixin):
 
 
 class TestUUIDPrimaryKeyScope(unittest.TestCase):
-
     def setUp(self):
         self.builder = MockBuilder(UserWithUUID)
         self.scope = UUIDPrimaryKeyScope()
@@ -55,7 +54,7 @@ class TestUUIDPrimaryKeyScope(unittest.TestCase):
         # required for uuid 3 and 5
         UserWithUUID.__uuid_namespace__ = uuid.NAMESPACE_DNS
         UserWithUUID.__uuid_name__ = "domain.com"
-        for version in [1,3,4,5]:
+        for version in [1, 3, 4, 5]:
             UserWithUUID.__uuid_version__ = version
             self.scope.set_uuid_create(self.builder)
             uuid_value = uuid.UUID(self.builder._creates["id"])
@@ -73,7 +72,6 @@ class TestSoftDeletesScope(unittest.TestCase):
 
 
 class TestTimeStampsScope(unittest.TestCase):
-
     def setUp(self):
         self.builder = MockBuilder(UserWithTimeStamps)
         self.scope = TimeStampsScope()

@@ -15,14 +15,10 @@ class ConnectionResolver:
 
         self.connection_factory = ConnectionFactory()
 
-        print('init, register')
-
         self.register(SQLiteConnection)
         self.register(PostgresConnection)
         self.register(MySQLConnection)
         self.register(MSSQLConnection)
-
-
 
     def set_connection_details(self, connection_details):
         self.__class__._connection_details = connection_details
@@ -46,8 +42,7 @@ class ConnectionResolver:
             name = self.get_connection_details()["default"]
 
         connection = (
-            self.connection_factory
-            .make(name)(**self.get_connection_information(name))
+            self.connection_factory.make(name)(**self.get_connection_information(name))
             .make_connection()
             .begin()
         )
