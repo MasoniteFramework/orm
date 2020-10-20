@@ -11,7 +11,7 @@ from ..expressions.expressions import (
     HavingExpression,
 )
 
-from ..scopes import BaseScope, UUIDPrimaryKeyScope
+from ..scopes import BaseScope
 
 from ..schema import Schema
 
@@ -348,7 +348,6 @@ class QueryBuilder:
             creates = kwargs
 
         self.set_action("insert")
-
         self._creates.update(creates)
         if query:
             return self
