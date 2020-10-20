@@ -134,3 +134,18 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
                 "CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES authors(id))"
             ),
         )
+
+    def test_can_add_uuid_column(self):
+        # might not be the right place for this test + other column types
+        # are not tested => just for testing the PR now
+        with self.schema.create("users") as table:
+            table.uuid("id")
+            table.primary("id")
+            table.string("name")
+            table.uuid("public_id").nullable()
+
+        self.assertEqual(len(table.table.added_columns), 3)
+        self.assertEqual(
+            table.to_sql(),
+            'CREATE TABLE "users" (id CHAR(36) NOT NULL PRIMARY KEY, name VARCHAR(255) NOT NULL, public_id CHAR(36) NULL)',
+        )
