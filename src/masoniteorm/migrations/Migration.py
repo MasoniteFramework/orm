@@ -25,23 +25,27 @@ class Migration:
         migration_directory="databases/migrations",
     ):
         self.connection = connection
-        connection_class = ConnectionFactory().make(connection)
-        from config.database import ConnectionResolver
+        from config.database import db
 
-        DATABASES = ConnectionResolver().get_connection_details()
+        connection_class = db.connection_factory.make(connection)
 
+        DATABASES = db.get_connection_details()
+        print('1')
         self.schema = Schema(
             connection=connection_class,
             connection_details=DATABASES,
         ).on(self.connection)
-
+        print('2')
         self._dry = dry
         self.migration_directory = migration_directory.replace("/", ".")
         self.last_migrations_ran = []
         self.command_class = command_class
+        print('on?')
         self.migration_model = MigrationModel.on(self.connection)
+        print('here')
 
     def create_table_if_not_exists(self):
+        print('checking table if exists')
         if not self.schema.has_table("migrations"):
             with self.schema.create("migrations") as table:
                 table.increments("migration_id")
