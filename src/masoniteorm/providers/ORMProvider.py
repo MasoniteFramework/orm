@@ -19,7 +19,7 @@ class ORMProvider(ServiceProvider):
     wsgi = False
 
     def register(self):
-        ConnectionResolver.set_connection_details(config("database.databases"))
+        ConnectionResolver().set_connection_details(config("database.databases"))
         self.commands(
             MakeMigrationCommand(),
             MakeSeedCommand(),

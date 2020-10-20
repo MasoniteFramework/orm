@@ -50,6 +50,9 @@ class PostgresConnection(BaseConnection):
                 "You must have the 'psycopg2' package installed to make a connection to Postgres. Please install it using 'pip install psycopg2-binary'"
             )
 
+        if self.has_global_connection():
+            return self.get_global_connection()
+
         self._connection = psycopg2.connect(
             database=self.database,
             user=self.user,
@@ -92,7 +95,7 @@ class PostgresConnection(BaseConnection):
         """Postgres Transaction"""
         self._connection.autocommit = False
         self.transaction_level += 1
-        return self._connection
+        return self
 
     def rollback(self):
         """Transaction"""
