@@ -294,7 +294,7 @@ class Collection:
         def _serialize(item):
             if self.__appends__:
                 item.set_appends(self.__appends__)
-                
+
             if hasattr(item, "serialize"):
                 return item.serialize()
             elif hasattr(item, "to_dict"):

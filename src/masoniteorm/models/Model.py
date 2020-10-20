@@ -109,7 +109,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     def __init__(self):
         self.__attributes__ = {}
         self.__dirty_attributes__ = {}
-        if not hasattr(self, '__appends__'):
+        if not hasattr(self, "__appends__"):
             self.__appends__ = []
         self._relationships = {}
         self._global_scopes = {}

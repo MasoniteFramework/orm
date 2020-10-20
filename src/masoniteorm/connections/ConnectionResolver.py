@@ -15,7 +15,6 @@ class ConnectionResolver:
 
         self.connection_factory = ConnectionFactory()
 
-
         self.register(SQLiteConnection)
         self.register(PostgresConnection)
         self.register(MySQLConnection)
