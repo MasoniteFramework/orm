@@ -126,11 +126,19 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             self.assertTrue(profile.serialize().get("id"))
             self.assertFalse(profile.serialize().get("password"))
 
-        def test_serialize_with_appends(self):
+        def test_serialize_with_on_the_fly_appends(self):
             user = User.hydrate({"name": "Joe", "id": 1})
 
             user.set_appends(["meta"])
 
+            serialized = user.serialize()
+            self.assertEqual(serialized["id"], 1)
+            self.assertEqual(serialized["name"], "Joe")
+            self.assertEqual(serialized["meta"]["is_subscribed"], True)
+
+        def test_serialize_with_model_appends(self):
+            User.__appends__ = ["meta"]
+            user = User.hydrate({"name": "Joe", "id": 1})
             serialized = user.serialize()
             self.assertEqual(serialized["id"], 1)
             self.assertEqual(serialized["name"], "Joe")

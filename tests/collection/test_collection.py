@@ -569,6 +569,11 @@ class TestCollection(unittest.TestCase):
             },
         )
 
-    def test_set_appends_on_collection(self):
+    def test_serialize_with_model_appends(self):
+        User.__appends__ = ["meta"]
+        users = User.all().serialize()
+        self.assertTrue(users[0].get("meta"))
+
+    def test_serialize_with_on_the_fly_appends(self):
         users = User.all().set_appends(["meta"]).serialize()
         self.assertTrue(users[0].get("meta"))
