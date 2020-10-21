@@ -1,6 +1,6 @@
 """CreateTableSchemaMigration Migration."""
 
-from masoniteorm.migrations import Migration
+from src.masoniteorm.migrations import Migration
 
 
 class CreateTableSchemaMigration(Migration):

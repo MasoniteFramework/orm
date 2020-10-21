@@ -53,7 +53,7 @@ jobs:
           MYSQL_DATABASE_USER: root
           MYSQL_DATABASE_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
-          masonite-orm migrate --connection postgres
+          python orm migrate --connection postgres
           make test
   lint:
     runs-on: ubuntu-latest
