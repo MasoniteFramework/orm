@@ -1,4 +1,5 @@
-from masoniteorm.migrations import Migration
+from src.masoniteorm.migrations import Migration
+from tests.User import User
 
 
 class CreateUsersTable(Migration):
@@ -14,6 +15,12 @@ class CreateUsersTable(Migration):
             table.string('remember_token').nullable()
             table.timestamp('verified_at').nullable()
             table.timestamps()
+
+        User.create({
+            'name': 'Joe',
+            'email': 'joe@email.com',
+            'password': 'secret'
+        })
 
     def down(self):
         """Revert the migrations."""
