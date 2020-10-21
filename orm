@@ -7,24 +7,28 @@ successfully import commands for you.
 
 from cleo import Application
 from src.masoniteorm.commands import (
-    MigrateCommand, 
+    MigrateCommand,
     MigrateRollbackCommand,
     MigrateRefreshCommand,
     MakeMigrationCommand,
+    MakeModelCommand,
+    MigrateStatusCommand,
+    MigrateResetCommand,
     MakeSeedCommand,
     SeedRunCommand,
 )
 
-from wsgi import container
-
-application = Application('ORM Version:', 0.1)
+application = Application("ORM Version:", 0.1)
 
 application.add(MigrateCommand())
 application.add(MigrateRollbackCommand())
 application.add(MigrateRefreshCommand())
 application.add(MakeMigrationCommand())
+application.add(MakeModelCommand())
+application.add(MigrateResetCommand())
+application.add(MigrateStatusCommand())
 application.add(MakeSeedCommand())
 application.add(SeedRunCommand())
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     application.run()
