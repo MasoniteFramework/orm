@@ -25,27 +25,24 @@ class Migration:
         migration_directory="databases/migrations",
     ):
         self.connection = connection
+        self.migration_directory = migration_directory.replace("/", ".")
+        self.last_migrations_ran = []
+        self.command_class = command_class
+
         from config.database import db
 
         connection_class = db.connection_factory.make(connection)
 
         DATABASES = db.get_connection_details()
-        print("1")
+
         self.schema = Schema(
             connection=connection_class,
             connection_details=DATABASES,
         ).on(self.connection)
-        print("2")
-        self._dry = dry
-        self.migration_directory = migration_directory.replace("/", ".")
-        self.last_migrations_ran = []
-        self.command_class = command_class
-        print("on?")
+
         self.migration_model = MigrationModel.on(self.connection)
-        print("here")
 
     def create_table_if_not_exists(self):
-        print("checking table if exists")
         if not self.schema.has_table("migrations"):
             with self.schema.create("migrations") as table:
                 table.increments("migration_id")
@@ -65,7 +62,6 @@ class Migration:
         ]
         all_migrations.sort()
         unran_migrations = []
-
         database_migrations = self.migration_model.all()
         for migration in all_migrations:
             if migration not in database_migrations.pluck("migration"):
@@ -73,14 +69,6 @@ class Migration:
         return unran_migrations
 
     def get_rollback_migrations(self):
-        print(
-            "getting rollback",
-            (
-                self.migration_model.where(
-                    "batch", self.migration_model.all().max("batch")
-                ).order_by("migration_id", "desc")
-            ).to_sql(),
-        )
         return (
             self.migration_model.where("batch", self.migration_model.all().max("batch"))
             .order_by("migration_id", "desc")
@@ -128,7 +116,6 @@ class Migration:
     def migrate(self):
         batch = self.get_last_batch_number() + 1
         for migration in self.get_unran_migrations():
-
             migration_module = migration.replace(".py", "")
             migration_name = camelize(
                 "_".join(migration.split("_")[4:]).replace(".py", "")

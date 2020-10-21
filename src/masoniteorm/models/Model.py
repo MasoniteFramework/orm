@@ -327,7 +327,6 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
         # Serialize relationships as well
         serialized_dictionary.update(self.relations_to_dict())
-        print(self.__appends__)
         for append in self.__appends__:
             serialized_dictionary.update({append: getattr(self, append)})
 

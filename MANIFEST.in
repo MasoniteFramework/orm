@@ -1,2 +1,2 @@
 # include src/package/some/directory/*
-include src/masonite/orm/commands/stubs/*
+include src/masoniteorm/commands/stubs/*

@@ -48,7 +48,6 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
             blueprint.foreign("profile_id").references("id").on("profiles")
 
         self.assertEqual(len(blueprint.table.added_columns), 3)
-        print(blueprint.to_sql())
         self.assertEqual(
             blueprint.to_sql(),
             "CREATE TABLE [users] "
@@ -71,7 +70,6 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
             blueprint.timestamps()
 
         self.assertEqual(len(blueprint.table.added_columns), 9)
-        print(blueprint.to_sql())
         self.assertEqual(
             blueprint.to_sql(),
             (
