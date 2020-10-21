@@ -140,14 +140,14 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
     # def test_has_table(self):
     #     schema_sql = self.schema.has_table("users")
 
-        # sql = f"SELECT * from information_schema.tables where table_name='users' AND table_schema = '{os.getenv('MYSQL_DATABASE_DATABASE')}'"
+    # sql = f"SELECT * from information_schema.tables where table_name='users' AND table_schema = '{os.getenv('MYSQL_DATABASE_DATABASE')}'"
 
     #     self.assertEqual(schema_sql, sql)
 
     # def test_drop_table(self):
     #     schema_sql = self.schema.has_table("users")
 
-        # sql = f"SELECT * from information_schema.tables where table_name='users' AND table_schema = '{os.getenv('MYSQL_DATABASE_DATABASE')}'"
+    # sql = f"SELECT * from information_schema.tables where table_name='users' AND table_schema = '{os.getenv('MYSQL_DATABASE_DATABASE')}'"
 
     #     self.assertEqual(schema_sql, sql)
 

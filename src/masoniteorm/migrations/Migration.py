@@ -25,6 +25,8 @@ class Migration:
         migration_directory="databases/migrations",
     ):
         self.connection = connection
+        self.migration_directory = migration_directory
+
         from config.database import db
 
         connection_class = db.connection_factory.make(connection)
