@@ -25,7 +25,9 @@ class Migration:
         migration_directory="databases/migrations",
     ):
         self.connection = connection
-        self.migration_directory = migration_directory
+        self.migration_directory = migration_directory.replace("/", ".")
+        self.last_migrations_ran = []
+        self.command_class = command_class
 
         from config.database import db
 
