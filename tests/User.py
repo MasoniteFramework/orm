@@ -11,3 +11,7 @@ class User(Model):
     __connection__ = "mysql"
 
     __auth__ = "email"
+
+    @property
+    def meta(self):
+        return 1

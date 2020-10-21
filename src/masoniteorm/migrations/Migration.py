@@ -30,14 +30,12 @@ class Migration:
         connection_class = db.connection_factory.make(connection)
 
         DATABASES = db.get_connection_details()
+
         self.schema = Schema(
             connection=connection_class,
             connection_details=DATABASES,
         ).on(self.connection)
-        self._dry = dry
-        self.migration_directory = migration_directory.replace("/", ".")
-        self.last_migrations_ran = []
-        self.command_class = command_class
+
         self.migration_model = MigrationModel.on(self.connection)
 
     def create_table_if_not_exists(self):

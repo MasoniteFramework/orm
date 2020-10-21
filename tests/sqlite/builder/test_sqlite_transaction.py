@@ -8,6 +8,7 @@ from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
 from src.masoniteorm.relationships import belongs_to
 from tests.utils import MockConnectionFactory
+from config.database import db
 
 
 class User(Model):
@@ -38,3 +39,10 @@ class BaseTestQueryRelationships(unittest.TestCase):
         builder.rollback()
         user = builder.where("name", "phillip3").first()
         self.assertEqual(user, None)
+
+    def test_transaction_globally(self):
+        connection = db.begin_transaction("sqlite")
+        self.assertEqual(connection, self.get_builder().new_connection())
+        db.commit("sqlite")
+        db.begin_transaction("sqlite")
+        db.rollback("sqlite")

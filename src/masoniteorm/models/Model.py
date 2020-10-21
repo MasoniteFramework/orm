@@ -109,8 +109,9 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     def __init__(self):
         self.__attributes__ = {}
         self.__dirty_attributes__ = {}
+        if not hasattr(self, "__appends__"):
+            self.__appends__ = []
         self._relationships = {}
-        self.__appends__ = []
         self._global_scopes = {}
 
         self.get_builder()
@@ -148,6 +149,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
     def get_builder(self):
         from config.database import db
+
         self.__resolved_connection__ = db.connection_factory.make(self.__connection__)
         self.builder = QueryBuilder(
             grammar=self.__resolved_connection__.get_default_query_grammar(),
@@ -320,11 +322,12 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         serialized_dictionary.update(self.__dirty_attributes__)
 
         # The builder is inside the attributes but should not be serialized
-        serialized_dictionary.pop("builder")
+        if "builder" in serialized_dictionary:
+            serialized_dictionary.pop("builder")
 
         # Serialize relationships as well
         serialized_dictionary.update(self.relations_to_dict())
-
+        print(self.__appends__)
         for append in self.__appends__:
             serialized_dictionary.update({append: getattr(self, append)})
 

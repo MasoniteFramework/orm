@@ -40,6 +40,7 @@ class Schema:
             cls
         """
         from config.database import db
+
         if connection == "default":
             connection = self.connection_details.get("default")
 

@@ -1,6 +1,7 @@
 class ConnectionResolver:
 
     _connection_details = {}
+    _connections = {}
 
     def __init__(self):
         from ..connections import (
@@ -14,13 +15,10 @@ class ConnectionResolver:
 
         self.connection_factory = ConnectionFactory()
 
-
         self.register(SQLiteConnection)
         self.register(PostgresConnection)
         self.register(MySQLConnection)
         self.register(MSSQLConnection)
-
-
 
     def set_connection_details(self, connection_details):
         self.__class__._connection_details = connection_details
@@ -28,6 +26,12 @@ class ConnectionResolver:
 
     def get_connection_details(self):
         return self._connection_details
+
+    def get_global_connections(self):
+        return self._connections
+
+    def remove_global_connection(self, name=None):
+        self._connections.pop(name)
 
     def register(self, connection):
         self.connection_factory.register(connection.name, connection)
@@ -38,8 +42,7 @@ class ConnectionResolver:
             name = self.get_connection_details()["default"]
 
         connection = (
-            self.connection_factory
-            .make(name)(**self.get_connection_information(name))
+            self.connection_factory.make(name)(**self.get_connection_information(name))
             .make_connection()
             .begin()
         )

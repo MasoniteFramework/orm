@@ -4,6 +4,8 @@ from src.masoniteorm.collection import Collection
 from src.masoniteorm.factories import Factory as factory
 from src.masoniteorm.models import Model
 
+from tests.User import User
+
 
 class TestCollection(unittest.TestCase):
     def test_take(self):
@@ -566,3 +568,12 @@ class TestCollection(unittest.TestCase):
                 20: [{"name": "Marlysson", "age": 20}],
             },
         )
+
+    def test_serialize_with_model_appends(self):
+        User.__appends__ = ["meta"]
+        users = User.all().serialize()
+        self.assertTrue(users[0].get("meta"))
+
+    def test_serialize_with_on_the_fly_appends(self):
+        users = User.all().set_appends(["meta"]).serialize()
+        self.assertTrue(users[0].get("meta"))

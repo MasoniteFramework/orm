@@ -51,6 +51,9 @@ class MSSQLConnection(BaseConnection):
                 "You must have the 'pyodbc' package installed to make a connection to Microsoft SQL Server. Please install it using 'pip install pyodbc'"
             )
 
+        if self.has_global_connection():
+            return self.get_global_connection()
+
         mssql_driver = self.options.get("driver", "ODBC Driver 17 for SQL Server")
 
         self._connection = pyodbc.connect(
@@ -90,7 +93,7 @@ class MSSQLConnection(BaseConnection):
         """MSSQL Transaction"""
         self._connection.autocommit = False
         self.transaction_level += 1
-        return self._connection
+        return self
 
     def rollback(self):
         """Transaction"""
