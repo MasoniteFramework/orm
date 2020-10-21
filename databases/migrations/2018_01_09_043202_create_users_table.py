@@ -16,7 +16,7 @@ class CreateUsersTable(Migration):
             table.timestamp('verified_at').nullable()
             table.timestamps()
 
-        User.create({
+        User.on(self.connection).create({
             'name': 'Joe',
             'email': 'joe@email.com',
             'password': 'secret'
