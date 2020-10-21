@@ -82,13 +82,13 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
 
     def test_can_add_primary_constraint_without_column_name(self):
         with self.schema.create("users") as blueprint:
-            blueprint.increments("user_id").primary()
+            blueprint.integer("user_id").primary()
             blueprint.string("name")
             blueprint.string("email")
         self.assertEqual(len(blueprint.table.added_columns), 3)
         self.assertTrue(
             blueprint.to_sql().startswith(
-                "CREATE TABLE users (user_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL PRIMARY KEY"
+                "CREATE TABLE users (user_id INT(11) NOT NULL PRIMARY KEY"
             ),
         )
 
