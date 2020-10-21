@@ -54,6 +54,7 @@ jobs:
           MYSQL_DATABASE_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           python orm migrate --connection postgres
+          python orm migrate --connection mysql
           make test
   lint:
     runs-on: ubuntu-latest
