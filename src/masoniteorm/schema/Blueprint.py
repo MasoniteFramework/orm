@@ -436,16 +436,22 @@ class Blueprint:
         self.table.add_constraint(column, "fulltext")
         return self
 
-    def primary(self, column):
+    def primary(self, column=None):
         """Creates a constraint based on the primary key constraint representation of the table.
+        Sets the constraint on the last column if no column name is passed.
 
         Arguments:
-            column {string} -- The name of the column to create the index on.
+            column {string} -- The name of the column to create the index on. (default: {None})
 
         Returns:
             self
         """
+        if column is None:
+            self.table.set_primary_key(self._last_column.name)
+            return self
+
         self.table.set_primary_key(column)
+
         return self
 
     def foreign(self, column):
