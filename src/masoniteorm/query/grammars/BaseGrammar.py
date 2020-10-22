@@ -485,8 +485,7 @@ class BaseGrammar:
         Arguments:
             binding {string} -- A value to bind.
         """
-        if binding is not None:
-            self._bindings += (binding,)
+        self._bindings += (binding,)
 
     def column_exists(self, column):
         """Check if a column exists

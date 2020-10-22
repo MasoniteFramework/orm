@@ -77,3 +77,19 @@ class ConnectionResolver:
             "options": details.get(name, {}).get("options", {}),
             "full_details": details.get(name, {}),
         }
+
+    def get_schema_builder(self, connection="default"):
+        from ..schema import Schema
+
+        return Schema(
+            connection=self.connection_factory.make(connection),
+            connection_details=self.get_connection_details(),
+        ).on(connection)
+
+    def get_query_builder(self, connection="default"):
+        from ..query import QueryBuilder
+
+        return QueryBuilder(
+            connection=self.connection_factory.make(connection),
+            connection_details=self.get_connection_details(),
+        ).on(connection)

@@ -307,10 +307,17 @@ class QueryBuilder:
             "'QueryBuilder' object has no attribute '{}'".format(attribute)
         )
 
-    def on(self, driver):
-        self._connection_driver = driver
-        self.connection = ConnectionFactory().make(driver)
+    def on(self, connection):
+        from config.database import db
+
+        if connection == "default":
+            connection = self._connection_details.get("default")
+
+        self._connection_driver = self._connection_details.get(connection).get("driver")
+
+        self.connection = db.connection_factory.make(self._connection_driver)
         self.grammar = self.connection.get_default_query_grammar()
+
         return self
 
     def select(self, *args):
