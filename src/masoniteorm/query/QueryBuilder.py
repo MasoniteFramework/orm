@@ -1003,9 +1003,9 @@ class QueryBuilder:
 
         if not result:
             raise ModelNotFound()
-        
+
         return result
-        
+
     def first_or_fail(self, query=False):
         """Finds a row by the primary key ID.
 
@@ -1023,7 +1023,7 @@ class QueryBuilder:
 
         if not result:
             raise ModelNotFound()
-        
+
         return result
 
     def get_primary_key(self):

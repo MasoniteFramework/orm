@@ -342,7 +342,6 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         """
         return json.dumps(self.serialize())
 
-    
     def update_or_create(self):
         pass
 
