@@ -447,8 +447,7 @@ class Blueprint:
             self
         """
         if column is None:
-            self.table.set_primary_key(self._last_column.name)
-            return self
+            column = self._last_column.name
 
         self.table.set_primary_key(column)
 
