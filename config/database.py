@@ -37,6 +37,7 @@ DATABASES = {
         'options': {
             'charset': 'utf8mb4',
         },
+        'log_queries': True
     },
     'postgres': {
         'driver': 'postgres',
@@ -46,11 +47,13 @@ DATABASES = {
         'database': os.getenv('POSTGRES_DATABASE_DATABASE'),
         'port': os.getenv('POSTGRES_DATABASE_PORT'),
         'prefix': '',
+        'log_queries': True
     },
     'sqlite': {
         'driver': 'sqlite',
         'database': 'orm.sqlite3',
-        'prefix': ''
+        'prefix': '',
+        'log_queries': True
     },
     'mssql': {
         'driver': 'mssql',
@@ -59,7 +62,8 @@ DATABASES = {
         'password': os.getenv('MSSQL_DATABASE_PASSWORD'),
         'database': os.getenv('MSSQL_DATABASE_DATABASE'),
         'port': os.getenv('MSSQL_DATABASE_PORT'),
-        'prefix': ''
+        'prefix': '',
+        'log_queries': True
     },
 
 }
@@ -73,13 +77,11 @@ formatter = logging.Formatter(
     'It executed the query %(query)s'
 )
 
-handler = logging.StreamHandler()
-# handler.setFormatter(formatter)
+stream_handler = logging.StreamHandler()
+file_handler   = logging.FileHandler("queries.log")
 
-logger.addHandler(handler)
-
-handler = logging.FileHandler("queries.log")
-logger.addHandler(handler)
+logger.addHandler(stream_handler)
+logger.addHandler(file_handler)
 
 
 # DB = QueryBuilder(connection_details=DATABASES)
