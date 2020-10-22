@@ -6,7 +6,11 @@ from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
 from tests.utils import MockConnectionFactory
+from src.masoniteorm.exceptions import ModelNotFound, HTTP404
 
+class UserMock(Model):
+    __connection__ = 'sqlite'
+    __table__ = 'users'
 
 class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
@@ -70,13 +74,18 @@ class BaseTestQueryBuilder:
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
         self.assertEqual(builder.to_sql(), sql)
+    
+    def test_first_or_fail_exception(self):
+        with self.assertRaises(ModelNotFound):
+            user = self.get_builder().where("name", "=", "Marlysson").first_or_fail()
 
-    def test_first_or_fail(self):
-        builder = self.get_builder().where("id", ">", 200).first_or_fail(query=True)
-        sql = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
-        self.assertEqual(builder.to_sql(), sql)
+    def test_find_or_fail_exception(self):
+        with self.assertRaises(ModelNotFound):
+            user = UserMock.find_or_fail(1000)
+
+    def test_find_or_404_exception(self):
+        with self.assertRaises(HTTP404):
+            user = UserMock.find_or_404(10000)
 
     def test_select(self):
         builder = self.get_builder()
@@ -397,13 +406,6 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.first()
         """
         return """SELECT * FROM "users" LIMIT 1"""
-
-    def first_or_fail(self):
-        """
-        builder = self.get_builder()
-        builder.where("id", ">", "200").first_or_fail()
-        """
-        return """SELECT * FROM "users" WHERE "users"."id" > '200' LIMIT 1"""
 
     def all(self):
         """
