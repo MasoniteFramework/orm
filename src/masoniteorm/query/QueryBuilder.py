@@ -18,6 +18,8 @@ from ..schema import Schema
 
 from ..connections import ConnectionResolver, ConnectionFactory
 
+from ..exceptions import ModelNotFound
+
 
 class QueryBuilder:
     """A builder class to manage the building and creation of query expressions."""
@@ -986,6 +988,43 @@ class QueryBuilder:
         """
 
         return self.where(self._model.get_primary_key(), record_id).first()
+
+    def find_or_fail(self, record_id):
+        """Finds a row by the primary key ID.
+
+        Arguments:
+            record_id {int} -- The ID of the primary key to fetch.
+
+        Returns:
+            Model|ModelNotFound
+        """
+
+        result = self.find(record_id=record_id)
+
+        if not result:
+            raise ModelNotFound()
+        
+        return result
+        
+    def first_or_fail(self, query=False):
+        """Finds a row by the primary key ID.
+
+        Arguments:
+            record_id {int} -- The ID of the primary key to fetch.
+
+        Returns:
+            Model|ModelNotFound
+        """
+
+        if query:
+            return self.limit(1)
+
+        result = self.first()
+
+        if not result:
+            raise ModelNotFound()
+        
+        return result
 
     def get_primary_key(self):
         return self._model.get_primary_key()

@@ -71,6 +71,13 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_first_or_fail(self):
+        builder = self.get_builder().where("id", ">", 200).first_or_fail(query=True)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
     def test_select(self):
         builder = self.get_builder()
         builder.select("name", "email")
@@ -390,6 +397,13 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.first()
         """
         return """SELECT * FROM "users" LIMIT 1"""
+
+    def first_or_fail(self):
+        """
+        builder = self.get_builder()
+        builder.where("id", ">", "200").first_or_fail()
+        """
+        return """SELECT * FROM "users" WHERE "users"."id" > '200' LIMIT 1"""
 
     def all(self):
         """
