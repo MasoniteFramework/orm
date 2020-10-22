@@ -10,6 +10,8 @@ from ..connections import ConnectionFactory, ConnectionResolver
 from ..query.grammars import MySQLGrammar
 from ..scopes import BaseScope, SoftDeleteScope, SoftDeletesMixin, TimeStampsMixin
 
+from ..exceptions import ModelNotFound
+
 """This is a magic class that will help using models like User.first() instead of having to instatiate a class like
 User().first()
 """
@@ -201,6 +203,26 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
         return cls().where(cls.get_primary_key(), record_id).first()
 
+    @classmethod
+    def find_or_fail(cls, record_id):
+        """Finds a row by the primary key ID.
+
+        Arguments:
+            record_id {int} -- The ID of the primary key to fetch.
+
+        Returns:
+            Model|ModelNotFound
+        """
+
+        result = cls.find(record_id=record_id)
+
+        if not result:
+            raise ModelNotFound(f"Model with {cls.get_primary_key()} = {record_id} on {cls.__name__} not found")
+
+    @classmethod
+    def first_or_fail(cls, record_id):
+        pass
+
     def first_or_new(self):
         pass
 
@@ -340,9 +362,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         """
         return json.dumps(self.serialize())
 
-    def find_or_fail(self):
-        pass
-
+    
     def update_or_create(self):
         pass
 
