@@ -1016,7 +1016,6 @@ class QueryBuilder:
             Model|HTTP404
         """
 
-
         try:
             return self.find_or_fail(record_id)
         except ModelNotFound:
