@@ -4,3 +4,7 @@ class DriverNotFound(Exception):
 
 class ModelNotFound(Exception):
     pass
+
+
+class HTTP404(Exception):
+    pass

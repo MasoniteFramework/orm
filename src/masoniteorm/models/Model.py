@@ -88,6 +88,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         "first",
         "find_or_fail",
         "first_or_fail",
+        "find_or_404",
         "get",
         "has",
         "limit",
