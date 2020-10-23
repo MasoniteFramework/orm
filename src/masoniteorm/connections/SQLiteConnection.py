@@ -115,15 +115,11 @@ class SQLiteConnection(BaseConnection):
         Returns:
             dict|None -- Returns a dictionary of results or None
         """
-        print("1")
         if not self.open:
             self.make_connection()
 
-        print("fetch many", fetch_many)
-
         try:
             self._cursor = self._connection.cursor()
-            print("1")
 
             if isinstance(query, list):
                 for query in query:
@@ -151,7 +147,6 @@ class SQLiteConnection(BaseConnection):
             self.make_connection()
 
         result = [dict(row) for row in self._cursor.fetchmany(amount)]
-        print("yield results")
         while result:
             yield result
 
