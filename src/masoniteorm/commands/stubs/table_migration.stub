@@ -1,6 +1,6 @@
 """__MIGRATION_NAME__ Migration."""
 
-from masoniteorm.migrations import Migration
+from src.masoniteorm.migrations import Migration
 
 
 class __MIGRATION_NAME__(Migration):

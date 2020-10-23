@@ -1,6 +1,6 @@
 """__MIGRATION_NAME__ Migration."""
 
-from masoniteorm.migrations import Migration
+from src.masoniteorm.migrations import Migration
 
 
 class __MIGRATION_NAME__(Migration):
@@ -11,7 +11,6 @@ class __MIGRATION_NAME__(Migration):
         """
         with self.schema.create("__TABLE_NAME__") as table:
             table.increments('id')
-            
             table.timestamps()
 
     def down(self):
