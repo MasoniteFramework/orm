@@ -355,13 +355,17 @@ class QueryBuilder:
         if not creates:
             creates = kwargs
 
+        print("creating")
+
         self.set_action("insert")
         self._creates.update(creates)
         if query:
             return self
 
         connection = self.new_connection()
+        print("make query", connection)
         query_result = connection.query(self.to_qmark(), self._bindings, results=1)
+        print("make result", query_result)
 
         if self._model:
             id_key = self._model.get_primary_key()
@@ -522,6 +526,14 @@ class QueryBuilder:
         """
         self._wheres += ((QueryExpression(column, "=", None, "NULL")),)
         return self
+
+    def chunk(self, chunk_amount):
+        chunk_connection = self.new_connection()
+        for result in chunk_connection.select_many(self.to_sql(), (), chunk_amount):
+            if not self._model:
+                yield result
+            else:
+                yield self._model.hydrate(result)
 
     def where_not_null(self, column: str):
         """Specifies a where expression where the column is not NULL.
