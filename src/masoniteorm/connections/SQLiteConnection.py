@@ -139,6 +139,9 @@ class SQLiteConnection(BaseConnection):
             if self.get_transaction_level() <= 0:
                 self._connection.close()
                 self.open = 0
+    
+    def format_cursor_results(self, cursor_result):
+        return [dict(row) for row in cursor_result]
 
     def select_many(self, query, bindings, amount):
         self._cursor = self._connection.cursor()
@@ -146,8 +149,8 @@ class SQLiteConnection(BaseConnection):
         if not self.open:
             self.make_connection()
 
-        result = [dict(row) for row in self._cursor.fetchmany(amount)]
+        result = self.format_cursor_results(self._cursor.fetchmany(amount))
         while result:
             yield result
 
-            result = [dict(row) for row in self._cursor.fetchmany(amount)]
+            result = self.format_cursor_results(self._cursor.fetchmany(amount))
