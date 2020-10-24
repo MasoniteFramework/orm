@@ -1031,7 +1031,7 @@ class QueryBuilder:
             # eager load here
             hydrated_model = self._model.hydrate(result)
             if self._eager_loads and hydrated_model:
-                for eager in set(self._eager_loads):
+                for eager in self._eager_loads:
                     if "." in eager:
                         last_owner = self._model
                         last_result = hydrated_model
