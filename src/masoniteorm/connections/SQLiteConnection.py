@@ -139,7 +139,7 @@ class SQLiteConnection(BaseConnection):
             if self.get_transaction_level() <= 0:
                 self._connection.close()
                 self.open = 0
-    
+
     def format_cursor_results(self, cursor_result):
         return [dict(row) for row in cursor_result]
 

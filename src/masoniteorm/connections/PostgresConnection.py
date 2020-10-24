@@ -114,6 +114,7 @@ class PostgresConnection(BaseConnection):
 
     def set_cursor(self):
         from psycopg2.extras import RealDictCursor
+
         self._cursor = self._connection.cursor(cursor_factory=RealDictCursor)
         return self._cursor
 
@@ -138,7 +139,7 @@ class PostgresConnection(BaseConnection):
                 self.make_connection()
 
             self.set_cursor()
-            
+
             with self._cursor as cursor:
                 if isinstance(query, list) and not self._dry:
                     for q in query:
@@ -159,4 +160,3 @@ class PostgresConnection(BaseConnection):
             if self.get_transaction_level() <= 0:
                 self.open = 0
                 self._connection.close()
-    

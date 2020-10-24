@@ -93,7 +93,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         "select",
         "set_global_scope",
         "where_has",
-        'chunk',
+        "chunk",
         "where_in",
         "where",
         "with_",

@@ -160,5 +160,5 @@ class MSSQLConnection(BaseConnection):
         results = []
         for record in cursor_result:
             results.append(dict(zip(columnNames, record)))
-        
+
         return results
