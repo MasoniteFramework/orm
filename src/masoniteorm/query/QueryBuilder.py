@@ -1062,15 +1062,6 @@ class QueryBuilder:
         else:
             return result or None
 
-    def _register_result_sets(self, related, result_set, relation_key=None):
-        print("related", related)
-        print("result_set", result_set)
-
-        # Take result set and register it with each model
-        if isinstance(result_set, Collection):
-            for model in result_set:
-                print(model)
-
     def _register_relationships_to_model(
         self, related, related_result, hydrated_model, relation_key
     ):
@@ -1089,6 +1080,7 @@ class QueryBuilder:
         if isinstance(hydrated_model, Collection):
             for model in hydrated_model:
                 if isinstance(related_result, Collection):
+                    print("hee", related)
                     related.register_related(relation_key, model, related_result)
                 else:
                     model.add_relation({relation_key: related_result or {}})

@@ -44,10 +44,8 @@ class BelongsTo(BaseRelationship):
             ).first()
 
     def register_related(self, key, model, collection):
-        model.add_relation(
-            {
-                key: collection.where(
-                    self.foreign_key, model.get_primary_key_value()
-                ).first()
-            }
-        )
+        related = collection.where(
+            self.foreign_key, model.get_primary_key_value()
+        ).first()
+
+        model.add_relation({key: related or {}})
