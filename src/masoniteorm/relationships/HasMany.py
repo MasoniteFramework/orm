@@ -18,6 +18,7 @@ class HasMany(BaseRelationship):
         result = foreign.where(
             self.foreign_key, owner.__attributes__[self.local_key]
         ).get()
+
         return result
 
     def get_related(self, relation):
