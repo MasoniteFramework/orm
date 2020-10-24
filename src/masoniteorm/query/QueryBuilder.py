@@ -16,12 +16,14 @@ from ..scopes import BaseScope
 
 from ..schema import Schema
 
+from ..observers import ObservesEvents
+
 from ..connections import ConnectionResolver, ConnectionFactory
 
 from ..exceptions import ModelNotFound, HTTP404
 
 
-class QueryBuilder:
+class QueryBuilder(ObservesEvents):
     """A builder class to manage the building and creation of query expressions."""
 
     def __init__(
@@ -357,23 +359,42 @@ class QueryBuilder:
         if not creates:
             creates = kwargs
 
+        model = None
+
+        if self._model:
+            model = self._model
+
         self.set_action("insert")
         self._creates.update(creates)
+
         if query:
             return self
 
-        connection = self.new_connection()
-        query_result = connection.query(self.to_qmark(), self._bindings, results=1)
+        if model:
+            model = model.hydrate(self._creates)
+            self.observe_events(model, "creating")
 
-        if self._model:
-            id_key = self._model.get_primary_key()
+            # if attributes were modified during model observer then we need to update the creates here
+            self._creates.update(model.get_dirty_attributes())
 
-        processed_results = self.get_processor().process_insert_get_id(
-            self, query_result or self._creates, id_key
-        )
+        if not self.dry:
+            connection = self.new_connection()
+            query_result = connection.query(self.to_qmark(), self._bindings, results=1)
 
-        if self._model:
-            return self._model.hydrate(processed_results)
+            if model:
+                id_key = model.get_primary_key()
+
+            processed_results = self.get_processor().process_insert_get_id(
+                self, query_result or self._creates, id_key
+            )
+        else:
+            processed_results = self._creates
+
+        if model:
+            print("mmm", processed_results)
+            model = model.fill(processed_results)
+            self.observe_events(model, "created")
+            return model
 
         return processed_results
 
@@ -388,17 +409,31 @@ class QueryBuilder:
         Returns:
             self
         """
+        model = None
+        self.set_action("delete")
+
+        if self._model:
+            model = self._model
+
         if column and value:
             if isinstance(value, (list, tuple)):
                 self.where_in(column, value)
             else:
                 self.where(column, value)
 
-        self.set_action("delete")
         if query:
             return self
 
-        return self.new_connection().query(self.to_qmark(), self._bindings)
+        if model:
+            self.where(model.get_primary_key(), model.get_primary_key_value())
+            self.observe_events(model, "deleting")
+
+        result = self.new_connection().query(self.to_qmark(), self._bindings)
+
+        if model:
+            self.observe_events(model, "deleted")
+
+        return result
 
     def where(self, column, *args):
         """Specifies a where expression.
@@ -805,17 +840,32 @@ class QueryBuilder:
         Returns:
             self
         """
-        if self._model and self._model.is_loaded():
-            self.where(
-                self._model.get_primary_key(), self._model.get_primary_key_value()
-            )
+        model = None
+
+        additional = {}
+
+        if self._model:
+            model = self._model
+
+        if model and model.is_loaded():
+            self.where(model.get_primary_key(), model.get_primary_key_value())
+            additional.update({model.get_primary_key(): model.get_primary_key_value()})
+
+            self.observe_events(model, "updating")
 
         self._updates += (UpdateQueryExpression(updates),)
         self.set_action("update")
         if dry or self.dry:
             return self
 
-        return self.new_connection().query(self.to_qmark(), self._bindings)
+        additional.update(updates)
+
+        result = self.new_connection().query(self.to_qmark(), self._bindings)
+        if model:
+            model.fill(result)
+            self.observe_events(model, "updated")
+            return model
+        return additional
 
     def set_updates(self, updates: dict, dry=False):
         """Specifies columns and values to be updated.

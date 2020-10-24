@@ -8,6 +8,7 @@ from ..query import QueryBuilder
 from ..collection import Collection
 from ..connections import ConnectionFactory, ConnectionResolver
 from ..query.grammars import MySQLGrammar
+from ..observers import ObservesEvents
 from ..scopes import BaseScope, SoftDeleteScope, SoftDeletesMixin, TimeStampsMixin
 
 """This is a magic class that will help using models like User.first() instead of having to instatiate a class like
@@ -53,7 +54,7 @@ class JsonCast:
         return json.dumps(value)
 
 
-class Model(TimeStampsMixin, metaclass=ModelMeta):
+class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     """The ORM Model class
 
     Base Classes:
@@ -67,6 +68,8 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     __table__ = None
     __connection__ = "default"
     __resolved_connection__ = None
+
+    __observers__ = []
 
     _booted = False
     _scopes = {}
@@ -91,6 +94,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         "find_or_404",
         "get",
         "has",
+        "delete",
         "limit",
         "order_by",
         "select",
@@ -175,6 +179,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
     def boot(self):
         if not self._booted:
+            self.observe_events(self, "booting")
             for base_class in inspect.getmro(self.__class__):
                 class_name = base_class.__name__
 
@@ -182,6 +187,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
                     getattr(base_class(), "boot_" + class_name)(self.builder)
 
             self._booted = True
+            self.observe_events(self, "booted")
 
     @classmethod
     def get_table_name(cls):
@@ -246,16 +252,27 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
                 if key in model.get_dates():
                     value = model.get_new_date(value)
                 dic.update({key: value})
+
+            model.observe_events(model, "hydrating")
             model.__attributes__.update(dic or {})
-            return model.add_relation(relations)
+            model.add_relation(relations)
+            model.observe_events(model, "hydrated")
+            return model
+
         elif hasattr(result, "serialize"):
             model = cls()
             model.__attributes__.update(result.serialize())
             return model
         else:
             model = cls()
+            model.observe_events(model, "hydrating")
             model.__attributes__.update(dict(result))
+            model.observe_events(model, "hydrated")
             return model
+
+    def fill(self, attributes):
+        self.__attributes__.update(attributes)
+        return self
 
     @classmethod
     def new_collection(cls, data):
@@ -269,9 +286,6 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
             Collection
         """
         return Collection(data)
-
-    def fill(self):
-        pass
 
     @classmethod
     def create(cls, dictionary={}, query=False, **kwargs):
@@ -460,10 +474,21 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
         self.__dirty_attributes__.pop("builder")
 
+        self.observe_events(self, "saving")
+
         if not query:
-            return builder.update(self.__dirty_attributes__)
+            result = builder.update(self.__dirty_attributes__)
+            self.observe_events(self, "saved")
+            return result
 
         return builder.update(self.__dirty_attributes__, dry=True).to_sql()
+
+    # def observe_events(self, model, event):
+    #     for observer in model.__observers__:
+    #         try:
+    #             getattr(observer, event)(model)
+    #         except AttributeError:
+    #             pass
 
     def get_value(self, attribute):
         if attribute in self.__casts__:
@@ -476,6 +501,11 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
             return self._cast_attribute(attribute)
 
         return self.__dirty_attributes__[attribute]
+
+    def get_dirty_attributes(self):
+        if "builder" in self.__dirty_attributes__:
+            self.__dirty_attributes__.pop("builder")
+        return self.__dirty_attributes__ or {}
 
     def get_cast_map(self):
         cast_map = self.__internal_cast_map__
