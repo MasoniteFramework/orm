@@ -37,13 +37,21 @@ class BaseConnection:
 
         self._cursor.execute(query, bindings)
         end = "{:.2f}".format(timer() - start)
-        self.log(query, bindings, query_time=end)
+
+        if self.full_details and self.full_details.get("log_queries", False):
+            self.log(query, bindings, query_time=end)
 
     def has_global_connection(self):
         return self.name in ConnectionResolver().get_global_connections()
 
     def get_global_connection(self):
         return ConnectionResolver().get_global_connections()[self.name]
+
+    def enable_query_log(self):
+        self.full_details["log_queries"] = True
+
+    def disable_query_log(self):
+        self.full_details["log_queries"] = False
 
     def format_cursor_results(self, cursor_result):
         return cursor_result
@@ -63,3 +71,4 @@ class BaseConnection:
             yield result
 
             result = self.format_cursor_results(self._cursor.fetchmany(amount))
+
