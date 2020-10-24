@@ -54,6 +54,7 @@ class Observer(Model):
     __timestamps__ = False
     __observers__ = []
 
+
 Observer.observe(UserObserver())
 
 

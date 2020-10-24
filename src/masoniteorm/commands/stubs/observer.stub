@@ -1,0 +1,101 @@
+"""__CLASS__ Observer"""
+
+from masoniteorm.models import Model
+
+
+class __CLASS__Observer:
+    def created(self, __MODEL_VARIABLE__):
+        """Handle the __MODEL__ "created" event.
+
+        Args:
+            __MODEL_VARIABLE__ (masoniteorm.models.Model): __MODEL__ model.
+        """
+        pass
+
+    def creating(self, __MODEL_VARIABLE__):
+        """Handle the __MODEL__ "creating" event.
+
+        Args:
+            __MODEL_VARIABLE__ (masoniteorm.models.Model): __MODEL__ model.
+        """
+        pass
+
+    def saving(self, __MODEL_VARIABLE__):
+        """Handle the __MODEL__ "saving" event.
+
+        Args:
+            __MODEL_VARIABLE__ (masoniteorm.models.Model): __MODEL__ model.
+        """
+        pass
+
+    def saved(self, __MODEL_VARIABLE__):
+        """Handle the __MODEL__ "creating" event.
+
+        Args:
+            __MODEL_VARIABLE__ (masoniteorm.models.Model): __MODEL__ model.
+        """
+        pass
+
+    def updating(self, __MODEL_VARIABLE__):
+        """Handle the __MODEL__ "creating" event.
+
+        Args:
+            __MODEL_VARIABLE__ (masoniteorm.models.Model): __MODEL__ model.
+        """
+        pass
+
+    def updated(self, __MODEL_VARIABLE__):
+        """Handle the __MODEL__ "creating" event.
+
+        Args:
+            __MODEL_VARIABLE__ (masoniteorm.models.Model): __MODEL__ model.
+        """
+        pass
+
+    def booted(self, __MODEL_VARIABLE__):
+        """Handle the __MODEL__ "creating" event.
+
+        Args:
+            __MODEL_VARIABLE__ (masoniteorm.models.Model): __MODEL__ model.
+        """
+        pass
+
+    def booting(self, __MODEL_VARIABLE__):
+        """Handle the __MODEL__ "creating" event.
+
+        Args:
+            __MODEL_VARIABLE__ (masoniteorm.models.Model): __MODEL__ model.
+        """
+        pass
+
+    def hydrating(self, __MODEL_VARIABLE__):
+        """Handle the __MODEL__ "creating" event.
+
+        Args:
+            __MODEL_VARIABLE__ (masoniteorm.models.Model): __MODEL__ model.
+        """
+        pass
+
+    def hydrated(self, __MODEL_VARIABLE__):
+        """Handle the __MODEL__ "creating" event.
+
+        Args:
+            __MODEL_VARIABLE__ (masoniteorm.models.Model): __MODEL__ model.
+        """
+        pass
+
+    def deleting(self, __MODEL_VARIABLE__):
+        """Handle the __MODEL__ "creating" event.
+
+        Args:
+            __MODEL_VARIABLE__ (masoniteorm.models.Model): __MODEL__ model.
+        """
+        pass
+
+    def deleted(self, __MODEL_VARIABLE__):
+        """Handle the __MODEL__ "creating" event.
+
+        Args:
+            __MODEL_VARIABLE__ (masoniteorm.models.Model): __MODEL__ model.
+        """
+        pass

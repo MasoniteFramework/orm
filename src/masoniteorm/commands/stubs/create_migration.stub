@@ -4,14 +4,13 @@ from masoniteorm.migrations import Migration
 
 
 class __MIGRATION_NAME__(Migration):
-
     def up(self):
         """
         Run the migrations.
         """
         with self.schema.create("__TABLE_NAME__") as table:
-            table.increments('id')
-            
+            table.increments("id")
+
             table.timestamps()
 
     def down(self):
