@@ -93,6 +93,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
         "find_or_404",
         "get",
         "has",
+        "delete",
         "limit",
         "order_by",
         "select",

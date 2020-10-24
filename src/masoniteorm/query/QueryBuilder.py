@@ -415,17 +415,32 @@ class QueryBuilder:
         Returns:
             self
         """
+        model = None
+        self.set_action("delete")
+
+        if self._model:
+            model = self._model
+
+
         if column and value:
             if isinstance(value, (list, tuple)):
                 self.where_in(column, value)
             else:
                 self.where(column, value)
 
-        self.set_action("delete")
         if query:
             return self
 
-        return self.new_connection().query(self.to_qmark(), self._bindings)
+        if model:
+            self.where(model.get_primary_key(), model.get_primary_key_value())
+            self.observe_events(model, 'deleting')
+
+        result = self.new_connection().query(self.to_qmark(), self._bindings)
+
+        if model:
+            self.observe_events(model, 'deleted')
+
+        return result
 
     def where(self, column, *args):
         """Specifies a where expression.
