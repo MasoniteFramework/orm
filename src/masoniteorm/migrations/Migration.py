@@ -15,6 +15,7 @@ from ..models.MigrationModel import MigrationModel
 from ..schema import Schema
 from ..connections import ConnectionFactory
 
+from pprint import pprint
 
 class Migration:
     def __init__(
@@ -38,6 +39,7 @@ class Migration:
         self.schema = Schema(
             connection=connection_class,
             connection_details=DATABASES,
+            dry=dry
         ).on(self.connection)
 
         self.migration_model = MigrationModel.on(self.connection)
@@ -195,3 +197,12 @@ class Migration:
     def refresh(self):
         self.reset()
         self.migrate()
+
+    def show_sql(self, migration):
+        
+        migration = self.locate(migration)(connection=self.connection, dry=True)
+        migration.up()
+
+        blueprint = migration.schema._blueprint.to_sql()
+
+        self.command_class.line(f"<comment>Migration sql:</comment>{blueprint}")
