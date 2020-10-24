@@ -998,7 +998,7 @@ class QueryBuilder:
         return self.where(self._model.get_primary_key(), record_id).first()
 
     def find_or_fail(self, record_id):
-        """Finds a row by the primary key ID or raise an exception.
+        """Finds a row by the primary key ID (Requires a model) or raise a ModelNotFound exception.
 
         Arguments:
             record_id {int} -- The ID of the primary key to fetch.
@@ -1015,7 +1015,7 @@ class QueryBuilder:
         return result
 
     def find_or_404(self, record_id):
-        """Finds a row by the primary key ID or raise an exception.
+        """Finds a row by the primary key ID (Requires a model) or raise an 404 exception.
 
         Arguments:
             record_id {int} -- The ID of the primary key to fetch.
@@ -1030,13 +1030,10 @@ class QueryBuilder:
             raise HTTP404()
 
     def first_or_fail(self, query=False):
-        """Finds a row by the primary key ID.
-
-        Arguments:
-            record_id {int} -- The ID of the primary key to fetch.
+        """Returns the first row from database. If no result found a ModelNotFound exception.
 
         Returns:
-            Model|ModelNotFound
+            dictionary|ModelNotFound
         """
 
         if query:
