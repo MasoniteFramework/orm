@@ -86,6 +86,9 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     __passthrough__ = [
         "all",
         "first",
+        "find_or_fail",
+        "first_or_fail",
+        "find_or_404",
         "get",
         "has",
         "limit",
@@ -340,9 +343,6 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
             string
         """
         return json.dumps(self.serialize())
-
-    def find_or_fail(self):
-        pass
 
     def update_or_create(self):
         pass

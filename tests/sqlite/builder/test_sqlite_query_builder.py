@@ -6,6 +6,12 @@ from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
 from tests.utils import MockConnectionFactory
+from src.masoniteorm.exceptions import ModelNotFound, HTTP404
+
+
+class UserMock(Model):
+    __connection__ = "sqlite"
+    __table__ = "users"
 
 
 class BaseTestQueryBuilder:
@@ -70,6 +76,18 @@ class BaseTestQueryBuilder:
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
         self.assertEqual(builder.to_sql(), sql)
+
+    def test_first_or_fail_exception(self):
+        with self.assertRaises(ModelNotFound):
+            user = self.get_builder().where("name", "=", "Marlysson").first_or_fail()
+
+    def test_find_or_fail_exception(self):
+        with self.assertRaises(ModelNotFound):
+            user = UserMock.find_or_fail(1000)
+
+    def test_find_or_404_exception(self):
+        with self.assertRaises(HTTP404):
+            user = UserMock.find_or_404(10000)
 
     def test_select(self):
         builder = self.get_builder()

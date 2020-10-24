@@ -266,3 +266,10 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
     def test_can_compile_select_raw_with_select(self):
         to_sql = self.builder.select("id").select_raw("COUNT(*)").to_sql()
         self.assertEqual(to_sql, "SELECT `users`.`id`, COUNT(*) FROM `users`")
+
+    def can_compile_first_or_fail(self):
+        """
+        builder = self.get_builder()
+        builder.where("is_admin", "=", True).first_or_fail()
+        """
+        return """SELECT * FROM `users` WHERE `users`.`is_admin` = '1' LIMIT 1"""
