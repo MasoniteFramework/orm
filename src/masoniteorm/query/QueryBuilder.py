@@ -357,25 +357,49 @@ class QueryBuilder:
         if not creates:
             creates = kwargs
 
+        model = None
+
+        if self._model:
+            model = self._model
+
         self.set_action("insert")
         self._creates.update(creates)
+
         if query:
             return self
 
-        connection = self.new_connection()
-        query_result = connection.query(self.to_qmark(), self._bindings, results=1)
+        if model:
+            model = model.hydrate(self._creates)
+            self.observe_events(model, "creating")
 
-        if self._model:
-            id_key = self._model.get_primary_key()
+        if not self.dry:
+            connection = self.new_connection()
+            query_result = connection.query(self.to_qmark(), self._bindings, results=1)
 
-        processed_results = self.get_processor().process_insert_get_id(
-            self, query_result or self._creates, id_key
-        )
+            if model:
+                id_key = model.get_primary_key()
 
-        if self._model:
-            return self._model.hydrate(processed_results)
+            processed_results = self.get_processor().process_insert_get_id(
+                self, query_result or self._creates, id_key
+            )
+        else:
+            processed_results = self._creates
+
+        if model:
+            print("mmm", processed_results)
+            model = model.fill(processed_results)
+            self.observe_events(model, "created")
+            return model
 
         return processed_results
+
+    def observe_events(self, model, event):
+        # print('mm', model)
+        for observer in model.__observers__:
+            try:
+                getattr(observer, event)(model)
+            except AttributeError:
+                pass
 
     def delete(self, column=None, value=None, query=False):
         """Specify the column and value to delete

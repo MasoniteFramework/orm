@@ -257,6 +257,10 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
             model.__attributes__.update(dict(result))
             return model
 
+    def fill(self, attributes):
+        self.__attributes__.update(attributes)
+        return self
+
     @classmethod
     def new_collection(cls, data):
         """Takes a result and puts it into a new collection.
@@ -269,9 +273,6 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
             Collection
         """
         return Collection(data)
-
-    def fill(self):
-        pass
 
     @classmethod
     def create(cls, dictionary={}, query=False, **kwargs):
