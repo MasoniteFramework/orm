@@ -101,7 +101,7 @@ class SQLiteConnection(BaseConnection):
     def get_transaction_level(self):
         return self.transaction_level
 
-    def query(self, query, bindings, results="*"):
+    def query(self, query, bindings, results="*", fetch_many=False):
         """Make the actual query that will reach the database and come back with a result.
 
         Arguments:
@@ -115,12 +115,12 @@ class SQLiteConnection(BaseConnection):
         Returns:
             dict|None -- Returns a dictionary of results or None
         """
-
         if not self.open:
             self.make_connection()
 
         try:
             self._cursor = self._connection.cursor()
+
             if isinstance(query, list):
                 for query in query:
                     self.statement(query)
@@ -139,3 +139,18 @@ class SQLiteConnection(BaseConnection):
             if self.get_transaction_level() <= 0:
                 self._connection.close()
                 self.open = 0
+    
+    def format_cursor_results(self, cursor_result):
+        return [dict(row) for row in cursor_result]
+
+    def select_many(self, query, bindings, amount):
+        self._cursor = self._connection.cursor()
+        self.statement(query)
+        if not self.open:
+            self.make_connection()
+
+        result = self.format_cursor_results(self._cursor.fetchmany(amount))
+        while result:
+            yield result
+
+            result = self.format_cursor_results(self._cursor.fetchmany(amount))

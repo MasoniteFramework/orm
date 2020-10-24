@@ -44,3 +44,22 @@ class BaseConnection:
 
     def get_global_connection(self):
         return ConnectionResolver().get_global_connections()[self.name]
+
+    def format_cursor_results(self, cursor_result):
+        return cursor_result
+
+    def set_cursor(self):
+        self._cursor = self._connection.cursor()
+        return self
+
+    def select_many(self, query, bindings, amount):
+        self.set_cursor()
+        self.statement(query)
+        if not self.open:
+            self.make_connection()
+
+        result = self.format_cursor_results(self._cursor.fetchmany(amount))
+        while result:
+            yield result
+
+            result = self.format_cursor_results(self._cursor.fetchmany(amount))

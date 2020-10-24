@@ -523,6 +523,14 @@ class QueryBuilder:
         self._wheres += ((QueryExpression(column, "=", None, "NULL")),)
         return self
 
+    def chunk(self, chunk_amount):
+        chunk_connection = self.new_connection()
+        for result in chunk_connection.select_many(self.to_sql(), (), chunk_amount):
+            if not self._model:
+                yield result
+            else:
+                yield self._model.hydrate(result)
+
     def where_not_null(self, column: str):
         """Specifies a where expression where the column is not NULL.
 
