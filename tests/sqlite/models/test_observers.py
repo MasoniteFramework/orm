@@ -52,9 +52,9 @@ class UserObserver:
 class Observer(Model):
     __connection__ = "sqlite"
     __timestamps__ = False
-    __observers__ = [UserObserver()]
+    __observers__ = []
 
-    # __dry__ = True
+Observer.observe(UserObserver())
 
 
 class BaseTestQueryRelationships(unittest.TestCase):
