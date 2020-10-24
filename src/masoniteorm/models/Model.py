@@ -68,6 +68,8 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
     __connection__ = "default"
     __resolved_connection__ = None
 
+    __observers__ = []
+
     _booted = False
     _scopes = {}
     __primary_key__ = "id"
@@ -461,10 +463,21 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
         self.__dirty_attributes__.pop("builder")
 
+        self.observe_events(self, "saving")
+
         if not query:
-            return builder.update(self.__dirty_attributes__)
+            result = builder.update(self.__dirty_attributes__)
+            self.observe_events(self, "saved")
+            return result
 
         return builder.update(self.__dirty_attributes__, dry=True).to_sql()
+
+    def observe_events(self, model, event):
+        for observer in model.__observers__:
+            try:
+                getattr(observer, event)(model)
+            except AttributeError:
+                pass
 
     def get_value(self, attribute):
         if attribute in self.__casts__:
@@ -477,6 +490,11 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
             return self._cast_attribute(attribute)
 
         return self.__dirty_attributes__[attribute]
+
+    def get_dirty_attributes(self):
+        if "builder" in self.__dirty_attributes__:
+            self.__dirty_attributes__.pop("builder")
+        return self.__dirty_attributes__ or {}
 
     def get_cast_map(self):
         cast_map = self.__internal_cast_map__

@@ -372,6 +372,9 @@ class QueryBuilder:
             model = model.hydrate(self._creates)
             self.observe_events(model, "creating")
 
+            # if attributes were modified during model observer then we need to update the creates here
+            self._creates.update(model.get_dirty_attributes())
+
         if not self.dry:
             connection = self.new_connection()
             query_result = connection.query(self.to_qmark(), self._bindings, results=1)
@@ -829,17 +832,32 @@ class QueryBuilder:
         Returns:
             self
         """
-        if self._model and self._model.is_loaded():
-            self.where(
-                self._model.get_primary_key(), self._model.get_primary_key_value()
-            )
+        model = None
+
+        additional = {}
+
+        if self._model:
+            model = self._model
+
+        if model and model.is_loaded():
+            self.where(model.get_primary_key(), model.get_primary_key_value())
+            additional.update({model.get_primary_key(): model.get_primary_key_value()})
+
+            self.observe_events(model, "updating")
 
         self._updates += (UpdateQueryExpression(updates),)
         self.set_action("update")
         if dry or self.dry:
             return self
 
-        return self.new_connection().query(self.to_qmark(), self._bindings)
+        additional.update(updates)
+
+        result = self.new_connection().query(self.to_qmark(), self._bindings)
+        if model:
+            model.fill(result)
+            self.observe_events(model, "updated")
+            return model
+        return additional
 
     def set_updates(self, updates: dict, dry=False):
         """Specifies columns and values to be updated.
