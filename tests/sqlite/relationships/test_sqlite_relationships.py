@@ -59,12 +59,12 @@ class TestRelationships(unittest.TestCase):
 
     def test_can_access_has_many_relationship(self):
         user = User.hydrate(User.where("id", 1).first())
-        self.assertEqual(len(user.articles), 4)
+        self.assertEqual(len(user.articles), 1)
 
     def test_can_access_relationship_multiple_times(self):
         user = User.hydrate(User.where("id", 1).first())
-        self.assertEqual(len(user.articles), 4)
-        self.assertEqual(len(user.articles), 4)
+        self.assertEqual(len(user.articles), 1)
+        self.assertEqual(len(user.articles), 1)
 
     def test_loading(self):
         users = User.with_("articles").get()
