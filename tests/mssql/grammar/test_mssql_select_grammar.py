@@ -272,3 +272,10 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
         self.assertEqual(to_sql, sql)
+
+    def can_compile_first_or_fail(self):
+        """
+        builder = self.get_builder()
+        builder.where("is_admin", "=", True).first_or_fail()
+        """
+        return """SELECT TOP 1 * FROM [users] WHERE [users].[is_admin] = '1'"""

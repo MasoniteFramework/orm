@@ -37,6 +37,7 @@ class MySQLConnection(BaseConnection):
         self.full_details = full_details
         self.options = options
         self._cursor = None
+        self.open = 0
         self.transaction_level = 0
 
     def make_connection(self):
@@ -65,6 +66,7 @@ class MySQLConnection(BaseConnection):
             db=self.database,
             **self.options
         )
+        self.open = 1
 
         return self
 
@@ -149,11 +151,12 @@ class MySQLConnection(BaseConnection):
                 query = query.replace("'?'", "%s")
                 self.statement(query, bindings)
                 if results == 1:
-                    return cursor.fetchone()
+                    return self.format_cursor_results(cursor.fetchone())
                 else:
-                    return cursor.fetchall()
+                    return self.format_cursor_results(cursor.fetchall())
         except Exception as e:
             raise e
         finally:
             if self.get_transaction_level() <= 0:
+                self.open = 0
                 self._connection.close()

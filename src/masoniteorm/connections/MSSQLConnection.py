@@ -40,7 +40,7 @@ class MSSQLConnection(BaseConnection):
         self.options = options
         self._cursor = None
         self.transaction_level = 0
-        self.closed = 0
+        self.open = 0
 
     def make_connection(self):
         """This sets the connection on the connection class"""
@@ -61,6 +61,7 @@ class MSSQLConnection(BaseConnection):
             autocommit=True,
         )
 
+        self.open = 1
         return self
 
     def get_database_name(self):
@@ -126,7 +127,7 @@ class MSSQLConnection(BaseConnection):
         """
 
         try:
-            if self.closed:
+            if not self.open:
                 self.make_connection()
             self._cursor = self._connection.cursor()
             with self._cursor as cursor:
@@ -145,16 +146,19 @@ class MSSQLConnection(BaseConnection):
                 else:
                     if not cursor.description:
                         return {}
-                    columnNames = [column[0] for column in cursor.description]
-                    results = []
-                    for record in cursor.fetchall():
-                        results.append(dict(zip(columnNames, record)))
-                    return results
+                    return self.format_cursor_results(cursor.fetchall())
 
                 return {}
         except Exception as e:
             raise e
         finally:
-            pass
-            # if self.get_transaction_level() <= 0:
-            #     self._connection.close()
+            if self.get_transaction_level() <= 0:
+                self._connection.close()
+
+    def format_cursor_results(self, cursor_result):
+        columnNames = [column[0] for column in self.get_cursor().description]
+        results = []
+        for record in cursor_result:
+            results.append(dict(zip(columnNames, record)))
+
+        return results

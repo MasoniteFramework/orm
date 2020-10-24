@@ -40,6 +40,7 @@ class PostgresConnection(BaseConnection):
         self.options = options
         self._cursor = None
         self.transaction_level = 0
+        self.open = 0
 
     def make_connection(self):
         """This sets the connection on the connection class"""
@@ -62,6 +63,8 @@ class PostgresConnection(BaseConnection):
         )
 
         self._connection.autocommit = True
+
+        self.open = 1
 
         return self
 
@@ -109,7 +112,10 @@ class PostgresConnection(BaseConnection):
         """Transaction"""
         return self.transaction_level
 
-    def get_cursor(self):
+    def set_cursor(self):
+        from psycopg2.extras import RealDictCursor
+
+        self._cursor = self._connection.cursor(cursor_factory=RealDictCursor)
         return self._cursor
 
     def query(self, query, bindings=(), results="*"):
@@ -131,7 +137,9 @@ class PostgresConnection(BaseConnection):
         try:
             if self._connection.closed:
                 self.make_connection()
-            self._cursor = self._connection.cursor(cursor_factory=RealDictCursor)
+
+            self.set_cursor()
+
             with self._cursor as cursor:
                 if isinstance(query, list) and not self._dry:
                     for q in query:
@@ -150,4 +158,5 @@ class PostgresConnection(BaseConnection):
             raise e
         finally:
             if self.get_transaction_level() <= 0:
+                self.open = 0
                 self._connection.close()

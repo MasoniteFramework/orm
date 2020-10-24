@@ -18,6 +18,8 @@ from ..schema import Schema
 
 from ..connections import ConnectionResolver, ConnectionFactory
 
+from ..exceptions import ModelNotFound, HTTP404
+
 
 class QueryBuilder:
     """A builder class to manage the building and creation of query expressions."""
@@ -523,6 +525,14 @@ class QueryBuilder:
         self._wheres += ((QueryExpression(column, "=", None, "NULL")),)
         return self
 
+    def chunk(self, chunk_amount):
+        chunk_connection = self.new_connection()
+        for result in chunk_connection.select_many(self.to_sql(), (), chunk_amount):
+            if not self._model:
+                yield result
+            else:
+                yield self._model.hydrate(result)
+
     def where_not_null(self, column: str):
         """Specifies a where expression where the column is not NULL.
 
@@ -986,6 +996,58 @@ class QueryBuilder:
         """
 
         return self.where(self._model.get_primary_key(), record_id).first()
+
+    def find_or_fail(self, record_id):
+        """Finds a row by the primary key ID or raise an exception.
+
+        Arguments:
+            record_id {int} -- The ID of the primary key to fetch.
+
+        Returns:
+            Model|ModelNotFound
+        """
+
+        result = self.find(record_id=record_id)
+
+        if not result:
+            raise ModelNotFound()
+
+        return result
+
+    def find_or_404(self, record_id):
+        """Finds a row by the primary key ID or raise an exception.
+
+        Arguments:
+            record_id {int} -- The ID of the primary key to fetch.
+
+        Returns:
+            Model|HTTP404
+        """
+
+        try:
+            return self.find_or_fail(record_id)
+        except ModelNotFound:
+            raise HTTP404()
+
+    def first_or_fail(self, query=False):
+        """Finds a row by the primary key ID.
+
+        Arguments:
+            record_id {int} -- The ID of the primary key to fetch.
+
+        Returns:
+            Model|ModelNotFound
+        """
+
+        if query:
+            return self.limit(1)
+
+        result = self.first()
+
+        if not result:
+            raise ModelNotFound()
+
+        return result
 
     def get_primary_key(self):
         return self._model.get_primary_key()

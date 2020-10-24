@@ -9,6 +9,7 @@ from src.masoniteorm.query.grammars import SQLiteGrammar
 from src.masoniteorm.relationships import belongs_to
 from tests.utils import MockConnectionFactory
 from config.database import db
+from src.masoniteorm.collection import Collection
 
 
 class User(Model):
@@ -26,7 +27,7 @@ class BaseTestQueryRelationships(unittest.TestCase):
             grammar=SQLiteGrammar,
             connection=connection,
             table=table,
-            # model=User,
+            model=User,
             connection_details=DATABASES,
         ).on("sqlite")
 
@@ -46,3 +47,7 @@ class BaseTestQueryRelationships(unittest.TestCase):
         db.commit("sqlite")
         db.begin_transaction("sqlite")
         db.rollback("sqlite")
+
+    def test_chunking(self):
+        for users in self.get_builder().chunk(10):
+            self.assertIsInstance(users, Collection)
