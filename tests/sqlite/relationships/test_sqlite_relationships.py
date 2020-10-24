@@ -71,6 +71,12 @@ class TestRelationships(unittest.TestCase):
         for user in users:
             user
 
+    def test_loading_with_nested_with(self):
+        users = User.with_("articles.logo").get()
+        for user in users:
+            for article in user.articles:
+                print("aa", article.logo.url)
+
     def test_casting(self):
         users = User.with_("articles").where("is_admin", True).get()
         for user in users:

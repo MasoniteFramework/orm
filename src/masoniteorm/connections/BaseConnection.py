@@ -71,4 +71,3 @@ class BaseConnection:
             yield result
 
             result = self.format_cursor_results(self._cursor.fetchmany(amount))
-

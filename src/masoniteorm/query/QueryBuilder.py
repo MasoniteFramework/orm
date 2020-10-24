@@ -959,32 +959,6 @@ class QueryBuilder:
     def _get_eager_load_result(self, related, collection):
         return related.eager_load_from_collection(collection)
 
-    def _register_relationships_to_model(
-        self, related, related_result, hydrated_model, relation_key
-    ):
-        """Takes a related result and a hydrated model and registers them to eachother using the relation key.
-
-        Args:
-            related_result (Model|Collection): Will be the related result based on the type of relationship.
-            hydrated_model (Model|Collection): If a collection we will need to loop through the collection of models
-                                                and register each one individually. Else we can just load the
-                                                related_result into the hydrated_models
-            relation_key (string): A key to bind the relationship with. Defaults to None.
-
-        Returns:
-            self
-        """
-        if isinstance(hydrated_model, Collection):
-            for model in hydrated_model:
-                if isinstance(related_result, Collection):
-                    related.register_related(relation_key, model, related_result)
-                else:
-                    model.add_relation({relation_key: related_result or {}})
-        else:
-
-            hydrated_model.add_relation({relation_key: related_result or {}})
-        return self
-
     def find(self, record_id):
         """Finds a row by the primary key ID. Requires a model
 
@@ -1058,11 +1032,25 @@ class QueryBuilder:
             hydrated_model = self._model.hydrate(result)
             if self._eager_loads and hydrated_model:
                 for eager in set(self._eager_loads):
-                    related = getattr(self._model, eager)
-                    related_result = related.get_related(hydrated_model)
-                    self._register_relationships_to_model(
-                        related, related_result, hydrated_model, relation_key=eager
-                    )
+                    if "." in eager:
+                        last_owner = self._model
+                        last_result = hydrated_model
+                        for eager in eager.split("."):
+                            related = getattr(last_owner, eager)
+                            result_set = related.get_related(last_result)
+
+                            self._register_relationships_to_model(
+                                related, result_set, last_result, relation_key=eager
+                            )
+
+                            last_result = result_set
+                            last_owner = related.get_builder()._model
+                    else:
+                        related = getattr(self._model, eager)
+                        related_result = related.get_related(hydrated_model)
+                        self._register_relationships_to_model(
+                            related, related_result, hydrated_model, relation_key=eager
+                        )
 
             if collection:
                 return hydrated_model if result else Collection([])
@@ -1073,6 +1061,41 @@ class QueryBuilder:
             return result or Collection([])
         else:
             return result or None
+
+    def _register_result_sets(self, related, result_set, relation_key=None):
+        print("related", related)
+        print("result_set", result_set)
+
+        # Take result set and register it with each model
+        if isinstance(result_set, Collection):
+            for model in result_set:
+                print(model)
+
+    def _register_relationships_to_model(
+        self, related, related_result, hydrated_model, relation_key
+    ):
+        """Takes a related result and a hydrated model and registers them to eachother using the relation key.
+
+        Args:
+            related_result (Model|Collection): Will be the related result based on the type of relationship.
+            hydrated_model (Model|Collection): If a collection we will need to loop through the collection of models
+                                                and register each one individually. Else we can just load the
+                                                related_result into the hydrated_models
+            relation_key (string): A key to bind the relationship with. Defaults to None.
+
+        Returns:
+            self
+        """
+        if isinstance(hydrated_model, Collection):
+            for model in hydrated_model:
+                if isinstance(related_result, Collection):
+                    related.register_related(relation_key, model, related_result)
+                else:
+                    model.add_relation({relation_key: related_result or {}})
+        else:
+
+            hydrated_model.add_relation({relation_key: related_result or {}})
+        return self
 
     def all(self, query=False):
         """Returns all records from the table.
