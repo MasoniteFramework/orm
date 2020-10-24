@@ -83,6 +83,7 @@ setup(
         'masoniteorm.factories',
         'masoniteorm.migrations',
         'masoniteorm.models',
+        'masoniteorm.observers',
         'masoniteorm.providers',
         'masoniteorm.query',
         'masoniteorm.query.grammars',

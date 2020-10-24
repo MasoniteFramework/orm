@@ -16,12 +16,14 @@ from ..scopes import BaseScope
 
 from ..schema import Schema
 
+from ..observers import ObservesEvents
+
 from ..connections import ConnectionResolver, ConnectionFactory
 
 from ..exceptions import ModelNotFound, HTTP404
 
 
-class QueryBuilder:
+class QueryBuilder(ObservesEvents):
     """A builder class to manage the building and creation of query expressions."""
 
     def __init__(
@@ -396,14 +398,6 @@ class QueryBuilder:
 
         return processed_results
 
-    def observe_events(self, model, event):
-        # print('mm', model)
-        for observer in model.__observers__:
-            try:
-                getattr(observer, event)(model)
-            except AttributeError:
-                pass
-
     def delete(self, column=None, value=None, query=False):
         """Specify the column and value to delete
         or deletes everything based on a previously used where expression.
@@ -421,7 +415,6 @@ class QueryBuilder:
         if self._model:
             model = self._model
 
-
         if column and value:
             if isinstance(value, (list, tuple)):
                 self.where_in(column, value)
@@ -433,12 +426,12 @@ class QueryBuilder:
 
         if model:
             self.where(model.get_primary_key(), model.get_primary_key_value())
-            self.observe_events(model, 'deleting')
+            self.observe_events(model, "deleting")
 
         result = self.new_connection().query(self.to_qmark(), self._bindings)
 
         if model:
-            self.observe_events(model, 'deleted')
+            self.observe_events(model, "deleted")
 
         return result
 

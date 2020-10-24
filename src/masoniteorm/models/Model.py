@@ -8,6 +8,7 @@ from ..query import QueryBuilder
 from ..collection import Collection
 from ..connections import ConnectionFactory, ConnectionResolver
 from ..query.grammars import MySQLGrammar
+from ..observers import ObservesEvents
 from ..scopes import BaseScope, SoftDeleteScope, SoftDeletesMixin, TimeStampsMixin
 
 """This is a magic class that will help using models like User.first() instead of having to instatiate a class like
@@ -53,7 +54,7 @@ class JsonCast:
         return json.dumps(value)
 
 
-class Model(TimeStampsMixin, metaclass=ModelMeta):
+class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     """The ORM Model class
 
     Base Classes:
@@ -482,12 +483,12 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
         return builder.update(self.__dirty_attributes__, dry=True).to_sql()
 
-    def observe_events(self, model, event):
-        for observer in model.__observers__:
-            try:
-                getattr(observer, event)(model)
-            except AttributeError:
-                pass
+    # def observe_events(self, model, event):
+    #     for observer in model.__observers__:
+    #         try:
+    #             getattr(observer, event)(model)
+    #         except AttributeError:
+    #             pass
 
     def get_value(self, attribute):
         if attribute in self.__casts__:
