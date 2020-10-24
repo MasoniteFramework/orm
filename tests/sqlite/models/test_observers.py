@@ -30,6 +30,18 @@ class UserObserver:
     def updated(self, user):
         user.observed_updated = 1
 
+    def booted(self, user):
+        user.observed_booting = 1
+
+    def booting(self, user):
+        user.observed_booted = 1
+
+    def hydrating(self, user):
+        user.observed_hydrating = 1
+
+    def hydrated(self, user):
+        user.observed_hydrated = 1
+
 
 class Observer(Model):
     __connection__ = "sqlite"
@@ -70,3 +82,19 @@ class BaseTestQueryRelationships(unittest.TestCase):
         self.assertEqual(user.observed_updated, 1)
         self.assertEqual(user.observed_updating, 1)
         # db.rollback("sqlite")
+
+    def test_booting_is_observed(self):
+        # db.begin_transaction("sqlite")
+        user = Observer.hydrate({"id": 1, "name": "joe"})
+
+        re = user.update({"name": "bill"})
+
+        self.assertEqual(user.observed_booting, 1)
+        self.assertEqual(user.observed_booted, 1)
+        # db.rollback("sqlite")
+
+    def test_hydrating_is_observed(self):
+        user = Observer.hydrate({"id": 1, "name": "joe"})
+
+        self.assertEqual(user.observed_hydrating, 1)
+        self.assertEqual(user.observed_hydrated, 1)

@@ -177,6 +177,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
 
     def boot(self):
         if not self._booted:
+            self.observe_events(self, "booting")
             for base_class in inspect.getmro(self.__class__):
                 class_name = base_class.__name__
 
@@ -184,6 +185,7 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
                     getattr(base_class(), "boot_" + class_name)(self.builder)
 
             self._booted = True
+            self.observe_events(self, "booted")
 
     @classmethod
     def get_table_name(cls):
@@ -248,15 +250,22 @@ class Model(TimeStampsMixin, metaclass=ModelMeta):
                 if key in model.get_dates():
                     value = model.get_new_date(value)
                 dic.update({key: value})
+
+            model.observe_events(model, "hydrating")
             model.__attributes__.update(dic or {})
-            return model.add_relation(relations)
+            model.add_relation(relations)
+            model.observe_events(model, "hydrated")
+            return model
+
         elif hasattr(result, "serialize"):
             model = cls()
             model.__attributes__.update(result.serialize())
             return model
         else:
             model = cls()
+            model.observe_events(model, "hydrating")
             model.__attributes__.update(dict(result))
+            model.observe_events(model, "hydrated")
             return model
 
     def fill(self, attributes):
