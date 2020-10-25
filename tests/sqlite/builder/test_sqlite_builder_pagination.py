@@ -44,8 +44,12 @@ class BaseTestQueryRelationships(unittest.TestCase):
         self.assertTrue(paginator.next_page)
         self.assertEqual(paginator.previous_page, None)
         self.assertTrue(paginator.total)
+        for user in paginator:
+            self.assertIsInstance(user, User)
 
         paginator = builder.table("users").simple_paginate(10, 1)
+
+        self.assertIsInstance(paginator.to_json(), str)
 
         self.assertTrue(paginator.count)
         self.assertTrue(paginator.serialize()["data"])
@@ -56,3 +60,7 @@ class BaseTestQueryRelationships(unittest.TestCase):
         self.assertTrue(paginator.count)
         self.assertEqual(paginator.next_page, None)
         self.assertEqual(paginator.previous_page, None)
+        for user in paginator:
+            self.assertIsInstance(user, User)
+
+        self.assertIsInstance(paginator.to_json(), str)

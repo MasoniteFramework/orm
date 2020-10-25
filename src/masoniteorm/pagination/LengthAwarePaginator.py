@@ -1,7 +1,8 @@
 import math
+from .BasePaginator import BasePaginator
 
 
-class LengthAwarePaginator:
+class LengthAwarePaginator(BasePaginator):
     def __init__(self, result, per_page, current_page, total, url=None):
         self.result = result
         self.current_page = current_page

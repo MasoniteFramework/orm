@@ -1,4 +1,7 @@
-class SimplePaginator:
+from .BasePaginator import BasePaginator
+
+
+class SimplePaginator(BasePaginator):
     def __init__(self, result, per_page, current_page, url=None):
         self.result = result
         self.current_page = current_page
