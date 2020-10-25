@@ -15,7 +15,6 @@ from . import (
     MakeObserverCommand,
     MigrateStatusCommand,
     MigrateResetCommand,
-    MigrateSQLCommand,
     MakeSeedCommand,
     SeedRunCommand,
 )
@@ -30,7 +29,6 @@ application.add(MakeModelCommand())
 application.add(MakeObserverCommand())
 application.add(MigrateResetCommand())
 application.add(MigrateStatusCommand())
-application.add(MigrateSQLCommand())
 application.add(MakeSeedCommand())
 application.add(SeedRunCommand())
 
