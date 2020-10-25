@@ -153,7 +153,7 @@ class Migration:
                     f"<info>Migrated:</info> <question>{migration}</question>"
                 )
 
-            # self.migration_model.create({"batch": batch, "migration": migration})
+            self.migration_model.create({"batch": batch, "migration": migration})
 
     def rollback(self):
         for migration in self.get_rollback_migrations():
