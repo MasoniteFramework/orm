@@ -7,4 +7,4 @@ class MigrationModel(Model):
     __fillable__ = ["migration", "batch"]
     __timestamps__ = None
 
-    __primary_key__ = 'migration_id'
+    __primary_key__ = "migration_id"
