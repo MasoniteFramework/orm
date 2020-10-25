@@ -13,6 +13,7 @@ class Profile(Model):
 class Articles(Model):
     __table__ = "articles"
     __connection__ = "sqlite"
+    __timestamps__ = None
 
     @belongs_to("id", "article_id")
     def logo(self):
@@ -88,3 +89,10 @@ class TestRelationships(unittest.TestCase):
             user.name = "Joe"
             user.is_admin = 1
             user.save()
+
+    def test_associate_records(self):
+        user = User.first()
+
+        articles = [Articles.hydrate({"title": "associate records"})]
+
+        user.save_many("articles", articles)
