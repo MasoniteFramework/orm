@@ -15,8 +15,9 @@ class MigrateSQLCommand(Command):
 
         if not self.option("migration"):
             raise Exception("Migration option is required")
-                
-        command = Migration(command_class=self, connection=self.option("connection"),dry=True)
-        migration = self.option("migration")
 
-        command.show_sql(migration)
+        schema = Migration(
+            command_class=self, connection=self.option("connection"), dry=True
+        )
+        migration = self.option("migration")
+        schema

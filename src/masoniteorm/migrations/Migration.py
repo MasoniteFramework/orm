@@ -17,6 +17,7 @@ from ..connections import ConnectionFactory
 
 from pprint import pprint
 
+
 class Migration:
     def __init__(
         self,
@@ -37,9 +38,7 @@ class Migration:
         DATABASES = db.get_connection_details()
 
         self.schema = Schema(
-            connection=connection_class,
-            connection_details=DATABASES,
-            dry=dry
+            connection=connection_class, connection_details=DATABASES, dry=dry
         ).on(self.connection)
 
         self.migration_model = MigrationModel.on(self.connection)
@@ -115,8 +114,9 @@ class Migration:
                 ran.append(migration)
         return ran
 
-    def migrate(self):
+    def migrate(self, output=False):
         batch = self.get_last_batch_number() + 1
+
         for migration in self.get_unran_migrations():
             migration_module = migration.replace(".py", "")
             migration_name = camelize(
@@ -131,14 +131,29 @@ class Migration:
                     f"<comment>Migrating:</comment> <question>{migration}</question>"
                 )
 
-            migration_class(connection=self.connection).up()
+            migration_class = migration_class(connection=self.connection)
+
+            if output:
+                migration_class.schema.dry()
+
+            migration_class.up()
+
+            if output:
+                if self.command_class:
+                    table = self.command_class.table()
+                    table.set_header_row(["SQL"])
+                    table.set_rows([[migration_class.schema._blueprint.to_sql()]])
+                    table.render(self.command_class.io)
+                    continue
+                else:
+                    print(migration_class.schema._blueprint.to_sql())
 
             if self.command_class:
                 self.command_class.line(
                     f"<info>Migrated:</info> <question>{migration}</question>"
                 )
 
-            self.migration_model.create({"batch": batch, "migration": migration})
+            # self.migration_model.create({"batch": batch, "migration": migration})
 
     def rollback(self):
         for migration in self.get_rollback_migrations():
@@ -198,11 +213,11 @@ class Migration:
         self.reset()
         self.migrate()
 
-    def show_sql(self, migration):
-        
-        migration = self.locate(migration)(connection=self.connection, dry=True)
-        migration.up()
+    # def show_sql(self, migration):
 
-        blueprint = migration.schema._blueprint.to_sql()
+    #     # migration = self.locate(migration)(connection=self.connection, dry=True)
+    #     # migration.up()
 
-        self.command_class.line(f"<comment>Migration sql:</comment>{blueprint}")
+    #     # blueprint = migration.schema._blueprint.to_sql()
+
+    #     # self.command_class.line(f"<comment>Migration sql:</comment>{blueprint}")

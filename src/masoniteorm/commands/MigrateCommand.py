@@ -10,10 +10,11 @@ class MigrateCommand(Command):
     migrate
         {--c|connection=default : The connection you want to run migrations on}
         {--f|force : Force migrations without prompt in production}
+        {--s|show : Shows the output of SQL for migrations that would be running}
     """
 
     def handle(self):
-        from config.database import ConnectionResolver
+        from config.database import db
 
         # prompt user for confirmation in production
         if os.getenv("APP_ENV") == "production" and not self.option("force"):
@@ -25,6 +26,7 @@ class MigrateCommand(Command):
             if answer != "y":
                 self.info("Migrations cancelled")
                 exit(0)
+
         self.info("Starting Migration Class ..")
         migration = Migration(command_class=self, connection=self.option("connection"))
         self.info("Creating Migration Table If Not Exists ..")
@@ -33,4 +35,4 @@ class MigrateCommand(Command):
             self.info("Nothing To Migrate!")
             return
 
-        migration.migrate()
+        migration.migrate(output=self.option("show"))
