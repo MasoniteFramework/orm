@@ -376,7 +376,6 @@ class Blueprint:
     def __exit__(self, exc_type, exc_value, exc_traceback):
         if self._dry:
             return
-
         return self.connection.query(self.to_sql(), ())
 
     def nullable(self):

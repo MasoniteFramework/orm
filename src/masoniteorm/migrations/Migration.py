@@ -15,6 +15,8 @@ from ..models.MigrationModel import MigrationModel
 from ..schema import Schema
 from ..connections import ConnectionFactory
 
+from pprint import pprint
+
 
 class Migration:
     def __init__(
@@ -36,8 +38,7 @@ class Migration:
         DATABASES = db.get_connection_details()
 
         self.schema = Schema(
-            connection=connection_class,
-            connection_details=DATABASES,
+            connection=connection_class, connection_details=DATABASES, dry=dry
         ).on(self.connection)
 
         self.migration_model = MigrationModel.on(self.connection)
@@ -113,8 +114,9 @@ class Migration:
                 ran.append(migration)
         return ran
 
-    def migrate(self):
+    def migrate(self, output=False):
         batch = self.get_last_batch_number() + 1
+
         for migration in self.get_unran_migrations():
             migration_module = migration.replace(".py", "")
             migration_name = camelize(
@@ -129,7 +131,22 @@ class Migration:
                     f"<comment>Migrating:</comment> <question>{migration}</question>"
                 )
 
-            migration_class(connection=self.connection).up()
+            migration_class = migration_class(connection=self.connection)
+
+            if output:
+                migration_class.schema.dry()
+
+            migration_class.up()
+
+            if output:
+                if self.command_class:
+                    table = self.command_class.table()
+                    table.set_header_row(["SQL"])
+                    table.set_rows([[migration_class.schema._blueprint.to_sql()]])
+                    table.render(self.command_class.io)
+                    continue
+                else:
+                    print(migration_class.schema._blueprint.to_sql())
 
             if self.command_class:
                 self.command_class.line(
@@ -138,14 +155,35 @@ class Migration:
 
             self.migration_model.create({"batch": batch, "migration": migration})
 
-    def rollback(self):
+    def rollback(self, output=False):
         for migration in self.get_rollback_migrations():
             if self.command_class:
                 self.command_class.line(
                     f"<comment>Rolling back:</comment> <question>{migration}</question>"
                 )
 
-            self.locate(migration)(connection=self.connection).down()
+            migration_class = self.locate(migration)(connection=self.connection)
+
+            if output:
+                migration_class.schema.dry()
+
+            migration_class.down()
+
+            if output:
+                if self.command_class:
+                    table = self.command_class.table()
+                    table.set_header_row(["SQL"])
+                    if (
+                        hasattr(migration_class.schema, "_blueprint")
+                        and migration_class.schema._blueprint
+                    ):
+                        table.set_rows([[migration_class.schema._blueprint.to_sql()]])
+                    elif migration_class.schema._sql:
+                        table.set_rows([[migration_class.schema._sql]])
+                    table.render(self.command_class.io)
+                    continue
+                else:
+                    print(migration_class.schema._blueprint.to_sql())
 
             self.delete_migration(migration)
 
@@ -195,3 +233,12 @@ class Migration:
     def refresh(self):
         self.reset()
         self.migrate()
+
+    # def show_sql(self, migration):
+
+    #     # migration = self.locate(migration)(connection=self.connection, dry=True)
+    #     # migration.up()
+
+    #     # blueprint = migration.schema._blueprint.to_sql()
+
+    #     # self.command_class.line(f"<comment>Migration sql:</comment>{blueprint}")

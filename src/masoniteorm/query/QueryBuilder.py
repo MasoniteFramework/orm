@@ -424,7 +424,7 @@ class QueryBuilder(ObservesEvents):
         if query:
             return self
 
-        if model:
+        if model and model.is_loaded():
             self.where(model.get_primary_key(), model.get_primary_key_value())
             self.observe_events(model, "deleting")
 

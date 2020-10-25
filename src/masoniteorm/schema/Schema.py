@@ -25,6 +25,8 @@ class Schema:
         self.platform = platform
         self.connection_details = connection_details
         self._connection_driver = connection_driver
+        self._blueprint = None
+        self._sql = None
 
         if not self.platform:
             self.platform = connection.get_default_platform()
@@ -51,14 +53,10 @@ class Schema:
         return self
 
     def dry(self):
-        """Change the connection from the default connection
-
-        Arguments:
-            connection {string} -- A connection string like 'mysql' or 'mssql'.
-                It will be made with the connection factory.
+        """Whether the query should be executed. (default: {False})
 
         Returns:
-            cls
+            self
         """
         self._dry = True
         return self
@@ -76,7 +74,7 @@ class Schema:
         """
         self._table = table
 
-        return Blueprint(
+        self._blueprint = Blueprint(
             self.grammar,
             connection=self.new_connection(),
             table=Table(table),
@@ -85,6 +83,8 @@ class Schema:
             default_string_length=self._default_string_length,
             dry=self._dry,
         )
+
+        return self._blueprint
 
     def table(self, table):
         """Sets the table and returns the blueprint.
@@ -98,7 +98,8 @@ class Schema:
             masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
         self._table = table
-        return Blueprint(
+
+        self._blueprint = Blueprint(
             self.grammar,
             connection=self.new_connection(),
             table=TableDiff(table),
@@ -107,6 +108,8 @@ class Schema:
             default_string_length=self._default_string_length,
             dry=self._dry,
         )
+
+        return self._blueprint
 
     def get_connection_information(self):
         return {
@@ -158,6 +161,7 @@ class Schema:
         sql = self.platform().compile_column_exists(table, column)
 
         if self._dry:
+            self._sql = sql
             return sql
 
         return bool(self.new_connection().query(sql, ()))
@@ -171,6 +175,7 @@ class Schema:
         sql = self.platform().compile_drop_table(table)
 
         if self._dry:
+            self._sql = sql
             return sql
 
         return bool(self.new_connection().query(sql, ()))
@@ -182,6 +187,7 @@ class Schema:
         sql = self.platform().compile_drop_table_if_exists(table)
 
         if self._dry:
+            self._sql = sql
             return sql
 
         return bool(self.new_connection().query(sql, ()))
@@ -190,6 +196,7 @@ class Schema:
         sql = self.platform().compile_rename_table(table, new_name)
 
         if self._dry:
+            self._sql = sql
             return sql
 
         return bool(self.new_connection().query(sql, ()))
@@ -198,6 +205,7 @@ class Schema:
         sql = self.platform().compile_truncate(table)
 
         if self._dry:
+            self._sql = sql
             return sql
 
         return bool(self.new_connection().query(sql, ()))
@@ -214,6 +222,7 @@ class Schema:
         )
 
         if self._dry:
+            self._sql = sql
             return sql
 
         return bool(self.new_connection().query(sql, ()))
