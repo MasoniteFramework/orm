@@ -173,7 +173,6 @@ class Migration:
                 if self.command_class:
                     table = self.command_class.table()
                     table.set_header_row(["SQL"])
-                    print(migration_class.schema._blueprint)
                     if (
                         hasattr(migration_class.schema, "_blueprint")
                         and migration_class.schema._blueprint
