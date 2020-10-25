@@ -26,6 +26,7 @@ class Schema:
         self.connection_details = connection_details
         self._connection_driver = connection_driver
         self._blueprint = None
+        self._sql = None
 
         if not self.platform:
             self.platform = connection.get_default_platform()
@@ -160,6 +161,7 @@ class Schema:
         sql = self.platform().compile_column_exists(table, column)
 
         if self._dry:
+            self._sql = sql
             return sql
 
         return bool(self.new_connection().query(sql, ()))
@@ -173,6 +175,7 @@ class Schema:
         sql = self.platform().compile_drop_table(table)
 
         if self._dry:
+            self._sql = sql
             return sql
 
         return bool(self.new_connection().query(sql, ()))
@@ -184,6 +187,7 @@ class Schema:
         sql = self.platform().compile_drop_table_if_exists(table)
 
         if self._dry:
+            self._sql = sql
             return sql
 
         return bool(self.new_connection().query(sql, ()))
@@ -192,6 +196,7 @@ class Schema:
         sql = self.platform().compile_rename_table(table, new_name)
 
         if self._dry:
+            self._sql = sql
             return sql
 
         return bool(self.new_connection().query(sql, ()))
@@ -200,6 +205,7 @@ class Schema:
         sql = self.platform().compile_truncate(table)
 
         if self._dry:
+            self._sql = sql
             return sql
 
         return bool(self.new_connection().query(sql, ()))
@@ -216,6 +222,7 @@ class Schema:
         )
 
         if self._dry:
+            self._sql = sql
             return sql
 
         return bool(self.new_connection().query(sql, ()))
