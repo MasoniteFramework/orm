@@ -22,6 +22,8 @@ from ..connections import ConnectionResolver, ConnectionFactory
 
 from ..exceptions import ModelNotFound, HTTP404
 
+from ..pagination import LengthAwarePaginator, SimplePaginator
+
 
 class QueryBuilder(ObservesEvents):
     """A builder class to manage the building and creation of query expressions."""
@@ -1184,69 +1186,28 @@ class QueryBuilder(ObservesEvents):
         self._eager_loads += eagers
         return self
 
-    # def eager_load_model(self, result):
-    #     eager_dic = {}
-    #     if not self._should_eager:
-    #         return {}
+    def paginate(self, per_page, page=1):
+        if page == 1:
+            offset = 0
+        else:
+            offset = (int(page) * per_page) - per_page
 
-    #     for eager in self._eager_loads:
-    #         if "." in eager:
-    #             last_owner = self.owner
-    #             last_eager = None
-    #             for split_eager in eager.split("."):
-    #                 if split_eager in eager_dic:
-    #                     related = getattr(last_owner, split_eager)()
-    #                     last_owner = related.owner
-    #                     last_eager = split_eager
-    #                     continue
+        result = self.limit(per_page).offset(offset).get()
+        total = self.new().count().first().get("COUNT(*)")
 
-    #                 relationship = last_owner._registered_relationships[last_owner][
-    #                     split_eager
-    #                 ]
-    #                 foreign_key, local_key = (
-    #                     relationship["foreign"],
-    #                     relationship["local"],
-    #                 )
-    #                 related = getattr(last_owner, split_eager)()
+        paginator = LengthAwarePaginator(result, per_page, page, total)
+        return paginator
 
-    #                 result = (
-    #                     related.without_eager()
-    #                     .where_in(
-    #                         foreign_key,
-    #                         Collection(result).unique(local_key).pluck(local_key),
-    #                     )
-    #                     .get()
-    #                 )
+    def simple_paginate(self, per_page, page=1):
+        if page == 1:
+            offset = 0
+        else:
+            offset = (int(page) * per_page) - per_page
 
-    #                 # try to load the inners into the outer query
-    #                 # For logo need to get articles and loop through collection
-    #                 if last_eager and last_eager in eager_dic:
-    #                     eager_dic[last_eager].add_relation({split_eager: result})
-    #                 else:
-    #                     eager_dic.update({split_eager: result})
-    #                 last_owner = related.owner
-    #                 last_eager = split_eager
-    #         else:
-    #             relationship = self.owner._registered_relationships[self.owner][eager]
+        result = self.limit(per_page).offset(offset).get()
 
-    #             foreign_key, local_key = (
-    #                 relationship["foreign"],
-    #                 relationship["local"],
-    #             )
-
-    #             result = (
-    #                 getattr(self.owner, eager)()
-    #                 .without_eager()
-    #                 .where_in(
-    #                     foreign_key,
-    #                     Collection(result).unique(local_key).pluck(local_key),
-    #                 )
-    #                 .get()
-    #             )
-
-    #             eager_dic.update({eager: result})
-
-    #     return eager_dic
+        paginator = SimplePaginator(result, per_page, page)
+        return paginator
 
     def set_action(self, action):
         """Sets the action that the query builder should take when the query is built.
@@ -1328,7 +1289,7 @@ class QueryBuilder(ObservesEvents):
         """
         builder = QueryBuilder(
             grammar=self.grammar,
-            connection=self.connection.__class__,
+            connection=self.connection,
             connection_driver=self._connection_driver,
             table=self._table,
         )
