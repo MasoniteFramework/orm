@@ -99,6 +99,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "order_by",
         "select",
         "set_global_scope",
+        "simple_paginate",
+        "paginate",
         "where_has",
         "chunk",
         "where_in",
