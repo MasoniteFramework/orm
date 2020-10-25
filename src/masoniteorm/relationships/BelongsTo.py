@@ -48,4 +48,4 @@ class BelongsTo(BaseRelationship):
             self.foreign_key, model.get_primary_key_value()
         ).first()
 
-        model.add_relation({key: related or {}})
+        model.add_relation({key: related or None})

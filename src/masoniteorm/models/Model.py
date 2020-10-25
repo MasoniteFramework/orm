@@ -375,6 +375,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             if value == {}:
                 new_dic.update({key: {}})
             else:
+                if value is None:
+                    new_dic.update({key: {}})
+                    continue
                 new_dic.update({key: value.serialize()})
 
         return new_dic
@@ -601,6 +604,19 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 related_record.save()
 
         # print(related.local_key, related.foreign_key)
+
+    def attach(self, relation, related_record):
+        related = getattr(self.__class__, relation)
+        setattr(
+            related_record,
+            related.foreign_key,
+            self.__attributes__[related.local_key],
+        )
+
+        if not related_record.is_created():
+            related_record.create(related_record.all_attributes())
+        else:
+            related_record.save()
 
     @classmethod
     def on(cls, connection):
