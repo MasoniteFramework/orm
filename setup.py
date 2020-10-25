@@ -85,6 +85,7 @@ setup(
         'masoniteorm.models',
         'masoniteorm.observers',
         'masoniteorm.providers',
+        'masoniteorm.pagination',
         'masoniteorm.query',
         'masoniteorm.query.grammars',
         'masoniteorm.query.processors',
