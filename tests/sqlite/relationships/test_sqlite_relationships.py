@@ -3,6 +3,7 @@ import unittest
 
 from src.masoniteorm.models import Model
 from src.masoniteorm.relationships import belongs_to, has_many
+from config.database import db
 
 
 class Profile(Model):
@@ -13,6 +14,7 @@ class Profile(Model):
 class Articles(Model):
     __table__ = "articles"
     __connection__ = "sqlite"
+    __timestamps__ = None
 
     @belongs_to("id", "article_id")
     def logo(self):
@@ -22,6 +24,7 @@ class Articles(Model):
 class Logo(Model):
     __table__ = "logos"
     __connection__ = "sqlite"
+    __timestamps__ = None
 
 
 class User(Model):
@@ -74,8 +77,10 @@ class TestRelationships(unittest.TestCase):
     def test_loading_with_nested_with(self):
         users = User.with_("articles", "articles.logo").get()
         for user in users:
+            print(user.articles)
             for article in user.articles:
-                print("aa", article.logo.url)
+                if article.logo:
+                    print("aa", article.logo.url)
 
     def test_casting(self):
         users = User.with_("articles").where("is_admin", True).get()
@@ -88,3 +93,21 @@ class TestRelationships(unittest.TestCase):
             user.name = "Joe"
             user.is_admin = 1
             user.save()
+
+    def test_associate_records(self):
+        db.begin_transaction("sqlite")
+        user = User.first()
+
+        articles = [Articles.hydrate({"title": "associate records"})]
+
+        user.save_many("articles", articles)
+        db.rollback("sqlite")
+
+    def test_attach_records(self):
+        db.begin_transaction("sqlite")
+        article = Articles.first()
+
+        logo = Logo.hydrate({"url": "yahoo.com"})
+
+        article.attach("logo", logo)
+        db.rollback("sqlite")

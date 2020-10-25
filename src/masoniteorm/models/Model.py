@@ -220,6 +220,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     def is_loaded(self):
         return bool(self.__attributes__)
 
+    def is_created(self):
+        return self.get_primary_key() in self.__attributes__
+
     def add_relation(self, relations):
         self._relationships.update(relations)
         return self
@@ -372,6 +375,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             if value == {}:
                 new_dic.update({key: {}})
             else:
+                if value is None:
+                    new_dic.update({key: {}})
+                    continue
                 new_dic.update({key: value.serialize()})
 
         return new_dic
@@ -502,6 +508,15 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return self.__dirty_attributes__[attribute]
 
+    def all_attributes(self):
+        attributes = self.__attributes__
+        attributes.update(self.get_dirty_attributes())
+        for key, value in attributes.items():
+            if key in self.__casts__:
+                attributes.update({key: self._cast_attribute(key)})
+
+        return attributes
+
     def get_dirty_attributes(self):
         if "builder" in self.__dirty_attributes__:
             self.__dirty_attributes__.pop("builder")
@@ -572,6 +587,36 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         self.__appends__ += appends
         return self
+
+    def save_many(self, relation, relating_records):
+        related = getattr(self.__class__, relation)
+        for related_record in relating_records:
+            print(related.foreign_key)
+            print(related.local_key)
+            setattr(
+                related_record,
+                related.foreign_key,
+                self.__attributes__[related.local_key],
+            )
+            if not related_record.is_created():
+                related_record.create(related_record.all_attributes())
+            else:
+                related_record.save()
+
+        # print(related.local_key, related.foreign_key)
+
+    def attach(self, relation, related_record):
+        related = getattr(self.__class__, relation)
+        setattr(
+            related_record,
+            related.foreign_key,
+            self.__attributes__[related.local_key],
+        )
+
+        if not related_record.is_created():
+            related_record.create(related_record.all_attributes())
+        else:
+            related_record.save()
 
     @classmethod
     def on(cls, connection):

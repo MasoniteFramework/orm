@@ -1127,13 +1127,12 @@ class QueryBuilder(ObservesEvents):
         if isinstance(hydrated_model, Collection):
             for model in hydrated_model:
                 if isinstance(related_result, Collection):
-                    print("hee", related)
                     related.register_related(relation_key, model, related_result)
                 else:
-                    model.add_relation({relation_key: related_result or {}})
+                    model.add_relation({relation_key: related_result or None})
         else:
 
-            hydrated_model.add_relation({relation_key: related_result or {}})
+            hydrated_model.add_relation({relation_key: related_result or None})
         return self
 
     def all(self, query=False):
