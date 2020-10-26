@@ -100,8 +100,7 @@ class SQLitePlatform(Platform):
 
             sql.append("DROP TABLE {table}".format(table=diff.name))
 
-            columns = original = diff.from_table.added_columns
-            print("ccc", diff.from_table.added_columns)
+            columns = diff.from_table.added_columns
 
             columns.update(diff.renamed_columns)
             columns.update(diff.changed_columns)
