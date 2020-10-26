@@ -68,6 +68,56 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_change(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.integer("age").change()
+            blueprint.string("name")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(len(blueprint.table.changed_columns), 1)
+        table = Table("users")
+        table.add_column("age", "string")
+
+        blueprint.table.from_table = table
+        print("rrr", table.added_columns)
+
+        sql = [
+            "ALTER TABLE users ADD COLUMN name VARCHAR",
+            "CREATE TEMPORARY TABLE __temp__users AS SELECT age FROM users",
+            "DROP TABLE users",
+            'CREATE TABLE "users" (age INTEGER, name VARCHAR(255))',
+            'INSERT INTO "users" (age) SELECT age FROM __temp__users',
+            "DROP TABLE __temp__users",
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_drop_add_and_change(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.integer("age").change()
+            blueprint.string("name")
+            blueprint.drop_column("email")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(len(blueprint.table.changed_columns), 1)
+        table = Table("users")
+        table.add_column("age", "string")
+        table.add_column("email", "string")
+
+        blueprint.table.from_table = table
+        print("rrr", table.added_columns)
+
+        sql = [
+            "ALTER TABLE users ADD COLUMN name VARCHAR",
+            "CREATE TEMPORARY TABLE __temp__users AS SELECT age FROM users",
+            "DROP TABLE users",
+            'CREATE TABLE "users" (age INTEGER, name VARCHAR(255))',
+            'INSERT INTO "users" (age) SELECT age FROM __temp__users',
+            "DROP TABLE __temp__users",
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_alter_drop_on_table_schema_table(self):
         schema = Schema(
             connection=SQLiteConnection,

@@ -83,11 +83,10 @@ class SQLitePlatform(Platform):
                     ).strip()
                 )
 
-        if diff.renamed_columns or diff.dropped_columns:
+        if diff.renamed_columns or diff.dropped_columns or diff.changed_columns:
             original_columns = diff.from_table.added_columns
             # pop off the dropped columns. No need for them here
             for column in diff.dropped_columns:
-                # TODO: Add exception here
                 original_columns.pop(column)
 
             sql.append(
@@ -98,10 +97,15 @@ class SQLitePlatform(Platform):
                     ),
                 )
             )
+
             sql.append("DROP TABLE {table}".format(table=diff.name))
 
-            columns = diff.from_table.added_columns
+            columns = original = diff.from_table.added_columns
+            print("ccc", diff.from_table.added_columns)
+
             columns.update(diff.renamed_columns)
+            columns.update(diff.changed_columns)
+            columns.update(diff.added_columns)
 
             sql.append(
                 self.create_format().format(
@@ -121,6 +125,9 @@ class SQLitePlatform(Platform):
                     else "",
                 )
             )
+
+            for column in diff.added_columns:
+                columns.pop(column)
 
             sql.append(
                 "INSERT INTO {quoted_table} ({new_columns}) SELECT {original_column_names} FROM __temp__{table}".format(
