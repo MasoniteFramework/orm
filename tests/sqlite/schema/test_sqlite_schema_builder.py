@@ -27,7 +27,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.to_sql(), 'CREATE TABLE "users" (name VARCHAR(255), age INTEGER)'
         )
 
-    def test_can_add_columns_with_constaint(self):
+    def test_can_add_columns_with_constraint(self):
         with self.schema.create("users") as blueprint:
             blueprint.string("name")
             blueprint.integer("age")
@@ -39,7 +39,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             'CREATE TABLE "users" (name VARCHAR(255), age INTEGER, UNIQUE(name))',
         )
 
-    def test_can_add_columns_with_foreign_key_constaint(self):
+    def test_can_add_columns_with_foreign_key_constraint(self):
         with self.schema.create("users") as blueprint:
             blueprint.string("name").unique()
             blueprint.integer("age")
@@ -55,6 +55,18 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             "profile_id INTEGER, "
             "UNIQUE(name), "
             "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))",
+        )
+
+    def test_can_use_morphs_for_polymorphism_relationships(self):
+        with self.schema.create("likes") as blueprint:
+            blueprint.morphs("record")
+
+        self.assertEqual(len(blueprint.table.added_columns), 2)
+        self.assertEqual(
+            blueprint.to_sql(),
+            'CREATE TABLE "likes" '
+            "(record_id UNSIGNED INT, "
+            "record_type VARCHAR)"
         )
 
     def test_can_advanced_table_creation(self):

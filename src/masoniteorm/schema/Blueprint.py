@@ -352,6 +352,26 @@ class Blueprint:
         )
         return self
 
+    def morphs(self, column, nullable=False):
+        """Sets a column to be used in a polymorphic relationship.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(
+            "{}_id".format(column), "unsigned_integer", nullable=nullable
+        )
+        self._last_column = self.table.add_column(
+            "{}_type".format(column), "string", nullable=nullable
+        )
+        return self
+
     def to_sql(self):
         """Compiles the blueprint class into a sql statement.
 
