@@ -27,7 +27,19 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
 
         sql = [
-            "ALTER TABLE [users] ADD [name] VARCHAR(255), [age] INT",
+            "ALTER TABLE [users] ADD [name] VARCHAR(255) NOT NULL, [age] INT NOT NULL",
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_can_adds_column_with_default(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.string("name").default(0)
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+
+        sql = [
+            "ALTER TABLE [users] ADD [name] VARCHAR(255) NOT NULL DEFAULT 0",
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)
@@ -54,7 +66,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
         blueprint.table.from_table = table
 
         sql = [
-            "ALTER TABLE [users] ADD [name] VARCHAR(255)",
+            "ALTER TABLE [users] ADD [name] VARCHAR(255) NOT NULL",
             "EXEC sp_rename 'users.post', 'comment', 'COLUMN'",
         ]
 
@@ -74,7 +86,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
             blueprint.foreign("playlist_id").references("id").on("playlists")
 
         sql = [
-            "ALTER TABLE [users] ADD [playlist_id] INT",
+            "ALTER TABLE [users] ADD [playlist_id] INT NULL",
             "ALTER TABLE [users] ADD CONSTRAINT users_playlist_id_foreign FOREIGN KEY ([playlist_id]) REFERENCES playlists([id])",
         ]
 
@@ -149,6 +161,48 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
         sql = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'users'"
 
         self.assertEqual(schema_sql, sql)
+
+    def test_change(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.integer("age").change()
+            blueprint.string("name")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(len(blueprint.table.changed_columns), 1)
+        table = Table("users")
+        table.add_column("age", "string")
+
+        blueprint.table.from_table = table
+
+        sql = [
+            "ALTER TABLE [users] ADD [name] VARCHAR(255) NOT NULL",
+            "ALTER TABLE [users] ALTER COLUMN [age] INT NOT NULL",
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_drop_add_and_change(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.integer("age").default(0).change()
+            blueprint.string("name")
+            blueprint.drop_column("email")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(len(blueprint.table.changed_columns), 1)
+        table = Table("users")
+        table.add_column("age", "string")
+        table.add_column("email", "string")
+
+        blueprint.table.from_table = table
+        print("rrr", table.added_columns)
+
+        sql = [
+            "ALTER TABLE [users] ADD [name] VARCHAR(255) NOT NULL",
+            "ALTER TABLE [users] ALTER COLUMN [age] INT NOT NULL DEFAULT 0",
+            "ALTER TABLE [users] DROP COLUMN email",
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
 
     # def test_alter_drop_on_table_schema_table(self):
     #     schema = Schema(

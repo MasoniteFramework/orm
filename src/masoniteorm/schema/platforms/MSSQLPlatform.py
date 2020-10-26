@@ -75,28 +75,39 @@ class MSSQLPlatform(Platform):
         if table.added_columns:
             add_columns = []
 
-            for name, column in table.get_added_columns().items():
-                if column.length:
-                    length = self.create_column_length(column.column_type).format(
-                        length=column.length
-                    )
-                else:
-                    length = ""
-                add_columns.append(
-                    self.add_column_string()
-                    .format(
-                        name=self.wrap_table(column.name),
-                        data_type=self.type_map.get(column.column_type, ""),
-                        length=length,
-                        constraint="PRIMARY KEY" if column.primary else "",
-                    )
-                    .strip()
-                )
+            # for name, column in table.get_added_columns().items():
+            #     if column.length:
+            #         length = self.create_column_length(column.column_type).format(
+            #             length=column.length
+            #         )
+            #     else:
+            #         length = ""
+            #     add_columns.append(
+            #         self.add_column_string()
+            #         .format(
+            #             name=self.wrap_table(column.name),
+            #             data_type=self.type_map.get(column.column_type, ""),
+            #             length=length,
+            #             constraint="PRIMARY KEY" if column.primary else "",
+            #         )
+            #         .strip()
+            #     )
 
             sql.append(
                 self.alter_format().format(
                     table=self.wrap_table(table.name),
-                    columns="ADD " + ", ".join(add_columns).strip(),
+                    columns="ADD "
+                    + ", ".join(self.columnize(table.added_columns)).strip(),
+                )
+            )
+
+        if table.changed_columns:
+            print("ss", self.columnize(table.changed_columns))
+            sql.append(
+                self.alter_format().format(
+                    table=self.wrap_table(table.name),
+                    columns="ALTER COLUMN "
+                    + ", ".join(self.columnize(table.changed_columns)).strip(),
                 )
             )
 
