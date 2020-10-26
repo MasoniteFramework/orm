@@ -137,6 +137,48 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_change(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.integer("age").change()
+            blueprint.string("name")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(len(blueprint.table.changed_columns), 1)
+        table = Table("users")
+        table.add_column("age", "string")
+
+        blueprint.table.from_table = table
+
+        sql = [
+            "ALTER TABLE `users` ADD name VARCHAR(255)",
+            "ALTER TABLE `users` MODIFY age INT(11) NOT NULL",
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_drop_add_and_change(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.integer("age").default(0).change()
+            blueprint.string("name")
+            blueprint.drop_column("email")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(len(blueprint.table.changed_columns), 1)
+        table = Table("users")
+        table.add_column("age", "string")
+        table.add_column("email", "string")
+
+        blueprint.table.from_table = table
+        print("rrr", table.added_columns)
+
+        sql = [
+            "ALTER TABLE `users` ADD name VARCHAR(255)",
+            "ALTER TABLE `users` MODIFY age INT(11) NOT NULL DEFAULT 0",
+            "ALTER TABLE `users` DROP COLUMN email",
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
     # def test_has_table(self):
     #     schema_sql = self.schema.has_table("users")
 
