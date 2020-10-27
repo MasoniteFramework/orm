@@ -352,7 +352,7 @@ class Blueprint:
         )
         return self
 
-    def morphs(self, column, nullable=False):
+    def morphs(self, column, nullable=False, indexes=True):
         """Sets a column to be used in a polymorphic relationship.
 
         Arguments:
@@ -364,12 +364,19 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
+        _columns = []
+        _columns.append(self.table.add_column(
             "{}_id".format(column), "unsigned_integer", nullable=nullable
-        )
-        self._last_column = self.table.add_column(
+        ))
+        _columns.append(self.table.add_column(
             "{}_type".format(column), "string", nullable=nullable
-        )
+        ))
+
+        if indexes:
+            for column in _columns:
+                self.index(column.name)
+
+        self._last_column = _columns
         return self
 
     def to_sql(self):
@@ -399,12 +406,17 @@ class Blueprint:
         return self.connection.query(self.to_sql(), ())
 
     def nullable(self):
-        """Sets the last column created as nullable
+        """Sets the last columns created as nullable
 
         Returns:
             self
         """
-        self._last_column.nullable()
+        _columns = []
+        if not isinstance(self._last_column, list):
+            _columns = [self._last_column]
+
+        for column in _columns:
+            column.nullable()
         return self
 
     def soft_deletes(self, name="deleted_at"):
