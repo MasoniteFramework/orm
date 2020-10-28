@@ -1,20 +1,21 @@
 from config.database import db
 
 
-def transaction(*args, **kwargs):
-    """Decorator to make atomic transactions."""
-    def inner(func):
-        connection_name = kwargs.get("connection", None)
-        if not connection_name:
-            # TODO: fetch default current connection
-            connection_name = ""
+class Transaction(object):
+
+    def __init__(self, connection="default"):
+        self.connection = connection
+
+    def __call__(self, fn, *args, **kwargs):
         import pdb ; pdb.set_trace()
-        db.begin_transaction(connection_name)
+        # before function
+        db.begin_transaction(self.connection)
         try:
-            # execute query
-            func()
+            result = fn(*args, **kwargs)
         except:
-            import pdb; pdb.set_trace()
-            db.rollback(connection_name)
-        db.commit(connection_name)
-    return inner
+            db.rollback(self.connection)
+            return None
+
+        # after function
+        db.commit(self.connection)
+        return result

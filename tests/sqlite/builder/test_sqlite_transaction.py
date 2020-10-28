@@ -3,7 +3,7 @@ import unittest
 
 from config.database import DATABASES
 from src.masoniteorm.connections import ConnectionFactory
-from src.masoniteorm.connections.decorators import transaction
+from src.masoniteorm.connections.decorators import Transaction as transaction
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
@@ -16,6 +16,12 @@ from src.masoniteorm.collection import Collection
 class User(Model):
     __connection__ = "sqlite"
     __timestamps__ = False
+
+
+@transaction(connection="sqlite")
+def create_user():
+    import pdb ; pdb.set_trace()
+    return User.create({"name": "phillip3", "email": "phillip3"})
 
 
 class BaseTestQueryRelationships(unittest.TestCase):
@@ -50,12 +56,8 @@ class BaseTestQueryRelationships(unittest.TestCase):
         db.rollback("sqlite")
 
     def test_transaction_decorator(self):
-        @transaction(connection="sqlite")
-        def create_user():
-            User.create({"name": "phillip3", "email": "phillip3"})
-
-        create_user()
-        db.rollback("sqlite")
+        result = create_user()
+        assert result == {"name": "phillip3", "email": "phillip3"}
 
     def test_chunking(self):
         for users in self.get_builder().chunk(10):
