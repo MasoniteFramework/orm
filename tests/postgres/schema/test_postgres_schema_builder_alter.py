@@ -150,6 +150,50 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(schema_sql, sql)
 
+    def test_change(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.integer("age").change()
+            blueprint.string("name")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(len(blueprint.table.changed_columns), 1)
+        table = Table("users")
+        table.add_column("age", "string")
+
+        blueprint.table.from_table = table
+
+        sql = [
+            'ALTER TABLE "users" ADD COLUMN name VARCHAR(255)',
+            'ALTER TABLE "users" ALTER COLUMN age TYPE INTEGER, ALTER COLUMN age SET NOT NULL',
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_drop_add_and_change(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.integer("age").default(0).nullable().change()
+            blueprint.string("name")
+            blueprint.drop_column("email")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(len(blueprint.table.changed_columns), 1)
+        table = Table("users")
+        table.add_column("age", "string")
+        table.add_column("email", "string")
+
+        blueprint.table.from_table = table
+        print("rrr", table.added_columns)
+
+        sql = [
+            'ALTER TABLE "users" ADD COLUMN name VARCHAR(255)',
+            'ALTER TABLE "users" DROP COLUMN email',
+            'ALTER TABLE "users" ALTER COLUMN age TYPE INTEGER, ALTER COLUMN age DROP NOT NULL, ALTER COLUMN age SET DEFAULT 0',
+        ]
+
+        print("gen", blueprint.to_sql())
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_alter_drop_on_table_schema_table(self):
         schema = Schema(
             connection=PostgresConnection,
