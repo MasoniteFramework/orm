@@ -20,7 +20,13 @@ class User(Model):
 
 @transaction(connection="sqlite")
 def create_user():
-    return User.create({"name": "phillip3", "email": "phillip3"})
+    User.create({"name": "phillip2", "email": "phillip3"})
+
+@transaction(connection="sqlite")
+def create_user_with_error():
+    User.create({"name": "phillip3", "email": "phillip3"})
+    raise Exception("error faking")
+    User.create({"name": "phillip4", "email": "phillip4"})
 
 
 class BaseTestQueryRelationships(unittest.TestCase):
@@ -54,9 +60,17 @@ class BaseTestQueryRelationships(unittest.TestCase):
         db.begin_transaction("sqlite")
         db.rollback("sqlite")
 
-    def test_transaction_decorator(self):
-        result = create_user()
-        assert result == {"name": "phillip3", "email": "phillip3"}
+    def test_transaction_if_sucess(self):
+        count = User.all().count()
+        create_user()
+        assert User.all().count() == count + 1
+
+    def test_transaction_rollback_if_error(self):
+        count = User.all().count()
+        with self.assertRaises(Exception):
+            create_user_with_error()
+        # check no users created
+        assert User.all().count() == count
 
     def test_chunking(self):
         for users in self.get_builder().chunk(10):
