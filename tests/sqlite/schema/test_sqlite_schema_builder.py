@@ -64,9 +64,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
             blueprint.to_sql(),
-            'CREATE TABLE "likes" '
-            "(record_id UNSIGNED INT, "
-            "record_type VARCHAR)"
+            'CREATE TABLE "likes" ' "(record_id UNSIGNED INT, " "record_type VARCHAR)",
         )
 
     def test_can_advanced_table_creation(self):

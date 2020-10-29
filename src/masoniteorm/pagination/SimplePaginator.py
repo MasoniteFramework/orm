@@ -23,5 +23,4 @@ class SimplePaginator(BasePaginator):
         }
 
     def has_more_pages(self):
-        print("more?", len(self.result), self.per_page)
         return len(self.result) > self.per_page

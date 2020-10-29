@@ -365,12 +365,14 @@ class Blueprint:
             self
         """
         _columns = []
-        _columns.append(self.table.add_column(
-            "{}_id".format(column), "unsigned_integer", nullable=nullable
-        ))
-        _columns.append(self.table.add_column(
-            "{}_type".format(column), "string", nullable=nullable
-        ))
+        _columns.append(
+            self.table.add_column(
+                "{}_id".format(column), "unsigned_integer", nullable=nullable
+            )
+        )
+        _columns.append(
+            self.table.add_column("{}_type".format(column), "string", nullable=nullable)
+        )
 
         if indexes:
             for column in _columns:

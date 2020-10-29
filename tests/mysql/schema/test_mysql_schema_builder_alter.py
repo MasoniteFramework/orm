@@ -169,7 +169,6 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
         table.add_column("email", "string")
 
         blueprint.table.from_table = table
-        print("rrr", table.added_columns)
 
         sql = [
             "ALTER TABLE `users` ADD name VARCHAR(255)",

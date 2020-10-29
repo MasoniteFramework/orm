@@ -9,8 +9,6 @@ class Platform:
             else:
                 length = ""
 
-            print("ff", column.default)
-
             if column.default in (0,):
                 default = f" DEFAULT {column.default}"
             elif column.default in self.premapped_defaults:

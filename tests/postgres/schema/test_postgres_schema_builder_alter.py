@@ -182,15 +182,12 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         table.add_column("email", "string")
 
         blueprint.table.from_table = table
-        print("rrr", table.added_columns)
 
         sql = [
             'ALTER TABLE "users" ADD COLUMN name VARCHAR(255)',
             'ALTER TABLE "users" DROP COLUMN email',
             'ALTER TABLE "users" ALTER COLUMN age TYPE INTEGER, ALTER COLUMN age DROP NOT NULL, ALTER COLUMN age SET DEFAULT 0',
         ]
-
-        print("gen", blueprint.to_sql())
 
         self.assertEqual(blueprint.to_sql(), sql)
 

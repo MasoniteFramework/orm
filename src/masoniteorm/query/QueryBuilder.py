@@ -393,7 +393,6 @@ class QueryBuilder(ObservesEvents):
             processed_results = self._creates
 
         if model:
-            print("mmm", processed_results)
             model = model.fill(processed_results)
             self.observe_events(model, "created")
             return model

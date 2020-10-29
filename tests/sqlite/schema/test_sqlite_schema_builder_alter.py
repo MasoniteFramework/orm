@@ -79,7 +79,6 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         table.add_column("age", "string")
 
         blueprint.table.from_table = table
-        print("rrr", table.added_columns)
 
         sql = [
             "ALTER TABLE users ADD COLUMN name VARCHAR",
@@ -105,7 +104,6 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         table.add_column("email", "string")
 
         blueprint.table.from_table = table
-        print("rrr", table.added_columns)
 
         sql = [
             "ALTER TABLE users ADD COLUMN name VARCHAR",
