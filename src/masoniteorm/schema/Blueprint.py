@@ -601,6 +601,10 @@ class Blueprint:
 
         return self
 
+    def change(self):
+        self.table.change_column(self._last_column)
+        return self
+
     def drop_unique(self, index):
         """Drops a unique index.
 

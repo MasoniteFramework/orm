@@ -129,6 +129,16 @@ class MySQLPlatform(Platform):
                 )
             )
 
+        if table.changed_columns:
+
+            sql.append(
+                self.alter_format().format(
+                    table=self.wrap_table(table.name),
+                    columns="MODIFY "
+                    + ", ".join(self.columnize(table.changed_columns)),
+                )
+            )
+
         if table.dropped_columns:
             dropped_sql = []
 
@@ -186,6 +196,9 @@ class MySQLPlatform(Platform):
 
     def drop_column_string(self):
         return "DROP COLUMN {name}"
+
+    def change_column_string(self):
+        return "MODIFY {name}{data_type}{length} {nullable}{default} {constraint}"
 
     def rename_column_string(self):
         return "RENAME COLUMN {old} TO {to}"

@@ -144,6 +144,37 @@ class PostgresPlatform(Platform):
                 )
             )
 
+        if table.changed_columns:
+            changed_sql = []
+
+            for name, column in table.changed_columns.items():
+                changed_sql.append(
+                    self.modify_column_string()
+                    .format(
+                        name=name,
+                        data_type=self.type_map.get(column.column_type),
+                        nullable="NULL" if column.is_null else "NOT NULL",
+                    )
+                    .strip()
+                )
+
+                if column.is_null:
+                    changed_sql.append(f"ALTER COLUMN {name} DROP NOT NULL")
+                else:
+                    changed_sql.append(f"ALTER COLUMN {name} SET NOT NULL")
+
+                if column.default is not None:
+                    changed_sql.append(
+                        f"ALTER COLUMN {name} SET DEFAULT {column.default}"
+                    )
+
+            sql.append(
+                self.alter_format().format(
+                    table=self.wrap_table(table.name),
+                    columns=", ".join(changed_sql),
+                )
+            )
+
         if table.added_foreign_keys:
             for (
                 column,
@@ -188,6 +219,9 @@ class PostgresPlatform(Platform):
 
     def drop_column_string(self):
         return "DROP COLUMN {name}"
+
+    def modify_column_string(self):
+        return "ALTER COLUMN {name} TYPE {data_type}"
 
     def rename_column_string(self):
         return "RENAME COLUMN {old} TO {to}"

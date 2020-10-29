@@ -13,6 +13,7 @@ class TableDiff(Table):
         self.removed_indexes = []
         self.added_indexes = {}
         self.added_columns = {}
+        self.changed_columns = {}
         self.dropped_columns = []
         self.dropped_foreign_keys = []
         self.renamed_columns = {}
@@ -65,3 +66,8 @@ class TableDiff(Table):
     def drop_foreign(self, name):
         self.dropped_foreign_keys.append(name)
         return self
+
+    def change_column(self, added_column):
+        self.added_columns.pop(added_column.name)
+
+        self.changed_columns.update({added_column.name: added_column})
