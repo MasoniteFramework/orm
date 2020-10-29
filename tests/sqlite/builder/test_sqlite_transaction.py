@@ -20,7 +20,6 @@ class User(Model):
 
 @transaction(connection="sqlite")
 def create_user():
-    import pdb ; pdb.set_trace()
     return User.create({"name": "phillip3", "email": "phillip3"})
 
 
