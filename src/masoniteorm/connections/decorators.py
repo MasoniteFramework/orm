@@ -10,11 +10,8 @@ class Transaction(object):
         # before function
         db.begin_transaction(self.connection)
         try:
-            result = fn(*args, **kwargs)
+            return fn
         except:
             db.rollback(self.connection)
-            return None
-
-        # after function
-        db.commit(self.connection)
-        return result
+        finally:
+            db.commit(self.connection)
