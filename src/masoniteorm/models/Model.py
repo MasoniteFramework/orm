@@ -351,7 +351,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             serialized_dictionary.update({append: getattr(self, append)})
 
         for key, value in serialized_dictionary.items():
-            if isinstance(value, datetime.date):
+            if isinstance(value, datetime):
                 value = self.get_new_serialized_date(value)
 
             serialized_dictionary.update({key: value})
