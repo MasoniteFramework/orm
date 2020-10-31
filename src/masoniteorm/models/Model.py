@@ -350,6 +350,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         for append in self.__appends__:
             serialized_dictionary.update({append: getattr(self, append)})
 
+        for key, value in serialized_dictionary.items():
+            if isinstance(value, datetime.date):
+                value = self.get_new_serialized_date(value)
+
+            serialized_dictionary.update({key: value})
+
         return serialized_dictionary
 
     def to_json(self):
