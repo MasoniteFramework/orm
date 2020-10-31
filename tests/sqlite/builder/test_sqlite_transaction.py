@@ -15,7 +15,6 @@ class User(Model):
     __timestamps__ = False
 
 
-
 class BaseTestQueryRelationships(unittest.TestCase):
 
     maxDiff = None
@@ -41,34 +40,17 @@ class BaseTestQueryRelationships(unittest.TestCase):
         self.assertEqual(user, None)
 
     def test_transaction_with_context_manager(self):
-        with transaction("sqlite") as builder:
-            builder.create({"name": "sam", "email": "sam"})
+        with transaction("sqlite") as db:
+            db.table("users").create({"name": "sam", "email": "sam"})
         assert User.where("name", "sam").get().count() == 1
 
     def test_transaction_rollback_with_context_manager(self):
-        with transaction("sqlite") as builder:
-            builder.create({"name": "sam", "email": "sam"})
+        with transaction("sqlite") as db:
+            db.table("users").create({"name": "sam", "email": "sam"})
             assert User.where("name", "sam").get().count() == 1
             raise Exception("simulate error")
 
         assert User.where("name", "sam").get().count() == 0
-
-    def test_transaction_rollback_with_context_manager_using_models(self):
-        with transaction("sqlite"):
-            User.create({"name": "john"})
-            assert User.where("name", "john").get().count() == 1
-            raise Exception("simulate error")
-
-        assert User.where("name", "john").get().count() == 0
-
-    def test_transaction_rollback_with_decorator_using_models(self):
-        @transaction("sqlite")
-        def create_user():
-            User.create({"name": "john"})
-            raise Exception("simulate error")
-
-        create_user()
-        assert User.where("name", "john").get().count() == 0
 
     def test_transaction_globally(self):
         connection = db.begin_transaction("sqlite")

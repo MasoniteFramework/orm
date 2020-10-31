@@ -9,10 +9,12 @@ class Transaction(ContextDecorator):
         self.connection = connection
 
     def __enter__(self):
-        connection = db.begin_transaction(self.connection)
-        return connection
+        builder = db.get_query_builder(self.connection)
+        builder.begin()
+        return builder
 
     def __exit__(self, exc_type, exc_value, traceback):
+        import pdb ; pdb.set_trace()
         if exc_value:
             db.rollback(self.connection)
         else:
