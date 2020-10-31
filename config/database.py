@@ -65,7 +65,6 @@ DATABASES = {
         'prefix': '',
         'log_queries': True
     },
-
 }
 
 db = ConnectionResolver().set_connection_details(DATABASES)

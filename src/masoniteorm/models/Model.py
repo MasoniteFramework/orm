@@ -593,8 +593,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     def save_many(self, relation, relating_records):
         related = getattr(self.__class__, relation)
         for related_record in relating_records:
-            print(related.foreign_key)
-            print(related.local_key)
             setattr(
                 related_record,
                 related.foreign_key,
