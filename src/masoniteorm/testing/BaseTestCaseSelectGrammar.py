@@ -15,10 +15,7 @@ class MockConnection:
 class BaseTestCaseSelectGrammar:
     def setUp(self):
         self.builder = QueryBuilder(
-            self.grammar,
-            table="users",
-            connection=MockConnection,
-            model=Model(),
+            self.grammar, table="users", connection=MockConnection, model=Model()
         )
 
     def test_can_compile_select(self):

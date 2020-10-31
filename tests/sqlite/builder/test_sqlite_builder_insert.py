@@ -33,11 +33,7 @@ class BaseTestQueryRelationships(unittest.TestCase):
     def test_insert(self):
         builder = self.get_builder()
         result = builder.create(
-            {
-                "name": "Joe",
-                "email": "joe@masoniteproject.com",
-                "password": "secret",
-            }
+            {"name": "Joe", "email": "joe@masoniteproject.com", "password": "secret"}
         )
 
         self.assertIsInstance(result["id"], int)

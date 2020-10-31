@@ -133,10 +133,7 @@ class TestCollection(unittest.TestCase):
         self.assertEqual(collection.count(), 4)
 
         collection = Collection(
-            [
-                {"name": "Corentin All", "age": 1},
-                {"name": "Corentin All", "age": 2},
-            ]
+            [{"name": "Corentin All", "age": 1}, {"name": "Corentin All", "age": 2}]
         )
         self.assertEqual(collection.count(), 2)
 
@@ -165,11 +162,7 @@ class TestCollection(unittest.TestCase):
                             {"name": "desk", "colours": ["red", "yellow"]},
                         ]
                     ),
-                    Collection(
-                        [
-                            {"name": "bookcase", "colours": ["white"]},
-                        ]
-                    ),
+                    Collection([{"name": "bookcase", "colours": ["white"]}]),
                 ]
             ),
         )
@@ -262,10 +255,7 @@ class TestCollection(unittest.TestCase):
 
         self.assertEqual(
             Collection(
-                [
-                    {"name": "Corentin All", "age": 3},
-                    {"name": "Corentin All", "age": 4},
-                ]
+                [{"name": "Corentin All", "age": 3}, {"name": "Corentin All", "age": 4}]
             ),
             collection.all(),
         )
@@ -406,11 +396,7 @@ class TestCollection(unittest.TestCase):
         self.assertEqual(result, "1-2-3-4")
 
         collection = Collection(
-            [
-                {"name": "Corentin"},
-                {"name": "Joe"},
-                {"name": "Marlysson"},
-            ]
+            [{"name": "Corentin"}, {"name": "Joe"}, {"name": "Marlysson"}]
         )
         result = collection.implode(key="name")
         self.assertEqual(result, "Corentin,Joe,Marlysson")

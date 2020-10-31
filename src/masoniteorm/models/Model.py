@@ -111,10 +111,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
     __cast_map__ = {}
 
-    __internal_cast_map__ = {
-        "bool": BoolCast,
-        "json": JsonCast,
-    }
+    __internal_cast_map__ = {"bool": BoolCast, "json": JsonCast}
 
     def __init__(self):
         self.__attributes__ = {}
@@ -610,9 +607,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     def attach(self, relation, related_record):
         related = getattr(self.__class__, relation)
         setattr(
-            related_record,
-            related.foreign_key,
-            self.__attributes__[related.local_key],
+            related_record, related.foreign_key, self.__attributes__[related.local_key]
         )
 
         if not related_record.is_created():

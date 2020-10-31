@@ -45,10 +45,7 @@ class SQLitePlatform(Platform):
         "null": " DEFAULT NULL",
     }
 
-    premapped_nulls = {
-        True: "NULL",
-        False: "NOT NULL",
-    }
+    premapped_nulls = {True: "NULL", False: "NOT NULL"}
 
     def compile_create_sql(self, table):
         return self.create_format().format(
@@ -177,9 +174,7 @@ class SQLitePlatform(Platform):
             sql.append(
                 getattr(
                     self, f"get_{constraint.constraint_type}_constraint_string"
-                )().format(
-                    columns=", ".join(constraint.columns),
-                )
+                )().format(columns=", ".join(constraint.columns))
             )
         return sql
 

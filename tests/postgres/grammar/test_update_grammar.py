@@ -9,9 +9,7 @@ from src.masoniteorm.query.grammars import PostgresGrammar
 class BaseTestCaseUpdateGrammar:
     def setUp(self):
         self.builder = QueryBuilder(
-            PostgresGrammar,
-            connection=PostgresConnection,
-            table="users",
+            PostgresGrammar, connection=PostgresConnection, table="users"
         )
 
     def test_can_compile_update(self):

@@ -46,10 +46,7 @@ class PostgresPlatform(Platform):
         "null": " DEFAULT NULL",
     }
 
-    premapped_nulls = {
-        True: "NULL",
-        False: "NOT NULL",
-    }
+    premapped_nulls = {True: "NULL", False: "NOT NULL"}
 
     def compile_create_sql(self, table):
         sql = []
@@ -116,12 +113,7 @@ class PostgresPlatform(Platform):
                     length = ""
 
                 renamed_sql.append(
-                    self.rename_column_string()
-                    .format(
-                        to=column.name,
-                        old=name,
-                    )
-                    .strip()
+                    self.rename_column_string().format(to=column.name, old=name).strip()
                 )
 
             sql.append(
@@ -139,8 +131,7 @@ class PostgresPlatform(Platform):
 
             sql.append(
                 self.alter_format().format(
-                    table=self.wrap_table(table.name),
-                    columns=", ".join(dropped_sql),
+                    table=self.wrap_table(table.name), columns=", ".join(dropped_sql)
                 )
             )
 
@@ -170,8 +161,7 @@ class PostgresPlatform(Platform):
 
             sql.append(
                 self.alter_format().format(
-                    table=self.wrap_table(table.name),
-                    columns=", ".join(changed_sql),
+                    table=self.wrap_table(table.name), columns=", ".join(changed_sql)
                 )
             )
 

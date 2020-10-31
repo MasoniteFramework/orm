@@ -97,10 +97,7 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         """
         return (
             "UPDATE `users` SET `users`.`name` = '?' WHERE `users`.`name` = '?'",
-            (
-                "Bob",
-                "Joe",
-            ),
+            ("Bob", "Joe"),
         )
 
     def can_compile_where_in(self):
@@ -116,7 +113,4 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         """
         self.builder.where_not_null("id").to_qmark()
         """
-        return (
-            "SELECT * FROM `users` WHERE `users`.`id` IS NOT NULL",
-            (),
-        )
+        return ("SELECT * FROM `users` WHERE `users`.`id` IS NOT NULL", ())

@@ -27,9 +27,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 2)
 
-        sql = [
-            "ALTER TABLE `users` ADD name VARCHAR(255), ADD age INT(11)",
-        ]
+        sql = ["ALTER TABLE `users` ADD name VARCHAR(255), ADD age INT(11)"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 

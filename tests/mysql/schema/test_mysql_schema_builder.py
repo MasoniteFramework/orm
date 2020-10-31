@@ -89,7 +89,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         self.assertTrue(
             blueprint.to_sql().startswith(
                 "CREATE TABLE users (user_id INT(11) NOT NULL PRIMARY KEY"
-            ),
+            )
         )
 
     # def test_can_advanced_table_creation2(self):

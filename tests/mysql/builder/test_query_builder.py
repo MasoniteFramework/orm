@@ -331,9 +331,7 @@ class BaseTestQueryBuilder:
                         "port": "3306",
                         "prefix": "",
                         "grammar": "mysql",
-                        "options": {
-                            "charset": "utf8mb4",
-                        },
+                        "options": {"charset": "utf8mb4"},
                     },
                 },
             ).table("users")

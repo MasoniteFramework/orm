@@ -27,7 +27,7 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
 
         sql = [
-            'ALTER TABLE "users" ADD COLUMN name VARCHAR(255), ADD COLUMN age INTEGER',
+            'ALTER TABLE "users" ADD COLUMN name VARCHAR(255), ADD COLUMN age INTEGER'
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)
@@ -192,10 +192,9 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_alter_drop_on_table_schema_table(self):
-        schema = Schema(
-            connection=PostgresConnection,
-            connection_details=DATABASES,
-        ).on("postgres")
+        schema = Schema(connection=PostgresConnection, connection_details=DATABASES).on(
+            "postgres"
+        )
 
         with schema.table("table_schema") as blueprint:
             blueprint.drop_column("name")

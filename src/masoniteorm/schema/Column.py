@@ -1,14 +1,7 @@
 class Column:
     """Used for creating or modifying columns."""
 
-    def __init__(
-        self,
-        name,
-        column_type,
-        length=None,
-        nullable=False,
-        default=None,
-    ):
+    def __init__(self, name, column_type, length=None, nullable=False, default=None):
         self.column_type = column_type
         self.name = name
         self.length = length

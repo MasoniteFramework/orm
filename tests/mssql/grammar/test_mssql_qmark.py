@@ -20,20 +20,11 @@ class TestMSSQLQmark(unittest.TestCase):
 
         sql = "UPDATE [users] SET [users].[name] = '?' WHERE [users].[name] = '?'"
         self.assertEqual(mark.to_qmark(), sql)
-        self.assertEqual(
-            mark._bindings,
-            (
-                "Bob",
-                "Joe",
-            ),
-        )
+        self.assertEqual(mark._bindings, ("Bob", "Joe"))
 
     def test_can_compile_insert(self):
         mark = self.builder.create({"name": "Bob"}, query=True)
 
         sql = "INSERT INTO [users] ([users].[name]) VALUES ('?')"
         self.assertEqual(mark.to_qmark(), sql)
-        self.assertEqual(
-            mark._bindings,
-            ("Bob",),
-        )
+        self.assertEqual(mark._bindings, ("Bob",))
