@@ -604,8 +604,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 related_record.create(related_record.all_attributes())
             else:
                 related_record.save()
-
-        # print(related.local_key, related.foreign_key)
+    
+    def related(self, relation):
+        related = getattr(self.__class__, relation)
+        return related.where(related.foreign_key, self.get_primary_key_value())
 
     def attach(self, relation, related_record):
         related = getattr(self.__class__, relation)

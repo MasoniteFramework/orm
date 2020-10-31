@@ -94,6 +94,11 @@ class TestRelationships(unittest.TestCase):
             user.is_admin = 1
             user.save()
 
+    def test_related(self):
+        user = User.first()
+        related_query = user.related('profile').where('active', 1).to_sql()
+        self.assertEqual(related_query, """SELECT * FROM "profiles" WHERE "profiles"."user_id" = '1' AND "profiles"."active" = '1'""")
+
     def test_associate_records(self):
         db.begin_transaction("sqlite")
         user = User.first()
