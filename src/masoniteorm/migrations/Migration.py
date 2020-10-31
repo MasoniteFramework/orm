@@ -16,6 +16,7 @@ from ..schema import Schema
 from ..connections import ConnectionFactory
 
 from pprint import pprint
+from timeit import default_timer as timer
 
 
 class Migration:
@@ -135,8 +136,9 @@ class Migration:
 
             if output:
                 migration_class.schema.dry()
-
+            start = timer()
             migration_class.up()
+            duration = "{:.2f}".format(timer() - start)
 
             if output:
                 if self.command_class:
@@ -150,7 +152,7 @@ class Migration:
 
             if self.command_class:
                 self.command_class.line(
-                    f"<info>Migrated:</info> <question>{migration}</question>"
+                    f"<info>Migrated:</info> <question>{migration}</question> ({duration}s)"
                 )
 
             self.migration_model.create({"batch": batch, "migration": migration})
@@ -167,7 +169,9 @@ class Migration:
             if output:
                 migration_class.schema.dry()
 
+            start = timer()
             migration_class.down()
+            duration = "{:.2f}".format(timer() - start)
 
             if output:
                 if self.command_class:
@@ -189,7 +193,7 @@ class Migration:
 
             if self.command_class:
                 self.command_class.line(
-                    f"<info>Rolled back:</info> <question>{migration}</question>"
+                    f"<info>Rolled back:</info> <question>{migration}</question> ({duration}s)"
                 )
 
     def rollback_all(self):
