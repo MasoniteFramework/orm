@@ -26,9 +26,9 @@ jobs:
         MYSQL_DATABASE_PORT: ${{ job.services.mysql.ports[3306] }}
       run: |
         python -m pip install --upgrade pip
+        make init
         python orm migrate --connection postgres
         python orm migrate --connection mysql
-        make init
         make test
     - name: Build and publish
       env:
