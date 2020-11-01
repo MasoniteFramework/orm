@@ -1007,18 +1007,18 @@ class QueryBuilder(ObservesEvents):
 
         return self.prepare_result(result)
 
-    def last(self, query=False):
+    def last(self, primary_key=None, query=False):
         """Gets the last record.
 
         Returns:
             dictionary -- Returns a dictionary of results.
         """
-
+        _primary_key = primary_key if primary_key else self._model.get_primary_key()
         if query:
-            return self.limit(1).order_by(self._model.get_primary_key(), direction="DESC")
+            return self.limit(1).order_by(_primary_key, direction="DESC")
 
         result = self.new_connection().query(
-            self.limit(1).order_by(self._model.get_primary_key(), direction="DESC").to_qmark(), self._bindings, results=1
+            self.limit(1).order_by(_primary_key, direction="DESC").to_qmark(), self._bindings, results=1
         )
 
         return self.prepare_result(result)
