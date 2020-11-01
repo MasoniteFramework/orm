@@ -77,6 +77,13 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_last(self):
+        builder = self.get_builder().last(query=True)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
     def test_first_or_fail_exception(self):
         with self.assertRaises(ModelNotFound):
             user = self.get_builder().where("name", "=", "Marlysson").first_or_fail()
@@ -408,6 +415,13 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.first()
         """
         return """SELECT * FROM "users" LIMIT 1"""
+
+    def last(self):
+        """
+        builder = self.get_builder()
+        builder.last()
+        """
+        return """SELECT * FROM "users" LIMIT 1 ORDER BY "users"."id" DESC"""
 
     def all(self):
         """
