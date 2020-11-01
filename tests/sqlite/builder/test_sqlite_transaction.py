@@ -40,12 +40,12 @@ class BaseTestQueryRelationships(unittest.TestCase):
         self.assertEqual(user, None)
 
     def test_transaction_with_context_manager(self):
-        with transaction("sqlite") as db:
+        with transaction() as db:
             db.table("users").create({"name": "sam", "email": "sam"})
         assert User.where("name", "sam").get().count() == 1
 
     def test_transaction_rollback_with_context_manager(self):
-        with transaction("sqlite") as db:
+        with transaction() as db:
             db.table("users").create({"name": "sam", "email": "sam"})
             assert User.where("name", "sam").get().count() == 1
             raise Exception("simulate error")

@@ -4,8 +4,7 @@ from config.database import db
 
 class Transaction(ContextDecorator):
 
-    def __init__(self, using, connection="default"):
-        self.using = using
+    def __init__(self, connection="default"):
         self.connection = connection
 
     def __enter__(self):
@@ -14,7 +13,6 @@ class Transaction(ContextDecorator):
         return builder
 
     def __exit__(self, exc_type, exc_value, traceback):
-        import pdb ; pdb.set_trace()
         if exc_value:
             db.rollback(self.connection)
         else:
@@ -22,11 +20,11 @@ class Transaction(ContextDecorator):
         return True
 
 
-def transaction(using=None, connection="default"):
+def transaction(connection="default"):
     """Function allowing to use the class as a context manager or a decorator.
     @transaction(...) or context manager: with transaction(...)
     """
-    if callable(using):
-        return Transaction(connection)(using)
+    if callable(connection):
+        return Transaction()(connection)
     else:
-        return Transaction(connection, using)
+        return Transaction(connection)
