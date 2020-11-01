@@ -80,6 +80,9 @@ class BaseTestQueryBuilder:
     def test_last(self):
         UserMock.order_by("id", "DESC").first().id == UserMock.last("id").id
 
+    def test_last_with_default_primary_key(self):
+        UserMock.order_by("id", "DESC").first().id == UserMock.last().id
+
     def test_first_or_fail_exception(self):
         with self.assertRaises(ModelNotFound):
             user = self.get_builder().where("name", "=", "Marlysson").first_or_fail()
