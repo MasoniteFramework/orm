@@ -4,7 +4,7 @@ from ..migrations import Migration
 
 class MigrateResetCommand(Command):
     """
-    Rolls back all migrations and migrates them again.
+    Rolls back all migrations.
 
     migrate:reset
         {--c|connection=default : The connection you want to run migrations on}

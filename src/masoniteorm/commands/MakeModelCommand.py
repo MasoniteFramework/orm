@@ -10,7 +10,7 @@ from ..migrations import Migration
 
 class MakeModelCommand(Command):
     """
-    Creates a new migration file.
+    Creates a new model file.
 
     model
         {name : The name of the model}

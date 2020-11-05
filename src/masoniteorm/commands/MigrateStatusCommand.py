@@ -5,7 +5,7 @@ from ..migrations import Migration
 
 class MigrateStatusCommand(Command):
     """
-    Run migrations.
+    Display migrations status.
 
     migrate:status
         {--c|connection=default : The connection you want to run migrations on}
