@@ -56,7 +56,7 @@ class QueryBuilder(ObservesEvents):
         self._connection_details = connection_details
         self._connection_driver = connection_driver
         self._scopes = scopes
-        self._eager_loads = ()
+        self._eager_loads = {}
         if model:
             self._global_scopes = model._global_scopes
             if model.__with__:
@@ -1074,31 +1074,68 @@ class QueryBuilder(ObservesEvents):
     def get_primary_key(self):
         return self._model.get_primary_key()
 
+    # def prepare_result(self, result, collection=False):
+    #     if self._model:
+    #         # eager load here
+    #         hydrated_model = self._model.hydrate(result)
+    #         if self._eager_loads and hydrated_model:
+    #             for eager in self._eager_loads:
+    #                 if "." in eager:
+    #                     last_owner = self._model
+    #                     last_result = hydrated_model
+    #                     for split_eager in eager.split("."):
+    #                         related = getattr(last_owner, split_eager)
+    #                         result_set = related.get_related(last_result)
+
+    #                         self._register_relationships_to_model(
+    #                             related, result_set, last_result, relation_key=split_eager
+    #                         )
+
+    #                         last_result = result_set
+    #                         last_owner = related.get_builder()._model
+    #                 else:
+    #                     related = getattr(self._model, eager)
+    #                     related_result = related.get_related(hydrated_model)
+    #                     self._register_relationships_to_model(
+    #                         related, related_result, hydrated_model, relation_key=eager
+    #                     )
+
+    #         if collection:
+    #             return hydrated_model if result else Collection([])
+    #         else:
+    #             return hydrated_model if result else None
+
+    #     if collection:
+    #         return result or Collection([])
+    #     else:
+    #         return result or None
+
     def prepare_result(self, result, collection=False):
         if self._model:
             # eager load here
             hydrated_model = self._model.hydrate(result)
             if self._eager_loads and hydrated_model:
-                for eager in self._eager_loads:
-                    if "." in eager:
-                        last_owner = self._model
-                        last_result = hydrated_model
-                        for eager in eager.split("."):
-                            related = getattr(last_owner, eager)
-                            result_set = related.get_related(last_result)
+                for eager_key, eagers in self._eager_loads.items():
+                    for eager in eagers:
+                        if "." in eager:
+                            last_owner = self._model
+                            last_result = hydrated_model
+                            for split_eager in eager.split("."):
+                                related = getattr(last_owner, split_eager)
+                                result_set = related.get_related(last_result)
 
+                                self._register_relationships_to_model(
+                                    related, result_set, last_result, relation_key=split_eager
+                                )
+
+                                last_result = result_set
+                                last_owner = related.get_builder()._model
+                        else:
+                            related = getattr(self._model, eager)
+                            related_result = related.get_related(hydrated_model)
                             self._register_relationships_to_model(
-                                related, result_set, last_result, relation_key=eager
+                                related, related_result, hydrated_model, relation_key=eager
                             )
-
-                            last_result = result_set
-                            last_owner = related.get_builder()._model
-                    else:
-                        related = getattr(self._model, eager)
-                        related_result = related.get_related(hydrated_model)
-                        self._register_relationships_to_model(
-                            related, related_result, hydrated_model, relation_key=eager
-                        )
 
             if collection:
                 return hydrated_model if result else Collection([])
@@ -1125,14 +1162,16 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
+        # print('hydrated_model', hydrated_model)
         if isinstance(hydrated_model, Collection):
             for model in hydrated_model:
                 if isinstance(related_result, Collection):
                     related.register_related(relation_key, model, related_result)
                 else:
+                    print('1', model, relation_key)
                     model.add_relation({relation_key: related_result or None})
         else:
-
+            print('2', hydrated_model, relation_key)
             hydrated_model.add_relation({relation_key: related_result or None})
         return self
 
@@ -1181,8 +1220,10 @@ class QueryBuilder(ObservesEvents):
 
         if others:
             eagers += others
+        
 
-        self._eager_loads += eagers
+
+        print(self._eager_loads)
         return self
 
     def paginate(self, per_page, page=1):
@@ -1352,3 +1393,4 @@ class QueryBuilder(ObservesEvents):
     def macro(self, name, callable):
         self._macros.update({name: callable})
         return self
+

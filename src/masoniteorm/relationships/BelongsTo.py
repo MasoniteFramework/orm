@@ -36,7 +36,7 @@ class BelongsTo(BaseRelationship):
             return builder.where_in(
                 f"{builder.get_table_name()}.{self.foreign_key}",
                 relation.pluck(self.local_key),
-            ).get()
+            ).first()
         else:
             return builder.where(
                 f"{builder.get_table_name()}.{self.foreign_key}",
