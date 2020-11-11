@@ -1007,6 +1007,23 @@ class QueryBuilder(ObservesEvents):
 
         return self.prepare_result(result)
 
+    def last(self, column=None, query=False):
+        """Gets the last record, ordered by column in descendant order or primary
+        key if no column is given.
+
+        Returns:
+            dictionary -- Returns a dictionary of results.
+        """
+        _column = column if column else self._model.get_primary_key()
+        if query:
+            return self.limit(1).order_by(_column, direction="DESC")
+
+        result = self.new_connection().query(
+            self.limit(1).order_by(_column, direction="DESC").to_qmark(), self._bindings, results=1
+        )
+
+        return self.prepare_result(result)
+
     def _get_eager_load_result(self, related, collection):
         return related.eager_load_from_collection(collection)
 

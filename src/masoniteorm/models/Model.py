@@ -89,6 +89,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     __passthrough__ = [
         "all",
         "first",
+        "last",
         "find_or_fail",
         "first_or_fail",
         "find_or_404",
