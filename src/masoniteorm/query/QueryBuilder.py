@@ -58,7 +58,6 @@ class QueryBuilder(ObservesEvents):
         self._connection_details = connection_details
         self._connection_driver = connection_driver
         self._scopes = scopes
-        self._eager_loads = {}
         self._eager_relation = EagerRelations()
         if model:
             self._global_scopes = model._global_scopes
