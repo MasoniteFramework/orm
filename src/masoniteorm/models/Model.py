@@ -611,7 +611,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return related.where(related.foreign_key, self.get_primary_key_value())
 
     def get_related(self, relation):
-        return getattr(self.__class__, relation)
+        related = getattr(self.__class__, relation)
+        return related
 
     def attach(self, relation, related_record):
         related = getattr(self.__class__, relation)
