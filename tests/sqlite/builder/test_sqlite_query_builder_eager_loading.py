@@ -33,7 +33,7 @@ class Profile(Model):
 class User(Model):
     __connection__ = "sqlite"
 
-    # __with__ = ("profile",)
+    __with__ = ["articles.logo"]
 
     @has_many("id", "user_id")
     def articles(self):
@@ -95,9 +95,8 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
     def test_with_multiple_per_same_relation(self):
         builder = self.get_builder()
-        result = User.with_("articles.logo", "articles.user").where("id", 1).first()
+        result = User.with_("articles", "articles.logo").where("id", 1).first()
         # print(result.serialize()['articles'])
         print(result._relationships['articles'])
         self.assertTrue(result.serialize()['articles'])
-        self.assertTrue(result.serialize()['articles'][0]['user'])
         self.assertTrue(result.serialize()['articles'][0]['logo'])

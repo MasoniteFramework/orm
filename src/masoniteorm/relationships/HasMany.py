@@ -21,8 +21,8 @@ class HasMany(BaseRelationship):
 
         return result
 
-    def get_related(self, relation):
-        builder = self.get_builder()
+    def get_related(self, relation, eagers=[]):
+        builder = self.get_builder().with_(eagers)
         if isinstance(relation, Collection):
             return builder.where_in(
                 f"{builder.get_table_name()}.{self.foreign_key}",
