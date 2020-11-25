@@ -1083,22 +1083,27 @@ class QueryBuilder(ObservesEvents):
             hydrated_model = self._model.hydrate(result)
             if self._eager_relation.eagers and hydrated_model:
                 for eager_load in self._eager_relation.get_eagers():
-                    if isinstance(eager_load, dict): 
+                    if isinstance(eager_load, dict):
                         # Nested
                         for relation, eagers in eager_load.items():
                             related = getattr(self._model, relation)
 
-                            result_set = related.get_related(hydrated_model, eagers=eagers)
-                            
+                            result_set = related.get_related(
+                                hydrated_model, eagers=eagers
+                            )
+
                             self._register_relationships_to_model(
-                                related, result_set, hydrated_model, relation_key=relation
+                                related,
+                                result_set,
+                                hydrated_model,
+                                relation_key=relation,
                             )
                     else:
                         # Not Nested
                         for eager in eager_load:
                             related = getattr(self._model, eager)
                             result_set = related.get_related(hydrated_model)
-                        
+
                             self._register_relationships_to_model(
                                 related, result_set, hydrated_model, relation_key=eager
                             )
@@ -1348,4 +1353,3 @@ class QueryBuilder(ObservesEvents):
     def macro(self, name, callable):
         self._macros.update({name: callable})
         return self
-
