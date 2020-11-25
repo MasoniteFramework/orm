@@ -77,7 +77,6 @@ class TestRelationships(unittest.TestCase):
     def test_loading_with_nested_with(self):
         users = User.with_("articles", "articles.logo").get()
         for user in users:
-            print(user.articles)
             for article in user.articles:
                 if article.logo:
                     print("aa", article.logo.url)

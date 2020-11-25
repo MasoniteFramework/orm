@@ -96,7 +96,5 @@ class BaseTestQueryRelationships(unittest.TestCase):
     def test_with_multiple_per_same_relation(self):
         builder = self.get_builder()
         result = User.with_("articles", "articles.logo").where("id", 1).first()
-        # print(result.serialize()['articles'])
-        print(result._relationships["articles"])
         self.assertTrue(result.serialize()["articles"])
         self.assertTrue(result.serialize()["articles"][0]["logo"])
