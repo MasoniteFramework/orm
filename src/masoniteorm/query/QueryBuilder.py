@@ -24,6 +24,8 @@ from ..exceptions import ModelNotFound, HTTP404
 
 from ..pagination import LengthAwarePaginator, SimplePaginator
 
+from .EagerRelation import EagerRelation
+
 
 class QueryBuilder(ObservesEvents):
     """A builder class to manage the building and creation of query expressions."""
@@ -57,6 +59,7 @@ class QueryBuilder(ObservesEvents):
         self._connection_driver = connection_driver
         self._scopes = scopes
         self._eager_loads = {}
+        self._eager_relation = EagerRelation()
         if model:
             self._global_scopes = model._global_scopes
             if model.__with__:
@@ -1112,30 +1115,30 @@ class QueryBuilder(ObservesEvents):
 
     def prepare_result(self, result, collection=False):
         if self._model:
+            
             # eager load here
             hydrated_model = self._model.hydrate(result)
+            print(self._eager_relation.eagers)
             if self._eager_loads and hydrated_model:
-                for eager_key, eagers in self._eager_loads.items():
-                    for eager in eagers:
-                        if "." in eager:
-                            last_owner = self._model
-                            last_result = hydrated_model
-                            for split_eager in eager.split("."):
-                                related = getattr(last_owner, split_eager)
-                                result_set = related.get_related(last_result)
+                # Nested
+                if isinstance(self._eager_loads, dict): 
+                    for relation, eagers in self._eager_loads.items():
+                        related = getattr(self._model, relation)
 
-                                self._register_relationships_to_model(
-                                    related, result_set, last_result, relation_key=split_eager
-                                )
-
-                                last_result = result_set
-                                last_owner = related.get_builder()._model
-                        else:
-                            related = getattr(self._model, eager)
-                            related_result = related.get_related(hydrated_model)
-                            self._register_relationships_to_model(
-                                related, related_result, hydrated_model, relation_key=eager
-                            )
+                        result_set = related.get_related(hydrated_model, eagers=eagers)
+                        
+                        self._register_relationships_to_model(
+                            related, result_set, hydrated_model, relation_key=relation
+                        )
+                else:
+                    # Not Nested
+                    for eager in self._eager_loads:
+                        related = getattr(self._model, eager)
+                        result_set = related.get_related(hydrated_model)
+                    
+                        self._register_relationships_to_model(
+                            related, result_set, hydrated_model, relation_key=eager
+                        )
 
             if collection:
                 return hydrated_model if result else Collection([])
@@ -1210,21 +1213,28 @@ class QueryBuilder(ObservesEvents):
     def get_connection(self):
         return self._connection
 
+    def _compile_with(self, eager):
+        return ''
+
     def without_eager(self):
         self._should_eager = False
         return self
 
     def with_(self, eagers=(), *others):
-        if not isinstance(eagers, (tuple, list)):
-            eagers = (eagers,)
+        print(eagers)
+        self._eager_relation.register(eagers)
+        self._eager_loads = eagers
+        return self
+        # if not isinstance(eagers, (tuple, list)):
+        #     eagers = (eagers,)
 
-        if others:
-            eagers += others
+        # if others:
+        #     eagers += others
         
 
 
-        print(self._eager_loads)
-        return self
+        # print(self._eager_loads)
+        # return self
 
     def paginate(self, per_page, page=1):
         if page == 1:
