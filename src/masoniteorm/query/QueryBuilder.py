@@ -1085,7 +1085,10 @@ class QueryBuilder(ObservesEvents):
                     if isinstance(eager_load, dict):
                         # Nested
                         for relation, eagers in eager_load.items():
-                            related = getattr(self._model, relation)
+                            if inspect.isclass(self._model):
+                                related = getattr(self._model, relation)
+                            else:
+                                related = self._model.get_related(relation)
 
                             result_set = related.get_related(
                                 hydrated_model, eagers=eagers
@@ -1100,7 +1103,11 @@ class QueryBuilder(ObservesEvents):
                     else:
                         # Not Nested
                         for eager in eager_load:
-                            related = getattr(self._model, eager)
+                            if inspect.isclass(self._model):
+                                related = getattr(self._model, eager)
+                            else:
+                                related = self._model.get_related(eager)
+
                             result_set = related.get_related(hydrated_model)
 
                             self._register_relationships_to_model(

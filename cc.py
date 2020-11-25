@@ -2,9 +2,11 @@ from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.connections import MySQLConnection, PostgresConnection
 from src.masoniteorm.query.grammars import MySQLGrammar, PostgresGrammar
 from src.masoniteorm.models import Model
+from src.masoniteorm.relationships import has_many
+import inspect
 
 
-builder = QueryBuilder(connection=PostgresConnection, grammar=PostgresGrammar).table("users").on("postgres")
+# builder = QueryBuilder(connection=PostgresConnection, grammar=PostgresGrammar).table("users").on("postgres")
 
 
 
@@ -14,8 +16,16 @@ class User(Model):
     __connection__ = "sqlite"
     __table__ = "users"
 
-user = User.create({"name": "phill", "email": "phill"})
-print(User.get().count())
+    @has_many("id", "user_id")
+    def articles(self):
+        return Article
+class Article(Model):
+    __connection__ = "sqlite"
 
-print(user.serialize())
+
+# user = User.create({"name": "phill", "email": "phill"})
+# print(inspect.isclass(User))
+print(User.find(1).with_("articles").first().serialize())
+
+# print(user.serialize())
 # print(User.first())
