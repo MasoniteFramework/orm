@@ -24,6 +24,8 @@ from ..exceptions import ModelNotFound, HTTP404
 
 from ..pagination import LengthAwarePaginator, SimplePaginator
 
+from .EagerRelation import EagerRelations
+
 
 class QueryBuilder(ObservesEvents):
     """A builder class to manage the building and creation of query expressions."""
@@ -56,7 +58,7 @@ class QueryBuilder(ObservesEvents):
         self._connection_details = connection_details
         self._connection_driver = connection_driver
         self._scopes = scopes
-        self._eager_loads = ()
+        self._eager_relation = EagerRelations()
         if model:
             self._global_scopes = model._global_scopes
             if model.__with__:
@@ -1095,27 +1097,39 @@ class QueryBuilder(ObservesEvents):
         if self._model:
             # eager load here
             hydrated_model = self._model.hydrate(result)
-            if self._eager_loads and hydrated_model:
-                for eager in self._eager_loads:
-                    if "." in eager:
-                        last_owner = self._model
-                        last_result = hydrated_model
-                        for eager in eager.split("."):
-                            related = getattr(last_owner, eager)
-                            result_set = related.get_related(last_result)
+            if self._eager_relation.eagers and hydrated_model:
+                for eager_load in self._eager_relation.get_eagers():
+                    if isinstance(eager_load, dict):
+                        # Nested
+                        for relation, eagers in eager_load.items():
+                            if inspect.isclass(self._model):
+                                related = getattr(self._model, relation)
+                            else:
+                                related = self._model.get_related(relation)
 
-                            self._register_relationships_to_model(
-                                related, result_set, last_result, relation_key=eager
+                            result_set = related.get_related(
+                                hydrated_model, eagers=eagers
                             )
 
-                            last_result = result_set
-                            last_owner = related.get_builder()._model
+                            self._register_relationships_to_model(
+                                related,
+                                result_set,
+                                hydrated_model,
+                                relation_key=relation,
+                            )
                     else:
-                        related = getattr(self._model, eager)
-                        related_result = related.get_related(hydrated_model)
-                        self._register_relationships_to_model(
-                            related, related_result, hydrated_model, relation_key=eager
-                        )
+                        # Not Nested
+                        for eager in eager_load:
+                            if inspect.isclass(self._model):
+                                related = getattr(self._model, eager)
+                            else:
+                                related = self._model.get_related(eager)
+
+                            result_set = related.get_related(hydrated_model)
+
+                            self._register_relationships_to_model(
+                                related, result_set, hydrated_model, relation_key=eager
+                            )
 
             if collection:
                 return hydrated_model if result else Collection([])
@@ -1149,7 +1163,6 @@ class QueryBuilder(ObservesEvents):
                 else:
                     model.add_relation({relation_key: related_result or None})
         else:
-
             hydrated_model.add_relation({relation_key: related_result or None})
         return self
 
@@ -1192,14 +1205,8 @@ class QueryBuilder(ObservesEvents):
         self._should_eager = False
         return self
 
-    def with_(self, eagers=(), *others):
-        if not isinstance(eagers, (tuple, list)):
-            eagers = (eagers,)
-
-        if others:
-            eagers += others
-
-        self._eager_loads += eagers
+    def with_(self, *eagers):
+        self._eager_relation.register(eagers)
         return self
 
     def paginate(self, per_page, page=1):

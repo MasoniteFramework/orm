@@ -6,7 +6,7 @@ from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
-from src.masoniteorm.relationships import belongs_to
+from src.masoniteorm.relationships import belongs_to, has_many
 from tests.utils import MockConnectionFactory
 
 
@@ -21,6 +21,10 @@ class Article(Model):
     def logo(self):
         return Logo
 
+    @belongs_to("user_id", "id")
+    def user(self):
+        return User
+
 
 class Profile(Model):
     __connection__ = "sqlite"
@@ -29,9 +33,9 @@ class Profile(Model):
 class User(Model):
     __connection__ = "sqlite"
 
-    __with__ = ("profile",)
+    __with__ = ["articles.logo"]
 
-    @belongs_to("id", "user_id")
+    @has_many("id", "user_id")
     def articles(self):
         return Article
 
@@ -88,3 +92,9 @@ class BaseTestQueryRelationships(unittest.TestCase):
         builder = self.get_builder()
         result = builder.with_("profile").where("id", 5).first()
         result.serialize()
+
+    def test_with_multiple_per_same_relation(self):
+        builder = self.get_builder()
+        result = User.with_("articles", "articles.logo").where("id", 1).first()
+        self.assertTrue(result.serialize()["articles"])
+        self.assertTrue(result.serialize()["articles"][0]["logo"])
