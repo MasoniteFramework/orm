@@ -1,9 +1,3 @@
-"""
-
-Migrations needs to:
-    * Maintain a migrations table
-    * Generate migration files
-"""
 import os
 from os import listdir, path
 from os.path import isfile, join
@@ -237,12 +231,3 @@ class Migration:
     def refresh(self):
         self.reset()
         self.migrate()
-
-    # def show_sql(self, migration):
-
-    #     # migration = self.locate(migration)(connection=self.connection, dry=True)
-    #     # migration.up()
-
-    #     # blueprint = migration.schema._blueprint.to_sql()
-
-    #     # self.command_class.line(f"<comment>Migration sql:</comment>{blueprint}")

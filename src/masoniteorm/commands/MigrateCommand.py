@@ -27,9 +27,7 @@ class MigrateCommand(Command):
                 self.info("Migrations cancelled")
                 exit(0)
 
-        self.info("Starting Migration Class ..")
         migration = Migration(command_class=self, connection=self.option("connection"))
-        self.info("Creating Migration Table If Not Exists ..")
         migration.create_table_if_not_exists()
         if not migration.get_unran_migrations():
             self.info("Nothing To Migrate!")
