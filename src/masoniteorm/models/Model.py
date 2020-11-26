@@ -158,7 +158,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     def get_builder(self):
         from config.database import DB
 
-        self.__resolved_connection__ = db.connection_factory.make(self.__connection__)
+        self.__resolved_connection__ = DB.connection_factory.make(self.__connection__)
         self.builder = QueryBuilder(
             grammar=self.__resolved_connection__.get_default_query_grammar(),
             connection=self.__resolved_connection__,

@@ -102,19 +102,19 @@ class TestRelationships(unittest.TestCase):
         )
 
     def test_associate_records(self):
-        db.begin_transaction("sqlite")
+        DB.begin_transaction("sqlite")
         user = User.first()
 
         articles = [Articles.hydrate({"title": "associate records"})]
 
         user.save_many("articles", articles)
-        db.rollback("sqlite")
+        DB.rollback("sqlite")
 
     def test_attach_records(self):
-        db.begin_transaction("sqlite")
+        DB.begin_transaction("sqlite")
         article = Articles.first()
 
         logo = Logo.hydrate({"url": "yahoo.com"})
 
         article.attach("logo", logo)
-        db.rollback("sqlite")
+        DB.rollback("sqlite")

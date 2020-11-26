@@ -323,7 +323,7 @@ class QueryBuilder(ObservesEvents):
 
         self._connection_driver = self._connection_details.get(connection).get("driver")
 
-        self.connection = db.connection_factory.make(self._connection_driver)
+        self.connection = DB.connection_factory.make(self._connection_driver)
         self.grammar = self.connection.get_default_query_grammar()
 
         return self

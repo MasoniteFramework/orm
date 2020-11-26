@@ -38,8 +38,8 @@ if os.getenv("RUN_MYSQL_DATABASE") == "True":
             self.assertEqual(user, None)
 
         def test_transaction_default_globally(self):
-            connection = db.begin_transaction()
+            connection = DB.begin_transaction()
             self.assertEqual(connection, self.get_builder().new_connection())
-            db.commit()
-            db.begin_transaction()
-            db.rollback()
+            DB.commit()
+            DB.begin_transaction()
+            DB.rollback()

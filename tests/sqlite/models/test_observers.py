@@ -63,14 +63,14 @@ class BaseTestQueryRelationships(unittest.TestCase):
     maxDiff = None
 
     def test_created_is_observed(self):
-        # db.begin_transaction("sqlite")
+        # DB.begin_transaction("sqlite")
         user = Observer.create({"name": "joe"})
         self.assertEqual(user.observed_creating, 1)
         self.assertEqual(user.observed_created, 1)
-        # db.rollback("sqlite")
+        # DB.rollback("sqlite")
 
     def test_saving_is_observed(self):
-        # db.begin_transaction("sqlite")
+        # DB.begin_transaction("sqlite")
         user = Observer.hydrate({"id": 1, "name": "joe"})
 
         user.name = "bill"
@@ -78,42 +78,42 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
         self.assertEqual(user.observed_saving, 1)
         self.assertEqual(user.observed_saved, 1)
-        # db.rollback("sqlite")
+        # DB.rollback("sqlite")
 
     def test_updating_is_observed(self):
-        # db.begin_transaction("sqlite")
+        # DB.begin_transaction("sqlite")
         user = Observer.hydrate({"id": 1, "name": "joe"})
 
         re = user.update({"name": "bill"})
 
         self.assertEqual(user.observed_updated, 1)
         self.assertEqual(user.observed_updating, 1)
-        # db.rollback("sqlite")
+        # DB.rollback("sqlite")
 
     def test_booting_is_observed(self):
-        # db.begin_transaction("sqlite")
+        # DB.begin_transaction("sqlite")
         user = Observer.hydrate({"id": 1, "name": "joe"})
 
         re = user.update({"name": "bill"})
 
         self.assertEqual(user.observed_booting, 1)
         self.assertEqual(user.observed_booted, 1)
-        # db.rollback("sqlite")
+        # DB.rollback("sqlite")
 
     def test_deleting_is_observed(self):
-        db.begin_transaction("sqlite")
+        DB.begin_transaction("sqlite")
         user = Observer.hydrate({"id": 10, "name": "joe"})
 
         re = user.delete()
 
         self.assertEqual(user.observed_deleting, 1)
         self.assertEqual(user.observed_deleted, 1)
-        db.rollback("sqlite")
+        DB.rollback("sqlite")
 
     def test_hydrating_is_observed(self):
-        db.begin_transaction("sqlite")
+        DB.begin_transaction("sqlite")
         user = Observer.hydrate({"id": 10, "name": "joe"})
 
         self.assertEqual(user.observed_hydrating, 1)
         self.assertEqual(user.observed_hydrated, 1)
-        db.rollback("sqlite")
+        DB.rollback("sqlite")

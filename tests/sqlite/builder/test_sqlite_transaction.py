@@ -42,11 +42,11 @@ class BaseTestQueryRelationships(unittest.TestCase):
         self.assertEqual(user, None)
 
     def test_transaction_globally(self):
-        connection = db.begin_transaction("sqlite")
+        connection = DB.begin_transaction("sqlite")
         self.assertEqual(connection, self.get_builder().new_connection())
-        db.commit("sqlite")
-        db.begin_transaction("sqlite")
-        db.rollback("sqlite")
+        DB.commit("sqlite")
+        DB.begin_transaction("sqlite")
+        DB.rollback("sqlite")
 
     def test_chunking(self):
         for users in self.get_builder().chunk(10):

@@ -48,7 +48,7 @@ class Schema:
 
         self._connection_driver = self.connection_details.get(connection).get("driver")
 
-        self.connection = db.connection_factory.make(self._connection_driver)
+        self.connection = DB.connection_factory.make(self._connection_driver)
 
         return self
 

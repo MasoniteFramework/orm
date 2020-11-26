@@ -28,9 +28,9 @@ class Migration:
 
         from config.database import DB
 
-        connection_class = db.connection_factory.make(connection)
+        connection_class = DB.connection_factory.make(connection)
 
-        DATABASES = db.get_connection_details()
+        DATABASES = DB.get_connection_details()
 
         self.schema = Schema(
             connection=connection_class, connection_details=DATABASES, dry=dry
