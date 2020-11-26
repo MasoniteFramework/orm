@@ -1,3 +1,6 @@
+"""Sandbox experimental file used to quickly feature test features of the package
+"""
+
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.connections import MySQLConnection, PostgresConnection
 from src.masoniteorm.query.grammars import MySQLGrammar, PostgresGrammar
