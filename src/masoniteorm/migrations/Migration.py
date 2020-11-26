@@ -26,7 +26,7 @@ class Migration:
         self.last_migrations_ran = []
         self.command_class = command_class
 
-        from config.database import db
+        from config.database import DB
 
         connection_class = db.connection_factory.make(connection)
 

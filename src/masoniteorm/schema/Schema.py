@@ -41,7 +41,7 @@ class Schema:
         Returns:
             cls
         """
-        from config.database import db
+        from config.database import DB
 
         if connection == "default":
             connection = self.connection_details.get("default")

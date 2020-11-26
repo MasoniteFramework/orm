@@ -316,7 +316,7 @@ class QueryBuilder(ObservesEvents):
         )
 
     def on(self, connection):
-        from config.database import db
+        from config.database import DB
 
         if connection == "default":
             connection = self._connection_details.get("default")

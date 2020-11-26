@@ -8,7 +8,7 @@ from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import MySQLGrammar
 from src.masoniteorm.relationships import belongs_to
 from tests.utils import MockConnectionFactory
-from config.database import db
+from config.database import DB
 
 if os.getenv("RUN_MYSQL_DATABASE") == "True":
 
