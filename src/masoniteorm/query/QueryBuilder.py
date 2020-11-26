@@ -1021,7 +1021,9 @@ class QueryBuilder(ObservesEvents):
             return self.limit(1).order_by(_column, direction="DESC")
 
         result = self.new_connection().query(
-            self.limit(1).order_by(_column, direction="DESC").to_qmark(), self._bindings, results=1
+            self.limit(1).order_by(_column, direction="DESC").to_qmark(),
+            self._bindings,
+            results=1,
         )
 
         return self.prepare_result(result)
