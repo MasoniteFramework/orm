@@ -212,3 +212,20 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
     #     with schema.table("table_schema") as blueprint:
     #         blueprint.string("name")
+
+    def test_timestamp_alter_add_nullable_column(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.timestamp("due_date").nullable()
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+
+        table = Table("users")
+        table.add_column("age", "string")
+
+        blueprint.table.from_table = table
+
+        sql = [
+            "ALTER TABLE [users] ADD [due_date] DATETIME NULL DEFAULT CURRENT_TIMESTAMP"
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)

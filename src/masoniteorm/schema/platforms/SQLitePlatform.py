@@ -73,10 +73,11 @@ class SQLitePlatform(Platform):
         if diff.added_columns:
             for name, column in diff.added_columns.items():
                 sql.append(
-                    "ALTER TABLE {table} ADD COLUMN {name} {data_type}".format(
+                    "ALTER TABLE {table} ADD COLUMN {name} {data_type} {nullable}".format(
                         table=diff.name,
                         name=column.name,
                         data_type=self.type_map.get(column.column_type, ""),
+                        nullable="NULL" if column.is_null else "NOT NULL",
                     ).strip()
                 )
 
