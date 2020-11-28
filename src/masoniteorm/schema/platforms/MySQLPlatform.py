@@ -81,6 +81,7 @@ class MySQLPlatform(Platform):
                     )
                 else:
                     length = ""
+
                 add_columns.append(
                     self.add_column_string()
                     .format(
@@ -88,6 +89,7 @@ class MySQLPlatform(Platform):
                         data_type=self.type_map.get(column.column_type, ""),
                         length=length,
                         constraint="PRIMARY KEY" if column.primary else "",
+                        nullable="NULL" if column.is_null else "NOT NULL"
                     )
                     .strip()
                 )
@@ -183,7 +185,7 @@ class MySQLPlatform(Platform):
         return sql
 
     def add_column_string(self):
-        return "ADD {name} {data_type}{length}"
+        return "ADD {name} {data_type}{length} {nullable}"
 
     def drop_column_string(self):
         return "DROP COLUMN {name}"
