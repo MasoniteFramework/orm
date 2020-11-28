@@ -55,8 +55,8 @@ class TestTableDiff(unittest.TestCase):
         diff.add_column("email", "string")
 
         sql = [
-            "ALTER TABLE users ADD COLUMN name VARCHAR",
-            "ALTER TABLE users ADD COLUMN email VARCHAR",
+            "ALTER TABLE users ADD COLUMN name VARCHAR NOT NULL",
+            "ALTER TABLE users ADD COLUMN email VARCHAR NOT NULL",
         ]
 
         self.assertEqual(sql, self.platform.compile_alter_sql(diff))
