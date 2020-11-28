@@ -89,7 +89,7 @@ class MySQLPlatform(Platform):
                         data_type=self.type_map.get(column.column_type, ""),
                         length=length,
                         constraint="PRIMARY KEY" if column.primary else "",
-                        nullable="NULL" if column.is_null else "NOT NULL"
+                        nullable="NULL" if column.is_null else "NOT NULL",
                     )
                     .strip()
                 )
