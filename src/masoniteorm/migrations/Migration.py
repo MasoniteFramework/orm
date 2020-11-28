@@ -138,7 +138,10 @@ class Migration:
                 if self.command_class:
                     table = self.command_class.table()
                     table.set_header_row(["SQL"])
-                    table.set_rows([[migration_class.schema._blueprint.to_sql()]])
+                    sql = migration_class.schema._blueprint.to_sql()
+                    if isinstance(sql, list):
+                        sql = ",".join(sql)
+                    table.set_rows([[sql]])
                     table.render(self.command_class.io)
                     continue
                 else:
@@ -175,7 +178,11 @@ class Migration:
                         hasattr(migration_class.schema, "_blueprint")
                         and migration_class.schema._blueprint
                     ):
-                        table.set_rows([[migration_class.schema._blueprint.to_sql()]])
+                        sql = migration_class.schema._blueprint.to_sql()
+                        if isinstance(sql, list):
+                            sql = ",".join(sql)
+
+                        table.set_rows([[sql]])
                     elif migration_class.schema._sql:
                         table.set_rows([[migration_class.schema._sql]])
                     table.render(self.command_class.io)
