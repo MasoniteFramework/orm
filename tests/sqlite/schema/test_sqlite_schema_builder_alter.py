@@ -138,4 +138,4 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
             blueprint.drop_column("name")
 
         with schema.table("table_schema") as blueprint:
-            blueprint.string("name")
+            blueprint.string("name").nullable()
