@@ -24,8 +24,8 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
 
         sql = [
-            "ALTER TABLE users ADD COLUMN name VARCHAR",
-            "ALTER TABLE users ADD COLUMN age INTEGER",
+            "ALTER TABLE users ADD COLUMN name VARCHAR NOT NULL",
+            "ALTER TABLE users ADD COLUMN age INTEGER NOT NULL",
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)
@@ -81,7 +81,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         blueprint.table.from_table = table
 
         sql = [
-            "ALTER TABLE users ADD COLUMN name VARCHAR",
+            "ALTER TABLE users ADD COLUMN name VARCHAR NOT NULL",
             "CREATE TEMPORARY TABLE __temp__users AS SELECT age FROM users",
             "DROP TABLE users",
             'CREATE TABLE "users" (age INTEGER, name VARCHAR(255))',
@@ -114,17 +114,28 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
             "DROP TABLE __temp__users",
         ]
 
+    def test_timestamp_alter_add_nullable_column(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.timestamp("due_date").nullable()
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+
+        table = Table("users")
+        table.add_column("age", "string")
+
+        blueprint.table.from_table = table
+
+        sql = ["ALTER TABLE users ADD COLUMN due_date TIMESTAMP NULL"]
+
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_alter_drop_on_table_schema_table(self):
-        schema = Schema(
-            connection=SQLiteConnection,
-            connection_details=DATABASES,
-            # platform=SQLitePlatform,
-        ).on("sqlite")
+        schema = Schema(connection=SQLiteConnection, connection_details=DATABASES).on(
+            "sqlite"
+        )
 
         with schema.table("table_schema") as blueprint:
             blueprint.drop_column("name")
 
         with schema.table("table_schema") as blueprint:
-            blueprint.string("name")
+            blueprint.string("name").nullable()
