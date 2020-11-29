@@ -46,10 +46,10 @@ class ConnectionFactory:
 
         if key == "default":
             connection_details = connections.get(connections.get("default"))
-            connection = self._connections.get(connection_details.get("driver"))
         else:
             connection_details = connections.get(key)
-            connection = self._connections.get(connection_details.get("driver"))
+        
+        connection = self._connections.get(connection_details.get("driver"))
 
         if connection:
             return connection
