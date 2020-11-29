@@ -9,7 +9,10 @@ class Factory:
         self.model = model
         self.number = number
 
-    def make(self, dictionary={}, name="default"):
+    def make(self, dictionary=None, name="default"):
+        if dictionary is None:
+            dictionary = {}
+
         if self.number == 1 and not isinstance(dictionary, list):
             called = self._factories[self.model][name](Faker())
             called.update(dictionary)
@@ -29,7 +32,10 @@ class Factory:
                 results.append(called)
             return self.model.hydrate(results)
 
-    def create(self, dictionary={}, name="default"):
+    def create(self, dictionary=None, name="default"):
+        if dictionary is None:
+            dictionary = {}
+
         if self.number == 1 and not isinstance(dictionary, list):
             called = self._factories[self.model][name](Faker())
             called.update(dictionary)
