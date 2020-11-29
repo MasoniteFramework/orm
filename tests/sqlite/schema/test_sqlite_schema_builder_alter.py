@@ -133,11 +133,12 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         schema = Schema(
             connection=SQLiteConnection,
             connection_details=DATABASES,
-            # platform=SQLitePlatform,
         ).on("sqlite")
 
         with schema.table("table_schema") as blueprint:
             blueprint.drop_column("name")
+        
+        # print(blueprint.table.added_columns)
 
-        with schema.table("table_schema") as blueprint:
-            blueprint.string("name")
+        # with schema.table("table_schema") as blueprint:
+        #     blueprint.string("name")
