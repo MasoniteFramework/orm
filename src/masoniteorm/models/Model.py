@@ -335,7 +335,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 serialized_dictionary.pop(key)
 
         for date_column in self.get_dates():
-            if date_column in serialized_dictionary and serialized_dictionary[date_column]:
+            if (
+                date_column in serialized_dictionary
+                and serialized_dictionary[date_column]
+            ):
                 serialized_dictionary[date_column] = self.get_new_serialized_date(
                     serialized_dictionary[date_column]
                 )
@@ -494,7 +497,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             return result
 
         return builder.update(self.__dirty_attributes__, dry=True).to_sql()
-
 
     def get_value(self, attribute):
         if attribute in self.__casts__:
