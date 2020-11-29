@@ -27,9 +27,7 @@ class Seeder:
 
     def run_specific_seed(self, seed):
         file_name = f"{self.seed_module}.{seed}"
-        database_seeder = pydoc.locate(
-            file_name
-        )
+        database_seeder = pydoc.locate(file_name)
 
         if not database_seeder:
             raise ValueError(f"Could not find the {file_name} seeder file")
