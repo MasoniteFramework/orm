@@ -15,7 +15,6 @@ class SeedRunCommand(Command):
     """
 
     def handle(self):
-        print(self.option("dry"))
         if self.argument("table") == "None":
             return Seeder(dry=self.option("dry")).run_database_seed()
 
