@@ -24,3 +24,21 @@ class Seeder:
 
         if not self.dry:
             database_seeder().run()
+
+    def run_specific_seed(self, seed):
+        file_name = f"{self.seed_module}.{seed}"
+        database_seeder = pydoc.locate(
+            file_name
+        )
+
+        if not database_seeder:
+            raise ValueError(f"Could not find the {file_name} seeder file")
+
+        print(database_seeder)
+
+        self.ran_seeds.append(database_seeder)
+
+        if not self.dry:
+            database_seeder().run()
+        else:
+            print(f"Running {database_seeder}")
