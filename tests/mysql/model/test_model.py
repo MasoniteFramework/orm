@@ -153,6 +153,17 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             user = User.hydrate(
                 {
                     "name": "Joe",
+                    "created_at": "2020-11-28 11:42:07",
+                }
+            )
+
+            self.assertTrue(user.created_at)
+            self.assertTrue(user.created_at.is_future())
+
+        def test_access_as_date(self):
+            user = User.hydrate(
+                {
+                    "name": "Joe",
                     "created_at": datetime.datetime.now() + datetime.timedelta(days=1),
                 }
             )
