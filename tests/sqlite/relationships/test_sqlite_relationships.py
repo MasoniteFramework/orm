@@ -15,6 +15,7 @@ class Articles(Model):
     __table__ = "articles"
     __connection__ = "sqlite"
     __timestamps__ = None
+    __dates__ = ["published_date"]
 
     @belongs_to("id", "article_id")
     def logo(self):
@@ -25,6 +26,7 @@ class Logo(Model):
     __table__ = "logos"
     __connection__ = "sqlite"
     __timestamps__ = None
+    __dates__ = ["published_date"]
 
 
 class User(Model):
@@ -68,6 +70,11 @@ class TestRelationships(unittest.TestCase):
         user = User.hydrate(User.where("id", 1).first())
         self.assertEqual(len(user.articles), 1)
         self.assertEqual(len(user.articles), 1)
+
+    def test_can_access_relationship_date(self):
+        user = User.with_("articles").where("id", 1).first()
+        for article in user.articles:
+            print(article.logo.published_date.is_past())
 
     def test_loading(self):
         users = User.with_("articles").get()

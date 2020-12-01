@@ -327,7 +327,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Returns:
             dict
         """
-        print('serializing')
+        print("serializing")
         if not serialized_dictionary:
             serialized_dictionary = self.__attributes__
 
@@ -444,7 +444,11 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             and attribute in self.__dict__["__attributes__"]
         ):
             if attribute in self.get_dates():
-                return self.get_new_date(self.get_value(attribute))
+                return (
+                    self.get_new_date(self.get_value(attribute))
+                    if self.get_value(attribute)
+                    else None
+                )
             return self.get_value(attribute)
 
         if (
