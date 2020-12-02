@@ -327,7 +327,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Returns:
             dict
         """
-        print("serializing")
         if not serialized_dictionary:
             serialized_dictionary = self.__attributes__
 
