@@ -11,7 +11,7 @@ class Factory:
 
     def make(self, dictionary={}, name="default"):
         dic = {}
-        dic.update(dictionary)
+        dictionary.update(dic)
 
         called = self._factories[self.model][name](Faker())
         called.update(dic)
@@ -31,7 +31,7 @@ class Factory:
 
     def create(self, dictionary={}, name="default"):
         dic = {}
-        dic.update(dictionary)
+        dictionary.update(dic)
 
         called = self._factories[self.model][name](Faker())
         called.update(dic)
