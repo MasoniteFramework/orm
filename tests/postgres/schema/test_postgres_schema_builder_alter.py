@@ -13,7 +13,8 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
     def setUp(self):
 
         self.schema = Schema(
-            connection=PostgresConnection,
+            connection_class=PostgresConnection,
+            connection="postgres",
             connection_details=DATABASES,
             platform=PostgresPlatform,
             dry=True,
@@ -207,9 +208,11 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_alter_drop_on_table_schema_table(self):
-        schema = Schema(connection=PostgresConnection, connection_details=DATABASES).on(
-            "postgres"
-        )
+        schema = Schema(
+            connection_class=PostgresConnection,
+            connection="postgres",
+            connection_details=DATABASES,
+        ).on("postgres")
 
         with schema.table("table_schema") as blueprint:
             blueprint.drop_column("name")

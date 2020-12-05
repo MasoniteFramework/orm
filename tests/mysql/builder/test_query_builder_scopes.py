@@ -17,7 +17,8 @@ class BaseTestQueryBuilderScopes(unittest.TestCase):
         connection = MockConnectionFactory().make("default")
         return QueryBuilder(
             grammar=MySQLGrammar,
-            connection=connection,
+            connection_class=connection,
+            connection="mysql",
             table=table,
             connection_details=DATABASES,
         )

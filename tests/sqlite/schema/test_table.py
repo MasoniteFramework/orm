@@ -101,9 +101,11 @@ class TestTable(unittest.TestCase):
         self.assertEqual(self.platform.compile_create_sql(table), sql)
 
     def test_can_build_table_from_connection_call(self):
-        sql_details = DATABASES["sqlite"]
+        sql_details = DATABASES["dev"]
         table = self.platform.get_current_schema(
-            SQLiteConnection(database=sql_details["database"]).make_connection(),
+            SQLiteConnection(
+                database=sql_details["database"], name="dev"
+            ).make_connection(),
             "table_schema",
         )
 

@@ -32,8 +32,6 @@ class Seeder:
         if not database_seeder:
             raise ValueError(f"Could not find the {file_name} seeder file")
 
-        print(database_seeder)
-
         self.ran_seeds.append(database_seeder)
 
         if not self.dry:

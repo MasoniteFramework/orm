@@ -11,7 +11,8 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
 
     def setUp(self):
         self.schema = Schema(
-            connection=PostgresConnection,
+            connection_class=PostgresConnection,
+            connection="postgres",
             connection_details=DATABASES,
             platform=PostgresPlatform,
             dry=True,

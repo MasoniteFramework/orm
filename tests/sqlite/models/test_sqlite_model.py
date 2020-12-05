@@ -11,7 +11,7 @@ from tests.utils import MockConnectionFactory
 
 
 class User(Model):
-    __connection__ = "sqlite"
+    __connection__ = "dev"
     __timestamps__ = False
     __dry__ = True
 

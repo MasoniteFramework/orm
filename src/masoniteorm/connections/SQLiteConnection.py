@@ -24,6 +24,7 @@ class SQLiteConnection(BaseConnection):
         prefix=None,
         full_details={},
         options={},
+        name=None,
     ):
         self.host = host
         if port:
@@ -39,6 +40,8 @@ class SQLiteConnection(BaseConnection):
         self._cursor = None
         self.transaction_level = 0
         self.open = 0
+        if name:
+            self.name = name
 
     def make_connection(self):
         """This sets the connection on the connection class"""
@@ -140,7 +143,7 @@ class SQLiteConnection(BaseConnection):
                 else:
                     return [dict(row) for row in self._cursor.fetchall()]
         except Exception as e:
-            raise e
+            raise QueryException(str(e)) from e
         finally:
             if self.get_transaction_level() <= 0:
                 self._connection.close()

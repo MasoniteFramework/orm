@@ -11,11 +11,11 @@ from tests.utils import MockConnectionFactory
 
 
 class Logo(Model):
-    __connection__ = "sqlite"
+    __connection__ = "dev"
 
 
 class Article(Model):
-    __connection__ = "sqlite"
+    __connection__ = "dev"
 
     @belongs_to("id", "article_id")
     def logo(self):
@@ -27,11 +27,11 @@ class Article(Model):
 
 
 class Profile(Model):
-    __connection__ = "sqlite"
+    __connection__ = "dev"
 
 
 class User(Model):
-    __connection__ = "sqlite"
+    __connection__ = "dev"
 
     __with__ = ["articles.logo"]
 
@@ -45,7 +45,7 @@ class User(Model):
 
 
 class EagerUser(Model):
-    __connection__ = "sqlite"
+    __connection__ = "dev"
 
     __with__ = ("profile",)
     __table__ = "users"
@@ -63,11 +63,11 @@ class BaseTestQueryRelationships(unittest.TestCase):
         connection = ConnectionFactory().make("sqlite")
         return QueryBuilder(
             grammar=SQLiteGrammar,
-            connection=connection,
+            connection="dev",
             table=table,
             model=model,
             connection_details=DATABASES,
-        ).on("sqlite")
+        ).on("dev")
 
     def test_with(self):
         builder = self.get_builder()

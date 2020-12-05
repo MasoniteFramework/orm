@@ -22,8 +22,14 @@ class MockConnection:
 
 class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
-        connection = MockConnectionFactory().make("default")
-        return QueryBuilder(self.grammar, connection, table=table, model=Model())
+        connection = MockConnectionFactory().make("postgres")
+        return QueryBuilder(
+            self.grammar,
+            connection_class=connection,
+            connection="postgres",
+            table=table,
+            model=Model(),
+        )
 
     def test_sum(self):
         builder = self.get_builder()
@@ -304,7 +310,8 @@ class BaseTestQueryBuilder:
     def test_builder_alone(self):
         self.assertTrue(
             QueryBuilder(
-                connection=MockConnection,
+                connection_class=MockConnection,
+                connection="postgres",
                 connection_details={
                     "default": "postgres",
                     "postgres": {

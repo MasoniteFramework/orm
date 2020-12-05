@@ -10,14 +10,16 @@ from src.masoniteorm.exceptions import ModelNotFound, HTTP404
 
 
 class UserMock(Model):
-    __connection__ = "sqlite"
+    __connection__ = "dev"
     __table__ = "users"
 
 
 class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("sqlite")
-        return QueryBuilder(self.grammar, connection=connection, table=table)
+        return QueryBuilder(
+            self.grammar, connection_class=connection, connection="mysql", table=table
+        )
 
     def test_sum(self):
         builder = self.get_builder()

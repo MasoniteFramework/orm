@@ -14,7 +14,8 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
     def setUp(self):
 
         self.schema = Schema(
-            connection=MySQLConnection,
+            connection_class=MySQLConnection,
+            connection="mysql",
             connection_details=DATABASES,
             platform=MySQLPlatform,
             dry=True,

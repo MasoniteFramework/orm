@@ -37,12 +37,15 @@ class ConnectionResolver:
         self.connection_factory.register(connection.name, connection)
 
     def begin_transaction(self, name=None):
-
         if name is None:
             name = self.get_connection_details()["default"]
 
+        driver = self.get_connection_details()[name].get("driver")
+
         connection = (
-            self.connection_factory.make(name)(**self.get_connection_information(name))
+            self.connection_factory.make(driver)(
+                **self.get_connection_information(name)
+            )
             .make_connection()
             .begin()
         )

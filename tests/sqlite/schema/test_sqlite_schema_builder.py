@@ -11,11 +11,11 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
 
     def setUp(self):
         self.schema = Schema(
-            connection=SQLiteConnection,
+            connection="dev",
             connection_details=DATABASES,
             platform=SQLitePlatform,
             dry=True,
-        ).on("sqlite")
+        ).on("dev")
 
     def test_can_add_columns(self):
         with self.schema.create("users") as blueprint:

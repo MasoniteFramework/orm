@@ -49,7 +49,7 @@ DATABASES = {
         'prefix': '',
         'log_queries': True
     },
-    'sqlite': {
+    'dev': {
         'driver': 'sqlite',
         'database': 'orm.sqlite3',
         'prefix': '',

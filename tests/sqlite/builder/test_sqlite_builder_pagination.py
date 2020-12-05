@@ -11,7 +11,7 @@ from tests.utils import MockConnectionFactory
 
 
 class User(Model):
-    __connection__ = "sqlite"
+    __connection__ = "dev"
 
 
 class BaseTestQueryRelationships(unittest.TestCase):
@@ -22,11 +22,12 @@ class BaseTestQueryRelationships(unittest.TestCase):
         connection = ConnectionFactory().make("sqlite")
         return QueryBuilder(
             grammar=SQLiteGrammar,
-            connection=connection,
+            connection_class=connection,
+            connection="dev",
             table=table,
             model=model,
             connection_details=DATABASES,
-        ).on("sqlite")
+        ).on("dev")
 
     def test_pagination(self):
         builder = self.get_builder()

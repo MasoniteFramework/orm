@@ -5,6 +5,7 @@ from .BaseConnection import BaseConnection
 from ..query.grammars import MSSQLGrammar
 from ..schema.platforms import MSSQLPlatform
 from ..query.processors import MSSQLPostProcessor
+from ..exceptions import QueryException
 
 
 CONNECTION_POOL = []
@@ -25,6 +26,7 @@ class MSSQLConnection(BaseConnection):
         prefix=None,
         options={},
         full_details={},
+        name=None,
     ):
 
         self.host = host
@@ -41,6 +43,8 @@ class MSSQLConnection(BaseConnection):
         self._cursor = None
         self.transaction_level = 0
         self.open = 0
+        if name:
+            self.name = name
 
     def make_connection(self):
         """This sets the connection on the connection class"""
@@ -150,7 +154,7 @@ class MSSQLConnection(BaseConnection):
 
                 return {}
         except Exception as e:
-            raise e
+            raise QueryException(str(e)) from e
         finally:
             if self.get_transaction_level() <= 0:
                 self._connection.close()

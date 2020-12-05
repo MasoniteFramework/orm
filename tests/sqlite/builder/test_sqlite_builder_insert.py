@@ -11,7 +11,7 @@ from tests.utils import MockConnectionFactory
 
 
 class User(Model):
-    __connection__ = "sqlite"
+    __connection__ = "dev"
     __timestamps__ = False
     pass
 
@@ -24,11 +24,12 @@ class BaseTestQueryRelationships(unittest.TestCase):
         connection = ConnectionFactory().make("sqlite")
         return QueryBuilder(
             grammar=SQLiteGrammar,
-            connection=connection,
+            connection_class=connection,
+            connection="dev",
             table=table,
             # model=User,
             connection_details=DATABASES,
-        ).on("sqlite")
+        ).on("dev")
 
     def test_insert(self):
         builder = self.get_builder()

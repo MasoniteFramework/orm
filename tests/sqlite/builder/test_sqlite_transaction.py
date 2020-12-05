@@ -13,7 +13,7 @@ from src.masoniteorm.collection import Collection
 
 
 class User(Model):
-    __connection__ = "sqlite"
+    __connection__ = "dev"
     __timestamps__ = False
 
 
@@ -25,11 +25,11 @@ class BaseTestQueryRelationships(unittest.TestCase):
         connection = ConnectionFactory().make("sqlite")
         return QueryBuilder(
             grammar=SQLiteGrammar,
-            connection=connection,
+            connection="dev",
             table=table,
             model=User,
             connection_details=DATABASES,
-        ).on("sqlite")
+        ).on("dev")
 
     def test_transaction(self):
         builder = self.get_builder()
@@ -42,11 +42,11 @@ class BaseTestQueryRelationships(unittest.TestCase):
         self.assertEqual(user, None)
 
     def test_transaction_globally(self):
-        connection = DB.begin_transaction("sqlite")
+        connection = DB.begin_transaction("dev")
         self.assertEqual(connection, self.get_builder().new_connection())
-        DB.commit("sqlite")
-        DB.begin_transaction("sqlite")
-        DB.rollback("sqlite")
+        DB.commit("dev")
+        DB.begin_transaction("dev")
+        DB.rollback("dev")
 
     def test_chunking(self):
         for users in self.get_builder().chunk(10):
