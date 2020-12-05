@@ -168,13 +168,13 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         )
         self.__resolved_connection__ = DB.connection_factory.make(connection_driver)
         self.builder = QueryBuilder(
-            grammar=self.__resolved_connection__.get_default_query_grammar(),
+            # grammar=self.__resolved_connection__.get_default_query_grammar(),
             connection=self.__connection__,
-            connection_class=self.__resolved_connection__,
+            # connection_class=self.__resolved_connection__,
             table=self.get_table_name(),
             connection_details=self.get_connection_details(),
             model=self,
-            connection_driver=connection_driver,
+            # connection_driver=connection_driver,
             scopes=self._scopes,
             dry=self.__dry__,
         )
@@ -208,7 +208,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return cls.__table__ or tableize(cls.__name__)
 
     @classmethod
-    def find(cls, record_id):
+    def find(cls, record_id, query=False):
         """Finds a row by the primary key ID.
 
         Arguments:
@@ -217,8 +217,15 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Returns:
             Model
         """
+        if isinstance(record_id, (list, tuple)):
+            builder = cls().where_in(cls.get_primary_key(), record_id)
+        else:
+            builder = cls().where(cls.get_primary_key(), record_id)
 
-        return cls().where(cls.get_primary_key(), record_id).first()
+        if query:
+            return builder.to_sql()
+        else:
+            return builder.get()
 
     def first_or_new(self):
         pass
