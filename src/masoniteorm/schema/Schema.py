@@ -30,7 +30,8 @@ class Schema:
         self._blueprint = None
         self._sql = None
 
-        self.on(self.connection)
+        if not self.connection_class:
+            self.on(self.connection)
 
         if not self.platform:
             self.platform = self.connection_class.get_default_platform()

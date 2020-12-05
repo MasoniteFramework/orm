@@ -22,7 +22,8 @@ class BaseTestQueryRelationships(unittest.TestCase):
         connection = ConnectionFactory().make("sqlite")
         return QueryBuilder(
             grammar=SQLiteGrammar,
-            connection=connection,
+            connection_class=connection,
+            connection="dev",
             table=table,
             model=model,
             connection_details=DATABASES,

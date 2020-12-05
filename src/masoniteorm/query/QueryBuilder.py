@@ -120,6 +120,7 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def get_connection_information(self):
+        print('connnn', self.connection)
         return {
             "host": self._connection_details.get(self.connection, {}).get(
                 "host"
@@ -1199,9 +1200,9 @@ class QueryBuilder(ObservesEvents):
     def new_connection(self):
         if self._connection:
             return self._connection
-        print('rr', self.get_connection_information())
         self._connection = self.connection_class(
-            **self.get_connection_information()
+            **self.get_connection_information(),
+            name=self.connection
         ).make_connection()
         return self._connection
 
@@ -1319,6 +1320,7 @@ class QueryBuilder(ObservesEvents):
         builder = QueryBuilder(
             grammar=self.grammar,
             connection_class=self.connection_class,
+            connection=self.connection,
             connection_driver=self._connection_driver,
             table=self._table,
         )
