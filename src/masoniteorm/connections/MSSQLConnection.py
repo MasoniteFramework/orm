@@ -5,6 +5,7 @@ from .BaseConnection import BaseConnection
 from ..query.grammars import MSSQLGrammar
 from ..schema.platforms import MSSQLPlatform
 from ..query.processors import MSSQLPostProcessor
+from ..exceptions import QueryException
 
 
 CONNECTION_POOL = []
@@ -153,7 +154,7 @@ class MSSQLConnection(BaseConnection):
 
                 return {}
         except Exception as e:
-            raise e
+            raise QueryException(str(e)) from e
         finally:
             if self.get_transaction_level() <= 0:
                 self._connection.close()

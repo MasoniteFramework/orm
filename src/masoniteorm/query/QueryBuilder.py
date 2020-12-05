@@ -20,7 +20,7 @@ from ..observers import ObservesEvents
 
 from ..connections import ConnectionResolver, ConnectionFactory
 
-from ..exceptions import ModelNotFound, HTTP404
+from ..exceptions import ModelNotFound, HTTP404, ConnectionNotRegistered
 
 from ..pagination import LengthAwarePaginator, SimplePaginator
 
@@ -305,16 +305,16 @@ class QueryBuilder(ObservesEvents):
     def on(self, connection):
         from config.database import DB
 
-        print("making connection to ", connection)
-
         if connection == "default":
             self.connection = self._connection_details.get("default")
         else:
             self.connection = connection
 
-        print("connection is now", self.connection)
+        if self.connection not in self._connection_details:
+            raise ConnectionNotRegistered(
+                f"Could not find the '{self.connection}' connection details"
+            )
 
-        print(self._connection_details.get(self.connection))
         self._connection_driver = self._connection_details.get(self.connection).get(
             "driver"
         )

@@ -5,6 +5,7 @@ from .BaseConnection import BaseConnection
 from ..query.grammars import PostgresGrammar
 from ..schema.platforms import PostgresPlatform
 from ..query.processors import PostgresPostProcessor
+from ..exceptions import QueryException
 
 
 CONNECTION_POOL = []
@@ -158,7 +159,7 @@ class PostgresConnection(BaseConnection):
                         return cursor.fetchall()
                     return {}
         except Exception as e:
-            raise e
+            raise QueryException(str(e)) from e
         finally:
             if self.get_transaction_level() <= 0:
                 self.open = 0

@@ -5,6 +5,7 @@ from .BaseConnection import BaseConnection
 from ..query.grammars import MySQLGrammar
 from ..schema.platforms import MySQLPlatform
 from ..query.processors import MySQLPostProcessor
+from ..exceptions import QueryException
 
 CONNECTION_POOL = []
 
@@ -158,7 +159,7 @@ class MySQLConnection(BaseConnection):
                 else:
                     return self.format_cursor_results(cursor.fetchall())
         except Exception as e:
-            raise e
+            raise QueryException(str(e)) from e
         finally:
             if self.get_transaction_level() <= 0:
                 self.open = 0
