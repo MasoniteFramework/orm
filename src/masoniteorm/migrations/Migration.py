@@ -28,12 +28,17 @@ class Migration:
 
         from config.database import DB
 
-        connection_class = DB.connection_factory.make(connection)
-
+        print('cc', connection)
         DATABASES = DB.get_connection_details()
 
+        connection_driver = DATABASES.get(connection).get('driver')
+
+
+        connection_class = DB.connection_factory.make(connection_driver)
+
+
         self.schema = Schema(
-            connection_class=connection_class, connection_details=DATABASES, dry=dry
+            connection=connection, connection_class=connection_class, connection_details=DATABASES, dry=dry
         ).on(self.connection)
 
         self.migration_model = MigrationModel.on(self.connection)
