@@ -97,9 +97,14 @@ class QueryBuilder(ObservesEvents):
             from config.database import DB
 
             self._connection_details = DB.get_connection_details()
+
         self.on(connection)
-        self.grammar = grammar
-        self.connection_class = connection_class
+
+        if grammar:
+            self.grammar = grammar
+
+        if connection_class:
+            self.connection_class = connection_class
 
     def reset(self):
         """Resets the query builder instance so you can make multiple calls with the same builder instance"""
@@ -627,6 +632,7 @@ class QueryBuilder(ObservesEvents):
                 (QueryExpression(column, "IN", SubSelectExpression(wheres))),
             )
         else:
+            print("wheres", wheres)
             wheres = [str(x) for x in wheres]
             self._wheres += ((QueryExpression(column, "IN", wheres)),)
         return self
@@ -1190,6 +1196,7 @@ class QueryBuilder(ObservesEvents):
     def new_connection(self):
         if self._connection:
             return self._connection
+
         self._connection = self.connection_class(
             **self.get_connection_information(), name=self.connection
         ).make_connection()
