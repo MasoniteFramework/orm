@@ -11,7 +11,8 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
 
     def setUp(self):
         self.schema = Schema(
-            connection=MSSQLConnection,
+            connection_class=MSSQLConnection,
+            connection="mssql",
             connection_details=DATABASES,
             platform=MSSQLPlatform,
             dry=True,
