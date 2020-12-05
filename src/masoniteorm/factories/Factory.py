@@ -9,44 +9,43 @@ class Factory:
         self.model = model
         self.number = number
 
-    def make(self, dictionary={}, name="default"):
+    def make(self, dictionary=None, name="default"):
+        if dictionary is None:
+            dictionary = {}
+
+        called = self._factories[self.model][name](Faker())
+        called.update(dictionary)
+
         if self.number == 1 and not isinstance(dictionary, list):
-            called = self._factories[self.model][name](Faker())
-            called.update(dictionary)
             return self.model.hydrate(called)
         elif isinstance(dictionary, list):
             results = []
             for index in range(0, len(dictionary)):
-                called = self._factories[self.model][name](Faker())
-                called.update(dictionary)
                 results.append(called)
             return self.model.hydrate(results)
         else:
             results = []
             for index in range(0, self.number):
-                called = self._factories[self.model][name](Faker())
-                called.update(dictionary)
                 results.append(called)
             return self.model.hydrate(results)
 
-    def create(self, dictionary={}, name="default"):
-        if self.number == 1 and not isinstance(dictionary, list):
-            called = self._factories[self.model][name](Faker())
-            called.update(dictionary)
-            return self.model.create(called)
+    def create(self, dictionary=None, name="default"):
+        if dictionary is None:
+            dictionary = {}
 
+        called = self._factories[self.model][name](Faker())
+        called.update(dictionary)
+
+        if self.number == 1 and not isinstance(dictionary, list):
+            return self.model.create(called)
         elif isinstance(dictionary, list):
             results = []
             for index in range(0, len(dictionary)):
-                called = self._factories[self.model][name](Faker())
-                called.update(dictionary)
                 results.append(called)
             return self.model.create(results)
         else:
             full_collection = []
             for index in range(0, self.number):
-                called = self._factories[self.model][name](Faker())
-                called.update(dictionary)
                 full_collection.append(called)
                 self.model.create(called)
 
