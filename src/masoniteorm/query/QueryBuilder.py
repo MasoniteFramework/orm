@@ -33,7 +33,7 @@ class QueryBuilder(ObservesEvents):
     def __init__(
         self,
         grammar=None,
-        connection=None,
+        connection="default",
         connection_class=None,
         table=None,
         connection_details={},
@@ -94,19 +94,12 @@ class QueryBuilder(ObservesEvents):
         self.set_action("select")
 
         if not self._connection_details:
-            self._connection_details = ConnectionResolver().get_connection_details()
+            from config.database import DB
 
-        if not connection:
-            self.connection_class = ConnectionFactory().make(self._connection_driver)
-
-        if not grammar:
-            self.grammar = self.connection_class.get_default_query_grammar()
-
-        if self._connection_details and (
-            not self._connection_driver or self._connection_driver == "default"
-        ):
-            # setup the connection information
-            self._connection_driver = self._connection_details.get("default")
+            self._connection_details = DB.get_connection_details()
+        self.on(connection)
+        self.grammar = grammar
+        self.connection_class = connection_class
 
     def reset(self):
         """Resets the query builder instance so you can make multiple calls with the same builder instance"""
@@ -312,12 +305,21 @@ class QueryBuilder(ObservesEvents):
     def on(self, connection):
         from config.database import DB
 
+        print("making connection to ", connection)
+
         if connection == "default":
-            connection = self._connection_details.get("default")
+            self.connection = self._connection_details.get("default")
+        else:
+            self.connection = connection
 
-        self._connection_driver = self._connection_details.get(connection).get("driver")
+        print("connection is now", self.connection)
 
+        print(self._connection_details.get(self.connection))
+        self._connection_driver = self._connection_details.get(self.connection).get(
+            "driver"
+        )
         self.connection_class = DB.connection_factory.make(self._connection_driver)
+
         self.grammar = self.connection_class.get_default_query_grammar()
 
         return self

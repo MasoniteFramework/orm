@@ -18,10 +18,7 @@ class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("sqlite")
         return QueryBuilder(
-            self.grammar,
-            connection_class=connection,
-            connection=connection,
-            table=table,
+            self.grammar, connection_class=connection, connection="mysql", table=table
         )
 
     def test_sum(self):

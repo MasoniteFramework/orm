@@ -44,7 +44,7 @@ class BaseTestQueryRelationships(unittest.TestCase):
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("sqlite")
         return QueryBuilder(
-            grammar=SQLiteGrammar, connection=connection, table=table, model=User
+            grammar=SQLiteGrammar, connection_class=connection, table=table, model=User
         )
 
     def test_has(self):

@@ -44,7 +44,11 @@ class BaseTestQueryRelationships(unittest.TestCase):
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("mssql")
         return QueryBuilder(
-            grammar=MSSQLGrammar, connection=connection, table=table, model=User
+            grammar=MSSQLGrammar,
+            connection_class=connection,
+            connection="mssql",
+            table=table,
+            model=User,
         )
 
     def test_has(self):

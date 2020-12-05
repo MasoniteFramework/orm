@@ -22,7 +22,7 @@ class MockConnection:
 
 class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
-        connection = MockConnectionFactory().make("default")
+        connection = MockConnectionFactory().make("postgres")
         return QueryBuilder(
             self.grammar,
             connection_class=connection,
