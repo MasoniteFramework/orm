@@ -51,8 +51,6 @@ class ConnectionFactory:
             connection_details = connections.get(key)
             connection = self._connections.get(key)
 
-        
-
         if connection:
             return connection
 

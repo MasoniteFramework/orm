@@ -36,7 +36,6 @@ class Schema:
         if not self.platform:
             self.platform = self.connection_class.get_default_platform()
 
-
     def on(self, connection):
         """Change the connection from the default connection
 
@@ -52,7 +51,6 @@ class Schema:
         if connection == "default":
             connection = self.connection_details.get("default")
 
-        print('cc', connection)
         self._connection_driver = self.connection_details.get(connection).get("driver")
 
         self.connection_class = DB.connection_factory.make(self._connection_driver)
@@ -119,27 +117,17 @@ class Schema:
         return self._blueprint
 
     def get_connection_information(self):
-        print('driver', self._connection_driver)
-        print('c', self.connection)
         return {
-            "host": self.connection_details.get(self.connection, {}).get(
-                "host"
-            ),
+            "host": self.connection_details.get(self.connection, {}).get("host"),
             "database": self.connection_details.get(self.connection, {}).get(
                 "database"
             ),
-            "user": self.connection_details.get(self.connection, {}).get(
-                "user"
-            ),
-            "port": self.connection_details.get(self.connection, {}).get(
-                "port"
-            ),
+            "user": self.connection_details.get(self.connection, {}).get("user"),
+            "port": self.connection_details.get(self.connection, {}).get("port"),
             "password": self.connection_details.get(self.connection, {}).get(
                 "password"
             ),
-            "prefix": self.connection_details.get(self.connection, {}).get(
-                "prefix"
-            ),
+            "prefix": self.connection_details.get(self.connection, {}).get("prefix"),
             "options": self.connection_details.get(self.connection, {}).get(
                 "options", {}
             ),

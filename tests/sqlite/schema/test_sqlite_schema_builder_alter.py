@@ -130,9 +130,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_alter_drop_on_table_schema_table(self):
-        schema = Schema(connection="dev", connection_details=DATABASES).on(
-            "dev"
-        )
+        schema = Schema(connection="dev", connection_details=DATABASES).on("dev")
 
         with schema.table("table_schema") as blueprint:
             blueprint.drop_column("name")

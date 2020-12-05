@@ -93,8 +93,6 @@ class QueryBuilder(ObservesEvents):
         self._model = model
         self.set_action("select")
 
-        
-
         if not self._connection_details:
             self._connection_details = ConnectionResolver().get_connection_details()
 
@@ -110,7 +108,6 @@ class QueryBuilder(ObservesEvents):
             # setup the connection information
             self._connection_driver = self._connection_details.get("default")
 
-
     def reset(self):
         """Resets the query builder instance so you can make multiple calls with the same builder instance"""
 
@@ -120,26 +117,17 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def get_connection_information(self):
-        print('connnn', self.connection)
         return {
-            "host": self._connection_details.get(self.connection, {}).get(
-                "host"
-            ),
+            "host": self._connection_details.get(self.connection, {}).get("host"),
             "database": self._connection_details.get(self.connection, {}).get(
                 "database"
             ),
-            "user": self._connection_details.get(self.connection, {}).get(
-                "user"
-            ),
-            "port": self._connection_details.get(self.connection, {}).get(
-                "port"
-            ),
+            "user": self._connection_details.get(self.connection, {}).get("user"),
+            "port": self._connection_details.get(self.connection, {}).get("port"),
             "password": self._connection_details.get(self.connection, {}).get(
                 "password"
             ),
-            "prefix": self._connection_details.get(self.connection, {}).get(
-                "prefix"
-            ),
+            "prefix": self._connection_details.get(self.connection, {}).get("prefix"),
             "options": self._connection_details.get(self.connection, {}).get(
                 "options", {}
             ),
@@ -1201,8 +1189,7 @@ class QueryBuilder(ObservesEvents):
         if self._connection:
             return self._connection
         self._connection = self.connection_class(
-            **self.get_connection_information(),
-            name=self.connection
+            **self.get_connection_information(), name=self.connection
         ).make_connection()
         return self._connection
 

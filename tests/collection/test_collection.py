@@ -298,7 +298,7 @@ class TestCollection(unittest.TestCase):
             ],
         )
 
-        self.assertEqual(collection.pluck('name').unique().all(), ["Corentin All"])
+        self.assertEqual(collection.pluck("name").unique().all(), ["Corentin All"])
 
     def test_transform(self):
         collection = Collection([1, 1, 2, 3, 4])

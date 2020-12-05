@@ -25,7 +25,7 @@ class MySQLConnection(BaseConnection):
         prefix=None,
         options={},
         full_details={},
-        name=None
+        name=None,
     ):
         self.host = host
         self.port = port

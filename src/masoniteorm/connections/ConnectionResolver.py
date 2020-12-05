@@ -39,12 +39,13 @@ class ConnectionResolver:
     def begin_transaction(self, name=None):
         if name is None:
             name = self.get_connection_details()["default"]
-        
-        driver = self.get_connection_details()[name].get('driver')
 
-        print(name)
+        driver = self.get_connection_details()[name].get("driver")
+
         connection = (
-            self.connection_factory.make(driver)(**self.get_connection_information(name))
+            self.connection_factory.make(driver)(
+                **self.get_connection_information(name)
+            )
             .make_connection()
             .begin()
         )
@@ -63,7 +64,6 @@ class ConnectionResolver:
         if name is None:
             name = self.get_connection_details()["default"]
 
-        print(self.get_global_connections())
         connection = self.get_global_connections()[name]
         self.remove_global_connection(name)
         connection.rollback()

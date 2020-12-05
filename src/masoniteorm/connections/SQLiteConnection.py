@@ -24,7 +24,7 @@ class SQLiteConnection(BaseConnection):
         prefix=None,
         full_details={},
         options={},
-        name=None
+        name=None,
     ):
         self.host = host
         if port:
@@ -49,7 +49,6 @@ class SQLiteConnection(BaseConnection):
         if self.has_global_connection():
             return self.get_global_connection()
 
-        print(self.database)
         self._connection = sqlite3.connect(self.database, isolation_level=None)
 
         self._connection.row_factory = sqlite3.Row
