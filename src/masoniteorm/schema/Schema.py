@@ -1,4 +1,4 @@
-# from ..connections.ConnectionFactory import ConnectionFactory
+from ..connections.ConnectionFactory import ConnectionFactory
 
 from .Blueprint import Blueprint
 from .Table import Table
@@ -13,6 +13,7 @@ class Schema:
         self,
         dry=False,
         connection=None,
+        connection_class=None,
         platform=None,
         grammar=None,
         connection_details={},
@@ -20,6 +21,7 @@ class Schema:
     ):
         self._dry = dry
         self.connection = connection
+        self.connection_class = connection_class
         self._connection = None
         self.grammar = grammar
         self.platform = platform
@@ -28,8 +30,11 @@ class Schema:
         self._blueprint = None
         self._sql = None
 
+        self.on(self.connection)
+
         if not self.platform:
-            self.platform = connection.get_default_platform()
+            self.platform = self.connection_class.get_default_platform()
+
 
     def on(self, connection):
         """Change the connection from the default connection
@@ -46,9 +51,10 @@ class Schema:
         if connection == "default":
             connection = self.connection_details.get("default")
 
+        print('cc', connection)
         self._connection_driver = self.connection_details.get(connection).get("driver")
 
-        self.connection = DB.connection_factory.make(self._connection_driver)
+        self.connection_class = DB.connection_factory.make(self._connection_driver)
 
         return self
 
@@ -112,26 +118,28 @@ class Schema:
         return self._blueprint
 
     def get_connection_information(self):
+        print('driver', self._connection_driver)
+        print('c', self.connection)
         return {
-            "host": self.connection_details.get(self._connection_driver, {}).get(
+            "host": self.connection_details.get(self.connection, {}).get(
                 "host"
             ),
-            "database": self.connection_details.get(self._connection_driver, {}).get(
+            "database": self.connection_details.get(self.connection, {}).get(
                 "database"
             ),
-            "user": self.connection_details.get(self._connection_driver, {}).get(
+            "user": self.connection_details.get(self.connection, {}).get(
                 "user"
             ),
-            "port": self.connection_details.get(self._connection_driver, {}).get(
+            "port": self.connection_details.get(self.connection, {}).get(
                 "port"
             ),
-            "password": self.connection_details.get(self._connection_driver, {}).get(
+            "password": self.connection_details.get(self.connection, {}).get(
                 "password"
             ),
-            "prefix": self.connection_details.get(self._connection_driver, {}).get(
+            "prefix": self.connection_details.get(self.connection, {}).get(
                 "prefix"
             ),
-            "options": self.connection_details.get(self._connection_driver, {}).get(
+            "options": self.connection_details.get(self.connection, {}).get(
                 "options", {}
             ),
             "full_details": self.connection_details.get(
@@ -143,7 +151,7 @@ class Schema:
         if self._dry:
             return
 
-        self._connection = self.connection(
+        self._connection = self.connection_class(
             **self.get_connection_information()
         ).make_connection()
 

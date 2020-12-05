@@ -8,12 +8,12 @@ from config.database import DB
 
 class Profile(Model):
     __table__ = "profiles"
-    __connection__ = "sqlite"
+    __connection__ = "dev"
 
 
 class Articles(Model):
     __table__ = "articles"
-    __connection__ = "sqlite"
+    __connection__ = "dev"
     __timestamps__ = None
     __dates__ = ["published_date"]
 
@@ -24,14 +24,14 @@ class Articles(Model):
 
 class Logo(Model):
     __table__ = "logos"
-    __connection__ = "sqlite"
+    __connection__ = "dev"
     __timestamps__ = None
     __dates__ = ["published_date"]
 
 
 class User(Model):
 
-    __connection__ = "sqlite"
+    __connection__ = "dev"
 
     _eager_loads = ()
 
@@ -109,19 +109,19 @@ class TestRelationships(unittest.TestCase):
         )
 
     def test_associate_records(self):
-        DB.begin_transaction("sqlite")
+        DB.begin_transaction("dev")
         user = User.first()
 
         articles = [Articles.hydrate({"title": "associate records"})]
 
         user.save_many("articles", articles)
-        DB.rollback("sqlite")
+        DB.rollback("dev")
 
     def test_attach_records(self):
-        DB.begin_transaction("sqlite")
+        DB.begin_transaction("dev")
         article = Articles.first()
 
         logo = Logo.hydrate({"url": "yahoo.com"})
 
         article.attach("logo", logo)
-        DB.rollback("sqlite")
+        DB.rollback("dev")

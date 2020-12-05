@@ -34,6 +34,7 @@ class QueryBuilder(ObservesEvents):
         self,
         grammar=None,
         connection=None,
+        connection_class=None,
         table=None,
         connection_details={},
         connection_driver="default",
@@ -54,6 +55,7 @@ class QueryBuilder(ObservesEvents):
         self._table = table
         self.dry = dry
         self.connection = connection
+        self.connection_class = connection_class
         self._connection = None
         self._connection_details = connection_details
         self._connection_driver = connection_driver
@@ -91,20 +93,23 @@ class QueryBuilder(ObservesEvents):
         self._model = model
         self.set_action("select")
 
+        
+
         if not self._connection_details:
             self._connection_details = ConnectionResolver().get_connection_details()
 
         if not connection:
-            self.connection = ConnectionFactory().make(self._connection_driver)
+            self.connection_class = ConnectionFactory().make(self._connection_driver)
 
         if not grammar:
-            self.grammar = self.connection.get_default_query_grammar()
+            self.grammar = self.connection_class.get_default_query_grammar()
 
         if self._connection_details and (
             not self._connection_driver or self._connection_driver == "default"
         ):
             # setup the connection information
             self._connection_driver = self._connection_details.get("default")
+
 
     def reset(self):
         """Resets the query builder instance so you can make multiple calls with the same builder instance"""
@@ -116,28 +121,28 @@ class QueryBuilder(ObservesEvents):
 
     def get_connection_information(self):
         return {
-            "host": self._connection_details.get(self._connection_driver, {}).get(
+            "host": self._connection_details.get(self.connection, {}).get(
                 "host"
             ),
-            "database": self._connection_details.get(self._connection_driver, {}).get(
+            "database": self._connection_details.get(self.connection, {}).get(
                 "database"
             ),
-            "user": self._connection_details.get(self._connection_driver, {}).get(
+            "user": self._connection_details.get(self.connection, {}).get(
                 "user"
             ),
-            "port": self._connection_details.get(self._connection_driver, {}).get(
+            "port": self._connection_details.get(self.connection, {}).get(
                 "port"
             ),
-            "password": self._connection_details.get(self._connection_driver, {}).get(
+            "password": self._connection_details.get(self.connection, {}).get(
                 "password"
             ),
-            "prefix": self._connection_details.get(self._connection_driver, {}).get(
+            "prefix": self._connection_details.get(self.connection, {}).get(
                 "prefix"
             ),
-            "options": self._connection_details.get(self._connection_driver, {}).get(
+            "options": self._connection_details.get(self.connection, {}).get(
                 "options", {}
             ),
-            "full_details": self._connection_details.get(self._connection_driver, {}),
+            "full_details": self._connection_details.get(self.connection, {}),
         }
 
     def table(self, table):
@@ -172,7 +177,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        return self.connection
+        return self.connection_class
 
     def begin(self):
         """Sets a table on the query builder
@@ -189,7 +194,7 @@ class QueryBuilder(ObservesEvents):
         return self.begin(*args, **kwargs)
 
     def get_schema_builder(self):
-        return Schema(connection=self.connection, grammar=self.grammar)
+        return Schema(connection=self.connection_class, grammar=self.grammar)
 
     def commit(self):
         """Sets a table on the query builder
@@ -323,8 +328,8 @@ class QueryBuilder(ObservesEvents):
 
         self._connection_driver = self._connection_details.get(connection).get("driver")
 
-        self.connection = DB.connection_factory.make(self._connection_driver)
-        self.grammar = self.connection.get_default_query_grammar()
+        self.connection_class = DB.connection_factory.make(self._connection_driver)
+        self.grammar = self.connection_class.get_default_query_grammar()
 
         return self
 
@@ -349,7 +354,7 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def get_processor(self):
-        return self.connection.get_default_post_processor()()
+        return self.connection_class.get_default_post_processor()()
 
     def create(self, creates={}, query=False, id_key="id", **kwargs):
         """Specifies a dictionary that should be used to create new values.
@@ -1194,8 +1199,8 @@ class QueryBuilder(ObservesEvents):
     def new_connection(self):
         if self._connection:
             return self._connection
-
-        self._connection = self.connection(
+        print('rr', self.get_connection_information())
+        self._connection = self.connection_class(
             **self.get_connection_information()
         ).make_connection()
         return self._connection
@@ -1268,7 +1273,6 @@ class QueryBuilder(ObservesEvents):
             group_by=self._group_by,
             joins=self._joins,
             having=self._having,
-            # connection=self.connection
         )
 
     def to_sql(self):
@@ -1314,7 +1318,7 @@ class QueryBuilder(ObservesEvents):
         """
         builder = QueryBuilder(
             grammar=self.grammar,
-            connection=self.connection,
+            connection_class=self.connection_class,
             connection_driver=self._connection_driver,
             table=self._table,
         )

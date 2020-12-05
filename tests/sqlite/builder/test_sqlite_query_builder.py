@@ -10,7 +10,7 @@ from src.masoniteorm.exceptions import ModelNotFound, HTTP404
 
 
 class UserMock(Model):
-    __connection__ = "sqlite"
+    __connection__ = "dev"
     __table__ = "users"
 
 

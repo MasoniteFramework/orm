@@ -10,11 +10,11 @@ from tests.utils import MockConnectionFactory
 
 
 class Logo(Model):
-    __connection__ = "sqlite"
+    __connection__ = "dev"
 
 
 class Article(Model):
-    __connection__ = "sqlite"
+    __connection__ = "dev"
 
     @belongs_to("id", "article_id")
     def logo(self):
@@ -22,11 +22,11 @@ class Article(Model):
 
 
 class Profile(Model):
-    __connection__ = "sqlite"
+    __connection__ = "dev"
 
 
 class User(Model):
-    __connection__ = "sqlite"
+    __connection__ = "dev"
 
     @belongs_to("id", "user_id")
     def articles(self):

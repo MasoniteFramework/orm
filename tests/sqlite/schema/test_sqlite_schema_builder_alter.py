@@ -10,11 +10,11 @@ from src.masoniteorm.schema.Table import Table
 class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
     def setUp(self):
         self.schema = Schema(
-            connection=SQLiteConnection,
+            connection="dev",
             connection_details=DATABASES,
             platform=SQLitePlatform,
             dry=True,
-        ).on("sqlite")
+        ).on("dev")
 
     def test_can_add_columns(self):
         with self.schema.table("users") as blueprint:
@@ -130,8 +130,8 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_alter_drop_on_table_schema_table(self):
-        schema = Schema(connection=SQLiteConnection, connection_details=DATABASES).on(
-            "sqlite"
+        schema = Schema(connection="dev", connection_details=DATABASES).on(
+            "dev"
         )
 
         with schema.table("table_schema") as blueprint:

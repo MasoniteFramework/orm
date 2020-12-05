@@ -7,12 +7,12 @@ from src.masoniteorm.relationships import belongs_to, has_many, morph_to
 
 class Profile(Model):
     __table__ = "profiles"
-    __connection__ = "sqlite"
+    __connection__ = "dev"
 
 
 class Articles(Model):
     __table__ = "articles"
-    __connection__ = "sqlite"
+    __connection__ = "dev"
 
     @belongs_to("id", "article_id")
     def logo(self):
@@ -21,12 +21,12 @@ class Articles(Model):
 
 class Logo(Model):
     __table__ = "logos"
-    __connection__ = "sqlite"
+    __connection__ = "dev"
 
 
 class Like(Model):
 
-    __connection__ = "sqlite"
+    __connection__ = "dev"
 
     @morph_to("record_type", "record_id")
     def record(self):
@@ -35,7 +35,7 @@ class Like(Model):
 
 class User(Model):
 
-    __connection__ = "sqlite"
+    __connection__ = "dev"
 
     _eager_loads = ()
 
