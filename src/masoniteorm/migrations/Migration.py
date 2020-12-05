@@ -30,14 +30,8 @@ class Migration:
 
         DATABASES = DB.get_connection_details()
 
-        connection_driver = DATABASES.get(connection).get("driver")
-
-        connection_class = DB.connection_factory.make(connection_driver)
-
         self.schema = Schema(
-            connection=connection,
-            connection_details=DATABASES,
-            dry=dry,
+            connection=connection, connection_details=DATABASES, dry=dry
         )
 
         self.migration_model = MigrationModel.on(self.connection)
