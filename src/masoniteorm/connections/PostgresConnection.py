@@ -25,6 +25,7 @@ class PostgresConnection(BaseConnection):
         prefix=None,
         options={},
         full_details={},
+        name=None,
     ):
 
         self.host = host
@@ -41,6 +42,8 @@ class PostgresConnection(BaseConnection):
         self._cursor = None
         self.transaction_level = 0
         self.open = 0
+        if name:
+            self.name = name
 
     def make_connection(self):
         """This sets the connection on the connection class"""
