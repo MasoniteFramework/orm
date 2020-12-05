@@ -25,7 +25,8 @@ class BaseTestQueryBuilder:
         connection = MockConnectionFactory().make("default")
         return QueryBuilder(
             grammar=self.grammar,
-            connection=connection,
+            connection_class=connection,
+            connection="mysql",
             table=table,
             model=User(),
             connection_details=DATABASES,
@@ -384,10 +385,6 @@ class BaseTestQueryBuilder:
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
         self.assertEqual(builder.to_sql(), sql)
-
-    def test_get_schema_builder(self):
-        builder = self.get_builder()
-        self.assertTrue(builder.get_schema_builder())
 
 
 class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):

@@ -25,6 +25,7 @@ class MySQLConnection(BaseConnection):
         prefix=None,
         options={},
         full_details={},
+        name=None
     ):
         self.host = host
         self.port = port
@@ -39,6 +40,8 @@ class MySQLConnection(BaseConnection):
         self._cursor = None
         self.open = 0
         self.transaction_level = 0
+        if name:
+            self.name = name
 
     def make_connection(self):
         """This sets the connection on the connection class"""
