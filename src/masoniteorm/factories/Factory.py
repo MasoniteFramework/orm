@@ -9,18 +9,18 @@ class Factory:
         self.model = model
         self.number = number
 
-    def make(self, dictionary={}, name="default"):
-        dic = {}
-        dictionary.update(dic)
+    def make(self, dictionary=None, name="default"):
+        if dictionary is None:
+            dictionary = {}
 
         called = self._factories[self.model][name](Faker())
-        called.update(dic)
+        called.update(dictionary)
 
-        if self.number == 1 and not isinstance(dic, list):
+        if self.number == 1 and not isinstance(dictionary, list):
             return self.model.hydrate(called)
-        elif isinstance(dic, list):
+        elif isinstance(dictionary, list):
             results = []
-            for index in range(0, len(dic)):
+            for index in range(0, len(dictionary)):
                 results.append(called)
             return self.model.hydrate(results)
         else:
@@ -29,18 +29,18 @@ class Factory:
                 results.append(called)
             return self.model.hydrate(results)
 
-    def create(self, dictionary={}, name="default"):
-        dic = {}
-        dictionary.update(dic)
+    def create(self, dictionary=None, name="default"):
+        if dictionary is None:
+            dictionary = {}
 
         called = self._factories[self.model][name](Faker())
-        called.update(dic)
+        called.update(dictionary)
 
-        if self.number == 1 and not isinstance(dic, list):
+        if self.number == 1 and not isinstance(dictionary, list):
             return self.model.create(called)
-        elif isinstance(dic, list):
+        elif isinstance(dictionary, list):
             results = []
-            for index in range(0, len(dic)):
+            for index in range(0, len(dictionary)):
                 results.append(called)
             return self.model.create(results)
         else:
