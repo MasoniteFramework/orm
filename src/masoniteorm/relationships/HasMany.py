@@ -21,7 +21,8 @@ class HasMany(BaseRelationship):
 
         return result
 
-    def get_related(self, relation, eagers=[]):
+    def get_related(self, relation, eagers=None):
+        eagers = eagers or []
         builder = self.get_builder().with_(eagers)
         if isinstance(relation, Collection):
             return builder.where_in(
