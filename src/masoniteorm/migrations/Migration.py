@@ -204,8 +204,8 @@ class Migration:
 
         self.delete_migrations(ran_migrations)
 
-    def delete_migrations(self, migrations=[]):
-        return self.migration_model.where_in("migration", migrations).delete()
+    def delete_migrations(self, migrations=None):
+        return self.migration_model.where_in("migration", migrations or []).delete()
 
     def delete_last_batch(self):
         return self.migration_model.where(

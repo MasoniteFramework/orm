@@ -6,8 +6,8 @@ from functools import reduce
 class Collection:
     """Wraps various data types to make working with them easier."""
 
-    def __init__(self, items=[]):
-        self._items = items
+    def __init__(self, items=None):
+        self._items = items or []
         self.__appends__ = []
 
     def take(self, number: int):
@@ -303,9 +303,9 @@ class Collection:
 
         return list(map(_serialize, self))
 
-    def add_relation(self, result={}):
+    def add_relation(self, result=None):
         for model in self._items:
-            model.add_relations(result)
+            model.add_relations(result or {})
 
         return self
 

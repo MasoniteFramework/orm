@@ -24,8 +24,8 @@ class MySQLConnection(BaseConnection):
         port=None,
         password=None,
         prefix=None,
-        options={},
-        full_details={},
+        options=None,
+        full_details=None,
         name=None,
     ):
         self.host = host
@@ -36,8 +36,8 @@ class MySQLConnection(BaseConnection):
         self.user = user
         self.password = password
         self.prefix = prefix
-        self.full_details = full_details
-        self.options = options
+        self.full_details = full_details or {}
+        self.options = options or {}
         self._cursor = None
         self.open = 0
         self.transaction_level = 0

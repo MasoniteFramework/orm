@@ -28,13 +28,13 @@ class BaseGrammar:
         wheres=(),
         limit=False,
         offset=False,
-        updates={},
+        updates=None,
         aggregates=(),
         order_by=(),
         group_by=(),
         joins=(),
         having=(),
-        connection_details={},
+        connection_details=None,
     ):
         self._columns = columns
         self.table = table
@@ -42,13 +42,13 @@ class BaseGrammar:
         self._wheres = wheres
         self._limit = limit
         self._offset = offset
-        self._updates = updates
+        self._updates = updates or {}
         self._aggregates = aggregates
         self._order_by = order_by
         self._group_by = group_by
         self._joins = joins
         self._having = having
-        self._connection_details = connection_details
+        self._connection_details = connection_details or {}
         self._column = None
 
         self._bindings = ()
