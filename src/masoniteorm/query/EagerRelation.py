@@ -16,11 +16,7 @@ class EagerRelations:
                     self.nested_eagers = {relation_key: relation.split(".")[1:]}
                 else:
                     self.nested_eagers[relation_key] += relation.split(".")[1:]
-            elif isinstance(relation, tuple):
-                for eagers in relations:
-                    for eager in eagers:
-                        self.register(eager)
-            elif isinstance(relation, list):
+            elif isinstance(relation, (tuple, list)):
                 for eagers in relations:
                     for eager in eagers:
                         self.register(eager)
