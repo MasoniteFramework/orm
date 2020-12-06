@@ -424,9 +424,7 @@ class Collection:
 
     def _data_get(self, item, key, default=None):
         try:
-            if isinstance(item, (list, tuple)):
-                item = item[key]
-            elif isinstance(item, dict):
+            if isinstance(item, (list, tuple, dict)):
                 item = item[key]
             elif isinstance(item, object):
                 item = getattr(item, key)
@@ -505,6 +503,6 @@ class Collection:
     @classmethod
     def __get_items(cls, items):
         if isinstance(items, Collection):
-            other = items.all()
+            items = items.all()
 
         return items
