@@ -272,7 +272,7 @@ class Blueprint:
         self._last_column = self.table.add_column(column, "double", nullable=nullable)
         return self
 
-    def enum(self, column, options=[], nullable=False):
+    def enum(self, column, options=None, nullable=False):
         """Sets a column to be the enum representation for the table.
 
         Arguments:
@@ -285,6 +285,8 @@ class Blueprint:
         Returns:
             self
         """
+
+        options = options or []
         new_options = ""
         for option in options:
             new_options += "'{}',".format(option)

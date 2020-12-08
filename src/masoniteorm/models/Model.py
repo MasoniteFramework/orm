@@ -244,7 +244,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return self
 
     @classmethod
-    def hydrate(cls, result, relations={}):
+    def hydrate(cls, result, relations=None):
         """Takes a result and loads it into a model
 
         Args:
@@ -254,6 +254,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Returns:
             [type]: [description]
         """
+
+        relations = relations or {}
 
         if result is None:
             return None
@@ -307,7 +309,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return Collection(data)
 
     @classmethod
-    def create(cls, dictionary={}, query=False, **kwargs):
+    def create(cls, dictionary=None, query=False, **kwargs):
         """Creates new records based off of a dictionary as well as data set on the model
         such as fillable values.
 
@@ -333,7 +335,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return cls.builder.create(dictionary)
 
-    def serialize(self, serialized_dictionary={}):
+    def serialize(self, serialized_dictionary=None):
         """Takes the data as a model and converts it into a dictionary
 
         Args:

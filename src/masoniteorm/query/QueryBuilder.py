@@ -36,10 +36,10 @@ class QueryBuilder(ObservesEvents):
         connection="default",
         connection_class=None,
         table=None,
-        connection_details={},
+        connection_details=None,
         connection_driver="default",
         model=None,
-        scopes={},
+        scopes=None,
         dry=False,
     ):
         """QueryBuilder initializer
@@ -57,9 +57,9 @@ class QueryBuilder(ObservesEvents):
         self.connection = connection
         self.connection_class = connection_class
         self._connection = None
-        self._connection_details = connection_details
+        self._connection_details = connection_details or {}
         self._connection_driver = connection_driver
-        self._scopes = scopes
+        self._scopes = scopes or {}
         self._eager_relation = EagerRelations()
         if model:
             self._global_scopes = model._global_scopes
@@ -352,7 +352,7 @@ class QueryBuilder(ObservesEvents):
     def get_processor(self):
         return self.connection_class.get_default_post_processor()()
 
-    def create(self, creates={}, query=False, id_key="id", **kwargs):
+    def create(self, creates=None, query=False, id_key="id", **kwargs):
         """Specifies a dictionary that should be used to create new values.
 
         Arguments:
@@ -612,7 +612,7 @@ class QueryBuilder(ObservesEvents):
         self._wheres += (BetweenExpression(column, low, high, equality="NOT BETWEEN"),)
         return self
 
-    def where_in(self, column, wheres=[]):
+    def where_in(self, column, wheres=None):
         """Specifies where a column contains a list of a values.
 
         Arguments:
@@ -624,6 +624,9 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
+
+        wheres = wheres or []
+
         if not wheres:
             self._wheres += ((QueryExpression(0, "=", 1, "value_equals")),)
 
@@ -714,7 +717,7 @@ class QueryBuilder(ObservesEvents):
         return self
         # return self.owner.where_has(*args, **kwargs)
 
-    def where_not_in(self, column, wheres=[]):
+    def where_not_in(self, column, wheres=None):
         """Specifies where a column does not contain a list of a values.
 
         Arguments:
@@ -726,6 +729,9 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
+
+        wheres = wheres or []
+
         if isinstance(wheres, QueryBuilder):
             self._wheres += (
                 (QueryExpression(column, "NOT IN", SubSelectExpression(wheres))),

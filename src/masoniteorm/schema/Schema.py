@@ -16,7 +16,7 @@ class Schema:
         connection_class=None,
         platform=None,
         grammar=None,
-        connection_details={},
+        connection_details=None,
         connection_driver=None,
     ):
         self._dry = dry
@@ -25,7 +25,7 @@ class Schema:
         self._connection = None
         self.grammar = grammar
         self.platform = platform
-        self.connection_details = connection_details
+        self.connection_details = connection_details or {}
         self._connection_driver = connection_driver
         self._blueprint = None
         self._sql = None
