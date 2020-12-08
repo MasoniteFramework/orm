@@ -123,9 +123,7 @@ class Collection:
     def collapse(self):
         items = []
         for item in self:
-            if isinstance(item, Collection):
-                item = item.all()
-            items += item
+            items += self.__get_items(item)
         return self.__class__(items)
 
     def contains(self, key, value=None):
@@ -141,8 +139,7 @@ class Collection:
         return len(self._items)
 
     def diff(self, items):
-        if isinstance(items, Collection):
-            items = items.all()
+        items = self.__get_items(items)
         return self.__class__([x for x in self if x not in items])
 
     def each(self, callback):
@@ -224,8 +221,7 @@ class Collection:
         if not isinstance(items, list):
             raise ValueError("Unable to merge uncompatible types")
 
-        if isinstance(items, Collection):
-            items = items.all()
+        items = self.__get_items(items)
 
         self._items += items
         return self
@@ -393,8 +389,7 @@ class Collection:
         return self.__class__(attributes)
 
     def zip(self, items):
-        if isinstance(items, Collection):
-            items = items.all()
+        items = self.__get_items(items)
         if not isinstance(items, list):
             raise ValueError("The 'items' parameter must be a list or a Collection")
 
@@ -429,9 +424,7 @@ class Collection:
 
     def _data_get(self, item, key, default=None):
         try:
-            if isinstance(item, (list, tuple)):
-                item = item[key]
-            elif isinstance(item, dict):
+            if isinstance(item, (list, tuple, dict)):
                 item = item[key]
             elif isinstance(item, object):
                 item = getattr(item, key)
@@ -485,29 +478,31 @@ class Collection:
         del self._items[key]
 
     def __ne__(self, other):
-        if isinstance(other, Collection):
-            other = other.all()
+        other = self.__get_items(other)
         return other != self._items
 
     def __len__(self):
         return len(self._items)
 
     def __le__(self, other):
-        if isinstance(other, Collection):
-            other = other.all()
+        other = self.__get_items(other)
         return self._items <= other
 
     def __lt__(self, other):
-        if isinstance(other, Collection):
-            other = other.all()
+        other = self.__get_items(other)
         return self._items < other
 
     def __ge__(self, other):
-        if isinstance(other, Collection):
-            other = other.all()
+        other = self.__get_items(other)
         return self._items >= other
 
     def __gt__(self, other):
-        if isinstance(other, Collection):
-            other = other.all()
+        other = self.__get_items(other)
         return self._items > other
+
+    @classmethod
+    def __get_items(cls, items):
+        if isinstance(items, Collection):
+            items = items.all()
+
+        return items
