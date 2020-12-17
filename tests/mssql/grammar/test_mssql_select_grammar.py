@@ -279,3 +279,10 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder.where("is_admin", "=", True).first_or_fail()
         """
         return """SELECT TOP 1 * FROM [users] WHERE [users].[is_admin] = '1'"""
+
+    def where_like(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "like", "%name%")
+        """
+        return """SELECT * FROM [users] WHERE [users].[age] LIKE '%name%'"""
