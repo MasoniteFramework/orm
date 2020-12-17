@@ -15,6 +15,8 @@ class Articles(Model):
 
 
 class User(Model):
+    __timestamps__ = False
+
     @has_many("id", "user_id")
     def articles(self):
         return Articles
