@@ -392,7 +392,11 @@ class BaseGrammar:
                     keyword=keyword, query=where.column
                 )
 
-                self.add_binding(where.bindings)
+                if not isinstance(where.bindings, (list, tuple)):
+                    raise ValueError(f"Binings must be tuple or list. Received {type(where.bindings)}")
+
+                if where.bindings:
+                    self.add_binding(*where.bindings)
 
                 continue
 

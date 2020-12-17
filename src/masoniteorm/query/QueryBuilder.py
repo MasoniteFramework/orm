@@ -485,7 +485,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._wheres += ((QueryExpression(query, "=", None, "value", raw=True)),)
+        self._wheres += ((QueryExpression(query, "=", None, "value", raw=True, bindings=bindings)),)
         return self
 
     def or_where(self, column: [str, int], *args) -> "self":
