@@ -429,6 +429,8 @@ class BaseGrammar:
                 sql_string = self.where_exists_string()
             elif equality.upper() == "LIKE":
                 sql_string = self.where_like_string()
+            elif equality.upper() == "NOT LIKE":
+                sql_string = self.where_not_like_string()
             else:
                 sql_string = self.where_string()
 

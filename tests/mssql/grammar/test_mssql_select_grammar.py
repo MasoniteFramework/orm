@@ -286,3 +286,10 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder.where("age", "like", "%name%")
         """
         return """SELECT * FROM [users] WHERE [users].[age] LIKE '%name%'"""
+
+    def where_not_like(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "like", "%name%")
+        """
+        return """SELECT * FROM [users] WHERE [users].[age] NOT LIKE '%name%'"""

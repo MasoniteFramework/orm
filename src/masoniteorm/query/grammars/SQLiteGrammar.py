@@ -72,6 +72,9 @@ class SQLiteGrammar(BaseGrammar):
     def where_like_string(self):
         return "{keyword} {column} LIKE {value}"
 
+    def where_not_like_string(self):
+        return "{keyword} {column} NOT LIKE {value}"
+
     def subquery_alias_string(self):
         return "AS {alias}"
 

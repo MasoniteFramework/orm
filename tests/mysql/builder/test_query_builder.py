@@ -59,6 +59,15 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_where_not_like(self):
+        builder = self.get_builder()
+        builder.where("age", "not like", "%name%")
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
     def test_max(self):
         builder = self.get_builder()
         builder.max("age")
@@ -670,4 +679,13 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         return (
             "SELECT * FROM `users` WHERE `users`.`age` LIKE '%name%'"
+        )
+
+    def where_not_like(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "not like", "%name%")
+        """
+        return (
+            "SELECT * FROM `users` WHERE `users`.`age` NOT LIKE '%name%'"
         )
