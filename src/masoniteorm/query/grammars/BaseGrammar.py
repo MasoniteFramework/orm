@@ -392,7 +392,13 @@ class BaseGrammar:
                     keyword=keyword, query=where.column
                 )
 
-                self.add_binding(where.bindings)
+                if not isinstance(where.bindings, (list, tuple)):
+                    raise ValueError(
+                        f"Binings must be tuple or list. Received {type(where.bindings)}"
+                    )
+
+                if where.bindings:
+                    self.add_binding(*where.bindings)
 
                 continue
 
@@ -427,6 +433,10 @@ class BaseGrammar:
                 sql_string = self.where_not_null_string()
             elif equality == "EXISTS":
                 sql_string = self.where_exists_string()
+            elif equality.upper() == "LIKE":
+                sql_string = self.where_like_string()
+            elif equality.upper() == "NOT LIKE":
+                sql_string = self.where_not_like_string()
             else:
                 sql_string = self.where_string()
 

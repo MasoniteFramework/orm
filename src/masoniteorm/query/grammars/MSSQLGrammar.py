@@ -53,6 +53,12 @@ class MSSQLGrammar(BaseGrammar):
     def where_exists_string(self):
         return "{keyword} EXISTS {value}"
 
+    def where_like_string(self):
+        return "{keyword} {column} LIKE {value}"
+
+    def where_not_like_string(self):
+        return "{keyword} {column} NOT LIKE {value}"
+
     def having_equality_string(self):
         return "HAVING {column} {equality} {value}"
 
