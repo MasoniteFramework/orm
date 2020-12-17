@@ -393,7 +393,9 @@ class BaseGrammar:
                 )
 
                 if not isinstance(where.bindings, (list, tuple)):
-                    raise ValueError(f"Binings must be tuple or list. Received {type(where.bindings)}")
+                    raise ValueError(
+                        f"Binings must be tuple or list. Received {type(where.bindings)}"
+                    )
 
                 if where.bindings:
                     self.add_binding(*where.bindings)
