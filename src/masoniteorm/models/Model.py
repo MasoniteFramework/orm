@@ -225,7 +225,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         if query:
             return builder.to_sql()
         else:
-            return builder.get()
+            return builder.first()
 
     def first_or_new(self):
         pass

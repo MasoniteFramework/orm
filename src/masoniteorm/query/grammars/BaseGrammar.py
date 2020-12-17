@@ -214,12 +214,12 @@ class BaseGrammar:
                 sql += sql_string.format(
                     column=self._table_column_string(column),
                     value=value if not qmark else "?",
-                    separator=",",
+                    separator=", ",
                 )
                 if qmark:
                     self._bindings += (value,)
 
-            sql = sql.rstrip(", ")
+        sql = sql.rstrip(", ")
 
         return sql
 
@@ -394,7 +394,7 @@ class BaseGrammar:
 
                 if not isinstance(where.bindings, (list, tuple)):
                     raise ValueError(
-                        f"Binings must be tuple or list. Received {type(where.bindings)}"
+                        f"Bindings must be tuple or list. Received {type(where.bindings)}"
                     )
 
                 if where.bindings:
