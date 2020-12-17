@@ -1,8 +1,6 @@
 from .BaseScope import BaseScope
 
-from ..expressions.expressions import (
-    UpdateQueryExpression,
-)
+from ..expressions.expressions import UpdateQueryExpression
 
 
 class TimeStampsScope(BaseScope):
@@ -38,4 +36,8 @@ class TimeStampsScope(BaseScope):
         if not builder._model.__timestamps__:
             return builder
 
-        builder._updates += (UpdateQueryExpression({"updated_at": builder._model.get_new_date().to_datetime_string()}),)
+        builder._updates += (
+            UpdateQueryExpression(
+                {"updated_at": builder._model.get_new_date().to_datetime_string()}
+            ),
+        )
