@@ -1,0 +1,48 @@
+[1mdiff --git a/src/masoniteorm/migrations/Migration.py b/src/masoniteorm/migrations/Migration.py[m
+[1mindex cde27a4..569bf96 100644[m
+[1m--- a/src/masoniteorm/migrations/Migration.py[m
+[1m+++ b/src/masoniteorm/migrations/Migration.py[m
+[36m@@ -22,7 +22,8 @@[m [mclass Migration:[m
+         migration_directory="databases/migrations",[m
+     ):[m
+         self.connection = connection[m
+[31m-        self.migration_directory = migration_directory.replace("/", ".")[m
+[32m+[m[32m        self.migration_directory = migration_directory[m
+[32m+[m[32m        # self.migration_directory = migration_directory.replace("/", ".")[m
+         self.last_migrations_ran = [][m
+         self.command_class = command_class[m
+ [m
+[36m@@ -48,7 +49,7 @@[m [mclass Migration:[m
+         return False[m
+ [m
+     def get_unran_migrations(self):[m
+[31m-        directory_path = os.path.join(os.getcwd(), "databases/migrations")[m
+[32m+[m[32m        directory_path = os.path.join(os.getcwd(), self.migration_directory)[m
+         all_migrations = [[m
+             f[m
+             for f in listdir(directory_path)[m
+[36m@@ -89,10 +90,11 @@[m [mclass Migration:[m
+     def locate(self, file_name):[m
+         migration_name = camelize("_".join(file_name.split("_")[4:]).replace(".py", ""))[m
+         file_name = file_name.replace(".py", "")[m
+[31m-        return locate(f"{self.migration_directory}.{file_name}.{migration_name}")[m
+[32m+[m[32m        migration_directory = self.migration_directory.replace("/", ".")[m
+[32m+[m[32m        return locate(f"{migration_directory}.{file_name}.{migration_name}")[m
+ [m
+     def get_ran_migrations(self):[m
+[31m-        directory_path = os.path.join(os.getcwd(), "databases/migrations")[m
+[32m+[m[32m        directory_path = os.path.join(os.getcwd(), self.migration_directory)[m
+         all_migrations = [[m
+             f[m
+             for f in listdir(directory_path)[m
+[36m@@ -115,8 +117,9 @@[m [mclass Migration:[m
+             migration_name = camelize([m
+                 "_".join(migration.split("_")[4:]).replace(".py", "")[m
+             )[m
+[32m+[m[32m            migration_directory = self.migration_directory.replace("/", ".")[m
+             migration_class = locate([m
+[31m-                f"{self.migration_directory}.{migration_module}.{migration_name}"[m
+[32m+[m[32m                f"{migration_directory}.{migration_module}.{migration_name}"[m
+             )[m
+             self.last_migrations_ran.append(migration)[m
+             if self.command_class:[m

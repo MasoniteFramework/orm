@@ -22,7 +22,7 @@ class Migration:
         migration_directory="databases/migrations",
     ):
         self.connection = connection
-        self.migration_directory = migration_directory.replace("/", ".")
+        self.migration_directory = migration_directory
         self.last_migrations_ran = []
         self.command_class = command_class
 
@@ -48,7 +48,7 @@ class Migration:
         return False
 
     def get_unran_migrations(self):
-        directory_path = os.path.join(os.getcwd(), "databases/migrations")
+        directory_path = os.path.join(os.getcwd(), self.migration_directory)
         all_migrations = [
             f
             for f in listdir(directory_path)
@@ -89,10 +89,11 @@ class Migration:
     def locate(self, file_name):
         migration_name = camelize("_".join(file_name.split("_")[4:]).replace(".py", ""))
         file_name = file_name.replace(".py", "")
-        return locate(f"{self.migration_directory}.{file_name}.{migration_name}")
+        migration_directory = self.migration_directory.replace("/", ".")
+        return locate(f"{migration_directory}.{file_name}.{migration_name}")
 
     def get_ran_migrations(self):
-        directory_path = os.path.join(os.getcwd(), "databases/migrations")
+        directory_path = os.path.join(os.getcwd(), self.migration_directory)
         all_migrations = [
             f
             for f in listdir(directory_path)
@@ -115,8 +116,9 @@ class Migration:
             migration_name = camelize(
                 "_".join(migration.split("_")[4:]).replace(".py", "")
             )
+            migration_directory = self.migration_directory.replace("/", ".")
             migration_class = locate(
-                f"{self.migration_directory}.{migration_module}.{migration_name}"
+                f"{migration_directory}.{migration_module}.{migration_name}"
             )
             self.last_migrations_ran.append(migration)
             if self.command_class:
