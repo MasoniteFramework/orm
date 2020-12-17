@@ -273,3 +273,17 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder.where("is_admin", "=", True).first_or_fail()
         """
         return """SELECT * FROM "users" WHERE "users"."is_admin" = '1' LIMIT 1"""
+
+    def where_not_like(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "not like", "%name%").to_sql()
+        """
+        return """SELECT * FROM "users" WHERE "users"."age" NOT LIKE '%name%'"""
+
+    def where_like(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "not like", "%name%").to_sql()
+        """
+        return """SELECT * FROM "users" WHERE "users"."age" LIKE '%name%'"""

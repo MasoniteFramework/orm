@@ -309,18 +309,14 @@ class BaseTestCaseSelectGrammar:
         self.assertEqual(to_sql, sql)
 
     def test_where_like(self):
-        to_sql = (
-            self.builder.where("age", "like", "%name%").to_sql()
-        )
+        to_sql = self.builder.where("age", "like", "%name%").to_sql()
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
         self.assertEqual(to_sql, sql)
 
     def test_where_not_like(self):
-        to_sql = (
-            self.builder.where("age", "not like", "%name%").to_sql()
-        )
+        to_sql = self.builder.where("age", "not like", "%name%").to_sql()
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
