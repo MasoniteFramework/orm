@@ -70,10 +70,10 @@ class SQLiteGrammar(BaseGrammar):
         return "{keyword} EXISTS {value}"
 
     def where_like_string(self):
-        return "{keyword} {column} ILIKE {value}"
+        return "{keyword} {column} LIKE {value}"
 
     def where_not_like_string(self):
-        return "{keyword} {column} NOT ILIKE {value}"
+        return "{keyword} {column} NOT LIKE {value}"
 
     def subquery_alias_string(self):
         return "AS {alias}"
