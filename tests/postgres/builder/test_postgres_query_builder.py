@@ -659,11 +659,11 @@ class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = self.get_builder()
         builder.where("age", "like", "%name%")
         """
-        return """SELECT * FROM "users" WHERE "users"."age" LIKE '%name%'"""
+        return """SELECT * FROM "users" WHERE "users"."age" ILIKE '%name%'"""
 
     def where_not_like(self):
         """
         builder = self.get_builder()
         builder.where("age", "not like", "%name%")
         """
-        return """SELECT * FROM "users" WHERE "users"."age" NOT LIKE '%name%'"""
+        return """SELECT * FROM "users" WHERE "users"."age" NOT ILIKE '%name%'"""
