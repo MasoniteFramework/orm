@@ -67,10 +67,10 @@ class PostgresGrammar(BaseGrammar):
         return "{keyword} EXISTS {value}"
 
     def where_like_string(self):
-        return "{keyword} {column} LIKE {value}"
+        return "{keyword} {column} ILIKE {value}"
 
     def where_not_like_string(self):
-        return "{keyword} {column} NOT LIKE {value}"
+        return "{keyword} {column} NOT ILIKE {value}"
 
     def subquery_alias_string(self):
         return "AS {alias}"
