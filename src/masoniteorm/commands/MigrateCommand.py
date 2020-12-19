@@ -9,6 +9,7 @@ class MigrateCommand(Command):
 
     migrate
         {--c|connection=default : The connection you want to run migrations on}
+        {--m|directory=databases/migrations : The location of the migration directory}
         {--f|force : Force migrations without prompt in production}
         {--s|show : Shows the output of SQL for migrations that would be running}
     """
@@ -27,7 +28,7 @@ class MigrateCommand(Command):
                 self.info("Migrations cancelled")
                 exit(0)
 
-        migration = Migration(command_class=self, connection=self.option("connection"))
+        migration = Migration(command_class=self, connection=self.option("connection"), migration_directory=self.option('directory'))
         migration.create_table_if_not_exists()
         if not migration.get_unran_migrations():
             self.info("Nothing To Migrate!")
