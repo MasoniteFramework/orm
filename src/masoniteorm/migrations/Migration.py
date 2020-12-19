@@ -12,6 +12,8 @@ from ..connections import ConnectionFactory
 from pprint import pprint
 from timeit import default_timer as timer
 
+from ..exceptions import MigrationNotFound
+
 
 class Migration:
     def __init__(
@@ -22,7 +24,7 @@ class Migration:
         migration_directory="databases/migrations",
     ):
         self.connection = connection
-        self.migration_directory = migration_directory.replace("/", ".")
+        self.migration_directory = migration_directory
         self.last_migrations_ran = []
         self.command_class = command_class
 
@@ -48,7 +50,7 @@ class Migration:
         return False
 
     def get_unran_migrations(self):
-        directory_path = os.path.join(os.getcwd(), "databases/migrations")
+        directory_path = os.path.join(os.getcwd(), self.migration_directory)
         all_migrations = [
             f
             for f in listdir(directory_path)
@@ -89,10 +91,11 @@ class Migration:
     def locate(self, file_name):
         migration_name = camelize("_".join(file_name.split("_")[4:]).replace(".py", ""))
         file_name = file_name.replace(".py", "")
-        return locate(f"{self.migration_directory}.{file_name}.{migration_name}")
+        migration_directory = self.migration_directory.replace("/", ".")
+        return locate(f"{migration_directory}.{file_name}.{migration_name}")
 
     def get_ran_migrations(self):
-        directory_path = os.path.join(os.getcwd(), "databases/migrations")
+        directory_path = os.path.join(os.getcwd(), self.migration_directory)
         all_migrations = [
             f
             for f in listdir(directory_path)
@@ -115,9 +118,17 @@ class Migration:
             migration_name = camelize(
                 "_".join(migration.split("_")[4:]).replace(".py", "")
             )
-            migration_class = locate(
-                f"{self.migration_directory}.{migration_module}.{migration_name}"
-            )
+
+            migration_directory = self.migration_directory.replace("/", ".")
+
+            try:
+                migration_class = locate(
+                    f"{migration_directory}.{migration_module}.{migration_name}"
+                )
+            except TypeError:
+                self.command_class.line(f"<error>Not Found: {migration}</error>")
+                raise MigrationNotFound(f"Could not find {migration}")
+
             self.last_migrations_ran.append(migration)
             if self.command_class:
                 self.command_class.line(
@@ -159,7 +170,12 @@ class Migration:
                     f"<comment>Rolling back:</comment> <question>{migration}</question>"
                 )
 
-            migration_class = self.locate(migration)(connection=self.connection)
+            try:
+                migration_class = self.locate(migration)(connection=self.connection)
+            except TypeError:
+                self.command_class.line(f"<error>Not Found: {migration}</error>")
+
+                raise MigrationNotFound(f"Could not find {migration}")
 
             if output:
                 migration_class.schema.dry()
@@ -195,15 +211,6 @@ class Migration:
                     f"<info>Rolled back:</info> <question>{migration}</question> ({duration}s)"
                 )
 
-    def rollback_all(self):
-        ran_migrations = []
-        for migration in self.get_all_migrations():
-            self.locate(migration)().down()
-            self.delete_migration(migration)
-            ran_migrations.append(migration)
-
-        self.delete_migrations(ran_migrations)
-
     def delete_migrations(self, migrations=None):
         return self.migration_model.where_in("migration", migrations or []).delete()
 
@@ -219,7 +226,12 @@ class Migration:
                     f"<comment>Rolling back:</comment> <question>{migration}</question>"
                 )
 
-            self.locate(migration)(connection=self.connection).down()
+            try:
+                self.locate(migration)(connection=self.connection).down()
+            except TypeError:
+                self.command_class.line(f"<error>Not Found: {migration}</error>")
+
+                raise MigrationNotFound(f"Could not find {migration}")
 
             self.delete_migration(migration)
 

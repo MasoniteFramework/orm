@@ -9,12 +9,17 @@ class MigrateStatusCommand(Command):
 
     migrate:status
         {--c|connection=default : The connection you want to run migrations on}
+        {--d|directory=databases/migrations : The location of the migration directory}
     """
 
     def handle(self):
         from config.database import ConnectionResolver
 
-        migration = Migration(command_class=self, connection=self.option("connection"))
+        migration = Migration(
+            command_class=self,
+            connection=self.option("connection"),
+            migration_directory=self.option("directory"),
+        )
         migration.create_table_if_not_exists()
         table = self.table()
         table.set_header_row(["Ran?", "Migration"])
