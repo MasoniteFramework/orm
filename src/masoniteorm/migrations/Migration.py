@@ -211,15 +211,6 @@ class Migration:
                     f"<info>Rolled back:</info> <question>{migration}</question> ({duration}s)"
                 )
 
-    def rollback_all(self):
-        ran_migrations = []
-        for migration in self.get_all_migrations():
-            self.locate(migration)().down()
-            self.delete_migration(migration)
-            ran_migrations.append(migration)
-
-        self.delete_migrations(ran_migrations)
-
     def delete_migrations(self, migrations=None):
         return self.migration_model.where_in("migration", migrations or []).delete()
 
