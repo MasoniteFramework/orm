@@ -8,7 +8,7 @@ class MigrateRefreshCommand(Command):
 
     migrate:refresh
         {--c|connection=default : The connection you want to run migrations on}
-        {--m|directory=databases/migrations : The location of the migration directory}
+        {--d|directory=databases/migrations : The location of the migration directory}
     """
 
     def handle(self):
