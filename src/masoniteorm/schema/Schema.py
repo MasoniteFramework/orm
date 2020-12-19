@@ -26,7 +26,6 @@ class Schema:
         self.grammar = grammar
         self.platform = platform
         self.connection_details = connection_details or {}
-        self._connection_driver = connection_driver
         self._blueprint = None
         self._sql = None
 
@@ -131,9 +130,7 @@ class Schema:
             "options": self.connection_details.get(self.connection, {}).get(
                 "options", {}
             ),
-            "full_details": self.connection_details.get(
-                self._connection_driver, {}
-            ).get("full_details"),
+            "full_details": self.connection_details.get(self.connection),
         }
 
     def new_connection(self):

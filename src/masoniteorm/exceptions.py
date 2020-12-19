@@ -16,3 +16,7 @@ class ConnectionNotRegistered(Exception):
 
 class QueryException(Exception):
     pass
+
+
+class MigrationNotFound(Exception):
+    pass

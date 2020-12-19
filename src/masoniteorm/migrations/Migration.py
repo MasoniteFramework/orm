@@ -12,6 +12,8 @@ from ..connections import ConnectionFactory
 from pprint import pprint
 from timeit import default_timer as timer
 
+from ..exceptions import MigrationNotFound
+
 
 class Migration:
     def __init__(
@@ -29,6 +31,7 @@ class Migration:
         from config.database import DB
 
         DATABASES = DB.get_connection_details()
+
 
         self.schema = Schema(
             connection=connection, connection_details=DATABASES, dry=dry
@@ -116,10 +119,17 @@ class Migration:
             migration_name = camelize(
                 "_".join(migration.split("_")[4:]).replace(".py", "")
             )
+
             migration_directory = self.migration_directory.replace("/", ".")
-            migration_class = locate(
-                f"{migration_directory}.{migration_module}.{migration_name}"
-            )
+
+            try:
+                migration_class = locate(
+                    f"{migration_directory}.{migration_module}.{migration_name}"
+                )
+            except TypeError:
+                self.command_class.line(f"<error>Not Found: {migration}</error>")
+                raise MigrationNotFound(f"Could not find {migration}")
+
             self.last_migrations_ran.append(migration)
             if self.command_class:
                 self.command_class.line(
@@ -161,7 +171,12 @@ class Migration:
                     f"<comment>Rolling back:</comment> <question>{migration}</question>"
                 )
 
-            migration_class = self.locate(migration)(connection=self.connection)
+            try:
+                migration_class = self.locate(migration)(connection=self.connection)
+            except TypeError:
+                self.command_class.line(f"<error>Not Found: {migration}</error>")
+
+                raise MigrationNotFound(f"Could not find {migration}")
 
             if output:
                 migration_class.schema.dry()
@@ -221,7 +236,12 @@ class Migration:
                     f"<comment>Rolling back:</comment> <question>{migration}</question>"
                 )
 
-            self.locate(migration)(connection=self.connection).down()
+            try:
+                self.locate(migration)(connection=self.connection).down()
+            except TypeError:
+                self.command_class.line(f"<error>Not Found: {migration}</error>")
+
+                raise MigrationNotFound(f"Could not find {migration}")
 
             self.delete_migration(migration)
 
