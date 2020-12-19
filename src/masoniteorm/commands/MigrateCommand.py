@@ -28,7 +28,11 @@ class MigrateCommand(Command):
                 self.info("Migrations cancelled")
                 exit(0)
 
-        migration = Migration(command_class=self, connection=self.option("connection"), migration_directory=self.option('directory'))
+        migration = Migration(
+            command_class=self,
+            connection=self.option("connection"),
+            migration_directory=self.option("directory"),
+        )
         migration.create_table_if_not_exists()
         if not migration.get_unran_migrations():
             self.info("Nothing To Migrate!")
