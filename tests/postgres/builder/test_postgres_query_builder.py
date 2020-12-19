@@ -20,6 +20,10 @@ class MockConnection:
         return
 
 
+class ModelTest(Model):
+    __timestamps__ = False
+
+
 class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("postgres")
@@ -28,7 +32,7 @@ class BaseTestQueryBuilder:
             connection_class=connection,
             connection="postgres",
             table=table,
-            model=Model(),
+            model=ModelTest(),
         )
 
     def test_sum(self):
