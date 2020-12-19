@@ -32,7 +32,6 @@ class Migration:
 
         DATABASES = DB.get_connection_details()
 
-
         self.schema = Schema(
             connection=connection, connection_details=DATABASES, dry=dry
         )
