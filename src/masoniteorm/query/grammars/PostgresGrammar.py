@@ -125,7 +125,7 @@ class PostgresGrammar(BaseGrammar):
         return '"{table}"'
 
     def order_by_string(self):
-        return "ORDER BY {column} {direction}"
+        return "{column} {direction}"
 
     def column_string(self):
         return '"{column}"{separator}'
