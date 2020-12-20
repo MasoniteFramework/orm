@@ -263,7 +263,7 @@ class BaseGrammar:
                     column=self._table_column_string(column), direction=direction.upper()
                 )
             sql = self.order_by_string().format(
-                    order_columns=order_crit
+                order_columns=order_crit
             )
 
         return sql
