@@ -466,7 +466,7 @@ class BaseGrammar:
                 query_value = query_value.rstrip(",").rstrip(", ") + ")"
             elif qmark:
                 query_value = "'?'"
-                if value is not True and value_type != "value_equals":
+                if value is not True and value_type != "value_equals" and value_type != "NULL":
                     self.add_binding(value)
             elif value_type == "value":
                 query_value = self.value_string().format(value=value, separator="")

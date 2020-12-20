@@ -103,6 +103,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "simple_paginate",
         "paginate",
         "where_has",
+        "where_null",
         "chunk",
         "where_in",
         "where",

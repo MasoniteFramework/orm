@@ -37,15 +37,21 @@ class Factory:
         called.update(dictionary)
 
         if self.number == 1 and not isinstance(dictionary, list):
+            called = self._factories[self.model][name](Faker())
+            called.update(dictionary)
             return self.model.create(called)
         elif isinstance(dictionary, list):
             results = []
             for index in range(0, len(dictionary)):
+                called = self._factories[self.model][name](Faker())
+                called.update(dictionary)
                 results.append(called)
             return self.model.create(results)
         else:
             full_collection = []
             for index in range(0, self.number):
+                called = self._factories[self.model][name](Faker())
+                called.update(dictionary)
                 full_collection.append(called)
                 self.model.create(called)
 
