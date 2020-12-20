@@ -130,8 +130,11 @@ class MSSQLGrammar(BaseGrammar):
     def table_string(self):
         return "[{prefix}{table}]"
 
-    def order_by_string(self):
+    def order_by_format(self):
         return "{column} {direction}"
+
+    def order_by_string(self):
+        return "ORDER BY {order_columns}"
 
     def column_string(self):
         return "[{column}]{separator}"
