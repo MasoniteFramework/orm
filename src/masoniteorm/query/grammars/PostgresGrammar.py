@@ -31,7 +31,7 @@ class PostgresGrammar(BaseGrammar):
     }
 
     def select_format(self):
-        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by}{order_by} {limit} {offset} {having}"
+        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by} {order_by} {limit} {offset} {having}"
 
     def update_format(self):
         return "UPDATE {table} SET {key_equals} {wheres}"
@@ -124,8 +124,11 @@ class PostgresGrammar(BaseGrammar):
     def table_string(self):
         return '"{table}"'
 
+    def order_by_format(self):
+        return "{column} {direction}"
+
     def order_by_string(self):
-        return "ORDER BY {column} {direction}"
+        return "ORDER BY {order_columns}"
 
     def column_string(self):
         return '"{column}"{separator}'

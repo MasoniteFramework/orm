@@ -253,10 +253,17 @@ class BaseGrammar:
             self
         """
         sql = ""
-        for order_bys in self._order_by:
-            column, direction = order_bys
-            sql += self.order_by_string().format(
-                column=self._table_column_string(column), direction=direction.upper()
+        if self._order_by:
+            order_crit = ""
+            for order_bys in self._order_by:
+                if len(order_crit):
+                    order_crit += ", "
+                column, direction = order_bys
+                order_crit += self.order_by_format().format(
+                    column=self._table_column_string(column), direction=direction.upper()
+                )
+            sql = self.order_by_string().format(
+                order_columns=order_crit
             )
 
         return sql

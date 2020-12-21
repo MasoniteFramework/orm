@@ -75,6 +75,12 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         return "SELECT [users].[username] FROM [users] ORDER BY [users].[age] DESC"
 
+    def can_compile_with_multiple_order_by(self):
+        """
+        self.builder.select('username').order_by('age', 'desc').order_by('name').to_sql()
+        """
+        return "SELECT [users].[username] FROM [users] ORDER BY [users].[age] DESC, [users].[name] ASC"
+
     def can_compile_with_group_by(self):
         """
         self.builder.select('username').group_by('age').to_sql()
