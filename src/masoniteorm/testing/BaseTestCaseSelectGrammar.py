@@ -124,6 +124,13 @@ class BaseTestCaseSelectGrammar:
         )()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_with_multiple_order_by(self):
+        to_sql = self.builder.select("username").order_by("age", "desc").order_by("name").to_sql()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
     def test_can_compile_with_group_by(self):
         to_sql = self.builder.select("username").group_by("age").to_sql()
         sql = getattr(
