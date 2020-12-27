@@ -12,7 +12,7 @@ class Schema:
     def __init__(
         self,
         dry=False,
-        connection=None,
+        connection="default",
         connection_class=None,
         platform=None,
         grammar=None,
@@ -28,6 +28,7 @@ class Schema:
         self.connection_details = connection_details or {}
         self._blueprint = None
         self._sql = None
+
 
         if not self.connection_class:
             self.on(self.connection)
@@ -48,9 +49,9 @@ class Schema:
         from config.database import DB
 
         if connection == "default":
-            connection = self.connection_details.get("default")
+            self.connection = self.connection_details.get("default")
 
-        self._connection_driver = self.connection_details.get(connection).get("driver")
+        self._connection_driver = self.connection_details.get(self.connection).get("driver")
 
         self.connection_class = DB.connection_factory.make(self._connection_driver)
 
