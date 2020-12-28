@@ -260,11 +260,10 @@ class BaseGrammar:
                     order_crit += ", "
                 column, direction = order_bys
                 order_crit += self.order_by_format().format(
-                    column=self._table_column_string(column), direction=direction.upper()
+                    column=self._table_column_string(column),
+                    direction=direction.upper(),
                 )
-            sql = self.order_by_string().format(
-                order_columns=order_crit
-            )
+            sql = self.order_by_string().format(order_columns=order_crit)
 
         return sql
 
@@ -473,7 +472,11 @@ class BaseGrammar:
                 query_value = query_value.rstrip(",").rstrip(", ") + ")"
             elif qmark:
                 query_value = "'?'"
-                if value is not True and value_type != "value_equals" and value_type != "NULL":
+                if (
+                    value is not True
+                    and value_type != "value_equals"
+                    and value_type != "NULL"
+                ):
                     self.add_binding(value)
             elif value_type == "value":
                 query_value = self.value_string().format(value=value, separator="")

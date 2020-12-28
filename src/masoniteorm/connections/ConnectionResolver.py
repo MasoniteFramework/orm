@@ -85,14 +85,12 @@ class ConnectionResolver:
         from ..schema import Schema
 
         return Schema(
-            connection=connection,
-            connection_details=self.get_connection_details(),
+            connection=connection, connection_details=self.get_connection_details()
         )
 
     def get_query_builder(self, connection="default"):
         from ..query import QueryBuilder
 
         return QueryBuilder(
-            connection=connection,
-            connection_details=self.get_connection_details(),
+            connection=connection, connection_details=self.get_connection_details()
         )
