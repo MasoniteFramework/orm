@@ -154,3 +154,25 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             sql,
             "SELECT column_name FROM information_schema.columns WHERE table_name='users' and column_name='name'",
         )
+
+    def test_can_enable_foreign_keys(self):
+        sql = self.schema.enable_foreign_key_constraints()
+
+        self.assertEqual(sql, "SET FOREIGN_KEY_CHECKS=1")
+
+    def test_can_disable_foreign_keys(self):
+        sql = self.schema.disable_foreign_key_constraints()
+
+        self.assertEqual(sql, "SET FOREIGN_KEY_CHECKS=0")
+
+    def test_can_truncate_without_foreign_keys(self):
+        sql = self.schema.truncate("users", foreign_keys=True)
+
+        self.assertEqual(
+            sql,
+            [
+                "SET FOREIGN_KEY_CHECKS=0",
+                "TRUNCATE `users`",
+                "SET FOREIGN_KEY_CHECKS=1",
+            ],
+        )

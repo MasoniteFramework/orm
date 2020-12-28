@@ -197,8 +197,15 @@ class MSSQLPlatform(Platform):
     def compile_table_exists(self, table, database):
         return f"SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{table}'"
 
-    def compile_truncate(self, table):
-        return f"TRUNCATE TABLE {self.wrap_table(table)}"
+    def compile_truncate(self, table, foreign_keys=False):
+        if not foreign_keys:
+            return f"TRUNCATE TABLE {self.wrap_table(table)}"
+
+        return [
+            f"ALTER TABLE {self.wrap_table(table)} NOCHECK CONSTRAINT ALL",
+            f"TRUNCATE TABLE {self.wrap_table(table)}",
+            f"ALTER TABLE {self.wrap_table(table)} WITH CHECK CHECK CONSTRAINT ALL",
+        ]
 
     def compile_rename_table(self, current_name, new_name):
         return f"EXEC sp_rename {self.wrap_table(current_name)}, {self.wrap_table(new_name)}"
@@ -214,3 +221,13 @@ class MSSQLPlatform(Platform):
 
     def get_current_schema(self, connection, table_name):
         return Table(table_name)
+
+    def enable_foreign_key_constraints(self):
+        """Postgres does not allow a global way to enable foreign key constraints
+        """
+        return ""
+
+    def disable_foreign_key_constraints(self):
+        """Postgres does not allow a global way to disable foreign key constraints
+        """
+        return ""

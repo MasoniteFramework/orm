@@ -205,8 +205,8 @@ class Schema:
 
         return bool(self.new_connection().query(sql, ()))
 
-    def truncate(self, table):
-        sql = self.platform().compile_truncate(table)
+    def truncate(self, table, foreign_keys=False):
+        sql = self.platform().compile_truncate(table, foreign_keys=foreign_keys)
 
         if self._dry:
             self._sql = sql
@@ -224,6 +224,24 @@ class Schema:
         sql = self.platform().compile_table_exists(
             table, database=self.get_connection_information().get("database")
         )
+
+        if self._dry:
+            self._sql = sql
+            return sql
+
+        return bool(self.new_connection().query(sql, ()))
+
+    def enable_foreign_key_constraints(self):
+        sql = self.platform().enable_foreign_key_constraints()
+
+        if self._dry:
+            self._sql = sql
+            return sql
+
+        return bool(self.new_connection().query(sql, ()))
+
+    def disable_foreign_key_constraints(self):
+        sql = self.platform().disable_foreign_key_constraints()
 
         if self._dry:
             self._sql = sql

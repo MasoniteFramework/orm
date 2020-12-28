@@ -150,3 +150,25 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             table.to_sql(),
             'CREATE TABLE "users" (id CHAR(36) NOT NULL PRIMARY KEY, name VARCHAR(255) NOT NULL, public_id CHAR(36) NULL)',
         )
+
+    def test_can_enable_foreign_keys(self):
+        sql = self.schema.enable_foreign_key_constraints()
+
+        self.assertEqual(sql, "")
+
+    def test_can_disable_foreign_keys(self):
+        sql = self.schema.disable_foreign_key_constraints()
+
+        self.assertEqual(sql, "")
+
+    def test_can_truncate_without_foreign_keys(self):
+        sql = self.schema.truncate("users", foreign_keys=True)
+
+        self.assertEqual(
+            sql,
+            [
+                'ALTER TABLE "users" DISABLE TRIGGER ALL',
+                'TRUNCATE "users"',
+                'ALTER TABLE "users" ENABLE TRIGGER ALL',
+            ],
+        )

@@ -252,8 +252,15 @@ class PostgresPlatform(Platform):
     def compile_table_exists(self, table, database=None):
         return f"SELECT * from information_schema.tables where table_name='{table}'"
 
-    def compile_truncate(self, table):
-        return f"TRUNCATE {self.wrap_table(table)}"
+    def compile_truncate(self, table, foreign_keys=False):
+        if not foreign_keys:
+            return f"TRUNCATE {self.wrap_table(table)}"
+
+        return [
+            f"ALTER TABLE {self.wrap_table(table)} DISABLE TRIGGER ALL",
+            f"TRUNCATE {self.wrap_table(table)}",
+            f"ALTER TABLE {self.wrap_table(table)} ENABLE TRIGGER ALL",
+        ]
 
     def compile_rename_table(self, current_name, new_name):
         return f"ALTER TABLE {self.wrap_table(current_name)} RENAME TO {self.wrap_table(new_name)}"
@@ -286,3 +293,13 @@ class PostgresPlatform(Platform):
                 table.set_primary_key(column["column_name"])
 
         return table
+
+    def enable_foreign_key_constraints(self):
+        """Postgres does not allow a global way to enable foreign key constraints
+        """
+        return ""
+
+    def disable_foreign_key_constraints(self):
+        """Postgres does not allow a global way to disable foreign key constraints
+        """
+        return ""

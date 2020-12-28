@@ -143,3 +143,25 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
             sql,
             "SELECT 1 FROM sys.columns WHERE Name = N'name' AND Object_ID = Object_ID(N'users')",
         )
+
+    def test_can_enable_foreign_keys(self):
+        sql = self.schema.enable_foreign_key_constraints()
+
+        self.assertEqual(sql, "")
+
+    def test_can_disable_foreign_keys(self):
+        sql = self.schema.disable_foreign_key_constraints()
+
+        self.assertEqual(sql, "")
+
+    def test_can_truncate_without_foreign_keys(self):
+        sql = self.schema.truncate("users", foreign_keys=True)
+
+        self.assertEqual(
+            sql,
+            [
+                "ALTER TABLE [users] NOCHECK CONSTRAINT ALL",
+                "TRUNCATE TABLE [users]",
+                "ALTER TABLE [users] WITH CHECK CHECK CONSTRAINT ALL",
+            ],
+        )
