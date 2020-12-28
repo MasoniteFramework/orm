@@ -3,6 +3,7 @@ from ..connections.ConnectionFactory import ConnectionFactory
 from .Blueprint import Blueprint
 from .Table import Table
 from .TableDiff import TableDiff
+from ..exceptions import ConnectionNotRegistered
 
 
 class Schema:
@@ -35,7 +36,7 @@ class Schema:
         if not self.platform:
             self.platform = self.connection_class.get_default_platform()
 
-    def on(self, connection):
+    def on(self, connection_key):
         """Change the connection from the default connection
 
         Arguments:
@@ -47,12 +48,19 @@ class Schema:
         """
         from config.database import DB
 
-        if connection == "default":
+        if connection_key == "default":
             self.connection = self.connection_details.get("default")
 
-        self._connection_driver = self.connection_details.get(self.connection).get(
-            "driver"
+        connection_detail = self._connection_driver = self.connection_details.get(
+            self.connection
         )
+
+        if connection_detail:
+            self._connection_driver = connection_detail.get("driver")
+        else:
+            raise ConnectionNotRegistered(
+                f"Could not find the '{connection_key}' connection details"
+            )
 
         self.connection_class = DB.connection_factory.make(self._connection_driver)
 
