@@ -232,8 +232,15 @@ class MySQLPlatform(Platform):
     def compile_table_exists(self, table, database):
         return f"SELECT * from information_schema.tables where table_name='{table}' AND table_schema = '{database}'"
 
-    def compile_truncate(self, table):
-        return f"TRUNCATE {self.wrap_table(table)}"
+    def compile_truncate(self, table, foreign_keys=False):
+        if not foreign_keys:
+            return f"TRUNCATE {self.wrap_table(table)}"
+
+        return [
+            self.disable_foreign_key_constraints(),
+            f"TRUNCATE {self.wrap_table(table)}",
+            self.enable_foreign_key_constraints(),
+        ]
 
     def compile_rename_table(self, current_name, new_name):
         return f"ALTER TABLE {self.wrap_table(current_name)} RENAME TO {self.wrap_table(new_name)}"
@@ -249,3 +256,9 @@ class MySQLPlatform(Platform):
 
     def get_current_schema(self, connection, table_name):
         return Table(table_name)
+
+    def enable_foreign_key_constraints(self):
+        return "SET FOREIGN_KEY_CHECKS=1"
+
+    def disable_foreign_key_constraints(self):
+        return "SET FOREIGN_KEY_CHECKS=0"

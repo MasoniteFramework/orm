@@ -223,8 +223,15 @@ class SQLitePlatform(Platform):
     def compile_column_exists(self, table, column):
         return f"SELECT column_name FROM information_schema.columns WHERE table_name='{table}' and column_name='{column}'"
 
-    def compile_truncate(self, table):
-        return f"TRUNCATE {self.wrap_table(table)}"
+    def compile_truncate(self, table, foreign_keys=False):
+        if not foreign_keys:
+            return f"TRUNCATE {self.wrap_table(table)}"
+
+        return [
+            self.disable_foreign_key_constraints(),
+            f"TRUNCATE {self.wrap_table(table)}",
+            self.enable_foreign_key_constraints(),
+        ]
 
     def compile_rename_table(self, current_table, new_name):
         return f"ALTER TABLE {self.wrap_table(current_table)} RENAME TO {self.wrap_table(new_name)}"
@@ -234,3 +241,9 @@ class SQLitePlatform(Platform):
 
     def compile_drop_table(self, current_table):
         return f"DROP TABLE {self.wrap_table(current_table)}"
+
+    def enable_foreign_key_constraints(self):
+        return "PRAGMA foreign_keys = ON"
+
+    def disable_foreign_key_constraints(self):
+        return "PRAGMA foreign_keys = OFF"
