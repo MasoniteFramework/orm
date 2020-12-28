@@ -108,6 +108,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "where_in",
         "where",
         "with_",
+        "when",
         "update",
     ]
 
