@@ -1388,3 +1388,8 @@ class QueryBuilder(ObservesEvents):
     def macro(self, name, callable):
         self._macros.update({name: callable})
         return self
+
+    def when(self, conditional, callback):
+        if conditional:
+            callback(self)
+        return self

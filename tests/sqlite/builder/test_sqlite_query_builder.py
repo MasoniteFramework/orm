@@ -668,3 +668,14 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.where("age", "like", "%name%")
         """
         return """SELECT * FROM "users" WHERE "users"."age" NOT LIKE '%name%'"""
+
+    def test_when(self):
+        builder = self.get_builder()
+        sql = builder.when(19 > 18, lambda q: q.where("age_restricted", 1)).to_sql()
+        return self.assertEqual(
+            sql, """SELECT * FROM "users" WHERE "users"."age_restricted" = '1'"""
+        )
+
+        builder = self.get_builder()
+        sql = builder.when(17 > 18, lambda q: q.where("age_restricted", 1)).to_sql()
+        return self.assertEqual(sql, """SELECT * FROM "users\"""")
