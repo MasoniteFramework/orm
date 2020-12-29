@@ -100,4 +100,3 @@ class TestTimeStampsScope(unittest.TestCase):
         user = UserSoft.hydrate({"id": 1})
         sql = user.delete(query=True).to_sql()
         self.assertTrue(sql.startswith("UPDATE"))
-        

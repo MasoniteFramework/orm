@@ -587,6 +587,14 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return pendulum.instance(datetime)
 
+    def get_new_datetime_string(self, datetime=None):
+        """
+        Get the attributes that should be converted to dates.
+
+        :rtype: list
+        """
+        return self.get_new_date(datetime).to_datetime_string()
+
     def get_new_serialized_date(self, datetime):
         """
         Get the attributes that should be converted to dates.
