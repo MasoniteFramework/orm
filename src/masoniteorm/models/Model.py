@@ -78,6 +78,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     __dates__ = []
     __hidden__ = []
     __timestamps__ = True
+    __timezone__ = 'UTC'
     __with__ = ()
 
     date_created_at = "created_at"
@@ -580,12 +581,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         import pendulum
 
         if not datetime:
-            return pendulum.now()
+            return pendulum.now(self.__timezone__)
 
         if isinstance(datetime, str):
-            return pendulum.parse(datetime)
+            return pendulum.parse(datetime, tz=self.__timezone__)
 
-        return pendulum.instance(datetime)
+        return pendulum.instance(datetime, tz=self.__timezone__)
 
     def get_new_datetime_string(self, datetime=None):
         """
