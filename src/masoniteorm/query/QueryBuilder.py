@@ -958,7 +958,7 @@ class QueryBuilder(ObservesEvents):
             return self
 
         result = self.new_connection().query(self.to_qmark(), self._bindings, results=1)
-        return result[f"COUNT({column})"]
+        return list(result.values())[0]
 
     def max(self, column):
         """Aggregates a columns values.
