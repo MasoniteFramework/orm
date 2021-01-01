@@ -78,7 +78,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     __dates__ = []
     __hidden__ = []
     __timestamps__ = True
-    __timezone__ = 'UTC'
+    __timezone__ = "UTC"
     __with__ = ()
 
     date_created_at = "created_at"
@@ -99,6 +99,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "delete",
         "limit",
         "order_by",
+        "count",
         "select",
         "set_global_scope",
         "simple_paginate",

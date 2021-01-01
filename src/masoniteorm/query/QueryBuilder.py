@@ -953,7 +953,12 @@ class QueryBuilder(ObservesEvents):
             self
         """
         self.aggregate("COUNT", "{column}".format(column=column))
-        return self
+
+        if self.dry:
+            return self
+
+        result = self.new_connection().query(self.to_qmark(), self._bindings, results=1)
+        return result[f"COUNT({column})"]
 
     def max(self, column):
         """Aggregates a columns values.
@@ -1228,7 +1233,7 @@ class QueryBuilder(ObservesEvents):
             offset = (int(page) * per_page) - per_page
 
         result = self.limit(per_page).offset(offset).get()
-        total = self.new().count().first().get("COUNT(*)")
+        total = self.new().count()
 
         paginator = LengthAwarePaginator(result, per_page, page, total)
         return paginator
