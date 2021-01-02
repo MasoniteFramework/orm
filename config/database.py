@@ -1,11 +1,12 @@
 """ Database Settings """
 
 import os
+import logging
 
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.connections import ConnectionResolver
 from dotenv import load_dotenv
-import logging
+from src.querylogger import QueryLogger
 
 """
 |--------------------------------------------------------------------------
@@ -69,19 +70,23 @@ DATABASES = {
 
 DB = ConnectionResolver().set_connection_details(DATABASES)
 
-logger = logging.getLogger('masoniteorm.connection.queries')
-logger.setLevel(logging.DEBUG)
+# logger = logging.getLogger('masoniteorm.connection.queries')
+# logger.setLevel(logging.DEBUG)
 
-formatter = logging.Formatter(
-    'It executed the query %(query)s'
-)
+# formatter = logging.Formatter(
+#     'It executed the query %(query)s'
+# )
 
-stream_handler = logging.StreamHandler()
-file_handler   = logging.FileHandler("queries.log")
+# stream_handler = logging.StreamHandler()
+# file_handler   = logging.FileHandler("queries.log")
 
-logger.addHandler(stream_handler)
-logger.addHandler(file_handler)
+# logger.addHandler(stream_handler)
+# logger.addHandler(file_handler)
 
+formatter = "It executed the query {query}"
+handlers = [logging.StreamHandler(), logging.FileHandler("queries.log")]
+
+logger = QueryLogger.configure(handlers=handlers, msg_formatter=formatter)
 
 # DB = QueryBuilder(connection_details=DATABASES)
 

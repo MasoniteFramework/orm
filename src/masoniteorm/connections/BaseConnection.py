@@ -1,7 +1,6 @@
-import logging
+
 from timeit import default_timer as timer
 from .ConnectionResolver import ConnectionResolver
-
 
 class BaseConnection:
 
@@ -13,14 +12,16 @@ class BaseConnection:
         self._dry = True
         return self
 
-    def log(
-        self, query, bindings, query_time=0, logger="masoniteorm.connections.queries"
-    ):
-        logger = logging.getLogger("masoniteorm.connection.queries")
-        logger.debug(
-            f"Running query {query}, {bindings}. Executed in {query_time}ms",
-            extra={"query": query, "bindings": bindings, "query_time": query_time},
-        )
+    # def log(
+    #     self, query, bindings, query_time=0, logger="masoniteorm.connections.queries"
+    # ):
+        # logger = logging.getLogger("masoniteorm.connection.queries")
+        # logger.debug(
+        #     f"Running query {query}, {bindings}. Executed in {query_time}ms",
+        #     extra={"query": query, "bindings": bindings, "query_time": query_time},
+        # )
+        
+        # QueryLogger.info({"query": query, "bindings": bindings, "query_time": query_time})
 
     def statement(self, query, bindings=()):
         """Wrapper around calling the cursor query. Helpful for logging output.
@@ -36,10 +37,11 @@ class BaseConnection:
             )
 
         self._cursor.execute(query, bindings)
-        end = "{:.2f}".format(timer() - start)
+
+        query_time = timer() - start
 
         if self.full_details and self.full_details.get("log_queries", False):
-            self.log(query, bindings, query_time=end)
+            logger.info("Executed query", {"query": query, "bindings": bindings, "query_time": query_time})
 
     def has_global_connection(self):
         return self.name in ConnectionResolver().get_global_connections()
