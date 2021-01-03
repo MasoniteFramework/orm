@@ -52,7 +52,7 @@ class Migration:
     def get_unran_migrations(self):
         directory_path = os.path.join(os.getcwd(), self.migration_directory)
         all_migrations = [
-            f.replace('.py', '')
+            f.replace(".py", "")
             for f in listdir(directory_path)
             if isfile(join(directory_path, f)) and f != "__init__.py"
         ]
@@ -97,7 +97,7 @@ class Migration:
     def get_ran_migrations(self):
         directory_path = os.path.join(os.getcwd(), self.migration_directory)
         all_migrations = [
-            f.replace('.py', '')
+            f.replace(".py", "")
             for f in listdir(directory_path)
             if isfile(join(directory_path, f)) and f != "__init__.py"
         ]
@@ -161,7 +161,9 @@ class Migration:
                     f"<info>Migrated:</info> <question>{migration}</question> ({duration}s)"
                 )
 
-            self.migration_model.create({"batch": batch, "migration": migration.replace('.py', '')})
+            self.migration_model.create(
+                {"batch": batch, "migration": migration.replace(".py", "")}
+            )
 
     def rollback(self, output=False):
         for migration in self.get_rollback_migrations():

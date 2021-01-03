@@ -466,8 +466,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 )
             return self.get_value(attribute)
 
-
-
         if attribute in self.__dict__.get("_relationships", {}):
             return self.__dict__["_relationships"][attribute]
 
@@ -505,7 +503,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     def save(self, query=False):
         builder = self.get_builder()
 
-        if 'builder' in self.__dirty_attributes__:
+        if "builder" in self.__dirty_attributes__:
             self.__dirty_attributes__.pop("builder")
 
         self.observe_events(self, "saving")

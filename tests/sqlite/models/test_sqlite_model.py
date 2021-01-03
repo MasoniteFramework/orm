@@ -49,4 +49,3 @@ class BaseTestQueryRelationships(unittest.TestCase):
         user = User.hydrate({"id": 1, "name": "joe", "customer_id": 1})
         user.customer_id = "CUST1"
         self.assertEqual(user.customer_id, "CUST1")
-
