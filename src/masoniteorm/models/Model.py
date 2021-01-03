@@ -449,6 +449,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             return self.__class__.__dict__.get(new_name_accessor)(self)
 
         if (
+            "__dirty_attributes__" in self.__dict__
+            and attribute in self.__dict__["__dirty_attributes__"]
+        ):
+            return self.get_dirty_value(attribute)
+
+        if (
             "__attributes__" in self.__dict__
             and attribute in self.__dict__["__attributes__"]
         ):
@@ -460,11 +466,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 )
             return self.get_value(attribute)
 
-        if (
-            "__dirty_attributes__" in self.__dict__
-            and attribute in self.__dict__["__dirty_attributes__"]
-        ):
-            return self.get_dirty_value(attribute)
+
 
         if attribute in self.__dict__.get("_relationships", {}):
             return self.__dict__["_relationships"][attribute]
@@ -501,9 +503,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return self.__attributes__.get(attribute)
 
     def save(self, query=False):
-        builder = self.builder
+        builder = self.get_builder()
 
-        self.__dirty_attributes__.pop("builder")
+        if 'builder' in self.__dirty_attributes__:
+            self.__dirty_attributes__.pop("builder")
 
         self.observe_events(self, "saving")
 
@@ -512,7 +515,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             self.observe_events(self, "saved")
             return result
 
-        return builder.update(self.__dirty_attributes__, dry=True).to_sql()
+        return builder.update(self.__dirty_attributes__).to_sql()
 
     def get_value(self, attribute):
         if attribute in self.__casts__:
