@@ -67,8 +67,12 @@ class TestUUIDPrimaryKeyScope(unittest.TestCase):
 
 
 class TestSoftDeletesScope(unittest.TestCase):
-    # TODO
-    pass
+
+    def test_soft_deletes_changes_delete_to_update(self):
+        UserSoft.__timestamps__ = False
+        user = UserSoft.hydrate({"id": 1})
+        sql = user.delete(query=True).to_sql()
+        self.assertTrue(sql.startswith("UPDATE"))
 
 
 class TestTimeStampsScope(unittest.TestCase):
@@ -94,9 +98,3 @@ class TestTimeStampsScope(unittest.TestCase):
         self.scope.set_timestamp_create(self.builder)
         self.assertNotIn("created_at", self.builder._creates)
         self.assertNotIn("updated_at", self.builder._creates)
-
-    def test_soft_deletes_changes_delete_to_update(self):
-        UserSoft.__timestamps__ = False
-        user = UserSoft.hydrate({"id": 1})
-        sql = user.delete(query=True).to_sql()
-        self.assertTrue(sql.startswith("UPDATE"))
