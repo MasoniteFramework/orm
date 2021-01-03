@@ -465,6 +465,9 @@ class QueryBuilder(ObservesEvents):
             self._wheres += (
                 (QueryExpression(None, operator, SubGroupExpression(builder))),
             )
+        elif isinstance(column, dict):
+            for key, value in column.items():
+                self._wheres += ((QueryExpression(key, '=', value, "value")),)
         elif isinstance(value, QueryBuilder):
             self._wheres += (
                 (QueryExpression(column, operator, SubSelectExpression(value))),
