@@ -6,7 +6,7 @@ import logging
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.connections import ConnectionResolver
 from dotenv import load_dotenv
-from src.querylogger import QueryLogger
+from src.QueryLogger import QueryLogger
 
 """
 |--------------------------------------------------------------------------
