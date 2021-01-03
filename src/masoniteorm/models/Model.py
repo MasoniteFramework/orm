@@ -380,8 +380,17 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         return json.dumps(self.serialize())
 
-    def update_or_create(self):
-        pass
+    @classmethod
+    def update_or_create(cls, wheres, updates):
+        self = cls()
+        record = self.where(wheres).first()
+        total = {}
+        total.update(updates)
+        total.update(wheres)
+        if not record:
+            return self.create(total)
+
+        return self.where(wheres).update(total)
 
     def relations_to_dict(self):
         """Converts a models relationships to a dictionary
@@ -421,10 +430,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
     def _current_timestamp(self):
         return datetime.now()
-
-    @staticmethod
-    def set_connection_resolver(self):
-        pass
 
     def __getattr__(self, attribute):
         """Magic method that is called when an attribute does not exist on the model.
