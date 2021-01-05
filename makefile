@@ -25,8 +25,7 @@ show:
 cov:
 	python -m pytest --cov-report term --cov-report xml --cov=src/masoniteorm tests/
 publish:
-	make format
-	make lint
+	pip install twine
 	make test
 	python setup.py sdist
 	twine upload dist/*
