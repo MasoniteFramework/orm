@@ -3,7 +3,6 @@
 <img src="https://i.imgur.com/rEXcoMn.png" width="160px"> 
 </p>
 
-## Learning Masonite
 
 All documentation can be [Found Here](https://orm.masoniteproject.com) 
 
