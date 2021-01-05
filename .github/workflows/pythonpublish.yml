@@ -54,6 +54,8 @@ jobs:
           MYSQL_DATABASE_DATABASE: orm
           MYSQL_DATABASE_USER: root
           MYSQL_DATABASE_PORT: ${{ job.services.mysql.ports[3306] }}
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
           python orm migrate --connection postgres
           python orm migrate --connection mysql
