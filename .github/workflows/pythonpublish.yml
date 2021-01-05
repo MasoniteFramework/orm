@@ -59,5 +59,4 @@ jobs:
         run: |
           python orm migrate --connection postgres
           python orm migrate --connection mysql
-          make test
           make publish
