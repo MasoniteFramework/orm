@@ -465,6 +465,9 @@ class QueryBuilder(ObservesEvents):
             self._wheres += (
                 (QueryExpression(None, operator, SubGroupExpression(builder))),
             )
+        elif isinstance(column, dict):
+            for key, value in column.items():
+                self._wheres += ((QueryExpression(key, '=', value, "value")),)
         elif isinstance(value, QueryBuilder):
             self._wheres += (
                 (QueryExpression(column, operator, SubSelectExpression(value))),
@@ -637,31 +640,9 @@ class QueryBuilder(ObservesEvents):
                 (QueryExpression(column, "IN", SubSelectExpression(wheres))),
             )
         else:
-            print("wheres", wheres)
             wheres = [str(x) for x in wheres]
             self._wheres += ((QueryExpression(column, "IN", wheres)),)
         return self
-
-    #         if "." in has_relationship:
-    #             # Get nested relationship
-    #             last_builder = cls.builder
-    #             for split_has_relationship in has_relationship.split("."):
-    #                 local_key = cls._registered_relationships[last_builder.owner][
-    #                     split_has_relationship
-    #                 ]["local"]
-    #                 foreign_key = cls._registered_relationships[last_builder.owner][
-    #                     split_has_relationship
-    #                 ]["foreign"]
-    #                 relationship = last_builder.get_relation(split_has_relationship)()
-
-    #                 last_builder.where_exists(
-    #                     relationship.where_column(
-    #                         f"{relationship.get_table_name()}.{foreign_key}",
-    #                         f"{last_builder.get_table_name()}.{local_key}",
-    #                     )
-    #                 )
-
-    #                 last_builder = relationship
 
     def get_relation(self, relationship, builder=None):
         if not builder:
@@ -958,7 +939,11 @@ class QueryBuilder(ObservesEvents):
             return self
 
         result = self.new_connection().query(self.to_qmark(), self._bindings, results=1)
-        return list(result.values())[0]
+
+        prepared_result = list(result.values())
+        if not prepared_result:
+            return 0
+        return prepared_result[0]
 
     def max(self, column):
         """Aggregates a columns values.

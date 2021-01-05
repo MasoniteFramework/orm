@@ -44,3 +44,8 @@ class BaseTestQueryRelationships(unittest.TestCase):
         self.assertEqual(
             sql, """SELECT * FROM "users" WHERE "users"."id" IN ('1','2','3')"""
         )
+
+    def test_can_set_and_retreive_attribute(self):
+        user = User.hydrate({"id": 1, "name": "joe", "customer_id": 1})
+        user.customer_id = "CUST1"
+        self.assertEqual(user.customer_id, "CUST1")

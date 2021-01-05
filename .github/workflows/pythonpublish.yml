@@ -5,7 +5,7 @@ on:
     types: [created]
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     services:
@@ -30,32 +30,33 @@ jobs:
           - 3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
+    strategy:
+      matrix:
+        python-version: ["3.6"]
+    name: Python ${{ matrix.python-version }}
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
-    - name: Install dependencies and run tests
-      env:
-        POSTGRES_DATABASE_HOST: localhost
-        POSTGRES_DATABASE_DATABASE: postgres
-        POSTGRES_DATABASE_USER: postgres
-        POSTGRES_DATABASE_PASSWORD: postgres
-        POSTGRES_DATABASE_PORT: ${{ job.services.postgres.ports[5432] }}
-        MYSQL_DATABASE_HOST: localhost
-        MYSQL_DATABASE_DATABASE: orm
-        MYSQL_DATABASE_USER: root
-        MYSQL_DATABASE_PORT: ${{ job.services.mysql.ports[3306] }}
-      run: |
-        python -m pip install --upgrade pip
-        make init
-        python orm migrate --connection postgres
-        python orm migrate --connection mysql
-        make test
-    - name: Build and publish
-      env:
-        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: |
-        make publish
+      - uses: actions/checkout@v1
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          make init
+      - name: Test with pytest
+        env:
+          POSTGRES_DATABASE_HOST: localhost
+          POSTGRES_DATABASE_DATABASE: postgres
+          POSTGRES_DATABASE_USER: postgres
+          POSTGRES_DATABASE_PASSWORD: postgres
+          POSTGRES_DATABASE_PORT: ${{ job.services.postgres.ports[5432] }}
+          MYSQL_DATABASE_HOST: localhost
+          MYSQL_DATABASE_DATABASE: orm
+          MYSQL_DATABASE_USER: root
+          MYSQL_DATABASE_PORT: ${{ job.services.mysql.ports[3306] }}
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: |
+          python orm migrate --connection postgres
+          python orm migrate --connection mysql
+          make publish

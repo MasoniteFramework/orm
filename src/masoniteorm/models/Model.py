@@ -380,8 +380,17 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         return json.dumps(self.serialize())
 
-    def update_or_create(self):
-        pass
+    @classmethod
+    def update_or_create(cls, wheres, updates):
+        self = cls()
+        record = self.where(wheres).first()
+        total = {}
+        total.update(updates)
+        total.update(wheres)
+        if not record:
+            return self.create(total)
+
+        return self.where(wheres).update(total)
 
     def relations_to_dict(self):
         """Converts a models relationships to a dictionary
@@ -422,10 +431,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     def _current_timestamp(self):
         return datetime.now()
 
-    @staticmethod
-    def set_connection_resolver(self):
-        pass
-
     def __getattr__(self, attribute):
         """Magic method that is called when an attribute does not exist on the model.
 
@@ -449,6 +454,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             return self.__class__.__dict__.get(new_name_accessor)(self)
 
         if (
+            "__dirty_attributes__" in self.__dict__
+            and attribute in self.__dict__["__dirty_attributes__"]
+        ):
+            return self.get_dirty_value(attribute)
+
+        if (
             "__attributes__" in self.__dict__
             and attribute in self.__dict__["__attributes__"]
         ):
@@ -459,12 +470,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                     else None
                 )
             return self.get_value(attribute)
-
-        if (
-            "__dirty_attributes__" in self.__dict__
-            and attribute in self.__dict__["__dirty_attributes__"]
-        ):
-            return self.get_dirty_value(attribute)
 
         if attribute in self.__dict__.get("_relationships", {}):
             return self.__dict__["_relationships"][attribute]
@@ -501,9 +506,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return self.__attributes__.get(attribute)
 
     def save(self, query=False):
-        builder = self.builder
+        builder = self.get_builder()
 
-        self.__dirty_attributes__.pop("builder")
+        if "builder" in self.__dirty_attributes__:
+            self.__dirty_attributes__.pop("builder")
 
         self.observe_events(self, "saving")
 
@@ -512,7 +518,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             self.observe_events(self, "saved")
             return result
 
-        return builder.update(self.__dirty_attributes__, dry=True).to_sql()
+        return builder.update(self.__dirty_attributes__).to_sql()
 
     def get_value(self, attribute):
         if attribute in self.__casts__:
