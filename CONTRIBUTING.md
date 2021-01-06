@@ -8,6 +8,8 @@ Note that you do not need to write code in order to contribute to the project. Y
 
 If you have any questions at all then be sure to join the [Slack Channel](https://slack.masoniteproject.com).
 
+If you are interested in the project then it would be a great idea to read the "White Paper". This is a document about how the project works and how the classes all work together. The White Paper can be [Found Here](https://orm.masoniteproject.com/white-page)
+
 ### Issues
 
 Everything really should start with opening an issue or finding an issue. If you feel you have an idea for how the project can be improved, no matter how small, you should open an issue so we can have an open dicussion with the maintainers of the project. 
