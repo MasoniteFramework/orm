@@ -67,7 +67,6 @@ class TestUUIDPrimaryKeyScope(unittest.TestCase):
 
 
 class TestSoftDeletesScope(unittest.TestCase):
-
     def test_soft_deletes_changes_delete_to_update(self):
         UserSoft.__timestamps__ = False
         user = UserSoft.hydrate({"id": 1})

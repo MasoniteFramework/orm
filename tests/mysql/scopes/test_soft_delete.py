@@ -18,7 +18,6 @@ class UserSoft(Model, SoftDeletesMixin):
 
 
 class TestSoftDeleteScope(unittest.TestCase):
-
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("default")
         return QueryBuilder(
@@ -33,6 +32,16 @@ class TestSoftDeleteScope(unittest.TestCase):
         sql = "SELECT * FROM `users`"
         builder = self.get_builder().set_global_scope(SoftDeleteScope())
         self.assertEqual(sql, builder.with_trashed().to_sql())
+
+    def test_force_delete(self):
+        sql = "DELETE FROM `users`"
+        builder = self.get_builder().set_global_scope(SoftDeleteScope())
+        self.assertEqual(sql, builder.force_delete().to_sql())
+
+    def test_force_delete_with_wheres(self):
+        sql = "DELETE FROM `user_softs` WHERE `user_softs`.`active` = '1'"
+        builder = self.get_builder().set_global_scope(SoftDeleteScope())
+        self.assertEqual(sql, UserSoft.where("active", 1).force_delete().to_sql())
 
     def test_that_trashed_users_are_not_returned_by_default(self):
         sql = "SELECT * FROM `users` WHERE `users`.`deleted_at` IS NULL"
