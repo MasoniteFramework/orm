@@ -12,6 +12,7 @@ class SoftDeleteScope(BaseScope):
         builder.macro("with_trashed", self._with_trashed)
         builder.macro("only_trashed", self._only_trashed)
         builder.macro("force_delete", self._force_delete)
+        builder.macro("restore", self._restore)
 
     def on_remove(self, builder):
         builder.remove_global_scope("_where_null", action="select")
@@ -30,6 +31,9 @@ class SoftDeleteScope(BaseScope):
 
     def _force_delete(self, model, builder):
         return builder.remove_global_scope(self).set_action("delete")
+
+    def _restore(self, model, builder):
+        return builder.remove_global_scope(self).update({"deleted_at": None})
 
     def _query_set_null_on_delete(self, builder):
         return builder.set_action("update").set_updates(

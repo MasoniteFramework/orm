@@ -26,6 +26,7 @@ class TestSoftDeleteScope(unittest.TestCase):
             connection="mysql",
             table=table,
             connection_details=DATABASES,
+            dry=True
         )
 
     def test_with_trashed(self):
@@ -37,6 +38,11 @@ class TestSoftDeleteScope(unittest.TestCase):
         sql = "DELETE FROM `users`"
         builder = self.get_builder().set_global_scope(SoftDeleteScope())
         self.assertEqual(sql, builder.force_delete().to_sql())
+
+    def test_restore(self):
+        sql = "UPDATE `users` SET `users`.`deleted_at` = 'None'"
+        builder = self.get_builder().set_global_scope(SoftDeleteScope())
+        self.assertEqual(sql, builder.restore().to_sql())
 
     def test_force_delete_with_wheres(self):
         sql = "DELETE FROM `user_softs` WHERE `user_softs`.`active` = '1'"
