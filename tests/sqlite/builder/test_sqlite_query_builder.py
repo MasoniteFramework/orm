@@ -164,9 +164,7 @@ class BaseTestQueryBuilder:
     def test_where_dictionary(self):
         builder = self.get_builder()
         builder.where({"name": "Joe"})
-        sql = getattr(
-            self, 'where'
-        )()
+        sql = getattr(self, "where")()
         self.assertEqual(builder.to_sql(), sql)
 
     def test_where_exists(self):
