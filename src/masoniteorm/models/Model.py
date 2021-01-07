@@ -512,10 +512,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
     def is_dirty(self):
         return bool(self.__dirty_attributes__)
-    
+
     def get_original(self, key):
         return self.__original_attributes__.get(key)
-    
+
     def get_dirty(self, key):
         return self.__dirty_attributes__.get(key)
 

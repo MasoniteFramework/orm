@@ -32,13 +32,17 @@ class TestModels(unittest.TestCase):
         model = ModelTest.hydrate({"username": "joe", "admin": True})
 
         self.assertEqual(model.username, "joe")
-        self.assertEqual(model.__original_attributes__, {"username": "joe", "admin": True})
+        self.assertEqual(
+            model.__original_attributes__, {"username": "joe", "admin": True}
+        )
 
         model.username = "bob"
 
         self.assertEqual(model.username, "bob")
         self.assertEqual(model.get_original("username"), "joe")
         self.assertEqual(model.get_dirty("username"), "bob")
-        self.assertEqual(model.__dirty_attributes__['username'], "bob")
+        self.assertEqual(model.__dirty_attributes__["username"], "bob")
         self.assertTrue(model.is_dirty() is True)
-        self.assertEqual(model.__original_attributes__, {"username": "joe", "admin": True})
+        self.assertEqual(
+            model.__original_attributes__, {"username": "joe", "admin": True}
+        )
