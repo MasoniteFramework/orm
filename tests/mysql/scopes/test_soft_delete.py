@@ -26,7 +26,7 @@ class TestSoftDeleteScope(unittest.TestCase):
             connection="mysql",
             table=table,
             connection_details=DATABASES,
-            dry=True
+            dry=True,
         )
 
     def test_with_trashed(self):

@@ -120,6 +120,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
     def __init__(self):
         self.__attributes__ = {}
+        self.__original_attributes__ = {}
         self.__dirty_attributes__ = {}
         if not hasattr(self, "__appends__"):
             self.__appends__ = []
@@ -268,6 +269,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
             model.observe_events(model, "hydrating")
             model.__attributes__.update(dic or {})
+            model.__original_attributes__.update(dic or {})
             model.add_relation(relations)
             model.observe_events(model, "hydrated")
             return model
@@ -275,16 +277,19 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         elif hasattr(result, "serialize"):
             model = cls()
             model.__attributes__.update(result.serialize())
+            model.__original_attributes__.update(result.serialize())
             return model
         else:
             model = cls()
             model.observe_events(model, "hydrating")
             model.__attributes__.update(dict(result))
+            model.__original_attributes__.update(dict(result))
             model.observe_events(model, "hydrated")
             return model
 
     def fill(self, attributes):
         self.__attributes__.update(attributes)
+        self.__original_attributes__.update(attributes)
         return self
 
     @classmethod
@@ -504,6 +509,15 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             mixed: Any value an attribute can be.
         """
         return self.__attributes__.get(attribute)
+
+    def is_dirty(self):
+        return bool(self.__dirty_attributes__)
+
+    def get_original(self, key):
+        return self.__original_attributes__.get(key)
+
+    def get_dirty(self, key):
+        return self.__dirty_attributes__.get(key)
 
     def save(self, query=False):
         builder = self.get_builder()
