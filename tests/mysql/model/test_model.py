@@ -156,20 +156,6 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
                 {"name": "Joe", "email": "joe@masonite.com"}, profile.serialize()
             )
 
-        def test_serialize_with_visible_and_initial_data(self):
-            profile = ProfileSerializeWithVisible.hydrate(
-                {
-                    "name": "Joe",
-                    "id": 1,
-                    "password": "secret",
-                    "email": "joe@masonite.com",
-                }
-            )
-            self.assertTrue(
-                {"name": "Joe", "email": "joe@masonite.com", "role": "admin"},
-                profile.serialize({"role": "admin"}),
-            )
-
         def test_serialize_with_visible_and_hidden_raise_error(self):
             profile = ProfileSerializeWithVisibleAndHidden.hydrate(
                 {

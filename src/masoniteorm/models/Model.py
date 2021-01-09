@@ -333,18 +333,13 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return cls.builder.create(dictionary)
 
-    def serialize(self, serialized_dictionary=None):
-        """Takes the data as a model and converts it into a dictionary
-
-        Args:
-            serialized_dictionary (dict, optional): A dictionary to start from.
-            If not specified then the models attributes will be used. Defaults to {}.
+    def serialize(self):
+        """Takes the data as a model and converts it into a dictionary.
 
         Returns:
             dict
         """
-        if not serialized_dictionary:
-            serialized_dictionary = self.__attributes__
+        serialized_dictionary = self.__attributes__
 
         # prevent using both hidden and visible at the same time
         if self.__visible__ and self.__hidden__:
