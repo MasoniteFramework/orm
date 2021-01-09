@@ -354,7 +354,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         if self.__visible__:
             new_serialized_dictionary = {
-                k: serialized_dictionary[k] for k in self.__visible__
+                k: serialized_dictionary[k]
+                for k in self.__visible__
+                if k in serialized_dictionary
             }
             serialized_dictionary = new_serialized_dictionary
         else:
