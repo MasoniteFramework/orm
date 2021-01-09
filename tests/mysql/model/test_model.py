@@ -1,5 +1,4 @@
 import datetime
-from inspect import Attribute
 import json
 import os
 import unittest
@@ -8,7 +7,6 @@ import pendulum
 
 from src.masoniteorm.collection import Collection
 from src.masoniteorm.models import Model
-from src.masoniteorm.query.grammars import MSSQLGrammar
 from tests.User import User
 
 if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
