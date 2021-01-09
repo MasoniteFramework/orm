@@ -1,4 +1,5 @@
 import datetime
+from inspect import Attribute
 import json
 import os
 import unittest
@@ -15,18 +16,36 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
     class ProfileFillable(Model):
         __fillable__ = ["name"]
         __table__ = "profiles"
+        __timestamps__ = None
+
+    class ProfileFillTimeStamped(Model):
+        __fillable__ = ["*"]
+        __table__ = "profiles"
 
     class ProfileFillAsterisk(Model):
         __fillable__ = ["*"]
         __table__ = "profiles"
+        __timestamps__ = None
 
     class ProfileGuarded(Model):
         __guarded__ = ["email"]
         __table__ = "profiles"
+        __timestamps__ = None
 
     class ProfileSerialize(Model):
         __fillable__ = ["*"]
         __table__ = "profiles"
+        __hidden__ = ["password"]
+
+    class ProfileSerializeWithVisible(Model):
+        __fillable__ = ["*"]
+        __table__ = "profiles"
+        __visible__ = ["name", "email"]
+
+    class ProfileSerializeWithVisibleAndHidden(Model):
+        __fillable__ = ["*"]
+        __table__ = "profiles"
+        __visible__ = ["name", "email"]
         __hidden__ = ["password"]
 
     class Profile(Model):
@@ -83,7 +102,7 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             )
 
         def test_can_touch(self):
-            profile = ProfileFillAsterisk.hydrate({"name": "Joe", "id": 1})
+            profile = ProfileFillTimeStamped.hydrate({"name": "Joe", "id": 1})
 
             sql = profile.touch("now", query=True)
 
@@ -126,6 +145,31 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             self.assertTrue(profile.serialize().get("id"))
             self.assertFalse(profile.serialize().get("password"))
 
+        def test_serialize_with_visible(self):
+            profile = ProfileSerializeWithVisible.hydrate(
+                {
+                    "name": "Joe",
+                    "id": 1,
+                    "password": "secret",
+                    "email": "joe@masonite.com",
+                }
+            )
+            self.assertTrue(
+                {"name": "Joe", "email": "joe@masonite.com"}, profile.serialize()
+            )
+
+        def test_serialize_with_visible_and_hidden_raise_error(self):
+            profile = ProfileSerializeWithVisibleAndHidden.hydrate(
+                {
+                    "name": "Joe",
+                    "id": 1,
+                    "password": "secret",
+                    "email": "joe@masonite.com",
+                }
+            )
+            with self.assertRaises(AttributeError):
+                profile.serialize()
+
         def test_serialize_with_on_the_fly_appends(self):
             user = User.hydrate({"name": "Joe", "id": 1})
 
@@ -150,7 +194,12 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             self.assertTrue(json.dumps(user.serialize()))
 
         def test_set_as_date(self):
-            user = User.hydrate({"name": "Joe", "created_at": "2020-11-28 11:42:07"})
+            user = User.hydrate(
+                {
+                    "name": "Joe",
+                    "created_at": pendulum.now().add(days=10).to_datetime_string(),
+                }
+            )
 
             self.assertTrue(user.created_at)
             self.assertTrue(user.created_at.is_future())
