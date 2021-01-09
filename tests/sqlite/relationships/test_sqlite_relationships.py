@@ -48,6 +48,7 @@ class User(Model):
     def get_is_admin(self):
         return "You are an admin"
 
+
 class UserHasOne(Model):
 
     __table__ = "users"
@@ -56,8 +57,8 @@ class UserHasOne(Model):
 
     @has_one("user_id", "user_id")
     def profile(self):
-        print('re')
         return Profile
+
 
 class TestRelationships(unittest.TestCase):
     maxDiff = None
@@ -92,10 +93,7 @@ class TestRelationships(unittest.TestCase):
             user
 
     def test_relationship_has_one_sql(self):
-        self.assertEqual(
-            UserHasOne.profile().to_sql(),
-            'SELECT * FROM "profiles"',
-        )
+        self.assertEqual(UserHasOne.profile().to_sql(), 'SELECT * FROM "profiles"')
 
     def test_loading_with_nested_with(self):
         users = User.with_("articles", "articles.logo").get()
