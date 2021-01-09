@@ -77,6 +77,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     __casts__ = {}
     __dates__ = []
     __hidden__ = []
+    __visible__ = []
     __timestamps__ = True
     __timezone__ = "UTC"
     __with__ = ()
@@ -332,22 +333,31 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return cls.builder.create(dictionary)
 
-    def serialize(self, serialized_dictionary=None):
-        """Takes the data as a model and converts it into a dictionary
-
-        Args:
-            serialized_dictionary (dict, optional): A dictionary to start from.
-            If not specified then the models attributes will be used. Defaults to {}.
+    def serialize(self):
+        """Takes the data as a model and converts it into a dictionary.
 
         Returns:
             dict
         """
-        if not serialized_dictionary:
-            serialized_dictionary = self.__attributes__
+        serialized_dictionary = self.__attributes__
 
-        for key in self.__hidden__:
-            if key in serialized_dictionary:
-                serialized_dictionary.pop(key)
+        # prevent using both hidden and visible at the same time
+        if self.__visible__ and self.__hidden__:
+            raise AttributeError(
+                f"class model '{self.__class__.__name__}' defines both __visible__ and __hidden__."
+            )
+
+        if self.__visible__:
+            new_serialized_dictionary = {
+                k: serialized_dictionary[k]
+                for k in self.__visible__
+                if k in serialized_dictionary
+            }
+            serialized_dictionary = new_serialized_dictionary
+        else:
+            for key in self.__hidden__:
+                if key in serialized_dictionary:
+                    serialized_dictionary.pop(key)
 
         for date_column in self.get_dates():
             if (
