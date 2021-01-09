@@ -2,7 +2,7 @@ import os
 import unittest
 
 from src.masoniteorm.models import Model
-from src.masoniteorm.relationships import belongs_to, has_many
+from src.masoniteorm.relationships import belongs_to, has_many, has_one
 from config.database import DB
 
 
@@ -48,6 +48,16 @@ class User(Model):
     def get_is_admin(self):
         return "You are an admin"
 
+class UserHasOne(Model):
+
+    __table__ = "users"
+
+    __connection__ = "dev"
+
+    @has_one("user_id", "user_id")
+    def profile(self):
+        print('re')
+        return Profile
 
 class TestRelationships(unittest.TestCase):
     maxDiff = None
@@ -80,6 +90,12 @@ class TestRelationships(unittest.TestCase):
         users = User.with_("articles").get()
         for user in users:
             user
+
+    def test_relationship_has_one_sql(self):
+        self.assertEqual(
+            UserHasOne.profile().to_sql(),
+            'SELECT * FROM "profiles"',
+        )
 
     def test_loading_with_nested_with(self):
         users = User.with_("articles", "articles.logo").get()
