@@ -95,3 +95,10 @@ class BaseTestQueryRelationships(unittest.TestCase):
             to_sql,
             """SELECT * FROM "users" WHERE EXISTS (SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id" AND EXISTS (SELECT * FROM "logos" WHERE "logos"."article_id" = "articles"."id"))""",
         )
+
+    def test_joins(self):
+        to_sql = self.get_builder().joins("articles").to_sql()
+        self.assertEqual(
+            to_sql,
+            """SELECT * FROM "users" INNER JOIN "articles" ON "users"."id" = "articles"."user_id\"""",
+        )
