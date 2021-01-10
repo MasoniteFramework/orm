@@ -790,8 +790,14 @@ class QueryBuilder(ObservesEvents):
             relation = getattr(self._model, relationship)
             other_table = relation.builder.get_table_name()
             local_table = self.get_table_name()
-            self.join(other_table, f"{local_table}.{relation.local_key}", '=', f"{other_table}.{relation.foreign_key}", clause=clause)
-            
+            self.join(
+                other_table,
+                f"{local_table}.{relation.local_key}",
+                "=",
+                f"{other_table}.{relation.foreign_key}",
+                clause=clause,
+            )
+
         return self
 
     def where_column(self, column1, column2):

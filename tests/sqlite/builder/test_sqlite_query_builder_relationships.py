@@ -97,8 +97,8 @@ class BaseTestQueryRelationships(unittest.TestCase):
         )
 
     def test_joins(self):
-        to_sql = self.get_builder().joins('articles').to_sql()
+        to_sql = self.get_builder().joins("articles").to_sql()
         self.assertEqual(
             to_sql,
-            """SELECT * FROM "users" INNER JOIN "articles" ON "users"."id" = "articles"."user_id\""""
+            """SELECT * FROM "users" INNER JOIN "articles" ON "users"."id" = "articles"."user_id\"""",
         )
