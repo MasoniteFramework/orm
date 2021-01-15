@@ -18,7 +18,7 @@
 
 ## Installation & Usage
 
-All documentation can be found here [https://orm.masoniteproject.com](https://orm.masoniteproject.com)
+All documentation can be found here [https://orm.masoniteproject.com](https://orm.masoniteproject.com).
 
 Also be sure to join the [Slack channel](https://slack.masoniteproject.com)!
 
