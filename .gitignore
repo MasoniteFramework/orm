@@ -1,4 +1,5 @@
 venv
+.python-version
 .vscode
 .pytest_*
 **/*__pycache__*
@@ -7,8 +8,10 @@ masonite_validation*
 dist
 .env
 *.db
+*.sqlite3
 .idea
 **/*.egg-info
 htmlcov/*
 coverage.xml
 .coverage
+*.log
