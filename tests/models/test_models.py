@@ -46,3 +46,16 @@ class TestModels(unittest.TestCase):
         self.assertEqual(
             model.__original_attributes__, {"username": "joe", "admin": True}
         )
+
+    def test_model_creates_when_new(self):
+        model = ModelTest.hydrate({"id": 1, "username": "joe", "admin": True})
+
+        model.name = "Bill"
+        sql = model.save(query=True)
+        self.assertTrue(sql.startswith("UPDATE"))
+
+        model = ModelTest()
+
+        model.name = "Bill"
+        sql = model.save(query=True)
+        self.assertTrue(sql.startswith("INSERT"))
