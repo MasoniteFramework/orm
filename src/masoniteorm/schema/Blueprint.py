@@ -253,7 +253,8 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(
-            column, "decimal", length=(length, precision), nullable=nullable
+            column, "decimal", length="{length}, {precision}".format(length=length, precision=precision), 
+            nullable=nullable
         )
         return self
 
