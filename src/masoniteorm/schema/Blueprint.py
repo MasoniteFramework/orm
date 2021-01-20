@@ -315,6 +315,21 @@ class Blueprint:
         )
         return self
 
+    def json(self, column, nullable=False):
+        """Sets a column to be the json representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(column, "json", nullable=nullable)
+        return self
+
     def unsigned(self, column=None, length=None, nullable=False):
         """Sets a column to be the unsigned integer representation for the table.
 
