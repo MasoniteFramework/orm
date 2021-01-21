@@ -121,17 +121,6 @@ class PostgresGrammar(BaseGrammar):
 
             return sql
 
-    def process_table(self, table):
-        """Compiles a given table name.
-
-        Arguments:
-            table {string} -- The table name to compile.
-
-        Returns:
-            self
-        """
-        return ".".join(self.table_string().format(table=t) for t in table.split("."))
-
     def table_string(self):
         return '"{table}"'
 

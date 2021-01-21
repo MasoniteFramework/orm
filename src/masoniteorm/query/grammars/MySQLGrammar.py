@@ -71,10 +71,10 @@ class MySQLGrammar(BaseGrammar):
     """
 
     column_strings = {
-        "select": "`{table}`.`{column}`{separator}",
-        "insert": "`{table}`.`{column}`{separator}",
-        "update": "`{table}`.`{column}`{separator}",
-        "delete": "`{table}`.`{column}`{separator}",
+        "select": "{table}.`{column}`{separator}",
+        "insert": "{table}.`{column}`{separator}",
+        "update": "{table}.`{column}`{separator}",
+        "delete": "{table}.`{column}`{separator}",
     }
 
     def select_format(self):
@@ -118,6 +118,17 @@ class MySQLGrammar(BaseGrammar):
 
     def where_not_like_string(self):
         return "{keyword} {column} NOT LIKE {value}"
+
+    def process_table(self, table):
+        """Compiles a given table name.
+
+        Arguments:
+            table {string} -- The table name to compile.
+
+        Returns:
+            self
+        """
+        return ".".join(self.table_string().format(table=t) for t in table.split("."))
 
     def subquery_alias_string(self):
         return "AS {alias}"
