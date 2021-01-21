@@ -198,7 +198,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(column, "date", nullable=nullable)
+        self._last_column = self.table.add_column(column, "time", nullable=nullable)
         return self
 
     def datetime(self, column, nullable=False):
