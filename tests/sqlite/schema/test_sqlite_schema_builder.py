@@ -95,6 +95,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.string("name")
             blueprint.string("duration")
             blueprint.string("url")
+            blueprint.json("payload")
             blueprint.datetime("published_at")
             blueprint.string("thumbnail").nullable()
             blueprint.integer("premium")
@@ -105,12 +106,12 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.text("description")
             blueprint.timestamps()
 
-        self.assertEqual(len(blueprint.table.added_columns), 11)
+        self.assertEqual(len(blueprint.table.added_columns), 12)
         self.assertEqual(
             blueprint.to_sql(),
             (
                 'CREATE TABLE "users" (id INTEGER PRIMARY KEY, name VARCHAR(255), duration VARCHAR(255), '
-                "url VARCHAR(255), published_at DATETIME, thumbnail VARCHAR(255), premium INTEGER, "
+                "url VARCHAR(255), payload JSON, published_at DATETIME, thumbnail VARCHAR(255), premium INTEGER, "
                 "author_id UNSIGNED INT, description TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
                 "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
                 "CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES users(id))"
