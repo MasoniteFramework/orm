@@ -418,6 +418,7 @@ class BaseTestQueryBuilder:
             """SELECT "information_schema"."columns"."table_name" FROM "information_schema"."columns" WHERE "information_schema"."columns"."table_name" = 'users'""",
         )
 
+
 class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
 
     grammar = SQLiteGrammar

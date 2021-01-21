@@ -416,7 +416,7 @@ class BaseTestQueryBuilder:
         )
         self.assertEqual(
             sql,
-            """SELECT `information_schema`.`columns`.`table_name` FROM `information_schema`.`columns` WHERE `information_schema`.`columns`.`table_name` = 'users'"""
+            """SELECT `information_schema`.`columns`.`table_name` FROM `information_schema`.`columns` WHERE `information_schema`.`columns`.`table_name` = 'users'""",
         )
 
 

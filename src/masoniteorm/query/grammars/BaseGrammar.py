@@ -300,11 +300,14 @@ class BaseGrammar:
         Returns:
             self
         """
-        return ".".join(self.table_string().format(
-            table=t,
-            database=self._connection_details.get("database", ""),
-            prefix=self._connection_details.get("prefix", ""),
-        ) for t in table.split("."))
+        return ".".join(
+            self.table_string().format(
+                table=t,
+                database=self._connection_details.get("database", ""),
+                prefix=self._connection_details.get("prefix", ""),
+            )
+            for t in table.split(".")
+        )
 
     def process_limit(self):
         """Compiles the limit expression.
