@@ -25,7 +25,7 @@ class PostgresPlatform(Platform):
         "float": "FLOAT",
         "geometry": "GEOMETRY",
         "json": "JSON",
-        "jsonb": "LONGBLOB",
+        "jsonb": "JSONB",
         "long_text": "LONGTEXT",
         "point": "POINT",
         "time": "TIME",
