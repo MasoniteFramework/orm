@@ -65,17 +65,18 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.string("name")
             blueprint.string("email").unique()
             blueprint.string("password")
+            blueprint.decimal("money")
             blueprint.integer("admin").default(0)
             blueprint.string("remember_token").nullable()
             blueprint.timestamp("verified_at").nullable()
             blueprint.timestamps()
 
-        self.assertEqual(len(blueprint.table.added_columns), 9)
+        self.assertEqual(len(blueprint.table.added_columns), 10)
         self.assertEqual(
             blueprint.to_sql(),
             (
                 "CREATE TABLE users (id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL, "
-                "name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, "
+                "name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, money DECIMAL(17, 6) NOT NULL, "
                 "admin INT(11) NOT NULL DEFAULT 0, remember_token VARCHAR(255) NULL, verified_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
                 "created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_email_unique UNIQUE (email))"
             ),
