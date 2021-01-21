@@ -24,10 +24,10 @@ class PostgresGrammar(BaseGrammar):
     }
 
     column_strings = {
-        "select": '"{table}"."{column}"{separator}',
+        "select": '{table}."{column}"{separator}',
         "insert": '"{column}"{separator}',
         "update": '"{column}"{separator}',
-        "delete": '"{table}"."{column}"{separator}',
+        "delete": '{table}."{column}"{separator}',
     }
 
     def select_format(self):
@@ -120,6 +120,17 @@ class PostgresGrammar(BaseGrammar):
                 sql += re.sub(" +", " ", query.strip())
 
             return sql
+
+    def process_table(self, table):
+        """Compiles a given table name.
+
+        Arguments:
+            table {string} -- The table name to compile.
+
+        Returns:
+            self
+        """
+        return ".".join('"{0}"'.format(t) for t in table.split("."))
 
     def table_string(self):
         return '"{table}"'

@@ -575,6 +575,7 @@ class BaseGrammar:
                     continue
 
                 column = column.column
+
             sql += self._table_column_string(column, separator=separator)
 
         if self._aggregates:
@@ -646,7 +647,9 @@ class BaseGrammar:
             table, column = column.split(".")
 
         return self.column_strings.get(self._action).format(
-            column=column, separator=separator, table=table or self.table
+            column=column,
+            separator=separator,
+            table=self.process_table(table or self.table),
         )
 
     def _compile_value(self, value, separator=""):
