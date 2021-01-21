@@ -398,6 +398,19 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_can_call_with_schema(self):
+        builder = self.get_builder()
+        sql = (
+            builder.table("information_schema.columns")
+            .select("table_name")
+            .where("table_name", "users")
+            .to_sql()
+        )
+        self.assertEqual(
+            sql,
+            """SELECT "information_schema"."columns"."table_name" FROM "information_schema"."columns" WHERE "information_schema"."columns"."table_name" = 'users'""",
+        )
+
 
 class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
 

@@ -24,10 +24,10 @@ class PostgresGrammar(BaseGrammar):
     }
 
     column_strings = {
-        "select": '"{table}"."{column}"{separator}',
+        "select": '{table}."{column}"{separator}',
         "insert": '"{column}"{separator}',
         "update": '"{column}"{separator}',
-        "delete": '"{table}"."{column}"{separator}',
+        "delete": '{table}."{column}"{separator}',
     }
 
     def select_format(self):

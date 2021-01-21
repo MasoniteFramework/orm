@@ -300,10 +300,13 @@ class BaseGrammar:
         Returns:
             self
         """
-        return self.table_string().format(
-            table=table,
-            database=self._connection_details.get("database", ""),
-            prefix=self._connection_details.get("prefix", ""),
+        return ".".join(
+            self.table_string().format(
+                table=t,
+                database=self._connection_details.get("database", ""),
+                prefix=self._connection_details.get("prefix", ""),
+            )
+            for t in table.split(".")
         )
 
     def process_limit(self):
@@ -326,7 +329,7 @@ class BaseGrammar:
         if not self._offset:
             return ""
 
-        return self.offset_string().format(offset=self._offset, limit=self._limit)
+        return self.offset_string().format(offset=self._offset, limit=self._limit or 1)
 
     def process_having(self, qmark=False):
         """Compiles having expression.
@@ -575,6 +578,7 @@ class BaseGrammar:
                     continue
 
                 column = column.column
+
             sql += self._table_column_string(column, separator=separator)
 
         if self._aggregates:
@@ -646,7 +650,9 @@ class BaseGrammar:
             table, column = column.split(".")
 
         return self.column_strings.get(self._action).format(
-            column=column, separator=separator, table=table or self.table
+            column=column,
+            separator=separator,
+            table=self.process_table(table or self.table),
         )
 
     def _compile_value(self, value, separator=""):
