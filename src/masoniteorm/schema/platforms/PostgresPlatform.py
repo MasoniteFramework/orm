@@ -3,7 +3,7 @@ from ..Table import Table
 
 
 class PostgresPlatform(Platform):
-    types_without_lengths = ["integer"]
+    types_without_lengths = ["integer", "big_integer", "tiny_integer", "small_integer", "medium_integer"]
 
     type_map = {
         "string": "VARCHAR",
@@ -25,7 +25,7 @@ class PostgresPlatform(Platform):
         "float": "FLOAT",
         "geometry": "GEOMETRY",
         "json": "JSON",
-        "jsonb": "LONGBLOB",
+        "jsonb": "JSONB",
         "long_text": "LONGTEXT",
         "point": "POINT",
         "time": "TIME",

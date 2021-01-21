@@ -114,6 +114,7 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             blueprint.string("duration")
             blueprint.decimal("money")
             blueprint.string("url")
+            blueprint.jsonb("payload")
             blueprint.datetime("published_at")
             blueprint.string("thumbnail").nullable()
             blueprint.integer("premium")
@@ -124,12 +125,12 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             blueprint.text("description")
             blueprint.timestamps()
 
-        self.assertEqual(len(blueprint.table.added_columns), 12)
+        self.assertEqual(len(blueprint.table.added_columns), 13)
         self.assertEqual(
             blueprint.to_sql(),
             (
                 'CREATE TABLE "users" (id SERIAL UNIQUE NOT NULL, name VARCHAR(255) NOT NULL, '
-                "duration VARCHAR(255) NOT NULL, money DECIMAL(17, 6) NOT NULL, url VARCHAR(255) NOT NULL, published_at TIMESTAMP NOT NULL, "
+                "duration VARCHAR(255) NOT NULL, money DECIMAL(17, 6) NOT NULL, payload JSONB NOT NULL, url VARCHAR(255) NOT NULL, published_at TIMESTAMP NOT NULL, "
                 "thumbnail VARCHAR(255) NULL, premium INTEGER NOT NULL, author_id INT NULL, "
                 "description TEXT NOT NULL, created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
                 "updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
@@ -150,6 +151,19 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             table.to_sql(),
             'CREATE TABLE "users" (id CHAR(36) NOT NULL PRIMARY KEY, name VARCHAR(255) NOT NULL, public_id CHAR(36) NULL)',
+        )
+
+    def test_can_add_other_integer_types_column(self):
+        with self.schema.create("integer_types") as table:
+            table.tiny_integer("tiny")
+            table.small_integer("small")
+            table.medium_integer("medium")
+            table.big_integer("big")
+
+        self.assertEqual(len(table.table.added_columns), 4)
+        self.assertEqual(
+            table.to_sql(),
+            'CREATE TABLE "integer_types" (tiny TINYINT NOT NULL, small SMALLINT NOT NULL, medium MEDIUMINT NOT NULL, big BIGINT NOT NULL)',
         )
 
     def test_can_enable_foreign_keys(self):
