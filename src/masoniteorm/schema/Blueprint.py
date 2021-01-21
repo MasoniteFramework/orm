@@ -253,7 +253,10 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(
-            column, "decimal", length=(length, precision), nullable=nullable
+            column,
+            "decimal",
+            length="{length}, {precision}".format(length=length, precision=precision),
+            nullable=nullable,
         )
         return self
 
@@ -312,6 +315,21 @@ class Blueprint:
         self._last_column = self.table.add_column(
             column, "text", length=length, nullable=nullable
         )
+        return self
+
+    def json(self, column, nullable=False):
+        """Sets a column to be the json representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(column, "json", nullable=nullable)
         return self
 
     def unsigned(self, column=None, length=None, nullable=False):
