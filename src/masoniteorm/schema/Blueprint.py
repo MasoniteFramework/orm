@@ -453,7 +453,7 @@ class Blueprint:
         """
         self._last_column = self.table.add_column(column, "json", nullable=nullable)
         return self
-    
+
     def jsonb(self, column, nullable=False):
         """Sets a column to be the jsonb representation for the table.
 
@@ -468,7 +468,7 @@ class Blueprint:
         """
         self._last_column = self.table.add_column(column, "jsonb", nullable=nullable)
         return self
-    
+
     def point(self, column, nullable=False):
         """Sets a column to be the point representation for the table.
 
@@ -483,7 +483,7 @@ class Blueprint:
         """
         self._last_column = self.table.add_column(column, "point", nullable=nullable)
         return self
-    
+
     def geometry(self, column, nullable=False):
         """Sets a column to be the geometry representation for the table.
 
