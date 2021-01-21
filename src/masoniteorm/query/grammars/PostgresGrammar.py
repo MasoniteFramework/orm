@@ -130,7 +130,7 @@ class PostgresGrammar(BaseGrammar):
         Returns:
             self
         """
-        return ".".join('"{0}"'.format(t) for t in table.split("."))
+        return ".".join(self.table_string().format(table=t) for t in table.split("."))
 
     def table_string(self):
         return '"{table}"'
