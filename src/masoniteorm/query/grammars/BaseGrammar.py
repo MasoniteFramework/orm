@@ -326,7 +326,7 @@ class BaseGrammar:
         if not self._offset:
             return ""
 
-        return self.offset_string().format(offset=self._offset, limit=self._limit)
+        return self.offset_string().format(offset=self._offset, limit=self._limit or 1)
 
     def process_having(self, qmark=False):
         """Compiles having expression.

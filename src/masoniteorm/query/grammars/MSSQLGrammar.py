@@ -23,10 +23,10 @@ class MSSQLGrammar(BaseGrammar):
     }
 
     column_strings = {
-        "select": "[{table}].[{column}]{separator}",
-        "insert": "[{table}].[{column}]{separator}",
-        "update": "[{table}].[{column}]{separator}",
-        "delete": "[{table}].[{column}]{separator}",
+        "select": "{table}.[{column}]{separator}",
+        "insert": "{table}.[{column}]{separator}",
+        "update": "{table}.[{column}]{separator}",
+        "delete": "{table}.[{column}]{separator}",
     }
 
     def select_format(self):
@@ -120,6 +120,12 @@ class MSSQLGrammar(BaseGrammar):
 
     def offset_string(self):
         return "OFFSET {offset} ROWS FETCH NEXT {limit} ROWS ONLY"
+
+    def increment_string(self):
+        return "{column} = {column} + '{value}'"
+
+    def decrement_string(self):
+        return "{column} = {column} - '{value}'"
 
     def aggregate_string_with_alias(self):
         return "{aggregate_function}({column}) AS {alias}"
