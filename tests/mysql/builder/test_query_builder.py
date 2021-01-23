@@ -422,7 +422,7 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
-    def test_where_like_as_operator(self):
+    def test_where_like(self):
         builder = self.get_builder()
         builder.where_like("age", "%name%")
         sql = getattr(
@@ -430,7 +430,7 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
-    def test_where_like_as_operator(self):
+    def test_where_not_like_as_operator(self):
         builder = self.get_builder()
         builder.where("age", "not like", "%name%")
         sql = getattr(
@@ -438,7 +438,7 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
-    def test_where_like_as_operator(self):
+    def test_where_not_like(self):
         builder = self.get_builder()
         builder.where_not_like("age", "%name%")
         sql = getattr(
