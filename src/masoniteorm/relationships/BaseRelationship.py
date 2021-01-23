@@ -55,30 +55,33 @@ class BaseRelationship:
         self._related_builder = relationship.builder
 
         if instance.is_loaded():
+            print('should be here')
             if attribute in instance._relationships:
                 return instance._relationships[attribute]
-
+            
+            print('applying', self._related_builder, instance)
             result = self.apply_query(self._related_builder, instance)
-
+            print(2)
             return result
         else:
+            print('here wrong')
             return self
 
     def __getattr__(self, attribute):
         relationship = self.fn(self)()
         return getattr(relationship.builder, attribute)
 
-    def apply_query(self, foreign, owner, foreign_key, local_key):
-        """Apply the query and return a dictionary to be hydrated
+    # def apply_query(self, foreign, owner, foreign_key, local_key):
+    #     """Apply the query and return a dictionary to be hydrated
 
-        Arguments:
-            foreign {oject} -- The relationship object
-            owner {object} -- The current model oject.
-            foreign_key {string} -- The column to access on the relationship model.
-            local_key {string} -- The column to access on the current model.
+    #     Arguments:
+    #         foreign {oject} -- The relationship object
+    #         owner {object} -- The current model oject.
+    #         foreign_key {string} -- The column to access on the relationship model.
+    #         local_key {string} -- The column to access on the current model.
 
-        Returns:
-            dict -- A dictionary of data which will be hydrated.
-        """
-
-        return foreign.where(foreign_key, owner().__attributes__[local_key]).first()
+    #     Returns:
+    #         dict -- A dictionary of data which will be hydrated.
+    #     """
+    #     print('3')
+    #     return foreign.where(foreign_key, owner().__attributes__[local_key]).first()

@@ -2,7 +2,7 @@ import os
 import unittest
 
 from src.masoniteorm.models import Model
-from src.masoniteorm.relationships import belongs_to, has_many, has_one
+from src.masoniteorm.relationships import belongs_to, has_many, has_one, belongs_to_many
 from config.database import DB
 
 
@@ -48,6 +48,17 @@ class User(Model):
     def get_is_admin(self):
         return "You are an admin"
 
+
+class Store(Model):
+
+    __connection__ = "dev"
+    
+    @belongs_to_many
+    def products(self):
+        return Product
+
+class Product(Model):
+    pass
 
 class UserHasOne(Model):
 
@@ -139,3 +150,7 @@ class TestRelationships(unittest.TestCase):
 
         article.attach("logo", logo)
         DB.rollback("dev")
+    
+    def test_belongs_to_many(self):
+        store = Store.hydrate({"id": 1, "name": "Walmart"})
+        print(store.products.to_sql())
