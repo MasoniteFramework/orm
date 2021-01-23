@@ -59,7 +59,9 @@ class Store(Model):
 
 
 class Product(Model):
-    pass
+
+    __connection__ = "dev"
+
 
 
 class UserHasOne(Model):
@@ -154,5 +156,5 @@ class TestRelationships(unittest.TestCase):
         DB.rollback("dev")
 
     def test_belongs_to_many(self):
-        store = Store.hydrate({"id": 1, "name": "Walmart"})
-        print(store.products.to_sql())
+        store = Store.hydrate({"id": 2, "name": "Walmart"})
+        self.assertEqual(store.products.to_sql(), """SELECT * FROM "products" WHERE "products"."id" IN (SELECT "product_store"."product_id" FROM "product_store" WHERE "product_store"."store_id" = '2')""")

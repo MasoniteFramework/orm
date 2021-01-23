@@ -48,13 +48,14 @@ class BelongsToMany(BaseRelationship):
             singularize(owner.builder.get_table_name()),
             singularize(query.get_table_name()),
         ]
+
         pivot_tables.sort()
 
         result = query.where_in(
             self.other_owner_key,
             lambda q: q.select(self.other_foreign_key)
             .table("_".join(pivot_tables))
-            .where(self.local_foreign_key, 1),
+            .where(self.local_foreign_key, owner.__attributes__[self.local_owner_key]),
         )
 
         return result
