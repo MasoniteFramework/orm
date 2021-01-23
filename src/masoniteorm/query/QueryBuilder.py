@@ -476,6 +476,34 @@ class QueryBuilder(ObservesEvents):
             self._wheres += ((QueryExpression(column, operator, value, "value")),)
         return self
 
+    def where_like(self, column, value):
+        """Specifies a where expression.
+
+        Arguments:
+            column {string} -- The name of the column to search
+
+        Keyword Arguments:
+            args {List} -- The operator and the value of the column to search. (default: {None})
+
+        Returns:
+            self
+        """
+        return self.where(column, 'like', value)
+
+    def where_not_like(self, column, value):
+        """Specifies a where expression.
+
+        Arguments:
+            column {string} -- The name of the column to search
+
+        Keyword Arguments:
+            args {List} -- The operator and the value of the column to search. (default: {None})
+
+        Returns:
+            self
+        """
+        return self.where(column, 'not like', value)
+
     def where_raw(self, query: str, bindings=()):
         """Specifies raw SQL that should be injected into the where expression.
 
