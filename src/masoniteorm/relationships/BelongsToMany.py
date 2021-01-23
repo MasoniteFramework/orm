@@ -8,23 +8,24 @@ class BelongsToMany(BaseRelationship):
 
     def __init__(
         self,
-        fn,
+        fn=None,
         local_foreign_key=None,
         other_foreign_key=None,
-        local_owner_key="id",
-        other_owner_key="id",
+        local_owner_key=None,
+        other_owner_key=None,
     ):
         if isinstance(fn, str):
+            self.fn = None
             self.local_foreign_key = fn
             self.other_foreign_key = local_foreign_key
             self.local_owner_key = other_foreign_key
-            self.other_owner_key = local_owner_key
+            self.other_owner_key = local_owner_key or "id"
         else:
             self.fn = fn
-            # slef.local_foreign_key =
+            self.local_foreign_key = local_foreign_key
             self.other_foreign_key = other_foreign_key
-            self.local_owner_key = local_owner_key
-            self.other_owner_key = other_owner_key
+            self.local_owner_key = local_owner_key or "id"
+            self.other_owner_key = other_owner_key or "id"
 
     def apply_query(self, query, owner):
         """Apply the query and return a dictionary to be hydrated
@@ -36,13 +37,6 @@ class BelongsToMany(BaseRelationship):
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-        print("local_foreign_key", self.local_foreign_key)
-        print("other_foreign_key", self.other_foreign_key)
-        print("local_owner_key", self.local_owner_key)
-        print("other_owner_key", self.other_owner_key)
-        print("builder", self.get_builder())
-        print("owner", owner.get_primary_key_value())
-        print("query", query)
 
         pivot_tables = [
             singularize(owner.builder.get_table_name()),
@@ -50,31 +44,53 @@ class BelongsToMany(BaseRelationship):
         ]
 
         pivot_tables.sort()
+        pivot_table_1, pivot_table_2 = pivot_tables
+
+        other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
+        local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
 
         result = query.where_in(
             self.other_owner_key,
-            lambda q: q.select(self.other_foreign_key)
+            lambda q: q.select(other_foreign_key)
             .table("_".join(pivot_tables))
-            .where(self.local_foreign_key, owner.__attributes__[self.local_owner_key]),
+            .where(local_foreign_key, owner.__attributes__[self.local_owner_key]),
         )
 
         return result
 
-    def get_related(self, relation, eagers=None):
+    def get_related(self, query, relation, eagers=None):
         eagers = eagers or []
         builder = self.get_builder().with_(eagers)
+
+        pivot_tables = [
+            singularize(builder.get_table_name()),
+            singularize(query.get_table_name()),
+        ]
+
+        pivot_tables.sort()
+        pivot_table_1, pivot_table_2 = pivot_tables
+
+        other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
+        local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
+
         if isinstance(relation, Collection):
             return builder.where_in(
-                f"{builder.get_table_name()}.{self.foreign_key}",
-                relation.pluck(self.local_key).unique(),
+                self.other_owner_key,
+                lambda q: q.select(other_foreign_key)
+                .table("_".join(pivot_tables))
+                .where_in(local_foreign_key, relation.pluck(self.local_owner_key)),
             ).get()
         else:
             return builder.where(
-                f"{builder.get_table_name()}.{self.foreign_key}",
+                f"{builder.get_table_name()}.{self.local_owner_key}",
                 relation.get_primary_key_value(),
             ).get()
 
     def register_related(self, key, model, collection):
         model.add_relation(
-            {key: collection.where(self.foreign_key, model.get_primary_key_value())}
+            {
+                key: collection.where(
+                    self.local_owner_key, getattr(model, self.local_owner_key)
+                )
+            }
         )

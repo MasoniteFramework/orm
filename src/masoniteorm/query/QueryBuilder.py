@@ -488,7 +488,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        return self.where(column, 'like', value)
+        return self.where(column, "like", value)
 
     def where_not_like(self, column, value):
         """Specifies a where expression.
@@ -502,7 +502,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        return self.where(column, 'not like', value)
+        return self.where(column, "not like", value)
 
     def where_raw(self, query: str, bindings=()):
         """Specifies raw SQL that should be injected into the where expression.
@@ -1178,7 +1178,7 @@ class QueryBuilder(ObservesEvents):
                             else:
                                 related = self._model.get_related(eager)
 
-                            result_set = related.get_related(hydrated_model)
+                            result_set = related.get_related(self, hydrated_model)
 
                             self._register_relationships_to_model(
                                 related, result_set, hydrated_model, relation_key=eager

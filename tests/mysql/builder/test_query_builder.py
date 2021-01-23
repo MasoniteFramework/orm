@@ -417,33 +417,25 @@ class BaseTestQueryBuilder:
     def test_where_like_as_operator(self):
         builder = self.get_builder()
         builder.where("age", "like", "%name%")
-        sql = getattr(
-            self, 'where_like'
-        )()
+        sql = getattr(self, "where_like")()
         self.assertEqual(builder.to_sql(), sql)
 
     def test_where_like(self):
         builder = self.get_builder()
         builder.where_like("age", "%name%")
-        sql = getattr(
-            self, 'where_like'
-        )()
+        sql = getattr(self, "where_like")()
         self.assertEqual(builder.to_sql(), sql)
 
     def test_where_not_like_as_operator(self):
         builder = self.get_builder()
         builder.where("age", "not like", "%name%")
-        sql = getattr(
-            self, 'where_not_like'
-        )()
+        sql = getattr(self, "where_not_like")()
         self.assertEqual(builder.to_sql(), sql)
 
     def test_where_not_like(self):
         builder = self.get_builder()
         builder.where_not_like("age", "%name%")
-        sql = getattr(
-            self, 'where_not_like'
-        )()
+        sql = getattr(self, "where_not_like")()
         self.assertEqual(builder.to_sql(), sql)
 
     def test_can_call_with_multi_tables(self):

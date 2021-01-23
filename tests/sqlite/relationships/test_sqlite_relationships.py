@@ -57,11 +57,14 @@ class Store(Model):
     def products(self):
         return Product
 
+    @belongs_to_many
+    def store_products(self):
+        return Product
+
 
 class Product(Model):
 
     __connection__ = "dev"
-
 
 
 class UserHasOne(Model):
@@ -157,4 +160,20 @@ class TestRelationships(unittest.TestCase):
 
     def test_belongs_to_many(self):
         store = Store.hydrate({"id": 2, "name": "Walmart"})
-        self.assertEqual(store.products.to_sql(), """SELECT * FROM "products" WHERE "products"."id" IN (SELECT "product_store"."product_id" FROM "product_store" WHERE "product_store"."store_id" = '2')""")
+        self.assertEqual(
+            store.products.to_sql(),
+            """SELECT * FROM "products" WHERE "products"."id" IN (SELECT "product_store"."product_id" FROM "product_store" WHERE "product_store"."store_id" = '2')""",
+        )
+
+    def test_belongs_to_eager_many(self):
+        # store = Store.hydrate({"id": 2, "name": "Walmart"})
+        store = Store.with_("products").first()
+        print(store)
+        # self.assertEqual(store.products.to_sql(), """SELECT * FROM "products" WHERE "products"."id" IN (SELECT "product_store"."product_id" FROM "product_store" WHERE "product_store"."store_id" = '2')""")
+
+    def test_not_specifying_keys_belongs_to_many(self):
+        store = Store.hydrate({"id": 2, "name": "Walmart"})
+        self.assertEqual(
+            store.store_products.to_sql(),
+            """SELECT * FROM "products" WHERE "products"."id" IN (SELECT "product_store"."product_id" FROM "product_store" WHERE "product_store"."store_id" = '2')""",
+        )
