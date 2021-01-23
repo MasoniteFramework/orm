@@ -1161,7 +1161,7 @@ class QueryBuilder(ObservesEvents):
                                 related = self._model.get_related(relation)
 
                             result_set = related.get_related(
-                                hydrated_model, eagers=eagers
+                                self, hydrated_model, eagers=eagers
                             )
 
                             self._register_relationships_to_model(
