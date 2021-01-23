@@ -406,6 +406,46 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_or_where(self):
+        builder = self.get_builder()
+        builder.where("age", "20").or_where("age", "<", 20)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_where_like_as_operator(self):
+        builder = self.get_builder()
+        builder.where("age", "like", "%name%")
+        sql = getattr(
+            self, 'where_like'
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_where_like_as_operator(self):
+        builder = self.get_builder()
+        builder.where_like("age", "%name%")
+        sql = getattr(
+            self, 'where_like'
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_where_like_as_operator(self):
+        builder = self.get_builder()
+        builder.where("age", "not like", "%name%")
+        sql = getattr(
+            self, 'where_not_like'
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_where_like_as_operator(self):
+        builder = self.get_builder()
+        builder.where_not_like("age", "%name%")
+        sql = getattr(
+            self, 'where_not_like'
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
     def test_can_call_with_multi_tables(self):
         builder = self.get_builder()
         sql = (
