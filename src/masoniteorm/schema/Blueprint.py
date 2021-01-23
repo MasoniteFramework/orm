@@ -44,14 +44,14 @@ class Blueprint:
 
         return self
 
-    def tiny_integer(self, column, length=3, nullable=False):
+    def tiny_integer(self, column, length=1, nullable=False):
         """Sets a column to be the tiny_integer representation for the table.
 
         Arguments:
             column {string} -- The column name.
 
         Keyword Arguments:
-            length {int} -- The length of the column. (default: {3})
+            length {int} -- The length of the column. (default: {1})
             nullable {bool} -- Whether the column is nullable (default: {False})
 
         Returns:
