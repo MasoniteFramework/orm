@@ -44,6 +44,60 @@ class Blueprint:
 
         return self
 
+    def tiny_integer(self, column, length=1, nullable=False):
+        """Sets a column to be the tiny_integer representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            length {int} -- The length of the column. (default: {1})
+            nullable {bool} -- Whether the column is nullable (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(
+            column, "tiny_integer", length=length, nullable=nullable
+        )
+        return self
+
+    def small_integer(self, column, length=5, nullable=False):
+        """Sets a column to be the small_integer representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            length {int} -- The length of the column. (default: {5})
+            nullable {bool} -- Whether the column is nullable (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(
+            column, "small_integer", length=length, nullable=nullable
+        )
+        return self
+
+    def medium_integer(self, column, length=7, nullable=False):
+        """Sets a column to be the medium_integer representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            length {int} -- The length of the column. (default: {7})
+            nullable {bool} -- Whether the column is nullable (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(
+            column, "medium_integer", length=length, nullable=nullable
+        )
+        return self
+
     def integer(self, column, length=11, nullable=False):
         """Sets a column to be the integer representation for the table.
 
@@ -51,7 +105,7 @@ class Blueprint:
             column {string} -- The column name.
 
         Keyword Arguments:
-            length {int} -- The length of the column. (default: {255})
+            length {int} -- The length of the column. (default: {11})
             nullable {bool} -- Whether the column is nullable (default: {False})
 
         Returns:
@@ -59,6 +113,24 @@ class Blueprint:
         """
         self._last_column = self.table.add_column(
             column, "integer", length=length, nullable=nullable
+        )
+        return self
+
+    def big_integer(self, column, length=32, nullable=False):
+        """Sets a column to be the big_integer representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            length {int} -- The length of the column. (default: {32})
+            nullable {bool} -- Whether the column is nullable (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(
+            column, "big_integer", length=length, nullable=nullable
         )
         return self
 
@@ -82,6 +154,23 @@ class Blueprint:
         """
         self._last_column = self.table.add_column(
             column, "increments", nullable=nullable
+        )
+        return self
+
+    def tiny_increments(self, column, nullable=False):
+        """Sets a column to be the auto tiny incrementing primary key representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(
+            column, "tiny_increments", nullable=nullable
         )
         return self
 
@@ -184,6 +273,21 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(column, "date", nullable=nullable)
+        return self
+
+    def time(self, column, nullable=False):
+        """Sets a column to be the time representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(column, "time", nullable=nullable)
         return self
 
     def datetime(self, column, nullable=False):
@@ -317,6 +421,24 @@ class Blueprint:
         )
         return self
 
+    def long_text(self, column, length=None, nullable=False):
+        """Sets a column to be the long_text representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            length {int} -- The length of the column if any. (default: {False})
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(
+            column, "long_text", length=length, nullable=nullable
+        )
+        return self
+
     def json(self, column, nullable=False):
         """Sets a column to be the json representation for the table.
 
@@ -330,6 +452,51 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(column, "json", nullable=nullable)
+        return self
+
+    def jsonb(self, column, nullable=False):
+        """Sets a column to be the jsonb representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(column, "jsonb", nullable=nullable)
+        return self
+
+    def point(self, column, nullable=False):
+        """Sets a column to be the point representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(column, "point", nullable=nullable)
+        return self
+
+    def geometry(self, column, nullable=False):
+        """Sets a column to be the geometry representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(column, "geometry", nullable=nullable)
         return self
 
     def unsigned(self, column=None, length=None, nullable=False):
