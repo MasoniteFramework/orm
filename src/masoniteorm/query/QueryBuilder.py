@@ -639,6 +639,14 @@ class QueryBuilder(ObservesEvents):
             self._wheres += (
                 (QueryExpression(column, "IN", SubSelectExpression(wheres))),
             )
+        elif callable(wheres):
+            self._wheres += (
+                (
+                    QueryExpression(
+                        column, "IN", SubSelectExpression(wheres(self.new()))
+                    )
+                ),
+            )
         else:
             wheres = [str(x) for x in wheres]
             self._wheres += ((QueryExpression(column, "IN", wheres)),)

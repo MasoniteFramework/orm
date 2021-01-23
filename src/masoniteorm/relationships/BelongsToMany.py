@@ -1,19 +1,32 @@
 from .BaseRelationship import BaseRelationship
 from ..collection import Collection
+from inflection import singularize, underscore
 
 
 class BelongsToMany(BaseRelationship):
     """Has Many Relationship Class."""
 
-    def __init__(self, fn, local_key=None, foreign_key=None):
+    def __init__(
+        self,
+        fn,
+        local_foreign_key=None,
+        other_foreign_key=None,
+        local_owner_key="id",
+        other_owner_key="id",
+    ):
         if isinstance(fn, str):
-            self.local_key = fn
-            self.foreign_key = local_key
+            self.local_foreign_key = fn
+            self.other_foreign_key = local_foreign_key
+            self.local_owner_key = other_foreign_key
+            self.other_owner_key = local_owner_key
         else:
             self.fn = fn
-            self.foreign_key = foreign_key
+            # slef.local_foreign_key =
+            self.other_foreign_key = other_foreign_key
+            self.local_owner_key = local_owner_key
+            self.other_owner_key = other_owner_key
 
-    def apply_query(self, foreign, owner):
+    def apply_query(self, query, owner):
         """Apply the query and return a dictionary to be hydrated
 
         Arguments:
@@ -23,10 +36,26 @@ class BelongsToMany(BaseRelationship):
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-        print('local')
-        result = foreign.where(
-            self.foreign_key, owner.__attributes__[self.local_key]
-        ).get()
+        print("local_foreign_key", self.local_foreign_key)
+        print("other_foreign_key", self.other_foreign_key)
+        print("local_owner_key", self.local_owner_key)
+        print("other_owner_key", self.other_owner_key)
+        print("builder", self.get_builder())
+        print("owner", owner.get_primary_key_value())
+        print("query", query)
+
+        pivot_tables = [
+            singularize(owner.builder.get_table_name()),
+            singularize(query.get_table_name()),
+        ]
+        pivot_tables.sort()
+
+        result = query.where_in(
+            self.other_owner_key,
+            lambda q: q.select(self.other_foreign_key)
+            .table("_".join(pivot_tables))
+            .where(self.local_foreign_key, 1),
+        )
 
         return result
 

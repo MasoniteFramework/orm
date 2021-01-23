@@ -55,16 +55,12 @@ class BaseRelationship:
         self._related_builder = relationship.builder
 
         if instance.is_loaded():
-            print('should be here')
             if attribute in instance._relationships:
                 return instance._relationships[attribute]
-            
-            print('applying', self._related_builder, instance)
+
             result = self.apply_query(self._related_builder, instance)
-            print(2)
             return result
         else:
-            print('here wrong')
             return self
 
     def __getattr__(self, attribute):
