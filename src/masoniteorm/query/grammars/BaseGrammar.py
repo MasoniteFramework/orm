@@ -649,20 +649,20 @@ class BaseGrammar:
         if column and "." in column:
 
             table, column = column.split(".")
-        
-        if (column == '*'):
-            return self.column_strings.get('select_all').format(
+
+        if column == "*":
+            return self.column_strings.get("select_all").format(
                 column=column,
                 separator=separator,
                 table=self.process_table(table or self.table),
             )
-        
+
         if alias:
             alias_string = self.subquery_alias_string().format(alias=alias)
         return self.column_strings.get(self._action).format(
             column=column,
             separator=separator,
-            alias=" " + alias_string,
+            alias=" " + alias_string if alias else "",
             table=self.process_table(table or self.table),
         )
 

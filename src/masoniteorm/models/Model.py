@@ -207,6 +207,16 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return cls.__table__ or tableize(cls.__name__)
 
     @classmethod
+    def table(cls, table):
+        """Gets the table name.
+
+        Returns:
+            str
+        """
+        cls.__table__ = table
+        return cls
+
+    @classmethod
     def find(cls, record_id, query=False):
         """Finds a row by the primary key ID.
 
