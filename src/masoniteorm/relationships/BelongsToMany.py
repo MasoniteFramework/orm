@@ -103,9 +103,8 @@ class BelongsToMany(BaseRelationship):
         for p in result:
             pivot_data = {
                 self.local_foreign_key: getattr(p, self.local_foreign_key),
-                self.other_foreign_key: getattr(p, self.other_foreign_key)
+                self.other_foreign_key: getattr(p, self.other_foreign_key),
             }
-
 
             if self.pivot_id:
                 pivot_data.update({self.pivot_id: getattr(p, "m_reserved_3")})
@@ -120,7 +119,10 @@ class BelongsToMany(BaseRelationship):
             setattr(
                 p,
                 self._as,
-                Pivot.on(query.connection).table(self._table).hydrate(pivot_data).activate_timestamps(self.with_timestamps),
+                Pivot.on(query.connection)
+                .table(self._table)
+                .hydrate(pivot_data)
+                .activate_timestamps(self.with_timestamps),
             )
 
         return result
@@ -208,7 +210,10 @@ class BelongsToMany(BaseRelationship):
             setattr(
                 model,
                 self._as,
-                Pivot.on(builder.connection).table(self._table).hydrate(pivot_data).activate_timestamps(self.with_timestamps),
+                Pivot.on(builder.connection)
+                .table(self._table)
+                .hydrate(pivot_data)
+                .activate_timestamps(self.with_timestamps),
             )
 
         return final_result
