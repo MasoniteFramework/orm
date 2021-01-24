@@ -9,12 +9,22 @@ from src.masoniteorm.schema.platforms import SQLitePlatform
 class TestSQLiteSchemaBuilder(unittest.TestCase):
     maxDiff = None
 
+    def tearDown(self):
+        self.schema_database.drop_table_if_exists("users")
+
     def setUp(self):
         self.schema = Schema(
             connection="dev",
             connection_details=DATABASES,
             platform=SQLitePlatform,
             dry=True,
+        ).on("dev")
+
+        self.schema_database = Schema(
+            connection_class=SQLiteConnection,
+            connection="dev",
+            connection_details=DATABASES,
+            platform=SQLitePlatform,
         ).on("dev")
 
     def test_can_add_columns(self):
@@ -175,3 +185,27 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
                 "PRAGMA foreign_keys = ON",
             ],
         )
+
+    def test_return_correct_columns_from_table(self):
+
+        with self.schema_database.create("users") as blueprint:
+            blueprint.increments("id")
+            blueprint.string("name", 100)
+            blueprint.string("email")
+            blueprint.string("password")
+            blueprint.string("remember_token", 150)
+            blueprint.timestamps()
+            blueprint.timestamp("verified_at")
+            blueprint.boolean("is_active").default(True)
+
+        columns = self.schema_database.list_table_columns("users")
+
+        self.assertEqual("id: integer default: None", columns[0])
+        self.assertEqual("name: string(100) default: None", columns[1])
+        self.assertEqual("email: string(255) default: None", columns[2])
+        self.assertEqual("password: string(255) default: None", columns[3])
+        self.assertEqual("remember_token: string(150) default: None", columns[4])
+        self.assertEqual("created_at: timestamp default: CURRENT_TIMESTAMP", columns[5])
+        self.assertEqual("updated_at: timestamp default: CURRENT_TIMESTAMP", columns[6])
+        self.assertEqual("verified_at: timestamp default: CURRENT_TIMESTAMP", columns[7])
+        self.assertEqual("is_active: boolean default: True", columns[8])
