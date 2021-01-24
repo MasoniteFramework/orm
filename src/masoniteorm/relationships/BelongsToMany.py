@@ -16,7 +16,6 @@ class BelongsToMany(BaseRelationship):
         other_owner_key=None,
         table=None,
         with_timestamps=False,
-        
     ):
         if isinstance(fn, str):
             self.fn = None
@@ -87,10 +86,12 @@ class BelongsToMany(BaseRelationship):
             "=",
             f"{table2}.{self.other_owner_key}",
         )
-        
+
         if hasattr(owner, self.local_owner_key):
-            result.where(f"{table1}.{self.local_owner_key}", getattr(owner, self.local_owner_key))
-        
+            result.where(
+                f"{table1}.{self.local_owner_key}", getattr(owner, self.local_owner_key)
+            )
+
         result = result.get()
 
         for p in result:
@@ -106,8 +107,7 @@ class BelongsToMany(BaseRelationship):
                         "created_at": getattr(p, "m_reserved_2"),
                     }
                 )
-            setattr(p, self._as, Pivot.hydrate(pivot_data)) 
-            # p.pivot = 
+            setattr(p, self._as, Pivot.hydrate(pivot_data))
 
         return result
 
