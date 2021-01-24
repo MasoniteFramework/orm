@@ -234,7 +234,10 @@ class SQLitePlatform(Platform):
 
         match = re.match(r"(?P<type>\w+)(\((?P<length>\d+)\))?", type)
 
-        type_column = match.group("type")
+        if match:
+            type_column = match.group("type")
+        else:
+            type_column = "string"
 
         return mapping_types.get(type_column.upper()) or type
 
@@ -242,7 +245,10 @@ class SQLitePlatform(Platform):
         import re
 
         match = re.match(r"(?P<type>\w+)(\((?P<length>\d+)\))?", type)
-        length_column = match.group("length")
+        if match:
+            length_column = match.group("length")
+        else:
+            length_column = None
 
         return length_column
 

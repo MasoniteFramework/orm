@@ -9,6 +9,7 @@ from .MigrateRefreshCommand import MigrateRefreshCommand
 from .MigrateResetCommand import MigrateResetCommand
 from .MakeModelCommand import MakeModelCommand
 from .MakeObserverCommand import MakeObserverCommand
+from .ModelDocstringCommand import ModelDocstringCommand
 from .MigrateStatusCommand import MigrateStatusCommand
 from .MakeMigrationCommand import MakeMigrationCommand
 from .MakeSeedCommand import MakeSeedCommand
