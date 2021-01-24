@@ -16,7 +16,8 @@ class BelongsToMany(BaseRelationship):
         other_owner_key=None,
         table=None,
         with_timestamps=False,
-        pivot_id = "id"
+        pivot_id="id",
+        attribute="pivot",
     ):
         if isinstance(fn, str):
             self.fn = None
@@ -33,7 +34,7 @@ class BelongsToMany(BaseRelationship):
 
         self._table = table
         self.with_timestamps = with_timestamps
-        self._as = "pivot"
+        self._as = attribute
         self.pivot_id = pivot_id
 
     def apply_query(self, query, owner):
@@ -111,7 +112,11 @@ class BelongsToMany(BaseRelationship):
                         "created_at": getattr(p, "m_reserved_2"),
                     }
                 )
-            setattr(p, self._as, Pivot.on(query.connection).table(self._table).hydrate(pivot_data))
+            setattr(
+                p,
+                self._as,
+                Pivot.on(query.connection).table(self._table).hydrate(pivot_data),
+            )
 
         return result
 
@@ -182,7 +187,11 @@ class BelongsToMany(BaseRelationship):
                 self.other_foreign_key: getattr(model, self.other_foreign_key),
                 self.pivot_id: getattr(model, "m_reserved_3"),
             }
-            setattr(model, self._as, Pivot.on(builder.connection).table(self._table).hydrate(pivot_data))
+            setattr(
+                model,
+                self._as,
+                Pivot.on(builder.connection).table(self._table).hydrate(pivot_data),
+            )
 
         return final_result
 
