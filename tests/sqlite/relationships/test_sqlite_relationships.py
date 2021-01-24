@@ -170,4 +170,3 @@ class TestRelationships(unittest.TestCase):
         store = Store.hydrate({"id": 2, "name": "Walmart"})
         store = Store.with_("products").first()
         self.assertEqual(store.products.count(), 3)
-
