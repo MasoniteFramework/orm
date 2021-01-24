@@ -13,6 +13,7 @@ class BelongsToMany(BaseRelationship):
         other_foreign_key=None,
         local_owner_key=None,
         other_owner_key=None,
+        table=None,
     ):
         if isinstance(fn, str):
             self.fn = None
@@ -27,6 +28,8 @@ class BelongsToMany(BaseRelationship):
             self.local_owner_key = local_owner_key or "id"
             self.other_owner_key = other_owner_key or "id"
 
+        self._table = table
+
     def apply_query(self, query, owner):
         """Apply the query and return a dictionary to be hydrated
 
@@ -38,25 +41,33 @@ class BelongsToMany(BaseRelationship):
             dict -- A dictionary of data which will be hydrated.
         """
 
-        pivot_tables = [
-            singularize(owner.builder.get_table_name()),
-            singularize(query.get_table_name()),
-        ]
-
-        pivot_tables.sort()
-        pivot_table_1, pivot_table_2 = pivot_tables
-
-        other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
-        local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
+        if not self._table:
+            pivot_tables = [
+                singularize(owner.builder.get_table_name()),
+                singularize(query.get_table_name()),
+            ]
+            pivot_tables.sort()
+            pivot_table_1, pivot_table_2 = pivot_tables
+            self._table = "_".join(pivot_tables)
+            other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
+            local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
+        else:
+            pivot_table_1, pivot_table_2 = self._table.split("_", 1)
+            other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
+            local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
 
         result = query.where_in(
             self.other_owner_key,
             lambda q: q.select(other_foreign_key)
-            .table("_".join(pivot_tables))
+            .table(self._table)
             .where(local_foreign_key, owner.__attributes__[self.local_owner_key]),
         )
 
         return result
+
+    def table(self, table):
+        self._table = table
+        return self
 
     def get_related(self, query, relation, eagers=None):
         eagers = eagers or []
