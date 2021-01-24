@@ -572,8 +572,9 @@ class BaseGrammar:
         """
         sql = ""
         for column in self._columns:
-            alias = column.alias
+            alias = None
             if isinstance(column, SelectExpression):
+                alias = column.alias
                 if column.raw:
                     sql += column.column
                     continue
