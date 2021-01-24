@@ -207,5 +207,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
         self.assertEqual("remember_token: string(150) default: None", columns[4])
         self.assertEqual("created_at: timestamp default: CURRENT_TIMESTAMP", columns[5])
         self.assertEqual("updated_at: timestamp default: CURRENT_TIMESTAMP", columns[6])
-        self.assertEqual("verified_at: timestamp default: CURRENT_TIMESTAMP", columns[7])
+        self.assertEqual(
+            "verified_at: timestamp default: CURRENT_TIMESTAMP", columns[7]
+        )
         self.assertEqual("is_active: boolean default: True", columns[8])

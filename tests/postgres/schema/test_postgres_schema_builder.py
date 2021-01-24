@@ -25,7 +25,6 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             platform=PostgresPlatform,
         )
 
-
     def tearDown(self):
         self.schema_database.drop_table_if_exists("users")
 
