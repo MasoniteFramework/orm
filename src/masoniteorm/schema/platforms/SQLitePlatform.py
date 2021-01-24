@@ -212,16 +212,39 @@ class SQLitePlatform(Platform):
         table = Table(table_name)
 
         result = connection.query(sql, ())
+
         for column in result:
-            table.add_column(
-                column["name"],
-                reversed_type_map.get(column["type"]),
-                default=column.get("dflt_value"),
+
+            column_data = {"name": column["name"], "default": column.get("dflt_value")}
+
+            column_data["column_type"] = self.process_type_column(
+                reversed_type_map, column["type"]
             )
+            column_data["length"] = self.process_length_column(column["type"])
+
+            table.add_column(**column_data)
+
             if column.get("pk") == 1:
                 table.set_primary_key(column["name"])
 
         return table
+
+    def process_type_column(self, mapping_types, type):
+        import re
+
+        match = re.match(r"(?P<type>\w+)(\((?P<length>\d+)\))?", type)
+
+        type_column = match.group("type")
+
+        return mapping_types.get(type_column.upper()) or type
+
+    def process_length_column(self, type):
+        import re
+
+        match = re.match(r"(?P<type>\w+)(\((?P<length>\d+)\))?", type)
+        length_column = match.group("length")
+
+        return length_column
 
     def compile_table_exists(self, table, database=None):
         return f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}'"

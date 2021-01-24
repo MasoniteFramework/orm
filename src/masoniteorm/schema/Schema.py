@@ -248,3 +248,17 @@ class Schema:
             return sql
 
         return bool(self.new_connection().query(sql, ()))
+
+    def list_table_columns(self, table):
+        table = self.platform().get_current_schema(self.new_connection(), table)
+
+        docstrings = []
+
+        for name, column in table.get_added_columns().items():
+            length = f"({column.length})" if column.length else ""
+
+            docstrings.append(
+                f"{column.name}: {column.column_type}{length} default: {column.default}"
+            )
+
+        return docstrings
