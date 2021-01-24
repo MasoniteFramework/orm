@@ -53,19 +53,19 @@ class BelongsToMany(BaseRelationship):
             pivot_tables.sort()
             pivot_table_1, pivot_table_2 = pivot_tables
             self._table = "_".join(pivot_tables)
-            other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
-            local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
+            self.other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
+            self.local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
         else:
             pivot_table_1, pivot_table_2 = self._table.split("_", 1)
-            other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
-            local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
+            self.other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
+            self.local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
 
         table1 = owner.builder.get_table_name()
         table2 = query.get_table_name()
         result = query.select(
             f"{query.get_table_name()}.*",
-            f"{self._table}.{local_foreign_key}",
-            f"{self._table}.{other_foreign_key}",
+            f"{self._table}.{self.local_foreign_key}",
+            f"{self._table}.{self.other_foreign_key}",
         ).table(f"{table1}")
 
         if self.with_timestamps:
@@ -76,7 +76,7 @@ class BelongsToMany(BaseRelationship):
 
         result.join(
             f"{self._table}",
-            f"{self._table}.{local_foreign_key}",
+            f"{self._table}.{self.local_foreign_key}",
             "=",
             f"{table1}.{self.local_owner_key}",
         )
@@ -96,8 +96,8 @@ class BelongsToMany(BaseRelationship):
 
         for p in result:
             pivot_data = {
-                local_foreign_key: getattr(p, local_foreign_key),
-                other_foreign_key: getattr(p, other_foreign_key),
+                local_foreign_key: getattr(p, self.local_foreign_key),
+                other_foreign_key: getattr(p, self.other_foreign_key),
             }
 
             if self.with_timestamps:
@@ -127,11 +127,11 @@ class BelongsToMany(BaseRelationship):
             pivot_tables.sort()
             pivot_table_1, pivot_table_2 = pivot_tables
             self._table = "_".join(pivot_tables)
-            other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
+            self.other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
             self.local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
         else:
             pivot_table_1, pivot_table_2 = self._table.split("_", 1)
-            other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
+            self.other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
             self.local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
 
         table2 = builder.get_table_name()
@@ -139,7 +139,7 @@ class BelongsToMany(BaseRelationship):
         result = builder.select(
             f"{table2}.*",
             f"{self._table}.{self.local_foreign_key}",
-            f"{self._table}.{other_foreign_key}",
+            f"{self._table}.{self.other_foreign_key}",
         ).table(f"{table1}")
 
         result.join(
@@ -151,7 +151,7 @@ class BelongsToMany(BaseRelationship):
 
         result.join(
             f"{table2}",
-            f"{self._table}.{other_foreign_key}",
+            f"{self._table}.{self.other_foreign_key}",
             "=",
             f"{table2}.{self.other_owner_key}",
         )
@@ -163,13 +163,22 @@ class BelongsToMany(BaseRelationship):
             )
 
         if isinstance(relation, Collection):
-            return result.where_in(
+            final_result = result.where_in(
                 self.local_owner_key, relation.pluck(self.local_owner_key)
             ).get()
         else:
-            return result.where(
+            final_result = result.where(
                 self.local_owner_key, getattr(relation, self.local_owner_key)
             ).get()
+
+        for model in final_result:
+            pivot_data = {
+                self.local_foreign_key: getattr(model, self.local_foreign_key),
+                self.other_foreign_key: getattr(model, self.other_foreign_key),
+            }
+            setattr(model, self._as, Pivot.hydrate(pivot_data))
+
+        return final_result
 
     def register_related(self, key, model, collection):
         model.add_relation(
