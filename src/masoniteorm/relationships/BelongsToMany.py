@@ -16,6 +16,7 @@ class BelongsToMany(BaseRelationship):
         other_owner_key=None,
         table=None,
         with_timestamps=False,
+        pivot_id = "id"
     ):
         if isinstance(fn, str):
             self.fn = None
@@ -33,6 +34,7 @@ class BelongsToMany(BaseRelationship):
         self._table = table
         self.with_timestamps = with_timestamps
         self._as = "pivot"
+        self.pivot_id = pivot_id
 
     def apply_query(self, query, owner):
         """Apply the query and return a dictionary to be hydrated
@@ -66,6 +68,7 @@ class BelongsToMany(BaseRelationship):
             f"{query.get_table_name()}.*",
             f"{self._table}.{self.local_foreign_key}",
             f"{self._table}.{self.other_foreign_key}",
+            f"{self._table}.{self.pivot_id} as m_reserved_3",
         ).table(f"{table1}")
 
         if self.with_timestamps:
@@ -98,6 +101,7 @@ class BelongsToMany(BaseRelationship):
             pivot_data = {
                 local_foreign_key: getattr(p, self.local_foreign_key),
                 other_foreign_key: getattr(p, self.other_foreign_key),
+                self.pivot_id: getattr(p, "m_reserved_3"),
             }
 
             if self.with_timestamps:
@@ -107,7 +111,7 @@ class BelongsToMany(BaseRelationship):
                         "created_at": getattr(p, "m_reserved_2"),
                     }
                 )
-            setattr(p, self._as, Pivot.hydrate(pivot_data))
+            setattr(p, self._as, Pivot.on(query.connection).table(self._table).hydrate(pivot_data))
 
         return result
 
@@ -140,6 +144,7 @@ class BelongsToMany(BaseRelationship):
             f"{table2}.*",
             f"{self._table}.{self.local_foreign_key}",
             f"{self._table}.{self.other_foreign_key}",
+            f"{self._table}.id as m_reserved_3",
         ).table(f"{table1}")
 
         result.join(
@@ -175,8 +180,9 @@ class BelongsToMany(BaseRelationship):
             pivot_data = {
                 self.local_foreign_key: getattr(model, self.local_foreign_key),
                 self.other_foreign_key: getattr(model, self.other_foreign_key),
+                self.pivot_id: getattr(model, "m_reserved_3"),
             }
-            setattr(model, self._as, Pivot.hydrate(pivot_data))
+            setattr(model, self._as, Pivot.on(builder.connection).table(self._table).hydrate(pivot_data))
 
         return final_result
 
