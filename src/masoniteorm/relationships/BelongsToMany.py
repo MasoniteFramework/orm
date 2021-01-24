@@ -61,7 +61,7 @@ class BelongsToMany(BaseRelationship):
             lambda q: q.select(other_foreign_key)
             .table(self._table)
             .where(local_foreign_key, owner.__attributes__[self.local_owner_key]),
-        )
+        ).get()
 
         return result
 
@@ -92,9 +92,11 @@ class BelongsToMany(BaseRelationship):
                 .where_in(local_foreign_key, relation.pluck(self.local_owner_key)),
             ).get()
         else:
-            return builder.where(
+            return builder.where_in(
                 f"{builder.get_table_name()}.{self.local_owner_key}",
-                relation.get_primary_key_value(),
+                lambda q: q.select(other_foreign_key)
+                .table("_".join(pivot_tables))
+                .where(local_foreign_key, getattr(relation, self.local_owner_key)),
             ).get()
 
     def register_related(self, key, model, collection):
