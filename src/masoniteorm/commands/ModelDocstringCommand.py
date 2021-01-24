@@ -1,5 +1,6 @@
 from cleo import Command
 
+
 class ModelDocstringCommand(Command):
     """
     Generate a model docstring based on a table definition
@@ -12,13 +13,14 @@ class ModelDocstringCommand(Command):
         from config.database import DB
 
         if self.option("connection") == "default":
-            table_information = DB.get_schema_builder().list_table_columns(self.argument("table"))
+            table_information = DB.get_schema_builder().list_table_columns(
+                self.argument("table")
+            )
 
         else:
-            table_information = (
-                DB.get_schema_builder(self.option("connection"))
-                  .list_table_columns(self.argument("table"))
-            )
+            table_information = DB.get_schema_builder(
+                self.option("connection")
+            ).list_table_columns(self.argument("table"))
 
         docstring = '"""Model Definition (generated with love by Masonite) \n\n'
         for column_information in table_information:

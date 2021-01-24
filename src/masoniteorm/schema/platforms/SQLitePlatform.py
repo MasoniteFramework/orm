@@ -4,7 +4,13 @@ from .Platform import Platform
 
 class SQLitePlatform(Platform):
 
-    types_without_lengths = ["integer", "big_integer", "tiny_integer", "small_integer", "medium_integer"]
+    types_without_lengths = [
+        "integer",
+        "big_integer",
+        "tiny_integer",
+        "small_integer",
+        "medium_integer",
+    ]
 
     type_map = {
         "string": "VARCHAR",
@@ -209,12 +215,11 @@ class SQLitePlatform(Platform):
 
         for column in result:
 
-            column_data = {
-                "name": column["name"],
-                "default": column.get("dflt_value")
-            }
+            column_data = {"name": column["name"], "default": column.get("dflt_value")}
 
-            column_data["column_type"] = self.process_type_column(reversed_type_map, column["type"])
+            column_data["column_type"] = self.process_type_column(
+                reversed_type_map, column["type"]
+            )
             column_data["length"] = self.process_length_column(column["type"])
 
             table.add_column(**column_data)
@@ -238,7 +243,7 @@ class SQLitePlatform(Platform):
 
         match = re.match(r"(?P<type>\w+)(\((?P<length>\d+)\))?", type)
         length_column = match.group("length")
-        
+
         return length_column
 
     def compile_table_exists(self, table, database=None):

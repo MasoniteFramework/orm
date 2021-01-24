@@ -3,7 +3,13 @@ from ..Table import Table
 
 
 class PostgresPlatform(Platform):
-    types_without_lengths = ["integer", "big_integer", "tiny_integer", "small_integer", "medium_integer"]
+    types_without_lengths = [
+        "integer",
+        "big_integer",
+        "tiny_integer",
+        "small_integer",
+        "medium_integer",
+    ]
 
     type_map = {
         "string": "VARCHAR",
@@ -40,7 +46,7 @@ class PostgresPlatform(Platform):
 
     table_info_map = {
         "CHARACTER VARYING": "string",
-        "TIMESTAMP WITHOUT TIME ZONE" : "datetime"
+        "TIMESTAMP WITHOUT TIME ZONE": "datetime",
     }
 
     premapped_defaults = {
@@ -287,35 +293,34 @@ class PostgresPlatform(Platform):
         result = connection.query(sql, ())
 
         for column in result:
-            
+
             column_data = {
                 "name": column["column_name"],
                 "column_type": reversed_type_map.get(column["data_type"].upper()),
                 "default": column.get("column_default", None),
             }
 
-            if column.get("character_maximum_length",None):
+            if column.get("character_maximum_length", None):
                 column_data.update({"length": column.get("character_maximum_length")})
 
             elif column.get("numeric_precision", None):
-                column_data.update({"length":column.get("numeric_precision")})
+                column_data.update({"length": column.get("numeric_precision")})
 
             elif column.get("datetime_precision", None):
-                column_data.update({"length":column.get("datetime_precision")})
+                column_data.update({"length": column.get("datetime_precision")})
 
             else:
                 column_data.update({"length": None})
-            
+
             column_default = column.get("column_default", "")
-            
+
             if column_default and column_default.startswith("nextval"):
                 column_data.update({"default": None})
-            
+
             table.add_column(**column_data)
 
             if column_default and column_default.startswith("nextval"):
                 table.set_primary_key(column["column_name"])
-
 
         return table
 

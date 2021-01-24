@@ -255,9 +255,10 @@ class Schema:
         docstrings = []
 
         for name, column in table.get_added_columns().items():
-            length = f"({column.length})" if column.length else ''
-            
-            docstrings.append(f"{column.name}: {column.column_type}{length} default: {column.default}")
+            length = f"({column.length})" if column.length else ""
+
+            docstrings.append(
+                f"{column.name}: {column.column_type}{length} default: {column.default}"
+            )
 
         return docstrings
-        
