@@ -59,7 +59,6 @@ class BaseRelationship:
                 return instance._relationships[attribute]
 
             result = self.apply_query(self._related_builder, instance)
-
             return result
         else:
             return self
@@ -80,5 +79,4 @@ class BaseRelationship:
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-
         return foreign.where(foreign_key, owner().__attributes__[local_key]).first()

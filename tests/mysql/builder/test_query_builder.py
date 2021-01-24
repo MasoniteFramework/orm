@@ -127,6 +127,22 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_select_with_table(self):
+        builder = self.get_builder()
+        builder.select("users.*")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_select_with_alias(self):
+        builder = self.get_builder()
+        builder.select("users.username as name")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
     def test_select_raw(self):
         builder = self.get_builder()
         builder.select_raw("count(email) as email_count")
@@ -417,33 +433,25 @@ class BaseTestQueryBuilder:
     def test_where_like_as_operator(self):
         builder = self.get_builder()
         builder.where("age", "like", "%name%")
-        sql = getattr(
-            self, 'where_like'
-        )()
+        sql = getattr(self, "where_like")()
         self.assertEqual(builder.to_sql(), sql)
 
     def test_where_like(self):
         builder = self.get_builder()
         builder.where_like("age", "%name%")
-        sql = getattr(
-            self, 'where_like'
-        )()
+        sql = getattr(self, "where_like")()
         self.assertEqual(builder.to_sql(), sql)
 
     def test_where_not_like_as_operator(self):
         builder = self.get_builder()
         builder.where("age", "not like", "%name%")
-        sql = getattr(
-            self, 'where_not_like'
-        )()
+        sql = getattr(self, "where_not_like")()
         self.assertEqual(builder.to_sql(), sql)
 
     def test_where_not_like(self):
         builder = self.get_builder()
         builder.where_not_like("age", "%name%")
-        sql = getattr(
-            self, 'where_not_like'
-        )()
+        sql = getattr(self, "where_not_like")()
         self.assertEqual(builder.to_sql(), sql)
 
     def test_can_call_with_multi_tables(self):
@@ -525,6 +533,20 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.select('name', 'email')
         """
         return "SELECT `users`.`name`, `users`.`email` FROM `users`"
+
+    def select_with_table(self):
+        """
+        builder = self.get_builder()
+        builder.select('users.*')
+        """
+        return "SELECT `users`.* FROM `users`"
+
+    def select_with_alias(self):
+        """
+        builder = self.get_builder()
+        builder.select('users.name as name')
+        """
+        return "SELECT `users`.`username` AS name FROM `users`"
 
     def select_raw(self):
         """

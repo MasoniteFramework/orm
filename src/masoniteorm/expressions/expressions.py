@@ -87,4 +87,7 @@ class SelectExpression:
 
     def __init__(self, column, raw=False):
         self.column = column
+        self.alias = None
         self.raw = raw
+        if raw is False and " as " in self.column:
+            self.column, self.alias = self.column.split(" as ")

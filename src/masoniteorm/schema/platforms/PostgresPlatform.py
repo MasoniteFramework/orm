@@ -3,7 +3,13 @@ from ..Table import Table
 
 
 class PostgresPlatform(Platform):
-    types_without_lengths = ["integer", "big_integer", "tiny_integer", "small_integer", "medium_integer"]
+    types_without_lengths = [
+        "integer",
+        "big_integer",
+        "tiny_integer",
+        "small_integer",
+        "medium_integer",
+    ]
 
     type_map = {
         "string": "VARCHAR",
