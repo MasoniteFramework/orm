@@ -119,37 +119,63 @@ class BelongsToMany(BaseRelationship):
         eagers = eagers or []
         builder = self.get_builder().with_(eagers)
 
-        pivot_tables = [
-            singularize(builder.get_table_name()),
-            singularize(query.get_table_name()),
-        ]
+        if not self._table:
+            pivot_tables = [
+                singularize(builder.get_table_name()),
+                singularize(query.get_table_name()),
+            ]
+            pivot_tables.sort()
+            pivot_table_1, pivot_table_2 = pivot_tables
+            self._table = "_".join(pivot_tables)
+            other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
+            self.local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
+        else:
+            pivot_table_1, pivot_table_2 = self._table.split("_", 1)
+            other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
+            self.local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
 
-        pivot_tables.sort()
-        pivot_table_1, pivot_table_2 = pivot_tables
+        table2 = builder.get_table_name()
+        table1 = query.get_table_name()
+        result = builder.select(
+            f"{table2}.*",
+            f"{self._table}.{self.local_foreign_key}",
+            f"{self._table}.{other_foreign_key}",
+        ).table(f"{table1}")
 
-        other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
-        local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
+        result.join(
+            f"{self._table}",
+            f"{self._table}.{self.local_foreign_key}",
+            "=",
+            f"{table1}.{self.local_owner_key}",
+        )
+
+        result.join(
+            f"{table2}",
+            f"{self._table}.{other_foreign_key}",
+            "=",
+            f"{table2}.{self.other_owner_key}",
+        )
+
+        if self.with_timestamps:
+            result.select(
+                f"{self._table}.updated_at as m_reserved_1",
+                f"{self._table}.created_at as m_reserved_2",
+            )
 
         if isinstance(relation, Collection):
-            return builder.where_in(
-                self.other_owner_key,
-                lambda q: q.select(other_foreign_key)
-                .table("_".join(pivot_tables))
-                .where_in(local_foreign_key, relation.pluck(self.local_owner_key)),
+            return result.where_in(
+                self.local_owner_key, relation.pluck(self.local_owner_key)
             ).get()
         else:
-            return builder.where_in(
-                f"{builder.get_table_name()}.{self.local_owner_key}",
-                lambda q: q.select(other_foreign_key)
-                .table("_".join(pivot_tables))
-                .where(local_foreign_key, getattr(relation, self.local_owner_key)),
+            return result.where(
+                self.local_owner_key, getattr(relation, self.local_owner_key)
             ).get()
 
     def register_related(self, key, model, collection):
         model.add_relation(
             {
                 key: collection.where(
-                    self.local_owner_key, getattr(model, self.local_owner_key)
+                    self.local_foreign_key, getattr(model, self.local_owner_key)
                 )
             }
         )
