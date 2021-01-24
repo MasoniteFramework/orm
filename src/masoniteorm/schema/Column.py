@@ -89,6 +89,3 @@ class Column:
         """
         self.default = "current"
         return self
-
-    def representation(self):
-        return f"{self.name}: {self.column_type}({self.length}) default: {self.default}"
