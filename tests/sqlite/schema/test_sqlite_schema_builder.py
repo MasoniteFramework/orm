@@ -9,9 +9,6 @@ from src.masoniteorm.schema.platforms import SQLitePlatform
 class TestSQLiteSchemaBuilder(unittest.TestCase):
     maxDiff = None
 
-    def tearDown(self):
-        self.schema_database.drop_table_if_exists("users")
-
     def setUp(self):
         self.schema = Schema(
             connection="dev",
@@ -26,6 +23,9 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             connection_details=DATABASES,
             platform=SQLitePlatform,
         ).on("dev")
+
+    def tearDown(self):
+        self.schema_database.drop_table_if_exists("users")
 
     def test_can_add_columns(self):
         with self.schema.create("users") as blueprint:
