@@ -570,3 +570,11 @@ class TestCollection(unittest.TestCase):
         collection = Collection([1, 2, 3, 4])
         item = collection.random()
         self.assertIn(item, collection)
+
+        collection = Collection([])
+        item = collection.random()
+        self.assertIsNone(item)
+
+        collection = Collection([3])
+        item = collection.random()
+        self.assertEqual(item, 3)

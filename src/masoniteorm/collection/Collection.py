@@ -277,7 +277,9 @@ class Collection:
 
     def random(self):
         """Returns a random item of the collection."""
-        index = random.randint(0, len(self) - 1)
+        if self.count() == 0:
+            return None
+        index = random.randint(0, self.count() - 1)
         return self[index]
 
     def reduce(self, callback, initial=0):
