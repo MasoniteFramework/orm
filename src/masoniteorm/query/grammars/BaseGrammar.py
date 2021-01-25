@@ -123,6 +123,38 @@ class BaseGrammar:
 
         return self
 
+    def _compile_bulk_create(self, qmark=False):
+        """Compiles an insert expression.
+
+        Returns:
+            self
+        """
+        all_values = [list(x.values())[0] for x in self._columns]
+
+        self._sql = self.bulk_insert_format().format(
+            key_equals=self._compile_key_value_equals(qmark=qmark),
+            table=self.process_table(self.table),
+            columns=self.columnize_bulk_columns(list(self._columns[0].keys())),
+            values=self.columnize_bulk_values(all_values),
+        )
+        return self
+
+    def columnize_bulk_columns(self, columns=[]):
+        return ",".join(
+            self.column_string().format(column=x, separator=",") for x in columns
+        ).rstrip(",")
+
+    def columnize_bulk_values(self, columns=[]):
+        return ", ".join(
+            self.process_value_string().format(
+                value=self.value_string().format(value=x, separator="")
+            )
+            for x in columns
+        ).rstrip(", ")
+
+    def process_value_string(self):
+        return "({value})"
+
     def _compile_delete(self, qmark=False):
         """Compiles a delete expression.
 
@@ -603,12 +635,21 @@ class BaseGrammar:
         sql = ""
         if self._columns == "*":
             return self._columns
-        for column, value in dict(self._columns).items():
-            if qmark:
-                self.add_binding(value)
-                sql += f"'?'{separator}".strip()
-            else:
-                sql += self._compile_value(value, separator=separator)
+        elif isinstance(self._columns, list):
+            for c in self._columns:
+                for column, value in dict(c).items():
+                    if qmark:
+                        self.add_binding(value)
+                        sql += f"'?'{separator}".strip()
+                    else:
+                        sql += self._compile_value(value, separator=separator)
+        else:
+            for column, value in dict(self._columns).items():
+                if qmark:
+                    self.add_binding(value)
+                    sql += f"'?'{separator}".strip()
+                else:
+                    sql += self._compile_value(value, separator=separator)
 
         if not qmark:
             return sql[:-2]

@@ -352,6 +352,33 @@ class QueryBuilder(ObservesEvents):
     def get_processor(self):
         return self.connection_class.get_default_post_processor()()
 
+    def bulk_create(self, creates, query=False):
+        model = None
+        self.set_action("bulk_create")
+
+        self._creates = creates
+
+        if self._model:
+            model = self._model
+
+        if query:
+            return self
+
+        if model:
+            model = model.hydrate(self._creates)
+        if not self.dry:
+            connection = self.new_connection()
+            query_result = connection.query(self.to_qmark(), self._bindings, results=1)
+
+            processed_results = query_result or self._creates
+        else:
+            processed_results = self._creates
+
+        if model:
+            return model
+
+        return processed_results
+
     def create(self, creates=None, query=False, id_key="id", **kwargs):
         """Specifies a dictionary that should be used to create new values.
 
