@@ -1,4 +1,5 @@
 import json
+import random
 import operator
 from functools import reduce
 
@@ -273,6 +274,11 @@ class Collection:
     def put(self, key, value):
         self[key] = value
         return self
+
+    def random(self):
+        """Returns a random item of the collection."""
+        index = random.randint(0, len(self) - 1)
+        return self[index]
 
     def reduce(self, callback, initial=0):
         return reduce(callback, self, initial)
