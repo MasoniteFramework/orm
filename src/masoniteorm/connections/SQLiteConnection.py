@@ -136,6 +136,7 @@ class SQLiteConnection(BaseConnection):
                     self.statement(query)
             else:
                 query = query.replace("'?'", "?")
+                print("query", query)
                 self.statement(query, bindings)
                 if results == 1:
                     result = [dict(row) for row in self._cursor.fetchall()]

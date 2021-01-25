@@ -340,6 +340,10 @@ class QueryBuilder(ObservesEvents):
 
         return self
 
+    def raw(self, query, bindings=()):
+        result = self.new_connection().query(query, bindings)
+        return self.prepare_result(result, collection=True)
+
     def select_raw(self, string):
         """Specifies raw SQL that should be injected into the select expression.
 

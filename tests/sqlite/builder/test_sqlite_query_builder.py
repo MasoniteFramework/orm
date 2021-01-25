@@ -418,6 +418,11 @@ class BaseTestQueryBuilder:
             """SELECT "information_schema"."columns"."table_name" FROM "information_schema"."columns" WHERE "information_schema"."columns"."table_name" = 'users'""",
         )
 
+    def test_can_call_with_raw(self):
+        builder = self.get_builder()
+        sql = builder.raw("select * from users")
+        self.assertTrue(sql)
+
 
 class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
 
