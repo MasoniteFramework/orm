@@ -342,7 +342,7 @@ class QueryBuilder(ObservesEvents):
 
     def raw(self, query, bindings=()):
         result = self.new_connection().query(query, bindings)
-        return self.prepare_result(result, collection=True)
+        return self.prepare_result(result)
 
     def select_raw(self, string):
         """Specifies raw SQL that should be injected into the select expression.
