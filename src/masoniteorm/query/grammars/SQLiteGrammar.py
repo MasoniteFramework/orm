@@ -55,9 +55,6 @@ class SQLiteGrammar(BaseGrammar):
     def subquery_string(self):
         return "({query})"
 
-    def bulk_column_string(self):
-        return "({columns})"
-
     def default_string(self):
         return " DEFAULT {default} "
 
