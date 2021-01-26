@@ -532,7 +532,7 @@ class BaseGrammar:
                 query_value = "("
                 for val in value:
                     if qmark:
-                        query_value += "?, "
+                        query_value += "'?', "
                         self.add_binding(val)
                     else:
                         query_value += self.value_string().format(
