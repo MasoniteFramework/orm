@@ -309,15 +309,28 @@ class BaseGrammar:
         if self._order_by:
             order_crit = ""
             for order_bys in self._order_by:
+                if order_bys.raw:
+                    order_crit += order_bys.column
+                    if not isinstance(order_bys.bindings, (list, tuple)):
+                        raise ValueError(
+                            f"Bindings must be tuple or list. Received {type(where.bindings)}"
+                        )
+
+                    if order_bys.bindings:
+                        self.add_binding(*order_bys.bindings)
+
+                    continue
+
                 if len(order_crit):
                     order_crit += ", "
-                column, direction = order_bys
+                column = order_bys.column
+                direction = order_bys.direction
                 order_crit += self.order_by_format().format(
                     column=self._table_column_string(column),
                     direction=direction.upper(),
                 )
-            sql = self.order_by_string().format(order_columns=order_crit)
 
+            sql += self.order_by_string().format(order_columns=order_crit)
         return sql
 
     def process_group_by(self):

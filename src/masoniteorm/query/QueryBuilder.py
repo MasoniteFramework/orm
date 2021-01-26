@@ -7,6 +7,7 @@ from ..expressions.expressions import (
     SelectExpression,
     BetweenExpression,
     QueryExpression,
+    OrderByExpression,
     UpdateQueryExpression,
     JoinExpression,
     HavingExpression,
@@ -1051,7 +1052,23 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._order_by += ((column, direction),)
+        for col in column.split(","):
+            self._order_by += (OrderByExpression(col, direction=direction),)
+        return self
+
+    def order_by_raw(self, query, bindings=()):
+        """Specifies a column to order by.
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Keyword Arguments:
+            direction {string} -- Specify either ASC or DESC order. (default: {"ASC"})
+
+        Returns:
+            self
+        """
+        self._order_by += (OrderByExpression(query, raw=True, bindings=bindings),)
         return self
 
     def group_by(self, column):
