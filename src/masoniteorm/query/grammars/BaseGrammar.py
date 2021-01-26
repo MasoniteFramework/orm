@@ -153,7 +153,7 @@ class BaseGrammar:
                     if qmark:
                         self.add_binding(y)
                     inner += (
-                        "?, "
+                        "'?', "
                         if qmark
                         else self.value_string().format(value=y, separator=", ")
                     )
@@ -164,7 +164,7 @@ class BaseGrammar:
                 if qmark:
                     self.add_binding(x)
                 sql += (
-                    "?, "
+                    "'?', "
                     if qmark
                     else self.process_value_string().format(
                         value="?" if qmark else x, separator=", "
@@ -532,7 +532,7 @@ class BaseGrammar:
                 query_value = "("
                 for val in value:
                     if qmark:
-                        query_value += "'?', "
+                        query_value += "?, "
                         self.add_binding(val)
                     else:
                         query_value += self.value_string().format(
