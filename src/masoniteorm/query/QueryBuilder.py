@@ -1267,12 +1267,13 @@ class QueryBuilder(ObservesEvents):
             hydrated_model.add_relation({relation_key: related_result or None})
         return self
 
-    def all(self, query=False):
+    def all(self, selects=[], query=False):
         """Returns all records from the table.
 
         Returns:
             dictionary -- Returns a dictionary of results.
         """
+        self.select(*selects)
         if query:
             return self.to_sql()
 
@@ -1280,12 +1281,13 @@ class QueryBuilder(ObservesEvents):
 
         return self.prepare_result(result, collection=True)
 
-    def get(self):
+    def get(self, selects=[]):
         """Runs the select query built from the query builder.
 
         Returns:
             self
         """
+        self.select(*selects)
         result = self.new_connection().query(self.to_qmark(), self._bindings)
 
         return self.prepare_result(result, collection=True)
