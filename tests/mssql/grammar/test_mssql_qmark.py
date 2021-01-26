@@ -34,4 +34,4 @@ class TestMSSQLQmark(unittest.TestCase):
 
         sql = "SELECT * FROM [users] WHERE [users].[id] IN ('?', '?', '?')"
         self.assertEqual(mark.to_qmark(), sql)
-        self.assertEqual(mark._bindings, ("Bob",))
+        self.assertEqual(mark._bindings, ("1", "2", "3"))
