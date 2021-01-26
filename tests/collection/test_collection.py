@@ -578,3 +578,16 @@ class TestCollection(unittest.TestCase):
         collection = Collection([3])
         item = collection.random()
         self.assertEqual(item, 3)
+
+    def test_random_with_count(self):
+        collection = Collection([1, 2, 3, 4])
+        items = collection.random(2)
+        self.assertEqual(items.count(), 2)
+        self.assertIsInstance(items, Collection)
+
+        with self.assertRaises(ValueError):
+            items = collection.random(6)
+
+        items = collection.random(1)
+        self.assertEqual(items.count(), 1)
+        self.assertIsInstance(items, Collection)
