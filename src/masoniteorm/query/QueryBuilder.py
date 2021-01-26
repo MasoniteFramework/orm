@@ -1051,7 +1051,8 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._order_by += ((column, direction),)
+        for col in column.split(','):
+            self._order_by += ((col, direction),)
         return self
 
     def group_by(self, column):

@@ -256,6 +256,14 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_order_by_multiple(self):
+        builder = self.get_builder()
+        builder.order_by("email, name, active")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
     def test_order_by_desc(self):
         builder = self.get_builder()
         builder.order_by("email", "desc")
@@ -580,6 +588,12 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.order_by('email', 'asc')
         """
         return """SELECT * FROM "users" ORDER BY "users"."email" ASC"""
+
+    def order_by_multiple(self):
+        """
+        builder.order_by('email', 'asc')
+        """
+        return """SELECT * FROM "users" ORDER BY "users"."email" ASC, "users"." name" ASC, "users"." active" ASC"""
 
     def order_by_desc(self):
         """
