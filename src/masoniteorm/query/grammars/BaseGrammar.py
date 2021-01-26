@@ -140,8 +140,8 @@ class BaseGrammar:
         return self
 
     def columnize_bulk_columns(self, columns=[]):
-        return ",".join(
-            self.column_string().format(column=x, separator=",") for x in columns
+        return ", ".join(
+            self.column_string().format(column=x, separator="") for x in columns
         ).rstrip(",")
 
     def columnize_bulk_values(self, columns=[], qmark=False):
