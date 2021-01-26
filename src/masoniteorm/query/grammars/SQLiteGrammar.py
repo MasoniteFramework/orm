@@ -27,7 +27,6 @@ class SQLiteGrammar(BaseGrammar):
         "select": '{table}."{column}"{alias}{separator}',
         "select_all": "{table}.*{separator}",
         "insert": '"{column}"{separator}',
-        "bulk_create": '"{column}"{separator}',
         "update": '"{column}"{separator}',
         "delete": '"{column}"{separator}',
     }
