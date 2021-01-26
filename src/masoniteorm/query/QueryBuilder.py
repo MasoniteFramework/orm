@@ -340,7 +340,7 @@ class QueryBuilder(ObservesEvents):
 
         return self
 
-    def raw(self, query, bindings=()):
+    def statement(self, query, bindings=()):
         result = self.new_connection().query(query, bindings)
         return self.prepare_result(result)
 

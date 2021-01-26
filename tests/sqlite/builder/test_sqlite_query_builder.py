@@ -420,7 +420,7 @@ class BaseTestQueryBuilder:
 
     def test_can_call_with_raw(self):
         builder = self.get_builder()
-        sql = builder.on("dev").raw("select * from users")
+        sql = builder.on("dev").statement("select * from users")
         self.assertTrue(sql)
 
 
