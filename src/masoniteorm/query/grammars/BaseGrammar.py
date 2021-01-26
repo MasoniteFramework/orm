@@ -135,7 +135,7 @@ class BaseGrammar:
             key_equals=self._compile_key_value_equals(qmark=qmark),
             table=self.process_table(self.table),
             columns=self.columnize_bulk_columns(list(self._columns[0].keys())),
-            values=self.columnize_bulk_values(all_values),
+            values=self.columnize_bulk_values(all_values, qmark=qmark),
         )
         return self
 
@@ -144,10 +144,18 @@ class BaseGrammar:
             self.column_string().format(column=x, separator=",") for x in columns
         ).rstrip(",")
 
-    def columnize_bulk_values(self, columns=[]):
+    def columnize_bulk_values(self, columns=[], qmark=False):
+        print("ff", qmark)
+
+        if qmark:
+            for column in columns:
+                self.add_binding(column)
+
         return ", ".join(
             self.process_value_string().format(
-                value=self.value_string().format(value=x, separator="")
+                value="?"
+                if qmark
+                else self.value_string().format(value=x, separator="")
             )
             for x in columns
         ).rstrip(", ")
