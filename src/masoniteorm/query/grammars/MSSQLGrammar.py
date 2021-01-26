@@ -39,6 +39,9 @@ class MSSQLGrammar(BaseGrammar):
     def insert_format(self):
         return "INSERT INTO {table} ({columns}) VALUES ({values})"
 
+    def bulk_insert_format(self):
+        return "INSERT INTO {table} ({columns}) VALUES {values}"
+
     def delete_format(self):
         return "DELETE FROM {table} {wheres}"
 
