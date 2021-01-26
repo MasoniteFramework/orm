@@ -1056,7 +1056,7 @@ class QueryBuilder(ObservesEvents):
             self._order_by += (OrderByExpression(col, direction=direction),)
         return self
 
-    def order_by_raw(self, query):
+    def order_by_raw(self, query, bindings=()):
         """Specifies a column to order by.
 
         Arguments:
@@ -1068,7 +1068,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._order_by += (OrderByExpression(query, raw=True),)
+        self._order_by += (OrderByExpression(query, raw=True, bindings=bindings),)
         return self
 
     def group_by(self, column):

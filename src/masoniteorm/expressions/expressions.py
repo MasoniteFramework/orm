@@ -96,13 +96,14 @@ class SelectExpression:
 class OrderByExpression:
     """A helper class to manage select expressions."""
 
-    def __init__(self, column, direction="ASC", raw=False):
+    def __init__(self, column, direction="ASC", raw=False, bindings=()):
         self.column = column.strip()
 
         self.raw = raw
         self.alias = None
 
         self.direction = direction
+        self.bindings = bindings
 
         if raw is False:
             if self.column.endswith(" desc"):
