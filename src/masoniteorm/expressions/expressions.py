@@ -91,3 +91,19 @@ class SelectExpression:
         self.raw = raw
         if raw is False and " as " in self.column:
             self.column, self.alias = self.column.split(" as ")
+
+
+class OrderByExpression:
+    """A helper class to manage select expressions."""
+
+    def __init__(self, column, direction="ASC", raw=False):
+        self.column = column.strip()
+
+        self.raw = raw
+
+        self.direction = direction
+
+        if " as " in self.column:
+            self.column, self.direction = self.column.split(" as ")
+
+        self.alias = None
