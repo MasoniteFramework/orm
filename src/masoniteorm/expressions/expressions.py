@@ -100,10 +100,15 @@ class OrderByExpression:
         self.column = column.strip()
 
         self.raw = raw
+        self.alias = None
 
         self.direction = direction
 
-        if " as " in self.column:
-            self.column, self.direction = self.column.split(" as ")
+        if raw is False:
+            if self.column.endswith(" desc"):
+                self.column = self.column.split(" desc")[0].strip()
+                self.direction = "DESC"
 
-        self.alias = None
+            if self.column.endswith(" asc"):
+                self.column = self.column.split(" asc")[0].strip()
+                self.direction = "ASC"

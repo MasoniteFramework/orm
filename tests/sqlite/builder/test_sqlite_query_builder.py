@@ -266,7 +266,7 @@ class BaseTestQueryBuilder:
 
     def test_order_by_reference_direction(self):
         builder = self.get_builder()
-        builder.order_by("email, name as desc")
+        builder.order_by("email, name desc")
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
