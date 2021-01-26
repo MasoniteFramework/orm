@@ -68,6 +68,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     __table__ = None
     __connection__ = "default"
     __resolved_connection__ = None
+    __selects__ = []
 
     __observers__ = []
 
@@ -180,7 +181,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             dry=self.__dry__,
         )
 
-        return self.builder
+        return self.builder.select(*self.__selects__)
 
     def get_connection_details(self):
         from config.database import ConnectionResolver
