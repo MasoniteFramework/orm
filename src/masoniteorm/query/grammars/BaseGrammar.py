@@ -129,7 +129,7 @@ class BaseGrammar:
         Returns:
             self
         """
-        all_values = [list(x.values())[0] for x in self._columns]
+        all_values = [list(x.values()) for x in self._columns]
 
         self._sql = self.bulk_insert_format().format(
             key_equals=self._compile_key_value_equals(qmark=qmark),
@@ -145,23 +145,36 @@ class BaseGrammar:
         ).rstrip(",")
 
     def columnize_bulk_values(self, columns=[], qmark=False):
-        print("ff", qmark)
+        sql = ""
+        for x in columns:
+            inner = ""
+            if isinstance(x, list):
+                for y in x:
+                    if qmark:
+                        self.add_binding(y)
+                    inner += (
+                        "?, "
+                        if qmark
+                        else self.value_string().format(value=y, separator=", ")
+                    )
 
-        if qmark:
-            for column in columns:
-                self.add_binding(column)
+                inner = inner.rstrip(", ")
+                sql += self.process_value_string().format(value=inner, separator=", ")
+            else:
+                if qmark:
+                    self.add_binding(x)
+                sql += (
+                    "?, "
+                    if qmark
+                    else self.process_value_string().format(
+                        value="?" if qmark else x, separator=", "
+                    )
+                )
 
-        return ", ".join(
-            self.process_value_string().format(
-                value="?"
-                if qmark
-                else self.value_string().format(value=x, separator="")
-            )
-            for x in columns
-        ).rstrip(", ")
+        return sql.rstrip(", ")
 
     def process_value_string(self):
-        return "({value})"
+        return "({value}){separator}"
 
     def _compile_delete(self, qmark=False):
         """Compiles a delete expression.

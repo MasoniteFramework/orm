@@ -47,7 +47,12 @@ class BaseInsertGrammarTest:
 
     def test_can_compile_bulk_create_multiple(self):
         to_sql = self.builder.bulk_create(
-            [{"name": "Joe", "active":'1'}, {"name": "Bill", "active":'1'}, {"name": "John", "active":'1'}], query=True
+            [
+                {"name": "Joe", "active": "1"},
+                {"name": "Bill", "active": "1"},
+                {"name": "John", "active": "1"},
+            ],
+            query=True,
         ).to_sql()
 
         sql = getattr(
