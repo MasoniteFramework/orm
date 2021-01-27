@@ -343,8 +343,12 @@ class BaseGrammar:
         columns = []
         for group_by in self._group_by:
             if group_by.raw:
+                if group_by.bindings:
+                    self.add_binding(*group_by.bindings)
+
                 sql += "GROUP BY " + group_by.column
                 return sql
+
             else:
                 columns.append(self._table_column_string(group_by.column))
 

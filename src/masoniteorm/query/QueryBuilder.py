@@ -1086,7 +1086,7 @@ class QueryBuilder(ObservesEvents):
 
         return self
 
-    def group_by_raw(self, query):
+    def group_by_raw(self, query, bindings=()):
         """Specifies a column to group by.
 
         Arguments:
@@ -1095,7 +1095,9 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._group_by += (GroupByExpression(column=query, raw=True),)
+        self._group_by += (
+            GroupByExpression(column=query, raw=True, bindings=bindings),
+        )
 
         return self
 
