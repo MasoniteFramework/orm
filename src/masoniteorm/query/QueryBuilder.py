@@ -93,6 +93,7 @@ class QueryBuilder(ObservesEvents):
         self._limit = False
         self._offset = False
         self._model = model
+        self._without_reset = False
         self.set_action("select")
 
         if not self._connection_details:
@@ -108,11 +109,16 @@ class QueryBuilder(ObservesEvents):
         if connection_class:
             self.connection_class = connection_class
 
+    def without_reset(self):
+        self._without_reset = True
+        return self
+
     def reset(self):
         """Resets the query builder instance so you can make multiple calls with the same builder instance"""
 
         self.set_action("select")
-        self._wheres = ()
+        if not self._without_reset:
+            self._wheres = ()
 
         return self
 
@@ -1336,8 +1342,10 @@ class QueryBuilder(ObservesEvents):
         else:
             offset = (int(page) * per_page) - per_page
 
-        result = self.limit(per_page).offset(offset).get()
-        total = self.new().count()
+        new_from_builder = self.new_from_builder()
+
+        result = self.limit(per_page).offset(offset).without_reset().get()
+        total = new_from_builder.count()
 
         paginator = LengthAwarePaginator(result, per_page, page, total)
         return paginator
@@ -1502,3 +1510,36 @@ class QueryBuilder(ObservesEvents):
         if conditional:
             callback(self)
         return self
+
+    def new_from_builder(self, from_builder=None):
+        """Creates a new QueryBuilder class.
+
+        Returns:
+            QueryBuilder -- The ORM QueryBuilder class.
+        """
+        if from_builder is None:
+            from_builder = self
+
+        builder = QueryBuilder(
+            grammar=self.grammar,
+            connection_class=self.connection_class,
+            connection=self.connection,
+            connection_driver=self._connection_driver,
+            table=self._table,
+        )
+
+        builder._columns = from_builder._columns
+        builder._creates = from_builder._creates
+        builder._sql = from_builder._sql = ""
+        builder._sql_binding = from_builder._sql_binding
+        builder._bindings = from_builder._bindings
+        builder._updates = from_builder._updates
+        builder._wheres = from_builder._wheres
+        builder._order_by = from_builder._order_by
+        builder._group_by = from_builder._group_by
+        builder._joins = from_builder._joins
+        builder._having = from_builder._having
+        builder._macros = from_builder._macros
+        builder._aggregates = from_builder._aggregates
+
+        return builder
