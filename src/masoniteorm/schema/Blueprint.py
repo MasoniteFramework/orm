@@ -379,6 +379,21 @@ class Blueprint:
         self._last_column = self.table.add_column(column, "double", nullable=nullable)
         return self
 
+    def float(self, column, nullable=False):
+        """Sets a column to be the the float representation for the table
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(column, "float", nullable=nullable)
+        return self
+
     def enum(self, column, options=None, nullable=False):
         """Sets a column to be the enum representation for the table.
 
@@ -396,7 +411,7 @@ class Blueprint:
         options = options or []
         new_options = ""
         for option in options:
-            new_options += "'{}',".format(option)
+            new_options += "{},".format(option)
         new_options = new_options.rstrip(",")
         self._last_column = self.table.add_column(
             column, "enum", length=new_options, nullable=nullable
