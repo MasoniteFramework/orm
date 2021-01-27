@@ -100,7 +100,6 @@ class OrderByExpression:
         self.column = column.strip()
 
         self.raw = raw
-        self.alias = None
 
         self.direction = direction
         self.bindings = bindings
@@ -113,3 +112,13 @@ class OrderByExpression:
             if self.column.endswith(" asc"):
                 self.column = self.column.split(" asc")[0].strip()
                 self.direction = "ASC"
+
+
+class GroupByExpression:
+    """A helper class to manage select expressions."""
+
+    def __init__(self, column=None, raw=False, bindings=()):
+        self.column = column.strip()
+
+        self.raw = raw
+        self.bindings = bindings
