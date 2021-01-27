@@ -93,7 +93,6 @@ class QueryBuilder(ObservesEvents):
         self._limit = False
         self._offset = False
         self._model = model
-        self._without_reset = False
         self.set_action("select")
 
         if not self._connection_details:
@@ -109,16 +108,11 @@ class QueryBuilder(ObservesEvents):
         if connection_class:
             self.connection_class = connection_class
 
-    def without_reset(self):
-        self._without_reset = True
-        return self
-
     def reset(self):
         """Resets the query builder instance so you can make multiple calls with the same builder instance"""
 
         self.set_action("select")
-        if not self._without_reset:
-            self._wheres = ()
+        self._wheres = ()
 
         return self
 
@@ -1344,7 +1338,7 @@ class QueryBuilder(ObservesEvents):
 
         new_from_builder = self.new_from_builder()
 
-        result = self.limit(per_page).offset(offset).without_reset().get()
+        result = self.limit(per_page).offset(offset).get()
         total = new_from_builder.count()
 
         paginator = LengthAwarePaginator(result, per_page, page, total)
