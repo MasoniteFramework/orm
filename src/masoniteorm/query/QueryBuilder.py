@@ -6,6 +6,7 @@ from ..expressions.expressions import (
     SubSelectExpression,
     SelectExpression,
     BetweenExpression,
+    GroupByExpression,
     QueryExpression,
     OrderByExpression,
     UpdateQueryExpression,
@@ -1080,7 +1081,22 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._group_by += (column,)
+        for col in column.split(","):
+            self._group_by += (GroupByExpression(column=col),)
+
+        return self
+
+    def group_by_raw(self, query):
+        """Specifies a column to group by.
+
+        Arguments:
+            column {string} -- The name of the column to group by.
+
+        Returns:
+            self
+        """
+        self._group_by += (GroupByExpression(column=query, raw=True),)
+
         return self
 
     def aggregate(self, aggregate, column):

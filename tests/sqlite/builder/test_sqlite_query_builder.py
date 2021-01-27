@@ -367,6 +367,31 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_group_by_raw(self):
+        builder = self.get_builder(table="payments")
+        builder.select("user_id").min("salary").group_by_raw("count(*)")
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_group_by_multiple(self):
+        builder = self.get_builder(table="payments")
+        builder.select("user_id").min("salary").group_by("user_id").group_by("salary")
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_group_by_multiple_in_same_group_by(self):
+        builder = self.get_builder(table="payments")
+        builder.select("user_id").min("salary").group_by("user_id, salary")
+
+        sql = getattr(self, "group_by_multiple")()
+        self.assertEqual(builder.to_sql(), sql)
+
     def test_builder_alone(self):
         self.assertTrue(
             QueryBuilder(
@@ -682,6 +707,18 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.select('user_id').min('salary').group_by('user_id')
         """
         return """SELECT "payments"."user_id", MIN("payments"."salary") AS salary FROM "payments" GROUP BY "payments"."user_id\""""
+
+    def group_by_multiple(self):
+        """
+        builder.select('user_id').min('salary').group_by('user_id')
+        """
+        return """SELECT "payments"."user_id", MIN("payments"."salary") AS salary FROM "payments" GROUP BY "payments"."user_id", "payments"."salary\""""
+
+    def group_by_raw(self):
+        """
+        builder.select('user_id').min('salary').group_by('user_id')
+        """
+        return """SELECT "payments"."user_id", MIN("payments"."salary") AS salary FROM "payments" GROUP BY count(*)"""
 
     def where_lt(self):
         """
