@@ -94,3 +94,6 @@ class ConnectionResolver:
         return QueryBuilder(
             connection=connection, connection_details=self.get_connection_details()
         )
+
+    def statement(self, query, bindings=(), connection="default"):
+        return self.get_query_builder().on(connection).raw(query, bindings)

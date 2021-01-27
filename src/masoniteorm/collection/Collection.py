@@ -1,4 +1,5 @@
 import json
+import random
 import operator
 from functools import reduce
 
@@ -273,6 +274,19 @@ class Collection:
     def put(self, key, value):
         self[key] = value
         return self
+
+    def random(self, count=None):
+        """Returns a random item of the collection."""
+        collection_count = self.count()
+        if collection_count == 0:
+            return None
+        elif count and count > collection_count:
+            raise ValueError("count argument must be inferior to collection length.")
+        elif count:
+            self._items = random.sample(self._items, k=count)
+            return self
+        else:
+            return random.choice(self._items)
 
     def reduce(self, callback, initial=0):
         return reduce(callback, self, initial)
