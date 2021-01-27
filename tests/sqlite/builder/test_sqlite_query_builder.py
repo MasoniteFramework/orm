@@ -256,6 +256,30 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_order_by_multiple(self):
+        builder = self.get_builder()
+        builder.order_by("email, name, active")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_order_by_reference_direction(self):
+        builder = self.get_builder()
+        builder.order_by("email, name desc")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_order_by_raw(self):
+        builder = self.get_builder()
+        builder.order_by_raw("col asc")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
     def test_order_by_desc(self):
         builder = self.get_builder()
         builder.order_by("email", "desc")
@@ -418,6 +442,11 @@ class BaseTestQueryBuilder:
             """SELECT "information_schema"."columns"."table_name" FROM "information_schema"."columns" WHERE "information_schema"."columns"."table_name" = 'users'""",
         )
 
+    def test_can_call_with_raw(self):
+        builder = self.get_builder()
+        sql = builder.on("dev").statement("select * from users")
+        self.assertTrue(sql)
+
 
 class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
 
@@ -575,6 +604,24 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.order_by('email', 'asc')
         """
         return """SELECT * FROM "users" ORDER BY "users"."email" ASC"""
+
+    def order_by_multiple(self):
+        """
+        builder.order_by('email', 'asc')
+        """
+        return """SELECT * FROM "users" ORDER BY "users"."email" ASC, "users"."name" ASC, "users"."active" ASC"""
+
+    def order_by_raw(self):
+        """
+        builder.order_by('email', 'asc')
+        """
+        return """SELECT * FROM "users" ORDER BY col asc"""
+
+    def order_by_reference_direction(self):
+        """
+        builder.order_by('email', 'asc')
+        """
+        return """SELECT * FROM "users" ORDER BY "users"."email" ASC, "users"."name" DESC"""
 
     def order_by_desc(self):
         """

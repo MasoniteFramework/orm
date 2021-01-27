@@ -23,7 +23,8 @@ class MSSQLGrammar(BaseGrammar):
     }
 
     column_strings = {
-        "select": "{table}.[{column}]{separator}",
+        "select": "{table}.[{column}]{alias}{separator}",
+        "select_all": "{table}.*{separator}",
         "insert": "{table}.[{column}]{separator}",
         "update": "{table}.[{column}]{separator}",
         "delete": "{table}.[{column}]{separator}",
@@ -37,6 +38,9 @@ class MSSQLGrammar(BaseGrammar):
 
     def insert_format(self):
         return "INSERT INTO {table} ({columns}) VALUES ({values})"
+
+    def bulk_insert_format(self):
+        return "INSERT INTO {table} ({columns}) VALUES {values}"
 
     def delete_format(self):
         return "DELETE FROM {table} {wheres}"

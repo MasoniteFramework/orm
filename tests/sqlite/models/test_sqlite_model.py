@@ -16,6 +16,17 @@ class User(Model):
     __dry__ = True
 
 
+class Select(Model):
+    __connection__ = "dev"
+    __selects__ = ["username", "rememember_token as token"]
+    __dry__ = True
+
+
+class SelectPass(Model):
+    __connection__ = "dev"
+    __dry__ = True
+
+
 class BaseTestQueryRelationships(unittest.TestCase):
 
     maxDiff = None
@@ -49,3 +60,15 @@ class BaseTestQueryRelationships(unittest.TestCase):
         user = User.hydrate({"id": 1, "name": "joe", "customer_id": 1})
         user.customer_id = "CUST1"
         self.assertEqual(user.customer_id, "CUST1")
+
+    def test_model_can_use_selects(self):
+        self.assertEqual(
+            Select.to_sql(),
+            'SELECT "selects"."username", "selects"."rememember_token" AS token FROM "selects"',
+        )
+
+    def test_model_can_use_selects_from_methods(self):
+        self.assertEqual(
+            SelectPass.all(["username"], query=True),
+            'SELECT "select_passes"."username" FROM "select_passes"',
+        )

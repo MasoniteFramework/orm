@@ -68,6 +68,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     __table__ = None
     __connection__ = "default"
     __resolved_connection__ = None
+    __selects__ = []
 
     __observers__ = []
 
@@ -90,6 +91,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     """
     __passthrough__ = [
         "all",
+        "bulk_create",
         "chunk",
         "count",
         "delete",
@@ -107,14 +109,15 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "select",
         "set_global_scope",
         "simple_paginate",
+        "statement",
         "to_qmark",
         "to_sql",
         "update",
         "when",
         "where_has",
+        "where_in",
         "where_like",
         "where_not_like",
-        "where_in",
         "where_null",
         "where",
         "with_",
@@ -178,7 +181,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             dry=self.__dry__,
         )
 
-        return self.builder
+        return self.builder.select(*self.__selects__)
 
     def get_connection_details(self):
         from config.database import ConnectionResolver
@@ -205,6 +208,16 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             str
         """
         return cls.__table__ or tableize(cls.__name__)
+
+    @classmethod
+    def table(cls, table):
+        """Gets the table name.
+
+        Returns:
+            str
+        """
+        cls.__table__ = table
+        return cls
 
     @classmethod
     def find(cls, record_id, query=False):

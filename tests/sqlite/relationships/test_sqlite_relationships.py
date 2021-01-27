@@ -2,7 +2,7 @@ import os
 import unittest
 
 from src.masoniteorm.models import Model
-from src.masoniteorm.relationships import belongs_to, has_many, has_one
+from src.masoniteorm.relationships import belongs_to, has_many, has_one, belongs_to_many
 from config.database import DB
 
 
@@ -47,6 +47,28 @@ class User(Model):
 
     def get_is_admin(self):
         return "You are an admin"
+
+
+class Store(Model):
+
+    __connection__ = "dev"
+
+    @belongs_to_many("store_id", "product_id", "id", "id")
+    def products(self):
+        return Product
+
+    @belongs_to_many("store_id", "product_id", "id", "id", table="product_table")
+    def products_table(self):
+        return Product
+
+    @belongs_to_many
+    def store_products(self):
+        return Product
+
+
+class Product(Model):
+
+    __connection__ = "dev"
 
 
 class UserHasOne(Model):
@@ -139,3 +161,12 @@ class TestRelationships(unittest.TestCase):
 
         article.attach("logo", logo)
         DB.rollback("dev")
+
+    def test_belongs_to_many(self):
+        store = Store.hydrate({"id": 2, "name": "Walmart"})
+        self.assertEqual(store.products.count(), 3)
+
+    def test_belongs_to_eager_many(self):
+        store = Store.hydrate({"id": 2, "name": "Walmart"})
+        store = Store.with_("products").first()
+        self.assertEqual(store.products.count(), 3)

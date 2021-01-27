@@ -28,3 +28,10 @@ class TestMSSQLQmark(unittest.TestCase):
         sql = "INSERT INTO [users] ([users].[name]) VALUES ('?')"
         self.assertEqual(mark.to_qmark(), sql)
         self.assertEqual(mark._bindings, ("Bob",))
+
+    def test_can_compile_where_in(self):
+        mark = self.builder.where_in("id", [1, 2, 3])
+
+        sql = "SELECT * FROM [users] WHERE [users].[id] IN ('?', '?', '?')"
+        self.assertEqual(mark.to_qmark(), sql)
+        self.assertEqual(mark._bindings, ("1", "2", "3"))

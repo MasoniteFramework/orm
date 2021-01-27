@@ -63,7 +63,7 @@ class MorphTo(BaseRelationship):
 
         return model.where(model.get_primary_key(), record).first()
 
-    def get_related(self, relation):
+    def get_related(self, query, relation, eagers=None):
         """Gets the relation needed between the relation and the related builder. If the relation is a collection
         then will need to pluck out all the keys from the collection and fetch from the related builder. If
         relation is just a Model then we can just call the model based on the value of the related

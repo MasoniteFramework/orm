@@ -123,6 +123,59 @@ class BaseGrammar:
 
         return self
 
+    def _compile_bulk_create(self, qmark=False):
+        """Compiles an insert expression.
+
+        Returns:
+            self
+        """
+        all_values = [list(x.values()) for x in self._columns]
+
+        self._sql = self.bulk_insert_format().format(
+            key_equals=self._compile_key_value_equals(qmark=qmark),
+            table=self.process_table(self.table),
+            columns=self.columnize_bulk_columns(list(self._columns[0].keys())),
+            values=self.columnize_bulk_values(all_values, qmark=qmark),
+        )
+        return self
+
+    def columnize_bulk_columns(self, columns=[]):
+        return ", ".join(
+            self.column_string().format(column=x, separator="") for x in columns
+        ).rstrip(",")
+
+    def columnize_bulk_values(self, columns=[], qmark=False):
+        sql = ""
+        for x in columns:
+            inner = ""
+            if isinstance(x, list):
+                for y in x:
+                    if qmark:
+                        self.add_binding(y)
+                    inner += (
+                        "'?', "
+                        if qmark
+                        else self.value_string().format(value=y, separator=", ")
+                    )
+
+                inner = inner.rstrip(", ")
+                sql += self.process_value_string().format(value=inner, separator=", ")
+            else:
+                if qmark:
+                    self.add_binding(x)
+                sql += (
+                    "'?', "
+                    if qmark
+                    else self.process_value_string().format(
+                        value="?" if qmark else x, separator=", "
+                    )
+                )
+
+        return sql.rstrip(", ")
+
+    def process_value_string(self):
+        return "({value}){separator}"
+
     def _compile_delete(self, qmark=False):
         """Compiles a delete expression.
 
@@ -256,15 +309,28 @@ class BaseGrammar:
         if self._order_by:
             order_crit = ""
             for order_bys in self._order_by:
+                if order_bys.raw:
+                    order_crit += order_bys.column
+                    if not isinstance(order_bys.bindings, (list, tuple)):
+                        raise ValueError(
+                            f"Bindings must be tuple or list. Received {type(where.bindings)}"
+                        )
+
+                    if order_bys.bindings:
+                        self.add_binding(*order_bys.bindings)
+
+                    continue
+
                 if len(order_crit):
                     order_crit += ", "
-                column, direction = order_bys
+                column = order_bys.column
+                direction = order_bys.direction
                 order_crit += self.order_by_format().format(
                     column=self._table_column_string(column),
                     direction=direction.upper(),
                 )
-            sql = self.order_by_string().format(order_columns=order_crit)
 
+            sql += self.order_by_string().format(order_columns=order_crit)
         return sql
 
     def process_group_by(self):
@@ -572,14 +638,15 @@ class BaseGrammar:
         """
         sql = ""
         for column in self._columns:
+            alias = None
             if isinstance(column, SelectExpression):
+                alias = column.alias
                 if column.raw:
                     sql += column.column
                     continue
 
                 column = column.column
-
-            sql += self._table_column_string(column, separator=separator)
+            sql += self._table_column_string(column, alias=alias, separator=separator)
 
         if self._aggregates:
             sql += self.process_aggregates()
@@ -602,12 +669,21 @@ class BaseGrammar:
         sql = ""
         if self._columns == "*":
             return self._columns
-        for column, value in dict(self._columns).items():
-            if qmark:
-                self.add_binding(value)
-                sql += f"'?'{separator}".strip()
-            else:
-                sql += self._compile_value(value, separator=separator)
+        elif isinstance(self._columns, list):
+            for c in self._columns:
+                for column, value in dict(c).items():
+                    if qmark:
+                        self.add_binding(value)
+                        sql += f"'?'{separator}".strip()
+                    else:
+                        sql += self._compile_value(value, separator=separator)
+        else:
+            for column, value in dict(self._columns).items():
+                if qmark:
+                    self.add_binding(value)
+                    sql += f"'?'{separator}".strip()
+                else:
+                    sql += self._compile_value(value, separator=separator)
 
         if not qmark:
             return sql[:-2]
@@ -633,7 +709,7 @@ class BaseGrammar:
             column=column, separator=separator, table=table or self.table
         )
 
-    def _table_column_string(self, column, separator=""):
+    def _table_column_string(self, column, alias=None, separator=""):
         """Compiles a column into the column syntax.
 
         Arguments:
@@ -647,11 +723,22 @@ class BaseGrammar:
         """
         table = None
         if column and "." in column:
+
             table, column = column.split(".")
 
+        if column == "*":
+            return self.column_strings.get("select_all").format(
+                column=column,
+                separator=separator,
+                table=self.process_table(table or self.table),
+            )
+
+        if alias:
+            alias_string = self.subquery_alias_string().format(alias=alias)
         return self.column_strings.get(self._action).format(
             column=column,
             separator=separator,
+            alias=" " + alias_string if alias else "",
             table=self.process_table(table or self.table),
         )
 

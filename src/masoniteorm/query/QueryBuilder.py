@@ -7,6 +7,7 @@ from ..expressions.expressions import (
     SelectExpression,
     BetweenExpression,
     QueryExpression,
+    OrderByExpression,
     UpdateQueryExpression,
     JoinExpression,
     HavingExpression,
@@ -340,6 +341,10 @@ class QueryBuilder(ObservesEvents):
 
         return self
 
+    def statement(self, query, bindings=()):
+        result = self.new_connection().query(query, bindings)
+        return self.prepare_result(result)
+
     def select_raw(self, string):
         """Specifies raw SQL that should be injected into the select expression.
 
@@ -351,6 +356,33 @@ class QueryBuilder(ObservesEvents):
 
     def get_processor(self):
         return self.connection_class.get_default_post_processor()()
+
+    def bulk_create(self, creates, query=False):
+        model = None
+        self.set_action("bulk_create")
+
+        self._creates = creates
+
+        if self._model:
+            model = self._model
+
+        if query:
+            return self
+
+        if model:
+            model = model.hydrate(self._creates)
+        if not self.dry:
+            connection = self.new_connection()
+            query_result = connection.query(self.to_qmark(), self._bindings, results=1)
+
+            processed_results = query_result or self._creates
+        else:
+            processed_results = self._creates
+
+        if model:
+            return model
+
+        return processed_results
 
     def create(self, creates=None, query=False, id_key="id", **kwargs):
         """Specifies a dictionary that should be used to create new values.
@@ -488,7 +520,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        return self.where(column, 'like', value)
+        return self.where(column, "like", value)
 
     def where_not_like(self, column, value):
         """Specifies a where expression.
@@ -502,7 +534,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        return self.where(column, 'not like', value)
+        return self.where(column, "not like", value)
 
     def where_raw(self, query: str, bindings=()):
         """Specifies raw SQL that should be injected into the where expression.
@@ -666,6 +698,14 @@ class QueryBuilder(ObservesEvents):
         elif isinstance(wheres, QueryBuilder):
             self._wheres += (
                 (QueryExpression(column, "IN", SubSelectExpression(wheres))),
+            )
+        elif callable(wheres):
+            self._wheres += (
+                (
+                    QueryExpression(
+                        column, "IN", SubSelectExpression(wheres(self.new()))
+                    )
+                ),
             )
         else:
             wheres = [str(x) for x in wheres]
@@ -1012,7 +1052,23 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._order_by += ((column, direction),)
+        for col in column.split(","):
+            self._order_by += (OrderByExpression(col, direction=direction),)
+        return self
+
+    def order_by_raw(self, query, bindings=()):
+        """Specifies a column to order by.
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Keyword Arguments:
+            direction {string} -- Specify either ASC or DESC order. (default: {"ASC"})
+
+        Returns:
+            self
+        """
+        self._order_by += (OrderByExpression(query, raw=True, bindings=bindings),)
         return self
 
     def group_by(self, column):
@@ -1153,7 +1209,7 @@ class QueryBuilder(ObservesEvents):
                                 related = self._model.get_related(relation)
 
                             result_set = related.get_related(
-                                hydrated_model, eagers=eagers
+                                self, hydrated_model, eagers=eagers
                             )
 
                             self._register_relationships_to_model(
@@ -1170,7 +1226,7 @@ class QueryBuilder(ObservesEvents):
                             else:
                                 related = self._model.get_related(eager)
 
-                            result_set = related.get_related(hydrated_model)
+                            result_set = related.get_related(self, hydrated_model)
 
                             self._register_relationships_to_model(
                                 related, result_set, hydrated_model, relation_key=eager
@@ -1211,12 +1267,13 @@ class QueryBuilder(ObservesEvents):
             hydrated_model.add_relation({relation_key: related_result or None})
         return self
 
-    def all(self, query=False):
+    def all(self, selects=[], query=False):
         """Returns all records from the table.
 
         Returns:
             dictionary -- Returns a dictionary of results.
         """
+        self.select(*selects)
         if query:
             return self.to_sql()
 
@@ -1224,12 +1281,13 @@ class QueryBuilder(ObservesEvents):
 
         return self.prepare_result(result, collection=True)
 
-    def get(self):
+    def get(self, selects=[]):
         """Runs the select query built from the query builder.
 
         Returns:
             self
         """
+        self.select(*selects)
         result = self.new_connection().query(self.to_qmark(), self._bindings)
 
         return self.prepare_result(result, collection=True)

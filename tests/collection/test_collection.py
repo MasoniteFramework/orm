@@ -565,3 +565,29 @@ class TestCollection(unittest.TestCase):
     def test_serialize_with_on_the_fly_appends(self):
         users = User.all().set_appends(["meta"]).serialize()
         self.assertTrue(users[0].get("meta"))
+
+    def test_random(self):
+        collection = Collection([1, 2, 3, 4])
+        item = collection.random()
+        self.assertIn(item, collection)
+
+        collection = Collection([])
+        item = collection.random()
+        self.assertIsNone(item)
+
+        collection = Collection([3])
+        item = collection.random()
+        self.assertEqual(item, 3)
+
+    def test_random_with_count(self):
+        collection = Collection([1, 2, 3, 4])
+        items = collection.random(2)
+        self.assertEqual(items.count(), 2)
+        self.assertIsInstance(items, Collection)
+
+        with self.assertRaises(ValueError):
+            items = collection.random(6)
+
+        items = collection.random(1)
+        self.assertEqual(items.count(), 1)
+        self.assertIsInstance(items, Collection)

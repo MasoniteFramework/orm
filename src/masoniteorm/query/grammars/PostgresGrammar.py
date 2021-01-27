@@ -24,7 +24,8 @@ class PostgresGrammar(BaseGrammar):
     }
 
     column_strings = {
-        "select": '{table}."{column}"{separator}',
+        "select": '{table}."{column}"{alias}{separator}',
+        "select_all": "{table}.*{separator}",
         "insert": '"{column}"{separator}',
         "update": '"{column}"{separator}',
         "delete": '{table}."{column}"{separator}',
@@ -38,6 +39,9 @@ class PostgresGrammar(BaseGrammar):
 
     def insert_format(self):
         return "INSERT INTO {table} ({columns}) VALUES ({values}) RETURNING *"
+
+    def bulk_insert_format(self):
+        return "INSERT INTO {table} ({columns}) VALUES {values} RETURNING *"
 
     def delete_format(self):
         return "DELETE FROM {table} {wheres}"

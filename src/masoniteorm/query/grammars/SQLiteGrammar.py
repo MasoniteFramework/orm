@@ -24,7 +24,8 @@ class SQLiteGrammar(BaseGrammar):
     }
 
     column_strings = {
-        "select": '{table}."{column}"{separator}',
+        "select": '{table}."{column}"{alias}{separator}',
+        "select_all": "{table}.*{separator}",
         "insert": '"{column}"{separator}',
         "update": '"{column}"{separator}',
         "delete": '"{column}"{separator}',
@@ -38,6 +39,9 @@ class SQLiteGrammar(BaseGrammar):
 
     def insert_format(self):
         return "INSERT INTO {table} ({columns}) VALUES ({values})"
+
+    def bulk_insert_format(self):
+        return "INSERT INTO {table} ({columns}) VALUES {values}"
 
     def delete_format(self):
         return "DELETE FROM {table} {wheres}"
