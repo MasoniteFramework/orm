@@ -34,6 +34,29 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_sum_aggregate(self):
+        builder = self.get_builder()
+        builder.aggregate("SUM", "age")
+
+        sql = getattr(self, "sum")()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_sum_aggregate_with_alias(self):
+        builder = self.get_builder()
+        builder.aggregate("SUM", "age", alias="number")
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_sum_aggregate_with_alias_in_column_name(self):
+        builder = self.get_builder()
+        builder.sum("age as number")
+
+        sql = getattr(self, "sum_aggregate_with_alias")()
+        self.assertEqual(builder.to_sql(), sql)
+
     def test_where_like(self):
         builder = self.get_builder()
         builder.where("age", "like", "%name%")
@@ -483,6 +506,13 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.sum('age')
         """
         return """SELECT SUM("users"."age") AS age FROM "users\""""
+
+    def sum_aggregate_with_alias(self):
+        """
+        builder = self.get_builder()
+        builder.sum('age')
+        """
+        return """SELECT SUM("users"."age") AS number FROM "users\""""
 
     def max(self):
         """

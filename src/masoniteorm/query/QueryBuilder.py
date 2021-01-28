@@ -7,6 +7,7 @@ from ..expressions.expressions import (
     SelectExpression,
     BetweenExpression,
     GroupByExpression,
+    AggregateExpression,
     QueryExpression,
     OrderByExpression,
     UpdateQueryExpression,
@@ -1017,12 +1018,15 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self.aggregate("COUNT", "{column}".format(column=column))
+        self.aggregate("COUNT", "{column} as {alias}".format(column=column, alias="m_count_reserved" if column == "*" else column))
 
         if self.dry:
             return self
 
         result = self.new_connection().query(self.to_qmark(), self._bindings, results=1)
+
+        if isinstance(result, dict):
+            return result["m_count_reserved"]
 
         prepared_result = list(result.values())
         if not prepared_result:
@@ -1101,14 +1105,16 @@ class QueryBuilder(ObservesEvents):
 
         return self
 
-    def aggregate(self, aggregate, column):
+    def aggregate(self, aggregate, column, alias=None):
         """Helper function to aggregate.
 
         Arguments:
             aggregate {string} -- The name of the aggregation.
             column {string} -- The name of the column to aggregate.
         """
-        self._aggregates += ((aggregate, column),)
+        self._aggregates += (
+            AggregateExpression(aggregate=aggregate, column=column, alias=alias),
+        )
 
     def first(self, query=False):
         """Gets the first record.
