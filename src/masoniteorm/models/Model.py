@@ -106,6 +106,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "last",
         "limit",
         "max",
+        "min",
         "order_by",
         "paginate",
         "select",
