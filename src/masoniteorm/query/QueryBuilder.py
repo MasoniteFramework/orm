@@ -7,6 +7,7 @@ from ..expressions.expressions import (
     SelectExpression,
     BetweenExpression,
     GroupByExpression,
+    AggregateExpression,
     QueryExpression,
     OrderByExpression,
     UpdateQueryExpression,
@@ -1101,14 +1102,16 @@ class QueryBuilder(ObservesEvents):
 
         return self
 
-    def aggregate(self, aggregate, column):
+    def aggregate(self, aggregate, column, alias=None):
         """Helper function to aggregate.
 
         Arguments:
             aggregate {string} -- The name of the aggregation.
             column {string} -- The name of the column to aggregate.
         """
-        self._aggregates += ((aggregate, column),)
+        self._aggregates += (
+            AggregateExpression(aggregate=aggregate, column=column, alias=alias),
+        )
 
     def first(self, query=False):
         """Gets the first record.

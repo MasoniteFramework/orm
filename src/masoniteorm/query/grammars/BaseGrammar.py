@@ -284,7 +284,8 @@ class BaseGrammar:
         """
         sql = ""
         for aggregates in self._aggregates:
-            aggregate, column = aggregates
+            aggregate = aggregates.aggregate
+            column = aggregates.column
             aggregate_function = self.aggregate_options.get(aggregate, "")
             if column == "*":
                 aggregate_string = self.aggregate_string_without_alias()
@@ -294,7 +295,7 @@ class BaseGrammar:
             sql += aggregate_string.format(
                 aggregate_function=aggregate_function,
                 column="*" if column == "*" else self._table_column_string(column),
-                alias=self.process_alias(column),
+                alias=self.process_alias(aggregates.alias or column),
             )
 
         return sql
