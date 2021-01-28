@@ -514,6 +514,23 @@ class Blueprint:
         self._last_column = self.table.add_column(column, "geometry", nullable=nullable)
         return self
 
+    def year(self, column, length=4, default=None, nullable=False):
+        """Sets a column to be the year representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(
+            column, "year", length=length, nullable=nullable, default=default
+        )
+        return self
+
     def unsigned(self, column=None, length=None, nullable=False):
         """Sets a column to be the unsigned integer representation for the table.
 

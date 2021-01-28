@@ -6,6 +6,8 @@ from ..expressions.expressions import (
     SubSelectExpression,
     SelectExpression,
     BetweenExpression,
+    GroupByExpression,
+    AggregateExpression,
     QueryExpression,
     OrderByExpression,
     UpdateQueryExpression,
@@ -1016,12 +1018,19 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self.aggregate("COUNT", "{column}".format(column=column))
+        alias = "m_count_reserved" if column == "*" else column
+        if column == "*":
+            self.aggregate("COUNT", f"{column} as {alias}")
+        else:
+            self.aggregate("COUNT", f"{column}")
 
         if self.dry:
             return self
 
         result = self.new_connection().query(self.to_qmark(), self._bindings, results=1)
+
+        if isinstance(result, dict):
+            return result.get(alias, 0)
 
         prepared_result = list(result.values())
         if not prepared_result:
@@ -1080,17 +1089,36 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._group_by += (column,)
+        for col in column.split(","):
+            self._group_by += (GroupByExpression(column=col),)
+
         return self
 
-    def aggregate(self, aggregate, column):
+    def group_by_raw(self, query, bindings=()):
+        """Specifies a column to group by.
+
+        Arguments:
+            column {string} -- The name of the column to group by.
+
+        Returns:
+            self
+        """
+        self._group_by += (
+            GroupByExpression(column=query, raw=True, bindings=bindings),
+        )
+
+        return self
+
+    def aggregate(self, aggregate, column, alias=None):
         """Helper function to aggregate.
 
         Arguments:
             aggregate {string} -- The name of the aggregation.
             column {string} -- The name of the column to aggregate.
         """
-        self._aggregates += ((aggregate, column),)
+        self._aggregates += (
+            AggregateExpression(aggregate=aggregate, column=column, alias=alias),
+        )
 
     def first(self, query=False):
         """Gets the first record.
@@ -1318,8 +1346,10 @@ class QueryBuilder(ObservesEvents):
         else:
             offset = (int(page) * per_page) - per_page
 
+        new_from_builder = self.new_from_builder()
+
         result = self.limit(per_page).offset(offset).get()
-        total = self.new().count()
+        total = new_from_builder.count()
 
         paginator = LengthAwarePaginator(result, per_page, page, total)
         return paginator
@@ -1484,3 +1514,36 @@ class QueryBuilder(ObservesEvents):
         if conditional:
             callback(self)
         return self
+
+    def new_from_builder(self, from_builder=None):
+        """Creates a new QueryBuilder class.
+
+        Returns:
+            QueryBuilder -- The ORM QueryBuilder class.
+        """
+        if from_builder is None:
+            from_builder = self
+
+        builder = QueryBuilder(
+            grammar=self.grammar,
+            connection_class=self.connection_class,
+            connection=self.connection,
+            connection_driver=self._connection_driver,
+            table=self._table,
+        )
+
+        builder._columns = from_builder._columns
+        builder._creates = from_builder._creates
+        builder._sql = from_builder._sql = ""
+        builder._sql_binding = from_builder._sql_binding
+        builder._bindings = from_builder._bindings
+        builder._updates = from_builder._updates
+        builder._wheres = from_builder._wheres
+        builder._order_by = from_builder._order_by
+        builder._group_by = from_builder._group_by
+        builder._joins = from_builder._joins
+        builder._having = from_builder._having
+        builder._macros = from_builder._macros
+        builder._aggregates = from_builder._aggregates
+
+        return builder

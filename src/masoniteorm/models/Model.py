@@ -91,6 +91,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     """
     __passthrough__ = [
         "all",
+        "avg",
         "bulk_create",
         "chunk",
         "count",
@@ -104,12 +105,15 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "joins",
         "last",
         "limit",
+        "max",
+        "min",
         "order_by",
         "paginate",
         "select",
         "set_global_scope",
         "simple_paginate",
         "statement",
+        "sum",
         "to_qmark",
         "to_sql",
         "update",

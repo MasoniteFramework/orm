@@ -284,9 +284,10 @@ class BaseGrammar:
         """
         sql = ""
         for aggregates in self._aggregates:
-            aggregate, column = aggregates
+            aggregate = aggregates.aggregate
+            column = aggregates.column
             aggregate_function = self.aggregate_options.get(aggregate, "")
-            if column == "*":
+            if not aggregates.alias and column == "*":
                 aggregate_string = self.aggregate_string_without_alias()
             else:
                 aggregate_string = self.aggregate_string_with_alias()
@@ -294,7 +295,7 @@ class BaseGrammar:
             sql += aggregate_string.format(
                 aggregate_function=aggregate_function,
                 column="*" if column == "*" else self._table_column_string(column),
-                alias=self.process_alias(column),
+                alias=self.process_alias(aggregates.alias or column),
             )
 
         return sql
@@ -313,7 +314,7 @@ class BaseGrammar:
                     order_crit += order_bys.column
                     if not isinstance(order_bys.bindings, (list, tuple)):
                         raise ValueError(
-                            f"Bindings must be tuple or list. Received {type(where.bindings)}"
+                            f"Bindings must be tuple or list. Received {type(order_bys.bindings)}"
                         )
 
                     if order_bys.bindings:
@@ -340,9 +341,20 @@ class BaseGrammar:
             self
         """
         sql = ""
-        for group_bys in self._group_by:
-            column = group_bys
-            sql += "GROUP BY {column}".format(column=self._table_column_string(column))
+        columns = []
+        for group_by in self._group_by:
+            if group_by.raw:
+                if group_by.bindings:
+                    self.add_binding(*group_by.bindings)
+
+                sql += "GROUP BY " + group_by.column
+                return sql
+
+            else:
+                columns.append(self._table_column_string(group_by.column))
+
+        if columns:
+            sql += " GROUP BY {column}".format(column=", ".join(columns))
 
         return sql
 

@@ -41,7 +41,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         sql = [
             "CREATE TEMPORARY TABLE __temp__users AS SELECT post FROM users",
             "DROP TABLE users",
-            'CREATE TABLE "users" (comment INTEGER)',
+            'CREATE TABLE "users" (comment INTEGER NOT NULL)',
             'INSERT INTO "users" (comment) SELECT post FROM __temp__users',
             "DROP TABLE __temp__users",
         ]
@@ -61,7 +61,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         sql = [
             "CREATE TEMPORARY TABLE __temp__users AS SELECT name, email FROM users",
             "DROP TABLE users",
-            'CREATE TABLE "users" (name VARCHAR, email VARCHAR)',
+            'CREATE TABLE "users" (name VARCHAR NOT NULL, email VARCHAR NOT NULL)',
             'INSERT INTO "users" (name, email) SELECT name, email FROM __temp__users',
             "DROP TABLE __temp__users",
         ]
@@ -84,7 +84,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
             "ALTER TABLE users ADD COLUMN name VARCHAR NOT NULL",
             "CREATE TEMPORARY TABLE __temp__users AS SELECT age FROM users",
             "DROP TABLE users",
-            'CREATE TABLE "users" (age INTEGER, name VARCHAR(255))',
+            'CREATE TABLE "users" (age INTEGER NOT NULL, name VARCHAR(255) NOT NULL)',
             'INSERT INTO "users" (age) SELECT age FROM __temp__users',
             "DROP TABLE __temp__users",
         ]
@@ -109,7 +109,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
             "ALTER TABLE users ADD COLUMN name VARCHAR",
             "CREATE TEMPORARY TABLE __temp__users AS SELECT age FROM users",
             "DROP TABLE users",
-            'CREATE TABLE "users" (age INTEGER, name VARCHAR(255))',
+            'CREATE TABLE "users" (age INTEGER NOT NULL, name VARCHAR(255) NOT NULL)',
             'INSERT INTO "users" (age) SELECT age FROM __temp__users',
             "DROP TABLE __temp__users",
         ]

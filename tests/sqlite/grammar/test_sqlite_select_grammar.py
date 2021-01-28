@@ -148,7 +148,7 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         self.builder.count().to_sql()
         """
 
-        return """SELECT COUNT(*) FROM "users\""""
+        return """SELECT COUNT(*) AS m_count_reserved FROM "users\""""
 
     def can_compile_count_column(self):
         """

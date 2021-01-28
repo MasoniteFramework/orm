@@ -31,7 +31,7 @@ class TestTable(unittest.TestCase):
         table.add_column("id", "integer")
         table.add_column("name", "string")
 
-        sql = 'CREATE TABLE "users" (id INTEGER, name VARCHAR)'
+        sql = 'CREATE TABLE "users" (id INTEGER NOT NULL, name VARCHAR NOT NULL)'
         self.assertEqual(sql, self.platform.compile_create_sql(table))
 
     def test_create_sql_with_primary_key(self):
@@ -40,7 +40,7 @@ class TestTable(unittest.TestCase):
         table.add_column("name", "string")
         table.set_primary_key("id")
 
-        sql = 'CREATE TABLE "users" (id INTEGER PRIMARY KEY, name VARCHAR)'
+        sql = 'CREATE TABLE "users" (id INTEGER NOT NULL PRIMARY KEY, name VARCHAR NOT NULL)'
         self.assertEqual(sql, self.platform.compile_create_sql(table))
 
     def test_create_sql_with_unique_constraint(self):
@@ -65,7 +65,7 @@ class TestTable(unittest.TestCase):
         table.add_constraint("email", "unique", ["email"])
         table.set_primary_key("id")
 
-        sql = 'CREATE TABLE "users" (id INTEGER PRIMARY KEY, email VARCHAR, name VARCHAR, UNIQUE(name), UNIQUE(email))'
+        sql = 'CREATE TABLE "users" (id INTEGER NOT NULL PRIMARY KEY, email VARCHAR NOT NULL, name VARCHAR NOT NULL, UNIQUE(name), UNIQUE(email))'
         self.platform.constraintize(table.get_added_constraints())
         self.assertEqual(self.platform.compile_create_sql(table), sql)
 
@@ -77,7 +77,7 @@ class TestTable(unittest.TestCase):
         table.add_constraint("name", "unique", ["name", "email"])
         table.set_primary_key("id")
 
-        sql = 'CREATE TABLE "users" (id INTEGER PRIMARY KEY, email VARCHAR, name VARCHAR, UNIQUE(name, email))'
+        sql = 'CREATE TABLE "users" (id INTEGER NOT NULL PRIMARY KEY, email VARCHAR NOT NULL, name VARCHAR NOT NULL, UNIQUE(name, email))'
         self.platform.constraintize(table.get_added_constraints())
         self.assertEqual(self.platform.compile_create_sql(table), sql)
 
@@ -92,7 +92,7 @@ class TestTable(unittest.TestCase):
 
         sql = (
             'CREATE TABLE "users" ('
-            "id INTEGER PRIMARY KEY, profile_id INTEGER, comment_id INTEGER, "
+            "id INTEGER NOT NULL PRIMARY KEY, profile_id INTEGER NOT NULL, comment_id INTEGER NOT NULL, "
             "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id), "
             "CONSTRAINT users_comment_id_foreign FOREIGN KEY (comment_id) REFERENCES comments(id))"
         )

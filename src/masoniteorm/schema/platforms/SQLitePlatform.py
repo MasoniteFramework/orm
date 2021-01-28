@@ -38,7 +38,7 @@ class SQLitePlatform(Platform):
         "time": "TIME",
         "timestamp": "TIMESTAMP",
         "date": "DATE",
-        "year": "YEAR",
+        "year": "VARCHAR",
         "datetime": "DATETIME",
         "tiny_increments": "TINYINT AUTO_INCREMENT",
         "unsigned": "INT UNSIGNED",
@@ -167,7 +167,7 @@ class SQLitePlatform(Platform):
         return "({length})"
 
     def columnize_string(self):
-        return "{name} {data_type}{length}{default} {constraint}"
+        return "{name} {data_type}{length} {nullable}{default} {constraint}"
 
     def get_unique_constraint_string(self):
         return "UNIQUE({columns})"
