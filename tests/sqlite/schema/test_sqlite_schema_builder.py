@@ -24,7 +24,8 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
-            blueprint.to_sql(), 'CREATE TABLE "users" (name VARCHAR(255), age INTEGER)'
+            blueprint.to_sql(),
+            'CREATE TABLE "users" (name VARCHAR(255) NOT NULL, age INTEGER NOT NULL)',
         )
 
     def test_can_add_columns_with_constraint(self):
@@ -36,7 +37,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
             blueprint.to_sql(),
-            'CREATE TABLE "users" (name VARCHAR(255), age INTEGER, UNIQUE(name))',
+            'CREATE TABLE "users" (name VARCHAR(255) NOT NULL, age INTEGER NOT NULL, UNIQUE(name))',
         )
 
     def test_can_add_columns_with_foreign_key_constraint(self):
@@ -50,9 +51,9 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             'CREATE TABLE "users" '
-            "(name VARCHAR(255), "
-            "age INTEGER, "
-            "profile_id INTEGER, "
+            "(name VARCHAR(255) NOT NULL, "
+            "age INTEGER NOT NULL, "
+            "profile_id INTEGER NOT NULL, "
             "UNIQUE(name), "
             "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))",
         )
@@ -64,7 +65,9 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
             blueprint.to_sql(),
-            'CREATE TABLE "likes" ' "(record_id UNSIGNED INT, " "record_type VARCHAR)",
+            'CREATE TABLE "likes" '
+            "(record_id UNSIGNED INT NOT NULL, "
+            "record_type VARCHAR NOT NULL)",
         )
 
     def test_can_advanced_table_creation(self):
@@ -82,10 +85,10 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             (
-                'CREATE TABLE "users" (id INTEGER PRIMARY KEY, name VARCHAR(255), email VARCHAR(255), '
-                "password VARCHAR(255), admin INTEGER DEFAULT 0, remember_token VARCHAR(255), "
-                "verified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
-                "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, UNIQUE(email))"
+                'CREATE TABLE "users" (id INTEGER PRIMARY KEY NOT NULL, name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, '
+                "password VARCHAR(255) NOT NULL, admin INTEGER NOT NULL DEFAULT 0, remember_token VARCHAR(255) NULL, "
+                "verified_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
+                "updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, UNIQUE(email))"
             ),
         )
 
@@ -96,6 +99,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.string("duration")
             blueprint.string("url")
             blueprint.json("payload")
+            blueprint.year("birth")
             blueprint.datetime("published_at")
             blueprint.time("wakeup_at")
             blueprint.string("thumbnail").nullable()
@@ -107,14 +111,16 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.text("description")
             blueprint.timestamps()
 
-        self.assertEqual(len(blueprint.table.added_columns), 13)
+        self.assertEqual(len(blueprint.table.added_columns), 14)
+
+        print(blueprint.to_sql())
         self.assertEqual(
             blueprint.to_sql(),
             (
-                'CREATE TABLE "users" (id INTEGER PRIMARY KEY, name VARCHAR(255), duration VARCHAR(255), '
-                "url VARCHAR(255), payload JSON, published_at DATETIME, wakeup_at TIME, thumbnail VARCHAR(255), premium INTEGER, "
-                "author_id UNSIGNED INT, description TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
-                "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                'CREATE TABLE "users" (id INTEGER PRIMARY KEY NOT NULL, name VARCHAR(255) NOT NULL, duration VARCHAR(255) NOT NULL, '
+                "url VARCHAR(255) NOT NULL, payload JSON NOT NULL, birth VARCHAR(4) NOT NULL, published_at DATETIME NOT NULL, wakeup_at TIME NOT NULL, thumbnail VARCHAR(255) NULL, premium INTEGER NOT NULL, "
+                "author_id UNSIGNED INT NULL, description TEXT NOT NULL, created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
+                "updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
                 "CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES users(id))"
             ),
         )

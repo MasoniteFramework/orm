@@ -72,7 +72,7 @@ class TestTableDiff(unittest.TestCase):
         sql = [
             "CREATE TEMPORARY TABLE __temp__users AS SELECT post FROM users",
             "DROP TABLE users",
-            'CREATE TABLE "users" (comment INTEGER)',
+            'CREATE TABLE "users" (comment INTEGER NOT NULL)',
             'INSERT INTO "users" (comment) SELECT post FROM __temp__users',
             "DROP TABLE __temp__users",
         ]
@@ -92,7 +92,7 @@ class TestTableDiff(unittest.TestCase):
         sql = [
             "CREATE TEMPORARY TABLE __temp__users AS SELECT post, user, email FROM users",
             "DROP TABLE users",
-            'CREATE TABLE "users" (comment INTEGER, user INTEGER, email INTEGER)',
+            'CREATE TABLE "users" (comment INTEGER NOT NULL, user INTEGER NOT NULL, email INTEGER NOT NULL)',
             'INSERT INTO "users" (comment, user, email) SELECT post, user, email FROM __temp__users',
             "DROP TABLE __temp__users",
         ]
@@ -111,7 +111,7 @@ class TestTableDiff(unittest.TestCase):
         sql = [
             "CREATE TEMPORARY TABLE __temp__users AS SELECT post FROM users",
             "DROP TABLE users",
-            'CREATE TABLE "users" (comment INTEGER)',
+            'CREATE TABLE "users" (comment INTEGER NOT NULL)',
             'INSERT INTO "users" (comment) SELECT post FROM __temp__users',
             "DROP TABLE __temp__users",
             "ALTER TABLE users RENAME TO clients",
@@ -134,7 +134,7 @@ class TestTableDiff(unittest.TestCase):
             "DROP INDEX name",
             "CREATE TEMPORARY TABLE __temp__users AS SELECT post FROM users",
             "DROP TABLE users",
-            'CREATE TABLE "users" (comment INTEGER)',
+            'CREATE TABLE "users" (comment INTEGER NOT NULL)',
             'INSERT INTO "users" (comment) SELECT post FROM __temp__users',
             "DROP TABLE __temp__users",
             "ALTER TABLE users RENAME TO clients",
@@ -155,7 +155,7 @@ class TestTableDiff(unittest.TestCase):
         sql = [
             "CREATE TEMPORARY TABLE __temp__users AS SELECT name, email FROM users",
             "DROP TABLE users",
-            'CREATE TABLE "users" (name VARCHAR, email VARCHAR)',
+            'CREATE TABLE "users" (name VARCHAR NOT NULL, email VARCHAR NOT NULL)',
             'INSERT INTO "users" (name, email) SELECT name, email FROM __temp__users',
             "DROP TABLE __temp__users",
         ]
