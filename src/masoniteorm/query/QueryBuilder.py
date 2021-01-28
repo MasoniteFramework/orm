@@ -1018,12 +1018,15 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self.aggregate("COUNT", "{column}".format(column=column))
+        self.aggregate("COUNT", f"{column} as m_count_reserved")
 
         if self.dry:
             return self
 
         result = self.new_connection().query(self.to_qmark(), self._bindings, results=1)
+
+        if isinstance(result, dict):
+            return result["m_count_reserved"]
 
         prepared_result = list(result.values())
         if not prepared_result:

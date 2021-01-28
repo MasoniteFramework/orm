@@ -287,7 +287,7 @@ class BaseGrammar:
             aggregate = aggregates.aggregate
             column = aggregates.column
             aggregate_function = self.aggregate_options.get(aggregate, "")
-            if column == "*":
+            if not aggregates.alias and column == "*":
                 aggregate_string = self.aggregate_string_without_alias()
             else:
                 aggregate_string = self.aggregate_string_with_alias()
