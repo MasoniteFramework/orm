@@ -1018,7 +1018,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self.aggregate("COUNT", f"{column} as m_count_reserved")
+        self.aggregate("COUNT", "{column} as {alias}".format(column=column, alias="m_count_reserved" if column == "*" else column))
 
         if self.dry:
             return self
