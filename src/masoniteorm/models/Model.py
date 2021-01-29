@@ -344,11 +344,14 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             dictionary = kwargs
 
         if cls.__fillable__ != ["*"]:
-            dictionary = {x: dictionary[x] for x in cls.__fillable__}
+            for x in cls.__fillable__:
+                if x in dictionary:
+                    dictionary.update({x: dictionary[x]})
 
         if cls.__guarded__ != ["*"]:
             for x in cls.__guarded__:
-                dictionary.pop(x)
+                if x in dictionary:
+                    dictionary.pop(x)
 
         if query:
             return cls.builder.create(dictionary, query=True).to_sql()
