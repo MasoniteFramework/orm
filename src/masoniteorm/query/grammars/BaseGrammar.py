@@ -51,7 +51,7 @@ class BaseGrammar:
         self._connection_details = connection_details or {}
         self._column = None
 
-        self._bindings = ()
+        self._bindings = []
 
         self._sql = ""
 
@@ -273,7 +273,6 @@ class BaseGrammar:
                     self._bindings += (value,)
 
         sql = sql.rstrip(", ")
-
         return sql
 
     def process_aggregates(self):
@@ -326,9 +325,14 @@ class BaseGrammar:
                     order_crit += ", "
                 column = order_bys.column
                 direction = order_bys.direction
+                if "." in column:
+                    column_string = self._table_column_string(column)
+                else:
+                    column_string = self.column_string().format(
+                        column=column, separator=""
+                    )
                 order_crit += self.order_by_format().format(
-                    column=self._table_column_string(column),
-                    direction=direction.upper(),
+                    column=column_string, direction=direction.upper()
                 )
 
             sql += self.order_by_string().format(order_columns=order_crit)
@@ -551,7 +555,7 @@ class BaseGrammar:
                             value=val, separator=","
                         )
                 query_value = query_value.rstrip(",").rstrip(", ") + ")"
-            elif qmark:
+            elif qmark and value_type != "column":
                 query_value = "'?'"
                 if (
                     value is not True
@@ -582,7 +586,7 @@ class BaseGrammar:
         Arguments:
             binding {string} -- A value to bind.
         """
-        self._bindings += (binding,)
+        self._bindings.append(binding)
 
     def column_exists(self, column):
         """Check if a column exists
@@ -658,6 +662,14 @@ class BaseGrammar:
                     continue
 
                 column = column.column
+
+            if isinstance(column, SubGroupExpression):
+                builder_sql = column.builder.to_qmark()
+                sql += f"({builder_sql}) as {column.alias}, "
+                if column.builder._bindings:
+                    self.add_binding(*column.builder._bindings)
+                continue
+
             sql += self._table_column_string(column, alias=alias, separator=separator)
 
         if self._aggregates:

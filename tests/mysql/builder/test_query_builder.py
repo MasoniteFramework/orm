@@ -151,6 +151,19 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_add_select(self):
+        builder = self.get_builder()
+        sql = (
+            builder.select("name")
+            .add_select("phone_count", lambda q: q.count("*").table("phones"))
+            .add_select("salary", lambda q: q.count("*").table("salary"))
+            .to_sql()
+        )
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
     def test_create(self):
         builder = self.get_builder().without_global_scopes()
         builder.create(
@@ -555,6 +568,13 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         return "SELECT count(email) as email_count FROM `users`"
 
+    def add_select(self):
+        """
+        builder = self.get_builder()
+        builder.select('name', 'email')
+        """
+        return "SELECT `users`.`name`, (SELECT COUNT(*) AS m_count_reserved FROM `phones`) as phone_count, (SELECT COUNT(*) AS m_count_reserved FROM `salary`) as salary FROM `users`"
+
     def create(self):
         """
         builder = get_builder()
@@ -643,13 +663,13 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         builder.order_by('email', 'asc')
         """
-        return "SELECT * FROM `users` ORDER BY `users`.`email` ASC"
+        return "SELECT * FROM `users` ORDER BY `email` ASC"
 
     def order_by_desc(self):
         """
         builder.order_by('email', 'des')
         """
-        return "SELECT * FROM `users` ORDER BY `users`.`email` DESC"
+        return "SELECT * FROM `users` ORDER BY `email` DESC"
 
     def where_column(self):
         """

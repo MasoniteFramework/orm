@@ -91,6 +91,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     """
     __passthrough__ = [
         "all",
+        "add_select",
         "avg",
         "bulk_create",
         "chunk",
@@ -203,6 +204,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
             self._booted = True
             self.observe_events(self, "booted")
+
+            self.append_passthrough(list(self.builder._macros.keys()))
+
+    def append_passthrough(self, passthrough):
+        self.__passthrough__ += passthrough
+        return self
 
     @classmethod
     def get_table_name(cls):
@@ -344,16 +351,28 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             dictionary = kwargs
 
         if cls.__fillable__ != ["*"]:
-            dictionary = {x: dictionary[x] for x in cls.__fillable__}
+            d = {}
+            for x in cls.__fillable__:
+                if x in dictionary:
+                    d.update({x: dictionary[x]})
+            dictionary = d
 
         if cls.__guarded__ != ["*"]:
             for x in cls.__guarded__:
-                dictionary.pop(x)
+                if x in dictionary:
+                    dictionary.pop(x)
 
         if query:
             return cls.builder.create(dictionary, query=True).to_sql()
 
         return cls.builder.create(dictionary)
+
+    def fresh(self):
+        return (
+            self.get_builder()
+            .where(self.get_primary_key(), self.get_primary_key_value())
+            .first()
+        )
 
     def serialize(self):
         """Takes the data as a model and converts it into a dictionary.
