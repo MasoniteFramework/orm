@@ -326,9 +326,15 @@ class BaseGrammar:
                     order_crit += ", "
                 column = order_bys.column
                 direction = order_bys.direction
+                print("column", column)
+                if "." in column:
+                    column_string = self._table_column_string(column)
+                else:
+                    column_string = self.column_string().format(
+                        column=column, separator=""
+                    )
                 order_crit += self.order_by_format().format(
-                    column=self._table_column_string(column),
-                    direction=direction.upper(),
+                    column=column_string, direction=direction.upper()
                 )
 
             sql += self.order_by_string().format(order_columns=order_crit)
