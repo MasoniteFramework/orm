@@ -351,9 +351,11 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             dictionary = kwargs
 
         if cls.__fillable__ != ["*"]:
+            d = {}
             for x in cls.__fillable__:
                 if x in dictionary:
-                    dictionary.update({x: dictionary[x]})
+                    d.update({x: dictionary[x]})
+            dictionary = d
 
         if cls.__guarded__ != ["*"]:
             for x in cls.__guarded__:
