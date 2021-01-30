@@ -58,3 +58,7 @@ class TestSoftDeleteScope(unittest.TestCase):
         sql = "SELECT * FROM `users` WHERE `users`.`deleted_at` IS NOT NULL"
         builder = self.get_builder().set_global_scope(SoftDeleteScope())
         self.assertEqual(sql, builder.only_trashed().to_sql())
+
+    def test_only_trashed_on_model(self):
+        sql = "SELECT * FROM `user_softs` WHERE `user_softs`.`deleted_at` IS NOT NULL"
+        self.assertEqual(sql, UserSoft.only_trashed().to_sql())
