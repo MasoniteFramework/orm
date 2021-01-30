@@ -76,17 +76,18 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.string("name")
             blueprint.string("email").unique()
             blueprint.string("password")
+            blueprint.string("option").default("ADMIN")
             blueprint.integer("admin").default(0)
             blueprint.string("remember_token").nullable()
             blueprint.timestamp("verified_at").nullable()
             blueprint.timestamps()
 
-        self.assertEqual(len(blueprint.table.added_columns), 9)
+        self.assertEqual(len(blueprint.table.added_columns), 10)
         self.assertEqual(
             blueprint.to_sql(),
             (
                 'CREATE TABLE "users" (id INTEGER PRIMARY KEY NOT NULL, name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, '
-                "password VARCHAR(255) NOT NULL, admin INTEGER NOT NULL DEFAULT 0, remember_token VARCHAR(255) NULL, "
+                "password VARCHAR(255) NOT NULL, option VARCHAR(255) NOT NULL DEFAULT 'ADMIN', admin INTEGER NOT NULL DEFAULT 0, remember_token VARCHAR(255) NULL, "
                 "verified_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
                 "updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, UNIQUE(email))"
             ),
