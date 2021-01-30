@@ -151,6 +151,19 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_add_select(self):
+        builder = self.get_builder()
+        sql = (
+            builder.select("name")
+            .add_select("phone_count", lambda q: q.count("*").table("phones"))
+            .add_select("salary", lambda q: q.count("*").table("salary"))
+            .to_sql()
+        )
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
     def test_create(self):
         builder = self.get_builder().without_global_scopes()
         builder.create(
@@ -554,6 +567,13 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.select_raw('count(email) as email_count')
         """
         return "SELECT count(email) as email_count FROM `users`"
+
+    def add_select(self):
+        """
+        builder = self.get_builder()
+        builder.select('name', 'email')
+        """
+        return "SELECT `users`.`name`, (SELECT COUNT(*) AS m_count_reserved FROM `phones`) as phone_count, (SELECT COUNT(*) AS m_count_reserved FROM `salary`) as salary FROM `users`"
 
     def create(self):
         """

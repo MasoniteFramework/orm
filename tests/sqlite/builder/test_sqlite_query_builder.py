@@ -161,6 +161,7 @@ class BaseTestQueryBuilder:
         sql = (
             builder.select("name")
             .add_select("phone_count", lambda q: q.count("*").table("phones"))
+            .add_select("salary", lambda q: q.count("*").table("salary"))
             .to_sql()
         )
         sql = getattr(
@@ -593,7 +594,7 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = self.get_builder()
         builder.select('name', 'email')
         """
-        return """SELECT "users"."name", (SELECT COUNT(*) AS m_count_reserved FROM "phones") as phone_count FROM "users\""""
+        return """SELECT "users"."name", (SELECT COUNT(*) AS m_count_reserved FROM "phones") as phone_count, (SELECT COUNT(*) AS m_count_reserved FROM "salary") as salary FROM "users\""""
 
     def select_raw(self):
         """
