@@ -78,19 +78,22 @@ class SubSelectExpression:
 class SubGroupExpression:
     """A helper class to manage subgroup expressions."""
 
-    def __init__(self, builder):
+    def __init__(self, builder, alias="group"):
         self.builder = builder
+        self.alias = alias
 
 
 class SelectExpression:
     """A helper class to manage select expressions."""
 
     def __init__(self, column, raw=False):
-        self.column = column
+        self.column = column.strip()
         self.alias = None
         self.raw = raw
         if raw is False and " as " in self.column:
             self.column, self.alias = self.column.split(" as ")
+            self.column = self.column.strip()
+            self.alias = self.alias.strip()
 
 
 class OrderByExpression:

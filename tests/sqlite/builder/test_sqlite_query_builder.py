@@ -150,6 +150,24 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_select_multiple(self):
+        builder = self.get_builder()
+        builder.select("name, email")
+        sql = getattr(self, "select")()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_add_select(self):
+        builder = self.get_builder()
+        sql = (
+            builder.select("name")
+            .add_select("phone_count", lambda q: q.count("*").table("phones"))
+            .to_sql()
+        )
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
     def test_select_raw(self):
         builder = self.get_builder()
         builder.select_raw("count(email) as email_count")
@@ -562,6 +580,20 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.select('name', 'email')
         """
         return """SELECT "users"."name", "users"."email" FROM "users\""""
+
+    def select_multiple(self):
+        """
+        builder = self.get_builder()
+        builder.select('name', 'email')
+        """
+        return """SELECT "users"."name", "users"."email" FROM "users\""""
+
+    def add_select(self):
+        """
+        builder = self.get_builder()
+        builder.select('name', 'email')
+        """
+        return """SELECT "users"."name", (SELECT COUNT(*) AS m_count_reserved FROM "phones") as phone_count FROM "users\""""
 
     def select_raw(self):
         """

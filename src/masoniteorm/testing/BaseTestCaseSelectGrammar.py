@@ -183,7 +183,7 @@ class BaseTestCaseSelectGrammar:
         self.assertEqual(to_sql, sql)
 
     def test_can_compile_count(self):
-        to_sql = self.builder.count().to_sql()
+        to_sql = self.builder.count("*").to_sql()
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()

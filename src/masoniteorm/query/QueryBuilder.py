@@ -338,8 +338,20 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        for column in args:
-            self._columns += (SelectExpression(column),)
+        for arg in args:
+            for column in arg.split(","):
+                self._columns += (SelectExpression(column),)
+
+        return self
+
+    def add_select(self, alias, callable):
+        """Specifies columns that should be selected
+
+        Returns:
+            self
+        """
+        builder = callable(self.new())
+        self._columns += (SubGroupExpression(builder, alias=alias),)
 
         return self
 
@@ -1009,7 +1021,7 @@ class QueryBuilder(ObservesEvents):
         self.aggregate("SUM", "{column}".format(column=column))
         return self
 
-    def count(self, column="*"):
+    def count(self, column=None):
         """Aggregates a columns values.
 
         Arguments:
@@ -1018,24 +1030,31 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        alias = "m_count_reserved" if column == "*" else column
+        alias = "m_count_reserved" if (column == "*" or column is None) else column
         if column == "*":
             self.aggregate("COUNT", f"{column} as {alias}")
+        elif column is None:
+            self.aggregate("COUNT", f"* as {alias}")
         else:
             self.aggregate("COUNT", f"{column}")
 
         if self.dry:
             return self
 
-        result = self.new_connection().query(self.to_qmark(), self._bindings, results=1)
+        if not column:
+            result = self.new_connection().query(
+                self.to_qmark(), self._bindings, results=1
+            )
 
-        if isinstance(result, dict):
-            return result.get(alias, 0)
+            if isinstance(result, dict):
+                return result.get(alias, 0)
 
-        prepared_result = list(result.values())
-        if not prepared_result:
-            return 0
-        return prepared_result[0]
+            prepared_result = list(result.values())
+            if not prepared_result:
+                return 0
+            return prepared_result[0]
+        else:
+            return self
 
     def max(self, column):
         """Aggregates a columns values.
