@@ -204,6 +204,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             self._booted = True
             self.observe_events(self, "booted")
 
+            self.append_passthrough(list(self.builder._macros.keys()))
+
+    def append_passthrough(self, passthrough):
+        self.__passthrough__ += passthrough
+        return self
+
     @classmethod
     def get_table_name(cls):
         """Gets the table name.
