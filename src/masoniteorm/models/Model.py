@@ -365,6 +365,13 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return cls.builder.create(dictionary)
 
+    def fresh(self):
+        return (
+            self.get_builder()
+            .where(self.get_primary_key(), self.get_primary_key_value())
+            .first()
+        )
+
     def serialize(self):
         """Takes the data as a model and converts it into a dictionary.
 
