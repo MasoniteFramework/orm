@@ -551,7 +551,7 @@ class BaseGrammar:
                             value=val, separator=","
                         )
                 query_value = query_value.rstrip(",").rstrip(", ") + ")"
-            elif qmark:
+            elif qmark and value_type != "column":
                 query_value = "'?'"
                 if (
                     value is not True
