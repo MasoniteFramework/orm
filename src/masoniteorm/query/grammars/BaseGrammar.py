@@ -662,7 +662,8 @@ class BaseGrammar:
             if isinstance(column, SubGroupExpression):
                 builder_sql = column.builder.to_qmark()
                 sql += f"({builder_sql}) as {column.alias}, "
-                self.add_binding(*column.builder._bindings)
+                if column.builder._bindings:
+                    self.add_binding(*column.builder._bindings)
                 continue
 
             sql += self._table_column_string(column, alias=alias, separator=separator)
