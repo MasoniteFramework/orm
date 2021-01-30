@@ -51,7 +51,7 @@ class BaseGrammar:
         self._connection_details = connection_details or {}
         self._column = None
 
-        self._bindings = ()
+        self._bindings = []
 
         self._sql = ""
 
@@ -273,7 +273,6 @@ class BaseGrammar:
                     self._bindings += (value,)
 
         sql = sql.rstrip(", ")
-
         return sql
 
     def process_aggregates(self):
@@ -587,7 +586,7 @@ class BaseGrammar:
         Arguments:
             binding {string} -- A value to bind.
         """
-        self._bindings += (binding,)
+        self._bindings.append(binding)
 
     def column_exists(self, column):
         """Check if a column exists

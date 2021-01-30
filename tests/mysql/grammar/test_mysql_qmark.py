@@ -52,7 +52,7 @@ class BaseQMarkTest:
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
         self.assertEqual(mark.to_qmark(), sql)
-        self.assertEqual(mark._bindings, bindings)
+        self.assertEqual(mark._bindings, [])
 
     # def test_can_create_with_falsy_values(self):
     #     mark = self.builder.create(
@@ -80,14 +80,14 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         """
         return (
             "SELECT `users`.`username` FROM `users` WHERE `users`.`name` = '?'",
-            ("Joe",),
+            ["Joe"],
         )
 
     def can_compile_delete(self):
         """
         self.builder.where('name', 'Joe').delete()
         """
-        return "DELETE FROM `users` WHERE `users`.`name` = '?'", ("Joe",)
+        return "DELETE FROM `users` WHERE `users`.`name` = '?'", ["Joe"]
 
     def can_compile_update(self):
         """
@@ -97,7 +97,7 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         """
         return (
             "UPDATE `users` SET `users`.`name` = '?' WHERE `users`.`name` = '?'",
-            ("Bob", "Joe"),
+            ["Bob", "Joe"],
         )
 
     def can_compile_where_in(self):
@@ -106,7 +106,7 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         """
         return (
             "SELECT * FROM `users` WHERE `users`.`id` IN ('?', '?', '?')",
-            ("1", "2", "3"),
+            ["1", "2", "3"],
         )
 
     def can_compile_where_not_null(self):
