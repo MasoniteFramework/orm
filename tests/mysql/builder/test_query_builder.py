@@ -663,13 +663,13 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         builder.order_by('email', 'asc')
         """
-        return "SELECT * FROM `users` ORDER BY `users`.`email` ASC"
+        return "SELECT * FROM `users` ORDER BY `email` ASC"
 
     def order_by_desc(self):
         """
         builder.order_by('email', 'des')
         """
-        return "SELECT * FROM `users` ORDER BY `users`.`email` DESC"
+        return "SELECT * FROM `users` ORDER BY `email` DESC"
 
     def where_column(self):
         """

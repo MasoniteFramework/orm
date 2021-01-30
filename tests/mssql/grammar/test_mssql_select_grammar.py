@@ -49,7 +49,7 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         self.builder.order_by('id', 'asc').first()
         """
-        return """SELECT TOP 1 * FROM [users] ORDER BY [users].[id] ASC"""
+        return """SELECT TOP 1 * FROM [users] ORDER BY [id] ASC"""
 
     def can_compile_with_max(self):
         """
@@ -73,13 +73,13 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         self.builder.select('username').order_by('age', 'desc').to_sql()
         """
-        return "SELECT [users].[username] FROM [users] ORDER BY [users].[age] DESC"
+        return "SELECT [users].[username] FROM [users] ORDER BY [age] DESC"
 
     def can_compile_with_multiple_order_by(self):
         """
         self.builder.select('username').order_by('age', 'desc').order_by('name').to_sql()
         """
-        return "SELECT [users].[username] FROM [users] ORDER BY [users].[age] DESC, [users].[name] ASC"
+        return "SELECT [users].[username] FROM [users] ORDER BY [age] DESC, [name] ASC"
 
     def can_compile_with_group_by(self):
         """
