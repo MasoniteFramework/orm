@@ -129,30 +129,22 @@ class BaseGrammar:
         Returns:
             self
         """
-        print("first get all values")
         all_values = [list(x.values()) for x in self._columns]
-        print("all values got")
 
-        print("compile sql")
         self._sql = self.bulk_insert_format().format(
             key_equals=self._compile_key_value_equals(qmark=qmark),
             table=self.process_table(self.table),
             columns=self.columnize_bulk_columns(list(self._columns[0].keys())),
             values=self.columnize_bulk_values(all_values, qmark=qmark),
         )
-        print("sql compiled")
         return self
 
     def columnize_bulk_columns(self, columns=[]):
-        print("columnize bulk column")
-        s = ", ".join(
+        return ", ".join(
             self.column_string().format(column=x, separator="") for x in columns
         ).rstrip(",")
-        print("columnized bulk columns")
-        return s
 
     def columnize_bulk_values(self, columns=[], qmark=False):
-        print("columnize bulk values")
         sql = ""
         for x in columns:
             inner = ""
@@ -179,7 +171,6 @@ class BaseGrammar:
                     )
                 )
 
-        print("columnized bulk values")
         return sql.rstrip(", ")
 
     def process_value_string(self):
@@ -250,7 +241,6 @@ class BaseGrammar:
         Returns:
             self
         """
-        print("compile key values")
         sql = ""
         for update in self._updates:
 
@@ -283,7 +273,6 @@ class BaseGrammar:
                     self._bindings += (value,)
 
         sql = sql.rstrip(", ")
-        print("compiled key values")
         return sql
 
     def process_aggregates(self):
