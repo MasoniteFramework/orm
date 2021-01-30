@@ -326,7 +326,6 @@ class BaseGrammar:
                     order_crit += ", "
                 column = order_bys.column
                 direction = order_bys.direction
-                print("column", column)
                 if "." in column:
                     column_string = self._table_column_string(column)
                 else:
