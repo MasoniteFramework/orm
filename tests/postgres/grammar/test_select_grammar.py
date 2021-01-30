@@ -67,13 +67,15 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         self.builder.select('username').order_by('age', 'desc').to_sql()
         """
-        return """SELECT "users"."username" FROM "users" ORDER BY "users"."age" DESC"""
+        return """SELECT "users"."username" FROM "users" ORDER BY "age" DESC"""
 
     def can_compile_with_multiple_order_by(self):
         """
         self.builder.select('username').order_by('age', 'desc').order_by('name').to_sql()
         """
-        return """SELECT "users"."username" FROM "users" ORDER BY "users"."age" DESC, "users"."name" ASC"""
+        return (
+            """SELECT "users"."username" FROM "users" ORDER BY "age" DESC, "name" ASC"""
+        )
 
     def can_compile_with_group_by(self):
         """
@@ -223,7 +225,7 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         self.builder.order_by('id', 'asc').first()
         """
-        return """SELECT * FROM "users" ORDER BY "users"."id" ASC LIMIT 1"""
+        return """SELECT * FROM "users" ORDER BY "id" ASC LIMIT 1"""
 
     def can_compile_having_with_greater_than_expression(self):
         """

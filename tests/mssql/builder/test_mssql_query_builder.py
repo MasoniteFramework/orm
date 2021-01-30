@@ -221,15 +221,13 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
     def test_order_by_asc(self):
         builder = self.get_builder()
         builder.order_by("email", "asc")
-        self.assertEqual(
-            builder.to_sql(), "SELECT * FROM [users] ORDER BY [users].[email] ASC"
-        )
+        self.assertEqual(builder.to_sql(), "SELECT * FROM [users] ORDER BY [email] ASC")
 
     def test_order_by_desc(self):
         builder = self.get_builder()
         builder.order_by("email", "desc")
         self.assertEqual(
-            builder.to_sql(), "SELECT * FROM [users] ORDER BY [users].[email] DESC"
+            builder.to_sql(), "SELECT * FROM [users] ORDER BY [email] DESC"
         )
 
     def test_where_column(self):

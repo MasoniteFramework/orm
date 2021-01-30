@@ -91,6 +91,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     """
     __passthrough__ = [
         "all",
+        "add_select",
         "avg",
         "bulk_create",
         "chunk",

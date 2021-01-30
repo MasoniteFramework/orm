@@ -150,6 +150,25 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_select_multiple(self):
+        builder = self.get_builder()
+        builder.select("name, email")
+        sql = getattr(self, "select")()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_add_select(self):
+        builder = self.get_builder()
+        sql = (
+            builder.select("name")
+            .add_select("phone_count", lambda q: q.count("*").table("phones"))
+            .add_select("salary", lambda q: q.count("*").table("salary"))
+            .to_sql()
+        )
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
     def test_select_raw(self):
         builder = self.get_builder()
         builder.select_raw("count(email) as email_count")
@@ -563,6 +582,20 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         return """SELECT "users"."name", "users"."email" FROM "users\""""
 
+    def select_multiple(self):
+        """
+        builder = self.get_builder()
+        builder.select('name', 'email')
+        """
+        return """SELECT "users"."name", "users"."email" FROM "users\""""
+
+    def add_select(self):
+        """
+        builder = self.get_builder()
+        builder.select('name', 'email')
+        """
+        return """SELECT "users"."name", (SELECT COUNT(*) AS m_count_reserved FROM "phones") as phone_count, (SELECT COUNT(*) AS m_count_reserved FROM "salary") as salary FROM "users\""""
+
     def select_raw(self):
         """
         builder = self.get_builder()
@@ -658,13 +691,15 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         builder.order_by('email', 'asc')
         """
-        return """SELECT * FROM "users" ORDER BY "users"."email" ASC"""
+        return """SELECT * FROM "users" ORDER BY "email" ASC"""
 
     def order_by_multiple(self):
         """
         builder.order_by('email', 'asc')
         """
-        return """SELECT * FROM "users" ORDER BY "users"."email" ASC, "users"."name" ASC, "users"."active" ASC"""
+        return (
+            """SELECT * FROM "users" ORDER BY "email" ASC, "name" ASC, "active" ASC"""
+        )
 
     def order_by_raw(self):
         """
@@ -676,13 +711,13 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         builder.order_by('email', 'asc')
         """
-        return """SELECT * FROM "users" ORDER BY "users"."email" ASC, "users"."name" DESC"""
+        return """SELECT * FROM "users" ORDER BY "email" ASC, "name" DESC"""
 
     def order_by_desc(self):
         """
         builder.order_by('email', 'des')
         """
-        return """SELECT * FROM "users" ORDER BY "users"."email" DESC"""
+        return """SELECT * FROM "users" ORDER BY "email" DESC"""
 
     def where_column(self):
         """
