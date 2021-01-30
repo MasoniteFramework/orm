@@ -14,7 +14,10 @@ class Platform:
             elif column.default in self.premapped_defaults:
                 default = self.premapped_defaults.get(column.default)
             elif column.default:
-                default = f" DEFAULT {column.default}"
+                if isinstance(column.default, (str,)):
+                    default = f" DEFAULT '{column.default}'"
+                else:
+                    default = f" DEFAULT {column.default}"
             else:
                 default = ""
 
