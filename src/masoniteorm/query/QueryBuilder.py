@@ -147,6 +147,17 @@ class QueryBuilder(ObservesEvents):
         self._table = table
         return self
 
+    def from_(self, table):
+        """Alias for the table method
+
+        Arguments:
+            table {string} -- The name of the table
+
+        Returns:
+            self
+        """
+        return self.table(table)
+
     def get_table_name(self):
         """Sets a table on the query builder
 
