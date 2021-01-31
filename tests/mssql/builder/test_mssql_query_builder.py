@@ -194,7 +194,7 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
         )
         self.assertEqual(
             builder.to_sql(),
-            "UPDATE [users] SET [users].[name] = 'Joe'[users].[email] = 'joe@yopmail.com'",
+            "UPDATE [users] SET [users].[name] = 'Joe', [users].[email] = 'joe@yopmail.com'",
         )
 
     def test_increment(self):
