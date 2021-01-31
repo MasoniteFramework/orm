@@ -4,6 +4,7 @@ import unittest
 from src.masoniteorm.connections import PostgresConnection
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import PostgresGrammar
+from src.masoniteorm.expressions import RawExpression
 
 
 class BaseTestCaseUpdateGrammar:
@@ -61,6 +62,17 @@ class BaseTestCaseUpdateGrammar:
         )()
         self.assertEqual(to_sql, sql)
 
+    def test_raw_expression(self):
+        to_sql = self.builder.update(
+            {"name": RawExpression('"username"')}, dry=True
+        ).to_sql()
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+
+        self.assertEqual(to_sql, sql)
+
 
 class TestPostgresUpdateGrammar(BaseTestCaseUpdateGrammar, unittest.TestCase):
 
@@ -73,6 +85,14 @@ class TestPostgresUpdateGrammar(BaseTestCaseUpdateGrammar, unittest.TestCase):
         }).to_sql()
         """
         return """UPDATE "users" SET "name" = 'Joe' WHERE "name" = 'bob'"""
+
+    def raw_expression(self):
+        """
+        builder.where('name', 'bob').update({
+            'name': 'Joe'
+        }).to_sql()
+        """
+        return """UPDATE "users" SET "name" = "username\""""
 
     def can_compile_multiple_update(self):
         """

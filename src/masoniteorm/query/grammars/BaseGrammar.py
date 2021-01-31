@@ -255,11 +255,19 @@ class BaseGrammar:
             value = update.value
             if isinstance(column, dict):
                 for key, value in column.items():
-                    sql += sql_string.format(
-                        column=self._table_column_string(key),
-                        value=value if not qmark else "?",
-                        separator=", ",
-                    )
+
+                    if hasattr(value, "expression"):
+                        sql += self.column_value_string().format(
+                            column=self._table_column_string(key),
+                            value=value.expression,
+                            separator=", ",
+                        )
+                    else:
+                        sql += sql_string.format(
+                            column=self._table_column_string(key),
+                            value=value if not qmark else "?",
+                            separator=", ",
+                        )
 
                     if qmark:
                         self._bindings += (value,)

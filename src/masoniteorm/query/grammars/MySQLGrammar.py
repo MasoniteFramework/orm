@@ -140,6 +140,9 @@ class MySQLGrammar(BaseGrammar):
     def key_value_string(self):
         return "{column} = '{value}'{separator}"
 
+    def column_value_string(self):
+        return "{column} = {value}{separator}"
+
     def increment_string(self):
         return "{column} = {column} + '{value}'"
 

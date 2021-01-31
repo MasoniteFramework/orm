@@ -134,3 +134,8 @@ class AggregateExpression:
         self.alias = alias
         if " as " in self.column:
             self.column, self.alias = self.column.split(" as ")
+
+
+class RawExpression:
+    def __init__(self, expression):
+        self.expression = expression

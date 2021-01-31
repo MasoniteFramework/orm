@@ -2,6 +2,7 @@ import unittest
 
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import MSSQLGrammar
+from src.masoniteorm.expressions import RawExpression
 
 
 class TestMSSQLUpdateGrammar(unittest.TestCase):
@@ -26,4 +27,12 @@ class TestMSSQLUpdateGrammar(unittest.TestCase):
         )
 
         sql = "UPDATE [users] SET [users].[name] = 'Joe' WHERE [users].[name] = 'bob' AND [users].[age] = '20'"
+        self.assertEqual(to_sql, sql)
+
+    def test_raw_expression(self):
+        to_sql = self.builder.update(
+            {"name": RawExpression("[username]")}, dry=True
+        ).to_sql()
+
+        sql = "UPDATE [users] SET [users].[name] = [username]"
         self.assertEqual(to_sql, sql)
