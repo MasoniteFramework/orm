@@ -215,10 +215,7 @@ class SQLitePlatform(Platform):
 
         for column in result:
 
-            data = {
-                "name": column["name"], 
-                "default": column.get("dflt_value")
-            }
+            data = {"name": column["name"], "default": column.get("dflt_value")}
 
             data["column_type"] = self.process_type_column(reversed_type_map, column)
             data["length"] = self.process_length_column(column)
@@ -229,13 +226,13 @@ class SQLitePlatform(Platform):
         return table
 
     def process_type_column(self, mapping_types, column):
-        
+
         length_column = self.process_length_column(column)
-        
+
         if column["pk"] == 1:
-            return 'increments'
-        
-        column_type = column['type']
+            return "increments"
+
+        column_type = column["type"]
         parenthesis_index = column_type.find("(")
 
         if parenthesis_index == -1:
@@ -243,32 +240,32 @@ class SQLitePlatform(Platform):
         else:
             database_type = column_type[:parenthesis_index]
 
-        if database_type == 'CHAR':
-            if length_column == '1':
-                return 'char'
-            elif length_column == '36':
-                return 'uuid'
+        if database_type == "CHAR":
+            if length_column == "1":
+                return "char"
+            elif length_column == "36":
+                return "uuid"
             else:
-                return 'char'
+                return "char"
 
-        if database_type == 'VARCHAR':       
-            if length_column == '4':
-                return 'year'    
+        if database_type == "VARCHAR":
+            if length_column == "4":
+                return "year"
             else:
-                return 'string'
+                return "string"
 
         return mapping_types.get(database_type.upper())
 
     def process_length_column(self, column):
-        
-        column_type = column['type']
+
+        column_type = column["type"]
 
         parenthesis_index = column_type.find("(")
 
         if parenthesis_index == -1:
             return None
 
-        return column_type[parenthesis_index + 1:-1]
+        return column_type[parenthesis_index + 1 : -1]
 
     def compile_table_exists(self, table, database=None):
         return f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}'"
