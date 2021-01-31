@@ -18,7 +18,7 @@ class SQLitePlatform(Platform):
         "integer": "INTEGER",
         "big_integer": "BIGINT",
         "tiny_integer": "TINYINT",
-        "big_increments": "BIGINT",
+        "big_increments": "BIGINT AUTO_INCREMENT",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
         "increments": "INTEGER PRIMARY KEY",
@@ -32,7 +32,7 @@ class SQLitePlatform(Platform):
         "float": "FLOAT",
         "geometry": "GEOMETRY",
         "json": "JSON",
-        "jsonb": "LONGBLOB",
+        "jsonb": "CLOB",
         "long_text": "LONGTEXT",
         "point": "POINT",
         "time": "TIME",
@@ -215,42 +215,60 @@ class SQLitePlatform(Platform):
 
         for column in result:
 
-            column_data = {"name": column["name"], "default": column.get("dflt_value")}
+            data = {
+                "name": column["name"], 
+                "default": column.get("dflt_value")
+            }
 
-            column_data["column_type"] = self.process_type_column(
-                reversed_type_map, column["type"]
-            )
-            column_data["length"] = self.process_length_column(column["type"])
+            data["column_type"] = self.process_type_column(reversed_type_map, column)
+            data["length"] = self.process_length_column(column)
 
-            table.add_column(**column_data)
-
-            if column.get("pk") == 1:
-                table.set_primary_key(column["name"])
+            table.add_column(**data)
+            table.set_primary_key(column["name"])
 
         return table
 
-    def process_type_column(self, mapping_types, type):
-        import re
+    def process_type_column(self, mapping_types, column):
+        
+        length_column = self.process_length_column(column)
+        
+        if column["pk"] == 1:
+            return 'increments'
+        
+        column_type = column['type']
+        parenthesis_index = column_type.find("(")
 
-        match = re.match(r"(?P<type>\w+)(\((?P<length>\d+)\))?", type)
-
-        if match:
-            type_column = match.group("type")
+        if parenthesis_index == -1:
+            database_type = column_type
         else:
-            type_column = "string"
+            database_type = column_type[:parenthesis_index]
 
-        return mapping_types.get(type_column.upper()) or type
+        if database_type == 'CHAR':
+            if length_column == '1':
+                return 'char'
+            elif length_column == '36':
+                return 'uuid'
+            else:
+                return 'char'
 
-    def process_length_column(self, type):
-        import re
+        if database_type == 'VARCHAR':       
+            if length_column == '4':
+                return 'year'    
+            else:
+                return 'string'
 
-        match = re.match(r"(?P<type>\w+)(\((?P<length>\d+)\))?", type)
-        if match:
-            length_column = match.group("length")
-        else:
-            length_column = None
+        return mapping_types.get(database_type.upper())
 
-        return length_column
+    def process_length_column(self, column):
+        
+        column_type = column['type']
+
+        parenthesis_index = column_type.find("(")
+
+        if parenthesis_index == -1:
+            return None
+
+        return column_type[parenthesis_index + 1:-1]
 
     def compile_table_exists(self, table, database=None):
         return f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}'"
