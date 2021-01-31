@@ -3,7 +3,7 @@ import unittest
 
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
-from src.masoniteorm.expressions import RawExpression
+from src.masoniteorm.expressions import Raw
 
 
 class BaseTestCaseUpdateGrammar:
@@ -61,7 +61,7 @@ class BaseTestCaseUpdateGrammar:
 
     def test_raw_expression(self):
         to_sql = self.builder.update(
-            {"name": RawExpression('"username"')}, dry=True
+            {"name": Raw('"username"')}, dry=True
         ).to_sql()
 
         sql = getattr(

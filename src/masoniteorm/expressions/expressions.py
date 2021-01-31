@@ -136,6 +136,6 @@ class AggregateExpression:
             self.column, self.alias = self.column.split(" as ")
 
 
-class RawExpression:
+class Raw:
     def __init__(self, expression):
         self.expression = expression

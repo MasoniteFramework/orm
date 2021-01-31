@@ -269,8 +269,8 @@ class BaseGrammar:
                             separator=", ",
                         )
 
-                    if qmark:
-                        self._bindings += (value,)
+                        if qmark:
+                            self._bindings += (value,)
             else:
                 sql += sql_string.format(
                     column=self._table_column_string(column),
