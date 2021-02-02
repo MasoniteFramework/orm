@@ -23,11 +23,12 @@ What do you believe should be happening?
 Screenshots help a lot. If applicable, add screenshots to help explain your problem.
 
 **Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+ - OS: [e.g. Mac OSX, Windows]
+ - Version [e.g. Big Sur, 10]
 
 **What database are you using?**
+ - Type: [e.g. Postgres, MySQL, SQLite]
+ - Version [e.g. 8, 9.1, 10.5]
 
 **Additional context**
 Any other steps you are doing or any other related information that will help us debug the problem please put here.
