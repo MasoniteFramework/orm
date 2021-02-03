@@ -120,6 +120,7 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             blueprint.datetime("published_at")
             blueprint.string("thumbnail").nullable()
             blueprint.integer("premium")
+            blueprint.double("amount").default(0.0)
             blueprint.integer("author_id").unsigned().nullable()
             blueprint.foreign("author_id").references("id").on("authors").on_delete(
                 "CASCADE"
@@ -133,7 +134,7 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             (
                 """CREATE TABLE "users" (id SERIAL UNIQUE NOT NULL, name VARCHAR(255) NOT NULL, gender VARCHAR(255) CHECK(gender IN ('male', 'female')) NOT NULL, """
                 "duration VARCHAR(255) NOT NULL, money DECIMAL(17, 6) NOT NULL, url VARCHAR(255) NOT NULL, option VARCHAR(255) NOT NULL DEFAULT 'ADMIN', payload JSONB NOT NULL, published_at TIMESTAMP NOT NULL, "
-                "thumbnail VARCHAR(255) NULL, premium INTEGER NOT NULL, author_id INT NULL, "
+                "thumbnail VARCHAR(255) NULL, premium INTEGER NOT NULL, amount DOUBLE PRECISION NOT NULL DEFAULT 0.0, author_id INT NULL, "
                 "description TEXT NOT NULL, created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
                 "updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
                 "CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES authors(id))"

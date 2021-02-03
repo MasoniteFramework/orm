@@ -32,10 +32,10 @@ class HasMany(BaseRelationship):
         else:
             return builder.where(
                 f"{builder.get_table_name()}.{self.foreign_key}",
-                relation.get_primary_key_value(),
+                getattr(relation, self.local_key),
             ).get()
 
     def register_related(self, key, model, collection):
         model.add_relation(
-            {key: collection.where(self.foreign_key, model.get_primary_key_value())}
+            {key: collection.where(self.foreign_key, getattr(model, self.local_key))}
         )
