@@ -25,7 +25,7 @@ class PostgresPlatform(Platform):
         "binary": "LONGBLOB",
         "boolean": "BOOLEAN",
         "decimal": "DECIMAL",
-        "double": "DOUBLE",
+        "double": "DOUBLE PRECISION",
         "enum": "VARCHAR(255) CHECK ",
         "text": "TEXT",
         "float": "FLOAT",
