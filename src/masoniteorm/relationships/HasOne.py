@@ -8,9 +8,10 @@ class HasOne(BaseRelationship):
     def __init__(self, fn, foreign_key=None, local_key=None):
         if isinstance(fn, str):
             self.local_key = fn
-            self.foreign_key = local_key
+            self.foreign_key = foreign_key
         else:
             self.fn = fn
+            self.local_key = local_key
             self.foreign_key = foreign_key
 
     def apply_query(self, foreign, owner):
@@ -25,7 +26,7 @@ class HasOne(BaseRelationship):
         """
 
         return foreign.where(
-            self.foreign_key, owner.__attributes__[self.local_key]
+            self.local_key, owner.__attributes__[self.foreign_key]
         ).first()
 
     def get_related(self, query, relation, eagers=()):
@@ -44,17 +45,17 @@ class HasOne(BaseRelationship):
         if isinstance(relation, Collection):
             return builder.where_in(
                 f"{builder.get_table_name()}.{self.foreign_key}",
-                relation.pluck(self.local_key).unique(),
+                relation.pluck(self.foreign_key, keep_nulls=False).unique(),
             ).get()
         else:
             return builder.where(
                 f"{builder.get_table_name()}.{self.foreign_key}",
-                getattr(relation, self.local_key),
+                getattr(relation, self.foreign_key),
             ).first()
 
     def register_related(self, key, model, collection):
         related = collection.where(
-            self.foreign_key, getattr(model, self.local_key)
+            self.foreign_key, getattr(model, self.foreign_key)
         ).first()
 
         model.add_relation({key: related or None})

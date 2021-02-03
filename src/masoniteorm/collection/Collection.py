@@ -227,7 +227,7 @@ class Collection:
         self._items += items
         return self
 
-    def pluck(self, value, key=None):
+    def pluck(self, value, key=None, keep_nulls=True):
         if key:
             attributes = {}
         else:
@@ -245,6 +245,9 @@ class Collection:
                 iterable = self.all().items()
 
             for k, v in iterable:
+                if keep_nulls is False and v is None:
+                    continue
+
                 if k == value:
                     if key:
                         attributes[self._data_get(item, key)] = self._data_get(

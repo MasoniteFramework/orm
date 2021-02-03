@@ -8,6 +8,7 @@ class BaseRelationship:
             self.foreign_key = local_key
         else:
             self.fn = fn
+            self.local_key = local_key
             self.foreign_key = foreign_key
 
     def __set_name__(self, cls, name):

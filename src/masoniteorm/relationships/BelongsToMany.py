@@ -183,7 +183,8 @@ class BelongsToMany(BaseRelationship):
 
         if isinstance(relation, Collection):
             final_result = result.where_in(
-                self.local_owner_key, relation.pluck(self.local_owner_key)
+                self.local_owner_key,
+                relation.pluck(self.local_owner_key, keep_nulls=False),
             ).get()
         else:
             final_result = result.where(
