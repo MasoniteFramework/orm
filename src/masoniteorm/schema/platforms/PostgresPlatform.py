@@ -26,7 +26,7 @@ class PostgresPlatform(Platform):
         "boolean": "BOOLEAN",
         "decimal": "DECIMAL",
         "double": "DOUBLE",
-        "enum": "VARCHAR(255) CHECK ",
+        "enum": "VARCHAR",
         "text": "TEXT",
         "float": "FLOAT",
         "geometry": "GEOMETRY",
@@ -75,6 +75,53 @@ class PostgresPlatform(Platform):
         )
 
         return sql[0]
+
+    def columnize(self, columns):
+        sql = []
+        for name, column in columns.items():
+            if column.length:
+                length = self.create_column_length(column.column_type).format(
+                    length=column.length
+                )
+            else:
+                length = ""
+
+            if column.default in (0,):
+                default = f" DEFAULT {column.default}"
+            elif column.default in self.premapped_defaults:
+                default = self.premapped_defaults.get(column.default)
+            elif column.default:
+                if isinstance(column.default, (str,)):
+                    default = f" DEFAULT '{column.default}'"
+                else:
+                    default = f" DEFAULT {column.default}"
+            else:
+                default = ""
+
+            constraint = ""
+            column_constraint = ""
+            if column.primary:
+                constraint = "PRIMARY KEY"
+
+            if column.column_type == "enum":
+                values = ", ".join(f"'{x}'" for x in column.values)
+                column_constraint = f" CHECK({column.name} IN ({values}))"
+
+            sql.append(
+                self.columnize_string()
+                .format(
+                    name=column.name,
+                    data_type=self.type_map.get(column.column_type, ""),
+                    column_constraint=column_constraint,
+                    length=length,
+                    constraint=constraint,
+                    nullable=self.premapped_nulls.get(column.is_null) or "",
+                    default=default,
+                )
+                .strip()
+            )
+
+        return sql
 
     def compile_alter_sql(self, table):
         sql = []
@@ -224,7 +271,7 @@ class PostgresPlatform(Platform):
         return "RENAME COLUMN {old} TO {to}"
 
     def columnize_string(self):
-        return "{name} {data_type}{length} {nullable}{default} {constraint}"
+        return "{name} {data_type}{length}{column_constraint} {nullable}{default} {constraint}"
 
     def constraintize(self, constraints, table):
         sql = []

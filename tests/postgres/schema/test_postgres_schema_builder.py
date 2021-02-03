@@ -111,6 +111,7 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
         with self.schema.create("users") as blueprint:
             blueprint.increments("id")
             blueprint.string("name")
+            blueprint.enum("gender", ["male", "female"])
             blueprint.string("duration")
             blueprint.decimal("money")
             blueprint.string("url")
@@ -126,11 +127,11 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             blueprint.text("description")
             blueprint.timestamps()
 
-        self.assertEqual(len(blueprint.table.added_columns), 14)
+        self.assertEqual(len(blueprint.table.added_columns), 15)
         self.assertEqual(
             blueprint.to_sql(),
             (
-                'CREATE TABLE "users" (id SERIAL UNIQUE NOT NULL, name VARCHAR(255) NOT NULL, '
+                """CREATE TABLE "users" (id SERIAL UNIQUE NOT NULL, name VARCHAR(255) NOT NULL, gender VARCHAR(255) CHECK(gender IN ('male', 'female')) NOT NULL, """
                 "duration VARCHAR(255) NOT NULL, money DECIMAL(17, 6) NOT NULL, url VARCHAR(255) NOT NULL, option VARCHAR(255) NOT NULL DEFAULT 'ADMIN', payload JSONB NOT NULL, published_at TIMESTAMP NOT NULL, "
                 "thumbnail VARCHAR(255) NULL, premium INTEGER NOT NULL, author_id INT NULL, "
                 "description TEXT NOT NULL, created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
