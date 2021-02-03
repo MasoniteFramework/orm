@@ -399,7 +399,7 @@ class Blueprint:
             new_options += "'{}',".format(option)
         new_options = new_options.rstrip(",")
         self._last_column = self.table.add_column(
-            column, "enum", length=new_options, nullable=nullable
+            column, "enum", length="255", values=options, nullable=nullable
         )
         return self
 

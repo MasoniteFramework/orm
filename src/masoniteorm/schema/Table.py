@@ -17,10 +17,21 @@ class Table:
         self.primary_key = None
 
     def add_column(
-        self, name=None, column_type=None, length=None, nullable=False, default=None
+        self,
+        name=None,
+        column_type=None,
+        length=None,
+        values=None,
+        nullable=False,
+        default=None,
     ):
         column = Column(
-            name, column_type, length=length, nullable=nullable, default=default
+            name,
+            column_type,
+            length=length,
+            nullable=nullable,
+            values=values or [],
+            default=default,
         )
         self.added_columns.update({name: column})
         return column
