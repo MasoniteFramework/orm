@@ -30,9 +30,7 @@ class TestMSSQLUpdateGrammar(unittest.TestCase):
         self.assertEqual(to_sql, sql)
 
     def test_raw_expression(self):
-        to_sql = self.builder.update(
-            {"name": Raw("[username]")}, dry=True
-        ).to_sql()
+        to_sql = self.builder.update({"name": Raw("[username]")}, dry=True).to_sql()
 
         sql = "UPDATE [users] SET [users].[name] = [username]"
         self.assertEqual(to_sql, sql)
