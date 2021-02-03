@@ -39,6 +39,18 @@ DATABASES = {
         },
         'log_queries': True
     },
+    'many': {
+        'driver': 'mysql',
+        'host': 'localhost',
+        'user': 'root',
+        'password': '',
+        'database': 'replicate',
+        'port': os.getenv('MYSQL_DATABASE_PORT'),
+        'options': {
+            'charset': 'utf8mb4',
+        },
+        'log_queries': True
+    },
     'postgres': {
         'driver': 'postgres',
         'host': os.getenv('POSTGRES_DATABASE_HOST'),
