@@ -1377,6 +1377,7 @@ class QueryBuilder(ObservesEvents):
             offset = (int(page) * per_page) - per_page
 
         new_from_builder = self.new_from_builder()
+        new_from_builder._order_by = ()
 
         result = self.limit(per_page).offset(offset).get()
         total = new_from_builder.count()

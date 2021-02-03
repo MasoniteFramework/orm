@@ -65,6 +65,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.string("name")
             blueprint.tiny_integer("active")
             blueprint.string("email").unique()
+            blueprint.enum("gender", ["male", "female"])
             blueprint.string("password")
             blueprint.decimal("money")
             blueprint.integer("admin").default(0)
@@ -73,12 +74,13 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.timestamp("verified_at").nullable()
             blueprint.timestamps()
 
-        self.assertEqual(len(blueprint.table.added_columns), 12)
+        self.assertEqual(len(blueprint.table.added_columns), 13)
         self.assertEqual(
             blueprint.to_sql(),
             (
                 "CREATE TABLE users (id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL, "
-                "name VARCHAR(255) NOT NULL, active TINYINT(1) NOT NULL, email VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, money DECIMAL(17, 6) NOT NULL, "
+                "name VARCHAR(255) NOT NULL, active TINYINT(1) NOT NULL, email VARCHAR(255) NOT NULL, gender ENUM('male', 'female') NOT NULL, "
+                "password VARCHAR(255) NOT NULL, money DECIMAL(17, 6) NOT NULL, "
                 "admin INT(11) NOT NULL DEFAULT 0, option VARCHAR(255) NOT NULL DEFAULT 'ADMIN', remember_token VARCHAR(255) NULL, verified_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
                 "created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_email_unique UNIQUE (email))"
             ),

@@ -84,6 +84,7 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
     def test_can_advanced_table_creation2(self):
         with self.schema.create("users") as blueprint:
             blueprint.increments("id")
+            blueprint.enum("gender", ["male", "female"])
             blueprint.string("name")
             blueprint.string("duration")
             blueprint.string("url")
@@ -97,11 +98,11 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
             blueprint.text("description")
             blueprint.timestamps()
 
-        self.assertEqual(len(blueprint.table.added_columns), 11)
+        self.assertEqual(len(blueprint.table.added_columns), 12)
         self.assertEqual(
             blueprint.to_sql(),
             (
-                "CREATE TABLE [users] ([id] INT IDENTITY PRIMARY KEY NOT NULL, [name] VARCHAR(255) NOT NULL, [duration] VARCHAR(255) NOT NULL, "
+                "CREATE TABLE [users] ([id] INT IDENTITY PRIMARY KEY NOT NULL, [gender] VARCHAR(255) NOT NULL CHECK([gender] IN ('male', 'female')), [name] VARCHAR(255) NOT NULL, [duration] VARCHAR(255) NOT NULL, "
                 "[url] VARCHAR(255) NOT NULL, [published_at] DATETIME NOT NULL, [thumbnail] VARCHAR(255) NULL, [premium] INT NOT NULL, "
                 "[author_id] INT NULL, [description] TEXT NOT NULL, [created_at] DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
                 "[updated_at] DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "

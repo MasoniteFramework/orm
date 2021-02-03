@@ -63,9 +63,7 @@ class BaseTestCaseUpdateGrammar:
         self.assertEqual(to_sql, sql)
 
     def test_raw_expression(self):
-        to_sql = self.builder.update(
-            {"name": Raw('"username"')}, dry=True
-        ).to_sql()
+        to_sql = self.builder.update({"name": Raw('"username"')}, dry=True).to_sql()
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")

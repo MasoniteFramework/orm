@@ -27,15 +27,15 @@ class HasMany(BaseRelationship):
         if isinstance(relation, Collection):
             return builder.where_in(
                 f"{builder.get_table_name()}.{self.foreign_key}",
-                relation.pluck(self.local_key).unique(),
+                relation.pluck(self.local_key, keep_nulls=False).unique(),
             ).get()
         else:
             return builder.where(
                 f"{builder.get_table_name()}.{self.foreign_key}",
-                relation.get_primary_key_value(),
+                getattr(relation, self.local_key),
             ).get()
 
     def register_related(self, key, model, collection):
         model.add_relation(
-            {key: collection.where(self.foreign_key, model.get_primary_key_value())}
+            {key: collection.where(self.foreign_key, getattr(model, self.local_key))}
         )
