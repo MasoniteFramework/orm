@@ -398,8 +398,16 @@ class Blueprint:
         for option in options:
             new_options += "'{}',".format(option)
         new_options = new_options.rstrip(",")
+
         self._last_column = self.table.add_column(
-            column, "enum", length=new_options, nullable=nullable
+            column, "enum", length=255, nullable=nullable
+        )
+
+        self.table.add_constraint(
+            self._last_column.name,
+            "check",
+            columns=[self._last_column.name],
+            values=new_options,
         )
         return self
 

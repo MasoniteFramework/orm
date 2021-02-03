@@ -26,7 +26,7 @@ class PostgresPlatform(Platform):
         "boolean": "BOOLEAN",
         "decimal": "DECIMAL",
         "double": "DOUBLE",
-        "enum": "VARCHAR(255) CHECK ",
+        "enum": "VARCHAR",
         "text": "TEXT",
         "float": "FLOAT",
         "geometry": "GEOMETRY",
@@ -235,6 +235,7 @@ class PostgresPlatform(Platform):
                 )().format(
                     columns=", ".join(constraint.columns),
                     name_columns="_".join(constraint.columns),
+                    values=constraint.values,
                     table=table.name,
                 )
             )
@@ -248,6 +249,9 @@ class PostgresPlatform(Platform):
 
     def get_unique_constraint_string(self):
         return "CONSTRAINT {table}_{name_columns}_unique UNIQUE ({columns})"
+
+    def get_check_constraint_string(self):
+        return "CONSTRAINT {table}_{name_columns}_check CHECK ({name_columns} IN ({values}))"
 
     def get_table_string(self):
         return '"{table}"'

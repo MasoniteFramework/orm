@@ -22,13 +22,15 @@ class Table:
         column = Column(
             name, column_type, length=length, nullable=nullable, default=default
         )
+
         self.added_columns.update({name: column})
         return column
 
-    def add_constraint(self, name, constraint_type, columns=None):
-        self.added_constraints.update(
-            {name: Constraint(name, constraint_type, columns=columns or [])}
+    def add_constraint(self, name, constraint_type, columns=None, values=None):
+        constraint = Constraint(
+            name, constraint_type, columns=columns or [], values=values
         )
+        self.added_constraints.update({name: constraint})
 
     def add_foreign_key(self, column, table=None, foreign_column=None):
         foreign_key = ForeignKeyConstraint(column, table, foreign_column)

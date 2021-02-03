@@ -167,6 +167,20 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             'CREATE TABLE "integer_types" (tiny TINYINT NOT NULL, small SMALLINT NOT NULL, medium MEDIUMINT NOT NULL, big BIGINT NOT NULL)',
         )
 
+    def test_can_add_check_constraint(self):
+        with self.schema.create('people') as table:
+            table.increments("id")
+            table.string("name")
+            table.enum("gender", ["male", "female"])
+
+        self.assertEqual(len(table.table.added_columns), 3)
+        self.assertEqual(len(table.table.added_constraints), 1)
+
+        self.assertEqual(table.to_sql(),
+            'CREATE TABLE "people" (id SERIAL UNIQUE NOT NULL, name VARCHAR(255) NOT NULL, gender VARCHAR(255) NOT NULL, ' \
+            'CONSTRAINT people_gender_check CHECK (gender IN (\'male\',\'female\')))'
+        )
+
     def test_can_enable_foreign_keys(self):
         sql = self.schema.enable_foreign_key_constraints()
 
