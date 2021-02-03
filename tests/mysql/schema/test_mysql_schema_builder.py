@@ -65,7 +65,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.string("name")
             blueprint.tiny_integer("active")
             blueprint.string("email").unique()
-            blueprint.enum('gender', ['male', 'female'])
+            blueprint.enum("gender", ["male", "female"])
             blueprint.string("password")
             blueprint.decimal("money")
             blueprint.integer("admin").default(0)
