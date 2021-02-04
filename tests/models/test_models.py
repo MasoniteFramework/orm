@@ -42,6 +42,7 @@ class TestModels(unittest.TestCase):
         self.assertEqual(model.get_original("username"), "joe")
         self.assertEqual(model.get_dirty("username"), "bob")
         self.assertEqual(model.__dirty_attributes__["username"], "bob")
+        self.assertEqual(model.get_dirty_keys(), ["username"])
         self.assertTrue(model.is_dirty() is True)
         self.assertEqual(
             model.__original_attributes__, {"username": "joe", "admin": True}
