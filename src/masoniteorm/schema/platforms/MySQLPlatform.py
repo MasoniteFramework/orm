@@ -176,12 +176,12 @@ class MySQLPlatform(Platform):
             )
 
         if table.changed_columns:
-
             sql.append(
                 self.alter_format().format(
                     table=self.wrap_table(table.name),
-                    columns="MODIFY "
-                    + ", ".join(self.columnize(table.changed_columns)),
+                    columns=", ".join(
+                        f"MODIFY {x}" for x in self.columnize(table.changed_columns)
+                    ),
                 )
             )
 
