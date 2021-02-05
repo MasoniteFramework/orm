@@ -570,6 +570,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     def get_dirty(self, key):
         return self.__dirty_attributes__.get(key)
 
+    def get_dirty_keys(self):
+        return list(self.get_dirty_attributes().keys())
+
     def save(self, query=False):
         builder = self.get_builder()
 
