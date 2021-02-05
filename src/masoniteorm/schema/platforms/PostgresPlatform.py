@@ -17,7 +17,7 @@ class PostgresPlatform(Platform):
         "integer": "INTEGER",
         "big_integer": "BIGINT",
         "tiny_integer": "TINYINT",
-        "big_increments": "SERIAL UNIQUE",
+        "big_increments": "BIGSERIAL UNIQUE",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
         "increments": "SERIAL UNIQUE",

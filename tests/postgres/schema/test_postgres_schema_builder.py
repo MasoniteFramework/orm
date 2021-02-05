@@ -99,7 +99,7 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             (
-                'CREATE TABLE "users" (id SERIAL UNIQUE NOT NULL, name VARCHAR(255) NOT NULL, '
+                'CREATE TABLE "users" (id SERIAL UNIQUE NOT NULL PRIMARY KEY, name VARCHAR(255) NOT NULL, '
                 "email VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, admin INTEGER NOT NULL DEFAULT 0, "
                 "remember_token VARCHAR(255) NULL, verified_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
                 "created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
@@ -109,7 +109,7 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
 
     def test_can_advanced_table_creation2(self):
         with self.schema.create("users") as blueprint:
-            blueprint.increments("id")
+            blueprint.big_increments("id")
             blueprint.string("name")
             blueprint.enum("gender", ["male", "female"])
             blueprint.string("duration")
@@ -129,10 +129,11 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             blueprint.timestamps()
 
         self.assertEqual(len(blueprint.table.added_columns), 16)
+        print(blueprint.to_sql())
         self.assertEqual(
             blueprint.to_sql(),
             (
-                """CREATE TABLE "users" (id SERIAL UNIQUE NOT NULL, name VARCHAR(255) NOT NULL, gender VARCHAR(255) CHECK(gender IN ('male', 'female')) NOT NULL, """
+                """CREATE TABLE "users" (id BIGSERIAL UNIQUE NOT NULL PRIMARY KEY, name VARCHAR(255) NOT NULL, gender VARCHAR(255) CHECK(gender IN ('male', 'female')) NOT NULL, """
                 "duration VARCHAR(255) NOT NULL, money DECIMAL(17, 6) NOT NULL, url VARCHAR(255) NOT NULL, option VARCHAR(255) NOT NULL DEFAULT 'ADMIN', payload JSONB NOT NULL, published_at TIMESTAMP NOT NULL, "
                 "thumbnail VARCHAR(255) NULL, premium INTEGER NOT NULL, amount DOUBLE PRECISION NOT NULL DEFAULT 0.0, author_id INT NULL, "
                 "description TEXT NOT NULL, created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "

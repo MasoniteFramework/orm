@@ -18,10 +18,10 @@ class MSSQLPlatform(Platform):
         "integer": "INT",
         "big_integer": "BIGINT",
         "tiny_integer": "TINYINT",
-        "big_increments": "BIGINT IDENTITY PRIMARY KEY",
+        "big_increments": "BIGINT IDENTITY",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
-        "increments": "INT IDENTITY PRIMARY KEY",
+        "increments": "INT IDENTITY",
         "uuid": "CHAR",
         "binary": "LONGBLOB",
         "boolean": "BOOLEAN",
@@ -192,7 +192,7 @@ class MSSQLPlatform(Platform):
             constraint = ""
             column_constraint = ""
             if column.primary:
-                constraint = "PRIMARY KEY"
+                constraint = " PRIMARY KEY"
 
             if column.column_type == "enum":
                 values = ", ".join(f"'{x}'" for x in column.values)
