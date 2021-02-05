@@ -74,7 +74,7 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             (
-                "CREATE TABLE [users] ([id] INT IDENTITY PRIMARY KEY NOT NULL, [name] VARCHAR(255) NOT NULL, [email] VARCHAR(255) NOT NULL, "
+                "CREATE TABLE [users] ([id] INT IDENTITY NOT NULL PRIMARY KEY, [name] VARCHAR(255) NOT NULL, [email] VARCHAR(255) NOT NULL, "
                 "[password] VARCHAR(255) NOT NULL, [admin] INT NOT NULL DEFAULT 0, [remember_token] VARCHAR(255) NULL, "
                 "[verified_at] DATETIME NULL DEFAULT CURRENT_TIMESTAMP, [created_at] DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
                 "[updated_at] DATETIME NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_email_unique UNIQUE (email))"
@@ -102,7 +102,7 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             (
-                "CREATE TABLE [users] ([id] INT IDENTITY PRIMARY KEY NOT NULL, [gender] VARCHAR(255) NOT NULL CHECK([gender] IN ('male', 'female')), [name] VARCHAR(255) NOT NULL, [duration] VARCHAR(255) NOT NULL, "
+                "CREATE TABLE [users] ([id] INT IDENTITY NOT NULL PRIMARY KEY, [gender] VARCHAR(255) NOT NULL CHECK([gender] IN ('male', 'female')), [name] VARCHAR(255) NOT NULL, [duration] VARCHAR(255) NOT NULL, "
                 "[url] VARCHAR(255) NOT NULL, [published_at] DATETIME NOT NULL, [thumbnail] VARCHAR(255) NULL, [premium] INT NOT NULL, "
                 "[author_id] INT NULL, [description] TEXT NOT NULL, [created_at] DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
                 "[updated_at] DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "

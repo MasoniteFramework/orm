@@ -21,7 +21,7 @@ class SQLitePlatform(Platform):
         "big_increments": "BIGINT",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
-        "increments": "INTEGER PRIMARY KEY",
+        "increments": "INTEGER",
         "uuid": "CHAR",
         "binary": "LONGBLOB",
         "boolean": "BOOLEAN",

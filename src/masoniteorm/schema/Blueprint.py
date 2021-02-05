@@ -153,7 +153,7 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(
-            column, "increments", nullable=nullable
+            column, "increments", nullable=nullable, primary=True
         )
         return self
 
@@ -170,7 +170,7 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(
-            column, "tiny_increments", nullable=nullable
+            column, "tiny_increments", nullable=nullable, primary=True
         )
         return self
 
@@ -204,7 +204,7 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(
-            column, "big_increments", nullable=nullable
+            column, "big_increments", nullable=nullable, primary=True
         )
         return self
 
