@@ -117,6 +117,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "sum",
         "to_qmark",
         "to_sql",
+        "truncate",
         "update",
         "when",
         "where_has",
@@ -177,7 +178,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
     def get_builder(self):
         from config.database import DB
-        if hasattr(self, 'builder'):
+
+        if hasattr(self, "builder"):
             return self.builder
         self.builder = QueryBuilder(
             connection=self.__connection__,
