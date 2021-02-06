@@ -129,7 +129,6 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             blueprint.timestamps()
 
         self.assertEqual(len(blueprint.table.added_columns), 16)
-        print(blueprint.to_sql())
         self.assertEqual(
             blueprint.to_sql(),
             (

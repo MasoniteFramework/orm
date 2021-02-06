@@ -115,7 +115,6 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 14)
 
-        print(blueprint.to_sql())
         self.assertEqual(
             blueprint.to_sql(),
             (

@@ -133,8 +133,6 @@ class SQLiteConnection(BaseConnection):
         if not self.open:
             self.make_connection()
 
-        print(query)
-
         try:
             self._cursor = self._connection.cursor()
 

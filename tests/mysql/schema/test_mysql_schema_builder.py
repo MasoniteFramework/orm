@@ -75,7 +75,6 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.timestamps()
 
         self.assertEqual(len(blueprint.table.added_columns), 13)
-        print(blueprint.to_sql())
         self.assertEqual(
             blueprint.to_sql(),
             (
@@ -93,7 +92,6 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.string("name")
             blueprint.string("email")
         self.assertEqual(len(blueprint.table.added_columns), 3)
-        print(blueprint.to_sql())
         self.assertTrue(
             blueprint.to_sql().startswith(
                 "CREATE TABLE `users` (`user_id` INT(11) NOT NULL PRIMARY KEY"
