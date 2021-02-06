@@ -48,10 +48,10 @@ class QueryBuilder(ObservesEvents):
         """QueryBuilder initializer
 
         Arguments:
-            grammar {masonite.orm.grammar.Grammar} -- A grammar class.
+            grammar {masoniteorm.grammar.Grammar} -- A grammar class.
 
         Keyword Arguments:
-            connection {masonite.orm.connection.Connection} -- A connection class (default: {None})
+            connection {masoniteorm.connection.Connection} -- A connection class (default: {None})
             table {str} -- the name of the table (default: {""})
         """
         self.grammar = grammar
@@ -235,7 +235,7 @@ class QueryBuilder(ObservesEvents):
         """Sets a scope based on a class and maps it to a name.
 
         Arguments:
-            cls {masonite.orm.Model} -- An ORM model class.
+            cls {masoniteorm.Model} -- An ORM model class.
             name {string} -- The name of the scope to use.
 
         Returns:
@@ -250,7 +250,7 @@ class QueryBuilder(ObservesEvents):
         """Sets the global scopes that should be used before creating the SQL.
 
         Arguments:
-            cls {masonite.orm.Model} -- An ORM model class.
+            cls {masoniteorm.Model} -- An ORM model class.
             name {string} -- The name of the global scope.
 
         Returns:
@@ -275,7 +275,7 @@ class QueryBuilder(ObservesEvents):
         """Sets the global scopes that should be used before creating the SQL.
 
         Arguments:
-            cls {masonite.orm.Model} -- An ORM model class.
+            cls {masoniteorm.Model} -- An ORM model class.
             name {string} -- The name of the global scope.
 
         Returns:
@@ -1412,7 +1412,7 @@ class QueryBuilder(ObservesEvents):
         """Initializes and returns the grammar class.
 
         Returns:
-            masonite.orm.grammar.Grammar -- An ORM grammar class.
+            masoniteorm.grammar.Grammar -- An ORM grammar class.
         """
 
         # Either _creates when creating, otherwise use columns

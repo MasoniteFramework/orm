@@ -24,6 +24,7 @@ class Table:
         values=None,
         nullable=False,
         default=None,
+        primary=False,
     ):
         column = Column(
             name,
@@ -33,6 +34,8 @@ class Table:
             values=values or [],
             default=default,
         )
+        if primary:
+            column.set_as_primary()
         self.added_columns.update({name: column})
         return column
 

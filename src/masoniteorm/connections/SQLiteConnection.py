@@ -1,4 +1,3 @@
-import sqlite3
 from ..query.grammars import SQLiteGrammar
 from .BaseConnection import BaseConnection
 from ..schema.platforms import SQLitePlatform
@@ -46,6 +45,12 @@ class SQLiteConnection(BaseConnection):
 
     def make_connection(self):
         """This sets the connection on the connection class"""
+        try:
+            import sqlite3
+        except ModuleNotFoundError:
+            raise DriverNotFound(
+                "You must have the 'sqlite3' package installed to make a connection to MySQL. Please install it using 'pip install pymysql'"
+            )
 
         if self.has_global_connection():
             return self.get_global_connection()
@@ -127,8 +132,6 @@ class SQLiteConnection(BaseConnection):
         """
         if not self.open:
             self.make_connection()
-
-        print(query)
 
         try:
             self._cursor = self._connection.cursor()

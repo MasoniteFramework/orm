@@ -11,10 +11,10 @@ class MySQLPlatform(Platform):
         "integer": "INT",
         "big_integer": "BIGINT",
         "tiny_integer": "TINYINT",
-        "big_increments": "BIGINT AUTO_INCREMENT",
+        "big_increments": "BIGINT UNSIGNED AUTO_INCREMENT",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
-        "increments": "INT UNSIGNED AUTO_INCREMENT PRIMARY KEY",
+        "increments": "INT UNSIGNED AUTO_INCREMENT",
         "uuid": "CHAR",
         "binary": "LONGBLOB",
         "boolean": "BOOLEAN",
@@ -80,7 +80,7 @@ class MySQLPlatform(Platform):
             sql.append(
                 self.columnize_string()
                 .format(
-                    name=column.name,
+                    name=self.get_column_string().format(column=column.name),
                     data_type=self.type_map.get(column.column_type, ""),
                     column_constraint=column_constraint,
                     length=length,
@@ -98,7 +98,7 @@ class MySQLPlatform(Platform):
 
         sql.append(
             self.create_format().format(
-                table=table.name,
+                table=self.get_table_string().format(table=table.name),
                 columns=", ".join(self.columnize(table.get_added_columns())).strip(),
                 constraints=", "
                 + ", ".join(self.constraintize(table.get_added_constraints(), table))
@@ -132,7 +132,7 @@ class MySQLPlatform(Platform):
                 add_columns.append(
                     self.add_column_string()
                     .format(
-                        name=column.name,
+                        name=self.get_column_string().format(column=column.name),
                         data_type=self.type_map.get(column.column_type, ""),
                         length=length,
                         constraint="PRIMARY KEY" if column.primary else "",
@@ -160,7 +160,12 @@ class MySQLPlatform(Platform):
                     length = ""
 
                 renamed_sql.append(
-                    self.rename_column_string().format(to=column.name, old=name).strip()
+                    self.rename_column_string()
+                    .format(
+                        to=self.get_column_string().format(column=column.name),
+                        old=self.get_column_string().format(column=name),
+                    )
+                    .strip()
                 )
 
             sql.append(
@@ -171,12 +176,12 @@ class MySQLPlatform(Platform):
             )
 
         if table.changed_columns:
-
             sql.append(
                 self.alter_format().format(
                     table=self.wrap_table(table.name),
-                    columns="MODIFY "
-                    + ", ".join(self.columnize(table.changed_columns)),
+                    columns=", ".join(
+                        f"MODIFY {x}" for x in self.columnize(table.changed_columns)
+                    ),
                 )
             )
 
@@ -184,7 +189,11 @@ class MySQLPlatform(Platform):
             dropped_sql = []
 
             for name in table.get_dropped_columns():
-                dropped_sql.append(self.drop_column_string().format(name=name).strip())
+                dropped_sql.append(
+                    self.drop_column_string()
+                    .format(name=self.get_column_string().format(column=name))
+                    .strip()
+                )
 
             sql.append(
                 self.alter_format().format(
@@ -263,6 +272,9 @@ class MySQLPlatform(Platform):
 
     def get_table_string(self):
         return "`{table}`"
+
+    def get_column_string(self):
+        return "`{column}`"
 
     def create_format(self):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"

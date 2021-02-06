@@ -84,7 +84,7 @@ class Schema:
             table {string} -- The name of a table like 'users'
 
         Returns:
-            masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
+            masoniteorm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
         self._table = table
 
@@ -109,7 +109,7 @@ class Schema:
             table {string} -- The name of a table like 'users'
 
         Returns:
-            masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
+            masoniteorm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
         self._table = table
 
@@ -160,7 +160,7 @@ class Schema:
             table {string} -- The name of a table like 'users'
 
         Returns:
-            masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
+            masoniteorm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
         sql = self.platform().compile_column_exists(table, column)
 
@@ -219,7 +219,7 @@ class Schema:
         Arguments:
             table {string} -- The name of a table like 'users'
         Returns:
-            masonite.orm.blueprint.Blueprint -- The Masonite ORM blueprint object.
+            masoniteorm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
         sql = self.platform().compile_table_exists(
             table, database=self.get_connection_information().get("database")

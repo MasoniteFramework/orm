@@ -19,7 +19,7 @@ class ConnectionFactory:
 
         Arguments:
             key {key} -- The key or driver name you want assigned to this connection
-            connection {masonite.orm.connections.BaseConnection} -- An instance of a BaseConnection class.
+            connection {masoniteorm.connections.BaseConnection} -- An instance of a BaseConnection class.
 
         Returns:
             cls
@@ -37,7 +37,7 @@ class ConnectionFactory:
             Exception: Raises exception if there are no driver keys that match
 
         Returns:
-            masonite.orm.connection.BaseConnection -- Returns an instance of a BaseConnection class.
+            masoniteorm.connection.BaseConnection -- Returns an instance of a BaseConnection class.
         """
 
         from config.database import ConnectionResolver
