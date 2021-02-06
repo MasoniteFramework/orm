@@ -75,7 +75,7 @@ class ConnectionResolver:
         self.begin_transaction(name)
         try:
             yield self
-        except Exception as e:
+        except Exception:
             self.rollback(name)
             raise
 
