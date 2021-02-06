@@ -173,11 +173,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             )
 
     def query(self):
-        return self.builder
+        return self.get_builder()
 
     def get_builder(self):
         from config.database import DB
-
+        if hasattr(self, 'builder'):
+            return self.builder
         self.builder = QueryBuilder(
             connection=self.__connection__,
             table=self.get_table_name(),
@@ -501,7 +502,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         if attribute in self.__passthrough__:
 
             def method(*args, **kwargs):
-                return getattr(self.builder, attribute)(*args, **kwargs)
+                return getattr(self.get_builder(), attribute)(*args, **kwargs)
 
             return method
 
