@@ -1546,8 +1546,11 @@ class QueryBuilder(ObservesEvents):
             callback(self)
         return self
 
-    def truncate(self, foreign_keys=False):
-        return self.get_schema_builder().truncate(self._table, foreign_keys=False)
+    def truncate(self):
+        import pdb
+
+        pdb.set_trace()
+        return self.get_grammar().truncate_table(self._table)
 
     def new_from_builder(self, from_builder=None):
         """Creates a new QueryBuilder class.
