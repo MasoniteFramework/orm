@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 
+
 class ConnectionResolver:
 
     _connection_details = {}
