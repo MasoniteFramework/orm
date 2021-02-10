@@ -425,7 +425,7 @@ class QueryBuilder(ObservesEvents):
             self
         """
         self._creates = {}
-        
+
         if not creates:
             creates = kwargs
 
@@ -1425,7 +1425,7 @@ class QueryBuilder(ObservesEvents):
 
         # Either _creates when creating, otherwise use columns
         columns = self._creates or self._columns
-        print('ss', self._creates)
+        print("ss", self._creates)
 
         return self.grammar(
             columns=columns,
