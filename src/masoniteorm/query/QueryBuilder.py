@@ -121,7 +121,6 @@ class QueryBuilder(ObservesEvents):
         self._joins = ()
         self._having = ()
 
-
         return self
 
     def get_connection_information(self):
@@ -1465,14 +1464,12 @@ class QueryBuilder(ObservesEvents):
         for name, scope in self._global_scopes.get(self._action, {}).items():
             scope(self)
 
-        print('going in', self._bindings)
         grammar = self.get_grammar()
         sql = grammar.compile(self._action, qmark=True).to_sql()
 
         self.reset()
 
         self._bindings = grammar._bindings
-        print('coming out', self._bindings)
 
         return sql
 
