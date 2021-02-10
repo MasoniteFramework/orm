@@ -113,7 +113,22 @@ class QueryBuilder(ObservesEvents):
         """Resets the query builder instance so you can make multiple calls with the same builder instance"""
 
         self.set_action("select")
+        self._columns = ()
+        self._creates = {}
+
+        self._sql = ""
+        self._sql_binding = ""
+
+        self._updates = ()
+
         self._wheres = ()
+        self._order_by = ()
+        self._group_by = ()
+        self._joins = ()
+        self._having = ()
+        self._macros = {}
+
+        self._aggregates = ()
 
         return self
 
@@ -955,7 +970,7 @@ class QueryBuilder(ObservesEvents):
 
             self.observe_events(model, "updating")
 
-        self._updates += (UpdateQueryExpression(updates),)
+        self._updates = (UpdateQueryExpression(updates),)
         self.set_action("update")
         if dry or self.dry:
             return self
@@ -1417,6 +1432,18 @@ class QueryBuilder(ObservesEvents):
 
         # Either _creates when creating, otherwise use columns
         columns = self._creates or self._columns
+        print(
+            't', self._table,
+            self._wheres,
+            self._limit,
+            self._offset,
+            'u', self._updates,
+            self._aggregates,
+            self._order_by,
+            self._group_by,
+            self._joins,
+            self._having,
+        )
 
         return self.grammar(
             columns=columns,
@@ -1452,18 +1479,20 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-
+        self._bindings = ()
         grammar = self.get_grammar()
 
         for name, scope in self._global_scopes.get(self._action, {}).items():
             scope(self)
 
+        print('going in', self._bindings)
         grammar = self.get_grammar()
         sql = grammar.compile(self._action, qmark=True).to_sql()
 
         self.reset()
 
         self._bindings = grammar._bindings
+        print('coming out', self._bindings)
 
         return sql
 
