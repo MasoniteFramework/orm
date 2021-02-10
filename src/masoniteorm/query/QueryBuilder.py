@@ -77,7 +77,6 @@ class QueryBuilder(ObservesEvents):
         self._creates = {}
 
         self._sql = ""
-        self._sql_binding = ""
         self._bindings = ()
 
         self._updates = ()
@@ -113,11 +112,6 @@ class QueryBuilder(ObservesEvents):
         """Resets the query builder instance so you can make multiple calls with the same builder instance"""
 
         self.set_action("select")
-        self._columns = ()
-        self._creates = {}
-
-        self._sql = ""
-        self._sql_binding = ""
 
         self._updates = ()
 
@@ -126,9 +120,7 @@ class QueryBuilder(ObservesEvents):
         self._group_by = ()
         self._joins = ()
         self._having = ()
-        self._macros = {}
 
-        self._aggregates = ()
 
         return self
 
@@ -1595,7 +1587,6 @@ class QueryBuilder(ObservesEvents):
         builder._columns = from_builder._columns
         builder._creates = from_builder._creates
         builder._sql = from_builder._sql = ""
-        builder._sql_binding = from_builder._sql_binding
         builder._bindings = from_builder._bindings
         builder._updates = from_builder._updates
         builder._wheres = from_builder._wheres
