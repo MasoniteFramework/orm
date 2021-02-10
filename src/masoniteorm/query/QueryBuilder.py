@@ -1424,18 +1424,6 @@ class QueryBuilder(ObservesEvents):
 
         # Either _creates when creating, otherwise use columns
         columns = self._creates or self._columns
-        print(
-            't', self._table,
-            self._wheres,
-            self._limit,
-            self._offset,
-            'u', self._updates,
-            self._aggregates,
-            self._order_by,
-            self._group_by,
-            self._joins,
-            self._having,
-        )
 
         return self.grammar(
             columns=columns,
