@@ -177,7 +177,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
     def get_builder(self):
         from config.database import DB
-        if hasattr(self, 'builder'):
+
+        if hasattr(self, "builder"):
             return self.builder
         self.builder = QueryBuilder(
             connection=self.__connection__,
