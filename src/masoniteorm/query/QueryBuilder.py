@@ -1547,9 +1547,6 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def truncate(self):
-        import pdb
-
-        pdb.set_trace()
         return self.get_grammar().truncate_table(self._table)
 
     def new_from_builder(self, from_builder=None):
