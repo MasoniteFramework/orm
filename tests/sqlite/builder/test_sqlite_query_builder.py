@@ -612,7 +612,7 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = self.get_builder()
         builder.select('name', 'email')
         """
-        return """SELECT "users"."name", (SELECT COUNT(*) AS m_count_reserved FROM "phones") as phone_count, (SELECT COUNT(*) AS m_count_reserved FROM "salary") as salary FROM "users\""""
+        return """SELECT "users"."name", (SELECT COUNT(*) AS m_count_reserved FROM "phones") AS phone_count, (SELECT COUNT(*) AS m_count_reserved FROM "salary") AS salary FROM "users\""""
 
     def add_select_no_table(self):
         """
