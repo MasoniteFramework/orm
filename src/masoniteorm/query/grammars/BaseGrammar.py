@@ -72,22 +72,40 @@ class BaseGrammar:
         Returns:
             [type] -- [description]
         """
-        self._sql = (
-            self.select_format()
-            .format(
-                columns=self.process_columns(separator=", "),
-                table=self.process_table(self.table),
-                wheres=self.process_wheres(qmark=qmark),
-                limit=self.process_limit(),
-                offset=self.process_offset(),
-                aggregates=self.process_aggregates(),
-                order_by=self.process_order_by(),
-                group_by=self.process_group_by(),
-                joins=self.process_joins(),
-                having=self.process_having(),
+        if not self.table:
+            self._sql = (
+                self.select_no_table()
+                .format(
+                    columns=self.process_columns(separator=", "),
+                    table=self.process_table(self.table),
+                    wheres=self.process_wheres(qmark=qmark),
+                    limit=self.process_limit(),
+                    offset=self.process_offset(),
+                    aggregates=self.process_aggregates(),
+                    order_by=self.process_order_by(),
+                    group_by=self.process_group_by(),
+                    joins=self.process_joins(),
+                    having=self.process_having(),
+                )
+                .strip()
             )
-            .strip()
-        )
+        else:
+            self._sql = (
+                self.select_format()
+                .format(
+                    columns=self.process_columns(separator=", "),
+                    table=self.process_table(self.table),
+                    wheres=self.process_wheres(qmark=qmark),
+                    limit=self.process_limit(),
+                    offset=self.process_offset(),
+                    aggregates=self.process_aggregates(),
+                    order_by=self.process_order_by(),
+                    group_by=self.process_group_by(),
+                    joins=self.process_joins(),
+                    having=self.process_having(),
+                )
+                .strip()
+            )
 
         return self
 
@@ -390,6 +408,8 @@ class BaseGrammar:
         Returns:
             self
         """
+        if not table:
+            return ""
         return ".".join(
             self.table_string().format(
                 table=t,
@@ -673,7 +693,7 @@ class BaseGrammar:
 
             if isinstance(column, SubGroupExpression):
                 builder_sql = column.builder.to_qmark()
-                sql += f"({builder_sql}) as {column.alias}, "
+                sql += f"({builder_sql}) AS {column.alias}, "
                 if column.builder._bindings:
                     self.add_binding(*column.builder._bindings)
                 continue
