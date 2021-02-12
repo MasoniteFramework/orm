@@ -165,8 +165,9 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.integer("age").change()
             blueprint.string("name")
+            blueprint.string("external_type").default("external")
 
-        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(len(blueprint.table.changed_columns), 1)
         table = Table("users")
         table.add_column("age", "string")
@@ -174,10 +175,11 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
         blueprint.table.from_table = table
 
         sql = [
-            "ALTER TABLE [users] ADD [name] VARCHAR(255) NOT NULL",
+            "ALTER TABLE [users] ADD [name] VARCHAR(255) NOT NULL, [external_type] VARCHAR(255) NOT NULL DEFAULT 'external'",
             "ALTER TABLE [users] ALTER COLUMN [age] INT NOT NULL",
         ]
 
+        print(blueprint.to_sql())
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_drop_add_and_change(self):

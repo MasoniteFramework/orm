@@ -136,6 +136,20 @@ class PostgresPlatform(Platform):
                     )
                 else:
                     length = ""
+
+                default = ""
+                if column.default in (0,):
+                    default = f" DEFAULT {column.default}"
+                elif column.default in self.premapped_defaults:
+                    default = self.premapped_defaults.get(column.default)
+                elif column.default:
+                    if isinstance(column.default, (str,)):
+                        default = f" DEFAULT '{column.default}'"
+                    else:
+                        default = f" DEFAULT {column.default}"
+                else:
+                    default = ""
+
                 add_columns.append(
                     self.add_column_string()
                     .format(
@@ -144,6 +158,7 @@ class PostgresPlatform(Platform):
                         length=length,
                         constraint="PRIMARY KEY" if column.primary else "",
                         nullable="NULL" if column.is_null else "NOT NULL",
+                        default=default,
                     )
                     .strip()
                 )
@@ -259,7 +274,7 @@ class PostgresPlatform(Platform):
         return "ALTER TABLE {table} {columns}"
 
     def add_column_string(self):
-        return "ADD COLUMN {name} {data_type}{length} {nullable} {constraint}"
+        return "ADD COLUMN {name} {data_type}{length} {nullable}{default} {constraint}"
 
     def drop_column_string(self):
         return "DROP COLUMN {name}"

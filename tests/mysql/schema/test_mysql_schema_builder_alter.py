@@ -141,18 +141,21 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
     def test_change(self):
         with self.schema.table("users") as blueprint:
             blueprint.integer("age").change()
+            blueprint.string("external_type").default("external")
             blueprint.integer("gender").nullable().change()
             blueprint.string("name")
 
-        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(len(blueprint.table.changed_columns), 2)
         table = Table("users")
         table.add_column("age", "string")
 
         blueprint.table.from_table = table
 
+        print(blueprint.to_sql())
+
         sql = [
-            "ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL",
+            "ALTER TABLE `users` ADD `external_type` VARCHAR(255) NOT NULL DEFAULT 'external', ADD `name` VARCHAR(255) NOT NULL",
             "ALTER TABLE `users` MODIFY `age` INT(11) NOT NULL, MODIFY `gender` INT(11) NULL",
         ]
 
@@ -169,7 +172,9 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         blueprint.table.from_table = table
 
-        sql = ["ALTER TABLE `users` ADD `due_date` TIMESTAMP NULL"]
+        sql = [
+            "ALTER TABLE `users` ADD `due_date` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP"
+        ]
 
         self.assertEqual(blueprint.to_sql(), sql)
 

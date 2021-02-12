@@ -125,12 +125,26 @@ class SQLitePlatform(Platform):
 
         if diff.added_columns:
             for name, column in diff.added_columns.items():
+                default = ""
+                if column.default in (0,):
+                    default = f" DEFAULT {column.default}"
+                elif column.default in self.premapped_defaults.keys():
+                    default = self.premapped_defaults.get(column.default)
+                elif column.default:
+                    if isinstance(column.default, (str,)):
+                        default = f" DEFAULT '{column.default}'"
+                    else:
+                        default = f" DEFAULT {column.default}"
+                else:
+                    default = ""
+
                 sql.append(
-                    "ALTER TABLE {table} ADD COLUMN {name} {data_type} {nullable}".format(
+                    "ALTER TABLE {table} ADD COLUMN {name} {data_type} {nullable}{default}".format(
                         table=diff.name,
                         name=column.name,
                         data_type=self.type_map.get(column.column_type, ""),
                         nullable="NULL" if column.is_null else "NOT NULL",
+                        default=default,
                     ).strip()
                 )
 

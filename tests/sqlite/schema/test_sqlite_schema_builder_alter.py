@@ -19,12 +19,14 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
     def test_can_add_columns(self):
         with self.schema.table("users") as blueprint:
             blueprint.string("name")
+            blueprint.string("external_type").default("external")
             blueprint.integer("age")
 
-        self.assertEqual(len(blueprint.table.added_columns), 2)
+        self.assertEqual(len(blueprint.table.added_columns), 3)
 
         sql = [
             "ALTER TABLE users ADD COLUMN name VARCHAR NOT NULL",
+            "ALTER TABLE users ADD COLUMN external_type VARCHAR NOT NULL DEFAULT 'external'",
             "ALTER TABLE users ADD COLUMN age INTEGER NOT NULL",
         ]
 
@@ -125,8 +127,11 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
 
         blueprint.table.from_table = table
 
-        sql = ["ALTER TABLE users ADD COLUMN due_date TIMESTAMP NULL"]
+        sql = [
+            "ALTER TABLE users ADD COLUMN due_date TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP"
+        ]
 
+        print(blueprint.to_sql())
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_alter_drop_on_table_schema_table(self):
