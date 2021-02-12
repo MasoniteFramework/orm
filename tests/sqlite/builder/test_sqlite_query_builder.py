@@ -187,6 +187,25 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_add_select_with_raw(self):
+        builder = self.get_builder(table=None)
+        sql = (
+            builder.select_raw("max(updated_at) as test")
+            .from_("some_table")
+            .add_select(
+                "other_test",
+                lambda query: (
+                    query.max("updated_at")
+                    .from_("different_table")
+                    .where("some_id", "=", "3")
+                ),
+            )
+        )
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
     def test_select_raw(self):
         builder = self.get_builder()
         builder.select_raw("count(email) as email_count")
@@ -623,6 +642,30 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
             "SELECT "
             '(SELECT MAX("different_table"."updated_at") AS updated_at FROM "different_table") AS other_test, '
             '(SELECT MAX("another_table"."updated_at") AS updated_at FROM "another_table") AS some_alias'
+        )
+
+    def add_select_with_raw(self):
+        """
+            builder
+                .select_raw("max(updated_at) as test").from_("some_table")
+                .add_select(
+                "other_test",
+                lambda query: (
+                    query.max("updated_at")
+                        .from_("different_table")
+                        .where(
+                        "some_id", "=",
+                        "3"
+                    )
+                ),
+            )
+        """
+        return (
+            "SELECT max(updated_at) as test, "
+            '(SELECT MAX("different_table"."updated_at") AS updated_at '
+            'FROM "different_table" '
+            'WHERE "different_table"."some_id" = \'?\') AS other_test '
+            'FROM "some_table"'
         )
 
     def select_raw(self):
