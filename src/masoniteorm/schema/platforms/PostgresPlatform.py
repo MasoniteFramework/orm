@@ -88,7 +88,7 @@ class PostgresPlatform(Platform):
 
             if column.default in (0,):
                 default = f" DEFAULT {column.default}"
-            elif column.default in self.premapped_defaults:
+            elif column.default in self.premapped_defaults.keys():
                 default = self.premapped_defaults.get(column.default)
             elif column.default:
                 if isinstance(column.default, (str,)):
@@ -140,7 +140,7 @@ class PostgresPlatform(Platform):
                 default = ""
                 if column.default in (0,):
                     default = f" DEFAULT {column.default}"
-                elif column.default in self.premapped_defaults:
+                elif column.default in self.premapped_defaults.keys():
                     default = self.premapped_defaults.get(column.default)
                 elif column.default:
                     if isinstance(column.default, (str,)):
