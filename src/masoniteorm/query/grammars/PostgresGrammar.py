@@ -31,6 +31,9 @@ class PostgresGrammar(BaseGrammar):
         "delete": '{table}."{column}"{separator}',
     }
 
+    def select_no_table(self):
+        return "SELECT {columns}"
+
     def select_format(self):
         return "SELECT {columns} FROM {table} {joins} {wheres} {group_by} {order_by} {limit} {offset} {having}"
 

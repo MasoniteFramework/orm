@@ -408,7 +408,6 @@ class BaseGrammar:
         Returns:
             self
         """
-        print("t", table)
         if not table:
             return ""
         return ".".join(
@@ -694,7 +693,7 @@ class BaseGrammar:
 
             if isinstance(column, SubGroupExpression):
                 builder_sql = column.builder.to_qmark()
-                sql += f"({builder_sql}) as {column.alias}, "
+                sql += f"({builder_sql}) AS {column.alias}, "
                 if column.builder._bindings:
                     self.add_binding(*column.builder._bindings)
                 continue
