@@ -686,7 +686,7 @@ class BaseGrammar:
             if isinstance(column, SelectExpression):
                 alias = column.alias
                 if column.raw:
-                    sql += column.column
+                    sql += column.column + ", "
                     continue
 
                 column = column.column
