@@ -176,3 +176,6 @@ class SQLiteGrammar(BaseGrammar):
 
     def where_not_null_string(self):
         return " {keyword} {column} IS NOT NULL"
+
+    def truncate_table_string(self):
+        return "DELETE FROM {table}"

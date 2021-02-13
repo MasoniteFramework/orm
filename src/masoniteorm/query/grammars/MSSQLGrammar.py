@@ -163,3 +163,6 @@ class MSSQLGrammar(BaseGrammar):
 
     def value_string(self):
         return "'{value}'{separator}"
+
+    def truncate_table_string(self):
+        return "TRUNCATE TABLE {table}"
