@@ -383,3 +383,8 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
             sql,
             """SELECT [information_schema].[columns].[table_name] FROM [information_schema].[columns] WHERE [information_schema].[columns].[table_name] = 'users'""",
         )
+
+    def test_truncate(self):
+        builder = self.get_builder()
+        sql = builder.truncate().to_sql()
+        self.assertEqual(sql, "TRUNCATE TABLE 'users'")

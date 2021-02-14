@@ -480,6 +480,14 @@ class BaseTestQueryBuilder:
             """SELECT `information_schema`.`columns`.`table_name` FROM `information_schema`.`columns` WHERE `information_schema`.`columns`.`table_name` = 'users'""",
         )
 
+    def test_truncate(self):
+        builder = self.get_builder()
+        builder.truncate()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
 
 class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
     grammar = MySQLGrammar
@@ -782,3 +790,10 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.where("age", "not like", "%name%")
         """
         return "SELECT * FROM `users` WHERE `users`.`age` NOT LIKE '%name%'"
+
+    def truncate(self):
+        """
+        builder = self.get_builder()
+        builder.truncate()
+        """
+        return """TRUNCATE TABLE 'users'"""

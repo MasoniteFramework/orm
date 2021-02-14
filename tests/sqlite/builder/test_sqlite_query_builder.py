@@ -514,6 +514,14 @@ class BaseTestQueryBuilder:
         sql = builder.on("dev").statement("select * from users")
         self.assertTrue(sql)
 
+    def test_truncate(self):
+        builder = self.get_builder()
+        builder.truncate()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
 
 class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
 
@@ -851,3 +859,10 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = self.get_builder()
         sql = builder.when(17 > 18, lambda q: q.where("age_restricted", 1)).to_sql()
         return self.assertEqual(sql, """SELECT * FROM "users\"""")
+
+    def truncate(self):
+        """
+        builder = self.get_builder()
+        builder.truncate()
+        """
+        return """DELETE FROM 'users'"""

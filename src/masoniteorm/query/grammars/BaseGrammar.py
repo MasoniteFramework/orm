@@ -831,5 +831,13 @@ class BaseGrammar:
         return self
 
     def truncate_table(self, table):
+        """Specifies a truncate table expression.
+
+        Arguments;
+            table {string} -- The name of the table to truncate.
+
+        Returns:
+            self
+        """
         self._sql = self.truncate_table_string().format(table=self.process_table(table))
         return self

@@ -178,4 +178,6 @@ class SQLiteGrammar(BaseGrammar):
         return " {keyword} {column} IS NOT NULL"
 
     def truncate_table_string(self):
+        # "Unfortunately, we do not have TRUNCATE TABLE command in SQLite but you can
+        # use SQLite DELETE command to delete complete data from an existing table"
         return "DELETE FROM {table}"
