@@ -29,7 +29,7 @@ Screenshots help a lot. If applicable, add screenshots to help explain your prob
 **What database are you using?**
  - Type: [e.g. Postgres, MySQL, SQLite]
  - Version [e.g. 8, 9.1, 10.5]
- - Masonite ORM [v1.0.26, v1.0.27]
+ - Masonite ORM [e.g. v1.0.26, v1.0.27]
 
 **Additional context**
 Any other steps you are doing or any other related information that will help us debug the problem please put here.
