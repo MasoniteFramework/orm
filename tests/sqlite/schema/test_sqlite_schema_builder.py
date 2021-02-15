@@ -136,7 +136,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
     def test_can_truncate(self):
         sql = self.schema.truncate("users")
 
-        self.assertEqual(sql, 'TRUNCATE "users"')
+        self.assertEqual(sql, 'DELETE FROM "users"')
 
     def test_can_rename_table(self):
         sql = self.schema.rename("users", "clients")
@@ -178,7 +178,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             sql,
             [
                 "PRAGMA foreign_keys = OFF",
-                'TRUNCATE "users"',
+                'DELETE FROM "users"',
                 "PRAGMA foreign_keys = ON",
             ],
         )

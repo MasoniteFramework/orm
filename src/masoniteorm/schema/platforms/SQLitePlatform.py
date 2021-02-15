@@ -292,11 +292,11 @@ class SQLitePlatform(Platform):
 
     def compile_truncate(self, table, foreign_keys=False):
         if not foreign_keys:
-            return f"TRUNCATE {self.wrap_table(table)}"
+            return f"DELETE FROM {self.wrap_table(table)}"
 
         return [
             self.disable_foreign_key_constraints(),
-            f"TRUNCATE {self.wrap_table(table)}",
+            f"DELETE FROM {self.wrap_table(table)}",
             self.enable_foreign_key_constraints(),
         ]
 
