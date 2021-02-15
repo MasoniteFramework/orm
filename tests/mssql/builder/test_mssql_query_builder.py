@@ -25,6 +25,8 @@ class ModelTest(Model):
 
 
 class TestMSSQLQueryBuilder(unittest.TestCase):
+    maxDiff = None
+
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("mssql")
         return QueryBuilder(
@@ -107,6 +109,22 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
 
         self.assertEqual(
             builder.to_sql(), "SELECT [users].[name], [users].[email] FROM [users]"
+        )
+
+    def test_add_select_no_table(self):
+        builder = self.get_builder(table=None)
+        builder.add_select(
+            "other_test", lambda q: q.max("updated_at").table("different_table")
+        ).add_select("some_alias", lambda q: q.max("updated_at").table("another_table"))
+
+        print(builder.to_sql())
+        self.assertEqual(
+            builder.to_sql(),
+            (
+                "SELECT "
+                "(SELECT MAX([different_table].[updated_at]) AS updated_at FROM [different_table]) AS other_test, "
+                "(SELECT MAX([another_table].[updated_at]) AS updated_at FROM [another_table]) AS some_alias"
+            ),
         )
 
     def test_select_raw(self):

@@ -77,7 +77,6 @@ class QueryBuilder(ObservesEvents):
         self._creates = {}
 
         self._sql = ""
-        self._sql_binding = ""
         self._bindings = ()
 
         self._updates = ()
@@ -113,7 +112,14 @@ class QueryBuilder(ObservesEvents):
         """Resets the query builder instance so you can make multiple calls with the same builder instance"""
 
         self.set_action("select")
+
+        self._updates = ()
+
         self._wheres = ()
+        self._order_by = ()
+        self._group_by = ()
+        self._joins = ()
+        self._having = ()
 
         return self
 
@@ -418,6 +424,8 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
+        self._creates = {}
+
         if not creates:
             creates = kwargs
 
@@ -955,7 +963,7 @@ class QueryBuilder(ObservesEvents):
 
             self.observe_events(model, "updating")
 
-        self._updates += (UpdateQueryExpression(updates),)
+        self._updates = (UpdateQueryExpression(updates),)
         self.set_action("update")
         if dry or self.dry:
             return self
@@ -1452,7 +1460,6 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-
         grammar = self.get_grammar()
 
         for name, scope in self._global_scopes.get(self._action, {}).items():
@@ -1570,7 +1577,6 @@ class QueryBuilder(ObservesEvents):
         builder._columns = from_builder._columns
         builder._creates = from_builder._creates
         builder._sql = from_builder._sql = ""
-        builder._sql_binding = from_builder._sql_binding
         builder._bindings = from_builder._bindings
         builder._updates = from_builder._updates
         builder._wheres = from_builder._wheres

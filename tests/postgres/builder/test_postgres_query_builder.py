@@ -119,6 +119,22 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_add_select_no_table(self):
+        builder = self.get_builder(table=None)
+        sql = (
+            builder.add_select(
+                "other_test", lambda q: q.max("updated_at").table("different_table")
+            )
+            .add_select(
+                "some_alias", lambda q: q.max("updated_at").table("another_table")
+            )
+            .to_sql()
+        )
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
     def test_select_raw(self):
         builder = self.get_builder()
         builder.select_raw("count(email) as email_count")
@@ -479,6 +495,17 @@ class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.select('name', 'email')
         """
         return """SELECT "users"."name", "users"."email" FROM "users\""""
+
+    def add_select_no_table(self):
+        """
+        builder = self.get_builder()
+        builder.select('name', 'email')
+        """
+        return (
+            "SELECT "
+            '(SELECT MAX("different_table"."updated_at") AS updated_at FROM "different_table") AS other_test, '
+            '(SELECT MAX("another_table"."updated_at") AS updated_at FROM "another_table") AS some_alias'
+        )
 
     def select_raw(self):
         """

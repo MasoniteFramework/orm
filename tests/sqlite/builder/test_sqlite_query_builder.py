@@ -15,6 +15,8 @@ class UserMock(Model):
 
 
 class BaseTestQueryBuilder:
+    maxDiff = None
+
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("sqlite")
         return QueryBuilder(
@@ -163,6 +165,41 @@ class BaseTestQueryBuilder:
             .add_select("phone_count", lambda q: q.count("*").table("phones"))
             .add_select("salary", lambda q: q.count("*").table("salary"))
             .to_sql()
+        )
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_add_select_no_table(self):
+        builder = self.get_builder(table=None)
+        sql = (
+            builder.add_select(
+                "other_test", lambda q: q.max("updated_at").table("different_table")
+            )
+            .add_select(
+                "some_alias", lambda q: q.max("updated_at").table("another_table")
+            )
+            .to_sql()
+        )
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_add_select_with_raw(self):
+        builder = self.get_builder(table=None)
+        sql = (
+            builder.select_raw("max(updated_at) as test")
+            .from_("some_table")
+            .add_select(
+                "other_test",
+                lambda query: (
+                    query.max("updated_at")
+                    .from_("different_table")
+                    .where("some_id", "=", "3")
+                ),
+            )
         )
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -602,7 +639,42 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = self.get_builder()
         builder.select('name', 'email')
         """
-        return """SELECT "users"."name", (SELECT COUNT(*) AS m_count_reserved FROM "phones") as phone_count, (SELECT COUNT(*) AS m_count_reserved FROM "salary") as salary FROM "users\""""
+        return """SELECT "users"."name", (SELECT COUNT(*) AS m_count_reserved FROM "phones") AS phone_count, (SELECT COUNT(*) AS m_count_reserved FROM "salary") AS salary FROM "users\""""
+
+    def add_select_no_table(self):
+        """
+        builder = self.get_builder()
+        builder.select('name', 'email')
+        """
+        return (
+            "SELECT "
+            '(SELECT MAX("different_table"."updated_at") AS updated_at FROM "different_table") AS other_test, '
+            '(SELECT MAX("another_table"."updated_at") AS updated_at FROM "another_table") AS some_alias'
+        )
+
+    def add_select_with_raw(self):
+        """
+            builder
+                .select_raw("max(updated_at) as test").from_("some_table")
+                .add_select(
+                "other_test",
+                lambda query: (
+                    query.max("updated_at")
+                        .from_("different_table")
+                        .where(
+                        "some_id", "=",
+                        "3"
+                    )
+                ),
+            )
+        """
+        return (
+            "SELECT max(updated_at) as test, "
+            '(SELECT MAX("different_table"."updated_at") AS updated_at '
+            'FROM "different_table" '
+            'WHERE "different_table"."some_id" = \'?\') AS other_test '
+            'FROM "some_table"'
+        )
 
     def select_raw(self):
         """
