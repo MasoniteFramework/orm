@@ -229,6 +229,3 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
 
         def test_attribute_check_with_hasattr(self):
             self.assertFalse(hasattr(Profile(), "__password__"))
-
-        def test_can_truncate_table_from_model(self):
-            User.truncate()

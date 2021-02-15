@@ -553,11 +553,11 @@ class BaseTestQueryBuilder:
 
     def test_truncate(self):
         builder = self.get_builder()
-        builder.truncate()
-        sql = getattr(
+        sql = builder.truncate()
+        sql_ref = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
-        self.assertEqual(builder.to_sql(), sql)
+        self.assertEqual(sql, sql_ref)
 
 
 class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
@@ -654,19 +654,19 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
 
     def add_select_with_raw(self):
         """
-            builder
-                .select_raw("max(updated_at) as test").from_("some_table")
-                .add_select(
-                "other_test",
-                lambda query: (
-                    query.max("updated_at")
-                        .from_("different_table")
-                        .where(
-                        "some_id", "=",
-                        "3"
-                    )
-                ),
-            )
+        builder
+            .select_raw("max(updated_at) as test").from_("some_table")
+            .add_select(
+            "other_test",
+            lambda query: (
+                query.max("updated_at")
+                    .from_("different_table")
+                    .where(
+                    "some_id", "=",
+                    "3"
+                )
+            ),
+        )
         """
         return (
             "SELECT max(updated_at) as test, "
@@ -937,4 +937,4 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = self.get_builder()
         builder.truncate()
         """
-        return """DELETE FROM 'users'"""
+        return """DELETE FROM "users\""""

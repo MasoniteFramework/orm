@@ -25,7 +25,7 @@ class ModelTest(Model):
 
 
 class BaseTestQueryBuilder:
-    def get_builder(self, table="users"):
+    def get_builder(self, table="users", dry=False):
         connection = MockConnectionFactory().make("postgres")
         return QueryBuilder(
             self.grammar,
@@ -33,6 +33,7 @@ class BaseTestQueryBuilder:
             connection="postgres",
             table=table,
             model=ModelTest(),
+            dry=dry,
         )
 
     def test_sum(self):
@@ -428,12 +429,12 @@ class BaseTestQueryBuilder:
         )
 
     def test_truncate(self):
-        builder = self.get_builder()
-        builder.truncate()
-        sql = getattr(
+        builder = self.get_builder(dry=True)
+        sql = builder.truncate()
+        sql_ref = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
-        self.assertEqual(builder.to_sql(), sql)
+        self.assertEqual(sql, sql_ref)
 
 
 class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
@@ -725,4 +726,4 @@ class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = self.get_builder()
         builder.truncate()
         """
-        return """TRUNCATE TABLE 'users'"""
+        return """TRUNCATE TABLE "users\""""

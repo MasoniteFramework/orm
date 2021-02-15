@@ -25,7 +25,7 @@ class User(Model):
 class BaseTestQueryBuilder:
     maxDiff = None
 
-    def get_builder(self, table="users"):
+    def get_builder(self, table="users", dry=False):
         connection = MockConnectionFactory().make("default")
         return QueryBuilder(
             grammar=self.grammar,
@@ -33,6 +33,7 @@ class BaseTestQueryBuilder:
             connection="mysql",
             table=table,
             model=User(),
+            dry=dry,
             connection_details=DATABASES,
         )
 
@@ -499,12 +500,12 @@ class BaseTestQueryBuilder:
         )
 
     def test_truncate(self):
-        builder = self.get_builder()
-        builder.truncate()
-        sql = getattr(
+        builder = self.get_builder(dry=True)
+        sql = builder.truncate()
+        sql_ref = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
-        self.assertEqual(builder.to_sql(), sql)
+        self.assertEqual(sql, sql_ref)
 
 
 class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
@@ -825,4 +826,4 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = self.get_builder()
         builder.truncate()
         """
-        return """TRUNCATE TABLE 'users'"""
+        return """TRUNCATE TABLE `users`"""
