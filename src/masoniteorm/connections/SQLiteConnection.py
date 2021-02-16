@@ -116,7 +116,7 @@ class SQLiteConnection(BaseConnection):
     def get_transaction_level(self):
         return self.transaction_level
 
-    def query(self, query, bindings, results="*", fetch_many=False):
+    def query(self, query, bindings=(), results="*"):
         """Make the actual query that will reach the database and come back with a result.
 
         Arguments:
