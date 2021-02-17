@@ -850,7 +850,7 @@ class BaseGrammar:
         )
         return self
 
-    def truncate_table(self, table):
+    def truncate_table(self, table, foreign_keys=False):
         """Specifies a truncate table expression.
 
         Arguments;
@@ -859,5 +859,5 @@ class BaseGrammar:
         Returns:
             self
         """
-        self._sql = self.truncate_table_string().format(table=self.process_table(table))
+        self._sql = self.truncate_table_string(foreign_keys).format(table=self.process_table(table))
         return self

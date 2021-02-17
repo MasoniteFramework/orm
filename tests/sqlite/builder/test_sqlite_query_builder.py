@@ -559,6 +559,14 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(sql, sql_ref)
 
+    def test_truncate_without_foreign_keys(self):
+        builder = self.get_builder()
+        sql = builder.truncate(foreign_keys=True)
+        sql_ref = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(sql, sql_ref)
+
 
 class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
 
@@ -938,3 +946,10 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.truncate()
         """
         return """DELETE FROM "users\""""
+
+    def truncate_without_foreign_keys(self):
+        """
+        builder = self.get_builder()
+        builder.truncate(foreign_keys=True)
+        """
+        return """PRAGMA foreign_keys = OFF;DELETE FROM "users\";PRAGMA foreign_keys = ON;"""

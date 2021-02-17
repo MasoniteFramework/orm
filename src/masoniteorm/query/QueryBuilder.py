@@ -1553,8 +1553,8 @@ class QueryBuilder(ObservesEvents):
             callback(self)
         return self
 
-    def truncate(self):
-        sql = self.get_grammar().truncate_table(self._table).to_sql()
+    def truncate(self, foreign_keys=False):
+        sql = self.get_grammar().truncate_table(self._table, foreign_keys).to_sql()
         if self.dry:
             return sql
 
