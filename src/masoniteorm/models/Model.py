@@ -591,12 +591,14 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             else:
                 result = self.create(self.__dirty_attributes__, query=query)
             self.observe_events(self, "saved")
+            self.fill(result.__attributes__)
             return result
 
         if self.is_loaded():
             result = builder.update(self.__dirty_attributes__, dry=query).to_sql()
         else:
             result = self.create(self.__dirty_attributes__, query=query)
+
         return result
 
     def get_value(self, attribute):
