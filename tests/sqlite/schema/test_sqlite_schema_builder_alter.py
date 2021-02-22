@@ -9,6 +9,7 @@ from src.masoniteorm.schema.Table import Table
 
 class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
     maxDiff = None
+
     def setUp(self):
         self.schema = Schema(
             connection="dev",
@@ -148,14 +149,13 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
             blueprint.unsigned_integer("playlist_id").nullable()
             blueprint.foreign("playlist_id").references("id").on("playlists").on_delete(
                 "cascade"
-            ).on_update('SET NULL')
+            ).on_update("SET NULL")
 
         table = Table("users")
         table.add_column("age", "string")
-        table.add_column("email", "string") 
+        table.add_column("email", "string")
 
-        blueprint.table.from_table = table   
-
+        blueprint.table.from_table = table
 
         sql = [
             "ALTER TABLE users ADD COLUMN playlist_id UNSIGNED INT NULL REFERENCES playlists(id)",
