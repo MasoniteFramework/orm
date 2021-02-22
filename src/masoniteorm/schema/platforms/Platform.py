@@ -1,4 +1,14 @@
 class Platform:
+
+    foreign_key_actions = {
+        "cascade": "CASCADE",
+        "set null": "SET NULL",
+        "cascade": "CASCADE",
+        "restrict": "RESTRICT",
+        "no action": "NO ACTION",
+        "default": "SET DEFAULT",
+    }
+
     def columnize(self, columns):
         sql = []
         for name, column in columns.items():
@@ -47,6 +57,11 @@ class Platform:
     def foreign_key_constraintize(self, table, foreign_keys):
         sql = []
         for name, foreign_key in foreign_keys.items():
+            cascade = ""
+            if foreign_key.delete_action:
+                cascade += f" ON DELETE {self.foreign_key_actions.get(foreign_key.delete_action.lower())}"
+            if foreign_key.update_action:
+                cascade += f" ON UPDATE {self.foreign_key_actions.get(foreign_key.update_action.lower())}"
             sql.append(
                 self.get_foreign_key_constraint_string().format(
                     column=foreign_key.column,
@@ -54,6 +69,7 @@ class Platform:
                     table=table,
                     foreign_table=foreign_key.foreign_table,
                     foreign_column=foreign_key.foreign_column,
+                    cascade=cascade,
                 )
             )
         return sql
