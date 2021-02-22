@@ -8,6 +8,7 @@ from src.masoniteorm.schema.Table import Table
 
 
 class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
+    maxDiff = None
     def setUp(self):
         self.schema = Schema(
             connection="dev",
@@ -147,10 +148,23 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
             blueprint.unsigned_integer("playlist_id").nullable()
             blueprint.foreign("playlist_id").references("id").on("playlists").on_delete(
                 "cascade"
-            )
+            ).on_update('SET NULL')
+
+        table = Table("users")
+        table.add_column("age", "string")
+        table.add_column("email", "string") 
+
+        blueprint.table.from_table = table   
+
 
         sql = [
-            "ALTER TABLE users ADD COLUMN playlist_id UNSIGNED INT NULL REFERENCES playlists(id)"
+            "ALTER TABLE users ADD COLUMN playlist_id UNSIGNED INT NULL REFERENCES playlists(id)",
+            "CREATE TEMPORARY TABLE __temp__users AS SELECT age, email FROM users",
+            "DROP TABLE users",
+            'CREATE TABLE "users" (age VARCHAR NOT NULL, email VARCHAR NOT NULL, playlist_id UNSIGNED INT NULL, '
+            "CONSTRAINT users_playlist_id_foreign FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE ON UPDATE SET NULL)",
+            'INSERT INTO "users" (age, email) SELECT age, email FROM __temp__users',
+            "DROP TABLE __temp__users",
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)
