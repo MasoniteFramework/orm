@@ -107,7 +107,9 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.string("thumbnail").nullable()
             blueprint.integer("premium")
             blueprint.integer("author_id").unsigned().nullable()
-            blueprint.foreign("author_id").references("id").on("users").on_delete("set null")
+            blueprint.foreign("author_id").references("id").on("users").on_delete(
+                "set null"
+            )
             blueprint.text("description")
             blueprint.timestamps()
 

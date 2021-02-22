@@ -152,7 +152,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
 
         print(blueprint.to_sql())
         sql = [
-            'ALTER TABLE users ADD COLUMN playlist_id UNSIGNED INT NULL REFERENCES playlists(id)',
+            "ALTER TABLE users ADD COLUMN playlist_id UNSIGNED INT NULL REFERENCES playlists(id)"
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)

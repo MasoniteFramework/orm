@@ -149,7 +149,7 @@ class SQLitePlatform(Platform):
                         data_type=self.type_map.get(column.column_type, ""),
                         nullable="NULL" if column.is_null else "NOT NULL",
                         default=default,
-                        constraint=constraint
+                        constraint=constraint,
                     ).strip()
                 )
 
@@ -265,7 +265,7 @@ class SQLitePlatform(Platform):
                     table=table,
                     foreign_table=foreign_key.foreign_table,
                     foreign_column=foreign_key.foreign_column,
-                    cascade=cascade
+                    cascade=cascade,
                 )
             )
         return sql

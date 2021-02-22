@@ -121,6 +121,11 @@ class MSSQLPlatform(Platform):
                 column,
                 foreign_key_constraint,
             ) in table.get_added_foreign_keys().items():
+                cascade = ""
+                if foreign_key_constraint.delete_action:
+                    cascade += f" ON DELETE {self.foreign_key_actions.get(foreign_key_constraint.delete_action.lower())}"
+                if foreign_key_constraint.update_action:
+                    cascade += f" ON UPDATE {self.foreign_key_actions.get(foreign_key_constraint.update_action.lower())}"
                 sql.append(
                     f"ALTER TABLE {self.wrap_table(table.name)} ADD "
                     + self.get_foreign_key_constraint_string().format(
@@ -131,6 +136,7 @@ class MSSQLPlatform(Platform):
                         foreign_column=self.wrap_table(
                             foreign_key_constraint.foreign_column
                         ),
+                        cascade=cascade,
                     )
                 )
 
@@ -243,7 +249,7 @@ class MSSQLPlatform(Platform):
         return "ALTER TABLE {table} {columns}"
 
     def get_foreign_key_constraint_string(self):
-        return "CONSTRAINT {table}_{clean_column}_foreign FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column})"
+        return "CONSTRAINT {table}_{clean_column}_foreign FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){cascade}"
 
     def get_unique_constraint_string(self):
         return "CONSTRAINT {table}_{name_columns}_unique UNIQUE ({columns})"
