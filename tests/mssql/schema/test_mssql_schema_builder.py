@@ -99,7 +99,6 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
             blueprint.timestamps()
 
         self.assertEqual(len(blueprint.table.added_columns), 12)
-        print(blueprint.to_sql())
         self.assertEqual(
             blueprint.to_sql(),
             (

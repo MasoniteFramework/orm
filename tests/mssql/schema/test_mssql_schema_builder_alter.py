@@ -181,7 +181,6 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
             "ALTER TABLE [users] ALTER COLUMN [age] INT NOT NULL",
         ]
 
-        print(blueprint.to_sql())
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_drop_add_and_change(self):

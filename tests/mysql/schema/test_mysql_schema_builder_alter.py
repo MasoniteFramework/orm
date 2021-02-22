@@ -154,8 +154,6 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         blueprint.table.from_table = table
 
-        print(blueprint.to_sql())
-
         sql = [
             "ALTER TABLE `users` ADD `external_type` VARCHAR(255) NOT NULL DEFAULT 'external', ADD `name` VARCHAR(255) NOT NULL",
             "ALTER TABLE `users` MODIFY `age` INT(11) NOT NULL, MODIFY `gender` INT(11) NULL",

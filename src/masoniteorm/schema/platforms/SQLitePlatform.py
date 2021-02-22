@@ -152,8 +152,12 @@ class SQLitePlatform(Platform):
                         constraint=constraint,
                     ).strip()
                 )
-
-        if diff.renamed_columns or diff.dropped_columns or diff.changed_columns:
+        if (
+            diff.renamed_columns
+            or diff.dropped_columns
+            or diff.changed_columns
+            or diff.added_foreign_keys
+        ):
             original_columns = diff.from_table.added_columns
             # pop off the dropped columns. No need for them here
             for column in diff.dropped_columns:
