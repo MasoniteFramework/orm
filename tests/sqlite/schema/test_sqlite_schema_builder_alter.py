@@ -142,3 +142,17 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
 
         with schema.table("table_schema") as blueprint:
             blueprint.string("name").nullable()
+
+    def test_alter_add_column_and_foreign_key(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.unsigned_integer("playlist_id").nullable()
+            blueprint.foreign("playlist_id").references("id").on("playlists").on_delete(
+                "cascade"
+            )
+
+        print(blueprint.to_sql())
+        sql = [
+            'ALTER TABLE users ADD COLUMN playlist_id UNSIGNED INT NULL REFERENCES playlists(id)',
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
