@@ -121,7 +121,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
                 "CREATE TABLE `users` (`id` BIGINT UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY, `name` VARCHAR(255) NOT NULL, "
                 "`duration` VARCHAR(255) NOT NULL, `url` VARCHAR(255) NOT NULL, `published_at` DATETIME NOT NULL, `thumbnail` VARCHAR(255) NULL, "
                 "`premium` INT(11) NOT NULL, `author_id` INT UNSIGNED NULL, `description` TEXT NOT NULL, `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
-                "`updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES users(id))"
+                "`updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE)"
             ),
         )
 

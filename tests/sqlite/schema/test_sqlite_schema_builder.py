@@ -108,7 +108,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.integer("premium")
             blueprint.integer("author_id").unsigned().nullable()
             blueprint.foreign("author_id").references("id").on("users").on_delete(
-                "CASCADE"
+                "set null"
             )
             blueprint.text("description")
             blueprint.timestamps()
@@ -122,7 +122,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
                 "url VARCHAR(255) NOT NULL, payload JSON NOT NULL, birth VARCHAR(4) NOT NULL, published_at DATETIME NOT NULL, wakeup_at TIME NOT NULL, thumbnail VARCHAR(255) NULL, premium INTEGER NOT NULL, "
                 "author_id UNSIGNED INT NULL, description TEXT NOT NULL, created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
                 "updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
-                "CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES users(id))"
+                "CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL)"
             ),
         )
 

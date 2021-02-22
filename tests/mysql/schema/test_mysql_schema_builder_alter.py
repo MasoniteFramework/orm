@@ -73,11 +73,13 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
     def test_alter_add_column_and_foreign_key(self):
         with self.schema.table("users") as blueprint:
             blueprint.unsigned_integer("playlist_id").nullable()
-            blueprint.foreign("playlist_id").references("id").on("playlists")
+            blueprint.foreign("playlist_id").references("id").on("playlists").on_delete(
+                "cascade"
+            )
 
         sql = [
             "ALTER TABLE `users` ADD `playlist_id` INT UNSIGNED NULL",
-            "ALTER TABLE `users` ADD CONSTRAINT users_playlist_id_foreign FOREIGN KEY (playlist_id) REFERENCES playlists(id)",
+            "ALTER TABLE `users` ADD CONSTRAINT users_playlist_id_foreign FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE",
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)
@@ -151,8 +153,6 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
         table.add_column("age", "string")
 
         blueprint.table.from_table = table
-
-        print(blueprint.to_sql())
 
         sql = [
             "ALTER TABLE `users` ADD `external_type` VARCHAR(255) NOT NULL DEFAULT 'external', ADD `name` VARCHAR(255) NOT NULL",

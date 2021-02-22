@@ -137,18 +137,27 @@ class SQLitePlatform(Platform):
                         default = f" DEFAULT {column.default}"
                 else:
                     default = ""
+                constraint = ""
+                if column.name in diff.added_foreign_keys:
+                    foreign_key = diff.added_foreign_keys[column.name]
+                    constraint = f" REFERENCES {foreign_key.foreign_table}({foreign_key.foreign_column})"
 
                 sql.append(
-                    "ALTER TABLE {table} ADD COLUMN {name} {data_type} {nullable}{default}".format(
+                    "ALTER TABLE {table} ADD COLUMN {name} {data_type} {nullable}{default}{constraint}".format(
                         table=diff.name,
                         name=column.name,
                         data_type=self.type_map.get(column.column_type, ""),
                         nullable="NULL" if column.is_null else "NOT NULL",
                         default=default,
+                        constraint=constraint,
                     ).strip()
                 )
-
-        if diff.renamed_columns or diff.dropped_columns or diff.changed_columns:
+        if (
+            diff.renamed_columns
+            or diff.dropped_columns
+            or diff.changed_columns
+            or diff.added_foreign_keys
+        ):
             original_columns = diff.from_table.added_columns
             # pop off the dropped columns. No need for them here
             for column in diff.dropped_columns:
@@ -234,7 +243,7 @@ class SQLitePlatform(Platform):
         return "UNIQUE({columns})"
 
     def get_foreign_key_constraint_string(self):
-        return "CONSTRAINT {table}_{column}_foreign FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column})"
+        return "CONSTRAINT {table}_{column}_foreign FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){cascade}"
 
     def constraintize(self, constraints):
         sql = []
@@ -249,12 +258,18 @@ class SQLitePlatform(Platform):
     def foreign_key_constraintize(self, table, foreign_keys):
         sql = []
         for name, foreign_key in foreign_keys.items():
+            cascade = ""
+            if foreign_key.delete_action:
+                cascade += f" ON DELETE {self.foreign_key_actions.get(foreign_key.delete_action.lower())}"
+            if foreign_key.update_action:
+                cascade += f" ON UPDATE {self.foreign_key_actions.get(foreign_key.update_action.lower())}"
             sql.append(
                 self.get_foreign_key_constraint_string().format(
                     column=foreign_key.column,
                     table=table,
                     foreign_table=foreign_key.foreign_table,
                     foreign_column=foreign_key.foreign_column,
+                    cascade=cascade,
                 )
             )
         return sql
