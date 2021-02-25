@@ -507,6 +507,14 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(sql, sql_ref)
 
+    def test_truncate_without_foreign_keys(self):
+        builder = self.get_builder(dry=True)
+        sql = builder.truncate(foreign_keys=True)
+        sql_ref = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(sql, sql_ref)
+
 
 class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
     grammar = MySQLGrammar
@@ -827,3 +835,10 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.truncate()
         """
         return """TRUNCATE TABLE `users`"""
+
+    def truncate_without_foreign_keys(self):
+        """
+        builder = self.get_builder()
+        builder.truncate()
+        """
+        return """SET FOREIGN_KEY_CHECKS=0;TRUNCATE TABLE `users`;SET FOREIGN_KEY_CHECKS=1"""

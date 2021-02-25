@@ -220,5 +220,17 @@ class MySQLGrammar(BaseGrammar):
     def where_not_null_string(self):
         return " {keyword} {column} IS NOT NULL"
 
-    def truncate_table_string(self):
-        return "TRUNCATE TABLE {table}"
+    def enable_foreign_key_constraints(self):
+        return "SET FOREIGN_KEY_CHECKS=1"
+
+    def disable_foreign_key_constraints(self):
+        return "SET FOREIGN_KEY_CHECKS=0"
+
+    def truncate_table_string(self, foreign_keys=False):
+        if not foreign_keys:
+            return "TRUNCATE TABLE {table}"
+
+        return (
+            f"{self.disable_foreign_key_constraints()};" + "TRUNCATE TABLE {table};"
+            f"{self.enable_foreign_key_constraints()}"
+        )
