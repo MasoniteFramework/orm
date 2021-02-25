@@ -650,7 +650,7 @@ class Blueprint:
 
         self.table.add_constraint(
             f"{self.table.name}_{'_'.join(column)}_unique", "unique", columns=column
-        )    
+        )
 
         return self
 
