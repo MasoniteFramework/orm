@@ -645,7 +645,12 @@ class Blueprint:
             )
             return self
 
-        self.table.add_constraint(column, "unique", columns=[column])
+        if not isinstance(column, list):
+            column = [column]
+
+        self.table.add_constraint(
+            f"{self.table.name}_{'_'.join(column)}_unique", "unique", columns=column
+        )    
 
         return self
 
@@ -658,7 +663,13 @@ class Blueprint:
         Returns:
             self
         """
-        self.table.add_index(column, f"{self.table.name}_{column}_index", "index")
+        if not isinstance(column, list):
+            column = [column]
+
+        self.table.add_index(
+            column, f"{self.table.name}_{'_'.join(column)}_index", "index"
+        )
+
         return self
 
     def fulltext(self, column):
@@ -670,7 +681,11 @@ class Blueprint:
         Returns:
             self
         """
-        self.table.add_constraint(column, "fulltext")
+        if not isinstance(column, list):
+            column = [column]
+
+        self.table.add_constraint(f"{'_'.join(column)}_fulltext", "fulltext", column)
+
         return self
 
     def primary(self, column=None):
