@@ -118,7 +118,6 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
             "other_test", lambda q: q.max("updated_at").table("different_table")
         ).add_select("some_alias", lambda q: q.max("updated_at").table("another_table"))
 
-        print(builder.to_sql())
         self.assertEqual(
             builder.to_sql(),
             (

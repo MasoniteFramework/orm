@@ -137,7 +137,7 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
                 "thumbnail VARCHAR(255) NULL, premium INTEGER NOT NULL, amount DOUBLE PRECISION NOT NULL DEFAULT 0.0, author_id INT NULL, "
                 "description TEXT NOT NULL, created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
                 "updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
-                "CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES authors(id))"
+                "CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES authors(id) ON DELETE CASCADE)"
             ),
         )
 
