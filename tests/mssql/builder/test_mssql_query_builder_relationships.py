@@ -67,7 +67,7 @@ class BaseTestQueryRelationships(unittest.TestCase):
         self.assertEqual(
             sql,
             """SELECT * FROM [users] WHERE EXISTS ("""
-            """SELECT * FROM [articles] WHERE [articles].[user_id] = [users].[id] AND [articles].[active] = '1'"""
+            """SELECT * FROM [articles] WHERE [articles].[user_id] = [users].[id] AND [articles].[active] = '?'"""
             """)""",
         )
 
