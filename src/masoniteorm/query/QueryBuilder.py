@@ -1499,7 +1499,7 @@ class QueryBuilder(ObservesEvents):
             grammar=self.grammar,
             connection_class=self.connection_class,
             connection=self.connection,
-            connection_driver=self._connection_driver
+            connection_driver=self._connection_driver,
         )
 
         if self._table:
@@ -1583,7 +1583,7 @@ class QueryBuilder(ObservesEvents):
             grammar=self.grammar,
             connection_class=self.connection_class,
             connection=self.connection,
-            connection_driver=self._connection_driver
+            connection_driver=self._connection_driver,
         )
 
         if self._table:

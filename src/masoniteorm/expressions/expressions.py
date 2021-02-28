@@ -34,6 +34,7 @@ class HavingExpression:
         self.value = value
         self.value_type = "having"
 
+
 class FromTable:
     """A helper class to manage having expressions."""
 
