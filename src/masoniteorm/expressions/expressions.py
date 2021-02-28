@@ -34,6 +34,13 @@ class HavingExpression:
         self.value = value
         self.value_type = "having"
 
+class FromTable:
+    """A helper class to manage having expressions."""
+
+    def __init__(self, name, raw=False):
+        self.name = name
+        self.raw = raw
+
 
 class JoinExpression:
     """A helper class to manage join expressions."""

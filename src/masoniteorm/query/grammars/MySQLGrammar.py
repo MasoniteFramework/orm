@@ -137,7 +137,11 @@ class MySQLGrammar(BaseGrammar):
         """
         if not table:
             return ""
-        return ".".join(self.table_string().format(table=t) for t in table.split("."))
+        if isinstance(table, str):
+            return ".".join(self.table_string().format(table=t) for t in table.split("."))
+        if table.raw:
+            return table.name
+        return ".".join(self.table_string().format(table=t) for t in table.name.split("."))
 
     def subquery_alias_string(self):
         return "AS {alias}"

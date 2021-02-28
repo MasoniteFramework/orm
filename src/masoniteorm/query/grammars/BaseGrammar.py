@@ -410,13 +410,27 @@ class BaseGrammar:
         """
         if not table:
             return ""
+
+        if isinstance(table, str):
+            return ".".join(
+                self.table_string().format(
+                    table=t,
+                    database=self._connection_details.get("database", ""),
+                    prefix=self._connection_details.get("prefix", ""),
+                )
+                for t in table.split(".")
+            )
+
+        if table.raw:
+            return table.name
+
         return ".".join(
             self.table_string().format(
                 table=t,
                 database=self._connection_details.get("database", ""),
                 prefix=self._connection_details.get("prefix", ""),
             )
-            for t in table.split(".")
+            for t in table.name.split(".")
         )
 
     def process_limit(self):
