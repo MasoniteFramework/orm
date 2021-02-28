@@ -13,6 +13,7 @@ from ..expressions.expressions import (
     UpdateQueryExpression,
     JoinExpression,
     HavingExpression,
+    FromTable,
 )
 
 from ..scopes import BaseScope
@@ -55,7 +56,7 @@ class QueryBuilder(ObservesEvents):
             table {str} -- the name of the table (default: {""})
         """
         self.grammar = grammar
-        self._table = table
+        self.table(table)
         self.dry = dry
         self.connection = connection
         self.connection_class = connection_class
@@ -141,7 +142,7 @@ class QueryBuilder(ObservesEvents):
             "full_details": self._connection_details.get(self.connection, {}),
         }
 
-    def table(self, table):
+    def table(self, table, raw=False):
         """Sets a table on the query builder
 
         Arguments:
@@ -150,7 +151,10 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._table = table
+        if table:
+            self._table = FromTable(table, raw=raw)
+        else:
+            self._table = table
         return self
 
     def from_(self, table):
@@ -164,6 +168,28 @@ class QueryBuilder(ObservesEvents):
         """
         return self.table(table)
 
+    def from_raw(self, table):
+        """Alias for the table method
+
+        Arguments:
+            table {string} -- The name of the table
+
+        Returns:
+            self
+        """
+        return self.table(table, raw=True)
+
+    def table_raw(self, table):
+        """Sets a table on the query builder
+
+        Arguments:
+            table {string} -- The name of the table
+
+        Returns:
+            self
+        """
+        return self.from_raw(table)
+
     def get_table_name(self):
         """Sets a table on the query builder
 
@@ -173,7 +199,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        return self._table
+        return self._table.name
 
     def get_connection(self):
         """Sets a table on the query builder
@@ -1485,8 +1511,10 @@ class QueryBuilder(ObservesEvents):
             connection_class=self.connection_class,
             connection=self.connection,
             connection_driver=self._connection_driver,
-            table=self._table,
         )
+
+        if self._table:
+            builder.table(self._table.name)
 
         return builder
 
@@ -1567,8 +1595,10 @@ class QueryBuilder(ObservesEvents):
             connection_class=self.connection_class,
             connection=self.connection,
             connection_driver=self._connection_driver,
-            table=self._table,
         )
+
+        if self._table:
+            builder.table(self._table.name)
 
         builder._columns = from_builder._columns
         builder._creates = from_builder._creates
