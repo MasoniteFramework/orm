@@ -317,10 +317,13 @@ class BaseGrammar:
             else:
                 aggregate_string = self.aggregate_string_with_alias()
 
-            sql += aggregate_string.format(
-                aggregate_function=aggregate_function,
-                column="*" if column == "*" else self._table_column_string(column),
-                alias=self.process_alias(aggregates.alias or column),
+            sql += (
+                aggregate_string.format(
+                    aggregate_function=aggregate_function,
+                    column="*" if column == "*" else self._table_column_string(column),
+                    alias=self.process_alias(aggregates.alias or column),
+                )
+                + ", "
             )
 
         return sql
