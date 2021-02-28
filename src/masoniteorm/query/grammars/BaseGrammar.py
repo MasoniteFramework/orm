@@ -589,9 +589,7 @@ class BaseGrammar:
                 query_from_builder = value.builder.to_qmark()
                 if value.builder._bindings:
                     self.add_binding(*value.builder._bindings)
-                query_value = self.subquery_string().format(
-                    query=query_from_builder
-                )
+                query_value = self.subquery_string().format(query=query_from_builder)
             elif isinstance(value, list):
                 query_value = "("
                 for val in value:

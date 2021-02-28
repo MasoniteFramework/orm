@@ -1498,7 +1498,6 @@ class QueryBuilder(ObservesEvents):
 
         self.reset()
 
-
         return sql
 
     def new(self):
