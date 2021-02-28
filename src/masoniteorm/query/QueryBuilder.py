@@ -1494,9 +1494,10 @@ class QueryBuilder(ObservesEvents):
         grammar = self.get_grammar()
         sql = grammar.compile(self._action, qmark=True).to_sql()
 
+        self._bindings = grammar._bindings
+
         self.reset()
 
-        self._bindings = grammar._bindings
 
         return sql
 

@@ -586,8 +586,10 @@ class BaseGrammar:
                 )
                 sql_string = self.where_group_string()
             elif isinstance(value, SubSelectExpression):
+                query_from_builder = value.builder.to_qmark()
+                self.add_binding(*value.builder._bindings)
                 query_value = self.subquery_string().format(
-                    query=value.builder.to_sql()
+                    query=query_from_builder
                 )
             elif isinstance(value, list):
                 query_value = "("
@@ -609,7 +611,12 @@ class BaseGrammar:
                 ):
                     self.add_binding(value)
             elif value_type == "value":
-                query_value = self.value_string().format(value=value, separator="")
+                print(value_type, value, qmark)
+                if qmark:
+                    query_value = "'?'"
+                else:
+                    query_value = self.value_string().format(value=value, separator="")
+                self.add_binding(value)
             elif value_type == "column":
                 query_value = self._table_column_string(column=value, separator="")
             elif value_type == "having":
