@@ -157,7 +157,6 @@ class QueryBuilder(ObservesEvents):
             self._table = table
         return self
 
-
     def from_(self, table):
         """Alias for the table method
 
@@ -179,7 +178,6 @@ class QueryBuilder(ObservesEvents):
             self
         """
         return self.table(table, raw=True)
-
 
     def table_raw(self, table):
         """Sets a table on the query builder
