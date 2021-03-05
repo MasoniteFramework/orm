@@ -54,6 +54,20 @@ class JsonCast:
         return json.dumps(value)
 
 
+class IntCast:
+    """Casts a value to a int"""
+
+    def get(self, value):
+        return int(value)
+
+
+class FloatCast:
+    """Casts a value to a float"""
+
+    def get(self, value):
+        return float(value)
+
+
 class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     """The ORM Model class
 
@@ -131,7 +145,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
     __cast_map__ = {}
 
-    __internal_cast_map__ = {"bool": BoolCast, "json": JsonCast}
+    __internal_cast_map__ = {"bool": BoolCast, "json": JsonCast, "int": IntCast, "float": FloatCast}
 
     def __init__(self):
         self.__attributes__ = {}
