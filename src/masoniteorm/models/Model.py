@@ -601,23 +601,25 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return result
 
     def get_value(self, attribute):
+        value = self.__attributes__[attribute]
         if attribute in self.__casts__:
-            return self._cast_attribute(attribute)
+            return self._cast_attribute(attribute, value)
 
-        return self.__attributes__[attribute]
+        return value
 
     def get_dirty_value(self, attribute):
+        value = self.__dirty_attributes__[attribute]
         if attribute in self.__casts__:
-            return self._cast_attribute(attribute)
+            return self._cast_attribute(attribute, value)
 
-        return self.__dirty_attributes__[attribute]
+        return value
 
     def all_attributes(self):
         attributes = self.__attributes__
         attributes.update(self.get_dirty_attributes())
         for key, value in attributes.items():
             if key in self.__casts__:
-                attributes.update({key: self._cast_attribute(key)})
+                attributes.update({key: self._cast_attribute(key, value)})
 
         return attributes
 
@@ -631,14 +633,14 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         cast_map.update(self.__cast_map__)
         return cast_map
 
-    def _cast_attribute(self, attribute):
+    def _cast_attribute(self, attribute, value):
         cast_method = self.__casts__[attribute]
         cast_map = self.get_cast_map()
 
         if isinstance(cast_method, str):
-            return cast_map[cast_method]().get(attribute)
+            return cast_map[cast_method]().get(value)
 
-        return cast_method(attribute)
+        return cast_method(value)
 
     @classmethod
     def load(cls, *loads):
