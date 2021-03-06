@@ -1,7 +1,7 @@
 {% set data = load_setup_py_data() %}
 
 package:
-  name: masonite
+  name: masonite-orm
   version: {{ data['version'] }}
 
 source:
