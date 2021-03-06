@@ -1477,7 +1477,6 @@ class QueryBuilder(ObservesEvents):
 
         grammar = self.get_grammar()
         sql = grammar.compile(self._action, qmark=False).to_sql()
-        self.reset()
         return sql
 
     def to_qmark(self):
