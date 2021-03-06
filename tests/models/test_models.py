@@ -5,7 +5,7 @@ import pendulum
 
 class ModelTest(Model):
     __dates__ = ["due_date"]
-    __casts__ = {"is_vip": "bool"}
+    __casts__ = {"is_vip": "bool", "payload": "json", "x": "int", "f": "float"}
 
 
 class TestModels(unittest.TestCase):
@@ -63,7 +63,10 @@ class TestModels(unittest.TestCase):
         self.assertTrue(sql.startswith("INSERT"))
 
     def test_model_can_cast_attributes(self):
-        model = ModelTest.hydrate({"is_vip": 1})
+        model = ModelTest.hydrate({"is_vip": 1, "payload": {"key": "value"}, "x": True, "f": "10.5"})
 
+        self.assertEqual(type(model.payload), str)
+        self.assertEqual(type(model.x), int)
+        self.assertEqual(type(model.f), float)
         self.assertEqual(model.is_vip, True)
         self.assertIsInstance(model.is_vip, bool)
