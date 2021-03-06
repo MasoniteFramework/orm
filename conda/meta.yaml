@@ -1,7 +1,7 @@
 {% set data = load_setup_py_data() %}
 
 package:
-  name: albumentations
+  name: masonite
   version: {{ data['version'] }}
 
 source:
@@ -14,19 +14,13 @@ build:
 requirements:
   build:
     - python
-    - numpy>=1.11.1,<1.16.0
-    - scipy
-    - opencv
 
   run:
     - python
-    - numpy>=1.11.1,<1.16.0
-    - scipy 
-    - opencv
 
 test:
-  imports:
-    - albumentations
+  run:
+    - python -m pytest
 
 about:
   home: {{ data['url'] }}
