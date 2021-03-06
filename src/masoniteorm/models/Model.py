@@ -440,6 +440,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         for key, value in serialized_dictionary.items():
             if isinstance(value, datetime):
                 value = self.get_new_serialized_date(value)
+            if key in self.__casts__:
+                value = self._cast_attribute(key, value)
 
             serialized_dictionary.update({key: value})
 
