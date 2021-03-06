@@ -63,7 +63,9 @@ class TestModels(unittest.TestCase):
         self.assertTrue(sql.startswith("INSERT"))
 
     def test_model_can_cast_attributes(self):
-        model = ModelTest.hydrate({"is_vip": 1, "payload": {"key": "value"}, "x": True, "f": "10.5"})
+        model = ModelTest.hydrate(
+            {"is_vip": 1, "payload": {"key": "value"}, "x": True, "f": "10.5"}
+        )
 
         self.assertEqual(type(model.payload), str)
         self.assertEqual(type(model.x), int)

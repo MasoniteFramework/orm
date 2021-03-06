@@ -145,7 +145,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
     __cast_map__ = {}
 
-    __internal_cast_map__ = {"bool": BoolCast, "json": JsonCast, "int": IntCast, "float": FloatCast}
+    __internal_cast_map__ = {
+        "bool": BoolCast,
+        "json": JsonCast,
+        "int": IntCast,
+        "float": FloatCast,
+    }
 
     def __init__(self):
         self.__attributes__ = {}

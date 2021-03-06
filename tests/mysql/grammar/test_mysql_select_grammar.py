@@ -211,7 +211,7 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
             self.builder.new().select('username').where('age', 12)
         ).to_sql()
         """
-        return "SELECT `users`.`age` FROM `users` WHERE EXISTS (SELECT `users`.`username` FROM `users` WHERE `users`.`age` = '?')"
+        return "SELECT `users`.`age` FROM `users` WHERE EXISTS (SELECT `users`.`username` FROM `users` WHERE `users`.`age` = '12')"
 
     def can_compile_having(self):
         """

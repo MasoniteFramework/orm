@@ -76,7 +76,7 @@ class BaseGrammar:
             self._sql = (
                 self.select_no_table()
                 .format(
-                    columns=self.process_columns(separator=", "),
+                    columns=self.process_columns(separator=", ", qmark=qmark),
                     table=self.process_table(self.table),
                     wheres=self.process_wheres(qmark=qmark),
                     limit=self.process_limit(),
@@ -93,7 +93,7 @@ class BaseGrammar:
             self._sql = (
                 self.select_format()
                 .format(
-                    columns=self.process_columns(separator=", "),
+                    columns=self.process_columns(separator=", ", qmark=qmark),
                     table=self.process_table(self.table),
                     wheres=self.process_wheres(qmark=qmark),
                     limit=self.process_limit(),
@@ -135,7 +135,7 @@ class BaseGrammar:
         self._sql = self.insert_format().format(
             key_equals=self._compile_key_value_equals(qmark=qmark),
             table=self.process_table(self.table),
-            columns=self.process_columns(separator=", ", action="insert"),
+            columns=self.process_columns(separator=", ", action="insert", qmark=qmark),
             values=self.process_values(separator=", ", qmark=qmark),
         )
 
@@ -586,9 +586,12 @@ class BaseGrammar:
                 )
                 sql_string = self.where_group_string()
             elif isinstance(value, SubSelectExpression):
-                query_from_builder = value.builder.to_qmark()
-                if value.builder._bindings:
-                    self.add_binding(*value.builder._bindings)
+                if qmark:
+                    query_from_builder = value.builder.to_qmark()
+                    if value.builder._bindings:
+                        self.add_binding(*value.builder._bindings)
+                else:
+                    query_from_builder = value.builder.to_sql()
                 query_value = self.subquery_string().format(query=query_from_builder)
             elif isinstance(value, list):
                 query_value = "("
@@ -694,7 +697,7 @@ class BaseGrammar:
         return re.sub(" +", " ", self._sql.strip())
 
     # TODO: Inspect this can't just be used by another method. seems duplicative
-    def process_columns(self, separator="", action="select"):
+    def process_columns(self, separator="", action="select", qmark=False):
         """Specifies the columns in a selection expression.
 
         Keyword Arguments:
@@ -715,10 +718,13 @@ class BaseGrammar:
                 column = column.column
 
             if isinstance(column, SubGroupExpression):
-                builder_sql = column.builder.to_qmark()
+                if qmark:
+                    builder_sql = column.builder.to_qmark()
+                    if column.builder._bindings:
+                        self.add_binding(*column.builder._bindings)
+                else:
+                    builder_sql = column.builder.to_sql()
                 sql += f"({builder_sql}) AS {column.alias}, "
-                if column.builder._bindings:
-                    self.add_binding(*column.builder._bindings)
                 continue
 
             sql += self._table_column_string(column, alias=alias, separator=separator)
