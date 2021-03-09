@@ -940,6 +940,11 @@ class QueryBuilder(ObservesEvents):
         self._wheres += ((QueryExpression(column1, "=", column2, "column")),)
         return self
 
+    def take(self, *args, **kwargs):
+        """Alias for limit method
+        """
+        return self.limit(*args, **kwargs)
+
     def limit(self, amount):
         """Specifies a limit expression.
 
@@ -963,6 +968,11 @@ class QueryBuilder(ObservesEvents):
         """
         self._offset = amount
         return self
+
+    def skip(self, *args, **kwargs):
+        """Alias for limit method
+        """
+        return self.offset(*args, **kwargs)
 
     def update(self, updates: dict, dry=False):
         """Specifies columns and values to be updated.
