@@ -12,6 +12,7 @@ class SeedRunCommand(Command):
         {--c|connection=default : The connection you want to run migrations on}
         {--d|dry : If the seed should run in dry mode}
         {table=None : Name of the table to seed}
+        {--directory=databases/seeds : The location of the seed directory}
     """
 
     def handle(self):
@@ -20,4 +21,6 @@ class SeedRunCommand(Command):
 
         file_name = f"{self.argument('table')}_table_seeder.{camelize(self.argument('table'))}TableSeeder"
 
-        return Seeder(dry=self.option("dry")).run_specific_seed(file_name)
+        return Seeder(
+            dry=self.option("dry"), seed_path=self.option("directory")
+        ).run_specific_seed(file_name)

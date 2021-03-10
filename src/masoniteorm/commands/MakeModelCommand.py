@@ -14,12 +14,13 @@ class MakeModelCommand(Command):
 
     model
         {name : The name of the model}
+        {--d|directory=app : The location of the model directory}
     """
 
     def handle(self):
         name = self.argument("name")
 
-        model_directory = "app"
+        model_directory = self.option("directory")
 
         with open(
             os.path.join(pathlib.Path(__file__).parent.absolute(), f"stubs/model.stub")
