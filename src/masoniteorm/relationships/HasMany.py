@@ -21,6 +21,11 @@ class HasMany(BaseRelationship):
 
         return result
 
+    def set_keys(self, owner, attribute):
+        self.local_key = self.local_key or "id"
+        self.foreign_key = self.foreign_key or f"{attribute}_id"
+        return self
+
     def get_related(self, query, relation, eagers=None):
         eagers = eagers or []
         builder = self.get_builder().with_(eagers)
