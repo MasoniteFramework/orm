@@ -127,7 +127,7 @@ class Migration:
                 )
             except TypeError:
                 self.command_class.line(f"<error>Not Found: {migration}</error>")
-                raise MigrationNotFound(f"Could not find {migration}")
+                continue
 
             self.last_migrations_ran.append(migration)
             if self.command_class:
@@ -176,8 +176,7 @@ class Migration:
                 migration_class = self.locate(migration)(connection=self.connection)
             except TypeError:
                 self.command_class.line(f"<error>Not Found: {migration}</error>")
-
-                raise MigrationNotFound(f"Could not find {migration}")
+                continue
 
             if output:
                 migration_class.schema.dry()
@@ -232,8 +231,9 @@ class Migration:
                 self.locate(migration)(connection=self.connection).down()
             except TypeError:
                 self.command_class.line(f"<error>Not Found: {migration}</error>")
+                continue
 
-                raise MigrationNotFound(f"Could not find {migration}")
+                # raise MigrationNotFound(f"Could not find {migration}")
 
             self.delete_migration(migration)
 
