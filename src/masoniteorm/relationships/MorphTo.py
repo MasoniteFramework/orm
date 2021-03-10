@@ -64,7 +64,6 @@ class MorphTo(BaseRelationship):
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-        print('morph', self.morph_key, self.morph_map())
         model = self.morph_map().get(instance.__attributes__[self.morph_key])
         record = instance.__attributes__[self.morph_id]
 

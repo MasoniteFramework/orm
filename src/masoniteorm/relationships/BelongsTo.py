@@ -2,16 +2,15 @@ from .BaseRelationship import BaseRelationship
 from ..collection import Collection
 import inflection
 
+
 class BelongsTo(BaseRelationship):
     """Belongs To Relationship Class."""
+
     def __init__(self, fn, local_key=None, foreign_key=None):
-        print('hi')
         if isinstance(fn, str):
-            print('here 1')
             self.local_key = fn or "id"
             self.foreign_key = local_key
         else:
-            print('here')
             self.fn = fn
             self.local_key = local_key or "id"
             self.foreign_key = foreign_key

@@ -3,7 +3,6 @@ from ..collection.Collection import Collection
 
 class BaseRelationship:
     def __init__(self, fn, local_key=None, foreign_key=None):
-        print('base')
         if isinstance(fn, str):
             self.local_key = fn
             self.foreign_key = local_key
@@ -81,5 +80,5 @@ class BaseRelationship:
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-        print('ppp')
+        print("ppp")
         return foreign.where(foreign_key, owner().__attributes__[local_key]).first()
