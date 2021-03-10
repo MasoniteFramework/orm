@@ -8,14 +8,21 @@ class MorphTo(BaseRelationship):
 
     def __init__(self, fn, morph_key="record_type", morph_id="record_id"):
         if isinstance(fn, str):
+            self.fn = fn = None
             self.morph_key = fn
             self.morph_id = morph_key
         else:
             self.fn = fn
             self.morph_id = morph_id
+            self.morph_key = morph_key
 
     def get_builder(self):
         return self._related_builder
+
+    def set_keys(self, owner, attribute):
+        self.morph_id = self.morph_id or "record_id"
+        self.morph_key = self.morph_key or "record_type"
+        return self
 
     def __get__(self, instance, owner):
         """This method is called when the decorated method is accessed.

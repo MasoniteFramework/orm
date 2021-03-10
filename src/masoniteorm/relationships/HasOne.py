@@ -14,6 +14,11 @@ class HasOne(BaseRelationship):
             self.local_key = local_key or "id"
             self.foreign_key = foreign_key
 
+    def set_keys(self, owner, attribute):
+        self.local_key = self.local_key or "id"
+        self.foreign_key = self.foreign_key or f"{attribute}_id"
+        return self
+
     def apply_query(self, foreign, owner):
         """Apply the query and return a dictionary to be hydrated
 

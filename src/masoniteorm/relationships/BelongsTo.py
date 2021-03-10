@@ -1,9 +1,25 @@
 from .BaseRelationship import BaseRelationship
 from ..collection import Collection
-
+import inflection
 
 class BelongsTo(BaseRelationship):
     """Belongs To Relationship Class."""
+    def __init__(self, fn, local_key=None, foreign_key=None):
+        print('hi')
+        if isinstance(fn, str):
+            print('here 1')
+            self.local_key = fn or "id"
+            self.foreign_key = local_key
+        else:
+            print('here')
+            self.fn = fn
+            self.local_key = local_key or "id"
+            self.foreign_key = foreign_key
+
+    def set_keys(self, owner, attribute):
+        self.local_key = self.local_key or "id"
+        self.foreign_key = self.foreign_key or f"{attribute}_id"
+        return self
 
     def apply_query(self, foreign, owner):
         """Apply the query and return a dictionary to be hydrated
