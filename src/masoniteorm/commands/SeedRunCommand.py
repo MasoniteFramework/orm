@@ -17,7 +17,9 @@ class SeedRunCommand(Command):
 
     def handle(self):
         if self.argument("table") == "None":
-            return Seeder(dry=self.option("dry"), seed_path=self.option("directory")).run_database_seed()
+            return Seeder(
+                dry=self.option("dry"), seed_path=self.option("directory")
+            ).run_database_seed()
 
         file_name = f"{underscore(self.argument('table'))}_table_seeder.{camelize(self.argument('table'))}TableSeeder"
 
