@@ -80,5 +80,4 @@ class BaseRelationship:
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-        print("ppp")
         return foreign.where(foreign_key, owner().__attributes__[local_key]).first()
