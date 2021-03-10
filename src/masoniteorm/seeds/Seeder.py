@@ -6,6 +6,7 @@ class Seeder:
     def __init__(self, dry=False, seed_path="databases/seeds"):
         self.ran_seeds = []
         self.dry = dry
+        print(seed_path)
         self.seed_path = seed_path
         self.seed_module = seed_path.replace("/", ".")
 
