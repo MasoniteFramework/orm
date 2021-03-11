@@ -117,6 +117,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "first",
         "get",
         "has",
+        "join",
         "joins",
         "last",
         "limit",
