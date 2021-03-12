@@ -43,7 +43,7 @@ jobs:
       - name: Install dependencies
         run: |
           make init
-      - name: Test with pytest
+      - name: Test with Pytest and Publish to PYPI
         env:
           POSTGRES_DATABASE_HOST: localhost
           POSTGRES_DATABASE_DATABASE: postgres
