@@ -579,11 +579,15 @@ class BaseGrammar:
             """If the value should actually be a sub query then we need to wrap it in a query here
             """
             if isinstance(value, SubGroupExpression):
+                grammar = value.builder.get_grammar()
                 query_value = self.subquery_string().format(
-                    query=value.builder.get_grammar().process_wheres(
-                        strip_first_where=True
+                    query=grammar.process_wheres(
+                        qmark=qmark,
+                        strip_first_where=True,
                     )
-                )
+                ).replace("(  ", "(")
+                if (grammar._bindings):
+                    self.add_binding(*grammar._bindings)
                 sql_string = self.where_group_string()
             elif isinstance(value, SubSelectExpression):
                 if qmark:

@@ -119,6 +119,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "has",
         "join",
         "joins",
+        "join_on",
         "last",
         "limit",
         "max",
@@ -135,6 +136,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "update",
         "when",
         "where_has",
+        "where_from_builder"
         "where_in",
         "where_like",
         "where_not_like",
