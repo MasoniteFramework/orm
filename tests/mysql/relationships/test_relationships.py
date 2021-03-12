@@ -14,7 +14,6 @@ class Profile(Model):
 
 
 class MySQLRelationships(unittest.TestCase):
-
     def test_relationship_keys(self):
         sql = User.has("profile").to_sql()
         print(sql)
@@ -31,9 +30,7 @@ class MySQLRelationships(unittest.TestCase):
         )
 
     def test_join_on(self):
-        sql = User.join_on("profile", lambda q: (
-            q.where("active", 1)
-        )).to_sql()
+        sql = User.join_on("profile", lambda q: (q.where("active", 1))).to_sql()
 
         self.assertEqual(
             sql,
