@@ -580,13 +580,16 @@ class BaseGrammar:
             """
             if isinstance(value, SubGroupExpression):
                 grammar = value.builder.get_grammar()
-                query_value = self.subquery_string().format(
-                    query=grammar.process_wheres(
-                        qmark=qmark,
-                        strip_first_where=True,
+                query_value = (
+                    self.subquery_string()
+                    .format(
+                        query=grammar.process_wheres(
+                            qmark=qmark, strip_first_where=True
+                        )
                     )
-                ).replace("(  ", "(")
-                if (grammar._bindings):
+                    .replace("(  ", "(")
+                )
+                if grammar._bindings:
                     self.add_binding(*grammar._bindings)
                 sql_string = self.where_group_string()
             elif isinstance(value, SubSelectExpression):

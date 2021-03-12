@@ -580,10 +580,8 @@ class QueryBuilder(ObservesEvents):
             self
         """
 
-        self._wheres += (
-            (QueryExpression(None, '=', SubGroupExpression(builder))),
-        )
-        
+        self._wheres += ((QueryExpression(None, "=", SubGroupExpression(builder))),)
+
         return self
 
     def where_like(self, column, value):
