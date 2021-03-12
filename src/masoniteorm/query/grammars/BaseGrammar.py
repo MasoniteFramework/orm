@@ -579,11 +579,18 @@ class BaseGrammar:
             """If the value should actually be a sub query then we need to wrap it in a query here
             """
             if isinstance(value, SubGroupExpression):
-                query_value = self.subquery_string().format(
-                    query=value.builder.get_grammar().process_wheres(
-                        strip_first_where=True
+                grammar = value.builder.get_grammar()
+                query_value = (
+                    self.subquery_string()
+                    .format(
+                        query=grammar.process_wheres(
+                            qmark=qmark, strip_first_where=True
+                        )
                     )
+                    .replace("(  ", "(")
                 )
+                if grammar._bindings:
+                    self.add_binding(grammar._bindings)
                 sql_string = self.where_group_string()
             elif isinstance(value, SubSelectExpression):
                 if qmark:
@@ -639,7 +646,10 @@ class BaseGrammar:
         Arguments:
             binding {string} -- A value to bind.
         """
-        self._bindings.append(binding)
+        if isinstance(binding, list):
+            self._bindings += binding
+        else:
+            self._bindings.append(binding)
 
     def column_exists(self, column):
         """Check if a column exists

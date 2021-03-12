@@ -567,6 +567,23 @@ class QueryBuilder(ObservesEvents):
             self._wheres += ((QueryExpression(column, operator, value, "value")),)
         return self
 
+    def where_from_builder(self, builder):
+        """Specifies a where expression.
+
+        Arguments:
+            column {string} -- The name of the column to search
+
+        Keyword Arguments:
+            args {List} -- The operator and the value of the column to search. (default: {None})
+
+        Returns:
+            self
+        """
+
+        self._wheres += ((QueryExpression(None, "=", SubGroupExpression(builder))),)
+
+        return self
+
     def where_like(self, column, value):
         """Specifies a where expression.
 
@@ -924,6 +941,25 @@ class QueryBuilder(ObservesEvents):
                 f"{other_table}.{relation.foreign_key}",
                 clause=clause,
             )
+
+        return self
+
+    def join_on(self, relationship, callback=None, clause="inner"):
+        relation = getattr(self._model, relationship)
+        other_table = relation.builder.get_table_name()
+        local_table = self.get_table_name()
+        self.join(
+            other_table,
+            f"{local_table}.{relation.local_key}",
+            "=",
+            f"{other_table}.{relation.foreign_key}",
+            clause=clause,
+        )
+
+        if callback:
+            new_from_builder = self.new_from_builder()
+            new_from_builder.table(other_table)
+            self.where_from_builder(callback(new_from_builder))
 
         return self
 

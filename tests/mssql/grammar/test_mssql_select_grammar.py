@@ -168,7 +168,7 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         self.builder.where(lambda query: query.where('age', 2).where('name', 'Joe')).to_sql()
         """
-        return "SELECT * FROM [users] WHERE ( [users].[age] = '2' AND [users].[name] = 'Joe')"
+        return "SELECT * FROM [users] WHERE ([users].[age] = '2' AND [users].[name] = 'Joe')"
 
     def can_compile_sub_select(self):
         """
