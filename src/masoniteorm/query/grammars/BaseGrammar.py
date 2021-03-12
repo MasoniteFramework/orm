@@ -590,7 +590,7 @@ class BaseGrammar:
                     .replace("(  ", "(")
                 )
                 if grammar._bindings:
-                    self.add_binding(*grammar._bindings)
+                    self.add_binding(grammar._bindings)
                 sql_string = self.where_group_string()
             elif isinstance(value, SubSelectExpression):
                 if qmark:
@@ -646,7 +646,10 @@ class BaseGrammar:
         Arguments:
             binding {string} -- A value to bind.
         """
-        self._bindings.append(binding)
+        if isinstance(binding, list):
+            self._bindings += binding
+        else:
+            self._bindings.append(binding)
 
     def column_exists(self, column):
         """Check if a column exists
