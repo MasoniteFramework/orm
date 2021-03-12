@@ -613,7 +613,6 @@ class BaseGrammar:
                 ):
                     self.add_binding(value)
             elif value_type == "value":
-                print(value_type, value, qmark)
                 if qmark:
                     query_value = "'?'"
                 else:
