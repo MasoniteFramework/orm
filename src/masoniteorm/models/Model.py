@@ -46,11 +46,17 @@ class BoolCast:
     def get(self, value):
         return bool(value)
 
+    def set(self, value):
+        return bool(value)
+
 
 class JsonCast:
     """Casts a value to JSON"""
 
     def get(self, value):
+        return json.loads(value)
+
+    def set(self, value):
         return json.dumps(value)
 
 
@@ -60,6 +66,8 @@ class IntCast:
     def get(self, value):
         return int(value)
 
+    def set(self, value):
+        return int(value)
 
 class FloatCast:
     """Casts a value to a float"""
@@ -67,6 +75,8 @@ class FloatCast:
     def get(self, value):
         return float(value)
 
+    def set(self, value):
+        return float(value)
 
 class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     """The ORM Model class
@@ -569,6 +579,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             method = getattr(self, "set_" + attribute + "_attribute")
             value = method(value)
 
+        if attribute in self.__casts__:
+            value = self._set_cast_attribute(attribute, value)
+
         try:
             if not attribute.startswith("_"):
                 self.__dict__["__dirty_attributes__"].update({attribute: value})
@@ -663,6 +676,15 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         if isinstance(cast_method, str):
             return cast_map[cast_method]().get(value)
+
+        return cast_method(value)
+
+    def _set_cast_attribute(self, attribute, value):
+        cast_method = self.__casts__[attribute]
+        cast_map = self.get_cast_map()
+
+        if isinstance(cast_method, str):
+            return cast_map[cast_method]().set(value)
 
         return cast_method(value)
 
