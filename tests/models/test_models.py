@@ -64,10 +64,10 @@ class TestModels(unittest.TestCase):
 
     def test_model_can_cast_attributes(self):
         model = ModelTest.hydrate(
-            {"is_vip": 1, "payload": {"key": "value"}, "x": True, "f": "10.5"}
+            {"is_vip": 1, "payload": '{"key": "value"}', "x": True, "f": "10.5"}
         )
 
-        self.assertEqual(type(model.payload), str)
+        self.assertEqual(type(model.payload), dict)
         self.assertEqual(type(model.x), int)
         self.assertEqual(type(model.f), float)
         self.assertEqual(type(model.is_vip), bool)
