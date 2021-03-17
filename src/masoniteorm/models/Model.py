@@ -69,6 +69,7 @@ class IntCast:
     def set(self, value):
         return int(value)
 
+
 class FloatCast:
     """Casts a value to a float"""
 
@@ -77,6 +78,7 @@ class FloatCast:
 
     def set(self, value):
         return float(value)
+
 
 class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     """The ORM Model class
