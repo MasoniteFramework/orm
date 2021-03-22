@@ -1,4 +1,4 @@
-from masonite.provider import ServiceProvider
+from masonite.providers import ServiceProvider
 from masonite.helpers import config
 
 from masoniteorm.connections import ConnectionResolver
