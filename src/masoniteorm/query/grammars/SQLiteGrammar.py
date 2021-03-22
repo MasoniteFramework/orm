@@ -197,4 +197,3 @@ class SQLiteGrammar(BaseGrammar):
             + "DELETE FROM {table};"
             + f"{self.enable_foreign_key_constraints()};"
         )
-
