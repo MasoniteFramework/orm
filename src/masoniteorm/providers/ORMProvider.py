@@ -15,7 +15,8 @@ class ORMProvider(Provider):
     """Masonite ORM database provider to be used inside
     Masonite based projects."""
 
-    wsgi = False
+    def __init__(self, application):
+        self.application = application
 
     def register(self):
         self.commands(
