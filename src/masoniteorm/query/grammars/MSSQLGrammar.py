@@ -169,7 +169,7 @@ class MSSQLGrammar(BaseGrammar):
 
     def truncate_table_string(self, foreign_keys=False):
         if not foreign_keys:
-            return "TRUNCATE {table}"
+            return "TRUNCATE TABLE {table}"
 
         return (
             "ALTER TABLE {table} NOCHECK CONSTRAINT ALL;"

@@ -187,10 +187,10 @@ class PostgresGrammar(BaseGrammar):
 
     def truncate_table_string(self, foreign_keys=False):
         if not foreign_keys:
-            return "TRUNCATE {table}"
+            return "TRUNCATE TABLE {table}"
 
         return (
             "ALTER TABLE {table} DISABLE TRIGGER ALL;"
-            + "TRUNCATE {table};"
+            + "TRUNCATE TABLE {table};"
             + "ALTER TABLE {table} ENABLE TRIGGER ALL"
         )
