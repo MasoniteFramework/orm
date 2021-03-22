@@ -13,6 +13,7 @@ from ..expressions.expressions import (
     UpdateQueryExpression,
     JoinExpression,
     HavingExpression,
+    FromTable,
 )
 
 from ..scopes import BaseScope
@@ -55,7 +56,7 @@ class QueryBuilder(ObservesEvents):
             table {str} -- the name of the table (default: {""})
         """
         self.grammar = grammar
-        self._table = table
+        self.table(table)
         self.dry = dry
         self.connection = connection
         self.connection_class = connection_class
@@ -141,7 +142,7 @@ class QueryBuilder(ObservesEvents):
             "full_details": self._connection_details.get(self.connection, {}),
         }
 
-    def table(self, table):
+    def table(self, table, raw=False):
         """Sets a table on the query builder
 
         Arguments:
@@ -150,7 +151,10 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._table = table
+        if table:
+            self._table = FromTable(table, raw=raw)
+        else:
+            self._table = table
         return self
 
     def from_(self, table):
@@ -164,6 +168,28 @@ class QueryBuilder(ObservesEvents):
         """
         return self.table(table)
 
+    def from_raw(self, table):
+        """Alias for the table method
+
+        Arguments:
+            table {string} -- The name of the table
+
+        Returns:
+            self
+        """
+        return self.table(table, raw=True)
+
+    def table_raw(self, table):
+        """Sets a table on the query builder
+
+        Arguments:
+            table {string} -- The name of the table
+
+        Returns:
+            self
+        """
+        return self.from_raw(table)
+
     def get_table_name(self):
         """Sets a table on the query builder
 
@@ -173,7 +199,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        return self._table
+        return self._table.name
 
     def get_connection(self):
         """Sets a table on the query builder
@@ -541,6 +567,23 @@ class QueryBuilder(ObservesEvents):
             self._wheres += ((QueryExpression(column, operator, value, "value")),)
         return self
 
+    def where_from_builder(self, builder):
+        """Specifies a where expression.
+
+        Arguments:
+            column {string} -- The name of the column to search
+
+        Keyword Arguments:
+            args {List} -- The operator and the value of the column to search. (default: {None})
+
+        Returns:
+            self
+        """
+
+        self._wheres += ((QueryExpression(None, "=", SubGroupExpression(builder))),)
+
+        return self
+
     def where_like(self, column, value):
         """Specifies a where expression.
 
@@ -901,6 +944,25 @@ class QueryBuilder(ObservesEvents):
 
         return self
 
+    def join_on(self, relationship, callback=None, clause="inner"):
+        relation = getattr(self._model, relationship)
+        other_table = relation.builder.get_table_name()
+        local_table = self.get_table_name()
+        self.join(
+            other_table,
+            f"{local_table}.{relation.local_key}",
+            "=",
+            f"{other_table}.{relation.foreign_key}",
+            clause=clause,
+        )
+
+        if callback:
+            new_from_builder = self.new_from_builder()
+            new_from_builder.table(other_table)
+            self.where_from_builder(callback(new_from_builder))
+
+        return self
+
     def where_column(self, column1, column2):
         """Specifies where two columns equal eachother.
 
@@ -913,6 +975,11 @@ class QueryBuilder(ObservesEvents):
         """
         self._wheres += ((QueryExpression(column1, "=", column2, "column")),)
         return self
+
+    def take(self, *args, **kwargs):
+        """Alias for limit method
+        """
+        return self.limit(*args, **kwargs)
 
     def limit(self, amount):
         """Specifies a limit expression.
@@ -937,6 +1004,11 @@ class QueryBuilder(ObservesEvents):
         """
         self._offset = amount
         return self
+
+    def skip(self, *args, **kwargs):
+        """Alias for limit method
+        """
+        return self.offset(*args, **kwargs)
 
     def update(self, updates: dict, dry=False):
         """Specifies columns and values to be updated.
@@ -1451,7 +1523,6 @@ class QueryBuilder(ObservesEvents):
 
         grammar = self.get_grammar()
         sql = grammar.compile(self._action, qmark=False).to_sql()
-        self.reset()
         return sql
 
     def to_qmark(self):
@@ -1468,9 +1539,9 @@ class QueryBuilder(ObservesEvents):
         grammar = self.get_grammar()
         sql = grammar.compile(self._action, qmark=True).to_sql()
 
-        self.reset()
-
         self._bindings = grammar._bindings
+
+        self.reset()
 
         return sql
 
@@ -1485,8 +1556,10 @@ class QueryBuilder(ObservesEvents):
             connection_class=self.connection_class,
             connection=self.connection,
             connection_driver=self._connection_driver,
-            table=self._table,
         )
+
+        if self._table:
+            builder.table(self._table.name)
 
         return builder
 
@@ -1574,8 +1647,10 @@ class QueryBuilder(ObservesEvents):
             connection_class=self.connection_class,
             connection=self.connection,
             connection_driver=self._connection_driver,
-            table=self._table,
         )
+
+        if self._table:
+            builder.table(self._table.name)
 
         builder._columns = from_builder._columns
         builder._creates = from_builder._creates

@@ -43,7 +43,7 @@ jobs:
       - name: Install dependencies
         run: |
           make init
-      - name: Test with pytest
+      - name: Test with Pytest and Publish to PYPI
         env:
           POSTGRES_DATABASE_HOST: localhost
           POSTGRES_DATABASE_DATABASE: postgres
@@ -60,3 +60,13 @@ jobs:
           python orm migrate --connection postgres
           python orm migrate --connection mysql
           make publish
+  publish:
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v2
+      - name: publish-to-conda
+        uses: fcakyon/conda-publish-action@v1.3
+        with:
+          subdir: 'conda'
+          anacondatoken: ${{ secrets.ANACONDA_TOKEN }}
+          platforms: 'win osx linux'

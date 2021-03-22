@@ -151,7 +151,9 @@ class MSSQLPlatform(Platform):
             for name, index in table.added_indexes.items():
                 sql.append(
                     "CREATE INDEX {name} ON {table}({column})".format(
-                        name=index.name, table=table.name, column=index.column
+                        name=index.name,
+                        table=self.wrap_table(table.name),
+                        column=",".join(index.column),
                     )
                 )
 
@@ -162,6 +164,17 @@ class MSSQLPlatform(Platform):
                     f"DROP INDEX {self.wrap_table(table.name)}.{self.wrap_table(constraint)}"
                 )
 
+        if table.added_constraints:
+            for name, constraint in table.added_constraints.items():
+                if constraint.constraint_type == "unique":
+                    sql.append(
+                        f"ALTER TABLE {self.wrap_table(table.name)} ADD CONSTRAINT {constraint.name} UNIQUE({','.join(constraint.columns)})"
+                    )
+                elif constraint.constraint_type == "fulltext":
+                    pass
+                    # sql.append(
+                    #     f"ALTER TABLE {self.wrap_table(table.name)} ADD FULLTEXT {constraint.name}({','.join(constraint.columns)})"
+                    # )
         return sql
 
     def add_column_string(self):

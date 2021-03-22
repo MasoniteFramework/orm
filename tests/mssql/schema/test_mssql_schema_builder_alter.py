@@ -121,7 +121,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.index("playlist_id")
 
-        sql = ["CREATE INDEX users_playlist_id_index ON users(playlist_id)"]
+        sql = ["CREATE INDEX users_playlist_id_index ON [users](playlist_id)"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -205,17 +205,25 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(blueprint.to_sql(), sql)
 
-    # def test_alter_drop_on_table_schema_table(self):
-    #     schema = Schema(
-    #         connection=MSSQLConnection,
-    #         connection_details=DATABASES,
-    #     ).on("mssql")
+    def test_can_create_indexes(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.index("name")
+            blueprint.index(["name", "email"])
+            blueprint.unique("name")
+            blueprint.unique(["name", "email"])
+            blueprint.fulltext("description")
 
-    #     with schema.table("table_schema") as blueprint:
-    #         blueprint.drop_column("name")
-
-    #     with schema.table("table_schema") as blueprint:
-    #         blueprint.string("name")
+        self.assertEqual(len(blueprint.table.added_columns), 0)
+        print(blueprint.to_sql())
+        self.assertEqual(
+            blueprint.to_sql(),
+            [
+                "CREATE INDEX users_name_index ON [users](name)",
+                "CREATE INDEX users_name_email_index ON [users](name,email)",
+                "ALTER TABLE [users] ADD CONSTRAINT users_name_unique UNIQUE(name)",
+                "ALTER TABLE [users] ADD CONSTRAINT users_name_email_unique UNIQUE(name,email)",
+            ],
+        )
 
     def test_timestamp_alter_add_nullable_column(self):
         with self.schema.table("users") as blueprint:

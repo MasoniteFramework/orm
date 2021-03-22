@@ -1,147 +1,38 @@
-import os
 import unittest
-
 from src.masoniteorm.models import Model
-from src.masoniteorm.relationships import belongs_to, has_many
+from src.masoniteorm.relationships import belongs_to, has_one
 
-if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
 
-    class Profile(Model):
-        __table__ = "profiles"
+class User(Model):
+    @has_one
+    def profile(self):
+        return Profile
 
-    class Articles(Model):
-        __table__ = "articles"
 
-        @belongs_to("id", "article_id")
-        def logo(self):
-            return Logo
+class Profile(Model):
+    pass
 
-        @belongs_to("user_id", "id")
-        def user(self):
-            return User
 
-    class Logo(Model):
-        __table__ = "logos"
+class MySQLRelationships(unittest.TestCase):
+    def test_relationship_keys(self):
+        sql = User.has("profile").to_sql()
+        print(sql)
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `users` WHERE EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id`)""",
+        )
 
-    class User(Model):
-        @belongs_to("id", "user_id")
-        def profile(self):
-            return Profile
+    def test_joins(self):
+        sql = User.joins("profile").to_sql()
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `users` INNER JOIN `profiles` ON `users`.`id` = `profiles`.`profile_id`""",
+        )
 
-        @has_many("id", "user_id")
-        def articles(self):
-            return Articles
+    def test_join_on(self):
+        sql = User.join_on("profile", lambda q: (q.where("active", 1))).to_sql()
 
-        def get_is_admin(self):
-            return "You are an admin"
-
-    class TestRelationships(unittest.TestCase):
-        maxDiff = None
-
-        def test_relationship_can_be_callable(self):
-            self.assertEqual(
-                User.profile().where("name", "Joe").to_sql(),
-                "SELECT * FROM `profiles` WHERE `profiles`.`name` = 'Joe'",
-            )
-
-        def test_can_access_relationship(self):
-            for user in User.where("id", 1).get():
-                self.assertIsInstance(user.profile, Profile)
-
-        def test_can_access_has_many_relationship(self):
-            user = User.hydrate(User.where("id", 1).first())
-            self.assertEqual(len(user.articles), 4)
-
-        def test_can_access_relationship_multiple_times(self):
-            user = User.hydrate(User.where("id", 1).first())
-            self.assertEqual(len(user.articles), 4)
-            self.assertEqual(len(user.articles), 4)
-
-        def test_loading(self):
-            users = User.with_("articles").get()
-            for user in users:
-                user
-
-        def test_casting_and_serialize(self):
-            users = User.with_("articles").where("is_admin", 1).first()
-            self.assertTrue(users.serialize()["articles"])
-
-        def test_setting(self):
-            users = User.with_("articles").where("is_admin", 1).get()
-            for user in users:
-                user.name = "Joe"
-                user.is_admin = 1
-                user.save()
-
-        def test_multiple_with(self):
-            user = (
-                User.with_("articles", "articles.logo")
-                .where("is_admin", 1)
-                .get()
-                .first()
-            )
-
-        def test_multiple_with_first(self):
-            user = User.with_("articles", "articles.logo").where("is_admin", 1).first()
-            self.assertTrue(user.serialize()["articles"])
-            self.assertTrue(user.serialize()["articles"][0]["logo"])
-
-        def test_multiple_with_reveresed(self):
-            user = User.with_("articles", "articles.user").where("is_admin", 1).first()
-
-            self.assertTrue(user.serialize()["articles"])
-
-        def test_relationship_serialize(self):
-            users = User.with_("articles").where("is_admin", 1).get()
-            self.assertTrue(users.first().serialize())
-
-        def test_relationship_has(self):
-            to_sql = User.has("articles").to_sql()
-            self.assertEqual(
-                to_sql,
-                "SELECT * FROM `users` WHERE EXISTS ("
-                "SELECT * FROM `articles` WHERE `articles`.`user_id` = `users`.`id`"
-                ")",
-            )
-
-        def test_relationship_has_off_builder(self):
-            to_sql = User.where("active", 1).has("articles").to_sql()
-            self.assertEqual(
-                to_sql,
-                "SELECT * FROM `users` WHERE `users`.`active` = '1' AND EXISTS ("
-                "SELECT * FROM `articles` WHERE `articles`.`user_id` = `users`.`id`"
-                ")",
-            )
-
-        def test_relationship_multiple_has(self):
-            to_sql = User.has("articles", "profile").to_sql()
-            self.assertEqual(
-                to_sql,
-                "SELECT * FROM `users` WHERE EXISTS ("
-                "SELECT * FROM `articles` WHERE `articles`.`user_id` = `users`.`id`"
-                ") AND EXISTS ("
-                "SELECT * FROM `profiles` WHERE `profiles`.`user_id` = `users`.`id`"
-                ")",
-            )
-
-            count = User.has("articles", "profile").get().count()
-            self.assertEqual(count, 2)
-
-        def test_nested_has(self):
-            to_sql = User.has("articles.logo").to_sql()
-            self.assertEqual(
-                to_sql,
-                "SELECT * FROM `users` WHERE EXISTS (SELECT * FROM `articles` WHERE `articles`.`user_id` = `users`.`id` AND EXISTS (SELECT * FROM `logos` WHERE `logos`.`article_id` = `articles`.`id`))",
-            )
-
-            count = User.has("articles.logo").get().count()
-            self.assertEqual(count, 2)
-
-        def test_relationship_where_has(self):
-            to_sql = User.where_has("articles", lambda q: q.where("status", 1)).to_sql()
-            self.assertEqual(
-                to_sql,
-                "SELECT * FROM `users` WHERE EXISTS ("
-                "SELECT * FROM `articles` WHERE `articles`.`user_id` = `users`.`id` AND `articles`.`status` = '1'"
-                ")",
-            )
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `users` INNER JOIN `profiles` ON `users`.`id` = `profiles`.`profile_id` WHERE (`profiles`.`active` = '1')""",
+        )

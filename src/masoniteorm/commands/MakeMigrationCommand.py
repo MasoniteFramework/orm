@@ -16,6 +16,7 @@ class MakeMigrationCommand(Command):
         {name : The name of the migration}
         {--c|create=None : The table to create}
         {--t|table=None : The table to alter}
+        {--d|directory=databases/migrations : The location of the migration directory}
     """
 
     def handle(self):
@@ -33,7 +34,7 @@ class MakeMigrationCommand(Command):
             table = tableize(name.replace("create_", "").replace("_table", ""))
             stub_file = "create_migration"
 
-        migration_directory = "databases/migrations"
+        migration_directory = self.option("directory")
 
         with open(
             os.path.join(

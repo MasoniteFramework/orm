@@ -223,6 +223,18 @@ class SQLitePlatform(Platform):
                 )
             )
 
+        if diff.added_indexes:
+            for name, index in diff.added_indexes.items():
+                sql.append(
+                    f"CREATE INDEX {index.name} ON {self.wrap_table(diff.name)}({','.join(index.column)})"
+                )
+        if diff.added_constraints:
+            for name, constraint in diff.added_constraints.items():
+                if constraint.constraint_type == "unique":
+                    sql.append(
+                        f"CREATE UNIQUE INDEX {constraint.name} ON {self.wrap_table(diff.name)}({','.join(constraint.columns if isinstance(constraint.columns, list) else [constraint.columns])})"
+                    )
+
         return sql
 
     def create_format(self):

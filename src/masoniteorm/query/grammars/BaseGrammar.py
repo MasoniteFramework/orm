@@ -76,7 +76,7 @@ class BaseGrammar:
             self._sql = (
                 self.select_no_table()
                 .format(
-                    columns=self.process_columns(separator=", "),
+                    columns=self.process_columns(separator=", ", qmark=qmark),
                     table=self.process_table(self.table),
                     wheres=self.process_wheres(qmark=qmark),
                     limit=self.process_limit(),
@@ -93,7 +93,7 @@ class BaseGrammar:
             self._sql = (
                 self.select_format()
                 .format(
-                    columns=self.process_columns(separator=", "),
+                    columns=self.process_columns(separator=", ", qmark=qmark),
                     table=self.process_table(self.table),
                     wheres=self.process_wheres(qmark=qmark),
                     limit=self.process_limit(),
@@ -135,7 +135,7 @@ class BaseGrammar:
         self._sql = self.insert_format().format(
             key_equals=self._compile_key_value_equals(qmark=qmark),
             table=self.process_table(self.table),
-            columns=self.process_columns(separator=", ", action="insert"),
+            columns=self.process_columns(separator=", ", action="insert", qmark=qmark),
             values=self.process_values(separator=", ", qmark=qmark),
         )
 
@@ -317,10 +317,13 @@ class BaseGrammar:
             else:
                 aggregate_string = self.aggregate_string_with_alias()
 
-            sql += aggregate_string.format(
-                aggregate_function=aggregate_function,
-                column="*" if column == "*" else self._table_column_string(column),
-                alias=self.process_alias(aggregates.alias or column),
+            sql += (
+                aggregate_string.format(
+                    aggregate_function=aggregate_function,
+                    column="*" if column == "*" else self._table_column_string(column),
+                    alias=self.process_alias(aggregates.alias or column),
+                )
+                + ", "
             )
 
         return sql
@@ -410,13 +413,27 @@ class BaseGrammar:
         """
         if not table:
             return ""
+
+        if isinstance(table, str):
+            return ".".join(
+                self.table_string().format(
+                    table=t,
+                    database=self._connection_details.get("database", ""),
+                    prefix=self._connection_details.get("prefix", ""),
+                )
+                for t in table.split(".")
+            )
+
+        if table.raw:
+            return table.name
+
         return ".".join(
             self.table_string().format(
                 table=t,
                 database=self._connection_details.get("database", ""),
                 prefix=self._connection_details.get("prefix", ""),
             )
-            for t in table.split(".")
+            for t in table.name.split(".")
         )
 
     def process_limit(self):
@@ -562,16 +579,27 @@ class BaseGrammar:
             """If the value should actually be a sub query then we need to wrap it in a query here
             """
             if isinstance(value, SubGroupExpression):
-                query_value = self.subquery_string().format(
-                    query=value.builder.get_grammar().process_wheres(
-                        strip_first_where=True
+                grammar = value.builder.get_grammar()
+                query_value = (
+                    self.subquery_string()
+                    .format(
+                        query=grammar.process_wheres(
+                            qmark=qmark, strip_first_where=True
+                        )
                     )
+                    .replace("(  ", "(")
                 )
+                if grammar._bindings:
+                    self.add_binding(grammar._bindings)
                 sql_string = self.where_group_string()
             elif isinstance(value, SubSelectExpression):
-                query_value = self.subquery_string().format(
-                    query=value.builder.to_sql()
-                )
+                if qmark:
+                    query_from_builder = value.builder.to_qmark()
+                    if value.builder._bindings:
+                        self.add_binding(*value.builder._bindings)
+                else:
+                    query_from_builder = value.builder.to_sql()
+                query_value = self.subquery_string().format(query=query_from_builder)
             elif isinstance(value, list):
                 query_value = "("
                 for val in value:
@@ -592,7 +620,11 @@ class BaseGrammar:
                 ):
                     self.add_binding(value)
             elif value_type == "value":
-                query_value = self.value_string().format(value=value, separator="")
+                if qmark:
+                    query_value = "'?'"
+                else:
+                    query_value = self.value_string().format(value=value, separator="")
+                self.add_binding(value)
             elif value_type == "column":
                 query_value = self._table_column_string(column=value, separator="")
             elif value_type == "having":
@@ -614,7 +646,10 @@ class BaseGrammar:
         Arguments:
             binding {string} -- A value to bind.
         """
-        self._bindings.append(binding)
+        if isinstance(binding, list):
+            self._bindings += binding
+        else:
+            self._bindings.append(binding)
 
     def column_exists(self, column):
         """Check if a column exists
@@ -671,7 +706,7 @@ class BaseGrammar:
         return re.sub(" +", " ", self._sql.strip())
 
     # TODO: Inspect this can't just be used by another method. seems duplicative
-    def process_columns(self, separator="", action="select"):
+    def process_columns(self, separator="", action="select", qmark=False):
         """Specifies the columns in a selection expression.
 
         Keyword Arguments:
@@ -692,10 +727,13 @@ class BaseGrammar:
                 column = column.column
 
             if isinstance(column, SubGroupExpression):
-                builder_sql = column.builder.to_qmark()
+                if qmark:
+                    builder_sql = column.builder.to_qmark()
+                    if column.builder._bindings:
+                        self.add_binding(*column.builder._bindings)
+                else:
+                    builder_sql = column.builder.to_sql()
                 sql += f"({builder_sql}) AS {column.alias}, "
-                if column.builder._bindings:
-                    self.add_binding(*column.builder._bindings)
                 continue
 
             sql += self._table_column_string(column, alias=alias, separator=separator)

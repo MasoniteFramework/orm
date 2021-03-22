@@ -46,12 +46,38 @@ class BoolCast:
     def get(self, value):
         return bool(value)
 
+    def set(self, value):
+        return bool(value)
+
 
 class JsonCast:
     """Casts a value to JSON"""
 
     def get(self, value):
+        return json.loads(value)
+
+    def set(self, value):
         return json.dumps(value)
+
+
+class IntCast:
+    """Casts a value to a int"""
+
+    def get(self, value):
+        return int(value)
+
+    def set(self, value):
+        return int(value)
+
+
+class FloatCast:
+    """Casts a value to a float"""
+
+    def get(self, value):
+        return float(value)
+
+    def set(self, value):
+        return float(value)
 
 
 class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
@@ -103,7 +129,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "first",
         "get",
         "has",
+        "join",
         "joins",
+        "join_on",
         "last",
         "limit",
         "max",
@@ -121,6 +149,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "update",
         "when",
         "where_has",
+        "where_from_builder",
         "where_in",
         "where_like",
         "where_not_like",
@@ -132,7 +161,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
     __cast_map__ = {}
 
-    __internal_cast_map__ = {"bool": BoolCast, "json": JsonCast}
+    __internal_cast_map__ = {
+        "bool": BoolCast,
+        "json": JsonCast,
+        "int": IntCast,
+        "float": FloatCast,
+    }
 
     def __init__(self):
         self.__attributes__ = {}
@@ -427,6 +461,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         for key, value in serialized_dictionary.items():
             if isinstance(value, datetime):
                 value = self.get_new_serialized_date(value)
+            if key in self.__casts__:
+                value = self._cast_attribute(key, value)
 
             serialized_dictionary.update({key: value})
 
@@ -546,6 +582,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             method = getattr(self, "set_" + attribute + "_attribute")
             value = method(value)
 
+        if attribute in self.__casts__:
+            value = self._set_cast_attribute(attribute, value)
+
         try:
             if not attribute.startswith("_"):
                 self.__dict__["__dirty_attributes__"].update({attribute: value})
@@ -602,23 +641,25 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return result
 
     def get_value(self, attribute):
+        value = self.__attributes__[attribute]
         if attribute in self.__casts__:
-            return self._cast_attribute(attribute)
+            return self._cast_attribute(attribute, value)
 
-        return self.__attributes__[attribute]
+        return value
 
     def get_dirty_value(self, attribute):
+        value = self.__dirty_attributes__[attribute]
         if attribute in self.__casts__:
-            return self._cast_attribute(attribute)
+            return self._cast_attribute(attribute, value)
 
-        return self.__dirty_attributes__[attribute]
+        return value
 
     def all_attributes(self):
         attributes = self.__attributes__
         attributes.update(self.get_dirty_attributes())
         for key, value in attributes.items():
             if key in self.__casts__:
-                attributes.update({key: self._cast_attribute(key)})
+                attributes.update({key: self._cast_attribute(key, value)})
 
         return attributes
 
@@ -632,14 +673,23 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         cast_map.update(self.__cast_map__)
         return cast_map
 
-    def _cast_attribute(self, attribute):
+    def _cast_attribute(self, attribute, value):
         cast_method = self.__casts__[attribute]
         cast_map = self.get_cast_map()
 
         if isinstance(cast_method, str):
-            return cast_map[cast_method]().get(attribute)
+            return cast_map[cast_method]().get(value)
 
-        return cast_method(attribute)
+        return cast_method(value)
+
+    def _set_cast_attribute(self, attribute, value):
+        cast_method = self.__casts__[attribute]
+        cast_map = self.get_cast_map()
+
+        if isinstance(cast_method, str):
+            return cast_map[cast_method]().set(value)
+
+        return cast_method(value)
 
     @classmethod
     def load(cls, *loads):

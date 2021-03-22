@@ -247,9 +247,22 @@ class MySQLPlatform(Platform):
             for name, index in table.added_indexes.items():
                 sql.append(
                     "CREATE INDEX {name} ON {table}({column})".format(
-                        name=index.name, table=table.name, column=index.column
+                        name=index.name,
+                        table=self.wrap_table(table.name),
+                        column=",".join(index.column),
                     )
                 )
+
+        if table.added_constraints:
+            for name, constraint in table.added_constraints.items():
+                if constraint.constraint_type == "unique":
+                    sql.append(
+                        f"ALTER TABLE {self.wrap_table(table.name)} ADD CONSTRAINT UNIQUE INDEX {constraint.name}({','.join(constraint.columns)})"
+                    )
+                elif constraint.constraint_type == "fulltext":
+                    sql.append(
+                        f"ALTER TABLE {self.wrap_table(table.name)} ADD FULLTEXT {constraint.name}({','.join(constraint.columns)})"
+                    )
 
         if table.removed_indexes:
             constraints = table.removed_indexes

@@ -81,6 +81,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.integer("admin").default(0)
             blueprint.string("remember_token").nullable()
             blueprint.timestamp("verified_at").nullable()
+            blueprint.unique(["email", "name"])
             blueprint.timestamps()
 
         self.assertEqual(len(blueprint.table.added_columns), 11)
@@ -90,8 +91,28 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
                 """CREATE TABLE "users" (id INTEGER NOT NULL PRIMARY KEY, name VARCHAR(255) NOT NULL, gender VARCHAR(255) CHECK(gender IN ('male', 'female')) NOT NULL, email VARCHAR(255) NOT NULL, """
                 "password VARCHAR(255) NOT NULL, option VARCHAR(255) NOT NULL DEFAULT 'ADMIN', admin INTEGER NOT NULL DEFAULT 0, remember_token VARCHAR(255) NULL, "
                 "verified_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
-                "updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, UNIQUE(email))"
+                "updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, UNIQUE(email), UNIQUE(email, name))"
             ),
+        )
+
+    def test_can_create_indexes(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.index("name")
+            blueprint.index(["name", "email"])
+            blueprint.unique("name")
+            blueprint.unique(["name", "email"])
+            blueprint.fulltext("description")
+
+        self.assertEqual(len(blueprint.table.added_columns), 0)
+        print(blueprint.to_sql())
+        self.assertEqual(
+            blueprint.to_sql(),
+            [
+                'CREATE INDEX users_name_index ON "users"(name)',
+                'CREATE INDEX users_name_email_index ON "users"(name,email)',
+                'CREATE UNIQUE INDEX users_name_unique ON "users"(name)',
+                'CREATE UNIQUE INDEX users_name_email_unique ON "users"(name,email)',
+            ],
         )
 
     def test_can_advanced_table_creation2(self):

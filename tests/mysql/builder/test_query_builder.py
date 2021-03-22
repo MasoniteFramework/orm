@@ -46,6 +46,15 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_sum_chained(self):
+        builder = self.get_builder()
+        builder.sum("age").max("salary")
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
     def test_with_(self):
         builder = self.get_builder()
         builder.with_("articles").sum("age")
@@ -133,6 +142,14 @@ class BaseTestQueryBuilder:
     def test_select_with_table(self):
         builder = self.get_builder()
         builder.select("users.*")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_select_with_table_raw(self):
+        builder = self.get_builder()
+        builder.select("users.*").from_raw("orders, customers")
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -526,6 +543,13 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         return "SELECT SUM(`users`.`age`) AS age FROM `users`"
 
+    def sum_chained(self):
+        """
+        builder = self.get_builder()
+        builder.sum('age')
+        """
+        return "SELECT SUM(`users`.`age`) AS age, MAX(`users`.`salary`) AS salary FROM `users`"
+
     def with_(self):
         """
         builder = self.get_builder()
@@ -588,6 +612,13 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.select('users.*')
         """
         return "SELECT `users`.* FROM `users`"
+
+    def select_with_table_raw(self):
+        """
+        builder = self.get_builder()
+        builder.select('users.*')
+        """
+        return "SELECT `users`.* FROM orders, customers"
 
     def select_with_alias(self):
         """

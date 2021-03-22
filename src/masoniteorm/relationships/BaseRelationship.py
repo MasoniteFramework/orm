@@ -52,7 +52,7 @@ class BaseRelationship:
         """
         attribute = self.fn.__name__
         relationship = self.fn(self)()
-
+        self.set_keys(instance, attribute)
         self._related_builder = relationship.builder
 
         if instance.is_loaded():

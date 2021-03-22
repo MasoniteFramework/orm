@@ -680,7 +680,7 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
             "SELECT max(updated_at) as test, "
             '(SELECT MAX("different_table"."updated_at") AS updated_at '
             'FROM "different_table" '
-            'WHERE "different_table"."some_id" = \'?\') AS other_test '
+            'WHERE "different_table"."some_id" = \'3\') AS other_test '
             'FROM "some_table"'
         )
 
