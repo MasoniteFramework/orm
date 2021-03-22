@@ -1,6 +1,4 @@
 from masonite.providers import Provider
-from masonite.commands import CommandCapsule
-from cleo import Application as CommandApplication
 
 from masoniteorm.commands import (
     MakeMigrationCommand,
@@ -21,18 +19,15 @@ class ORMProvider(Provider):
         self.application = application
 
     def register(self):
-        self.application.bind(
-            "commands",
-            CommandCapsule(CommandApplication("Masonite ORM", "?")).add(
-                MakeMigrationCommand(),
-                MakeSeedCommand(),
-                MakeObserverCommand(),
-                MigrateCommand(),
-                MigrateRefreshCommand(),
-                MigrateRollbackCommand(),
-                SeedRunCommand(),
-            ),
-        )
+        self.application.make("commands").add(
+            MakeMigrationCommand(),
+            MakeSeedCommand(),
+            MakeObserverCommand(),
+            MigrateCommand(),
+            MigrateRefreshCommand(),
+            MigrateRollbackCommand(),
+            SeedRunCommand(),
+        ),
 
     def boot(self):
         pass
