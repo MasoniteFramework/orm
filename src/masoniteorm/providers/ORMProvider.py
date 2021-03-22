@@ -21,15 +21,6 @@ class ORMProvider(Provider):
         self.application = application
 
     def register(self):
-        self.commands(
-            MakeMigrationCommand(),
-            MakeSeedCommand(),
-            MakeObserverCommand(),
-            MigrateCommand(),
-            MigrateRefreshCommand(),
-            MigrateRollbackCommand(),
-            SeedRunCommand(),
-        )
         self.application.bind(
             "commands",
             CommandCapsule(CommandApplication("Masonite ORM", "?")).add(
