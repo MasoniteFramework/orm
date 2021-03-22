@@ -1,4 +1,4 @@
-from masonite.providers import ServiceProvider
+from masonite.providers import Provider
 from masonite.helpers import config
 
 from masoniteorm.connections import ConnectionResolver
@@ -13,7 +13,7 @@ from masoniteorm.commands import (
 )
 
 
-class ORMProvider(ServiceProvider):
+class ORMProvider(Provider):
     """Masonite ORM database provider to be used inside
     Masonite based projects."""
 
