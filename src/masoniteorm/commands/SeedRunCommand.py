@@ -1,5 +1,4 @@
 from cleo import Command
-from ..migrations import Migration
 from ..seeds import Seeder
 from inflection import camelize, underscore
 

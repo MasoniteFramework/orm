@@ -17,17 +17,10 @@ from ..expressions.expressions import (
 )
 
 from ..scopes import BaseScope
-
 from ..schema import Schema
-
 from ..observers import ObservesEvents
-
-from ..connections import ConnectionResolver, ConnectionFactory
-
 from ..exceptions import ModelNotFound, HTTP404, ConnectionNotRegistered
-
 from ..pagination import LengthAwarePaginator, SimplePaginator
-
 from .EagerRelation import EagerRelations
 
 

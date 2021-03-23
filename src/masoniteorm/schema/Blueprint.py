@@ -1,6 +1,3 @@
-from .Table import Table
-
-
 class Blueprint:
     """Used for building schemas for creating, modifying or altering schema."""
 

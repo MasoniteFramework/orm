@@ -1,5 +1,3 @@
-from ..connections.ConnectionFactory import ConnectionFactory
-
 from .Blueprint import Blueprint
 from .Table import Table
 from .TableDiff import TableDiff

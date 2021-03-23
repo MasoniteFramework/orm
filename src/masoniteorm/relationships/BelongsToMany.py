@@ -1,6 +1,6 @@
 from .BaseRelationship import BaseRelationship
 from ..collection import Collection
-from inflection import singularize, underscore
+from inflection import singularize
 from ..models.Pivot import Pivot
 
 
