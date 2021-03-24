@@ -625,7 +625,7 @@ class Blueprint:
     def soft_deletes(self, name="deleted_at"):
         return self.datetime(name, nullable=True).nullable()
 
-    def unique(self, column=None):
+    def unique(self, column=None, name=None):
         """Sets the last column to be unique if no column name is passed.
 
         If a column name is passed this method will create a new unique column.
@@ -646,12 +646,14 @@ class Blueprint:
             column = [column]
 
         self.table.add_constraint(
-            f"{self.table.name}_{'_'.join(column)}_unique", "unique", columns=column
+            name or f"{self.table.name}_{'_'.join(column)}_unique",
+            "unique",
+            columns=column,
         )
 
         return self
 
-    def index(self, column):
+    def index(self, column, name=None):
         """Creates a constraint based on the index constraint representation of the table.
 
         Arguments:
@@ -664,12 +666,12 @@ class Blueprint:
             column = [column]
 
         self.table.add_index(
-            column, f"{self.table.name}_{'_'.join(column)}_index", "index"
+            column, name or f"{self.table.name}_{'_'.join(column)}_index", "index"
         )
 
         return self
 
-    def fulltext(self, column):
+    def fulltext(self, column, name=None):
         """Creates a constraint based on the full text constraint representation of the table.
 
         Arguments:
@@ -681,7 +683,9 @@ class Blueprint:
         if not isinstance(column, list):
             column = [column]
 
-        self.table.add_constraint(f"{'_'.join(column)}_fulltext", "fulltext", column)
+        self.table.add_constraint(
+            name or f"{'_'.join(column)}_fulltext", "fulltext", column
+        )
 
         return self
 
@@ -702,7 +706,7 @@ class Blueprint:
 
         return self
 
-    def foreign(self, column):
+    def foreign(self, column, name=None):
         """Starts the creation of a foreign key constraint
 
         Arguments:
@@ -711,7 +715,9 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_foreign = self.table.add_foreign_key(column)
+        self._last_foreign = self.table.add_foreign_key(
+            column, name=name or f"{self.table.name}_{column}_foreign"
+        )
         return self
 
     def references(self, column):

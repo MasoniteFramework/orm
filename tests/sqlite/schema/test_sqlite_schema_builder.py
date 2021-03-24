@@ -58,6 +58,26 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))",
         )
 
+    def test_can_add_columns_with_foreign_key_constraint_name(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.string("name").unique()
+            blueprint.integer("age")
+            blueprint.integer("profile_id")
+            blueprint.foreign("profile_id", name="profile_foreign").references("id").on(
+                "profiles"
+            )
+
+        self.assertEqual(len(blueprint.table.added_columns), 3)
+        self.assertEqual(
+            blueprint.to_sql(),
+            'CREATE TABLE "users" '
+            "(name VARCHAR(255) NOT NULL, "
+            "age INTEGER NOT NULL, "
+            "profile_id INTEGER NOT NULL, "
+            "UNIQUE(name), "
+            "CONSTRAINT profile_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))",
+        )
+
     def test_can_use_morphs_for_polymorphism_relationships(self):
         with self.schema.create("likes") as blueprint:
             blueprint.morphs("record")
@@ -98,6 +118,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
     def test_can_create_indexes(self):
         with self.schema.table("users") as blueprint:
             blueprint.index("name")
+            blueprint.index("active", "active_idx")
             blueprint.index(["name", "email"])
             blueprint.unique("name")
             blueprint.unique(["name", "email"])
@@ -109,6 +130,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.to_sql(),
             [
                 'CREATE INDEX users_name_index ON "users"(name)',
+                'CREATE INDEX active_idx ON "users"(active)',
                 'CREATE INDEX users_name_email_index ON "users"(name,email)',
                 'CREATE UNIQUE INDEX users_name_unique ON "users"(name)',
                 'CREATE UNIQUE INDEX users_name_email_unique ON "users"(name,email)',
