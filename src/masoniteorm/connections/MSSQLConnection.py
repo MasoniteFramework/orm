@@ -1,5 +1,3 @@
-import random
-
 from ..exceptions import DriverNotFound
 from .BaseConnection import BaseConnection
 from ..query.grammars import MSSQLGrammar

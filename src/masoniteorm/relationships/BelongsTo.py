@@ -1,6 +1,5 @@
 from .BaseRelationship import BaseRelationship
 from ..collection import Collection
-import inflection
 
 
 class BelongsTo(BaseRelationship):

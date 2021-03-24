@@ -1,5 +1,3 @@
-import random
-
 from ..exceptions import DriverNotFound
 from .BaseConnection import BaseConnection
 from ..query.grammars import PostgresGrammar
@@ -136,8 +134,6 @@ class PostgresConnection(BaseConnection):
         Returns:
             dict|None -- Returns a dictionary of results or None
         """
-        from psycopg2.extras import RealDictCursor
-
         try:
             if self._connection.closed:
                 self.make_connection()

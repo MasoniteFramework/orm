@@ -2,8 +2,6 @@ from ..query.grammars import SQLiteGrammar
 from .BaseConnection import BaseConnection
 from ..schema.platforms import SQLitePlatform
 from ..query.processors import SQLitePostProcessor
-import logging
-from .ConnectionResolver import ConnectionResolver
 from ..exceptions import QueryException
 
 

@@ -22,38 +22,6 @@ class MySQLGrammar(BaseGrammar):
         "right_inner": "RIGHT INNER JOIN",
     }
 
-    type_map = {
-        "string": "VARCHAR",
-        "char": "CHAR",
-        "integer": "INT",
-        "big_integer": "BIGINT",
-        "tiny_integer": "TINYINT",
-        "big_increments": "BIGINT AUTO_INCREMENT",
-        "small_integer": "SMALLINT",
-        "medium_integer": "MEDIUMINT",
-        "increments": "INT UNSIGNED AUTO_INCREMENT PRIMARY KEY",
-        "binary": "LONGBLOB",
-        "boolean": "BOOLEAN",
-        "decimal": "DECIMAL",
-        "double": "DOUBLE",
-        "enum": "ENUM",
-        "text": "TEXT",
-        "float": "FLOAT",
-        "geometry": "GEOMETRY",
-        "json": "JSON",
-        "jsonb": "LONGBLOB",
-        "long_text": "LONGTEXT",
-        "point": "POINT",
-        "time": "TIME",
-        "timestamp": "TIMESTAMP",
-        "date": "DATE",
-        "year": "YEAR",
-        "datetime": "DATETIME",
-        "tiny_increments": "TINYINT AUTO_INCREMENT",
-        "unsigned": "INT UNSIGNED",
-        "unsigned_integer": "INT UNSIGNED",
-    }
-
     """Column strings are formats for how columns and key values should be formatted
     on specific queries. These can be different depending on the type of query.
 

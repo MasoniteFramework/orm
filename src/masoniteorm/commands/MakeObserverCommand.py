@@ -1,11 +1,8 @@
-import datetime
 import os
 import pathlib
 
 from cleo import Command
 from inflection import camelize, underscore
-
-from ..migrations import Migration
 
 
 class MakeObserverCommand(Command):

@@ -1,11 +1,8 @@
-import datetime
 import os
 import pathlib
 
 from cleo import Command
 from inflection import camelize
-
-from ..migrations import Migration
 
 
 class MakeModelCommand(Command):
