@@ -705,7 +705,7 @@ class Blueprint:
 
         return self
 
-    def foreign(self, column):
+    def foreign(self, column, name=None):
         """Starts the creation of a foreign key constraint
 
         Arguments:
@@ -714,7 +714,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_foreign = self.table.add_foreign_key(column)
+        self._last_foreign = self.table.add_foreign_key(column, name=name or f"{self.table.name}_{column}_foreign")
         return self
 
     def references(self, column):

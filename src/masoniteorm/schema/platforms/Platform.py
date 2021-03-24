@@ -66,6 +66,7 @@ class Platform:
                 self.get_foreign_key_constraint_string().format(
                     column=foreign_key.column,
                     clean_column=foreign_key.column,
+                    constraint_name=foreign_key.constraint_name,
                     table=table,
                     foreign_table=foreign_key.foreign_table,
                     foreign_column=foreign_key.foreign_column,

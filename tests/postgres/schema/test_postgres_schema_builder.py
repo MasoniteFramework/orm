@@ -156,6 +156,19 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             'CREATE TABLE "users" (id CHAR(36) NOT NULL PRIMARY KEY, name VARCHAR(255) NOT NULL, public_id CHAR(36) NULL)',
         )
 
+    def test_can_add_columns_with_foreign_key_constraint_name(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.integer("profile_id")
+            blueprint.foreign("profile_id", name="profile_foreign").references("id").on("profiles")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(
+            blueprint.to_sql(),
+            'CREATE TABLE "users" ('
+            'profile_id INTEGER NOT NULL, '
+            "CONSTRAINT profile_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))",
+        )
+
     def test_can_add_other_integer_types_column(self):
         with self.schema.create("integer_types") as table:
             table.tiny_integer("tiny")

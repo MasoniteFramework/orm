@@ -172,9 +172,6 @@ class MSSQLPlatform(Platform):
                     )
                 elif constraint.constraint_type == "fulltext":
                     pass
-                    # sql.append(
-                    #     f"ALTER TABLE {self.wrap_table(table.name)} ADD FULLTEXT {constraint.name}({','.join(constraint.columns)})"
-                    # )
         return sql
 
     def add_column_string(self):
@@ -262,7 +259,7 @@ class MSSQLPlatform(Platform):
         return "ALTER TABLE {table} {columns}"
 
     def get_foreign_key_constraint_string(self):
-        return "CONSTRAINT {table}_{clean_column}_foreign FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){cascade}"
+        return "CONSTRAINT {constraint_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){cascade}"
 
     def get_unique_constraint_string(self):
         return "CONSTRAINT {table}_{name_columns}_unique UNIQUE ({columns})"

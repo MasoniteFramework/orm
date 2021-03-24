@@ -229,6 +229,7 @@ class MySQLPlatform(Platform):
                     f"ALTER TABLE {self.wrap_table(table.name)} ADD "
                     + self.get_foreign_key_constraint_string().format(
                         column=column,
+                        constraint_name=foreign_key_constraint.constraint_name,
                         table=table.name,
                         foreign_table=foreign_key_constraint.foreign_table,
                         foreign_column=foreign_key_constraint.foreign_column,
@@ -316,7 +317,7 @@ class MySQLPlatform(Platform):
         return "ALTER TABLE {table} {columns}"
 
     def get_foreign_key_constraint_string(self):
-        return "CONSTRAINT {table}_{column}_foreign FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){cascade}"
+        return "CONSTRAINT {constraint_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){cascade}"
 
     def get_unique_constraint_string(self):
         return "CONSTRAINT {table}_{name_columns}_unique UNIQUE ({columns})"
