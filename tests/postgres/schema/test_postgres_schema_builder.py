@@ -159,13 +159,15 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
     def test_can_add_columns_with_foreign_key_constraint_name(self):
         with self.schema.create("users") as blueprint:
             blueprint.integer("profile_id")
-            blueprint.foreign("profile_id", name="profile_foreign").references("id").on("profiles")
+            blueprint.foreign("profile_id", name="profile_foreign").references("id").on(
+                "profiles"
+            )
 
         self.assertEqual(len(blueprint.table.added_columns), 1)
         self.assertEqual(
             blueprint.to_sql(),
             'CREATE TABLE "users" ('
-            'profile_id INTEGER NOT NULL, '
+            "profile_id INTEGER NOT NULL, "
             "CONSTRAINT profile_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))",
         )
 

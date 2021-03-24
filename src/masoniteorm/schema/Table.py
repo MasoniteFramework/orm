@@ -45,7 +45,9 @@ class Table:
         )
 
     def add_foreign_key(self, column, table=None, foreign_column=None, name=None):
-        foreign_key = ForeignKeyConstraint(column, table, foreign_column, name=name or f"{self.name}_{column}_foreign")
+        foreign_key = ForeignKeyConstraint(
+            column, table, foreign_column, name=name or f"{self.name}_{column}_foreign"
+        )
         self.added_foreign_keys.update({column: foreign_key})
 
         return foreign_key
