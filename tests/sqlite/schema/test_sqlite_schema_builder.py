@@ -98,6 +98,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
     def test_can_create_indexes(self):
         with self.schema.table("users") as blueprint:
             blueprint.index("name")
+            blueprint.index("active", "active_idx")
             blueprint.index(["name", "email"])
             blueprint.unique("name")
             blueprint.unique(["name", "email"])
@@ -109,6 +110,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.to_sql(),
             [
                 'CREATE INDEX users_name_index ON "users"(name)',
+                'CREATE INDEX active_idx ON "users"(active)',
                 'CREATE INDEX users_name_email_index ON "users"(name,email)',
                 'CREATE UNIQUE INDEX users_name_unique ON "users"(name)',
                 'CREATE UNIQUE INDEX users_name_email_unique ON "users"(name,email)',
