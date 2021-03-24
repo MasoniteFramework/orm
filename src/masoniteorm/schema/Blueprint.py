@@ -636,11 +636,8 @@ class Blueprint:
         Returns:
             self
         """
-        if column is None:
-            self.table.add_constraint(
-                self._last_column.name, "unique", columns=[self._last_column.name]
-            )
-            return self
+        if not column:
+            column = self._last_column.name
 
         if not isinstance(column, list):
             column = [column]
@@ -653,7 +650,7 @@ class Blueprint:
 
         return self
 
-    def index(self, column, name=None):
+    def index(self, column=None, name=None):
         """Creates a constraint based on the index constraint representation of the table.
 
         Arguments:
@@ -662,6 +659,9 @@ class Blueprint:
         Returns:
             self
         """
+        if not column:
+            column = self._last_column.name
+
         if not isinstance(column, list):
             column = [column]
 
@@ -671,7 +671,7 @@ class Blueprint:
 
         return self
 
-    def fulltext(self, column, name=None):
+    def fulltext(self, column=None, name=None):
         """Creates a constraint based on the full text constraint representation of the table.
 
         Arguments:
@@ -680,6 +680,9 @@ class Blueprint:
         Returns:
             self
         """
+        if not column:
+            column = self._last_column.name
+
         if not isinstance(column, list):
             column = [column]
 

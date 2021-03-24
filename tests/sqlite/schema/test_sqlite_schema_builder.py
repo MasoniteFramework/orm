@@ -137,6 +137,23 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             ],
         )
 
+    def test_can_create_indexes_on_previous_column(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.string("email").index()
+            blueprint.string("active").index(name="email_idx")
+
+        self.assertEqual(len(blueprint.table.added_columns), 2)
+        print(blueprint.to_sql())
+        self.assertEqual(
+            blueprint.to_sql(),
+            [
+                "ALTER TABLE users ADD COLUMN email VARCHAR NOT NULL",
+                "ALTER TABLE users ADD COLUMN active VARCHAR NOT NULL",
+                'CREATE INDEX users_email_index ON "users"(email)',
+                'CREATE INDEX email_idx ON "users"(active)',
+            ],
+        )
+
     def test_can_advanced_table_creation2(self):
         with self.schema.create("users") as blueprint:
             blueprint.big_increments("id")
