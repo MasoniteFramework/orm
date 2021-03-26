@@ -144,7 +144,7 @@ class MSSQLGrammar(BaseGrammar):
         return "{column} = {value}{separator}"
 
     def table_string(self):
-        return "[{prefix}{table}]"
+        return "[{table}]"
 
     def order_by_format(self):
         return "{column} {direction}"
@@ -166,3 +166,9 @@ class MSSQLGrammar(BaseGrammar):
 
     def value_string(self):
         return "'{value}'{separator}"
+
+    def wrap_table(self, table_name):
+        return self.table_string().format(table=table_name)
+
+    def truncate_table(self, table, foreign_keys=False):
+        return f"TRUNCATE TABLE {self.wrap_table(table)}"

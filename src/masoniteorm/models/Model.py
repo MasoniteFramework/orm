@@ -143,6 +143,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "sum",
         "to_qmark",
         "to_sql",
+        "truncate",
         "update",
         "when",
         "where_has",
