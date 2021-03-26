@@ -716,12 +716,12 @@ class Blueprint:
         Arguments:
             columns {string} -- The name of the from_column . to_column . table
         """
-        columns_array: list = columns.split(".")
-        if len(columns_array) != 3:
+        if len(columns.split(".")) != 3:
             raise Exception("Wrong add_foreign argument, the struncture is from_column.to_column.table")
-        self.foreign(columns_list[0])
-        self.references(columns_list[1])
-        self.on(columns_list[2])
+        from_column, to_column, table = columns.split(".")
+        self.foreign(from_column)
+        self.references(to_column)
+        self.on(table)
         return self
 
     def foreign(self, column, name=None):
