@@ -166,3 +166,13 @@ class MSSQLGrammar(BaseGrammar):
 
     def value_string(self):
         return "'{value}'{separator}"
+
+    def truncate_table_string(self, foreign_keys=False):
+        if not foreign_keys:
+            return "TRUNCATE TABLE {table}"
+
+        return (
+            "ALTER TABLE {table} NOCHECK CONSTRAINT ALL;"
+            + "TRUNCATE TABLE {table};"
+            + "ALTER TABLE {table} WITH CHECK CHECK CONSTRAINT ALL"
+        )

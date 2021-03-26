@@ -25,7 +25,7 @@ class ModelTest(Model):
 
 
 class BaseTestQueryBuilder:
-    def get_builder(self, table="users"):
+    def get_builder(self, table="users", dry=False):
         connection = MockConnectionFactory().make("postgres")
         return QueryBuilder(
             self.grammar,
@@ -33,6 +33,7 @@ class BaseTestQueryBuilder:
             connection="postgres",
             table=table,
             model=ModelTest(),
+            dry=dry,
         )
 
     def test_sum(self):
@@ -427,6 +428,14 @@ class BaseTestQueryBuilder:
             """SELECT "information_schema"."columns"."table_name" FROM "information_schema"."columns" WHERE "information_schema"."columns"."table_name" = 'users'""",
         )
 
+    def test_truncate(self):
+        builder = self.get_builder(dry=True)
+        sql = builder.truncate()
+        sql_ref = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(sql, sql_ref)
+
 
 class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
 
@@ -711,3 +720,10 @@ class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.where("age", "not like", "%name%")
         """
         return """SELECT * FROM "users" WHERE "users"."age" NOT ILIKE '%name%'"""
+
+    def truncate(self):
+        """
+        builder = self.get_builder()
+        builder.truncate()
+        """
+        return """TRUNCATE TABLE "users\""""

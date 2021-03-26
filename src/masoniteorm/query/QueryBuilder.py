@@ -1619,6 +1619,13 @@ class QueryBuilder(ObservesEvents):
             callback(self)
         return self
 
+    def truncate(self, foreign_keys=False):
+        sql = self.get_grammar().truncate_table(self._table, foreign_keys).to_sql()
+        if self.dry:
+            return sql
+
+        return self.new_connection().query(sql, ())
+
     def new_from_builder(self, from_builder=None):
         """Creates a new QueryBuilder class.
 

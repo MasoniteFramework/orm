@@ -27,7 +27,7 @@ class ModelTest(Model):
 class TestMSSQLQueryBuilder(unittest.TestCase):
     maxDiff = None
 
-    def get_builder(self, table="users"):
+    def get_builder(self, table="users", dry=False):
         connection = MockConnectionFactory().make("mssql")
         return QueryBuilder(
             # self.grammar,
@@ -35,6 +35,7 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
             connection="mssql",
             table=table,
             model=ModelTest(),
+            dry=dry,
         )
 
     def test_sum(self):
@@ -400,3 +401,8 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
             sql,
             """SELECT [information_schema].[columns].[table_name] FROM [information_schema].[columns] WHERE [information_schema].[columns].[table_name] = 'users'""",
         )
+
+    def test_truncate(self):
+        builder = self.get_builder(dry=True)
+        sql = builder.truncate()
+        self.assertEqual(sql, "TRUNCATE TABLE [users]")

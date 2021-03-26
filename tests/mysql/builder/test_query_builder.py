@@ -25,7 +25,7 @@ class User(Model):
 class BaseTestQueryBuilder:
     maxDiff = None
 
-    def get_builder(self, table="users"):
+    def get_builder(self, table="users", dry=False):
         connection = MockConnectionFactory().make("default")
         return QueryBuilder(
             grammar=self.grammar,
@@ -33,6 +33,7 @@ class BaseTestQueryBuilder:
             connection="mysql",
             table=table,
             model=User(),
+            dry=dry,
             connection_details=DATABASES,
         )
 
@@ -515,6 +516,22 @@ class BaseTestQueryBuilder:
             """SELECT `information_schema`.`columns`.`table_name` FROM `information_schema`.`columns` WHERE `information_schema`.`columns`.`table_name` = 'users'""",
         )
 
+    def test_truncate(self):
+        builder = self.get_builder(dry=True)
+        sql = builder.truncate()
+        sql_ref = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(sql, sql_ref)
+
+    def test_truncate_without_foreign_keys(self):
+        builder = self.get_builder(dry=True)
+        sql = builder.truncate(foreign_keys=True)
+        sql_ref = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(sql, sql_ref)
+
 
 class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
     grammar = MySQLGrammar
@@ -842,3 +859,17 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.where("age", "not like", "%name%")
         """
         return "SELECT * FROM `users` WHERE `users`.`age` NOT LIKE '%name%'"
+
+    def truncate(self):
+        """
+        builder = self.get_builder()
+        builder.truncate()
+        """
+        return """TRUNCATE TABLE `users`"""
+
+    def truncate_without_foreign_keys(self):
+        """
+        builder = self.get_builder()
+        builder.truncate()
+        """
+        return """SET FOREIGN_KEY_CHECKS=0;TRUNCATE TABLE `users`;SET FOREIGN_KEY_CHECKS=1"""
