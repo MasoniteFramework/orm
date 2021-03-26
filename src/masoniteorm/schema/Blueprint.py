@@ -719,7 +719,7 @@ class Blueprint:
         columns_array: list = columns.split(".")
         if len(columns_array) != 3:
             raise Exception("Wrong add_foreign argument, the struncture is from_column.to_column.table")
-        self.foreing(columns_list[0])
+        self.foreign(columns_list[0])
         self.references(columns_list[1])
         self.on(columns_list[2])
         return self
