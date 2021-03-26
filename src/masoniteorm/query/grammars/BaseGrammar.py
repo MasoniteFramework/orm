@@ -899,4 +899,6 @@ class BaseGrammar:
         Returns:
             self
         """
-        raise NotImplementedError(f"'{self.__class__.__name__}' does not support truncating")
+        raise NotImplementedError(
+            f"'{self.__class__.__name__}' does not support truncating"
+        )

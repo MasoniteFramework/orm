@@ -955,5 +955,5 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         return [
             "PRAGMA foreign_keys = OFF",
             'DELETE FROM "users"',
-            "PRAGMA foreign_keys = ON"
+            "PRAGMA foreign_keys = ON",
         ]

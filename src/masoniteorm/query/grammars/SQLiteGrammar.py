@@ -201,5 +201,5 @@ class SQLiteGrammar(BaseGrammar):
         return [
             self.disable_foreign_key_constraints(),
             f"DELETE FROM {self.wrap_table(table)}",
-            self.enable_foreign_key_constraints()
+            self.enable_foreign_key_constraints(),
         ]

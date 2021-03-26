@@ -217,6 +217,5 @@ class MySQLGrammar(BaseGrammar):
         return [
             self.disable_foreign_key_constraints(),
             f"TRUNCATE TABLE {self.wrap_table(table)}",
-            self.enable_foreign_key_constraints()
+            self.enable_foreign_key_constraints(),
         ]
-

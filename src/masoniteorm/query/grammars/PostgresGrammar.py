@@ -195,4 +195,3 @@ class PostgresGrammar(BaseGrammar):
             string
         """
         return f"TRUNCATE TABLE {self.wrap_table(table)}"
-
