@@ -676,6 +676,9 @@ class BaseGrammar:
         )
         return self
 
+    def wrap_table(self, table_name):
+        return self.table_string().format(table=table_name)
+
     def process_exists(self):
         """Specifies the column exists expression.
 
@@ -896,5 +899,4 @@ class BaseGrammar:
         Returns:
             self
         """
-        self._sql = self.truncate_table_string(foreign_keys).format(table=self.process_table(table))
-        return self
+        raise NotImplementedError(f"'{self.__class__.__name__}' does not support truncating")

@@ -185,12 +185,14 @@ class PostgresGrammar(BaseGrammar):
     def where_not_null_string(self):
         return " {keyword} {column} IS NOT NULL"
 
-    def truncate_table_string(self, foreign_keys=False):
-        if not foreign_keys:
-            return "TRUNCATE TABLE {table}"
+    def truncate_table(self, table, foreign_keys=False):
+        """Specifies a truncate table expression.
 
-        return (
-            "ALTER TABLE {table} DISABLE TRIGGER ALL;"
-            + "TRUNCATE TABLE {table};"
-            + "ALTER TABLE {table} ENABLE TRIGGER ALL"
-        )
+        Arguments;
+            table {string} -- The name of the table to truncate.
+
+        Returns:
+            string
+        """
+        return f"TRUNCATE TABLE {self.wrap_table(table)}"
+

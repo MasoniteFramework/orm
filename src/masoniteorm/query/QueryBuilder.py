@@ -1620,7 +1620,7 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def truncate(self, foreign_keys=False):
-        sql = self.get_grammar().truncate_table(self._table, foreign_keys).to_sql()
+        sql = self.get_grammar().truncate_table(self.get_table_name(), foreign_keys)
         if self.dry:
             return sql
 

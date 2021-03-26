@@ -406,3 +406,8 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
         builder = self.get_builder(dry=True)
         sql = builder.truncate()
         self.assertEqual(sql, "TRUNCATE TABLE [users]")
+
+    def test_truncate_without_foreign_keys(self):
+        builder = self.get_builder(dry=True)
+        sql = builder.truncate(foreign_keys=True)
+        self.assertEqual(sql, "TRUNCATE TABLE [users]")

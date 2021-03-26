@@ -186,14 +186,20 @@ class SQLiteGrammar(BaseGrammar):
     def disable_foreign_key_constraints(self):
         return "PRAGMA foreign_keys = OFF"
 
-    def truncate_table_string(self, foreign_keys=False):
+    def enable_foreign_key_constraints(self):
+        return "PRAGMA foreign_keys = ON"
+
+    def disable_foreign_key_constraints(self):
+        return "PRAGMA foreign_keys = OFF"
+
+    def truncate_table(self, table, foreign_keys=False):
         # SQLite do not have TRUNCATE TABLE command but we can
         # use SQLite DELETE command to delete complete data from an existing table
         if not foreign_keys:
-            return "DELETE FROM {table}"
+            return f"DELETE FROM {self.wrap_table(table)}"
 
-        return (
-            f"{self.disable_foreign_key_constraints()};"
-            + "DELETE FROM {table};"
-            + f"{self.enable_foreign_key_constraints()};"
-        )
+        return [
+            self.disable_foreign_key_constraints(),
+            f"DELETE FROM {self.wrap_table(table)}",
+            self.enable_foreign_key_constraints()
+        ]

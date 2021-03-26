@@ -202,11 +202,21 @@ class MySQLGrammar(BaseGrammar):
     def disable_foreign_key_constraints(self):
         return "SET FOREIGN_KEY_CHECKS=0"
 
-    def truncate_table_string(self, foreign_keys=False):
-        if not foreign_keys:
-            return "TRUNCATE TABLE {table}"
+    def truncate_table(self, table, foreign_keys=False):
+        """Specifies a truncate table expression.
 
-        return (
-            f"{self.disable_foreign_key_constraints()};" + "TRUNCATE TABLE {table};"
-            f"{self.enable_foreign_key_constraints()}"
-        )
+        Arguments;
+            table {string} -- The name of the table to truncate.
+
+        Returns:
+            self
+        """
+        if not foreign_keys:
+            return f"TRUNCATE TABLE {self.wrap_table(table)}"
+
+        return [
+            self.disable_foreign_key_constraints(),
+            f"TRUNCATE TABLE {self.wrap_table(table)}",
+            self.enable_foreign_key_constraints()
+        ]
+

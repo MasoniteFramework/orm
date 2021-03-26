@@ -144,7 +144,7 @@ class MSSQLGrammar(BaseGrammar):
         return "{column} = {value}{separator}"
 
     def table_string(self):
-        return "[{prefix}{table}]"
+        return "[{table}]"
 
     def order_by_format(self):
         return "{column} {direction}"
@@ -167,12 +167,8 @@ class MSSQLGrammar(BaseGrammar):
     def value_string(self):
         return "'{value}'{separator}"
 
-    def truncate_table_string(self, foreign_keys=False):
-        if not foreign_keys:
-            return "TRUNCATE TABLE {table}"
+    def wrap_table(self, table_name):
+        return self.table_string().format(table=table_name)
 
-        return (
-            "ALTER TABLE {table} NOCHECK CONSTRAINT ALL;"
-            + "TRUNCATE TABLE {table};"
-            + "ALTER TABLE {table} WITH CHECK CHECK CONSTRAINT ALL"
-        )
+    def truncate_table(self, table, foreign_keys=False):
+        return f"TRUNCATE TABLE {self.wrap_table(table)}"

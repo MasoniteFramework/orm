@@ -952,4 +952,8 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = self.get_builder()
         builder.truncate(foreign_keys=True)
         """
-        return """PRAGMA foreign_keys = OFF;DELETE FROM "users\";PRAGMA foreign_keys = ON;"""
+        return [
+            "PRAGMA foreign_keys = OFF",
+            'DELETE FROM "users"',
+            "PRAGMA foreign_keys = ON"
+        ]

@@ -872,4 +872,8 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = self.get_builder()
         builder.truncate()
         """
-        return """SET FOREIGN_KEY_CHECKS=0;TRUNCATE TABLE `users`;SET FOREIGN_KEY_CHECKS=1"""
+        return [
+            'SET FOREIGN_KEY_CHECKS=0',
+            'TRUNCATE TABLE `users`',
+            'SET FOREIGN_KEY_CHECKS=1',
+        ]
