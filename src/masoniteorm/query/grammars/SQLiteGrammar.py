@@ -179,3 +179,21 @@ class SQLiteGrammar(BaseGrammar):
 
     def where_not_null_string(self):
         return " {keyword} {column} IS NOT NULL"
+
+    def enable_foreign_key_constraints(self):
+        return "PRAGMA foreign_keys = ON"
+
+    def disable_foreign_key_constraints(self):
+        return "PRAGMA foreign_keys = OFF"
+
+    def truncate_table(self, table, foreign_keys=False):
+        # SQLite do not have TRUNCATE TABLE command but we can
+        # use SQLite DELETE command to delete complete data from an existing table
+        if not foreign_keys:
+            return f"DELETE FROM {self.wrap_table(table)}"
+
+        return [
+            self.disable_foreign_key_constraints(),
+            f"DELETE FROM {self.wrap_table(table)}",
+            self.enable_foreign_key_constraints(),
+        ]

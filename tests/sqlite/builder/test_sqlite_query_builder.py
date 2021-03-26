@@ -551,6 +551,22 @@ class BaseTestQueryBuilder:
         sql = builder.on("dev").statement("select * from users")
         self.assertTrue(sql)
 
+    def test_truncate(self):
+        builder = self.get_builder()
+        sql = builder.truncate()
+        sql_ref = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(sql, sql_ref)
+
+    def test_truncate_without_foreign_keys(self):
+        builder = self.get_builder()
+        sql = builder.truncate(foreign_keys=True)
+        sql_ref = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(sql, sql_ref)
+
 
 class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
 
@@ -646,19 +662,19 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
 
     def add_select_with_raw(self):
         """
-            builder
-                .select_raw("max(updated_at) as test").from_("some_table")
-                .add_select(
-                "other_test",
-                lambda query: (
-                    query.max("updated_at")
-                        .from_("different_table")
-                        .where(
-                        "some_id", "=",
-                        "3"
-                    )
-                ),
-            )
+        builder
+            .select_raw("max(updated_at) as test").from_("some_table")
+            .add_select(
+            "other_test",
+            lambda query: (
+                query.max("updated_at")
+                    .from_("different_table")
+                    .where(
+                    "some_id", "=",
+                    "3"
+                )
+            ),
+        )
         """
         return (
             "SELECT max(updated_at) as test, "
@@ -923,3 +939,21 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = self.get_builder()
         sql = builder.when(17 > 18, lambda q: q.where("age_restricted", 1)).to_sql()
         return self.assertEqual(sql, """SELECT * FROM "users\"""")
+
+    def truncate(self):
+        """
+        builder = self.get_builder()
+        builder.truncate()
+        """
+        return """DELETE FROM "users\""""
+
+    def truncate_without_foreign_keys(self):
+        """
+        builder = self.get_builder()
+        builder.truncate(foreign_keys=True)
+        """
+        return [
+            "PRAGMA foreign_keys = OFF",
+            'DELETE FROM "users"',
+            "PRAGMA foreign_keys = ON",
+        ]

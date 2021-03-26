@@ -195,3 +195,27 @@ class MySQLGrammar(BaseGrammar):
 
     def where_not_null_string(self):
         return " {keyword} {column} IS NOT NULL"
+
+    def enable_foreign_key_constraints(self):
+        return "SET FOREIGN_KEY_CHECKS=1"
+
+    def disable_foreign_key_constraints(self):
+        return "SET FOREIGN_KEY_CHECKS=0"
+
+    def truncate_table(self, table, foreign_keys=False):
+        """Specifies a truncate table expression.
+
+        Arguments;
+            table {string} -- The name of the table to truncate.
+
+        Returns:
+            self
+        """
+        if not foreign_keys:
+            return f"TRUNCATE TABLE {self.wrap_table(table)}"
+
+        return [
+            self.disable_foreign_key_constraints(),
+            f"TRUNCATE TABLE {self.wrap_table(table)}",
+            self.enable_foreign_key_constraints(),
+        ]
