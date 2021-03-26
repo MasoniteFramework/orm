@@ -25,7 +25,7 @@ class User(Model):
 class BaseTestQueryBuilder:
     maxDiff = None
 
-    def get_builder(self, table="users", dry=False):
+    def get_builder(self, table="users", dry=True):
         connection = MockConnectionFactory().make("default")
         return QueryBuilder(
             grammar=self.grammar,

@@ -27,7 +27,7 @@ class ModelTest(Model):
 class TestMSSQLQueryBuilder(unittest.TestCase):
     maxDiff = None
 
-    def get_builder(self, table="users", dry=False):
+    def get_builder(self, table="users", dry=True):
         connection = MockConnectionFactory().make("mssql")
         return QueryBuilder(
             # self.grammar,

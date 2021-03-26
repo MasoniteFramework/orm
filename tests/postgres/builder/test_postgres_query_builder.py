@@ -25,7 +25,7 @@ class ModelTest(Model):
 
 
 class BaseTestQueryBuilder:
-    def get_builder(self, table="users", dry=False):
+    def get_builder(self, table="users", dry=True):
         connection = MockConnectionFactory().make("postgres")
         return QueryBuilder(
             self.grammar,
