@@ -91,10 +91,13 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.integer("user_id").primary()
             blueprint.string("name")
             blueprint.string("email")
+
         self.assertEqual(len(blueprint.table.added_columns), 3)
+        self.assertEqual(len(blueprint.table.added_constraints), 1)
+
         self.assertTrue(
             blueprint.to_sql().startswith(
-                "CREATE TABLE `users` (`user_id` INT(11) NOT NULL PRIMARY KEY"
+                "CREATE TABLE `users` (`user_id` INT(11) NOT NULL"
             )
         )
 
