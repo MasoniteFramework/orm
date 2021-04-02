@@ -266,7 +266,10 @@ class SQLitePlatform(Platform):
             sql.append(
                 getattr(
                     self, f"get_{constraint.constraint_type}_constraint_string"
-                )().format(columns=", ".join(constraint.columns), constraint_name=constraint.name)
+                )().format(
+                    columns=", ".join(constraint.columns),
+                    constraint_name=constraint.name,
+                )
             )
         return sql
 

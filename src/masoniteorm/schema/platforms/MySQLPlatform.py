@@ -299,7 +299,7 @@ class MySQLPlatform(Platform):
                     columns=", ".join(constraint.columns),
                     name_columns="_".join(constraint.columns),
                     table=table.name,
-                    constraint_name=constraint.name
+                    constraint_name=constraint.name,
                 )
             )
 

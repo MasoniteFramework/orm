@@ -50,9 +50,7 @@ class TestTable(unittest.TestCase):
         table.add_constraint("name", "unique", ["name"])
         table.set_primary_key("id")
 
-        sql = (
-            'CREATE TABLE "users" (id INTEGER, name VARCHAR, UNIQUE(name))'
-        )
+        sql = 'CREATE TABLE "users" (id INTEGER, name VARCHAR, UNIQUE(name))'
         self.platform.constraintize(table.get_added_constraints())
         self.assertEqual(self.platform.compile_create_sql(table), sql)
 

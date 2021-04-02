@@ -705,7 +705,6 @@ class Blueprint:
         if column is None:
             column = self._last_column.name
 
-        
         if not isinstance(column, list):
             column = [column]
 
@@ -714,7 +713,6 @@ class Blueprint:
             "primary_key",
             columns=column,
         )
-
 
         return self
 

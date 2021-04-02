@@ -171,13 +171,12 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             "CONSTRAINT profile_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))",
         )
 
-
     def test_can_have_composite_keys(self):
         with self.schema.create("users") as blueprint:
             blueprint.string("name").unique()
             blueprint.integer("age")
             blueprint.integer("profile_id")
-            blueprint.primary(['name', 'age'])
+            blueprint.primary(["name", "age"])
 
         self.assertEqual(len(blueprint.table.added_columns), 3)
         self.assertEqual(
@@ -205,7 +204,6 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             "profile_id INTEGER NOT NULL, "
             "CONSTRAINT users_name_primary PRIMARY KEY (name))",
         )
-
 
     def test_can_add_other_integer_types_column(self):
         with self.schema.create("integer_types") as table:

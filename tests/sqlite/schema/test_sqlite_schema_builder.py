@@ -158,7 +158,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.string("name").unique()
             blueprint.integer("age")
             blueprint.integer("profile_id")
-            blueprint.primary(['name', 'age'])
+            blueprint.primary(["name", "age"])
 
         self.assertEqual(len(blueprint.table.added_columns), 3)
         self.assertEqual(
