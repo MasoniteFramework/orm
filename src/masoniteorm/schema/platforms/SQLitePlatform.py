@@ -257,13 +257,19 @@ class SQLitePlatform(Platform):
     def get_foreign_key_constraint_string(self):
         return "CONSTRAINT {constraint_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){cascade}"
 
+    def get_primary_key_constraint_string(self):
+        return "CONSTRAINT {constraint_name} PRIMARY KEY ({columns})"
+
     def constraintize(self, constraints):
         sql = []
         for name, constraint in constraints.items():
             sql.append(
                 getattr(
                     self, f"get_{constraint.constraint_type}_constraint_string"
-                )().format(columns=", ".join(constraint.columns))
+                )().format(
+                    columns=", ".join(constraint.columns),
+                    constraint_name=constraint.name,
+                )
             )
         return sql
 

@@ -67,9 +67,8 @@ class Table:
     def get_renamed_columns(self):
         return self.added_columns
 
-    def set_primary_key(self, column_name):
-        self.primary_key = column_name
-        self.added_columns[column_name].set_as_primary()
+    def set_primary_key(self, columns):
+        self.primary_key = columns
         return self
 
     def add_index(self, column, name, index_type):
