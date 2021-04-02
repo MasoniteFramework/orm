@@ -125,6 +125,42 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
             "CONSTRAINT profile_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))",
         )
 
+
+    def test_can_have_composite_keys(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.string("name").unique()
+            blueprint.integer("age")
+            blueprint.integer("profile_id")
+            blueprint.primary(['name', 'age'])
+
+        self.assertEqual(len(blueprint.table.added_columns), 3)
+        self.assertEqual(
+            blueprint.to_sql(),
+            'CREATE TABLE [users] '
+            "([name] VARCHAR(255) NOT NULL, "
+            "[age] INT NOT NULL, "
+            "[profile_id] INT NOT NULL, "
+            "CONSTRAINT users_name_unique UNIQUE (name), "
+            "CONSTRAINT users_name_age_primary PRIMARY KEY (name, age))",
+        )
+
+    def test_can_have_column_primary_key(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.string("name").primary()
+            blueprint.integer("age")
+            blueprint.integer("profile_id")
+
+        self.assertEqual(len(blueprint.table.added_columns), 3)
+        self.assertEqual(
+            blueprint.to_sql(),
+            'CREATE TABLE [users] '
+            "([name] VARCHAR(255) NOT NULL, "
+            "[age] INT NOT NULL, "
+            "[profile_id] INT NOT NULL, "
+            "CONSTRAINT users_name_primary PRIMARY KEY (name))",
+        )
+
+
     def test_has_table(self):
         schema_sql = self.schema.has_table("users")
 
