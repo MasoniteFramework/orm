@@ -299,6 +299,7 @@ class MySQLPlatform(Platform):
                     columns=", ".join(constraint.columns),
                     name_columns="_".join(constraint.columns),
                     table=table.name,
+                    constraint_name=constraint.name
                 )
             )
 
@@ -318,6 +319,9 @@ class MySQLPlatform(Platform):
 
     def get_foreign_key_constraint_string(self):
         return "CONSTRAINT {constraint_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){cascade}"
+
+    def get_primary_key_constraint_string(self):
+        return "CONSTRAINT {constraint_name} PRIMARY KEY ({columns})"
 
     def get_unique_constraint_string(self):
         return "CONSTRAINT {table}_{name_columns}_unique UNIQUE ({columns})"

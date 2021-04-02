@@ -143,7 +143,6 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.string("active").index(name="email_idx")
 
         self.assertEqual(len(blueprint.table.added_columns), 2)
-        print(blueprint.to_sql())
         self.assertEqual(
             blueprint.to_sql(),
             [
@@ -152,6 +151,40 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
                 'CREATE INDEX users_email_index ON "users"(email)',
                 'CREATE INDEX email_idx ON "users"(active)',
             ],
+        )
+
+    def test_can_have_composite_keys(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.string("name").unique()
+            blueprint.integer("age")
+            blueprint.integer("profile_id")
+            blueprint.primary(['name', 'age'])
+
+        self.assertEqual(len(blueprint.table.added_columns), 3)
+        self.assertEqual(
+            blueprint.to_sql(),
+            'CREATE TABLE "users" '
+            "(name VARCHAR(255) NOT NULL, "
+            "age INTEGER NOT NULL, "
+            "profile_id INTEGER NOT NULL, "
+            "UNIQUE(name), "
+            "CONSTRAINT users_name_age_primary PRIMARY KEY (name, age))",
+        )
+
+    def test_can_have_column_primary_key(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.string("name").primary()
+            blueprint.integer("age")
+            blueprint.integer("profile_id")
+
+        self.assertEqual(len(blueprint.table.added_columns), 3)
+        self.assertEqual(
+            blueprint.to_sql(),
+            'CREATE TABLE "users" '
+            "(name VARCHAR(255) NOT NULL, "
+            "age INTEGER NOT NULL, "
+            "profile_id INTEGER NOT NULL, "
+            "CONSTRAINT users_name_primary PRIMARY KEY (name))",
         )
 
     def test_can_advanced_table_creation2(self):
@@ -174,7 +207,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.timestamps()
 
         self.assertEqual(len(blueprint.table.added_columns), 14)
-
+        print(blueprint.to_sql())
         self.assertEqual(
             blueprint.to_sql(),
             (

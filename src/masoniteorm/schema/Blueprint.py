@@ -692,7 +692,7 @@ class Blueprint:
 
         return self
 
-    def primary(self, column=None):
+    def primary(self, column=None, name=None):
         """Creates a constraint based on the primary key constraint representation of the table.
         Sets the constraint on the last column if no column name is passed.
 
@@ -705,7 +705,16 @@ class Blueprint:
         if column is None:
             column = self._last_column.name
 
-        self.table.set_primary_key(column)
+        
+        if not isinstance(column, list):
+            column = [column]
+
+        self.table.add_constraint(
+            name or f"{self.table.name}_{'_'.join(column)}_primary",
+            "primary_key",
+            columns=column,
+        )
+
 
         return self
 
