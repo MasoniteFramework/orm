@@ -114,4 +114,4 @@ class ConnectionResolver:
         )
 
     def statement(self, query, bindings=(), connection="default"):
-        return self.get_query_builder().on(connection).raw(query, bindings)
+        return self.get_query_builder().on(connection).statement(query, bindings)
