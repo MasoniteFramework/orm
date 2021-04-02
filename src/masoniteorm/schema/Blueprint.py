@@ -709,6 +709,21 @@ class Blueprint:
 
         return self
 
+    def add_foreign(self, columns: string):
+        """Creates the foreign spliting the foreign name, reference column, and
+        reference table.
+
+        Arguments:
+            columns {string} -- The name of the from_column . to_column . table
+        """
+        if len(columns.split(".")) != 3:
+            raise Exception("Wrong add_foreign argument, the struncture is from_column.to_column.table")
+        from_column, to_column, table = columns.split(".")
+        self.foreign(from_column)
+        self.references(to_column)
+        self.on(table)
+        return self
+
     def foreign(self, column, name=None):
         """Starts the creation of a foreign key constraint
 

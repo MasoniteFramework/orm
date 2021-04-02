@@ -59,6 +59,24 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
             "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))",
         )
 
+    def test_can_add_columns_with_add_foreign_constaint(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.string("name").unique()
+            blueprint.integer("age")
+            blueprint.integer("profile_id")
+            blueprint.add_foreign("profile_id.id.profiles")
+
+        self.assertEqual(len(blueprint.table.added_columns), 3)
+        self.assertEqual(
+            blueprint.to_sql(),
+            "CREATE TABLE [users] "
+            "([name] VARCHAR(255) NOT NULL, "
+            "[age] INT NOT NULL, "
+            "[profile_id] INT NOT NULL, "
+            "CONSTRAINT users_name_unique UNIQUE (name), "
+            "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))",
+        )
+
     def test_can_advanced_table_creation(self):
         with self.schema.create("users") as blueprint:
             blueprint.increments("id")
