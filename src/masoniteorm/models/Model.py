@@ -106,6 +106,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     __timestamps__ = True
     __timezone__ = "UTC"
     __with__ = ()
+    __force_update__ = False
 
     date_created_at = "created_at"
     date_updated_at = "updated_at"
