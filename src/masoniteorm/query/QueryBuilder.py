@@ -1003,7 +1003,7 @@ class QueryBuilder(ObservesEvents):
         """
         return self.offset(*args, **kwargs)
 
-    def update(self, updates: dict, dry=False):
+    def update(self, updates: dict, dry=False, force=False):
         """Specifies columns and values to be updated.
 
         Arguments:
@@ -1028,6 +1028,14 @@ class QueryBuilder(ObservesEvents):
 
             self.observe_events(model, "updating")
 
+        # update only attributes with changes
+        if not model.__force_update__ and not force:
+            changes = {}
+            for attribute, value in updates.items():
+                if model.__original_attributes__.get(attribute, None) != value:
+                    changes.update({attribute: value})
+            updates = changes
+
         self._updates = (UpdateQueryExpression(updates),)
         self.set_action("update")
         if dry or self.dry:
@@ -1041,6 +1049,9 @@ class QueryBuilder(ObservesEvents):
             self.observe_events(model, "updated")
             return model
         return additional
+
+    def force_update(self, updates: dict, dry=False):
+        return self.update(updates, dry=dry, force=True)
 
     def set_updates(self, updates: dict, dry=False):
         """Specifies columns and values to be updated.
