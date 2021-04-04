@@ -22,6 +22,8 @@ class SeedRunCommand(Command):
 
         file_name = f"{underscore(self.argument('table'))}_table_seeder.{camelize(self.argument('table'))}TableSeeder"
 
-        return Seeder(
+        Seeder(
             dry=self.option("dry"), seed_path=self.option("directory")
         ).run_specific_seed(file_name)
+
+        self.line("<info>\nDatabase seeded!</info>")
