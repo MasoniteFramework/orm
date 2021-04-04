@@ -9,6 +9,7 @@ class MigrateRefreshCommand(Command):
     migrate:refresh
         {--c|connection=default : The connection you want to run migrations on}
         {--d|directory=databases/migrations : The location of the migration directory}
+        {--s|seed : Wheter seeding should be run after refresh migrations}
         {--seeder=None : Which seeder should be run}
     """
 
@@ -20,5 +21,5 @@ class MigrateRefreshCommand(Command):
         )
         migration.refresh()
 
-        if self.option("seeder"):
+        if self.option("seed"):
             self.call("seed:run", self.option("seeder"))
