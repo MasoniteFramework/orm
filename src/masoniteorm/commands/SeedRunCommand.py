@@ -17,19 +17,21 @@ class SeedRunCommand(Command):
     def handle(self):
 
         seeder = Seeder(dry=self.option("dry"), seed_path=self.option("directory"))
-            
+
         if self.argument("table") == "None":
             seeder.run_database_seed()
             seeder_seeded = "Database Seeder"
 
         else:
 
-            table = self.argument('table')
+            table = self.argument("table")
 
-            formatter_seeder_file  = lambda table: f"{underscore(table)}_table_seeder"
+            formatter_seeder_file = lambda table: f"{underscore(table)}_table_seeder"
             formatter_seeder_class = lambda table: f"{camelize(table)}TableSeeder"
 
-            seeder_file = f"{formatter_seeder_file(table)}.{formatter_seeder_class(table)}"
+            seeder_file = (
+                f"{formatter_seeder_file(table)}.{formatter_seeder_class(table)}"
+            )
 
             seeder.run_specific_seed(seeder_file)
 
