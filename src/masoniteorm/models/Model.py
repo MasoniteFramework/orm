@@ -146,6 +146,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "to_sql",
         "truncate",
         "update",
+        "force_update",
         "when",
         "where_has",
         "where_from_builder",
