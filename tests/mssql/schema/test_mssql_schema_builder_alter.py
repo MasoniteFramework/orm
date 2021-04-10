@@ -93,6 +93,18 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_alter_add_column_and_add_foreign(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.unsigned_integer("playlist_id").nullable()
+            blueprint.add_foreign("playlist_id.id.playlists").on_delete("cascade")
+
+        sql = [
+            "ALTER TABLE [users] ADD [playlist_id] INT NULL",
+            "ALTER TABLE [users] ADD CONSTRAINT users_playlist_id_foreign FOREIGN KEY ([playlist_id]) REFERENCES playlists([id]) ON DELETE CASCADE",
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_alter_drop_foreign_key(self):
         with self.schema.table("users") as blueprint:
             blueprint.drop_foreign("users_playlist_id_foreign")
