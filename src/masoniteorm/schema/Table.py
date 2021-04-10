@@ -44,8 +44,10 @@ class Table:
             {name: Constraint(name, constraint_type, columns=columns or [])}
         )
 
-    def add_foreign_key(self, column, table=None, foreign_column=None):
-        foreign_key = ForeignKeyConstraint(column, table, foreign_column)
+    def add_foreign_key(self, column, table=None, foreign_column=None, name=None):
+        foreign_key = ForeignKeyConstraint(
+            column, table, foreign_column, name=name or f"{self.name}_{column}_foreign"
+        )
         self.added_foreign_keys.update({column: foreign_key})
 
         return foreign_key
@@ -65,9 +67,8 @@ class Table:
     def get_renamed_columns(self):
         return self.added_columns
 
-    def set_primary_key(self, column_name):
-        self.primary_key = column_name
-        self.added_columns[column_name].set_as_primary()
+    def set_primary_key(self, columns):
+        self.primary_key = columns
         return self
 
     def add_index(self, column, name, index_type):

@@ -15,8 +15,6 @@ class MigrateCommand(Command):
     """
 
     def handle(self):
-        from config.database import DB
-
         # prompt user for confirmation in production
         if os.getenv("APP_ENV") == "production" and not self.option("force"):
             answer = ""

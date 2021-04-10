@@ -6,10 +6,8 @@ import inspect
 
 from ..query import QueryBuilder
 from ..collection import Collection
-from ..connections import ConnectionFactory, ConnectionResolver
-from ..query.grammars import MySQLGrammar
 from ..observers import ObservesEvents
-from ..scopes import BaseScope, SoftDeleteScope, SoftDeletesMixin, TimeStampsMixin
+from ..scopes import TimeStampsMixin
 
 """This is a magic class that will help using models like User.first() instead of having to instatiate a class like
 User().first()
@@ -145,6 +143,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "sum",
         "to_qmark",
         "to_sql",
+        "truncate",
         "update",
         "when",
         "where_has",
@@ -210,8 +209,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return self.get_builder()
 
     def get_builder(self):
-        from config.database import DB
-
         if hasattr(self, "builder"):
             return self.builder
         self.builder = QueryBuilder(

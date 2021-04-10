@@ -1,5 +1,4 @@
 from .BaseRelationship import BaseRelationship
-from ..collection import Collection
 
 
 class MorphTo(BaseRelationship):

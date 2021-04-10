@@ -1,5 +1,4 @@
 from cleo import Command
-import os
 from ..migrations import Migration
 
 
@@ -13,8 +12,6 @@ class MigrateStatusCommand(Command):
     """
 
     def handle(self):
-        from config.database import ConnectionResolver
-
         migration = Migration(
             command_class=self,
             connection=self.option("connection"),

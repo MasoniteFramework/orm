@@ -4,7 +4,6 @@ from ...expressions.expressions import (
     SubGroupExpression,
     SubSelectExpression,
     SelectExpression,
-    BetweenExpression,
 )
 
 
@@ -677,6 +676,9 @@ class BaseGrammar:
         )
         return self
 
+    def wrap_table(self, table_name):
+        return self.table_string().format(table=table_name)
+
     def process_exists(self):
         """Specifies the column exists expression.
 
@@ -888,6 +890,15 @@ class BaseGrammar:
         )
         return self
 
-    def truncate_table(self, table):
-        self._sql = self.truncate_table_string().format(table=self.process_table(table))
-        return self
+    def truncate_table(self, table, foreign_keys=False):
+        """Specifies a truncate table expression.
+
+        Arguments;
+            table {string} -- The name of the table to truncate.
+
+        Returns:
+            self
+        """
+        raise NotImplementedError(
+            f"'{self.__class__.__name__}' does not support truncating"
+        )

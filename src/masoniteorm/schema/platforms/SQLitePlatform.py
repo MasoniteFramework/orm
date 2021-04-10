@@ -255,7 +255,10 @@ class SQLitePlatform(Platform):
         return "UNIQUE({columns})"
 
     def get_foreign_key_constraint_string(self):
-        return "CONSTRAINT {table}_{column}_foreign FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){cascade}"
+        return "CONSTRAINT {constraint_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){cascade}"
+
+    def get_primary_key_constraint_string(self):
+        return "CONSTRAINT {constraint_name} PRIMARY KEY ({columns})"
 
     def constraintize(self, constraints):
         sql = []
@@ -263,7 +266,10 @@ class SQLitePlatform(Platform):
             sql.append(
                 getattr(
                     self, f"get_{constraint.constraint_type}_constraint_string"
-                )().format(columns=", ".join(constraint.columns))
+                )().format(
+                    columns=", ".join(constraint.columns),
+                    constraint_name=constraint.name,
+                )
             )
         return sql
 
@@ -278,6 +284,7 @@ class SQLitePlatform(Platform):
             sql.append(
                 self.get_foreign_key_constraint_string().format(
                     column=foreign_key.column,
+                    constraint_name=foreign_key.constraint_name,
                     table=table,
                     foreign_table=foreign_key.foreign_table,
                     foreign_column=foreign_key.foreign_column,
@@ -319,11 +326,11 @@ class SQLitePlatform(Platform):
 
     def compile_truncate(self, table, foreign_keys=False):
         if not foreign_keys:
-            return f"TRUNCATE {self.wrap_table(table)}"
+            return f"DELETE FROM {self.wrap_table(table)}"
 
         return [
             self.disable_foreign_key_constraints(),
-            f"TRUNCATE {self.wrap_table(table)}",
+            f"DELETE FROM {self.wrap_table(table)}",
             self.enable_foreign_key_constraints(),
         ]
 

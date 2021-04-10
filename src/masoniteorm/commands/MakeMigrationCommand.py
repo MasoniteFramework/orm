@@ -5,8 +5,6 @@ import pathlib
 from cleo import Command
 from inflection import camelize, tableize
 
-from ..migrations import Migration
-
 
 class MakeMigrationCommand(Command):
     """

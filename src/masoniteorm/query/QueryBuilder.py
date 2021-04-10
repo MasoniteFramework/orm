@@ -17,17 +17,10 @@ from ..expressions.expressions import (
 )
 
 from ..scopes import BaseScope
-
 from ..schema import Schema
-
 from ..observers import ObservesEvents
-
-from ..connections import ConnectionResolver, ConnectionFactory
-
 from ..exceptions import ModelNotFound, HTTP404, ConnectionNotRegistered
-
 from ..pagination import LengthAwarePaginator, SimplePaginator
-
 from .EagerRelation import EagerRelations
 
 
@@ -1625,6 +1618,13 @@ class QueryBuilder(ObservesEvents):
         if conditional:
             callback(self)
         return self
+
+    def truncate(self, foreign_keys=False):
+        sql = self.get_grammar().truncate_table(self.get_table_name(), foreign_keys)
+        if self.dry:
+            return sql
+
+        return self.new_connection().query(sql, ())
 
     def new_from_builder(self, from_builder=None):
         """Creates a new QueryBuilder class.

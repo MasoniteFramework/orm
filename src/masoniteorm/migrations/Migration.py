@@ -1,5 +1,5 @@
 import os
-from os import listdir, path
+from os import listdir
 from os.path import isfile, join
 from pydoc import locate
 
@@ -7,12 +7,8 @@ from inflection import camelize
 
 from ..models.MigrationModel import MigrationModel
 from ..schema import Schema
-from ..connections import ConnectionFactory
 
-from pprint import pprint
 from timeit import default_timer as timer
-
-from ..exceptions import MigrationNotFound
 
 
 class Migration:

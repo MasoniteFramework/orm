@@ -1,7 +1,4 @@
 from .Column import Column
-from .ForeignKeyConstraint import ForeignKeyConstraint
-from .Constraint import Constraint
-from .Index import Index
 from .Table import Table
 
 
