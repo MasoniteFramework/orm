@@ -8,6 +8,11 @@ class ModelTest(Model):
     __casts__ = {"is_vip": "bool", "payload": "json", "x": "int", "f": "float"}
 
 
+class ModelTestForced(Model):
+    __table__ = "users"
+    __force_update__ = True
+
+
 class TestModels(unittest.TestCase):
     def test_model_can_access_str_dates_as_pendulum(self):
         model = ModelTest.hydrate({"user": "joe", "due_date": "2020-11-28 11:42:07"})
@@ -85,8 +90,7 @@ class TestModels(unittest.TestCase):
         self.assertNotIn("username", sql)
 
     def test_force_update_on_model_class(self):
-        ModelTest.__force_update__ = True
-        model = ModelTest.hydrate(
+        model = ModelTestForced.hydrate(
             {"id": 1, "username": "joe", "name": "Joe", "admin": True}
         )
 
@@ -105,4 +109,4 @@ class TestModels(unittest.TestCase):
         model.username = "joe"
         model.name = "Joe"
         sql = model.save(query=True)
-        # it's working but update timestamps, the update should be discarded/abandonned ?
+        self.assertFalse(sql.startswith("UPDATE"))
