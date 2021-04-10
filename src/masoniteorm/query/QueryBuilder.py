@@ -1036,6 +1036,10 @@ class QueryBuilder(ObservesEvents):
                     changes.update({attribute: value})
             updates = changes
 
+        # do not perform update query if no changes
+        if len(updates.keys()) == 0:
+            return model if model else self
+
         self._updates = (UpdateQueryExpression(updates),)
         self.set_action("update")
         if dry or self.dry:
