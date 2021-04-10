@@ -1029,7 +1029,7 @@ class QueryBuilder(ObservesEvents):
             self.observe_events(model, "updating")
 
         # update only attributes with changes
-        if not model.__force_update__ and not force:
+        if model and not model.__force_update__ and not force:
             changes = {}
             for attribute, value in updates.items():
                 if model.__original_attributes__.get(attribute, None) != value:
