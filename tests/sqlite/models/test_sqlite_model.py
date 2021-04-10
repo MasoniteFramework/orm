@@ -121,3 +121,8 @@ class BaseTestQueryRelationships(unittest.TestCase):
                 user.id
             ),
         )
+
+    def test_update_is_not_done_when_no_changes(self):
+        user = User.first()
+        sql = user.update({"name": user.name}).to_sql()
+        self.assertNotIn("UPDATE", sql)
