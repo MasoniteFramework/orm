@@ -72,3 +72,37 @@ class TestModels(unittest.TestCase):
         self.assertEqual(type(model.f), float)
         self.assertEqual(type(model.is_vip), bool)
         self.assertEqual(type(model.serialize()["is_vip"]), bool)
+
+    def test_model_update_without_changes(self):
+        model = ModelTest.hydrate(
+            {"id": 1, "username": "joe", "name": "Joe", "admin": True}
+        )
+
+        model.username = "joe"
+        model.name = "Bill"
+        sql = model.save(query=True)
+        self.assertTrue(sql.startswith("UPDATE"))
+        self.assertNotIn("username", sql)
+
+    def test_force_update_on_model_class(self):
+        ModelTest.__force_update__ = True
+        model = ModelTest.hydrate(
+            {"id": 1, "username": "joe", "name": "Joe", "admin": True}
+        )
+
+        model.username = "joe"
+        model.name = "Bill"
+        sql = model.save(query=True)
+        self.assertTrue(sql.startswith("UPDATE"))
+        self.assertIn("username", sql)
+        self.assertIn("name", sql)
+
+    def test_model_update_without_changes_at_all(self):
+        model = ModelTest.hydrate(
+            {"id": 1, "username": "joe", "name": "Joe", "admin": True}
+        )
+
+        model.username = "joe"
+        model.name = "Joe"
+        sql = model.save(query=True)
+        # it's working but update timestamps, the update should be discarded/abandonned ?
