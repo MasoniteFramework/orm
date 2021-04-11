@@ -29,15 +29,4 @@ class SeedRunCommand(Command):
             seeder.run_specific_seed(seeder_file)
             seeder_seeded = f"{camelize(table)}TableSeeder"
 
-            formatter_seeder_file = lambda table: f"{underscore(table)}_table_seeder"
-            formatter_seeder_class = lambda table: f"{camelize(table)}TableSeeder"
-
-            seeder_file = (
-                f"{formatter_seeder_file(table)}.{formatter_seeder_class(table)}"
-            )
-
-            seeder.run_specific_seed(seeder_file)
-
-            seeder_seeded = f"{formatter_seeder_class(table)}"
-
         self.line(f"<info>{seeder_seeded} seeded!</info>")
