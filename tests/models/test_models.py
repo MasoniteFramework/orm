@@ -79,7 +79,7 @@ class TestModels(unittest.TestCase):
 
         self.assertEqual(sql, """SELECT * FROM "model_tests" WHERE "model_tests"."name" = 'joe' OR "model_tests"."is_vip" = 'True'""")
 
-    def test_model_using_or_where_and_chaning_wheres(self):
+    def test_model_using_or_where_and_chaining_wheres(self):
         model = ModelTest()
 
         sql = model.where("name", "=", "joe") \
