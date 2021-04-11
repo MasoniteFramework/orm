@@ -218,6 +218,16 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             'CREATE TABLE "integer_types" (tiny TINYINT NOT NULL, small SMALLINT NOT NULL, medium MEDIUMINT NOT NULL, big BIGINT NOT NULL)',
         )
 
+    def test_can_add_binary_column(self):
+        with self.schema.create("binary_storing") as table:
+            table.binary("filecontent")
+
+        self.assertEqual(len(table.table.added_columns), 1)
+        self.assertEqual(
+            table.to_sql(),
+            'CREATE TABLE "binary_storing" (filecontent BYTEA NOT NULL)',
+        )
+
     def test_can_enable_foreign_keys(self):
         sql = self.schema.enable_foreign_key_constraints()
 
