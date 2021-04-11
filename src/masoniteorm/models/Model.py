@@ -135,6 +135,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "max",
         "min",
         "order_by",
+        "or_where",
         "paginate",
         "select",
         "set_global_scope",
