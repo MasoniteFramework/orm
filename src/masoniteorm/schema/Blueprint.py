@@ -724,7 +724,9 @@ class Blueprint:
             columns {string} -- The name of the from_column . to_column . table
         """
         if len(columns.split(".")) != 3:
-            raise Exception("Wrong add_foreign argument, the struncture is from_column.to_column.table")
+            raise Exception(
+                "Wrong add_foreign argument, the struncture is from_column.to_column.table"
+            )
         from_column, to_column, table = columns.split(".")
         return self.foreign(from_column, name=name).references(to_column).on(table)
 

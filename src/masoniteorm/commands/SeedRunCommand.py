@@ -25,7 +25,9 @@ class SeedRunCommand(Command):
         else:
 
             table = self.argument("table")
-            seeder_file = f"{underscore(table)}_table_seeder.{camelize(table)}TableSeeder"
+            seeder_file = (
+                f"{underscore(table)}_table_seeder.{camelize(table)}TableSeeder"
+            )
             seeder.run_specific_seed(seeder_file)
             seeder_seeded = f"{camelize(table)}TableSeeder"
 

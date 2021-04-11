@@ -970,8 +970,7 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def take(self, *args, **kwargs):
-        """Alias for limit method
-        """
+        """Alias for limit method"""
         return self.limit(*args, **kwargs)
 
     def limit(self, amount):
@@ -999,8 +998,7 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def skip(self, *args, **kwargs):
-        """Alias for limit method
-        """
+        """Alias for limit method"""
         return self.offset(*args, **kwargs)
 
     def update(self, updates: dict, dry=False):
