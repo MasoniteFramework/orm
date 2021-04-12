@@ -54,7 +54,7 @@ class JsonCast:
     def get(self, value):
         if isinstance(value, dict):
             return value
-            
+
         return json.loads(value)
 
     def set(self, value):
