@@ -78,6 +78,21 @@ class TestModels(unittest.TestCase):
         self.assertEqual(type(model.is_vip), bool)
         self.assertEqual(type(model.serialize()["is_vip"]), bool)
 
+    def test_model_can_cast_dict_attributes(self):
+        """test cast with dict object to json field"""
+        dictcasttest = {}
+        dictcasttest['key'] = 'value'
+        model = ModelTest.hydrate(
+            {"is_vip": 1, "payload": dictcasttest, "x": True, "f": "10.5"}
+        )
+
+        self.assertEqual(type(model.payload), dict)
+        self.assertEqual(type(model.x), int)
+        self.assertEqual(type(model.f), float)
+        self.assertEqual(type(model.is_vip), bool)
+        self.assertEqual(type(model.serialize()["is_vip"]), bool)
+
+
     def test_model_update_without_changes(self):
         model = ModelTest.hydrate(
             {"id": 1, "username": "joe", "name": "Joe", "admin": True}
