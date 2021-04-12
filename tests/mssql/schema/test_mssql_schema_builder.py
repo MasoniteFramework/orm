@@ -106,6 +106,9 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
             blueprint.string("name")
             blueprint.string("duration")
             blueprint.string("url")
+            blueprint.inet("last_address").nullable()
+            blueprint.cidr("route_origin").nullable()
+            blueprint.macaddr("mac_address").nullable()
             blueprint.datetime("published_at")
             blueprint.string("thumbnail").nullable()
             blueprint.integer("premium")
@@ -116,12 +119,12 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
             blueprint.text("description")
             blueprint.timestamps()
 
-        self.assertEqual(len(blueprint.table.added_columns), 12)
+        self.assertEqual(len(blueprint.table.added_columns), 15)
         self.assertEqual(
             blueprint.to_sql(),
             (
                 "CREATE TABLE [users] ([id] INT IDENTITY NOT NULL PRIMARY KEY, [gender] VARCHAR(255) NOT NULL CHECK([gender] IN ('male', 'female')), [name] VARCHAR(255) NOT NULL, [duration] VARCHAR(255) NOT NULL, "
-                "[url] VARCHAR(255) NOT NULL, [published_at] DATETIME NOT NULL, [thumbnail] VARCHAR(255) NULL, [premium] INT NOT NULL, "
+                "[url] VARCHAR(255) NOT NULL, [last_address] VARCHAR(255) NULL, [route_origin] VARCHAR(255) NULL, [mac_address] VARCHAR(255) NULL, [published_at] DATETIME NOT NULL, [thumbnail] VARCHAR(255) NULL, [premium] INT NOT NULL, "
                 "[author_id] INT NULL, [description] TEXT NOT NULL, [created_at] DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
                 "[updated_at] DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
                 "CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE)"

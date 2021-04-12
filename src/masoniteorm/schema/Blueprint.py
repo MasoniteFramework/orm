@@ -466,7 +466,7 @@ class Blueprint:
         self._last_column = self.table.add_column(column, "jsonb", nullable=nullable)
         return self
 
-    def inet(self, column, nullable=False):
+    def inet(self, column, length=255, nullable=False):
         """Sets a column to be the inet representation for the table.
 
         Arguments:
@@ -478,10 +478,10 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(column, "inet", nullable=nullable)
+        self._last_column = self.table.add_column(column, "inet", length=255, nullable=nullable)
         return self
 
-    def cidr(self, column, nullable=False):
+    def cidr(self, column, length=255, nullable=False):
         """Sets a column to be the cidr representation for the table.
 
         Arguments:
@@ -493,10 +493,10 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(column, "cidr", nullable=nullable)
+        self._last_column = self.table.add_column(column, "cidr", length=255, nullable=nullable)
         return self
 
-    def macaddr(self, column, nullable=False):
+    def macaddr(self, column, length=255, nullable=False):
         """Sets a column to be the macaddr representation for the table.
 
         Arguments:
@@ -508,7 +508,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(column, "macaddr", nullable=nullable)
+        self._last_column = self.table.add_column(column, "macaddr", length=255, nullable=nullable)
         return self
 
     def point(self, column, nullable=False):

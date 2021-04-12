@@ -9,6 +9,9 @@ class PostgresPlatform(Platform):
         "tiny_integer",
         "small_integer",
         "medium_integer",
+        "inet",
+        "cidr",
+        "macaddr"
     ]
 
     type_map = {
