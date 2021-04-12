@@ -8,6 +8,11 @@ class ModelTest(Model):
     __casts__ = {"is_vip": "bool", "payload": "json", "x": "int", "f": "float"}
 
 
+class ModelTestForced(Model):
+    __table__ = "users"
+    __force_update__ = True
+
+
 class TestModels(unittest.TestCase):
     def test_model_can_access_str_dates_as_pendulum(self):
         model = ModelTest.hydrate({"user": "joe", "due_date": "2020-11-28 11:42:07"})
@@ -72,3 +77,51 @@ class TestModels(unittest.TestCase):
         self.assertEqual(type(model.f), float)
         self.assertEqual(type(model.is_vip), bool)
         self.assertEqual(type(model.serialize()["is_vip"]), bool)
+
+    def test_model_update_without_changes(self):
+        model = ModelTest.hydrate(
+            {"id": 1, "username": "joe", "name": "Joe", "admin": True}
+        )
+
+        model.username = "joe"
+        model.name = "Bill"
+        sql = model.save(query=True)
+        self.assertTrue(sql.startswith("UPDATE"))
+        self.assertNotIn("username", sql)
+
+    def test_force_update_on_model_class(self):
+        model = ModelTestForced.hydrate(
+            {"id": 1, "username": "joe", "name": "Joe", "admin": True}
+        )
+
+        model.username = "joe"
+        model.name = "Bill"
+        sql = model.save(query=True)
+        self.assertTrue(sql.startswith("UPDATE"))
+        self.assertIn("username", sql)
+        self.assertIn("name", sql)
+
+    def test_model_update_without_changes_at_all(self):
+        model = ModelTest.hydrate(
+            {"id": 1, "username": "joe", "name": "Joe", "admin": True}
+        )
+
+        model.username = "joe"
+        model.name = "Joe"
+        sql = model.save(query=True)
+        self.assertFalse(sql.startswith("UPDATE"))
+
+    def test_model_using_or_where(self):
+        model = ModelTest()
+        sql = model.where("name", "=", "joe").or_where("is_vip", True).to_sql()
+
+        self.assertEqual(sql, """SELECT * FROM `model_tests` WHERE `model_tests`.`name` = 'joe' OR `model_tests`.`is_vip` = 'True'""")
+
+    def test_model_using_or_where_and_chaining_wheres(self):
+        model = ModelTest()
+
+        sql = model.where("name", "=", "joe") \
+                   .or_where(lambda query: query.where("username", "Joseph").or_where("age", ">=", 18)).to_sql()
+
+        self.assertTrue(sql, """SELECT * FROM `model_tests` WHERE `model_tests`.`name` = 'joe' OR (`model_tests`.`username` = 'Joseph' OR `model_tests`.`age` >= '18'))""")
+        

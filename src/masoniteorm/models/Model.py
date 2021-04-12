@@ -106,6 +106,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     __timestamps__ = True
     __timezone__ = "UTC"
     __with__ = ()
+    __force_update__ = False
 
     date_created_at = "created_at"
     date_updated_at = "updated_at"
@@ -135,6 +136,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "max",
         "min",
         "order_by",
+        "or_where",
         "paginate",
         "select",
         "set_global_scope",
@@ -145,6 +147,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "to_sql",
         "truncate",
         "update",
+        "force_update",
         "when",
         "where_has",
         "where_from_builder",
