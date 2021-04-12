@@ -110,3 +110,18 @@ class TestModels(unittest.TestCase):
         model.name = "Joe"
         sql = model.save(query=True)
         self.assertFalse(sql.startswith("UPDATE"))
+
+    def test_model_using_or_where(self):
+        model = ModelTest()
+        sql = model.where("name", "=", "joe").or_where("is_vip", True).to_sql()
+
+        self.assertEqual(sql, """SELECT * FROM `model_tests` WHERE `model_tests`.`name` = 'joe' OR `model_tests`.`is_vip` = 'True'""")
+
+    def test_model_using_or_where_and_chaining_wheres(self):
+        model = ModelTest()
+
+        sql = model.where("name", "=", "joe") \
+                   .or_where(lambda query: query.where("username", "Joseph").or_where("age", ">=", 18)).to_sql()
+
+        self.assertTrue(sql, """SELECT * FROM `model_tests` WHERE `model_tests`.`name` = 'joe' OR (`model_tests`.`username` = 'Joseph' OR `model_tests`.`age` >= '18'))""")
+        
