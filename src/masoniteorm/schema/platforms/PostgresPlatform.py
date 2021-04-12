@@ -9,6 +9,9 @@ class PostgresPlatform(Platform):
         "tiny_integer",
         "small_integer",
         "medium_integer",
+        "inet",
+        "cidr",
+        "macaddr"
     ]
 
     type_map = {
@@ -32,6 +35,9 @@ class PostgresPlatform(Platform):
         "geometry": "GEOMETRY",
         "json": "JSON",
         "jsonb": "JSONB",
+        "inet": "INET",
+        "cidr": "CIDR",
+        "macaddr": "MACADDR",
         "long_text": "LONGTEXT",
         "point": "POINT",
         "time": "TIME",
