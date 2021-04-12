@@ -22,7 +22,7 @@ class PostgresPlatform(Platform):
         "medium_integer": "MEDIUMINT",
         "increments": "SERIAL UNIQUE",
         "uuid": "CHAR",
-        "binary": "LONGBLOB",
+        "binary": "BYTEA",
         "boolean": "BOOLEAN",
         "decimal": "DECIMAL",
         "double": "DOUBLE PRECISION",

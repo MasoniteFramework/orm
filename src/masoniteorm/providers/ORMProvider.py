@@ -1,4 +1,4 @@
-from masonite.provider import ServiceProvider
+from masonite.providers import Provider
 
 from masoniteorm.commands import (
     MakeMigrationCommand,
@@ -11,14 +11,15 @@ from masoniteorm.commands import (
 )
 
 
-class ORMProvider(ServiceProvider):
+class ORMProvider(Provider):
     """Masonite ORM database provider to be used inside
     Masonite based projects."""
 
-    wsgi = False
+    def __init__(self, application):
+        self.application = application
 
     def register(self):
-        self.commands(
+        self.application.make("commands").add(
             MakeMigrationCommand(),
             MakeSeedCommand(),
             MakeObserverCommand(),
@@ -26,7 +27,7 @@ class ORMProvider(ServiceProvider):
             MigrateRefreshCommand(),
             MigrateRollbackCommand(),
             SeedRunCommand(),
-        )
+        ),
 
     def boot(self):
         pass
