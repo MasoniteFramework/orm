@@ -16,6 +16,14 @@ class User(Model):
     __dry__ = True
 
 
+class UserForced(Model):
+    __connection__ = "dev"
+    __table__ = "users"
+    __timestamps__ = False
+    __dry__ = True
+    __force_update__ = True
+
+
 class Select(Model):
     __connection__ = "dev"
     __selects__ = ["username", "rememember_token as token"]
@@ -72,3 +80,49 @@ class BaseTestQueryRelationships(unittest.TestCase):
             SelectPass.all(["username"], query=True),
             'SELECT "select_passes"."username" FROM "select_passes"',
         )
+
+    def test_update_only_changed_attributes(self):
+        user = User.first()
+        sql = user.update({"name": user.name, "username": "new"}).to_sql()
+        # unchanged name attribute is not updated
+        self.assertEqual(
+            sql,
+            """UPDATE "users" SET "username" = 'new' WHERE "id" = '{}'""".format(
+                user.id
+            ),
+        )
+
+    def test_can_force_update_on_method(self):
+        user = User.first()
+        sql = user.update({"name": user.name, "username": "new"}, force=True).to_sql()
+        self.assertEqual(
+            sql,
+            """UPDATE "users" SET "name" = 'bill', "username" = 'new' WHERE "id" = '{}'""".format(
+                user.id
+            ),
+        )
+
+    def test_can_force_update_on_model(self):
+        user = UserForced.first()
+        sql = user.update({"name": user.name, "username": "new"}).to_sql()
+        self.assertEqual(
+            sql,
+            """UPDATE "users" SET "name" = 'bill', "username" = 'new' WHERE "id" = '{}'""".format(
+                user.id
+            ),
+        )
+
+    def test_force_update(self):
+        user = User.first()
+        sql = user.force_update({"name": user.name, "username": "new"}).to_sql()
+        self.assertEqual(
+            sql,
+            """UPDATE "users" SET "name" = 'bill', "username" = 'new' WHERE "id" = '{}'""".format(
+                user.id
+            ),
+        )
+
+    def test_update_is_not_done_when_no_changes(self):
+        user = User.first()
+        sql = user.update({"name": user.name}).to_sql()
+        self.assertNotIn("UPDATE", sql)

@@ -466,6 +466,51 @@ class Blueprint:
         self._last_column = self.table.add_column(column, "jsonb", nullable=nullable)
         return self
 
+    def inet(self, column, length=255, nullable=False):
+        """Sets a column to be the inet representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(column, "inet", length=255, nullable=nullable)
+        return self
+
+    def cidr(self, column, length=255, nullable=False):
+        """Sets a column to be the cidr representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(column, "cidr", length=255, nullable=nullable)
+        return self
+
+    def macaddr(self, column, length=255, nullable=False):
+        """Sets a column to be the macaddr representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(column, "macaddr", length=255, nullable=nullable)
+        return self
+
     def point(self, column, nullable=False):
         """Sets a column to be the point representation for the table.
 
