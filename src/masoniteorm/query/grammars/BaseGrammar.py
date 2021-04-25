@@ -4,6 +4,7 @@ from ...expressions.expressions import (
     SubGroupExpression,
     SubSelectExpression,
     SelectExpression,
+    BetweenExpression
 )
 
 
@@ -599,7 +600,7 @@ class BaseGrammar:
                 else:
                     query_from_builder = value.builder.to_sql()
                 query_value = self.subquery_string().format(query=query_from_builder)
-            elif isinstance(value, list):
+            elif isinstance(value, list) and not isinstance(value, BetweenExpression):
                 query_value = "("
                 for val in value:
                     if qmark:
