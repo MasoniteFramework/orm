@@ -9,7 +9,6 @@ from src.masoniteorm.query.grammars import SQLiteGrammar
 from src.masoniteorm.relationships import belongs_to
 from tests.utils import MockConnectionFactory
 
-
 class User(Model):
     __connection__ = "dev"
     __timestamps__ = False
@@ -126,3 +125,35 @@ class BaseTestQueryRelationships(unittest.TestCase):
         user = User.first()
         sql = user.update({"name": user.name}).to_sql()
         self.assertNotIn("UPDATE", sql)
+
+    def test_should_collect_correct_amount_data_using_between(self):
+
+        class ModelUser(Model):
+            __connection__ = "dev"
+            __table__ = "users"
+
+        ModelUser.truncate()
+
+        ModelUser.create({"age": 1})
+        ModelUser.create({"age": 2})
+        ModelUser.create({"age": 3})
+        ModelUser.create({"age": 4})
+
+        count = User.between("age", 2, 4).get().count()
+        self.assertEqual(count, 3)
+
+    def test_should_collect_correct_amount_data_using_not_between(self):
+
+        class ModelUser(Model):
+            __connection__ = "dev"
+            __table__ = "users"
+
+        ModelUser.truncate()
+
+        ModelUser.create({"age": 1})
+        ModelUser.create({"age": 2})
+        ModelUser.create({"age": 3})
+        ModelUser.create({"age": 4})
+
+        count = User.not_between("age", 2, 4).get().count()
+        self.assertEqual(count, 1)
