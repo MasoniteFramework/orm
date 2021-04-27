@@ -301,11 +301,9 @@ class MSSQLPlatform(Platform):
         return Table(table_name)
 
     def enable_foreign_key_constraints(self):
-        """MSSQL does not allow a global way to enable foreign key constraints
-        """
+        """MSSQL does not allow a global way to enable foreign key constraints"""
         return ""
 
     def disable_foreign_key_constraints(self):
-        """MSSQL does not allow a global way to disable foreign key constraints
-        """
+        """MSSQL does not allow a global way to disable foreign key constraints"""
         return ""

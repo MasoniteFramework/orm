@@ -388,11 +388,9 @@ class PostgresPlatform(Platform):
         return table
 
     def enable_foreign_key_constraints(self):
-        """Postgres does not allow a global way to enable foreign key constraints
-        """
+        """Postgres does not allow a global way to enable foreign key constraints"""
         return ""
 
     def disable_foreign_key_constraints(self):
-        """Postgres does not allow a global way to disable foreign key constraints
-        """
+        """Postgres does not allow a global way to disable foreign key constraints"""
         return ""
