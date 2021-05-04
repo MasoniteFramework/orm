@@ -132,15 +132,8 @@ class BaseTestQueryRelationships(unittest.TestCase):
             __connection__ = "dev"
             __table__ = "users"
 
-        ModelUser.truncate()
-
-        ModelUser.create({"age": 1})
-        ModelUser.create({"age": 2})
-        ModelUser.create({"age": 3})
-        ModelUser.create({"age": 4})
-
-        count = User.between("age", 2, 4).get().count()
-        self.assertEqual(count, 3)
+        count = User.between("age", 1, 2).get().count()
+        self.assertEqual(count, 2)
 
     def test_should_collect_correct_amount_data_using_not_between(self):
 
@@ -148,12 +141,5 @@ class BaseTestQueryRelationships(unittest.TestCase):
             __connection__ = "dev"
             __table__ = "users"
 
-        ModelUser.truncate()
-
-        ModelUser.create({"age": 1})
-        ModelUser.create({"age": 2})
-        ModelUser.create({"age": 3})
-        ModelUser.create({"age": 4})
-
-        count = User.not_between("age", 2, 4).get().count()
-        self.assertEqual(count, 1)
+        count = User.where_not_null('id').not_between("age", 1, 2).get().count()
+        self.assertEqual(count, 0)

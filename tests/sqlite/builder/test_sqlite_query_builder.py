@@ -394,16 +394,9 @@ class BaseTestQueryBuilder:
     def test_between_persisted(self):
 
         builder = QueryBuilder().table("users").on("dev")
-        builder.truncate()
+        users = builder.between("age", 1, 2).count()
 
-        builder.create({"age": 5})
-        builder.create({"age": 6})
-        builder.create({"age": 7})
-        builder.create({"age": 8})
-
-        elements = builder.between("age", 6, 8).count()
-
-        self.assertEqual(elements, 3)
+        self.assertEqual(users, 2)
 
     def test_not_between(self):
         builder = self.get_builder()
@@ -416,16 +409,9 @@ class BaseTestQueryBuilder:
     def test_not_between_persisted(self):
 
         builder = QueryBuilder().table("users").on("dev")
-        builder.truncate()
+        users = builder.where_not_null('id').not_between("age", 1, 2).count()
 
-        builder.create({"age": 5})
-        builder.create({"age": 6})
-        builder.create({"age": 7})
-        builder.create({"age": 8})
-
-        elements = builder.not_between("age", 6, 8).count()
-
-        self.assertEqual(elements, 1)
+        self.assertEqual(users, 0)
         
     def test_where_in(self):
         builder = self.get_builder()
