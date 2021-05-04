@@ -160,6 +160,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "where_like",
         "where_not_like",
         "where_null",
+        "where_not_null",
         "where_raw",
         "where",
         "with_",
