@@ -4,6 +4,7 @@ from ...expressions.expressions import (
     SubGroupExpression,
     SubSelectExpression,
     SelectExpression,
+    BetweenExpression
 )
 
 
@@ -514,7 +515,7 @@ class BaseGrammar:
                     keyword = ""
                 else:
                     keyword = " " + self.first_where_string()
-            elif where.keyword == "or":
+            elif hasattr(where, 'keyword') and where.keyword == "or":
                 keyword = " " + self.or_where_string()
             else:
                 keyword = " " + self.additional_where_string()
@@ -599,7 +600,7 @@ class BaseGrammar:
                 else:
                     query_from_builder = value.builder.to_sql()
                 query_value = self.subquery_string().format(query=query_from_builder)
-            elif isinstance(value, list):
+            elif isinstance(value, list) and not isinstance(value, BetweenExpression):
                 query_value = "("
                 for val in value:
                     if qmark:
