@@ -107,6 +107,7 @@ class BaseGrammar:
                 .strip()
             )
 
+
         return self
 
     def _compile_update(self, qmark=False):
@@ -546,9 +547,17 @@ class BaseGrammar:
             If it is a WHERE NULL, WHERE EXISTS, WHERE `col` = 'val' etc
             """
             if equality == "BETWEEN":
+                low = where.low
+                high = where.high
+                if qmark:
+                    self.add_binding(low)
+                    self.add_binding(high)
+                    low = "?"
+                    high = "?"
+
                 sql_string = self.between_string().format(
-                    low=self._compile_value(where.low),
-                    high=self._compile_value(where.high),
+                    low=self._compile_value(low),
+                    high=self._compile_value(high),
                     column=self._table_column_string(where.column),
                     keyword=keyword,
                 )
@@ -600,7 +609,7 @@ class BaseGrammar:
                 else:
                     query_from_builder = value.builder.to_sql()
                 query_value = self.subquery_string().format(query=query_from_builder)
-            elif isinstance(value, list) and not isinstance(value, BetweenExpression):
+            elif isinstance(value, list):
                 query_value = "("
                 for val in value:
                     if qmark:
@@ -618,12 +627,14 @@ class BaseGrammar:
                     and value_type != "value_equals"
                     and value_type != "NULL"
                 ):
-                    self.add_binding(value)
+                    if value:
+                        self.add_binding(value)
             elif value_type == "value":
                 if qmark:
                     query_value = "'?'"
                 else:
                     query_value = self.value_string().format(value=value, separator="")
+                
                 self.add_binding(value)
             elif value_type == "column":
                 query_value = self._table_column_string(column=value, separator="")
@@ -637,7 +648,7 @@ class BaseGrammar:
             )
 
             loop_count += 1
-
+        
         return sql
 
     def add_binding(self, binding):

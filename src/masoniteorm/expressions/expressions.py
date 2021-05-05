@@ -71,7 +71,7 @@ class BetweenExpression:
         self.low = low
         self.high = high
         self.equality = equality
-        self.value = []
+        self.value = None
         self.value_type = "BETWEEN"
         self.raw = False
 
