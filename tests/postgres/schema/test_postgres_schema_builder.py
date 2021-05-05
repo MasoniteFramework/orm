@@ -227,8 +227,7 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(len(table.table.added_columns), 1)
         self.assertEqual(
-            table.to_sql(),
-            'CREATE TABLE "binary_storing" (filecontent BYTEA NOT NULL)',
+            table.to_sql(), 'CREATE TABLE "binary_storing" (filecontent BYTEA NOT NULL)'
         )
 
     def test_can_enable_foreign_keys(self):

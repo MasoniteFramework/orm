@@ -209,7 +209,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.timestamps()
 
         self.assertEqual(len(blueprint.table.added_columns), 17)
-        
+
         self.assertEqual(
             blueprint.to_sql(),
             (

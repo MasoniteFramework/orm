@@ -4,7 +4,7 @@ from ...expressions.expressions import (
     SubGroupExpression,
     SubSelectExpression,
     SelectExpression,
-    BetweenExpression
+    BetweenExpression,
 )
 
 
@@ -106,7 +106,6 @@ class BaseGrammar:
                 )
                 .strip()
             )
-
 
         return self
 
@@ -516,7 +515,7 @@ class BaseGrammar:
                     keyword = ""
                 else:
                     keyword = " " + self.first_where_string()
-            elif hasattr(where, 'keyword') and where.keyword == "or":
+            elif hasattr(where, "keyword") and where.keyword == "or":
                 keyword = " " + self.or_where_string()
             else:
                 keyword = " " + self.additional_where_string()
@@ -634,7 +633,7 @@ class BaseGrammar:
                     query_value = "'?'"
                 else:
                     query_value = self.value_string().format(value=value, separator="")
-                
+
                 self.add_binding(value)
             elif value_type == "column":
                 query_value = self._table_column_string(column=value, separator="")
@@ -648,7 +647,7 @@ class BaseGrammar:
             )
 
             loop_count += 1
-        
+
         return sql
 
     def add_binding(self, binding):

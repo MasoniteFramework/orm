@@ -409,10 +409,10 @@ class BaseTestQueryBuilder:
     def test_not_between_persisted(self):
 
         builder = QueryBuilder().table("users").on("dev")
-        users = builder.where_not_null('id').not_between("age", 1, 2).count()
+        users = builder.where_not_null("id").not_between("age", 1, 2).count()
 
         self.assertEqual(users, 0)
-        
+
     def test_where_in(self):
         builder = self.get_builder()
         builder.where_in("id", [1, 2, 3])
