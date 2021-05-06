@@ -391,6 +391,13 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_between_persisted(self):
+
+        builder = QueryBuilder().table("users").on("dev")
+        users = builder.between("age", 1, 2).count()
+
+        self.assertEqual(users, 2)
+
     def test_not_between(self):
         builder = self.get_builder()
         builder.not_between("id", 2, 5)
@@ -398,6 +405,13 @@ class BaseTestQueryBuilder:
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
         self.assertEqual(builder.to_sql(), sql)
+
+    def test_not_between_persisted(self):
+
+        builder = QueryBuilder().table("users").on("dev")
+        users = builder.where_not_null("id").not_between("age", 1, 2).count()
+
+        self.assertEqual(users, 0)
 
     def test_where_in(self):
         builder = self.get_builder()

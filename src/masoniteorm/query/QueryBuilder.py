@@ -732,6 +732,12 @@ class QueryBuilder(ObservesEvents):
         self._wheres += (BetweenExpression(column, low, high),)
         return self
 
+    def where_between(self, *args, **kwargs):
+        return self.between(*args, **kwargs)
+
+    def where_not_between(self, *args, **kwargs):
+        return self.not_between(*args, **kwargs)
+
     def not_between(self, column: str, low: [str, int], high: [str, int]):
         """Specifies a where not between expression.
 

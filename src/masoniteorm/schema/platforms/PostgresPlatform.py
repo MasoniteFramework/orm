@@ -11,7 +11,7 @@ class PostgresPlatform(Platform):
         "medium_integer",
         "inet",
         "cidr",
-        "macaddr"
+        "macaddr",
     ]
 
     type_map = {

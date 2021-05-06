@@ -4,6 +4,7 @@ from ...expressions.expressions import (
     SubGroupExpression,
     SubSelectExpression,
     SelectExpression,
+    BetweenExpression,
 )
 
 
@@ -514,7 +515,7 @@ class BaseGrammar:
                     keyword = ""
                 else:
                     keyword = " " + self.first_where_string()
-            elif where.keyword == "or":
+            elif hasattr(where, "keyword") and where.keyword == "or":
                 keyword = " " + self.or_where_string()
             else:
                 keyword = " " + self.additional_where_string()
@@ -545,9 +546,17 @@ class BaseGrammar:
             If it is a WHERE NULL, WHERE EXISTS, WHERE `col` = 'val' etc
             """
             if equality == "BETWEEN":
+                low = where.low
+                high = where.high
+                if qmark:
+                    self.add_binding(low)
+                    self.add_binding(high)
+                    low = "?"
+                    high = "?"
+
                 sql_string = self.between_string().format(
-                    low=self._compile_value(where.low),
-                    high=self._compile_value(where.high),
+                    low=self._compile_value(low),
+                    high=self._compile_value(high),
                     column=self._table_column_string(where.column),
                     keyword=keyword,
                 )
@@ -617,12 +626,14 @@ class BaseGrammar:
                     and value_type != "value_equals"
                     and value_type != "NULL"
                 ):
-                    self.add_binding(value)
+                    if value:
+                        self.add_binding(value)
             elif value_type == "value":
                 if qmark:
                     query_value = "'?'"
                 else:
                     query_value = self.value_string().format(value=value, separator="")
+
                 self.add_binding(value)
             elif value_type == "column":
                 query_value = self._table_column_string(column=value, separator="")
