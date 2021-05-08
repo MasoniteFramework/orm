@@ -21,6 +21,8 @@ class SQLitePostProcessor:
         Returns:
             dictionary: Should return the modified dictionary.
         """
-        results.update({id_key: builder.get_connection().get_cursor().lastrowid})
+
+        if id_key not in results:
+            results.update({id_key: builder.get_connection().get_cursor().lastrowid})
 
         return results
