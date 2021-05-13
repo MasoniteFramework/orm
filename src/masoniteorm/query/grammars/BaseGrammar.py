@@ -626,7 +626,11 @@ class BaseGrammar:
                     and value_type != "value_equals"
                     and value_type != "NULL"
                 ):
-                    if value:
+                    if value in (0,):
+                        self.add_binding(value)
+                    elif not value:
+                        pass
+                    else:
                         self.add_binding(value)
             elif value_type == "value":
                 if qmark:
