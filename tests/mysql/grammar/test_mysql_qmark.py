@@ -54,23 +54,15 @@ class BaseQMarkTest:
         self.assertEqual(mark.to_qmark(), sql)
         self.assertEqual(mark._bindings, [])
 
-    # def test_can_create_with_falsy_values(self):
-    #     mark = self.builder.create(
-    #         {
-    #             "name": "joe",
-    #             "serialized": 1,
-    #             "created_at": 0,
-    #             "attempts": None,
-    #             "ran_at": None,
-    #             "wait_until": 1,
-    #         }
-    #     )
+    def test_can_compile_where_with_falsy_values(self):
+        mark = self.builder.where("name", 0)
 
-    #     sql, bindings = getattr(
-    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
-    #     )()
-    #     self.assertEqual(mark.to_qmark(), sql)
-    #     self.assertEqual(mark._bindings, bindings)
+        sql, bindings = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(mark.to_qmark(), sql)
+        self.assertEqual(mark._bindings, bindings)
+
 
 
 class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
@@ -114,3 +106,9 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         self.builder.where_not_null("id").to_qmark()
         """
         return ("SELECT * FROM `users` WHERE `users`.`id` IS NOT NULL", ())
+
+    def can_compile_where_with_falsy_values(self):
+        """
+        self.builder.where_not_null("id").to_qmark()
+        """
+        return ("SELECT * FROM `users` WHERE `users`.`name` = '?'", [0])
