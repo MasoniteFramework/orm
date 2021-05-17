@@ -627,7 +627,12 @@ class BaseGrammar:
                     and value_type != "NULL"
                     and value_type != "BETWEEN"
                 ):
-                    self.add_binding(value)
+                    if value in (0,):
+                        self.add_binding(value)
+                    elif not value:
+                        pass
+                    else:
+                        self.add_binding(value)
             elif value_type == "value":
                 if qmark:
                     query_value = "'?'"
