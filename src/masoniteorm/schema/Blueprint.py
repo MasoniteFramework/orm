@@ -150,8 +150,10 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(
-            column, "increments", nullable=nullable, primary=True
+            column, "increments", nullable=nullable
         )
+
+        self.primary(column)
         return self
 
     def tiny_increments(self, column, nullable=False):
@@ -167,8 +169,10 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(
-            column, "tiny_increments", nullable=nullable, primary=True
+            column, "tiny_increments", nullable=nullable
         )
+
+        self.primary(column)
         return self
 
     def uuid(self, column, nullable=False, length=36):
@@ -201,8 +205,10 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(
-            column, "big_increments", nullable=nullable, primary=True
+            column, "big_increments", nullable=nullable
         )
+
+        self.primary(column)
         return self
 
     def binary(self, column, nullable=False):
