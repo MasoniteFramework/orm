@@ -139,7 +139,9 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.primary("playlist_id")
 
-        sql = ['ALTER TABLE "users" ADD CONSTRAINT users_playlist_id_primary PRIMARY KEY (playlist_id)']
+        sql = [
+            'ALTER TABLE "users" ADD CONSTRAINT users_playlist_id_primary PRIMARY KEY (playlist_id)'
+        ]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
