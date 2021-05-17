@@ -176,6 +176,10 @@ class MSSQLPlatform(Platform):
                     )
                 elif constraint.constraint_type == "fulltext":
                     pass
+                elif constraint.constraint_type == "primary_key":
+                    sql.append(
+                        f"ALTER TABLE {self.wrap_table(table.name)} ADD CONSTRAINT {constraint.name} PRIMARY KEY ({','.join(constraint.columns)})"
+                    )
         return sql
 
     def add_column_string(self):
