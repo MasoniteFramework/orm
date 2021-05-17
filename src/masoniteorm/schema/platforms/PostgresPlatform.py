@@ -279,11 +279,16 @@ class PostgresPlatform(Platform):
                     )
                 )
 
+        print(table.added_constraints)
         if table.added_constraints:
             for name, constraint in table.added_constraints.items():
                 if constraint.constraint_type == "unique":
                     sql.append(
                         f"ALTER TABLE {self.wrap_table(table.name)} ADD CONSTRAINT {constraint.name} UNIQUE({','.join(constraint.columns)})"
+                    )
+                if constraint.constraint_type == "primary_key":
+                    sql.append(
+                        f"ALTER TABLE {self.wrap_table(table.name)} ADD CONSTRAINT {constraint.name} PRIMARY KEY ({','.join(constraint.columns)})"
                     )
 
         return sql
