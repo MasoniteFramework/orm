@@ -57,20 +57,32 @@ class SQLitePlatform(Platform):
     premapped_nulls = {True: "NULL", False: "NOT NULL"}
 
     def compile_create_sql(self, table):
-        return self.create_format().format(
-            table=self.get_table_string().format(table=table.name).strip(),
-            columns=", ".join(self.columnize(table.get_added_columns())).strip(),
-            constraints=", "
-            + ", ".join(self.constraintize(table.get_added_constraints()))
-            if table.get_added_constraints()
-            else "",
-            foreign_keys=", "
-            + ", ".join(
-                self.foreign_key_constraintize(table.name, table.added_foreign_keys)
+        sql = []
+
+        sql.append(
+            self.create_format().format(
+                table=self.get_table_string().format(table=table.name).strip(),
+                columns=", ".join(self.columnize(table.get_added_columns())).strip(),
+                constraints=", "
+                + ", ".join(self.constraintize(table.get_added_constraints()))
+                if table.get_added_constraints()
+                else "",
+                foreign_keys=", "
+                + ", ".join(
+                    self.foreign_key_constraintize(table.name, table.added_foreign_keys)
+                )
+                if table.added_foreign_keys
+                else "",
             )
-            if table.added_foreign_keys
-            else "",
         )
+
+        if table.added_indexes:
+            for name, index in table.added_indexes.items():
+                sql.append(
+                    f"CREATE INDEX {index.name} ON {self.wrap_table(table.name)}({','.join(index.column)})"
+                )
+
+        return sql
 
     def columnize(self, columns):
         sql = []
