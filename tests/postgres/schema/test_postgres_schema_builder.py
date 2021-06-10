@@ -99,10 +99,11 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             (
-                'CREATE TABLE "users" (id SERIAL UNIQUE NOT NULL PRIMARY KEY, name VARCHAR(255) NOT NULL, '
+                'CREATE TABLE "users" (id SERIAL UNIQUE NOT NULL, name VARCHAR(255) NOT NULL, '
                 "email VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, admin INTEGER NOT NULL DEFAULT 0, "
-                "remember_token VARCHAR(255) NULL, verified_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
+                "remember_token VARCHAR(255) NULL, verified_at TIMESTAMP NULL, "
                 "created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
+                "CONSTRAINT users_id_primary PRIMARY KEY (id), "
                 "CONSTRAINT users_email_unique UNIQUE (email))"
             ),
         )
@@ -135,11 +136,11 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             (
-                """CREATE TABLE "users" (id BIGSERIAL UNIQUE NOT NULL PRIMARY KEY, name VARCHAR(255) NOT NULL, gender VARCHAR(255) CHECK(gender IN ('male', 'female')) NOT NULL, """
+                """CREATE TABLE "users" (id BIGSERIAL UNIQUE NOT NULL, name VARCHAR(255) NOT NULL, gender VARCHAR(255) CHECK(gender IN ('male', 'female')) NOT NULL, """
                 "duration VARCHAR(255) NOT NULL, money DECIMAL(17, 6) NOT NULL, url VARCHAR(255) NOT NULL, option VARCHAR(255) NOT NULL DEFAULT 'ADMIN', payload JSONB NOT NULL, last_address INET NULL, "
                 "route_origin CIDR NULL, mac_address MACADDR NULL, published_at TIMESTAMP NOT NULL, thumbnail VARCHAR(255) NULL, premium INTEGER NOT NULL, amount DOUBLE PRECISION NOT NULL DEFAULT 0.0, "
                 "author_id INT NULL, description TEXT NOT NULL, created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
-                "updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
+                "updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_id_primary PRIMARY KEY (id), "
                 "CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES authors(id) ON DELETE CASCADE)"
             ),
         )

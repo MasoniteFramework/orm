@@ -64,7 +64,6 @@ class BaseQMarkTest:
         self.assertEqual(mark._bindings, bindings)
 
 
-
 class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
     def can_compile_select(self):
         """

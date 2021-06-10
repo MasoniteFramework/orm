@@ -95,11 +95,11 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             (
-                "CREATE TABLE `users` (`id` INT UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY, "
+                "CREATE TABLE `users` (`id` INT UNSIGNED AUTO_INCREMENT NOT NULL, "
                 "`name` VARCHAR(255) NOT NULL, `active` TINYINT(1) NOT NULL, `email` VARCHAR(255) NOT NULL, `gender` ENUM('male', 'female') NOT NULL, "
                 "`password` VARCHAR(255) NOT NULL, `money` DECIMAL(17, 6) NOT NULL, "
-                "`admin` INT(11) NOT NULL DEFAULT 0, `option` VARCHAR(255) NOT NULL DEFAULT 'ADMIN', `remember_token` VARCHAR(255) NULL, `verified_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
-                "`created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_email_unique UNIQUE (email))"
+                "`admin` INT(11) NOT NULL DEFAULT 0, `option` VARCHAR(255) NOT NULL DEFAULT 'ADMIN', `remember_token` VARCHAR(255) NULL, `verified_at` TIMESTAMP NULL, "
+                "`created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_email_unique UNIQUE (email))"
             ),
         )
 
@@ -141,11 +141,11 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             (
-                "CREATE TABLE `users` (`id` BIGINT UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY, `name` VARCHAR(255) NOT NULL, "
+                "CREATE TABLE `users` (`id` BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, `name` VARCHAR(255) NOT NULL, "
                 "`duration` VARCHAR(255) NOT NULL, `url` VARCHAR(255) NOT NULL, `last_address` VARCHAR(255) NULL, `route_origin` VARCHAR(255) NULL, `mac_address` VARCHAR(255) NULL, "
                 "`published_at` DATETIME NOT NULL, `thumbnail` VARCHAR(255) NULL, "
                 "`premium` INT(11) NOT NULL, `author_id` INT UNSIGNED NULL, `description` TEXT NOT NULL, `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
-                "`updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE)"
+                "`updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE)"
             ),
         )
 

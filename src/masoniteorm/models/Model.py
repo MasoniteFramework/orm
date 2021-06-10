@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, date as datetimedate, time as datetimetime
 
 from inflection import tableize
 import inspect
@@ -726,11 +726,18 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         import pendulum
 
         if not datetime:
-            return pendulum.now(self.__timezone__)
-
-        if isinstance(datetime, str):
+            return pendulum.now(tz=self.__timezone__)
+        elif isinstance(datetime, str):
             return pendulum.parse(datetime, tz=self.__timezone__)
-
+        elif isinstance(datetime, datetimedate):
+            return pendulum.datetime(
+                datetime.year, datetime.month, datetime.day, tz=self.__timezone__
+            )
+        elif isinstance(datetime, datetimetime):
+            return pendulum.parse(
+                f"{datetime.hour}:{datetime.minute}:{datetime.second}",
+                tz=self.__timezone__,
+            )
         return pendulum.instance(datetime, tz=self.__timezone__)
 
     def get_new_datetime_string(self, datetime=None):

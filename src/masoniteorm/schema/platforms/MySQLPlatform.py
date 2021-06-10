@@ -267,6 +267,10 @@ class MySQLPlatform(Platform):
                     sql.append(
                         f"ALTER TABLE {self.wrap_table(table.name)} ADD FULLTEXT {constraint.name}({','.join(constraint.columns)})"
                     )
+                elif constraint.constraint_type == "primary_key":
+                    sql.append(
+                        f"ALTER TABLE {self.wrap_table(table.name)} ADD CONSTRAINT {constraint.name} PRIMARY KEY ({','.join(constraint.columns)})"
+                    )
 
         if table.removed_indexes:
             constraints = table.removed_indexes
