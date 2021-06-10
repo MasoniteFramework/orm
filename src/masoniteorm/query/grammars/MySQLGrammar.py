@@ -94,6 +94,12 @@ class MySQLGrammar(BaseGrammar):
     def where_not_like_string(self):
         return "{keyword} {column} NOT LIKE {value}"
 
+    def get_true_column_string(self):
+        return "{keyword} {column} = '1'"
+
+    def get_false_column_string(self):
+        return "{keyword} {column} = '0'"
+
     def process_table(self, table):
         """Compiles a given table name.
 
