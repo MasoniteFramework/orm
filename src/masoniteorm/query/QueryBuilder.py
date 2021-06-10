@@ -537,7 +537,6 @@ class QueryBuilder(ObservesEvents):
         """
         operator, value = self._extract_operator_value(*args)
 
-
         if inspect.isfunction(column):
             builder = column(self.new())
             self._wheres += (

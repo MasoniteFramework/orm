@@ -619,10 +619,10 @@ class BaseGrammar:
                             value=val, separator=","
                         )
                 query_value = query_value.rstrip(",").rstrip(", ") + ")"
-            elif value is True and value_type != 'NOT NULL':
+            elif value is True and value_type != "NOT NULL":
                 sql_string = self.get_true_column_string()
                 query_value = 1
-            elif value is False and value_type != 'NOT NULL':
+            elif value is False and value_type != "NOT NULL":
                 sql_string = self.get_false_column_string()
                 query_value = 0
             elif qmark and value_type != "column":
