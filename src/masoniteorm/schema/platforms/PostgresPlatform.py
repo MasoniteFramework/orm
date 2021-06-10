@@ -279,7 +279,6 @@ class PostgresPlatform(Platform):
                     )
                 )
 
-        print(table.added_constraints)
         if table.added_constraints:
             for name, constraint in table.added_constraints.items():
                 if constraint.constraint_type == "unique":
