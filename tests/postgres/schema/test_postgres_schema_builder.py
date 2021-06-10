@@ -101,7 +101,7 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             (
                 'CREATE TABLE "users" (id SERIAL UNIQUE NOT NULL, name VARCHAR(255) NOT NULL, '
                 "email VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, admin INTEGER NOT NULL DEFAULT 0, "
-                "remember_token VARCHAR(255) NULL, verified_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
+                "remember_token VARCHAR(255) NULL, verified_at TIMESTAMP NULL, "
                 "created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
                 "CONSTRAINT users_id_primary PRIMARY KEY (id), "
                 "CONSTRAINT users_email_unique UNIQUE (email))"

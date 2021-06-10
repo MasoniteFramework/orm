@@ -258,8 +258,6 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         blueprint.table.from_table = table
 
-        sql = [
-            "ALTER TABLE [users] ADD [due_date] DATETIME NULL DEFAULT CURRENT_TIMESTAMP"
-        ]
+        sql = ["ALTER TABLE [users] ADD [due_date] DATETIME NULL"]
 
         self.assertEqual(blueprint.to_sql(), sql)

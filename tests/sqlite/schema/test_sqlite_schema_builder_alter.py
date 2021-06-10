@@ -129,9 +129,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
 
         blueprint.table.from_table = table
 
-        sql = [
-            "ALTER TABLE users ADD COLUMN due_date TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP"
-        ]
+        sql = ["ALTER TABLE users ADD COLUMN due_date TIMESTAMP NULL"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
