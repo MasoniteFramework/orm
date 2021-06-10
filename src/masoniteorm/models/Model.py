@@ -730,9 +730,14 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         elif isinstance(datetime, str):
             return pendulum.parse(datetime, tz=self.__timezone__)
         elif isinstance(datetime, datetimedate):
-            return pendulum.datetime(datetime.year,datetime.month,datetime.day, tz=self.__timezone__) 
+            return pendulum.datetime(
+                datetime.year, datetime.month, datetime.day, tz=self.__timezone__
+            )
         elif isinstance(datetime, datetimetime):
-            return pendulum.parse(f"{datetime.hour}:{datetime.minute}:{datetime.second}", tz=self.__timezone__)
+            return pendulum.parse(
+                f"{datetime.hour}:{datetime.minute}:{datetime.second}",
+                tz=self.__timezone__,
+            )
         return pendulum.instance(datetime, tz=self.__timezone__)
 
     def get_new_datetime_string(self, datetime=None):
