@@ -537,12 +537,6 @@ class QueryBuilder(ObservesEvents):
         """
         operator, value = self._extract_operator_value(*args)
 
-        if value is None:
-            value = ""
-        elif value is True:
-            value = "1"
-        elif value is False:
-            value = "0"
 
         if inspect.isfunction(column):
             builder = column(self.new())
@@ -551,6 +545,7 @@ class QueryBuilder(ObservesEvents):
             )
         elif isinstance(column, dict):
             for key, value in column.items():
+
                 self._wheres += ((QueryExpression(key, "=", value, "value")),)
         elif isinstance(value, QueryBuilder):
             self._wheres += (

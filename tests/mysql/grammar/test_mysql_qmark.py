@@ -63,6 +63,24 @@ class BaseQMarkTest:
         self.assertEqual(mark.to_qmark(), sql)
         self.assertEqual(mark._bindings, bindings)
 
+    def test_can_compile_where_with_true_value(self):
+        mark = self.builder.where("is_admin", True)
+
+        sql, bindings = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(mark.to_qmark(), sql)
+        self.assertEqual(mark._bindings, bindings)
+
+    def test_can_compile_where_with_false_value(self):
+        mark = self.builder.where("is_admin", False)
+
+        sql, bindings = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(mark.to_qmark(), sql)
+        self.assertEqual(mark._bindings, bindings)
+
 
 class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
     def can_compile_select(self):
@@ -111,3 +129,15 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         self.builder.where_not_null("id").to_qmark()
         """
         return ("SELECT * FROM `users` WHERE `users`.`name` = '?'", [0])
+
+    def can_compile_where_with_true_value(self):
+        """
+        self.builder.where("is_admin", True).to_qmark()
+        """
+        return ("SELECT * FROM `users` WHERE `users`.`is_admin` = '1'", [])
+
+    def can_compile_where_with_false_value(self):
+        """
+        self.builder.where("is_admin", True).to_qmark()
+        """
+        return ("SELECT * FROM `users` WHERE `users`.`is_admin` = '0'", [])

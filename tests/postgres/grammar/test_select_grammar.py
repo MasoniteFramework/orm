@@ -280,7 +280,7 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder = self.get_builder()
         builder.where("is_admin", "=", True).first_or_fail()
         """
-        return """SELECT * FROM "users" WHERE "users"."is_admin" = '1' LIMIT 1"""
+        return """SELECT * FROM "users" WHERE "users"."is_admin" IS True LIMIT 1"""
 
     def where_not_like(self):
         """

@@ -619,6 +619,12 @@ class BaseGrammar:
                             value=val, separator=","
                         )
                 query_value = query_value.rstrip(",").rstrip(", ") + ")"
+            elif value is True and value_type != 'NOT NULL':
+                sql_string = self.get_true_column_string()
+                query_value = 1
+            elif value is False and value_type != 'NOT NULL':
+                sql_string = self.get_false_column_string()
+                query_value = 0
             elif qmark and value_type != "column":
                 query_value = "'?'"
                 if (
@@ -649,6 +655,12 @@ class BaseGrammar:
             loop_count += 1
 
         return sql
+
+    def get_true_column_string(self):
+        return "{keyword} {column} = '1'"
+
+    def get_false_column_string(self):
+        return "{keyword} {column} = '0'"
 
     def add_binding(self, binding):
         """Adds a binding to the bindings tuple.
