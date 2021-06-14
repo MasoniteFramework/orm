@@ -158,6 +158,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "where_from_builder",
         "where_has",
         "where_in",
+        "where_not_in",
         "where_like",
         "where_not_between",
         "where_not_like",
