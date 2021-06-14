@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, date as datetimedate, time as datetimetime
 
 from inflection import tableize
 import inspect
@@ -717,7 +717,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return self.__dates__ + defaults
 
-    def get_new_date(self, datetime=None):
+    def get_new_date(self, _datetime=None):
         """
         Get the attributes that should be converted to dates.
 
@@ -725,29 +725,38 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         import pendulum
 
-        if not datetime:
-            return pendulum.now(self.__timezone__)
+        if not _datetime:
+            return pendulum.now(tz=self.__timezone__)
+        elif isinstance(_datetime, str):
+            return pendulum.parse(_datetime, tz=self.__timezone__)
+        elif isinstance(_datetime, datetime):
+            return pendulum.instance(_datetime, tz=self.__timezone__)
+        elif isinstance(_datetime, datetimedate):
+            return pendulum.datetime(
+                _datetime.year, _datetime.month, _datetime.day, tz=self.__timezone__
+            )
+        elif isinstance(_datetime, datetimetime):
+            return pendulum.parse(
+                f"{_datetime.hour}:{_datetime.minute}:{_datetime.second}",
+                tz=self.__timezone__,
+            )
+        return pendulum.instance(_datetime, tz=self.__timezone__)
 
-        if isinstance(datetime, str):
-            return pendulum.parse(datetime, tz=self.__timezone__)
-
-        return pendulum.instance(datetime, tz=self.__timezone__)
-
-    def get_new_datetime_string(self, datetime=None):
+    def get_new_datetime_string(self, _datetime=None):
         """
         Get the attributes that should be converted to dates.
 
         :rtype: list
         """
-        return self.get_new_date(datetime).to_datetime_string()
+        return self.get_new_date(_datetime).to_datetime_string()
 
-    def get_new_serialized_date(self, datetime):
+    def get_new_serialized_date(self, _datetime):
         """
         Get the attributes that should be converted to dates.
 
         :rtype: list
         """
-        return self.get_new_date(datetime).isoformat()
+        return self.get_new_date(_datetime).isoformat()
 
     def set_appends(self, appends):
         """

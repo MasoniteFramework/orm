@@ -129,6 +129,16 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_alter_add_primary(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.primary("playlist_id")
+
+        sql = [
+            "ALTER TABLE [users] ADD CONSTRAINT users_playlist_id_primary PRIMARY KEY (playlist_id)"
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_alter_add_index(self):
         with self.schema.table("users") as blueprint:
             blueprint.index("playlist_id")
@@ -248,8 +258,6 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         blueprint.table.from_table = table
 
-        sql = [
-            "ALTER TABLE [users] ADD [due_date] DATETIME NULL DEFAULT CURRENT_TIMESTAMP"
-        ]
+        sql = ["ALTER TABLE [users] ADD [due_date] DATETIME NULL"]
 
         self.assertEqual(blueprint.to_sql(), sql)

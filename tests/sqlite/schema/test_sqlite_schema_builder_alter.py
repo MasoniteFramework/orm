@@ -129,9 +129,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
 
         blueprint.table.from_table = table
 
-        sql = [
-            "ALTER TABLE users ADD COLUMN due_date TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP"
-        ]
+        sql = ["ALTER TABLE users ADD COLUMN due_date TIMESTAMP NULL"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -143,6 +141,16 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
 
         with schema.table("table_schema") as blueprint:
             blueprint.string("name").nullable()
+
+    def test_alter_add_primary(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.primary("playlist_id")
+
+        sql = [
+            'ALTER TABLE "users" ADD CONSTRAINT users_playlist_id_primary PRIMARY KEY (playlist_id)'
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
 
     def test_alter_add_column_and_foreign_key(self):
         with self.schema.table("users") as blueprint:

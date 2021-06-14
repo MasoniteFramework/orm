@@ -150,8 +150,10 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(
-            column, "increments", nullable=nullable, primary=True
+            column, "increments", nullable=nullable
         )
+
+        self.primary(column)
         return self
 
     def tiny_increments(self, column, nullable=False):
@@ -167,8 +169,10 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(
-            column, "tiny_increments", nullable=nullable, primary=True
+            column, "tiny_increments", nullable=nullable
         )
+
+        self.primary(column)
         return self
 
     def uuid(self, column, nullable=False, length=36):
@@ -201,8 +205,10 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(
-            column, "big_increments", nullable=nullable, primary=True
+            column, "big_increments", nullable=nullable
         )
+
+        self.primary(column)
         return self
 
     def binary(self, column, nullable=False):
@@ -302,7 +308,7 @@ class Blueprint:
         self._last_column = self.table.add_column(column, "datetime", nullable=nullable)
         return self
 
-    def timestamp(self, column, nullable=False, now=None):
+    def timestamp(self, column, nullable=False, now=False):
         """Sets a column to be the timestamp representation for the table.
 
         Arguments:
@@ -315,14 +321,12 @@ class Blueprint:
         Returns:
             self
         """
-        if now:
-            now = "now"
 
         self._last_column = self.table.add_column(
             column, "timestamp", nullable=nullable
         )
 
-        if not now:
+        if now:
             self._last_column.use_current()
 
         return self
@@ -333,9 +337,9 @@ class Blueprint:
         Returns:
             self
         """
-        self.table.add_column("created_at", "timestamp", nullable=True).use_current()
+        self.timestamp("created_at", nullable=True, now=True)
 
-        self.table.add_column("updated_at", "timestamp", nullable=True).use_current()
+        self.timestamp("updated_at", nullable=True, now=True)
 
         return self
 

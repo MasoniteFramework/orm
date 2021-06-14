@@ -55,6 +55,12 @@ class PostgresGrammar(BaseGrammar):
     def aggregate_string_without_alias(self):
         return "{aggregate_function}({column})"
 
+    def get_true_column_string(self):
+        return "{keyword} {column} IS True"
+
+    def get_false_column_string(self):
+        return "{keyword} {column} IS False"
+
     def subquery_string(self):
         return "({query})"
 
