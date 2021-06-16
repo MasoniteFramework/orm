@@ -77,12 +77,12 @@ class BelongsToMany(BaseRelationship):
         ).table(f"{table1}")
 
         if self.pivot_id:
-            result.select(f"{self._table}.id as m_reserved_3")
+            result.select(f"{self._table}.{self.pivot_id} as {self.pivot_id}")
 
         if self.with_timestamps:
             result.select(
-                f"{self._table}.updated_at as m_reserved_1",
-                f"{self._table}.created_at as m_reserved_2",
+                f"{self._table}.updated_at as updated_at",
+                f"{self._table}.created_at as created_at",
             )
 
         result.join(
@@ -97,7 +97,7 @@ class BelongsToMany(BaseRelationship):
             "=",
             f"{table2}.{self.other_owner_key}",
         )
-        print("zzz", self.local_owner_key)
+
         if hasattr(owner, self.local_owner_key):
             result.where(
                 f"{table1}.{self.local_owner_key}", getattr(owner, self.local_owner_key)
@@ -112,15 +112,16 @@ class BelongsToMany(BaseRelationship):
             }
 
             if self.pivot_id:
-                pivot_data.update({self.pivot_id: getattr(p, "m_reserved_3")})
+                pivot_data.update({self.pivot_id: getattr(p, self.pivot_id)})
 
             if self.with_timestamps:
                 pivot_data.update(
                     {
-                        "updated_at": getattr(p, "m_reserved_1"),
-                        "created_at": getattr(p, "m_reserved_2"),
+                        "updated_at": getattr(p, "updated_at"),
+                        "created_at": getattr(p, "created_at"),
                     }
                 )
+            
             setattr(
                 p,
                 self._as,
@@ -179,12 +180,12 @@ class BelongsToMany(BaseRelationship):
 
         if self.with_timestamps:
             result.select(
-                f"{self._table}.updated_at as m_reserved_1",
-                f"{self._table}.created_at as m_reserved_2",
+                f"{self._table}.updated_at as updated_at",
+                f"{self._table}.created_at as created_at",
             )
 
         if self.pivot_id:
-            result.select(f"{self._table}.id as m_reserved_3")
+            result.select(f"{self._table}.{self.pivot_id} as {self.pivot_id}")
 
         if isinstance(relation, Collection):
             final_result = result.where_in(
@@ -202,16 +203,17 @@ class BelongsToMany(BaseRelationship):
                 self.other_foreign_key: getattr(model, self.other_foreign_key),
             }
 
+
             if self.with_timestamps:
                 pivot_data.update(
                     {
-                        "updated_at": getattr(p, "m_reserved_1"),
-                        "created_at": getattr(p, "m_reserved_2"),
+                        "updated_at": getattr(model, "updated_at"),
+                        "created_at": getattr(model, "created_at"),
                     }
                 )
 
             if self.pivot_id:
-                pivot_data.update({self.pivot_id: getattr(model, "m_reserved_3")})
+                pivot_data.update({self.pivot_id: getattr(model, self.pivot_id)})
 
             setattr(
                 model,
