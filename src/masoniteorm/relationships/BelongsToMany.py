@@ -97,7 +97,7 @@ class BelongsToMany(BaseRelationship):
             "=",
             f"{table2}.{self.other_owner_key}",
         )
-        print('zzz', self.local_owner_key)
+        print("zzz", self.local_owner_key)
         if hasattr(owner, self.local_owner_key):
             result.where(
                 f"{table1}.{self.local_owner_key}", getattr(owner, self.local_owner_key)

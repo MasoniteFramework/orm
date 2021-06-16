@@ -449,7 +449,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         serialized_dictionary = self.__attributes__
 
-
         # prevent using both hidden and visible at the same time
         if self.__visible__ and self.__hidden__:
             raise AttributeError(
@@ -490,7 +489,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             serialized_dictionary.update({append: getattr(self, append)})
 
         for key, value in serialized_dictionary.items():
-            if hasattr(value, 'serialize'):
+            if hasattr(value, "serialize"):
                 value = value.serialize()
             if isinstance(value, datetime):
                 value = self.get_new_serialized_date(value)
@@ -535,7 +534,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 if value is None:
                     new_dic.update({key: {}})
                     continue
-                    
+
                 new_dic.update({key: value.serialize()})
 
         return new_dic
