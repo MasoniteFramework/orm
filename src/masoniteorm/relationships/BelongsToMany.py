@@ -23,7 +23,7 @@ class BelongsToMany(BaseRelationship):
             self.fn = None
             self.local_foreign_key = fn
             self.other_foreign_key = local_foreign_key
-            self.local_owner_key = other_foreign_key
+            self.local_owner_key = other_foreign_key or "id"
             self.other_owner_key = local_owner_key or "id"
         else:
             self.fn = fn
@@ -97,7 +97,7 @@ class BelongsToMany(BaseRelationship):
             "=",
             f"{table2}.{self.other_owner_key}",
         )
-
+        print('zzz', self.local_owner_key)
         if hasattr(owner, self.local_owner_key):
             result.where(
                 f"{table1}.{self.local_owner_key}", getattr(owner, self.local_owner_key)
