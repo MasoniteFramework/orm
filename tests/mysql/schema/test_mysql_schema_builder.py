@@ -27,7 +27,9 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
             blueprint.to_sql(),
-            ["CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL, `age` INT(11) NOT NULL)"],
+            [
+                "CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL, `age` INT(11) NOT NULL)"
+            ],
         )
 
     def test_can_add_columns_with_constaint(self):
@@ -39,7 +41,9 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
             blueprint.to_sql(),
-            ["CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL, `age` INT(11) NOT NULL, CONSTRAINT users_name_unique UNIQUE (name))"],
+            [
+                "CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL, `age` INT(11) NOT NULL, CONSTRAINT users_name_unique UNIQUE (name))"
+            ],
         )
 
     def test_can_add_columns_with_foreign_key_constaint(self):
@@ -52,11 +56,13 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 3)
         self.assertEqual(
             blueprint.to_sql(),
-            ["CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL, "
-            "`age` INT(11) NOT NULL, "
-            "`profile_id` INT(11) NOT NULL, "
-            "CONSTRAINT users_name_unique UNIQUE (name), "
-            "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))"],
+            [
+                "CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL, "
+                "`age` INT(11) NOT NULL, "
+                "`profile_id` INT(11) NOT NULL, "
+                "CONSTRAINT users_name_unique UNIQUE (name), "
+                "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))"
+            ],
         )
 
     def test_can_add_columns_with_foreign_key_constaint(self):
@@ -69,11 +75,13 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 3)
         self.assertEqual(
             blueprint.to_sql(),
-            ["CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL, "
-            "`age` INT(11) NOT NULL, "
-            "`profile_id` INT(11) NOT NULL, "
-            "CONSTRAINT users_name_unique UNIQUE (name), "
-            "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))"],
+            [
+                "CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL, "
+                "`age` INT(11) NOT NULL, "
+                "`profile_id` INT(11) NOT NULL, "
+                "CONSTRAINT users_name_unique UNIQUE (name), "
+                "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))"
+            ],
         )
 
     def test_can_advanced_table_creation(self):
@@ -159,9 +167,11 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 1)
         self.assertEqual(
             blueprint.to_sql(),
-            ["CREATE TABLE `users` ("
-            "`profile_id` INT(11) NOT NULL, "
-            "CONSTRAINT profile_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))"],
+            [
+                "CREATE TABLE `users` ("
+                "`profile_id` INT(11) NOT NULL, "
+                "CONSTRAINT profile_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))"
+            ],
         )
 
     def test_can_have_composite_keys(self):
@@ -175,12 +185,14 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         print(blueprint.to_sql())
         self.assertEqual(
             blueprint.to_sql(),
-            ["CREATE TABLE `users` "
-            "(`name` VARCHAR(255) NOT NULL, "
-            "`age` INT(11) NOT NULL, "
-            "`profile_id` INT(11) NOT NULL, "
-            "CONSTRAINT users_name_unique UNIQUE (name), "
-            "CONSTRAINT users_name_age_primary PRIMARY KEY (name, age))"],
+            [
+                "CREATE TABLE `users` "
+                "(`name` VARCHAR(255) NOT NULL, "
+                "`age` INT(11) NOT NULL, "
+                "`profile_id` INT(11) NOT NULL, "
+                "CONSTRAINT users_name_unique UNIQUE (name), "
+                "CONSTRAINT users_name_age_primary PRIMARY KEY (name, age))"
+            ],
         )
 
     def test_can_have_column_primary_key(self):
@@ -192,11 +204,13 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 3)
         self.assertEqual(
             blueprint.to_sql(),
-            ["CREATE TABLE `users` "
-            "(`name` VARCHAR(255) NOT NULL, "
-            "`age` INT(11) NOT NULL, "
-            "`profile_id` INT(11) NOT NULL, "
-            "CONSTRAINT users_name_primary PRIMARY KEY (name))"],
+            [
+                "CREATE TABLE `users` "
+                "(`name` VARCHAR(255) NOT NULL, "
+                "`age` INT(11) NOT NULL, "
+                "`profile_id` INT(11) NOT NULL, "
+                "CONSTRAINT users_name_primary PRIMARY KEY (name))"
+            ],
         )
 
     def test_has_table(self):
