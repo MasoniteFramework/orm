@@ -303,13 +303,13 @@ class Collection:
     def reverse(self):
         self._items = self[::-1]
 
-    def serialize(self):
+    def serialize(self, *args, **kwargs):
         def _serialize(item):
             if self.__appends__:
                 item.set_appends(self.__appends__)
 
             if hasattr(item, "serialize"):
-                return item.serialize()
+                return item.serialize(*args, **kwargs)
             elif hasattr(item, "to_dict"):
                 return item.to_dict()
             return item

@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, date as datetimedate, time as datetimetime
+from os import remove
 
 from inflection import tableize
 import inspect
@@ -105,6 +106,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     __casts__ = {}
     __dates__ = []
     __hidden__ = []
+    __relationship_hidden__ = {}
     __visible__ = []
     __timestamps__ = True
     __timezone__ = "UTC"
@@ -441,13 +443,15 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             .first()
         )
 
-    def serialize(self):
+    def serialize(self, exclude=[]):
         """Takes the data as a model and converts it into a dictionary.
 
         Returns:
             dict
         """
         serialized_dictionary = self.__attributes__
+
+        self.__hidden__ += exclude
 
         # prevent using both hidden and visible at the same time
         if self.__visible__ and self.__hidden__:
@@ -488,15 +492,22 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         for append in self.__appends__:
             serialized_dictionary.update({append: getattr(self, append)})
 
+        remove_keys = []
         for key, value in serialized_dictionary.items():
+
+            if key in self.__hidden__:
+                remove_keys.append(key)
             if hasattr(value, "serialize"):
-                value = value.serialize()
+                value = value.serialize(['pivot'])
             if isinstance(value, datetime):
                 value = self.get_new_serialized_date(value)
             if key in self.__casts__:
                 value = self._cast_attribute(key, value)
 
             serialized_dictionary.update({key: value})
+
+        for key in remove_keys:
+            serialized_dictionary.pop(key)
 
         return serialized_dictionary
 
@@ -535,7 +546,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                     new_dic.update({key: {}})
                     continue
 
-                new_dic.update({key: value.serialize()})
+                new_dic.update({key: value.serialize(exclude=self.__relationship_hidden__.get(key, []))})
 
         return new_dic
 
