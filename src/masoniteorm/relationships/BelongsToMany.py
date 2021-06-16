@@ -121,7 +121,7 @@ class BelongsToMany(BaseRelationship):
                         "created_at": getattr(p, "created_at"),
                     }
                 )
-            
+
             setattr(
                 p,
                 self._as,
@@ -202,7 +202,6 @@ class BelongsToMany(BaseRelationship):
                 self.local_foreign_key: getattr(model, self.local_foreign_key),
                 self.other_foreign_key: getattr(model, self.other_foreign_key),
             }
-
 
             if self.with_timestamps:
                 pivot_data.update(

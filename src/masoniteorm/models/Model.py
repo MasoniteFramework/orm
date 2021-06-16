@@ -498,7 +498,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             if key in self.__hidden__:
                 remove_keys.append(key)
             if hasattr(value, "serialize"):
-                value = value.serialize(['pivot'])
+                value = value.serialize(["pivot"])
             if isinstance(value, datetime):
                 value = self.get_new_serialized_date(value)
             if key in self.__casts__:
@@ -546,7 +546,13 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                     new_dic.update({key: {}})
                     continue
 
-                new_dic.update({key: value.serialize(exclude=self.__relationship_hidden__.get(key, []))})
+                new_dic.update(
+                    {
+                        key: value.serialize(
+                            exclude=self.__relationship_hidden__.get(key, [])
+                        )
+                    }
+                )
 
         return new_dic
 
