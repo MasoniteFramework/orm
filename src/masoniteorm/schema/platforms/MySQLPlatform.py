@@ -116,7 +116,17 @@ class MySQLPlatform(Platform):
             )
         )
 
-        return sql[0]
+        if table.added_indexes:
+            for name, index in table.added_indexes.items():
+                sql.append(
+                    "CREATE INDEX {name} ON {table}({column})".format(
+                        name=index.name,
+                        table=self.wrap_table(table.name),
+                        column=",".join(index.column),
+                    )
+                )
+
+        return sql
 
     def compile_alter_sql(self, table):
         sql = []
