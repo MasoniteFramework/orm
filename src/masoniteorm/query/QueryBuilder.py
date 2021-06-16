@@ -1281,7 +1281,7 @@ class QueryBuilder(ObservesEvents):
             record_id {int} -- The ID of the primary key to fetch.
 
         Returns:
-            Model
+            Model|None
         """
 
         return self.where(self._model.get_primary_key(), record_id).first()
