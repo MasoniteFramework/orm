@@ -18,7 +18,7 @@ class BelongsToMany(BaseRelationship):
         with_timestamps=False,
         pivot_id="id",
         attribute="pivot",
-        extra_fields=[]
+        extra_fields=[],
     ):
         if isinstance(fn, str):
             self.fn = None
@@ -229,7 +229,7 @@ class BelongsToMany(BaseRelationship):
 
             if self.pivot_id:
                 pivot_data.update({self.pivot_id: getattr(model, self.pivot_id)})
-            
+
             if self.extra_fields:
                 for field in self.extra_fields:
                     pivot_data.update({field: getattr(model, field)})

@@ -717,7 +717,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         if key in self.__attributes__:
             del self.__attributes__[key]
             return True
-        
+
         return False
 
     def get_dirty_attributes(self):
