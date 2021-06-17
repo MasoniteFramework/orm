@@ -111,7 +111,6 @@ class BelongsToMany(BaseRelationship):
 
         result = result.get()
 
-        # print(result.serialize())
         for p in result:
             pivot_data = {
                 self.local_foreign_key: getattr(p, self.local_foreign_key),
