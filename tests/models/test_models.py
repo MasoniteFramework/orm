@@ -1,6 +1,7 @@
 import unittest
 from src.masoniteorm.models import Model
 import pendulum
+import datetime
 
 
 class ModelTest(Model):
@@ -20,6 +21,17 @@ class TestModels(unittest.TestCase):
         self.assertTrue(model.user)
         self.assertTrue(model.due_date)
         self.assertIsInstance(model.due_date, pendulum.now().__class__)
+
+    def test_model_can_access_str_dates_as_pendulum_from_correct_datetimes(self):
+
+        model = ModelTest()
+
+        self.assertEqual(
+            model.get_new_date(datetime.datetime(2021, 1, 1, 7, 10)).hour, 7
+        )
+        self.assertEqual(model.get_new_date(datetime.date(2021, 1, 1)).hour, 0)
+        self.assertEqual(model.get_new_date(datetime.time(1, 1, 1)).hour, 1)
+        self.assertEqual(model.get_new_date("2020-11-28 11:42:07").hour, 11)
 
     def test_model_can_access_str_dates_on_relationships(self):
         model = ModelTest.hydrate({"user": "joe", "due_date": "2020-11-28 11:42:07"})

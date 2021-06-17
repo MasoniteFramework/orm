@@ -751,14 +751,16 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             return pendulum.now(tz=self.__timezone__)
         elif isinstance(_datetime, str):
             return pendulum.parse(_datetime, tz=self.__timezone__)
+        elif isinstance(_datetime, datetime):
+            return pendulum.instance(_datetime, tz=self.__timezone__)
+        elif isinstance(_datetime, datetimedate):
+            return pendulum.datetime(
+                _datetime.year, _datetime.month, _datetime.day, tz=self.__timezone__
+            )
         elif isinstance(_datetime, datetimetime):
             return pendulum.parse(
                 f"{_datetime.hour}:{_datetime.minute}:{_datetime.second}",
                 tz=self.__timezone__,
-            )
-        elif isinstance(_datetime, datetimedate):
-            return pendulum.datetime(
-                _datetime.year, _datetime.month, _datetime.day, tz=self.__timezone__
             )
 
         return pendulum.instance(_datetime, tz=self.__timezone__)
