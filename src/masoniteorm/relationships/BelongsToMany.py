@@ -18,6 +18,7 @@ class BelongsToMany(BaseRelationship):
         with_timestamps=False,
         pivot_id="id",
         attribute="pivot",
+        extra_fields=[]
     ):
         if isinstance(fn, str):
             self.fn = None
@@ -36,6 +37,7 @@ class BelongsToMany(BaseRelationship):
         self.with_timestamps = with_timestamps
         self._as = attribute
         self.pivot_id = pivot_id
+        self.extra_fields = extra_fields
 
     def set_keys(self, owner, attribute):
         self.local_foreign_key = self.local_foreign_key or "id"
@@ -103,8 +105,13 @@ class BelongsToMany(BaseRelationship):
                 f"{table1}.{self.local_owner_key}", getattr(owner, self.local_owner_key)
             )
 
+        if self.extra_fields:
+            for field in self.extra_fields:
+                result.select(f"{self._table}.{field}")
+
         result = result.get()
 
+        # print(result.serialize())
         for p in result:
             pivot_data = {
                 self.local_foreign_key: getattr(p, self.local_foreign_key),
@@ -121,6 +128,11 @@ class BelongsToMany(BaseRelationship):
                         "created_at": getattr(p, "created_at"),
                     }
                 )
+
+            if self.extra_fields:
+                for field in self.extra_fields:
+                    pivot_data.update({field: getattr(p, field)})
+                    p.delete_attribute(field)
 
             setattr(
                 p,
@@ -163,6 +175,10 @@ class BelongsToMany(BaseRelationship):
             f"{self._table}.{self.local_foreign_key}",
             f"{self._table}.{self.other_foreign_key}",
         ).table(f"{table1}")
+
+        if self.extra_fields:
+            for field in self.extra_fields:
+                result.select(f"{self._table}.{field}")
 
         result.join(
             f"{self._table}",
@@ -213,6 +229,11 @@ class BelongsToMany(BaseRelationship):
 
             if self.pivot_id:
                 pivot_data.update({self.pivot_id: getattr(model, self.pivot_id)})
+            
+            if self.extra_fields:
+                for field in self.extra_fields:
+                    pivot_data.update({field: getattr(model, field)})
+                    model.delete_attribute(field)
 
             setattr(
                 model,
