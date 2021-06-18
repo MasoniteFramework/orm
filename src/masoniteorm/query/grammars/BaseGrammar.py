@@ -5,6 +5,7 @@ from ...expressions.expressions import (
     SubSelectExpression,
     SelectExpression,
     BetweenExpression,
+    JoinClause
 )
 
 
@@ -234,18 +235,25 @@ class BaseGrammar:
         """
         sql = ""
         for join in self._joins:
-            local_table = join.column1.split(".")[0]
-            column1 = join.column1
-            column2 = join.column2
-            sql += self.join_string().format(
-                foreign_table=self.process_table(join.foreign_table),
-                local_table=self.process_table(local_table),
-                column1=self._table_column_string(column1),
-                equality=join.equality,
-                column2=self._table_column_string(column2),
-                keyword=self.join_keywords[join.clause],
-            )
-            sql += " "
+            if isinstance(join, JoinClause):
+                on_string = ""
+                cause_loop = 1
+                for clause in join.get_on_clauses():
+                    if cause_loop == 1:
+                        keyword = "ON"
+                    else:
+                        keyword = "AND"
+
+                    on_string += f"{keyword} {self._table_column_string(clause.column1)} {clause.equality} {self._table_column_string(clause.column2)} "
+                    cause_loop += 1
+                
+                sql += self.join_string().format(
+                    foreign_table=self.process_table(join.table),
+                    alias=f" AS {self.process_table(join.alias)}" if join.alias else "",
+                    on=on_string,
+                    keyword=self.join_keywords[join.clause],
+                )
+                sql += " "
 
         return sql
 

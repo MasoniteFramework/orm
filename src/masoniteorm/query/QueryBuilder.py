@@ -2,6 +2,7 @@ import inspect
 
 from ..collection.Collection import Collection
 from ..expressions.expressions import (
+    JoinClause,
     SubGroupExpression,
     SubSelectExpression,
     SelectExpression,
@@ -864,9 +865,9 @@ class QueryBuilder(ObservesEvents):
     def join(
         self,
         foreign_table: str,
-        column1: str,
-        equality: ["=", "<", "<=", ">", ">="],
-        column2: str,
+        column1=None,
+        equality=None,
+        column2=None,
         clause="inner",
     ):
         """Specifies a join expression.
@@ -883,9 +884,16 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._joins += (
-            JoinExpression(foreign_table, column1, equality, column2, clause=clause),
-        )
+        if isinstance(foreign_table, str):
+            self._joins += (
+                JoinClause(foreign_table, clause=clause).on(column1, equality, column2),
+            )
+        else:
+            self._joins += (clause,)
+        return self
+
+    def join_clause(self, clause):
+        self._joins += (clause,)
         return self
 
     def left_join(self, foreign_table, column1, equality, column2):
@@ -900,10 +908,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._joins += (
-            JoinExpression(foreign_table, column1, equality, column2, "left"),
-        )
-        return self
+        return self.join(foreign_table=foreign_table, column1=column1, equality=equality, column2=column2, clause="left")
 
     def right_join(self, foreign_table, column1, equality, column2):
         """A helper method to add a right join expression.
@@ -917,10 +922,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._joins += (
-            JoinExpression(foreign_table, column1, equality, column2, "right"),
-        )
-        return self
+        return self.join(foreign_table=foreign_table, column1=column1, equality=equality, column2=column2, clause="right")
 
     def joins(self, *relationships, clause="inner"):
         for relationship in relationships:

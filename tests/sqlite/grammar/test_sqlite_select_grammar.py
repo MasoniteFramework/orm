@@ -295,3 +295,10 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder.where("age", "not like", "%name%").to_sql()
         """
         return """SELECT * FROM "users" WHERE "users"."age" LIKE '%name%'"""
+
+    def can_compile_join_clause(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "not like", "%name%").to_sql()
+        """
+        return """SELECT * FROM "users" INNER JOIN "report_groups" AS "rg" ON "bgt"."fund" = "rg"."fund" AND "bgt"."dept" = "rg"."dept" AND "bgt"."acct" = "rg"."acct" AND "bgt"."sub" = "rg"."sub\""""

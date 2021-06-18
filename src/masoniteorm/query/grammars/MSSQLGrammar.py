@@ -15,6 +15,7 @@ class MSSQLGrammar(BaseGrammar):
 
     join_keywords = {
         "inner": "INNER JOIN",
+        "join": "INNER JOIN",
         "outer": "OUTER JOIN",
         "left": "LEFT JOIN",
         "right": "RIGHT JOIN",
@@ -87,7 +88,7 @@ class MSSQLGrammar(BaseGrammar):
         return "AND"
 
     def join_string(self):
-        return "{keyword} {foreign_table} ON {column1} {equality} {column2}"
+        return "{keyword} {foreign_table}{alias} {on}"
 
     def aggregate_string(self):
         return "{aggregate_function}({column}) AS {alias}"
