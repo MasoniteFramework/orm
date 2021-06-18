@@ -12,7 +12,6 @@ from ..expressions.expressions import (
     QueryExpression,
     OrderByExpression,
     UpdateQueryExpression,
-    JoinExpression,
     HavingExpression,
     FromTable,
 )

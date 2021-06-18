@@ -43,17 +43,6 @@ class FromTable:
         self.raw = raw
 
 
-class JoinExpression:
-    """A helper class to manage join expressions."""
-
-    def __init__(self, foreign_table, column1, equality, column2, clause="inner"):
-        self.foreign_table = foreign_table
-        self.column1 = column1
-        self.equality = equality
-        self.column2 = column2
-        self.clause = clause
-
-
 class UpdateQueryExpression:
     """A helper class to manage update expressions."""
 
