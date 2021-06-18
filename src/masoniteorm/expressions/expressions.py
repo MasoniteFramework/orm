@@ -1,3 +1,6 @@
+import inspect
+
+
 class QueryExpression:
     """A helper class to manage query expressions."""
 
@@ -144,6 +147,7 @@ class JoinClause:
         self.alias = None
         self.clause = clause
         self.on_clauses = []
+        self.where_clauses = []
 
         if " as " in self.table:
             self.table = table.split(" as ")[0]
@@ -153,8 +157,55 @@ class JoinClause:
         self.on_clauses.append(OnClause(column1, equality, column2))
         return self
 
+    def where(self, column, *args):
+        """Specifies a where expression.
+
+        Arguments:
+            column {string} -- The name of the column to search
+
+        Keyword Arguments:
+            args {List} -- The operator and the value of the column to search. (default: {None})
+
+        Returns:
+            self
+        """
+        operator, value = self._extract_operator_value(*args)
+
+        self.where_clauses += ((QueryExpression(column, operator, value, "value")),)
+        return self
+
+    def _extract_operator_value(self, *args):
+
+        operators = ["=", ">", ">=", "<", "<=", "!=", "<>", "like", "not like"]
+
+        operator = operators[0]
+
+        value = None
+
+        if (len(args)) >= 2:
+            operator = args[0]
+            value = args[1]
+        elif len(args) == 1:
+            value = args[0]
+
+        if operator not in operators:
+            raise ValueError(
+                "Invalid comparison operator. The operator can be %s"
+                % ", ".join(operators)
+            )
+
+        return operator, value
+
+    def where(self, column, *args):
+        operator, value = self._extract_operator_value(*args)
+        self.where_clauses.append(QueryExpression(column, operator, value, "value"))
+        return self
+
     def get_on_clauses(self):
         return self.on_clauses
+
+    def get_where_clauses(self):
+        return self.where_clauses
 
 
 class OnClause:

@@ -862,12 +862,7 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def join(
-        self,
-        table: str,
-        column1=None,
-        equality=None,
-        column2=None,
-        clause="inner",
+        self, table: str, column1=None, equality=None, column2=None, clause="inner"
     ):
         """Specifies a join expression.
 
@@ -885,9 +880,7 @@ class QueryBuilder(ObservesEvents):
         """
         if isinstance(table, str):
             self._joins += (
-                JoinClause(table, clause=clause).on(
-                    column1, equality, column2
-                ),
+                JoinClause(table, clause=clause).on(column1, equality, column2),
             )
         else:
             self._joins += (table,)

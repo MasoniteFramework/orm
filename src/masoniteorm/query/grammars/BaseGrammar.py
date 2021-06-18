@@ -237,6 +237,7 @@ class BaseGrammar:
         for join in self._joins:
             if isinstance(join, JoinClause):
                 on_string = ""
+                where_string = ""
                 cause_loop = 1
                 for clause in join.get_on_clauses():
                     if cause_loop == 1:
@@ -247,10 +248,22 @@ class BaseGrammar:
                     on_string += f"{keyword} {self._table_column_string(clause.column1)} {clause.equality} {self._table_column_string(clause.column2)} "
                     cause_loop += 1
 
+                where_loop = 1
+
+                for clause in join.get_where_clauses():
+                    if where_loop == 1:
+                        keyword = "WHERE"
+                    else:
+                        keyword = "AND"
+
+                    where_string += f"{keyword} {self.process_column(clause.column)} {clause.equality} {self._compile_value(clause.value)} "
+                    where_loop += 1
+
                 sql += self.join_string().format(
                     foreign_table=self.process_table(join.table),
                     alias=f" AS {self.process_table(join.alias)}" if join.alias else "",
                     on=on_string,
+                    wheres=f" {where_string}",
                     keyword=self.join_keywords[join.clause],
                 )
                 sql += " "

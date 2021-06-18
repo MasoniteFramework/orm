@@ -88,7 +88,7 @@ class MSSQLGrammar(BaseGrammar):
         return "AND"
 
     def join_string(self):
-        return "{keyword} {foreign_table}{alias} {on}"
+        return "{keyword} {foreign_table}{alias} {on}{wheres}"
 
     def aggregate_string(self):
         return "{aggregate_function}({column}) AS {alias}"
