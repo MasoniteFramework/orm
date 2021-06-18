@@ -174,6 +174,30 @@ class JoinClause:
         self.where_clauses += ((QueryExpression(column, operator, value, "value")),)
         return self
 
+    def where_null(self, column):
+        """Specifies a where expression where the column is NULL.
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Returns:
+            self
+        """
+        self.where_clauses += ((QueryExpression(column, "=", None, "NULL")),)
+        return self
+
+    def where_not_null(self, column: str):
+        """Specifies a where expression where the column is not NULL.
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Returns:
+            self
+        """
+        self._wheres += ((QueryExpression(column, "=", True, "NOT NULL")),)
+        return self
+
     def _extract_operator_value(self, *args):
 
         operators = ["=", ">", ">=", "<", "<=", "!=", "<>", "like", "not like"]

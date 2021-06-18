@@ -256,7 +256,18 @@ class BaseGrammar:
                     else:
                         keyword = "AND"
 
-                    where_string += f"{keyword} {self.process_column(clause.column)} {clause.equality} {self._compile_value(clause.value)} "
+                    if clause.value_type == "NULL":
+                        sql_string = self.where_null_string()
+                        where_string += sql_string.format(
+                            keyword=keyword, column=self.process_column(clause.column)
+                        )
+                    elif clause.value_type == "NOT NULL":
+                        sql_string = self.where_not_null_string()
+                        where_string += sql_string.format(
+                            keyword=keyword, column=self.process_column(clause.column)
+                        )
+                    else:
+                        where_string += f"{keyword} {self.process_column(clause.column)} {clause.equality} {self._compile_value(clause.value)} "
                     where_loop += 1
 
                 sql += self.join_string().format(
