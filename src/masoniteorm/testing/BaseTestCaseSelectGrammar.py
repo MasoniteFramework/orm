@@ -283,7 +283,7 @@ class BaseTestCaseSelectGrammar:
             .on("bgt.acct", "=", "rg.acct")
             .on("bgt.sub", "=", "rg.sub")
         )
-        to_sql = self.builder.join_clause(clause).to_sql()
+        to_sql = self.builder.join(clause).to_sql()
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
