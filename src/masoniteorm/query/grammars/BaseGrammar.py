@@ -5,7 +5,7 @@ from ...expressions.expressions import (
     SubSelectExpression,
     SelectExpression,
     BetweenExpression,
-    JoinClause
+    JoinClause,
 )
 
 
@@ -246,7 +246,7 @@ class BaseGrammar:
 
                     on_string += f"{keyword} {self._table_column_string(clause.column1)} {clause.equality} {self._table_column_string(clause.column2)} "
                     cause_loop += 1
-                
+
                 sql += self.join_string().format(
                     foreign_table=self.process_table(join.table),
                     alias=f" AS {self.process_table(join.alias)}" if join.alias else "",

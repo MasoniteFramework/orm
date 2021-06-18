@@ -137,8 +137,8 @@ class Raw:
     def __init__(self, expression):
         self.expression = expression
 
-class JoinClause:
 
+class JoinClause:
     def __init__(self, table, clause="join"):
         self.table = table
         self.alias = None
@@ -146,18 +146,18 @@ class JoinClause:
         self.on_clauses = []
 
         if " as " in self.table:
-            self.table = table.split(' as ')[0]
-            self.alias = table.split(' as ')[1]
+            self.table = table.split(" as ")[0]
+            self.alias = table.split(" as ")[1]
 
     def on(self, column1, equality, column2):
         self.on_clauses.append(OnClause(column1, equality, column2))
         return self
-    
+
     def get_on_clauses(self):
         return self.on_clauses
 
-class OnClause:
 
+class OnClause:
     def __init__(self, column1, equality, column2):
         self.column1 = column1
         self.column2 = column2

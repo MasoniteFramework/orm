@@ -276,16 +276,14 @@ class BaseTestCaseSelectGrammar:
         self.assertEqual(to_sql, sql)
 
     def test_can_compile_join_clause(self):
-        clause = (                                                                       
-            JoinClause("report_groups as rg")                                            
-            .on("bgt.fund", "=", "rg.fund")                                              
-            .on("bgt.dept", "=", "rg.dept")                                              
-            .on("bgt.acct", "=", "rg.acct")                                              
-            .on("bgt.sub", "=", "rg.sub")                                                
-        ) 
-        to_sql = self.builder.join_clause(
-            clause
-        ).to_sql()
+        clause = (
+            JoinClause("report_groups as rg")
+            .on("bgt.fund", "=", "rg.fund")
+            .on("bgt.dept", "=", "rg.dept")
+            .on("bgt.acct", "=", "rg.acct")
+            .on("bgt.sub", "=", "rg.sub")
+        )
+        to_sql = self.builder.join_clause(clause).to_sql()
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")

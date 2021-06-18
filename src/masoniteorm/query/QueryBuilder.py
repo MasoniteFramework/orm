@@ -907,7 +907,13 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        return self.join(foreign_table=foreign_table, column1=column1, equality=equality, column2=column2, clause="left")
+        return self.join(
+            foreign_table=foreign_table,
+            column1=column1,
+            equality=equality,
+            column2=column2,
+            clause="left",
+        )
 
     def right_join(self, foreign_table, column1, equality, column2):
         """A helper method to add a right join expression.
@@ -921,7 +927,13 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        return self.join(foreign_table=foreign_table, column1=column1, equality=equality, column2=column2, clause="right")
+        return self.join(
+            foreign_table=foreign_table,
+            column1=column1,
+            equality=equality,
+            column2=column2,
+            clause="right",
+        )
 
     def joins(self, *relationships, clause="inner"):
         for relationship in relationships:
