@@ -157,6 +157,10 @@ class JoinClause:
         self.on_clauses.append(OnClause(column1, equality, column2))
         return self
 
+    def or_on(self, column1, equality, column2):
+        self.on_clauses.append(OnClause(column1, equality, column2, "or"))
+        return self
+
     def where(self, column, *args):
         """Specifies a where expression.
 
@@ -233,7 +237,8 @@ class JoinClause:
 
 
 class OnClause:
-    def __init__(self, column1, equality, column2):
+    def __init__(self, column1, equality, column2, operator="and"):
         self.column1 = column1
         self.column2 = column2
         self.equality = equality
+        self.operator = operator

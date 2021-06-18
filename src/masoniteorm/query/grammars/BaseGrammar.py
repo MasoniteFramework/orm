@@ -243,7 +243,7 @@ class BaseGrammar:
                     if cause_loop == 1:
                         keyword = "ON"
                     else:
-                        keyword = "AND"
+                        keyword = clause.operator.upper()
 
                     on_string += f"{keyword} {self._table_column_string(clause.column1)} {clause.equality} {self._table_column_string(clause.column2)} "
                     cause_loop += 1
