@@ -1,3 +1,6 @@
+import inspect
+
+
 class QueryExpression:
     """A helper class to manage query expressions."""
 
@@ -41,17 +44,6 @@ class FromTable:
     def __init__(self, name, raw=False):
         self.name = name
         self.raw = raw
-
-
-class JoinExpression:
-    """A helper class to manage join expressions."""
-
-    def __init__(self, foreign_table, column1, equality, column2, clause="inner"):
-        self.foreign_table = foreign_table
-        self.column1 = column1
-        self.equality = equality
-        self.column2 = column2
-        self.clause = clause
 
 
 class UpdateQueryExpression:
@@ -147,3 +139,106 @@ class AggregateExpression:
 class Raw:
     def __init__(self, expression):
         self.expression = expression
+
+
+class JoinClause:
+    def __init__(self, table, clause="join"):
+        self.table = table
+        self.alias = None
+        self.clause = clause
+        self.on_clauses = []
+        self.where_clauses = []
+
+        if " as " in self.table:
+            self.table = table.split(" as ")[0]
+            self.alias = table.split(" as ")[1]
+
+    def on(self, column1, equality, column2):
+        self.on_clauses.append(OnClause(column1, equality, column2))
+        return self
+
+    def or_on(self, column1, equality, column2):
+        self.on_clauses.append(OnClause(column1, equality, column2, "or"))
+        return self
+
+    def where(self, column, *args):
+        """Specifies a where expression.
+
+        Arguments:
+            column {string} -- The name of the column to search
+
+        Keyword Arguments:
+            args {List} -- The operator and the value of the column to search. (default: {None})
+
+        Returns:
+            self
+        """
+        operator, value = self._extract_operator_value(*args)
+
+        self.where_clauses += ((QueryExpression(column, operator, value, "value")),)
+        return self
+
+    def where_null(self, column):
+        """Specifies a where expression where the column is NULL.
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Returns:
+            self
+        """
+        self.where_clauses += ((QueryExpression(column, "=", None, "NULL")),)
+        return self
+
+    def where_not_null(self, column: str):
+        """Specifies a where expression where the column is not NULL.
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Returns:
+            self
+        """
+        self._wheres += ((QueryExpression(column, "=", True, "NOT NULL")),)
+        return self
+
+    def _extract_operator_value(self, *args):
+
+        operators = ["=", ">", ">=", "<", "<=", "!=", "<>", "like", "not like"]
+
+        operator = operators[0]
+
+        value = None
+
+        if (len(args)) >= 2:
+            operator = args[0]
+            value = args[1]
+        elif len(args) == 1:
+            value = args[0]
+
+        if operator not in operators:
+            raise ValueError(
+                "Invalid comparison operator. The operator can be %s"
+                % ", ".join(operators)
+            )
+
+        return operator, value
+
+    def where(self, column, *args):
+        operator, value = self._extract_operator_value(*args)
+        self.where_clauses.append(QueryExpression(column, operator, value, "value"))
+        return self
+
+    def get_on_clauses(self):
+        return self.on_clauses
+
+    def get_where_clauses(self):
+        return self.where_clauses
+
+
+class OnClause:
+    def __init__(self, column1, equality, column2, operator="and"):
+        self.column1 = column1
+        self.column2 = column2
+        self.equality = equality
+        self.operator = operator

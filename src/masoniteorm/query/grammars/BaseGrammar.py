@@ -5,6 +5,7 @@ from ...expressions.expressions import (
     SubSelectExpression,
     SelectExpression,
     BetweenExpression,
+    JoinClause,
 )
 
 
@@ -84,7 +85,7 @@ class BaseGrammar:
                     aggregates=self.process_aggregates(),
                     order_by=self.process_order_by(),
                     group_by=self.process_group_by(),
-                    joins=self.process_joins(),
+                    joins=self.process_joins(qmark=qmark),
                     having=self.process_having(),
                 )
                 .strip()
@@ -101,7 +102,7 @@ class BaseGrammar:
                     aggregates=self.process_aggregates(),
                     order_by=self.process_order_by(),
                     group_by=self.process_group_by(),
-                    joins=self.process_joins(),
+                    joins=self.process_joins(qmark=qmark),
                     having=self.process_having(),
                 )
                 .strip()
@@ -226,7 +227,7 @@ class BaseGrammar:
 
         return self.process_column(columns)
 
-    def process_joins(self):
+    def process_joins(self, qmark=False):
         """Compiles a join expression.
 
         Returns:
@@ -234,18 +235,54 @@ class BaseGrammar:
         """
         sql = ""
         for join in self._joins:
-            local_table = join.column1.split(".")[0]
-            column1 = join.column1
-            column2 = join.column2
-            sql += self.join_string().format(
-                foreign_table=self.process_table(join.foreign_table),
-                local_table=self.process_table(local_table),
-                column1=self._table_column_string(column1),
-                equality=join.equality,
-                column2=self._table_column_string(column2),
-                keyword=self.join_keywords[join.clause],
-            )
-            sql += " "
+            if isinstance(join, JoinClause):
+                on_string = ""
+                where_string = ""
+                cause_loop = 1
+                for clause in join.get_on_clauses():
+                    if cause_loop == 1:
+                        keyword = "ON"
+                    else:
+                        keyword = clause.operator.upper()
+
+                    on_string += f"{keyword} {self._table_column_string(clause.column1)} {clause.equality} {self._table_column_string(clause.column2)} "
+                    cause_loop += 1
+
+                where_loop = 1
+
+                for clause in join.get_where_clauses():
+                    if where_loop == 1:
+                        keyword = "WHERE"
+                    else:
+                        keyword = "AND"
+
+                    if clause.value_type == "NULL":
+                        sql_string = self.where_null_string()
+                        where_string += sql_string.format(
+                            keyword=keyword, column=self.process_column(clause.column)
+                        )
+                    elif clause.value_type == "NOT NULL":
+                        sql_string = self.where_not_null_string()
+                        where_string += sql_string.format(
+                            keyword=keyword, column=self.process_column(clause.column)
+                        )
+                    else:
+                        if qmark:
+                            value = "'?'"
+                            self.add_binding(clause.value)
+                        else:
+                            value = self._compile_value(clause.value)
+                        where_string += f"{keyword} {self.process_column(clause.column)} {clause.equality} {value} "
+                    where_loop += 1
+
+                sql += self.join_string().format(
+                    foreign_table=self.process_table(join.table),
+                    alias=f" AS {self.process_table(join.alias)}" if join.alias else "",
+                    on=on_string,
+                    wheres=f" {where_string}",
+                    keyword=self.join_keywords[join.clause],
+                )
+                sql += " "
 
         return sql
 

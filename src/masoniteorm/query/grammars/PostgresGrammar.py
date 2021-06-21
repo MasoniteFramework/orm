@@ -16,6 +16,7 @@ class PostgresGrammar(BaseGrammar):
 
     join_keywords = {
         "inner": "INNER JOIN",
+        "join": "INNER JOIN",
         "outer": "OUTER JOIN",
         "left": "LEFT JOIN",
         "right": "RIGHT JOIN",
@@ -153,7 +154,7 @@ class PostgresGrammar(BaseGrammar):
         return "'{value}'{separator}"
 
     def join_string(self):
-        return "{keyword} {foreign_table} ON {column1} {equality} {column2}"
+        return "{keyword} {foreign_table}{alias} {on}{wheres}"
 
     def limit_string(self, offset=False):
         return "LIMIT {limit}"

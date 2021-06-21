@@ -295,3 +295,31 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder.where("age", "not like", "%name%").to_sql()
         """
         return """SELECT * FROM "users" WHERE "users"."age" LIKE '%name%'"""
+
+    def can_compile_join_clause(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "not like", "%name%").to_sql()
+        """
+        return """SELECT * FROM "users" INNER JOIN "report_groups" AS "rg" ON "bgt"."fund" = "rg"."fund" AND "bgt"."dept" = "rg"."dept" AND "bgt"."acct" = "rg"."acct" AND "bgt"."sub" = "rg"."sub\""""
+
+    def can_compile_join_clause_with_where(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "not like", "%name%").to_sql()
+        """
+        return """SELECT * FROM "users" INNER JOIN "report_groups" AS "rg" ON "bgt"."fund" = "rg"."fund" WHERE "bgt" = '1'"""
+
+    def can_compile_join_clause_with_null_where(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "not like", "%name%").to_sql()
+        """
+        return """SELECT * FROM "users" INNER JOIN "report_groups" AS "rg" ON "bgt"."fund" = "rg"."fund" WHERE "bgt" IS NULL"""
+
+    def can_compile_join_clause_with_lambda(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "not like", "%name%").to_sql()
+        """
+        return """SELECT * FROM "users" INNER JOIN "report_groups" AS "rg" ON "bgt"."fund" = "rg"."fund" WHERE "bgt" IS NULL"""

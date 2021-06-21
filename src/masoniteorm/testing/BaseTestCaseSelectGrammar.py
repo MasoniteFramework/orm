@@ -1,6 +1,7 @@
 import inspect
 
 from ..query import QueryBuilder
+from ..expressions import JoinClause
 from ..models import Model
 
 
@@ -269,6 +270,45 @@ class BaseTestCaseSelectGrammar:
         to_sql = self.builder.join(
             "contacts", "users.id", "=", "contacts.user_id"
         ).to_sql()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_join_clause(self):
+        clause = (
+            JoinClause("report_groups as rg")
+            .on("bgt.fund", "=", "rg.fund")
+            .on("bgt.dept", "=", "rg.dept")
+            .on("bgt.acct", "=", "rg.acct")
+            .on("bgt.sub", "=", "rg.sub")
+        )
+        to_sql = self.builder.join(clause).to_sql()
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_join_clause_with_null_where(self):
+        clause = (
+            JoinClause("report_groups as rg")
+            .on("bgt.fund", "=", "rg.fund")
+            .where_null("bgt")
+        )
+        to_sql = self.builder.join(clause).to_sql()
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_join_clause_with_lambda(self):
+        to_sql = self.builder.join(
+            "report_groups as rg",
+            lambda clause: (clause.on("bgt.fund", "=", "rg.fund").where_null("bgt")),
+        ).to_sql()
+
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()

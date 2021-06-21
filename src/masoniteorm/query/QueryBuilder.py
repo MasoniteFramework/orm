@@ -2,6 +2,7 @@ import inspect
 
 from ..collection.Collection import Collection
 from ..expressions.expressions import (
+    JoinClause,
     SubGroupExpression,
     SubSelectExpression,
     SelectExpression,
@@ -11,7 +12,6 @@ from ..expressions.expressions import (
     QueryExpression,
     OrderByExpression,
     UpdateQueryExpression,
-    JoinExpression,
     HavingExpression,
     FromTable,
 )
@@ -862,17 +862,12 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def join(
-        self,
-        foreign_table: str,
-        column1: str,
-        equality: ["=", "<", "<=", ">", ">="],
-        column2: str,
-        clause="inner",
+        self, table: str, column1=None, equality=None, column2=None, clause="inner"
     ):
         """Specifies a join expression.
 
         Arguments:
-            foreign_table {string} -- The name of the table to join on.
+            table {string} -- The name of the table or an instance of JoinClause.
             column1 {string} -- The name of the foreign table.
             equality {string} -- The equality to join on.
             column2 {string} -- The name of the local column.
@@ -883,16 +878,21 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._joins += (
-            JoinExpression(foreign_table, column1, equality, column2, clause=clause),
-        )
+        if inspect.isfunction(column1):
+            self._joins += (column1(JoinClause(table)),)
+        elif isinstance(table, str):
+            self._joins += (
+                JoinClause(table, clause=clause).on(column1, equality, column2),
+            )
+        else:
+            self._joins += (table,)
         return self
 
-    def left_join(self, foreign_table, column1, equality, column2):
+    def left_join(self, table, column1, equality, column2):
         """A helper method to add a left join expression.
 
         Arguments:
-            foreign_table {string} -- The name of the table to join on.
+            table {string} -- The name of the table to join on.
             column1 {string} -- The name of the foreign table.
             equality {string} -- The equality to join on.
             column2 {string} -- The name of the local column.
@@ -900,16 +900,19 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._joins += (
-            JoinExpression(foreign_table, column1, equality, column2, "left"),
+        return self.join(
+            table=table,
+            column1=column1,
+            equality=equality,
+            column2=column2,
+            clause="left",
         )
-        return self
 
-    def right_join(self, foreign_table, column1, equality, column2):
+    def right_join(self, table, column1, equality, column2):
         """A helper method to add a right join expression.
 
         Arguments:
-            foreign_table {string} -- The name of the table to join on.
+            table {string} -- The name of the table to join on.
             column1 {string} -- The name of the foreign table.
             equality {string} -- The equality to join on.
             column2 {string} -- The name of the local column.
@@ -917,10 +920,13 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._joins += (
-            JoinExpression(foreign_table, column1, equality, column2, "right"),
+        return self.join(
+            table=table,
+            column1=column1,
+            equality=equality,
+            column2=column2,
+            clause="right",
         )
-        return self
 
     def joins(self, *relationships, clause="inner"):
         for relationship in relationships:
