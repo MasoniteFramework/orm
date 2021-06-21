@@ -314,3 +314,10 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder.where("age", "not like", "%name%").to_sql()
         """
         return "SELECT * FROM `users` INNER JOIN `report_groups` AS `rg` ON `bgt`.`fund` = `rg`.`fund` WHERE `bgt` IS NULL"
+
+    def can_compile_join_clause_with_lambda(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "not like", "%name%").to_sql()
+        """
+        return "SELECT * FROM `users` INNER JOIN `report_groups` AS `rg` ON `bgt`.`fund` = `rg`.`fund` WHERE `bgt` IS NULL"

@@ -878,7 +878,9 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        if isinstance(table, str):
+        if inspect.isfunction(column1):
+            self._joins += (column1(JoinClause(table)),)
+        elif isinstance(table, str):
             self._joins += (
                 JoinClause(table, clause=clause).on(column1, equality, column2),
             )
