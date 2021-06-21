@@ -85,7 +85,7 @@ class BaseGrammar:
                     aggregates=self.process_aggregates(),
                     order_by=self.process_order_by(),
                     group_by=self.process_group_by(),
-                    joins=self.process_joins(),
+                    joins=self.process_joins(qmark=qmark),
                     having=self.process_having(),
                 )
                 .strip()
@@ -102,7 +102,7 @@ class BaseGrammar:
                     aggregates=self.process_aggregates(),
                     order_by=self.process_order_by(),
                     group_by=self.process_group_by(),
-                    joins=self.process_joins(),
+                    joins=self.process_joins(qmark=qmark),
                     having=self.process_having(),
                 )
                 .strip()
@@ -227,7 +227,7 @@ class BaseGrammar:
 
         return self.process_column(columns)
 
-    def process_joins(self):
+    def process_joins(self, qmark=False):
         """Compiles a join expression.
 
         Returns:
@@ -267,7 +267,12 @@ class BaseGrammar:
                             keyword=keyword, column=self.process_column(clause.column)
                         )
                     else:
-                        where_string += f"{keyword} {self.process_column(clause.column)} {clause.equality} {self._compile_value(clause.value)} "
+                        if qmark:
+                            value = "'?'"
+                            self.add_binding(clause.value)
+                        else:
+                            value = self._compile_value(clause.value)
+                        where_string += f"{keyword} {self.process_column(clause.column)} {clause.equality} {value} "
                     where_loop += 1
 
                 sql += self.join_string().format(
