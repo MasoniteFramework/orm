@@ -36,13 +36,14 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         with self.schema.create("users") as blueprint:
             blueprint.string("name")
             blueprint.integer("age")
-            blueprint.unique("name")
+            blueprint.unique("name"),
+            blueprint.unique("name", name="table_unique"),
 
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
             blueprint.to_sql(),
             [
-                "CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL, `age` INT(11) NOT NULL, CONSTRAINT users_name_unique UNIQUE (name))"
+                "CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL, `age` INT(11) NOT NULL, CONSTRAINT users_name_unique UNIQUE (name), CONSTRAINT table_unique UNIQUE (name))"
             ],
         )
 

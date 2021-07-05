@@ -348,7 +348,7 @@ class PostgresPlatform(Platform):
         return "CONSTRAINT {constraint_name} PRIMARY KEY ({columns})"
 
     def get_unique_constraint_string(self):
-        return "CONSTRAINT {table}_{name_columns}_unique UNIQUE ({columns})"
+        return "CONSTRAINT {constraint_name} UNIQUE ({columns})"
 
     def get_table_string(self):
         return '"{table}"'
