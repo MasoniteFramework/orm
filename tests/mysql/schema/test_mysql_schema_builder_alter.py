@@ -213,6 +213,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
             blueprint.index("name")
             blueprint.index(["name", "email"])
             blueprint.unique("name")
+            blueprint.unique("name", name="table_unique")
             blueprint.unique(["name", "email"])
             blueprint.fulltext("description")
 
@@ -224,6 +225,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
                 "CREATE INDEX users_name_index ON `users`(name)",
                 "CREATE INDEX users_name_email_index ON `users`(name,email)",
                 "ALTER TABLE `users` ADD CONSTRAINT UNIQUE INDEX users_name_unique(name)",
+                "ALTER TABLE `users` ADD CONSTRAINT UNIQUE INDEX table_unique(name)",
                 "ALTER TABLE `users` ADD CONSTRAINT UNIQUE INDEX users_name_email_unique(name,email)",
                 "ALTER TABLE `users` ADD FULLTEXT description_fulltext(description)",
             ],
