@@ -34,6 +34,16 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_can_add_constraints(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.unique("name", name="table_unique")
+
+        self.assertEqual(len(blueprint.table.added_columns), 0)
+
+        sql = ['CREATE UNIQUE INDEX table_unique ON "users"(name)']
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_alter_rename(self):
         with self.schema.table("users") as blueprint:
             blueprint.rename("post", "comment", "integer")
