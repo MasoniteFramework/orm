@@ -8,6 +8,7 @@ from src.masoniteorm.query.grammars import MySQLGrammar
 from src.masoniteorm.relationships import has_many
 from src.masoniteorm.scopes import SoftDeleteScope
 from tests.utils import MockConnectionFactory
+import datetime
 
 
 class Articles(Model):
@@ -531,6 +532,15 @@ class BaseTestQueryBuilder:
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
         self.assertEqual(sql, sql_ref)
+
+    def test_cast_values(self):
+        builder = self.get_builder(dry=True)
+        result = builder.cast_dates({"created_at": datetime.datetime(2021, 1, 1)})
+        self.assertEquals(result, {"created_at": "2021-01-01T00:00:00+00:00"})
+        result = builder.cast_dates({"created_at": datetime.date(2021, 1, 1)})
+        self.assertEquals(result, {"created_at": "2021-01-01T00:00:00+00:00"})
+        result = builder.cast_dates([{"created_at": datetime.date(2021, 1, 1)}])
+        self.assertEquals(result, [{"created_at": "2021-01-01T00:00:00+00:00"}])
 
 
 class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
