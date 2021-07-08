@@ -1177,6 +1177,8 @@ class QueryBuilder(ObservesEvents):
             new_dict = {}
             for key, value in result.items():
                 new_dict.update({key: self.cast_value(value)})
+
+            return new_dict
         elif isinstance(result, list):
             new_list = []
             for res in result:
