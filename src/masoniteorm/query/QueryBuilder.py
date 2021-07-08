@@ -22,6 +22,8 @@ from ..observers import ObservesEvents
 from ..exceptions import ModelNotFound, HTTP404, ConnectionNotRegistered
 from ..pagination import LengthAwarePaginator, SimplePaginator
 from .EagerRelation import EagerRelations
+from datetime import datetime, date as datetimedate, time as datetimetime
+import pendulum
 
 
 class QueryBuilder(ObservesEvents):
@@ -1158,6 +1160,32 @@ class QueryBuilder(ObservesEvents):
             return prepared_result[0]
         else:
             return self
+
+    def cast_value(self, value):
+
+        if isinstance(value, datetime):
+            return str(pendulum.instance(value))
+        elif isinstance(value, datetimedate):
+            return str(pendulum.datetime(value.year, value.month, value.day))
+        elif isinstance(value, datetimetime):
+            return str(pendulum.parse(f"{value.hour}:{value.minute}:{value.second}"))
+
+        return value
+
+    def cast_dates(self, result):
+        if isinstance(result, dict):
+            new_dict = {}
+            for key, value in result.items():
+                new_dict.update({key: self.cast_value(value)})
+
+            return new_dict
+        elif isinstance(result, list):
+            new_list = []
+            for res in result:
+                new_list.append(self.cast_dates(res))
+            return new_list
+
+        return result
 
     def max(self, column):
         """Aggregates a columns values.
