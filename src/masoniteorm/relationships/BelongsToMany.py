@@ -78,7 +78,6 @@ class BelongsToMany(BaseRelationship):
             f"{self._table}.{self.other_foreign_key} as m_reserved2",
         ).table(f"{table1}")
 
-
         if self.pivot_id:
             result.select(f"{self._table}.{self.pivot_id} as m_reserved3")
 
@@ -152,7 +151,7 @@ class BelongsToMany(BaseRelationship):
     def table(self, table):
         self._table = table
         return self
-    
+
     def make_builder(self, eagers=None):
         builder = self.get_builder().with_(eagers)
 
@@ -211,7 +210,6 @@ class BelongsToMany(BaseRelationship):
 
         if self.pivot_id:
             result.select(f"{self._table}.{self.pivot_id} as m_reserved3")
-            
 
         if isinstance(relation, Collection):
             final_result = result.where_in(
@@ -222,7 +220,7 @@ class BelongsToMany(BaseRelationship):
             final_result = result.where(
                 self.local_owner_key, getattr(relation, self.local_owner_key)
             ).get()
-        
+
         return final_result
 
     def get_related(self, query, relation, eagers=None):
