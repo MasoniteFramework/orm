@@ -147,8 +147,13 @@ class BelongsToMany(BaseRelationship):
     def table(self, table):
         self._table = table
         return self
+    
+    def make_builder(self, eagers=None):
+        builder = self.get_builder().with_(eagers)
 
-    def get_related(self, query, relation, eagers=None):
+        return builder
+
+    def make_query(self, query, relation, eagers=None):
         eagers = eagers or []
         builder = self.get_builder().with_(eagers)
 
@@ -171,8 +176,8 @@ class BelongsToMany(BaseRelationship):
         table1 = query.get_table_name()
         result = builder.select(
             f"{table2}.*",
-            f"{self._table}.{self.local_foreign_key}",
-            f"{self._table}.{self.other_foreign_key}",
+            f"{self._table}.{self.local_foreign_key} as m_reserved1",
+            f"{self._table}.{self.other_foreign_key} as m_reserved2",
         ).table(f"{table1}")
 
         if self.with_fields:
@@ -195,12 +200,13 @@ class BelongsToMany(BaseRelationship):
 
         if self.with_timestamps:
             result.select(
-                f"{self._table}.updated_at as updated_at",
-                f"{self._table}.created_at as created_at",
+                f"{self._table}.updated_at as {self._table}_updated_at",
+                f"{self._table}.created_at as {self._table}_created_at",
             )
 
         if self.pivot_id:
-            result.select(f"{self._table}.{self.pivot_id} as {self.pivot_id}")
+            result.select(f"{self._table}.{self.pivot_id} as m_reserved3")
+            
 
         if isinstance(relation, Collection):
             final_result = result.where_in(
@@ -211,12 +217,22 @@ class BelongsToMany(BaseRelationship):
             final_result = result.where(
                 self.local_owner_key, getattr(relation, self.local_owner_key)
             ).get()
+        
+        return final_result
+
+    def get_related(self, query, relation, eagers=None):
+        final_result = self.make_query(query, relation, eagers=eagers)
+        builder = self.make_builder(eagers)
 
         for model in final_result:
             pivot_data = {
-                self.local_foreign_key: getattr(model, self.local_foreign_key),
-                self.other_foreign_key: getattr(model, self.other_foreign_key),
+                self.local_foreign_key: getattr(model, "m_reserved1"),
+                self.other_foreign_key: getattr(model, "m_reserved2"),
             }
+
+            model.delete_attribute("m_reserved1")
+            model.delete_attribute("m_reserved2")
+            model.delete_attribute("m_reserved3")
 
             if self.with_timestamps:
                 pivot_data.update(
