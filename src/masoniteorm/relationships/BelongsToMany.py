@@ -74,17 +74,18 @@ class BelongsToMany(BaseRelationship):
         table2 = query.get_table_name()
         result = query.select(
             f"{query.get_table_name()}.*",
-            f"{self._table}.{self.local_foreign_key}",
-            f"{self._table}.{self.other_foreign_key}",
+            f"{self._table}.{self.local_foreign_key} as m_reserved1",
+            f"{self._table}.{self.other_foreign_key} as m_reserved2",
         ).table(f"{table1}")
 
+
         if self.pivot_id:
-            result.select(f"{self._table}.{self.pivot_id} as {self.pivot_id}")
+            result.select(f"{self._table}.{self.pivot_id} as m_reserved3")
 
         if self.with_timestamps:
             result.select(
-                f"{self._table}.updated_at as updated_at",
-                f"{self._table}.created_at as created_at",
+                f"{self._table}.updated_at as {self._table}_updated_at",
+                f"{self._table}.created_at as {self._table}_created_at",
             )
 
         result.join(
@@ -113,9 +114,13 @@ class BelongsToMany(BaseRelationship):
 
         for p in result:
             pivot_data = {
-                self.local_foreign_key: getattr(p, self.local_foreign_key),
-                self.other_foreign_key: getattr(p, self.other_foreign_key),
+                self.local_foreign_key: getattr(p, "m_reserved1"),
+                self.other_foreign_key: getattr(p, "m_reserved2"),
             }
+
+            p.delete_attribute("m_reserved1")
+            p.delete_attribute("m_reserved2")
+            p.delete_attribute("m_reserved3")
 
             if self.pivot_id:
                 pivot_data.update({self.pivot_id: getattr(p, self.pivot_id)})
