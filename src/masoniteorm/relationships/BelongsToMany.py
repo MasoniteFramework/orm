@@ -55,7 +55,6 @@ class BelongsToMany(BaseRelationship):
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-        print("apply query")
 
         if not self._table:
             pivot_tables = [
