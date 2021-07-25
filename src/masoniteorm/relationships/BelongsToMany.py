@@ -45,7 +45,7 @@ class BelongsToMany(BaseRelationship):
         return self
 
     def apply_query(self, query, owner):
-        """Apply the query and return a dictionary to be hydrated. 
+        """Apply the query and return a dictionary to be hydrated.
             Used during accessing a relationship on a model
 
         Arguments:
