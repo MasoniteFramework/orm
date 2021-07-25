@@ -45,15 +45,17 @@ class BelongsToMany(BaseRelationship):
         return self
 
     def apply_query(self, query, owner):
-        """Apply the query and return a dictionary to be hydrated
+        """Apply the query and return a dictionary to be hydrated. 
+            Used during accessing a relationship on a model
 
         Arguments:
-            foreign {oject} -- The relationship object
+            query {oject} -- The relationship object
             owner {object} -- The current model oject.
 
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
+        print('apply query')
 
         if not self._table:
             pivot_tables = [
@@ -111,34 +113,35 @@ class BelongsToMany(BaseRelationship):
 
         result = result.get()
 
-        for p in result:
+        for model in result:
             pivot_data = {
-                self.local_foreign_key: getattr(p, "m_reserved1"),
-                self.other_foreign_key: getattr(p, "m_reserved2"),
+                self.local_foreign_key: getattr(model, "m_reserved1"),
+                self.other_foreign_key: getattr(model, "m_reserved2"),
             }
 
-            p.delete_attribute("m_reserved1")
-            p.delete_attribute("m_reserved2")
-            p.delete_attribute("m_reserved3")
+            model.delete_attribute("m_reserved1")
+            model.delete_attribute("m_reserved2")
+            if self.pivot_id:
+                model.delete_attribute("m_reserved3")
 
             if self.pivot_id:
-                pivot_data.update({self.pivot_id: getattr(p, self.pivot_id)})
+                pivot_data.update({self.pivot_id: getattr(model, self.pivot_id)})
 
             if self.with_timestamps:
                 pivot_data.update(
                     {
-                        "updated_at": getattr(p, "updated_at"),
-                        "created_at": getattr(p, "created_at"),
+                        "updated_at": getattr(model, "updated_at"),
+                        "created_at": getattr(model, "created_at"),
                     }
                 )
 
             if self.with_fields:
                 for field in self.with_fields:
-                    pivot_data.update({field: getattr(p, field)})
-                    p.delete_attribute(field)
+                    pivot_data.update({field: getattr(model, field)})
+                    model.delete_attribute(field)
 
             setattr(
-                p,
+                model,
                 self._as,
                 Pivot.on(query.connection)
                 .table(self._table)
@@ -158,6 +161,16 @@ class BelongsToMany(BaseRelationship):
         return builder
 
     def make_query(self, query, relation, eagers=None):
+        """Used during eager loading a relationship
+
+        Args:
+            query ([type]): [description]
+            relation ([type]): [description]
+            eagers (list, optional): List of eager loaded relationships. Defaults to None.
+
+        Returns:
+            [type]: [description]
+        """        
         eagers = eagers or []
         builder = self.get_builder().with_(eagers)
 
