@@ -282,7 +282,7 @@ class BelongsToMany(BaseRelationship):
         model.add_relation(
             {
                 key: collection.where(
-                    self.local_foreign_key, getattr(model, self.local_owner_key)
+                    self.other_owner_key, getattr(model, self.local_owner_key)
                 )
             }
         )
