@@ -76,7 +76,7 @@ class BelongsToMany(BaseRelationship):
         table2 = query.get_table_name()
         result = query.select(
             f"{query.get_table_name()}.*",
-            f"{self._table}.{self.local_foreign_key} as m_reserved1",
+            f"{self._table}.{self.local_foreign_key} as {self.local_owner_key}",
             f"{self._table}.{self.other_foreign_key} as m_reserved2",
         ).table(f"{table1}")
 
@@ -128,7 +128,6 @@ class BelongsToMany(BaseRelationship):
                 model.delete_attribute("m_reserved4")
                 model.delete_attribute("m_reserved5")
 
-            # model.delete_attribute("m_reserved1")
             model.delete_attribute("m_reserved2")
 
             if self.pivot_id:
@@ -247,7 +246,6 @@ class BelongsToMany(BaseRelationship):
                 self.other_foreign_key: getattr(model, "m_reserved2"),
             }
 
-            # model.delete_attribute("m_reserved1")
             model.delete_attribute("m_reserved2")
 
             if self.with_timestamps:
