@@ -45,7 +45,7 @@ class BelongsToMany(BaseRelationship):
         return self
 
     def apply_query(self, query, owner):
-        """Apply the query and return a dictionary to be hydrated. 
+        """Apply the query and return a dictionary to be hydrated.
             Used during accessing a relationship on a model
 
         Arguments:
@@ -55,61 +55,13 @@ class BelongsToMany(BaseRelationship):
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-        print('apply query')
-
-        if not self._table:
-            pivot_tables = [
-                singularize(owner.builder.get_table_name()),
-                singularize(query.get_table_name()),
-            ]
-            pivot_tables.sort()
-            pivot_table_1, pivot_table_2 = pivot_tables
-            self._table = "_".join(pivot_tables)
-            self.other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
-            self.local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
-        else:
-            pivot_table_1, pivot_table_2 = self._table.split("_", 1)
-            self.other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
-            self.local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
-
-        table1 = owner.builder.get_table_name()
-        table2 = query.get_table_name()
-        result = query.select(
-            f"{query.get_table_name()}.*",
-            f"{self._table}.{self.local_foreign_key} as m_reserved1",
-            f"{self._table}.{self.other_foreign_key} as m_reserved2",
-        ).table(f"{table1}")
-
-        if self.pivot_id:
-            result.select(f"{self._table}.{self.pivot_id} as m_reserved3")
-
-        if self.with_timestamps:
-            result.select(
-                f"{self._table}.updated_at as {self._table}_updated_at",
-                f"{self._table}.created_at as {self._table}_created_at",
-            )
-
-        result.join(
-            f"{self._table}",
-            f"{self._table}.{self.local_foreign_key}",
-            "=",
-            f"{table1}.{self.local_owner_key}",
-        )
-        result.join(
-            f"{table2}",
-            f"{self._table}.{self.other_foreign_key}",
-            "=",
-            f"{table2}.{self.other_owner_key}",
-        )
+        result = self.build_query(owner.builder, query)
 
         if hasattr(owner, self.local_owner_key):
             result.where(
-                f"{table1}.{self.local_owner_key}", getattr(owner, self.local_owner_key)
+                f"{owner.builder.get_table_name()}.{self.local_owner_key}",
+                getattr(owner, self.local_owner_key),
             )
-
-        if self.with_fields:
-            for field in self.with_fields:
-                result.select(f"{self._table}.{field}")
 
         result = result.get()
 
@@ -160,26 +112,16 @@ class BelongsToMany(BaseRelationship):
 
         return builder
 
-    def make_query(self, query, relation, eagers=None):
-        """Used during eager loading a relationship
+    def get_table_names(self, table1, table2):
+        pivot_tables = [singularize(table1), singularize(table2)]
+        pivot_tables.sort()
+        return pivot_tables
 
-        Args:
-            query ([type]): [description]
-            relation ([type]): [description]
-            eagers (list, optional): List of eager loaded relationships. Defaults to None.
-
-        Returns:
-            [type]: [description]
-        """        
-        eagers = eagers or []
-        builder = self.get_builder().with_(eagers)
-
+    def build_query(self, builder, query):
         if not self._table:
-            pivot_tables = [
-                singularize(builder.get_table_name()),
-                singularize(query.get_table_name()),
-            ]
-            pivot_tables.sort()
+            pivot_tables = self.get_table_names(
+                builder.get_table_name(), query.get_table_name()
+            )
             pivot_table_1, pivot_table_2 = pivot_tables
             self._table = "_".join(pivot_tables)
             self.other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
@@ -197,6 +139,15 @@ class BelongsToMany(BaseRelationship):
             f"{self._table}.{self.other_foreign_key} as m_reserved2",
         ).table(f"{table1}")
 
+        if self.pivot_id:
+            result.select(f"{self._table}.{self.pivot_id} as m_reserved3")
+
+        if self.with_timestamps:
+            result.select(
+                f"{self._table}.updated_at as {self._table}_updated_at",
+                f"{self._table}.created_at as {self._table}_created_at",
+            )
+
         if self.with_fields:
             for field in self.with_fields:
                 result.select(f"{self._table}.{field}")
@@ -207,7 +158,6 @@ class BelongsToMany(BaseRelationship):
             "=",
             f"{table1}.{self.local_owner_key}",
         )
-
         result.join(
             f"{table2}",
             f"{self._table}.{self.other_foreign_key}",
@@ -215,14 +165,20 @@ class BelongsToMany(BaseRelationship):
             f"{table2}.{self.other_owner_key}",
         )
 
-        if self.with_timestamps:
-            result.select(
-                f"{self._table}.updated_at as {self._table}_updated_at",
-                f"{self._table}.created_at as {self._table}_created_at",
-            )
+        return result
 
-        if self.pivot_id:
-            result.select(f"{self._table}.{self.pivot_id} as m_reserved3")
+    def make_query(self, query, relation, eagers=None):
+        """Used during eager loading a relationship
+
+        Args:
+            query ([type]): [description]
+            relation ([type]): [description]
+            eagers (list, optional): List of eager loaded relationships. Defaults to None.
+
+        Returns:
+            [type]: [description]
+        """
+        result = self.build_query(self.get_builder().with_(eagers or []), query)
 
         if isinstance(relation, Collection):
             final_result = result.where_in(
