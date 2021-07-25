@@ -85,8 +85,8 @@ class BelongsToMany(BaseRelationship):
 
         if self.with_timestamps:
             result.select(
-                f"{self._table}.updated_at as {self._table}_updated_at",
-                f"{self._table}.created_at as {self._table}_created_at",
+                f"{self._table}.updated_at as m_reserved4",
+                f"{self._table}.created_at as m_reserved5",
             )
 
         result.join(
@@ -119,21 +119,20 @@ class BelongsToMany(BaseRelationship):
                 self.other_foreign_key: getattr(model, "m_reserved2"),
             }
 
+            if self.with_timestamps:
+                pivot_data = {
+                    "created_at": getattr(model, "m_reserved5"),
+                    "updated_at": getattr(model, "m_reserved4"),
+                }
+
+                model.delete_attribute("m_reserved4")
+                model.delete_attribute("m_reserved5")
+
             model.delete_attribute("m_reserved1")
             model.delete_attribute("m_reserved2")
             if self.pivot_id:
                 model.delete_attribute("m_reserved3")
-
-            if self.pivot_id:
                 pivot_data.update({self.pivot_id: getattr(model, self.pivot_id)})
-
-            if self.with_timestamps:
-                pivot_data.update(
-                    {
-                        "updated_at": getattr(model, "updated_at"),
-                        "created_at": getattr(model, "created_at"),
-                    }
-                )
 
             if self.with_fields:
                 for field in self.with_fields:
@@ -217,8 +216,8 @@ class BelongsToMany(BaseRelationship):
 
         if self.with_timestamps:
             result.select(
-                f"{self._table}.updated_at as {self._table}_updated_at",
-                f"{self._table}.created_at as {self._table}_created_at",
+                f"{self._table}.updated_at as m_reserved4",
+                f"{self._table}.created_at as m_reserved5",
             )
 
         if self.pivot_id:
