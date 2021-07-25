@@ -55,6 +55,7 @@ class BelongsToMany(BaseRelationship):
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
+        print("apply query")
 
         if not self._table:
             pivot_tables = [
@@ -129,9 +130,10 @@ class BelongsToMany(BaseRelationship):
 
             model.delete_attribute("m_reserved1")
             model.delete_attribute("m_reserved2")
+
             if self.pivot_id:
-                model.delete_attribute("m_reserved3")
                 pivot_data.update({self.pivot_id: getattr(model, "m_reserved3")})
+                model.delete_attribute("m_reserved3")
 
             if self.with_fields:
                 for field in self.with_fields:
@@ -246,20 +248,19 @@ class BelongsToMany(BaseRelationship):
 
             model.delete_attribute("m_reserved1")
             model.delete_attribute("m_reserved2")
-            if self.pivot_id:
-                model.delete_attribute("m_reserved3")
 
             if self.with_timestamps:
-                pivot_data = {
-                    "updated_at": getattr(model, "m_reserved4"),
-                    "created_at": getattr(model, "m_reserved5"),
-                }
-
-                model.delete_attribute("m_reserved4")
-                model.delete_attribute("m_reserved5")
+                pivot_data.update(
+                    {
+                        "updated_at": getattr(model, "updated_at"),
+                        "created_at": getattr(model, "created_at"),
+                    }
+                )
 
             if self.pivot_id:
-                pivot_data.update({self.pivot_id: getattr(model, self.pivot_id)})
+                # print(model.serialize(), self.pivot_id)
+                pivot_data.update({self.pivot_id: getattr(model, "m_reserved3")})
+                model.delete_attribute("m_reserved3")
 
             if self.with_fields:
                 for field in self.with_fields:
