@@ -55,7 +55,7 @@ class BelongsToMany(BaseRelationship):
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-        print('apply query')
+        print("apply query")
 
         if not self._table:
             pivot_tables = [
@@ -170,7 +170,7 @@ class BelongsToMany(BaseRelationship):
 
         Returns:
             [type]: [description]
-        """        
+        """
         eagers = eagers or []
         builder = self.get_builder().with_(eagers)
 
