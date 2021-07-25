@@ -128,7 +128,7 @@ class BelongsToMany(BaseRelationship):
                 model.delete_attribute("m_reserved4")
                 model.delete_attribute("m_reserved5")
 
-            model.delete_attribute("m_reserved1")
+            # model.delete_attribute("m_reserved1")
             model.delete_attribute("m_reserved2")
 
             if self.pivot_id:
@@ -171,6 +171,7 @@ class BelongsToMany(BaseRelationship):
         Returns:
             [type]: [description]
         """
+        print("make query")
         eagers = eagers or []
         builder = self.get_builder().with_(eagers)
 
@@ -246,14 +247,14 @@ class BelongsToMany(BaseRelationship):
                 self.other_foreign_key: getattr(model, "m_reserved2"),
             }
 
-            model.delete_attribute("m_reserved1")
+            # model.delete_attribute("m_reserved1")
             model.delete_attribute("m_reserved2")
 
             if self.with_timestamps:
                 pivot_data.update(
                     {
-                        "updated_at": getattr(model, "updated_at"),
-                        "created_at": getattr(model, "created_at"),
+                        "updated_at": getattr(model, "m_reserved4"),
+                        "created_at": getattr(model, "m_reserved5"),
                     }
                 )
 
@@ -279,10 +280,13 @@ class BelongsToMany(BaseRelationship):
         return final_result
 
     def register_related(self, key, model, collection):
+        print("ccc", collection.serialize())
+        print("other_owner_key", self.other_owner_key)
+        print("local_owner_key", self.local_owner_key)
         model.add_relation(
             {
                 key: collection.where(
-                    self.other_owner_key, getattr(model, self.local_owner_key)
+                    f"m_reserved1", getattr(model, self.local_owner_key)
                 )
             }
         )
