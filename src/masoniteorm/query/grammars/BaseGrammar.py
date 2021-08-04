@@ -34,6 +34,7 @@ class BaseGrammar:
         order_by=(),
         group_by=(),
         joins=(),
+        lock=False,
         having=(),
         connection_details=None,
     ):
@@ -49,6 +50,7 @@ class BaseGrammar:
         self._group_by = group_by
         self._joins = joins
         self._having = having
+        self.lock = lock
         self._connection_details = connection_details or {}
         self._column = None
 
@@ -87,6 +89,7 @@ class BaseGrammar:
                     group_by=self.process_group_by(),
                     joins=self.process_joins(qmark=qmark),
                     having=self.process_having(),
+                    lock=self.process_locks(),
                 )
                 .strip()
             )
@@ -104,6 +107,7 @@ class BaseGrammar:
                     group_by=self.process_group_by(),
                     joins=self.process_joins(qmark=qmark),
                     having=self.process_having(),
+                    lock=self.process_locks(),
                 )
                 .strip()
             )
@@ -494,6 +498,9 @@ class BaseGrammar:
             return ""
 
         return self.offset_string().format(offset=self._offset, limit=self._limit or 1)
+
+    def process_locks(self):
+        return self.locks.get(self.lock, "")
 
     def process_having(self, qmark=False):
         """Compiles having expression.
