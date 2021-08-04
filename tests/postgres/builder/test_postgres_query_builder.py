@@ -444,6 +444,22 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(sql, sql_ref)
 
+    def test_shared_lock(self):
+        builder = self.get_builder(dry=True)
+        sql = builder.where("votes", ">=", 100).shared_lock().to_sql()
+        sql_ref = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(sql, sql_ref)
+
+    def test_update_lock(self):
+        builder = self.get_builder(dry=True)
+        sql = builder.where("votes", ">=", 100).lock_for_update().to_sql()
+        sql_ref = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(sql, sql_ref)
+
 
 class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
 
@@ -742,3 +758,17 @@ class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.truncate()
         """
         return """TRUNCATE TABLE "users\""""
+
+    def update_lock(self):
+        """
+        builder = self.get_builder()
+        builder.truncate()
+        """
+        return """SELECT * FROM "users" WHERE "users"."votes" >= '100' FOR UPDATE"""
+
+    def share_lock(self):
+        """
+        builder = self.get_builder()
+        builder.truncate()
+        """
+        return """SELECT * FROM "users" WHERE "users"."votes" >= '100' FOR SHARE"""

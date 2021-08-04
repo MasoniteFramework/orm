@@ -32,11 +32,13 @@ class PostgresGrammar(BaseGrammar):
         "delete": '{table}."{column}"{separator}',
     }
 
+    locks = {"share": "FOR SHARE", "update": "FOR UPDATE"}
+
     def select_no_table(self):
-        return "SELECT {columns}"
+        return "SELECT {columns} {lock}"
 
     def select_format(self):
-        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by} {order_by} {limit} {offset} {having}"
+        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by} {order_by} {limit} {offset} {having} {lock}"
 
     def update_format(self):
         return "UPDATE {table} SET {key_equals} {wheres}"
