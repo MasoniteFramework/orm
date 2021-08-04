@@ -327,7 +327,7 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder = self.get_builder()
         builder.where("age", "not like", "%name%").to_sql()
         """
-        return "SELECT * FROM `users` WHERE `users`.`votes` >= '100' LOCK FOR UPDATE"
+        return "SELECT * FROM `users` WHERE `users`.`votes` >= '100' LOCK IN SHARE MODE"
 
     def update_lock(self):
         """

@@ -766,7 +766,7 @@ class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         return """SELECT * FROM "users" WHERE "users"."votes" >= '100' FOR UPDATE"""
 
-    def share_lock(self):
+    def shared_lock(self):
         """
         builder = self.get_builder()
         builder.truncate()
