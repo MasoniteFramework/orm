@@ -31,13 +31,11 @@ class MSSQLGrammar(BaseGrammar):
         "delete": "{table}.[{column}]{separator}",
     }
 
-    locks = {"share": "WITH(ROWLOCK)", "update": "WITH(ROWLOCK)"}
-
     def select_no_table(self):
         return "SELECT {columns}"
 
     def select_format(self):
-        return "SELECT {limit} {columns} FROM {table} {lock} {joins} {wheres} {group_by} {order_by} {offset} {having}"
+        return "SELECT {limit} {columns} FROM {table} {joins} {wheres} {group_by} {order_by} {offset} {having}"
 
     def update_format(self):
         return "UPDATE {table} SET {key_equals} {wheres}"

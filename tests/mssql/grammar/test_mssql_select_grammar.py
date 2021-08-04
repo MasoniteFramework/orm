@@ -327,17 +327,3 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder.where("age", "not like", "%name%").to_sql()
         """
         return "SELECT * FROM [users] INNER JOIN [report_groups] AS [rg] ON [bgt].[fund] = [rg].[fund] WHERE [bgt] IS NULL"
-
-    def shared_lock(self):
-        """
-        builder = self.get_builder()
-        builder.where("age", "not like", "%name%").to_sql()
-        """
-        return "SELECT * FROM [users] WITH(ROWLOCK) WHERE [users].[votes] >= '100'"
-
-    def update_lock(self):
-        """
-        builder = self.get_builder()
-        builder.where("age", "not like", "%name%").to_sql()
-        """
-        return "SELECT * FROM [users] WITH(ROWLOCK) WHERE [users].[votes] >= '100'"

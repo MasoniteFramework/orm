@@ -59,7 +59,6 @@ class QueryBuilder(ObservesEvents):
         self._connection_details = connection_details or {}
         self._connection_driver = connection_driver
         self._scopes = scopes or {}
-        self.lock = False
         self._eager_relation = EagerRelations()
         if model:
             self._global_scopes = model._global_scopes
@@ -104,16 +103,6 @@ class QueryBuilder(ObservesEvents):
 
         if connection_class:
             self.connection_class = connection_class
-
-    def shared_lock(self):
-        return self.make_lock("share")
-
-    def lock_for_update(self):
-        return self.make_lock("update")
-
-    def make_lock(self, lock):
-        self.lock = lock
-        return self
 
     def reset(self):
         """Resets the query builder instance so you can make multiple calls with the same builder instance"""
@@ -1559,7 +1548,6 @@ class QueryBuilder(ObservesEvents):
             aggregates=self._aggregates,
             order_by=self._order_by,
             group_by=self._group_by,
-            lock=self.lock,
             joins=self._joins,
             having=self._having,
         )
