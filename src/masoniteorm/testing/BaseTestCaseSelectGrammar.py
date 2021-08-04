@@ -377,3 +377,17 @@ class BaseTestCaseSelectGrammar:
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
         self.assertEqual(to_sql, sql)
+
+    def test_shared_lock(self):
+        to_sql = self.builder.where("votes", ">=", 100).shared_lock().to_sql()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_update_lock(self):
+        to_sql = self.builder.where("votes", ">=", 100).lock_for_update().to_sql()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
