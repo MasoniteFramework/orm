@@ -55,7 +55,6 @@ class BelongsToMany(BaseRelationship):
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-        print("apply query")
 
         if not self._table:
             pivot_tables = [
@@ -76,7 +75,7 @@ class BelongsToMany(BaseRelationship):
         table2 = query.get_table_name()
         result = query.select(
             f"{query.get_table_name()}.*",
-            f"{self._table}.{self.local_foreign_key} as {self.local_owner_key}",
+            f"{self._table}.{self.local_foreign_key} as {self.local_owner_key}_id",
             f"{self._table}.{self.other_foreign_key} as m_reserved2",
         ).table(f"{table1}")
 
@@ -115,7 +114,7 @@ class BelongsToMany(BaseRelationship):
 
         for model in result:
             pivot_data = {
-                self.local_foreign_key: getattr(model, self.local_owner_key),
+                self.local_foreign_key: getattr(model, f"{self.local_owner_key}_id"),
                 self.other_foreign_key: getattr(model, "m_reserved2"),
             }
 
@@ -170,7 +169,6 @@ class BelongsToMany(BaseRelationship):
         Returns:
             [type]: [description]
         """
-        print("make query")
         eagers = eagers or []
         builder = self.get_builder().with_(eagers)
 
@@ -257,7 +255,6 @@ class BelongsToMany(BaseRelationship):
                 )
 
             if self.pivot_id:
-                # print(model.serialize(), self.pivot_id)
                 pivot_data.update({self.pivot_id: getattr(model, "m_reserved3")})
                 model.delete_attribute("m_reserved3")
 
@@ -278,9 +275,6 @@ class BelongsToMany(BaseRelationship):
         return final_result
 
     def register_related(self, key, model, collection):
-        print("ccc", collection.serialize())
-        print("other_owner_key", self.other_owner_key)
-        print("local_owner_key", self.local_owner_key)
         model.add_relation(
             {
                 key: collection.where(
