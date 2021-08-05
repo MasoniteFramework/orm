@@ -75,7 +75,15 @@ DATABASES = {
         'database': os.getenv('MSSQL_DATABASE_DATABASE'),
         'port': os.getenv('MSSQL_DATABASE_PORT'),
         'prefix': '',
-        'log_queries': True
+        'log_queries': True,
+        "options": {
+            "trusted_connection": "Yes",
+            "integrated_security": "sspi",
+            "instance": "SQLExpress",
+            "authentication": "ActiveDirectoryPassword",
+            "driver": "ODBC Driver 17 for SQL Server",
+            "connection_timeout": 15,
+        }
     },
 }
 
