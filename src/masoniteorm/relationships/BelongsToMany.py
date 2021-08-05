@@ -193,7 +193,7 @@ class BelongsToMany(BaseRelationship):
         table1 = query.get_table_name()
         result = builder.select(
             f"{table2}.*",
-            f"{self._table}.{self.local_foreign_key} as {self.local_owner_key}",
+            f"{self._table}.{self.local_foreign_key} as {self._table}_id",
             f"{self._table}.{self.other_foreign_key} as m_reserved2",
         ).table(f"{table1}")
 
@@ -242,7 +242,7 @@ class BelongsToMany(BaseRelationship):
 
         for model in final_result:
             pivot_data = {
-                self.local_foreign_key: getattr(model, self.local_owner_key),
+                self.local_foreign_key: getattr(model, f"{self._table}_id"),
                 self.other_foreign_key: getattr(model, "m_reserved2"),
             }
 
@@ -284,7 +284,7 @@ class BelongsToMany(BaseRelationship):
         model.add_relation(
             {
                 key: collection.where(
-                    self.local_owner_key, getattr(model, self.local_owner_key)
+                    f"{self._table}_id", getattr(model, self.local_owner_key)
                 )
             }
         )
