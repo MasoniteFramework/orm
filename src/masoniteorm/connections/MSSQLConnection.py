@@ -57,9 +57,8 @@ class MSSQLConnection(BaseConnection):
             return self.get_global_connection()
 
         mssql_driver = self.options.get("driver", "ODBC Driver 17 for SQL Server")
-
         self._connection = pyodbc.connect(
-            f"DRIVER={mssql_driver};SERVER={self.host},{self.port};DATABASE={self.database};UID={self.user};PWD={self.password}{'Trusted_Connection=yes' if self.options.get('trusted_connection') else ''}",
+            f"DRIVER={mssql_driver};SERVER={self.host},{self.port};DATABASE={self.database};UID={self.user};PWD={self.password}{';Trusted_Connection=Yes' if self.options.get('trusted_connection') else ''}",
             autocommit=True,
         )
 
