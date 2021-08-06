@@ -23,7 +23,9 @@ class UUIDPrimaryKeyScope(BaseScope):
         return str(uuid_func(*args))
 
     def set_uuid_create(self, builder):
-        uuid_version = getattr(builder._model, "__uuid_version__", 4)
-        builder._creates.update(
-            {builder._model.__primary_key__: self.generate_uuid(builder, uuid_version)}
-        )
+        # if there is already a primary key, no need to set a new one
+        if not builder._model.__primary_key__:
+            uuid_version = getattr(builder._model, "__uuid_version__", 4)
+            builder._creates.update(
+                {builder._model.__primary_key__: self.generate_uuid(builder, uuid_version)}
+            )
