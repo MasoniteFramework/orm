@@ -7,6 +7,7 @@ from ..exceptions import QueryException
 
 CONNECTION_POOL = []
 
+
 class MySQLConnection(BaseConnection):
     """MYSQL Connection class."""
 
@@ -58,8 +59,10 @@ class MySQLConnection(BaseConnection):
             import pendulum
             import pymysql.converters
 
-            pymysql.converters.conversions[pendulum.DateTime] = pymysql.converters.escape_datetime
-        except ImportError as e:
+            pymysql.converters.conversions[
+                pendulum.DateTime
+            ] = pymysql.converters.escape_datetime
+        except ImportError:
             pass
 
         if self.has_global_connection():
