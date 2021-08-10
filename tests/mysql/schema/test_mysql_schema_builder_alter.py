@@ -150,6 +150,14 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_alter_drop_primary(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.drop_primary("users_id_primary")
+
+        sql = ["ALTER TABLE `users` DROP INDEX users_id_primary"]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_change(self):
         with self.schema.table("users") as blueprint:
             blueprint.integer("age").change()

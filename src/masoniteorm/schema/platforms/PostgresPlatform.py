@@ -276,9 +276,14 @@ class PostgresPlatform(Platform):
             for constraint in constraints:
                 sql.append(f"DROP INDEX {constraint}")
 
-        if table.dropped_foreign_keys or table.removed_unique_indexes:
+        if (
+            table.dropped_foreign_keys
+            or table.removed_unique_indexes
+            or table.dropped_primary_keys
+        ):
             constraints = table.dropped_foreign_keys
             constraints += table.removed_unique_indexes
+            constraints += table.dropped_primary_keys
             for constraint in constraints:
                 sql.append(
                     f"ALTER TABLE {self.wrap_table(table.name)} DROP CONSTRAINT {constraint}"
