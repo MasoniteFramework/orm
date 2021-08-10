@@ -53,7 +53,7 @@ class Store(Model):
 
     __connection__ = "dev"
 
-    @belongs_to_many("store_id", "product_id", "id", "id")
+    @belongs_to_many("store_id", "product_id", "id", "id", with_timestamps=True)
     def products(self):
         return Product
 
@@ -165,6 +165,14 @@ class TestRelationships(unittest.TestCase):
     def test_belongs_to_many(self):
         store = Store.hydrate({"id": 2, "name": "Walmart"})
         self.assertEqual(store.products.count(), 3)
+        self.assertEqual(store.products.serialize()[0]["id"], 4)
+        self.assertEqual(store.products.serialize()[0]["name"], "Handgun")
+        self.assertEqual(
+            store.products.serialize()[0]["updated_at"], "2020-01-01T00:00:00+00:00"
+        )
+        self.assertEqual(
+            store.products.serialize()[0]["created_at"], "2020-01-01T00:00:00+00:00"
+        )
 
     def test_belongs_to_eager_many(self):
         store = Store.hydrate({"id": 2, "name": "Walmart"})
