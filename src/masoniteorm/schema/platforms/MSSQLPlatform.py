@@ -171,8 +171,9 @@ class MSSQLPlatform(Platform):
                     )
                 )
 
-        if table.removed_indexes:
+        if table.removed_indexes or table.removed_unique_indexes:
             constraints = table.removed_indexes
+            constraints += table.removed_unique_indexes
             for constraint in constraints:
                 sql.append(
                     f"DROP INDEX {self.wrap_table(table.name)}.{self.wrap_table(constraint)}"
