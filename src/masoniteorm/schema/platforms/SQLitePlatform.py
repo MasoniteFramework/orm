@@ -134,8 +134,10 @@ class SQLitePlatform(Platform):
     def compile_alter_sql(self, diff):
         sql = []
 
-        if diff.removed_indexes:
-            for name in diff.removed_indexes:
+        if diff.removed_indexes or diff.removed_unique_indexes:
+            indexes = diff.removed_indexes
+            indexes += diff.removed_unique_indexes
+            for name in indexes:
                 sql.append("DROP INDEX {name}".format(name=name))
 
         if diff.added_columns:

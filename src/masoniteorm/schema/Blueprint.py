@@ -919,11 +919,11 @@ class Blueprint:
         """
         if isinstance(index, list):
             for column in index:
-                self.table.remove_index(f"{self.table.name}_{column}_unique")
+                self.table.remove_unique_index(f"{self.table.name}_{column}_unique")
 
             return self
 
-        self.table.remove_index(index)
+        self.table.remove_unique_index(index)
 
     def drop_foreign(self, index):
         """Drops foreign key indexes.
