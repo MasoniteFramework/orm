@@ -282,9 +282,14 @@ class MySQLPlatform(Platform):
                         f"ALTER TABLE {self.wrap_table(table.name)} ADD CONSTRAINT {constraint.name} PRIMARY KEY ({','.join(constraint.columns)})"
                     )
 
-        if table.removed_indexes or table.removed_unique_indexes:
+        if (
+            table.removed_indexes
+            or table.removed_unique_indexes
+            or table.dropped_primary_keys
+        ):
             constraints = table.removed_indexes
             constraints += table.removed_unique_indexes
+            constraints += table.dropped_primary_keys
             for constraint in constraints:
                 sql.append(
                     f"ALTER TABLE {self.wrap_table(table.name)} DROP INDEX {constraint}"

@@ -161,6 +161,14 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_alter_drop_primary(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.drop_primary("users_id_primary")
+
+        sql = ['ALTER TABLE "users" DROP CONSTRAINT users_id_primary']
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_alter_drop_unique_constraint_shortcut(self):
         with self.schema.table("users") as blueprint:
             blueprint.drop_unique(["playlist_id"])

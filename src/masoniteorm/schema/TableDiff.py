@@ -14,6 +14,7 @@ class TableDiff(Table):
         self.changed_columns = {}
         self.dropped_columns = []
         self.dropped_foreign_keys = []
+        self.dropped_primary_keys = []
         self.renamed_columns = {}
         self.removed_constraints = {}
         self.added_constraints = {}
@@ -66,6 +67,10 @@ class TableDiff(Table):
 
     def drop_foreign(self, name):
         self.dropped_foreign_keys.append(name)
+        return self
+
+    def drop_primary(self, name):
+        self.dropped_primary_keys.append(name)
         return self
 
     def change_column(self, added_column):

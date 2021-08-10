@@ -925,6 +925,23 @@ class Blueprint:
 
         self.table.remove_unique_index(index)
 
+    def drop_primary(self, index):
+        """Drops a unique index.
+
+        Arguments:
+            indexes {list|string} -- Either a list of indexes or a specific index.
+
+        Returns:
+            self
+        """
+        if isinstance(index, list):
+            for column in index:
+                self.table.drop_primary(f"{self.table.name}_{column}_primary")
+
+            return self
+
+        self.table.drop_primary(index)
+
     def drop_foreign(self, index):
         """Drops foreign key indexes.
 
