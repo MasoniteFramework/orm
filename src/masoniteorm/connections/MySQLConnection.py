@@ -60,9 +60,7 @@ class MySQLConnection(BaseConnection):
 
             pymysql.converters.conversions[pendulum.DateTime] = pymysql.converters.escape_datetime
         except ImportError as e:
-            raise DriverNotFound(
-                "You must have the 'pymysql' & 'pendulum' package installed to make a connection to MySQL."
-            )
+            pass
 
         if self.has_global_connection():
             return self.get_global_connection()
