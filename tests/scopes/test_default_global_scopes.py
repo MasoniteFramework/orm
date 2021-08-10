@@ -59,6 +59,7 @@ class TestUUIDPrimaryKeyScope(unittest.TestCase):
             self.scope.set_uuid_create(self.builder)
             uuid_value = uuid.UUID(self.builder._creates["id"])
             self.assertEqual(version, uuid_value.version)
+            del self.builder._creates["id"]
 
     def test_works_with_custom_pk_column(self):
         UserWithUUID.__primary_key__ = "ref"
