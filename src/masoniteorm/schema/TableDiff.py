@@ -54,7 +54,6 @@ class TableDiff(Table):
 
     def remove_unique_index(self, name):
         self.removed_unique_indexes.append(name)
-        print(self.removed_unique_indexes)
 
     def drop_column(self, name):
         self.dropped_columns.append(name)
