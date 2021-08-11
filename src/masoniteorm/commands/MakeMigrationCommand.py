@@ -48,4 +48,6 @@ class MakeMigrationCommand(Command):
         with open(os.path.join(os.getcwd(), migration_directory, file_name), "w") as fp:
             fp.write(output)
 
-        self.info(f"Migration file created: {file_name}")
+        self.info(
+            f"Migration file created: {os.path.join(migration_directory, file_name)}"
+        )
