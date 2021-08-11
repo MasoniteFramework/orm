@@ -2,7 +2,7 @@ import os
 import pathlib
 
 from cleo import Command
-from inflection import camelize
+from inflection import camelize, underscore, tableize
 
 
 class MakeModelCommand(Command):
@@ -11,6 +11,9 @@ class MakeModelCommand(Command):
 
     model
         {name : The name of the model}
+        {--m|migration : Optionally create a migration file}
+        {--c|create : If the migration file should create a table}
+        {--t|table : If the migration file should modify an existing table}
         {--d|directory=app : The location of the model directory}
     """
 
@@ -40,4 +43,15 @@ class MakeModelCommand(Command):
         with open(os.path.join(os.getcwd(), model_directory, file_name), "w+") as fp:
             fp.write(output)
 
-        self.info(f"Model created: {file_name}")
+        self.info(f"Model created: {os.path.join(model_directory, file_name)}")
+        if self.option("migration"):
+            if self.option("create"):
+                self.call(
+                    "migration",
+                    f"create_{tableize(name)}_table --create {tableize(name)}",
+                )
+            else:
+                self.call(
+                    "migration",
+                    f"update_{tableize(name)}_table --table {tableize(name)}",
+                )
