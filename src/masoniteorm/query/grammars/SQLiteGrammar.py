@@ -175,7 +175,7 @@ class SQLiteGrammar(BaseGrammar):
         return "HAVING {column} {equality} {value}"
 
     def where_null_string(self):
-        return "{keyword} {column} IS NULL"
+        return " {keyword} {column} IS NULL"
 
     def value_equal_string(self):
         return "{keyword} {value1} = {value2}"

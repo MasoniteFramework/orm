@@ -189,7 +189,7 @@ class PostgresGrammar(BaseGrammar):
         return "HAVING {column} {equality} {value}"
 
     def where_null_string(self):
-        return "{keyword} {column} IS NULL"
+        return " {keyword} {column} IS NULL"
 
     def where_not_null_string(self):
         return " {keyword} {column} IS NOT NULL"
