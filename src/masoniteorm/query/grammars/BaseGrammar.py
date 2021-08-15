@@ -243,12 +243,8 @@ class BaseGrammar:
             if isinstance(join, JoinClause):
                 on_string = ""
                 where_string = ""
-                cause_loop = 1
-                for clause in join.get_on_clauses():
-                    if cause_loop == 1:
-                        keyword = "ON"
-                    else:
-                        keyword = clause.operator.upper()
+                for clause_idx, clause in join.get_on_clauses().items():
+                    keyword = clause.operator.upper() if clause_idx else "ON"
 
                     if isinstance(clause, OnClause):
                         on_string += f"{keyword} {self._table_column_string(clause.column1)} {clause.equality} {self._table_column_string(clause.column2)} "
@@ -271,7 +267,6 @@ class BaseGrammar:
                                 value = self._compile_value(clause.value)
                             on_string += f"{keyword} {self._table_column_string(clause.column)} {clause.equality} {value} "
 
-                    cause_loop += 1
 
                 sql += self.join_string().format(
                     foreign_table=self.process_table(join.table),
