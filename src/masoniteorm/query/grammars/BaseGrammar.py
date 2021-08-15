@@ -252,33 +252,6 @@ class BaseGrammar:
                     on_string += f"{keyword} {self._table_column_string(clause.column1)} {clause.equality} {self._table_column_string(clause.column2)} "
                     cause_loop += 1
 
-                where_loop = 1
-
-                for clause in join.get_where_clauses():
-                    if where_loop == 1:
-                        keyword = "WHERE"
-                    else:
-                        keyword = "AND"
-
-                    if clause.value_type == "NULL":
-                        sql_string = self.where_null_string()
-                        where_string += sql_string.format(
-                            keyword=keyword, column=self.process_column(clause.column)
-                        )
-                    elif clause.value_type == "NOT NULL":
-                        sql_string = self.where_not_null_string()
-                        where_string += sql_string.format(
-                            keyword=keyword, column=self.process_column(clause.column)
-                        )
-                    else:
-                        if qmark:
-                            value = "'?'"
-                            self.add_binding(clause.value)
-                        else:
-                            value = self._compile_value(clause.value)
-                        where_string += f"{keyword} {self.process_column(clause.column)} {clause.equality} {value} "
-                    where_loop += 1
-
                 sql += self.join_string().format(
                     foreign_table=self.process_table(join.table),
                     alias=f" AS {self.process_table(join.alias)}" if join.alias else "",

@@ -167,7 +167,7 @@ class MySQLGrammar(BaseGrammar):
         return "'{value}'{separator}"
 
     def join_string(self):
-        return "{keyword} {foreign_table}{alias} {on}{wheres}"
+        return "{keyword} {foreign_table}{alias} {on}"
 
     def limit_string(self, offset=False):
         return "LIMIT {limit}"

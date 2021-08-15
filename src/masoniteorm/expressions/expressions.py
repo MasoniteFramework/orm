@@ -147,7 +147,6 @@ class JoinClause:
         self.alias = None
         self.clause = clause
         self.on_clauses = []
-        self.where_clauses = []
 
         if " as " in self.table:
             self.table = table.split(" as ")[0]
@@ -224,16 +223,8 @@ class JoinClause:
 
         return operator, value
 
-    def where(self, column, *args):
-        operator, value = self._extract_operator_value(*args)
-        self.where_clauses.append(QueryExpression(column, operator, value, "value"))
-        return self
-
     def get_on_clauses(self):
         return self.on_clauses
-
-    def get_where_clauses(self):
-        return self.where_clauses
 
 
 class OnClause:
