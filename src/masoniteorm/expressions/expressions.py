@@ -160,25 +160,18 @@ class JoinClause:
         self.on_clauses.append(OnClause(column1, equality, column2, "or"))
         return self
 
-    def where(self, column, *args):
-        """Specifies a where expression.
-
-        Arguments:
-            column {string} -- The name of the column to search
-
-        Keyword Arguments:
-            args {List} -- The operator and the value of the column to search. (default: {None})
-
-        Returns:
-            self
-        """
-        operator, value = self._extract_operator_value(*args)
-
-        self.where_clauses += ((QueryExpression(column, operator, value, "value")),)
+    def on_value(self, column, *args):
+        equality, value = self._extract_operator_value(*args)
+        self.on_clauses += ((OnValueClause(column, equality, value, "value")),)
         return self
 
-    def where_null(self, column):
-        """Specifies a where expression where the column is NULL.
+    def or_on_value(self, column, *args):
+        equality, value = self._extract_operator_value(*args)
+        self.on_clauses += ((OnValueClause(column, equality, value, "value", operator="or")),)
+        return self
+
+    def on_null(self, column):
+        """Specifies an ON expression where the column IS NULL.
 
         Arguments:
             column {string} -- The name of the column.
@@ -186,11 +179,11 @@ class JoinClause:
         Returns:
             self
         """
-        self.where_clauses += ((QueryExpression(column, "=", None, "NULL")),)
+        self.on_clauses += ((OnValueClause(column, "=", None, "NULL")),)
         return self
 
-    def where_not_null(self, column: str):
-        """Specifies a where expression where the column is not NULL.
+    def on_not_null(self, column: str):
+        """Specifies an ON expression where the column IS NOT NULL.
 
         Arguments:
             column {string} -- The name of the column.
@@ -198,11 +191,35 @@ class JoinClause:
         Returns:
             self
         """
-        self._wheres += ((QueryExpression(column, "=", True, "NOT NULL")),)
+        self.on_clauses += ((OnValueClause(column, "=", True, "NOT NULL")),)
         return self
+
+    def or_on_null(self, column):
+        """Specifies an ON expression where the column IS NULL.
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Returns:
+            self
+        """
+        self.on_clauses += ((OnValueClause(column, "=", None, "NULL", operator="or")),)
+        return self
+
+    def or_on_not_null(self, column: str):
+        """Specifies an ON expression where the column IS NOT NULL.
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Returns:
+            self
+        """
+        self.on_clauses += ((OnValueClause(column, "=", True, "NOT NULL", operator="or")),)
+        return self
+
 
     def _extract_operator_value(self, *args):
-
         operators = ["=", ">", ">=", "<", "<=", "!=", "<>", "like", "not like"]
 
         operator = operators[0]
@@ -232,4 +249,28 @@ class OnClause:
         self.column1 = column1
         self.column2 = column2
         self.equality = equality
+        self.operator = operator
+
+
+class OnValueClause:
+    """A helper class to manage ON expressions in joins with a value."""
+
+    def __init__(
+        self,
+        column,
+        equality,
+        value,
+        value_type="value",
+        keyword=None,
+        raw=False,
+        bindings=(),
+        operator="and",
+    ):
+        self.column = column
+        self.equality = equality
+        self.value = value
+        self.value_type = value_type
+        self.keyword = keyword
+        self.raw = raw
+        self.bindings = bindings
         self.operator = operator

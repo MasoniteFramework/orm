@@ -6,6 +6,7 @@ from ...expressions.expressions import (
     SelectExpression,
     BetweenExpression,
     JoinClause,
+    OnClause,
 )
 
 
@@ -249,7 +250,27 @@ class BaseGrammar:
                     else:
                         keyword = clause.operator.upper()
 
-                    on_string += f"{keyword} {self._table_column_string(clause.column1)} {clause.equality} {self._table_column_string(clause.column2)} "
+                    if isinstance(clause, OnClause):
+                        on_string += f"{keyword} {self._table_column_string(clause.column1)} {clause.equality} {self._table_column_string(clause.column2)} "
+                    else:
+                        if clause.value_type == "NULL":
+                            sql_string = self.where_null_string()
+                            on_string += sql_string.format(
+                                keyword=keyword, column=self.process_column(clause.column)
+                            )
+                        elif clause.value_type == "NOT NULL":
+                            sql_string = self.where_not_null_string()
+                            on_string += sql_string.format(
+                                keyword=keyword, column=self.process_column(clause.column)
+                            )
+                        else:
+                            if qmark:
+                                value = "'?'"
+                                self.add_binding(clause.value)
+                            else:
+                                value = self._compile_value(clause.value)
+                            on_string += f"{keyword} {self._table_column_string(clause.column)} {clause.equality} {value} "
+
                     cause_loop += 1
 
                 sql += self.join_string().format(
