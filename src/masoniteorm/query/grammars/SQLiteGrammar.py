@@ -19,9 +19,9 @@ class SQLiteGrammar(BaseGrammar):
         "join": "INNER JOIN",
         "outer": "OUTER JOIN",
         "left": "LEFT JOIN",
-        "right": "LEFT JOIN",
+        "right": "RIGHT JOIN",
         "left_inner": "LEFT INNER JOIN",
-        "right_inner": "LEFT INNER JOIN",
+        "right_inner": "RIGHT INNER JOIN",
     }
 
     column_strings = {

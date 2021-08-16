@@ -763,7 +763,7 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         builder.right_join("profiles", "users.id", "=", "profiles.user_id")
         """
-        return """SELECT * FROM "users" LEFT JOIN "profiles" ON "users"."id" = "profiles"."user_id\""""
+        return """SELECT * FROM "users" RIGHT JOIN "profiles" ON "users"."id" = "profiles"."user_id\""""
 
     def update(self):
         """
