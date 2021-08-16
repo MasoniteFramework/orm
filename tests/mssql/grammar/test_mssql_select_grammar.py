@@ -350,6 +350,20 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         return "SELECT * FROM [users] INNER JOIN [report_groups] AS [rg] ON [bgt].[fund] = [rg].[fund] AND [bgt] IS NULL"
 
+    def can_compile_left_join_clause_with_lambda(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "not like", "%name%").to_sql()
+        """
+        return "SELECT * FROM [users] LEFT JOIN [report_groups] AS [rg] ON [bgt].[fund] = [rg].[fund] WHERE [bgt] IS NULL"
+
+    def can_compile_right_join_clause_with_lambda(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "not like", "%name%").to_sql()
+        """
+        return "SELECT * FROM [users] RIGHT JOIN [report_groups] AS [rg] ON [bgt].[fund] = [rg].[fund] WHERE [bgt] IS NULL"
+
     def shared_lock(self):
         """
         builder = self.get_builder()
