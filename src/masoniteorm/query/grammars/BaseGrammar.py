@@ -243,7 +243,7 @@ class BaseGrammar:
             if isinstance(join, JoinClause):
                 on_string = ""
                 where_string = ""
-                for clause_idx, clause in join.get_on_clauses().items():
+                for clause_idx, clause in enumerate(join.get_on_clauses()):
                     keyword = clause.operator.upper() if clause_idx else "ON"
 
                     if isinstance(clause, OnClause):
