@@ -252,12 +252,14 @@ class BaseGrammar:
                         if clause.value_type == "NULL":
                             sql_string = self.where_null_string()
                             on_string += sql_string.format(
-                                keyword=keyword, column=self.process_column(clause.column)
+                                keyword=keyword,
+                                column=self.process_column(clause.column),
                             )
                         elif clause.value_type == "NOT NULL":
                             sql_string = self.where_not_null_string()
                             on_string += sql_string.format(
-                                keyword=keyword, column=self.process_column(clause.column)
+                                keyword=keyword,
+                                column=self.process_column(clause.column),
                             )
                         else:
                             if qmark:
@@ -266,7 +268,6 @@ class BaseGrammar:
                             else:
                                 value = self._compile_value(clause.value)
                             on_string += f"{keyword} {self._table_column_string(clause.column)} {clause.equality} {value} "
-
 
                 sql += self.join_string().format(
                     foreign_table=self.process_table(join.table),
