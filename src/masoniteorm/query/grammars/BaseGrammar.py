@@ -82,13 +82,13 @@ class BaseGrammar:
                 .format(
                     columns=self.process_columns(separator=", ", qmark=qmark),
                     table=self.process_table(self.table),
+                    joins=self.process_joins(qmark=qmark),
                     wheres=self.process_wheres(qmark=qmark),
                     limit=self.process_limit(),
                     offset=self.process_offset(),
                     aggregates=self.process_aggregates(),
                     order_by=self.process_order_by(),
                     group_by=self.process_group_by(),
-                    joins=self.process_joins(qmark=qmark),
                     having=self.process_having(),
                     lock=self.process_locks(),
                 )
@@ -100,13 +100,13 @@ class BaseGrammar:
                 .format(
                     columns=self.process_columns(separator=", ", qmark=qmark),
                     table=self.process_table(self.table),
+                    joins=self.process_joins(qmark=qmark),
                     wheres=self.process_wheres(qmark=qmark),
                     limit=self.process_limit(),
                     offset=self.process_offset(),
                     aggregates=self.process_aggregates(),
                     order_by=self.process_order_by(),
                     group_by=self.process_group_by(),
-                    joins=self.process_joins(qmark=qmark),
                     having=self.process_having(),
                     lock=self.process_locks(),
                 )
