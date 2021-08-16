@@ -167,7 +167,9 @@ class JoinClause:
 
     def or_on_value(self, column, *args):
         equality, value = self._extract_operator_value(*args)
-        self.on_clauses += ((OnValueClause(column, equality, value, "value", operator="or")),)
+        self.on_clauses += (
+            (OnValueClause(column, equality, value, "value", operator="or")),
+        )
         return self
 
     def on_null(self, column):
@@ -215,9 +217,10 @@ class JoinClause:
         Returns:
             self
         """
-        self.on_clauses += ((OnValueClause(column, "=", True, "NOT NULL", operator="or")),)
+        self.on_clauses += (
+            (OnValueClause(column, "=", True, "NOT NULL", operator="or")),
+        )
         return self
-
 
     def _extract_operator_value(self, *args):
         operators = ["=", ">", ">=", "<", "<=", "!=", "<>", "like", "not like"]
