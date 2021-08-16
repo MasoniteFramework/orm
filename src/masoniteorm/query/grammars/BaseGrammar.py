@@ -242,7 +242,6 @@ class BaseGrammar:
         for join in self._joins:
             if isinstance(join, JoinClause):
                 on_string = ""
-                where_string = ""
                 for clause_idx, clause in enumerate(join.get_on_clauses()):
                     keyword = clause.operator.upper() if clause_idx else "ON"
 
@@ -273,7 +272,6 @@ class BaseGrammar:
                     foreign_table=self.process_table(join.table),
                     alias=f" AS {self.process_table(join.alias)}" if join.alias else "",
                     on=on_string,
-                    wheres=f" {where_string}",
                     keyword=self.join_keywords[join.clause],
                 )
                 sql += " "
