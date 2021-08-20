@@ -1,5 +1,5 @@
 import unittest
-from src.masoniteorm.helpers import database_url
+from src.masoniteorm.helpers.misc import database_url
 
 class TestHelper(unittest.TestCase):
 
