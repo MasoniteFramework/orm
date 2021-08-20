@@ -1,5 +1,7 @@
 import inspect
 
+from ..helpers.misc import deprecated
+
 
 class QueryExpression:
     """A helper class to manage query expressions."""
@@ -221,6 +223,10 @@ class JoinClause:
             (OnValueClause(column, "=", True, "NOT NULL", operator="or")),
         )
         return self
+
+    @deprecated("Using where() in a Join clause has been superceded by on_value()")
+    def where(self, column, *args):
+        return self.on_value(column, *args)
 
     def _extract_operator_value(self, *args):
         operators = ["=", ">", ">=", "<", "<=", "!=", "<>", "like", "not like"]
