@@ -71,7 +71,7 @@ class BelongsToMany(BaseRelationship):
             self.other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
             self.local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
 
-        table1 = owner.builder.get_table_name()
+        table1 = owner.get_table_name()
         table2 = query.get_table_name()
         result = query.select(
             f"{query.get_table_name()}.*",
