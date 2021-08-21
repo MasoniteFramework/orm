@@ -293,7 +293,6 @@ class BaseTestCaseSelectGrammar:
     def test_can_compile_join_clause_with_value(self):
         clause = (
             JoinClause("report_groups as rg")
-            .on("bgt.fund", "=", "rg.fund")
             .on_value("bgt.active", "=", "1")
             .or_on_value("bgt.acct", "=", "1234")
         )
@@ -307,7 +306,6 @@ class BaseTestCaseSelectGrammar:
     def test_can_compile_join_clause_with_null(self):
         clause = (
             JoinClause("report_groups as rg")
-            .on("bgt.fund", "=", "rg.fund")
             .on_null("bgt.acct")
             .or_on_not_null("bgt.dept")
         )

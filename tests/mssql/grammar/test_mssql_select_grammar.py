@@ -312,14 +312,14 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder = self.get_builder()
         builder.where("age", "not like", "%name%").to_sql()
         """
-        return "SELECT * FROM [users] INNER JOIN [report_groups] AS [rg] ON [bgt].[fund] = [rg].[fund] AND [bgt].[active] = '1' OR [bgt].[acct] = '1234'"
+        return "SELECT * FROM [users] INNER JOIN [report_groups] AS [rg] ON [bgt].[active] = '1' OR [bgt].[acct] = '1234'"
 
     def can_compile_join_clause_with_null(self):
         """
         builder = self.get_builder()
         builder.where("age", "not like", "%name%").to_sql()
         """
-        return "SELECT * FROM [users] INNER JOIN [report_groups] AS [rg] ON [bgt].[fund] = [rg].[fund] AND [acct] IS NULL OR [dept] IS NOT NULL"
+        return "SELECT * FROM [users] INNER JOIN [report_groups] AS [rg] ON [acct] IS NULL OR [dept] IS NOT NULL"
 
     def can_compile_join_clause_with_lambda(self):
         """
