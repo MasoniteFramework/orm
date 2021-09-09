@@ -57,6 +57,7 @@ class PostgresPlatform(Platform):
         "current": " DEFAULT CURRENT_TIMESTAMP",
         "now": " DEFAULT NOW()",
         "null": " DEFAULT NULL",
+        "auto_uuid": " DEFAULT uuid_generate_v4()"
     }
 
     premapped_nulls = {True: "NULL", False: "NOT NULL"}
