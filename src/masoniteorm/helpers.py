@@ -1,5 +1,6 @@
 import re
 
+
 def database_url(url):
     regex = re.compile("(?P<schema>.*?)://(?P<user>.*?):(?P<password>.*?)@(?P<host>.*?)/(?P<database>.*)")
     dic = {}
