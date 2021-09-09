@@ -12,6 +12,7 @@ class PostgresPlatform(Platform):
         "inet",
         "cidr",
         "macaddr",
+        "uuid",
     ]
 
     type_map = {
@@ -24,7 +25,7 @@ class PostgresPlatform(Platform):
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
         "increments": "SERIAL UNIQUE",
-        "uuid": "CHAR",
+        "uuid": "UUID",
         "binary": "BYTEA",
         "boolean": "BOOLEAN",
         "decimal": "DECIMAL",

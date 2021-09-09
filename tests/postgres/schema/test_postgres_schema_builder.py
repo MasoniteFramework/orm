@@ -163,7 +163,7 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             table.to_sql(),
             [
-                'CREATE TABLE "users" (id CHAR(36) NOT NULL, name VARCHAR(255) NOT NULL, public_id CHAR(36) NULL, CONSTRAINT users_id_primary PRIMARY KEY (id))'
+                'CREATE TABLE "users" (id UUID NOT NULL, name VARCHAR(255) NOT NULL, public_id UUID NULL, CONSTRAINT users_id_primary PRIMARY KEY (id))'
             ],
         )
 
