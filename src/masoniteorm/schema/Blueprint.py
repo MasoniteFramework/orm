@@ -241,8 +241,9 @@ class Blueprint:
         self._last_column = self.table.add_column(column, "boolean", nullable=nullable)
         return self
 
-    def default(self, value):
+    def default(self, value, raw=False):
         self._last_column.default = value
+        self._last_column.default_is_raw = raw
         return self
 
     def char(self, column, length=1, nullable=False):

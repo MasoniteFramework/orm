@@ -2,7 +2,7 @@ class Column:
     """Used for creating or modifying columns."""
 
     def __init__(
-        self, name, column_type, length=None, values=None, nullable=False, default=None
+        self, name, column_type, length=None, values=None, nullable=False, default=None, default_is_raw=False
     ):
         self.column_type = column_type
         self.name = name
@@ -12,6 +12,7 @@ class Column:
         self.after = None
         self.old_column = ""
         self.default = default
+        self.default_is_raw = default_is_raw
         self.primary = False
 
     def nullable(self):
@@ -61,16 +62,18 @@ class Column:
         self.after = after
         return self
 
-    def default(self, value):
+    def default(self, value, raw=False):
         """Sets a default value for this column
 
         Arguments:
             value {string} -- A default value.
+            raw {bool} -- should the value be quoted
 
         Returns:
             self
         """
         self.default = value
+        self.default_is_raw = raw
         return self
 
     def change(self):
