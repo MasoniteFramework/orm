@@ -67,6 +67,7 @@ setup(
         "masoniteorm.connections",
         "masoniteorm.expressions",
         "masoniteorm.factories",
+        "masoniteorm.helpers",
         "masoniteorm.migrations",
         "masoniteorm.models",
         "masoniteorm.observers",

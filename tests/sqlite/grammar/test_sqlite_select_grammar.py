@@ -292,37 +292,59 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
     def where_like(self):
         """
         builder = self.get_builder()
-        builder.where("age", "not like", "%name%").to_sql()
+        builder.where("age", "like", "%name%").to_sql()
         """
         return """SELECT * FROM "users" WHERE "users"."age" LIKE '%name%'"""
 
     def can_compile_join_clause(self):
         """
         builder = self.get_builder()
-        builder.where("age", "not like", "%name%").to_sql()
+        clause = (
+            JoinClause("report_groups as rg")
+            .on("bgt.fund", "=", "rg.fund")
+            .on_value("bgt.active", "=", "1")
+            .or_on_value("bgt.acct", "=", "1234")
+        )
+        builder.join(clause).to_sql()
         """
         return """SELECT * FROM "users" INNER JOIN "report_groups" AS "rg" ON "bgt"."fund" = "rg"."fund" AND "bgt"."dept" = "rg"."dept" AND "bgt"."acct" = "rg"."acct" AND "bgt"."sub" = "rg"."sub\""""
 
-    def can_compile_join_clause_with_where(self):
+    def can_compile_join_clause_with_value(self):
         """
         builder = self.get_builder()
-        builder.where("age", "not like", "%name%").to_sql()
+        clause = (
+            JoinClause("report_groups as rg")
+            .on_value("bgt.active", "=", "1")
+            .or_on_value("bgt.acct", "=", "1234")
+        )
+        builder.join(clause).to_sql()
         """
-        return """SELECT * FROM "users" INNER JOIN "report_groups" AS "rg" ON "bgt"."fund" = "rg"."fund" WHERE "bgt" = '1'"""
+        return """SELECT * FROM "users" INNER JOIN "report_groups" AS "rg" ON "bgt"."active" = '1' OR "bgt"."acct" = '1234'"""
 
-    def can_compile_join_clause_with_null_where(self):
+    def can_compile_join_clause_with_null(self):
         """
         builder = self.get_builder()
-        builder.where("age", "not like", "%name%").to_sql()
+        clause = (
+            JoinClause("report_groups as rg")
+            .on_null("bgt.acct")
+            .or_on_not_null("bgt.dept")
+        )
+        builder.join(clause).to_sql()
         """
-        return """SELECT * FROM "users" INNER JOIN "report_groups" AS "rg" ON "bgt"."fund" = "rg"."fund" WHERE "bgt" IS NULL"""
+        return """SELECT * FROM "users" INNER JOIN "report_groups" AS "rg" ON "acct" IS NULL OR "dept" IS NOT NULL"""
 
     def can_compile_join_clause_with_lambda(self):
         """
         builder = self.get_builder()
-        builder.where("age", "not like", "%name%").to_sql()
+        builder.join(
+            "report_groups as rg",
+            lambda clause: (
+                clause.on("bgt.fund", "=", "rg.fund")
+                .on_null("bgt")
+            ),
+        ).to_sql()
         """
-        return """SELECT * FROM "users" INNER JOIN "report_groups" AS "rg" ON "bgt"."fund" = "rg"."fund" WHERE "bgt" IS NULL"""
+        return """SELECT * FROM "users" INNER JOIN "report_groups" AS "rg" ON "bgt"."fund" = "rg"."fund" AND "bgt" IS NULL"""
 
     def update_lock(self):
         """

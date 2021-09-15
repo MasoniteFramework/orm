@@ -156,7 +156,7 @@ class PostgresGrammar(BaseGrammar):
         return "'{value}'{separator}"
 
     def join_string(self):
-        return "{keyword} {foreign_table}{alias} {on}{wheres}"
+        return "{keyword} {foreign_table}{alias} {on}"
 
     def limit_string(self, offset=False):
         return "LIMIT {limit}"
@@ -189,7 +189,7 @@ class PostgresGrammar(BaseGrammar):
         return "HAVING {column} {equality} {value}"
 
     def where_null_string(self):
-        return "{keyword} {column} IS NULL"
+        return " {keyword} {column} IS NULL"
 
     def where_not_null_string(self):
         return " {keyword} {column} IS NOT NULL"

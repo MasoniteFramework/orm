@@ -6,6 +6,7 @@ from ...expressions.expressions import (
     SelectExpression,
     BetweenExpression,
     JoinClause,
+    OnClause,
 )
 
 
@@ -81,13 +82,13 @@ class BaseGrammar:
                 .format(
                     columns=self.process_columns(separator=", ", qmark=qmark),
                     table=self.process_table(self.table),
+                    joins=self.process_joins(qmark=qmark),
                     wheres=self.process_wheres(qmark=qmark),
                     limit=self.process_limit(),
                     offset=self.process_offset(),
                     aggregates=self.process_aggregates(),
                     order_by=self.process_order_by(),
                     group_by=self.process_group_by(),
-                    joins=self.process_joins(qmark=qmark),
                     having=self.process_having(),
                     lock=self.process_locks(),
                 )
@@ -99,13 +100,13 @@ class BaseGrammar:
                 .format(
                     columns=self.process_columns(separator=", ", qmark=qmark),
                     table=self.process_table(self.table),
+                    joins=self.process_joins(qmark=qmark),
                     wheres=self.process_wheres(qmark=qmark),
                     limit=self.process_limit(),
                     offset=self.process_offset(),
                     aggregates=self.process_aggregates(),
                     order_by=self.process_order_by(),
                     group_by=self.process_group_by(),
-                    joins=self.process_joins(qmark=qmark),
                     having=self.process_having(),
                     lock=self.process_locks(),
                 )
@@ -241,49 +242,36 @@ class BaseGrammar:
         for join in self._joins:
             if isinstance(join, JoinClause):
                 on_string = ""
-                where_string = ""
-                cause_loop = 1
-                for clause in join.get_on_clauses():
-                    if cause_loop == 1:
-                        keyword = "ON"
+                for clause_idx, clause in enumerate(join.get_on_clauses()):
+                    keyword = clause.operator.upper() if clause_idx else "ON"
+
+                    if isinstance(clause, OnClause):
+                        on_string += f"{keyword} {self._table_column_string(clause.column1)} {clause.equality} {self._table_column_string(clause.column2)} "
                     else:
-                        keyword = clause.operator.upper()
-
-                    on_string += f"{keyword} {self._table_column_string(clause.column1)} {clause.equality} {self._table_column_string(clause.column2)} "
-                    cause_loop += 1
-
-                where_loop = 1
-
-                for clause in join.get_where_clauses():
-                    if where_loop == 1:
-                        keyword = "WHERE"
-                    else:
-                        keyword = "AND"
-
-                    if clause.value_type == "NULL":
-                        sql_string = self.where_null_string()
-                        where_string += sql_string.format(
-                            keyword=keyword, column=self.process_column(clause.column)
-                        )
-                    elif clause.value_type == "NOT NULL":
-                        sql_string = self.where_not_null_string()
-                        where_string += sql_string.format(
-                            keyword=keyword, column=self.process_column(clause.column)
-                        )
-                    else:
-                        if qmark:
-                            value = "'?'"
-                            self.add_binding(clause.value)
+                        if clause.value_type == "NULL":
+                            sql_string = self.where_null_string()
+                            on_string += sql_string.format(
+                                keyword=keyword,
+                                column=self.process_column(clause.column),
+                            )
+                        elif clause.value_type == "NOT NULL":
+                            sql_string = self.where_not_null_string()
+                            on_string += sql_string.format(
+                                keyword=keyword,
+                                column=self.process_column(clause.column),
+                            )
                         else:
-                            value = self._compile_value(clause.value)
-                        where_string += f"{keyword} {self.process_column(clause.column)} {clause.equality} {value} "
-                    where_loop += 1
+                            if qmark:
+                                value = "'?'"
+                                self.add_binding(clause.value)
+                            else:
+                                value = self._compile_value(clause.value)
+                            on_string += f"{keyword} {self._table_column_string(clause.column)} {clause.equality} {value} "
 
                 sql += self.join_string().format(
                     foreign_table=self.process_table(join.table),
                     alias=f" AS {self.process_table(join.alias)}" if join.alias else "",
                     on=on_string,
-                    wheres=f" {where_string}",
                     keyword=self.join_keywords[join.clause],
                 )
                 sql += " "

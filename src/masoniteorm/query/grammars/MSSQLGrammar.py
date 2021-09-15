@@ -90,7 +90,7 @@ class MSSQLGrammar(BaseGrammar):
         return "AND"
 
     def join_string(self):
-        return "{keyword} {foreign_table}{alias} {on}{wheres}"
+        return "{keyword} {foreign_table}{alias} {on}"
 
     def aggregate_string(self):
         return "{aggregate_function}({column}) AS {alias}"
@@ -114,7 +114,7 @@ class MSSQLGrammar(BaseGrammar):
         return "{keyword} {value1} = {value2}"
 
     def where_null_string(self):
-        return "{keyword} {column} IS NULL"
+        return " {keyword} {column} IS NULL"
 
     def between_string(self):
         return "{keyword} {column} BETWEEN {low} AND {high}"
@@ -123,7 +123,7 @@ class MSSQLGrammar(BaseGrammar):
         return "{keyword} {column} NOT BETWEEN {low} AND {high}"
 
     def where_not_null_string(self):
-        return "{keyword} {column} IS NOT NULL"
+        return " {keyword} {column} IS NOT NULL"
 
     def where_string(self):
         return " {keyword} {column} {equality} {value}"
