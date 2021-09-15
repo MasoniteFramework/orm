@@ -327,6 +327,28 @@ class BaseTestCaseSelectGrammar:
         )()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_left_join_clause_with_lambda(self):
+        to_sql = self.builder.left_join(
+            "report_groups as rg",
+            lambda clause: (clause.on("bgt.fund", "=", "rg.fund").or_on_null("bgt")),
+        ).to_sql()
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_right_join_clause_with_lambda(self):
+        to_sql = self.builder.right_join(
+            "report_groups as rg",
+            lambda clause: (clause.on("bgt.fund", "=", "rg.fund").or_on_null("bgt")),
+        ).to_sql()
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
     def test_can_compile_left_join(self):
         to_sql = self.builder.left_join(
             "contacts", "users.id", "=", "contacts.user_id"
