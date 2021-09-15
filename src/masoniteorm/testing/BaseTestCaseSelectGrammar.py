@@ -330,7 +330,7 @@ class BaseTestCaseSelectGrammar:
     def test_can_compile_left_join_clause_with_lambda(self):
         to_sql = self.builder.left_join(
             "report_groups as rg",
-            lambda clause: (clause.on("bgt.fund", "=", "rg.fund").where_null("bgt")),
+            lambda clause: (clause.on("bgt.fund", "=", "rg.fund").or_on_null("bgt")),
         ).to_sql()
 
         sql = getattr(
@@ -341,7 +341,7 @@ class BaseTestCaseSelectGrammar:
     def test_can_compile_right_join_clause_with_lambda(self):
         to_sql = self.builder.right_join(
             "report_groups as rg",
-            lambda clause: (clause.on("bgt.fund", "=", "rg.fund").where_null("bgt")),
+            lambda clause: (clause.on("bgt.fund", "=", "rg.fund").or_on_null("bgt")),
         ).to_sql()
 
         sql = getattr(

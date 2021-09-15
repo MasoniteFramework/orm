@@ -353,16 +353,28 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
     def can_compile_left_join_clause_with_lambda(self):
         """
         builder = self.get_builder()
-        builder.where("age", "not like", "%name%").to_sql()
+        builder.left_join(
+            "report_groups as rg",
+            lambda clause: (
+                clause.on("bgt.fund", "=", "rg.fund")
+                .or_on_null("bgt")
+            ),
+        ).to_sql()
         """
-        return "SELECT * FROM [users] LEFT JOIN [report_groups] AS [rg] ON [bgt].[fund] = [rg].[fund] WHERE [bgt] IS NULL"
+        return "SELECT * FROM [users] LEFT JOIN [report_groups] AS [rg] ON [bgt].[fund] = [rg].[fund] OR [bgt] IS NULL"
 
     def can_compile_right_join_clause_with_lambda(self):
         """
         builder = self.get_builder()
-        builder.where("age", "not like", "%name%").to_sql()
+        builder.right_join(
+            "report_groups as rg",
+            lambda clause: (
+                clause.on("bgt.fund", "=", "rg.fund")
+                .or_on_null("bgt")
+            ),
+        ).to_sql()
         """
-        return "SELECT * FROM [users] RIGHT JOIN [report_groups] AS [rg] ON [bgt].[fund] = [rg].[fund] WHERE [bgt] IS NULL"
+        return "SELECT * FROM [users] RIGHT JOIN [report_groups] AS [rg] ON [bgt].[fund] = [rg].[fund] OR [bgt] IS NULL"
 
     def shared_lock(self):
         """
