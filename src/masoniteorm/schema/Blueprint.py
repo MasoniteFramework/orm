@@ -246,6 +246,10 @@ class Blueprint:
         self._last_column.default_is_raw = raw
         return self
 
+    def default_raw(self, value):
+        self.default(value, True)
+        return self
+
     def char(self, column, length=1, nullable=False):
         """Sets a column to be the char representation for the table.
 
