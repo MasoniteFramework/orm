@@ -892,7 +892,7 @@ class QueryBuilder(ObservesEvents):
             self
         """
         if inspect.isfunction(column1):
-            self._joins += (column1(JoinClause(table)),)
+            self._joins += (column1(JoinClause(table, clause=clause)),)
         elif isinstance(table, str):
             self._joins += (
                 JoinClause(table, clause=clause).on(column1, equality, column2),
@@ -901,7 +901,7 @@ class QueryBuilder(ObservesEvents):
             self._joins += (table,)
         return self
 
-    def left_join(self, table, column1, equality, column2):
+    def left_join(self, table, column1=None, equality=None, column2=None):
         """A helper method to add a left join expression.
 
         Arguments:
@@ -921,7 +921,7 @@ class QueryBuilder(ObservesEvents):
             clause="left",
         )
 
-    def right_join(self, table, column1, equality, column2):
+    def right_join(self, table, column1=None, equality=None, column2=None):
         """A helper method to add a right join expression.
 
         Arguments:
