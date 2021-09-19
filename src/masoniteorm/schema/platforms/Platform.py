@@ -64,12 +64,12 @@ class Platform:
                 cascade += f" ON UPDATE {self.foreign_key_actions.get(foreign_key.update_action.lower())}"
             sql.append(
                 self.get_foreign_key_constraint_string().format(
-                    column=foreign_key.column,
-                    clean_column=foreign_key.column,
+                    column=self.wrap_column(foreign_key.column),
+                    clean_column=self.wrap_column(foreign_key.column),
                     constraint_name=foreign_key.constraint_name,
-                    table=table,
-                    foreign_table=foreign_key.foreign_table,
-                    foreign_column=foreign_key.foreign_column,
+                    table=self.wrap_table(table),
+                    foreign_table=self.wrap_table(foreign_key.foreign_table),
+                    foreign_column=self.wrap_column(foreign_key.foreign_column),
                     cascade=cascade,
                 )
             )

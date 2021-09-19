@@ -262,11 +262,11 @@ class PostgresPlatform(Platform):
                 sql.append(
                     f"ALTER TABLE {self.wrap_table(table.name)} ADD "
                     + self.get_foreign_key_constraint_string().format(
-                        column=column,
+                        column=self.wrap_column(column),
                         constraint_name=foreign_key_constraint.constraint_name,
-                        table=table.name,
-                        foreign_table=foreign_key_constraint.foreign_table,
-                        foreign_column=foreign_key_constraint.foreign_column,
+                        table=self.wrap_table(table.name),
+                        foreign_table=self.wrap_table(foreign_key_constraint.foreign_table),
+                        foreign_column=self.wrap_column(foreign_key_constraint.foreign_column),
                         cascade=cascade,
                     )
                 )
