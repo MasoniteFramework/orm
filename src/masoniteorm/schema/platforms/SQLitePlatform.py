@@ -264,6 +264,9 @@ class SQLitePlatform(Platform):
     def get_table_string(self):
         return '"{table}"'
 
+    def get_column_string(self):
+        return '"{column}"'
+
     def create_column_length(self, column_type):
         if column_type in self.types_without_lengths:
             return ""

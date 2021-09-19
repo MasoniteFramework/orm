@@ -87,3 +87,6 @@ class Platform:
 
     def wrap_table(self, table_name):
         return self.get_table_string().format(table=table_name)
+
+    def wrap_column(self, column_name):
+        return self.get_column_string().format(column=column_name)

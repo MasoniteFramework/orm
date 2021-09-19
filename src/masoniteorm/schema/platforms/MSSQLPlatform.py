@@ -277,6 +277,9 @@ class MSSQLPlatform(Platform):
     def get_table_string(self):
         return "[{table}]"
 
+    def get_column_string(self):
+        return "[{column}]"
+
     def create_format(self):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
 

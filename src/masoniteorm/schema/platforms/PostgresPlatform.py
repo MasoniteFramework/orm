@@ -363,6 +363,9 @@ class PostgresPlatform(Platform):
     def get_table_string(self):
         return '"{table}"'
 
+    def get_column_string(self):
+        return '"{column}"'
+
     def table_information_string(self):
         return "SELECT * FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '{table}'"
 
