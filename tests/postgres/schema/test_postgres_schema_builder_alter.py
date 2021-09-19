@@ -78,7 +78,7 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
 
         sql = [
             'ALTER TABLE "users" ADD COLUMN playlist_id INT NULL',
-            'ALTER TABLE "users" ADD CONSTRAINT users_playlist_id_foreign FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE',
+            'ALTER TABLE "users" ADD CONSTRAINT users_playlist_id_foreign FOREIGN KEY ("playlist_id") REFERENCES "playlists"("id") ON DELETE CASCADE',
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)

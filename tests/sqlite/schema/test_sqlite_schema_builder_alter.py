@@ -180,7 +180,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
             "CREATE TEMPORARY TABLE __temp__users AS SELECT age, email FROM users",
             "DROP TABLE users",
             'CREATE TABLE "users" (age VARCHAR NOT NULL, email VARCHAR NOT NULL, playlist_id UNSIGNED INT NULL, '
-            "CONSTRAINT users_playlist_id_foreign FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE ON UPDATE SET NULL)",
+            'CONSTRAINT users_playlist_id_foreign FOREIGN KEY ("playlist_id") REFERENCES "playlists"("id") ON DELETE CASCADE ON UPDATE SET NULL)',
             'INSERT INTO "users" (age, email) SELECT age, email FROM __temp__users',
             "DROP TABLE __temp__users",
         ]
@@ -203,7 +203,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
             "CREATE TEMPORARY TABLE __temp__users AS SELECT age, email FROM users",
             "DROP TABLE users",
             'CREATE TABLE "users" (age VARCHAR NOT NULL, email VARCHAR NOT NULL, '
-            "CONSTRAINT users_playlist_id_foreign FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE ON UPDATE SET NULL)",
+            'CONSTRAINT users_playlist_id_foreign FOREIGN KEY ("playlist_id") REFERENCES "playlists"("id") ON DELETE CASCADE ON UPDATE SET NULL)',
             'INSERT INTO "users" (age, email) SELECT age, email FROM __temp__users',
             "DROP TABLE __temp__users",
         ]

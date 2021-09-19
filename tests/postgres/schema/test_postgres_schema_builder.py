@@ -84,7 +84,7 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             [
                 'CREATE TABLE "users" (name VARCHAR(255) NOT NULL, age INTEGER NOT NULL, '
                 "profile_id INTEGER NOT NULL, CONSTRAINT users_name_unique UNIQUE (name), "
-                "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))"
+                'CONSTRAINT users_profile_id_foreign FOREIGN KEY ("profile_id") REFERENCES "profiles"("id"))'
             ],
         )
 
@@ -145,7 +145,7 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
                     "route_origin CIDR NULL, mac_address MACADDR NULL, published_at TIMESTAMP NOT NULL, thumbnail VARCHAR(255) NULL, premium INTEGER NOT NULL, amount DOUBLE PRECISION NOT NULL DEFAULT 0.0, "
                     "author_id INT NULL, description TEXT NOT NULL, created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
                     "updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
-                    "CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES authors(id) ON DELETE CASCADE)"
+                    'CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_author_id_foreign FOREIGN KEY ("author_id") REFERENCES "authors"("id") ON DELETE CASCADE)'
                 ]
             ),
         )
@@ -179,8 +179,8 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             blueprint.to_sql(),
             [
                 'CREATE TABLE "users" ('
-                "profile_id INTEGER NOT NULL, "
-                "CONSTRAINT profile_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))"
+                'profile_id INTEGER NOT NULL, '
+                'CONSTRAINT profile_foreign FOREIGN KEY ("profile_id") REFERENCES "profiles"("id"))'
             ],
         )
 

@@ -58,7 +58,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
                 "age INTEGER NOT NULL, "
                 "profile_id INTEGER NOT NULL, "
                 "UNIQUE(name), "
-                "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))"
+                'CONSTRAINT users_profile_id_foreign FOREIGN KEY ("profile_id") REFERENCES "profiles"("id"))'
             ],
         )
 
@@ -80,7 +80,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
                 "age INTEGER NOT NULL, "
                 "profile_id INTEGER NOT NULL, "
                 "UNIQUE(name), "
-                "CONSTRAINT profile_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))"
+                'CONSTRAINT profile_foreign FOREIGN KEY ("profile_id") REFERENCES "profiles"("id"))'
             ],
         )
 
@@ -229,7 +229,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
                     "url VARCHAR(255) NOT NULL, payload JSON NOT NULL, birth VARCHAR(4) NOT NULL, last_address VARCHAR(255) NULL, route_origin VARCHAR(255) NULL, mac_address VARCHAR(255) NULL, "
                     "published_at DATETIME NOT NULL, wakeup_at TIME NOT NULL, thumbnail VARCHAR(255) NULL, premium INTEGER NOT NULL, author_id UNSIGNED INT NULL, description TEXT NOT NULL, "
                     "created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
-                    "CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL)"
+                    'CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_author_id_foreign FOREIGN KEY ("author_id") REFERENCES "users"("id") ON DELETE SET NULL)'
                 ]
             ),
         )
