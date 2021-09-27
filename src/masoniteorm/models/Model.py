@@ -503,7 +503,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 value = value.serialize(self.__relationship_hidden__.get(key, []))
             if isinstance(value, datetime):
                 value = self.get_new_serialized_date(value)
-            if key in self.__casts__:
+            if key in self.__casts__ and value is not None:
                 value = self._cast_attribute(key, value)
 
             serialized_dictionary.update({key: value})
