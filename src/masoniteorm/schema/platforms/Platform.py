@@ -65,7 +65,6 @@ class Platform:
             sql.append(
                 self.get_foreign_key_constraint_string().format(
                     column=self.wrap_column(foreign_key.column),
-                    clean_column=self.wrap_column(foreign_key.column),
                     constraint_name=foreign_key.constraint_name,
                     table=self.wrap_table(table),
                     foreign_table=self.wrap_table(foreign_key.foreign_table),

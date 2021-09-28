@@ -142,7 +142,6 @@ class MSSQLPlatform(Platform):
                 sql.append(
                     f"ALTER TABLE {self.wrap_table(table.name)} ADD "
                     + self.get_foreign_key_constraint_string().format(
-                        clean_column=self.wrap_column(column),
                         constraint_name=foreign_key_constraint.constraint_name,
                         column=self.wrap_column(column),
                         table=self.wrap_table(table.name),
