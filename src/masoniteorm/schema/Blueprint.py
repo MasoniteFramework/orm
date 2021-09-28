@@ -337,9 +337,9 @@ class Blueprint:
         Returns:
             self
         """
-        self.timestamp("created_at", nullable=True, now=True)
+        self.datetime("created_at", nullable=True, now=True)
 
-        self.timestamp("updated_at", nullable=True, now=True)
+        self.datetime("updated_at", nullable=True, now=True)
 
         return self
 
