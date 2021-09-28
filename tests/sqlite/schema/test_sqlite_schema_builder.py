@@ -116,8 +116,8 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             [
                 """CREATE TABLE "users" (id INTEGER NOT NULL, name VARCHAR(255) NOT NULL, gender VARCHAR(255) CHECK(gender IN ('male', 'female')) NOT NULL, email VARCHAR(255) NOT NULL, """
                 "password VARCHAR(255) NOT NULL, option VARCHAR(255) NOT NULL DEFAULT 'ADMIN', admin INTEGER NOT NULL DEFAULT 0, remember_token VARCHAR(255) NULL, "
-                "verified_at TIMESTAMP NULL, created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
-                "updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_id_primary PRIMARY KEY (id), "
+                "verified_at TIMESTAMP NULL, created_at DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
+                "updated_at DATETIME NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_id_primary PRIMARY KEY (id), "
                 "UNIQUE(email), UNIQUE(email, name))"
             ],
         )
@@ -228,7 +228,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
                     'CREATE TABLE "users" (id BIGINT NOT NULL, name VARCHAR(255) NOT NULL, duration VARCHAR(255) NOT NULL, '
                     "url VARCHAR(255) NOT NULL, payload JSON NOT NULL, birth VARCHAR(4) NOT NULL, last_address VARCHAR(255) NULL, route_origin VARCHAR(255) NULL, mac_address VARCHAR(255) NULL, "
                     "published_at DATETIME NOT NULL, wakeup_at TIME NOT NULL, thumbnail VARCHAR(255) NULL, premium INTEGER NOT NULL, author_id UNSIGNED INT NULL, description TEXT NOT NULL, "
-                    "created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, "
+                    "created_at DATETIME NULL DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
                     "CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL)"
                 ]
             ),
