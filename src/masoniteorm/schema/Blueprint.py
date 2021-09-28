@@ -293,19 +293,25 @@ class Blueprint:
         self._last_column = self.table.add_column(column, "time", nullable=nullable)
         return self
 
-    def datetime(self, column, nullable=False):
+    def datetime(self, column, nullable=False, now=False):
         """Sets a column to be the datetime representation for the table.
 
         Arguments:
             column {string} -- The column name.
 
+
         Keyword Arguments:
             nullable {bool} -- Whether the column is nullable. (default: {False})
+            now {bool} -- Whether the default for the column should be the current time. (default: {False})
 
         Returns:
             self
         """
         self._last_column = self.table.add_column(column, "datetime", nullable=nullable)
+
+        if now:
+            self._last_column.use_current()
+
         return self
 
     def timestamp(self, column, nullable=False, now=False):
