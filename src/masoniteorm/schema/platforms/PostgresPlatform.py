@@ -44,7 +44,7 @@ class PostgresPlatform(Platform):
         "timestamp": "TIMESTAMP",
         "date": "DATE",
         "year": "YEAR",
-        "datetime": "TIMESTAMP",
+        "datetime": "TIMESTAMPTZ",
         "tiny_increments": "TINYINT AUTO_INCREMENT",
         "unsigned": "INT",
         "unsigned_integer": "INT",
