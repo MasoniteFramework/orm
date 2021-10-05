@@ -28,7 +28,7 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
 
         sql = [
-            'ALTER TABLE "users" ADD COLUMN name VARCHAR(255) NOT NULL, ADD COLUMN age INTEGER NOT NULL'
+            'ALTER TABLE "users" ADD COLUMN "name" VARCHAR(255) NOT NULL, ADD COLUMN "age" INTEGER NOT NULL'
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)
@@ -41,7 +41,7 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         table.add_column("post", "integer")
         blueprint.table.from_table = table
 
-        sql = ['ALTER TABLE "users" RENAME COLUMN post TO comment']
+        sql = ['ALTER TABLE "users" RENAME COLUMN "post" TO "comment"']
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -55,8 +55,8 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         blueprint.table.from_table = table
 
         sql = [
-            'ALTER TABLE "users" ADD COLUMN name VARCHAR(255) NOT NULL',
-            'ALTER TABLE "users" RENAME COLUMN post TO comment',
+            'ALTER TABLE "users" ADD COLUMN "name" VARCHAR(255) NOT NULL',
+            'ALTER TABLE "users" RENAME COLUMN "post" TO "comment"',
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)
@@ -65,7 +65,7 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.drop_column("post")
 
-        sql = ['ALTER TABLE "users" DROP COLUMN post']
+        sql = ['ALTER TABLE "users" DROP COLUMN "post"']
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -77,8 +77,8 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
             )
 
         sql = [
-            'ALTER TABLE "users" ADD COLUMN playlist_id INT NULL',
-            'ALTER TABLE "users" ADD CONSTRAINT users_playlist_id_foreign FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE',
+            'ALTER TABLE "users" ADD COLUMN "playlist_id" INT NULL',
+            'ALTER TABLE "users" ADD CONSTRAINT users_playlist_id_foreign FOREIGN KEY ("playlist_id") REFERENCES "playlists"("id") ON DELETE CASCADE',
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)
@@ -204,8 +204,8 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         blueprint.table.from_table = table
 
         sql = [
-            'ALTER TABLE "users" ADD COLUMN name VARCHAR(255) NOT NULL',
-            'ALTER TABLE "users" ALTER COLUMN age TYPE INTEGER, ALTER COLUMN age SET NOT NULL',
+            'ALTER TABLE "users" ADD COLUMN "name" VARCHAR(255) NOT NULL',
+            'ALTER TABLE "users" ALTER COLUMN "age" TYPE INTEGER, ALTER COLUMN "age" SET NOT NULL',
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)
@@ -226,9 +226,9 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         blueprint.table.from_table = table
 
         sql = [
-            """ALTER TABLE "users" ADD COLUMN name VARCHAR(255) NOT NULL, ADD COLUMN external_type VARCHAR(255) NOT NULL DEFAULT 'external'""",
-            'ALTER TABLE "users" DROP COLUMN email',
-            'ALTER TABLE "users" ALTER COLUMN age TYPE INTEGER, ALTER COLUMN age DROP NOT NULL, ALTER COLUMN age SET DEFAULT 0',
+            """ALTER TABLE "users" ADD COLUMN "name" VARCHAR(255) NOT NULL, ADD COLUMN "external_type" VARCHAR(255) NOT NULL DEFAULT 'external'""",
+            'ALTER TABLE "users" DROP COLUMN "email"',
+            'ALTER TABLE "users" ALTER COLUMN "age" TYPE INTEGER, ALTER COLUMN "age" DROP NOT NULL, ALTER COLUMN "age" SET DEFAULT 0',
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)
@@ -244,7 +244,7 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
 
         blueprint.table.from_table = table
 
-        sql = ['ALTER TABLE "users" ADD COLUMN due_date TIMESTAMP NULL']
+        sql = ['ALTER TABLE "users" ADD COLUMN "due_date" TIMESTAMP NULL']
 
         self.assertEqual(blueprint.to_sql(), sql)
 

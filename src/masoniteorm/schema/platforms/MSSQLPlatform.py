@@ -142,12 +142,11 @@ class MSSQLPlatform(Platform):
                 sql.append(
                     f"ALTER TABLE {self.wrap_table(table.name)} ADD "
                     + self.get_foreign_key_constraint_string().format(
-                        clean_column=column,
                         constraint_name=foreign_key_constraint.constraint_name,
-                        column=self.wrap_table(column),
-                        table=table.name,
-                        foreign_table=foreign_key_constraint.foreign_table,
-                        foreign_column=self.wrap_table(
+                        column=self.wrap_column(column),
+                        table=self.wrap_table(table.name),
+                        foreign_table=self.wrap_table(foreign_key_constraint.foreign_table),
+                        foreign_column=self.wrap_column(
                             foreign_key_constraint.foreign_column
                         ),
                         cascade=cascade,
@@ -276,6 +275,9 @@ class MSSQLPlatform(Platform):
 
     def get_table_string(self):
         return "[{table}]"
+
+    def get_column_string(self):
+        return "[{column}]"
 
     def create_format(self):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
