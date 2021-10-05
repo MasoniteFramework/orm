@@ -736,6 +736,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         cast_method = self.__casts__[attribute]
         cast_map = self.get_cast_map()
 
+        if value is None:
+            return None
+
         if isinstance(cast_method, str):
             return cast_map[cast_method]().get(value)
 
