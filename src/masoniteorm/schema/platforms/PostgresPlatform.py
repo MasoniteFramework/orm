@@ -126,7 +126,7 @@ class PostgresPlatform(Platform):
             sql.append(
                 self.columnize_string()
                 .format(
-                    name=column.name,
+                    name=self.wrap_column(column.name),
                     data_type=self.type_map.get(column.column_type, ""),
                     column_constraint=column_constraint,
                     length=length,
@@ -169,7 +169,7 @@ class PostgresPlatform(Platform):
                 add_columns.append(
                     self.add_column_string()
                     .format(
-                        name=column.name,
+                        name=self.wrap_column(column.name),
                         data_type=self.type_map.get(column.column_type, ""),
                         length=length,
                         constraint="PRIMARY KEY" if column.primary else "",
@@ -198,7 +198,7 @@ class PostgresPlatform(Platform):
                     length = ""
 
                 renamed_sql.append(
-                    self.rename_column_string().format(to=column.name, old=name).strip()
+                    self.rename_column_string().format(to=self.wrap_column(column.name), old=self.wrap_column(name)).strip()
                 )
 
             sql.append(
@@ -212,7 +212,7 @@ class PostgresPlatform(Platform):
             dropped_sql = []
 
             for name in table.get_dropped_columns():
-                dropped_sql.append(self.drop_column_string().format(name=name).strip())
+                dropped_sql.append(self.drop_column_string().format(name=self.wrap_column(name)).strip())
 
             sql.append(
                 self.alter_format().format(
@@ -227,7 +227,7 @@ class PostgresPlatform(Platform):
                 changed_sql.append(
                     self.modify_column_string()
                     .format(
-                        name=name,
+                        name=self.wrap_column(name),
                         data_type=self.type_map.get(column.column_type),
                         nullable="NULL" if column.is_null else "NOT NULL",
                     )
@@ -235,13 +235,13 @@ class PostgresPlatform(Platform):
                 )
 
                 if column.is_null:
-                    changed_sql.append(f"ALTER COLUMN {name} DROP NOT NULL")
+                    changed_sql.append(f"ALTER COLUMN {self.wrap_column(name)} DROP NOT NULL")
                 else:
-                    changed_sql.append(f"ALTER COLUMN {name} SET NOT NULL")
+                    changed_sql.append(f"ALTER COLUMN {self.wrap_column(name)} SET NOT NULL")
 
                 if column.default is not None:
                     changed_sql.append(
-                        f"ALTER COLUMN {name} SET DEFAULT {column.default}"
+                        f"ALTER COLUMN {self.wrap_column(name)} SET DEFAULT {column.default}"
                     )
 
             sql.append(
@@ -262,11 +262,11 @@ class PostgresPlatform(Platform):
                 sql.append(
                     f"ALTER TABLE {self.wrap_table(table.name)} ADD "
                     + self.get_foreign_key_constraint_string().format(
-                        column=column,
+                        column=self.wrap_column(column),
                         constraint_name=foreign_key_constraint.constraint_name,
-                        table=table.name,
-                        foreign_table=foreign_key_constraint.foreign_table,
-                        foreign_column=foreign_key_constraint.foreign_column,
+                        table=self.wrap_table(table.name),
+                        foreign_table=self.wrap_table(foreign_key_constraint.foreign_table),
+                        foreign_column=self.wrap_column(foreign_key_constraint.foreign_column),
                         cascade=cascade,
                     )
                 )
@@ -362,6 +362,9 @@ class PostgresPlatform(Platform):
 
     def get_table_string(self):
         return '"{table}"'
+
+    def get_column_string(self):
+        return '"{column}"'
 
     def table_information_string(self):
         return "SELECT * FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '{table}'"

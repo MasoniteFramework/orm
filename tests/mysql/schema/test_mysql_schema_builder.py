@@ -62,7 +62,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
                 "`age` INT(11) NOT NULL, "
                 "`profile_id` INT(11) NOT NULL, "
                 "CONSTRAINT users_name_unique UNIQUE (name), "
-                "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))"
+                "CONSTRAINT users_profile_id_foreign FOREIGN KEY (`profile_id`) REFERENCES `profiles`(`id`))"
             ],
         )
 
@@ -81,7 +81,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
                 "`age` INT(11) NOT NULL, "
                 "`profile_id` INT(11) NOT NULL, "
                 "CONSTRAINT users_name_unique UNIQUE (name), "
-                "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))"
+                "CONSTRAINT users_profile_id_foreign FOREIGN KEY (`profile_id`) REFERENCES `profiles`(`id`))"
             ],
         )
 
@@ -154,7 +154,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
                 "`duration` VARCHAR(255) NOT NULL, `url` VARCHAR(255) NOT NULL, `last_address` VARCHAR(255) NULL, `route_origin` VARCHAR(255) NULL, `mac_address` VARCHAR(255) NULL, "
                 "`published_at` DATETIME NOT NULL, `thumbnail` VARCHAR(255) NULL, "
                 "`premium` INT(11) NOT NULL, `author_id` INT UNSIGNED NULL, `description` TEXT NOT NULL, `created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
-                "`updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE)"
+                "`updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_author_id_foreign FOREIGN KEY (`author_id`) REFERENCES `users`(`id`) ON DELETE CASCADE)"
             ],
         )
 
@@ -171,7 +171,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             [
                 "CREATE TABLE `users` ("
                 "`profile_id` INT(11) NOT NULL, "
-                "CONSTRAINT profile_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))"
+                "CONSTRAINT profile_foreign FOREIGN KEY (`profile_id`) REFERENCES `profiles`(`id`))"
             ],
         )
 
