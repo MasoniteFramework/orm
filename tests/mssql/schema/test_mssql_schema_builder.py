@@ -59,7 +59,7 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
                 "[age] INT NOT NULL, "
                 "[profile_id] INT NOT NULL, "
                 "CONSTRAINT users_name_unique UNIQUE (name), "
-                "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))"
+                "CONSTRAINT users_profile_id_foreign FOREIGN KEY ([profile_id]) REFERENCES [profiles]([id]))"
             ],
         )
 
@@ -79,7 +79,7 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
                 "[age] INT NOT NULL, "
                 "[profile_id] INT NOT NULL, "
                 "CONSTRAINT users_name_unique UNIQUE (name), "
-                "CONSTRAINT users_profile_id_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))"
+                "CONSTRAINT users_profile_id_foreign FOREIGN KEY ([profile_id]) REFERENCES [profiles]([id]))"
             ],
         )
 
@@ -134,7 +134,7 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
                     "[url] VARCHAR(255) NOT NULL, [last_address] VARCHAR(255) NULL, [route_origin] VARCHAR(255) NULL, [mac_address] VARCHAR(255) NULL, [published_at] DATETIME NOT NULL, [thumbnail] VARCHAR(255) NULL, [premium] INT NOT NULL, "
                     "[author_id] INT NULL, [description] TEXT NOT NULL, [created_at] DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
                     "[updated_at] DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
-                    "CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_author_id_foreign FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE)"
+                    "CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_author_id_foreign FOREIGN KEY ([author_id]) REFERENCES [users]([id]) ON DELETE CASCADE)"
                 ]
             ),
         )
@@ -152,7 +152,7 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
             [
                 "CREATE TABLE [users] ("
                 "[profile_id] INT NOT NULL, "
-                "CONSTRAINT profile_foreign FOREIGN KEY (profile_id) REFERENCES profiles(id))"
+                "CONSTRAINT profile_foreign FOREIGN KEY ([profile_id]) REFERENCES [profiles]([id]))"
             ],
         )
 

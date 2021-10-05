@@ -27,9 +27,9 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 3)
 
         sql = [
-            "ALTER TABLE users ADD COLUMN name VARCHAR NOT NULL",
-            "ALTER TABLE users ADD COLUMN external_type VARCHAR NOT NULL DEFAULT 'external'",
-            "ALTER TABLE users ADD COLUMN age INTEGER NOT NULL",
+            'ALTER TABLE "users" ADD COLUMN "name" VARCHAR NOT NULL',
+            """ALTER TABLE "users" ADD COLUMN "external_type" VARCHAR NOT NULL DEFAULT 'external'""",
+            'ALTER TABLE "users" ADD COLUMN "age" INTEGER NOT NULL',
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)
@@ -54,9 +54,9 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
 
         sql = [
             "CREATE TEMPORARY TABLE __temp__users AS SELECT post FROM users",
-            "DROP TABLE users",
-            'CREATE TABLE "users" (comment INTEGER NOT NULL)',
-            'INSERT INTO "users" (comment) SELECT post FROM __temp__users',
+            'DROP TABLE "users"',
+            'CREATE TABLE "users" ("comment" INTEGER NOT NULL)',
+            'INSERT INTO "users" ("comment") SELECT post FROM __temp__users',
             "DROP TABLE __temp__users",
         ]
 
@@ -74,9 +74,9 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
 
         sql = [
             "CREATE TEMPORARY TABLE __temp__users AS SELECT name, email FROM users",
-            "DROP TABLE users",
-            'CREATE TABLE "users" (name VARCHAR NOT NULL, email VARCHAR NOT NULL)',
-            'INSERT INTO "users" (name, email) SELECT name, email FROM __temp__users',
+            'DROP TABLE "users"',
+            'CREATE TABLE "users" ("name" VARCHAR NOT NULL, "email" VARCHAR NOT NULL)',
+            'INSERT INTO "users" ("name", "email") SELECT name, email FROM __temp__users',
             "DROP TABLE __temp__users",
         ]
 
@@ -95,11 +95,11 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         blueprint.table.from_table = table
 
         sql = [
-            "ALTER TABLE users ADD COLUMN name VARCHAR NOT NULL",
+            'ALTER TABLE "users" ADD COLUMN "name" VARCHAR NOT NULL',
             "CREATE TEMPORARY TABLE __temp__users AS SELECT age FROM users",
-            "DROP TABLE users",
-            'CREATE TABLE "users" (age INTEGER NOT NULL, name VARCHAR(255) NOT NULL)',
-            'INSERT INTO "users" (age) SELECT age FROM __temp__users',
+            'DROP TABLE "users"',
+            'CREATE TABLE "users" ("age" INTEGER NOT NULL, "name" VARCHAR(255) NOT NULL)',
+            'INSERT INTO "users" ("age") SELECT age FROM __temp__users',
             "DROP TABLE __temp__users",
         ]
 
@@ -120,11 +120,11 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         blueprint.table.from_table = table
 
         sql = [
-            "ALTER TABLE users ADD COLUMN name VARCHAR",
+            'ALTER TABLE "users" ADD COLUMN "name" VARCHAR',
             "CREATE TEMPORARY TABLE __temp__users AS SELECT age FROM users",
-            "DROP TABLE users",
-            'CREATE TABLE "users" (age INTEGER NOT NULL, name VARCHAR(255) NOT NULL)',
-            'INSERT INTO "users" (age) SELECT age FROM __temp__users',
+            'DROP TABLE "users"',
+            'CREATE TABLE "users" ("age" INTEGER NOT NULL, "name" VARCHAR(255) NOT NULL)',
+            'INSERT INTO "users" ("age") SELECT age FROM __temp__users',
             "DROP TABLE __temp__users",
         ]
 
@@ -139,7 +139,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
 
         blueprint.table.from_table = table
 
-        sql = ["ALTER TABLE users ADD COLUMN due_date TIMESTAMP NULL"]
+        sql = ['ALTER TABLE "users" ADD COLUMN "due_date" TIMESTAMP NULL']
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -176,12 +176,12 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         blueprint.table.from_table = table
 
         sql = [
-            "ALTER TABLE users ADD COLUMN playlist_id UNSIGNED INT NULL REFERENCES playlists(id)",
+            'ALTER TABLE "users" ADD COLUMN "playlist_id" UNSIGNED INT NULL REFERENCES "playlists"("id")',
             "CREATE TEMPORARY TABLE __temp__users AS SELECT age, email FROM users",
-            "DROP TABLE users",
-            'CREATE TABLE "users" (age VARCHAR NOT NULL, email VARCHAR NOT NULL, playlist_id UNSIGNED INT NULL, '
-            "CONSTRAINT users_playlist_id_foreign FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE ON UPDATE SET NULL)",
-            'INSERT INTO "users" (age, email) SELECT age, email FROM __temp__users',
+            'DROP TABLE "users"',
+            'CREATE TABLE "users" ("age" VARCHAR NOT NULL, "email" VARCHAR NOT NULL, "playlist_id" UNSIGNED INT NULL, '
+            'CONSTRAINT users_playlist_id_foreign FOREIGN KEY ("playlist_id") REFERENCES "playlists"("id") ON DELETE CASCADE ON UPDATE SET NULL)',
+            'INSERT INTO "users" ("age", "email") SELECT age, email FROM __temp__users',
             "DROP TABLE __temp__users",
         ]
 
@@ -201,10 +201,10 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
 
         sql = [
             "CREATE TEMPORARY TABLE __temp__users AS SELECT age, email FROM users",
-            "DROP TABLE users",
-            'CREATE TABLE "users" (age VARCHAR NOT NULL, email VARCHAR NOT NULL, '
-            "CONSTRAINT users_playlist_id_foreign FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE ON UPDATE SET NULL)",
-            'INSERT INTO "users" (age, email) SELECT age, email FROM __temp__users',
+            'DROP TABLE "users"',
+            'CREATE TABLE "users" ("age" VARCHAR NOT NULL, "email" VARCHAR NOT NULL, '
+            'CONSTRAINT users_playlist_id_foreign FOREIGN KEY ("playlist_id") REFERENCES "playlists"("id") ON DELETE CASCADE ON UPDATE SET NULL)',
+            'INSERT INTO "users" ("age", "email") SELECT age, email FROM __temp__users',
             "DROP TABLE __temp__users",
         ]
 
