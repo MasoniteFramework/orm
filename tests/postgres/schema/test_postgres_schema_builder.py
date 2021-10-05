@@ -154,16 +154,17 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
         # might not be the right place for this test + other column types
         # are not tested => just for testing the PR now
         with self.schema.create("users") as table:
-            table.uuid("id")
+            table.uuid("id").default_raw("uuid_generate_v4()")
             table.primary("id")
             table.string("name")
             table.uuid("public_id").nullable()
+            table.uuid("other_id").default_raw("uuid_generate_v4()")
 
-        self.assertEqual(len(table.table.added_columns), 3)
+        self.assertEqual(len(table.table.added_columns), 4)
         self.assertEqual(
             table.to_sql(),
             [
-                'CREATE TABLE "users" ("id" CHAR(36) NOT NULL, "name" VARCHAR(255) NOT NULL, "public_id" CHAR(36) NULL, CONSTRAINT users_id_primary PRIMARY KEY (id))'
+                'CREATE TABLE "users" ("id" UUID NOT NULL DEFAULT uuid_generate_v4(), "name" VARCHAR(255) NOT NULL, "public_id" UUID NULL, "other_id" UUID NOT NULL DEFAULT uuid_generate_v4(), CONSTRAINT users_id_primary PRIMARY KEY (id))'
             ],
         )
 
