@@ -64,7 +64,7 @@ class MySQLPlatform(Platform):
             elif column.default in self.premapped_defaults.keys():
                 default = self.premapped_defaults.get(column.default)
             elif column.default:
-                if isinstance(column.default, (str,)):
+                if isinstance(column.default, (str,)) and not column.default_is_raw:
                     default = f" DEFAULT '{column.default}'"
                 else:
                     default = f" DEFAULT {column.default}"

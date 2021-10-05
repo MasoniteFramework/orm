@@ -12,6 +12,7 @@ class PostgresPlatform(Platform):
         "inet",
         "cidr",
         "macaddr",
+        "uuid",
     ]
 
     type_map = {
@@ -24,7 +25,7 @@ class PostgresPlatform(Platform):
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
         "increments": "SERIAL UNIQUE",
-        "uuid": "CHAR",
+        "uuid": "UUID",
         "binary": "BYTEA",
         "boolean": "BOOLEAN",
         "decimal": "DECIMAL",
@@ -55,7 +56,7 @@ class PostgresPlatform(Platform):
     premapped_defaults = {
         "current": " DEFAULT CURRENT_TIMESTAMP",
         "now": " DEFAULT NOW()",
-        "null": " DEFAULT NULL",
+        "null": " DEFAULT NULL"
     }
 
     premapped_nulls = {True: "NULL", False: "NOT NULL"}
@@ -107,7 +108,7 @@ class PostgresPlatform(Platform):
             elif column.default in self.premapped_defaults.keys():
                 default = self.premapped_defaults.get(column.default)
             elif column.default:
-                if isinstance(column.default, (str,)):
+                if isinstance(column.default, (str,)) and not column.default_is_raw:
                     default = f" DEFAULT '{column.default}'"
                 else:
                     default = f" DEFAULT {column.default}"
