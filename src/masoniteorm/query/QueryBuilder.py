@@ -1,5 +1,6 @@
 import inspect
 
+from ..config import load_config
 from ..collection.Collection import Collection
 from ..expressions.expressions import (
     JoinClause,
@@ -93,8 +94,7 @@ class QueryBuilder(ObservesEvents):
         self.set_action("select")
 
         if not self._connection_details:
-            from config.database import DB
-
+            DB = load_config().DB
             self._connection_details = DB.get_connection_details()
 
         self.on(connection)
@@ -360,7 +360,7 @@ class QueryBuilder(ObservesEvents):
         )
 
     def on(self, connection):
-        from config.database import DB
+        DB = load_config().DB
 
         if connection == "default":
             self.connection = self._connection_details.get("default")

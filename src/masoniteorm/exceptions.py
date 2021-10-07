@@ -20,3 +20,7 @@ class QueryException(Exception):
 
 class MigrationNotFound(Exception):
     pass
+
+
+class ConfigurationNotFound(Exception):
+    pass
