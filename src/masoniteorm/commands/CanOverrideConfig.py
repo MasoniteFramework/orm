@@ -8,6 +8,9 @@ class CanOverrideConfig(Command):
 
     def add_option(self):
         self._config.add_option(
-            "option", "o", 8, "The location of the config module", None
+            "option",
+            "o",
+            8,
+            "The path to the ORM configuration file. If not given DB_CONFIG_PATH env variable will be used and finally 'config.database'.",
+            None,
         )
-
