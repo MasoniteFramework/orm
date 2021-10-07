@@ -30,7 +30,7 @@ class MigrateCommand(CanOverrideConfig):
             command_class=self,
             connection=self.option("connection"),
             migration_directory=self.option("directory"),
-            config_path=self.option("option"),
+            config_path=self.option("config"),
         )
         migration.create_table_if_not_exists()
         if not migration.get_unran_migrations():
