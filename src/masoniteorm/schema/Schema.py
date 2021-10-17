@@ -2,6 +2,7 @@ from .Blueprint import Blueprint
 from .Table import Table
 from .TableDiff import TableDiff
 from ..exceptions import ConnectionNotRegistered
+from ..config import load_config
 
 
 class Schema:
@@ -44,7 +45,7 @@ class Schema:
         Returns:
             cls
         """
-        from config.database import DB
+        DB = load_config().DB
 
         if connection_key == "default":
             self.connection = self.connection_details.get("default")

@@ -1,9 +1,9 @@
-from cleo import Command
 import os
 from ..migrations import Migration
+from .CanOverrideConfig import CanOverrideConfig
 
 
-class MigrateCommand(Command):
+class MigrateCommand(CanOverrideConfig):
     """
     Run migrations.
 
@@ -30,6 +30,7 @@ class MigrateCommand(Command):
             command_class=self,
             connection=self.option("connection"),
             migration_directory=self.option("directory"),
+            config_path=self.option("config"),
         )
         migration.create_table_if_not_exists()
         if not migration.get_unran_migrations():

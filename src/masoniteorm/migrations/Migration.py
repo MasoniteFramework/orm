@@ -7,6 +7,7 @@ from inflection import camelize
 
 from ..models.MigrationModel import MigrationModel
 from ..schema import Schema
+from ..config import load_config
 
 from timeit import default_timer as timer
 
@@ -18,13 +19,14 @@ class Migration:
         dry=False,
         command_class=None,
         migration_directory="databases/migrations",
+        config_path=None,
     ):
         self.connection = connection
         self.migration_directory = migration_directory
         self.last_migrations_ran = []
         self.command_class = command_class
 
-        from config.database import DB
+        DB = load_config(config_path).DB
 
         DATABASES = DB.get_connection_details()
 

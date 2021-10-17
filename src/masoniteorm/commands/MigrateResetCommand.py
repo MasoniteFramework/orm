@@ -1,8 +1,8 @@
-from cleo import Command
+from .CanOverrideConfig import CanOverrideConfig
 from ..migrations import Migration
 
 
-class MigrateResetCommand(Command):
+class MigrateResetCommand(CanOverrideConfig):
     """
     Rolls back all migrations.
 
@@ -16,5 +16,6 @@ class MigrateResetCommand(Command):
             command_class=self,
             connection=self.option("connection"),
             migration_directory=self.option("directory"),
+            config_path=self.option("config"),
         )
         migration.reset()

@@ -1,9 +1,8 @@
-from cleo import Command
-
+from .CanOverrideConfig import CanOverrideConfig
 from ..migrations import Migration
 
 
-class MigrateRollbackCommand(Command):
+class MigrateRollbackCommand(CanOverrideConfig):
     """
     Rolls back the last batch of migrations.
 
@@ -18,4 +17,5 @@ class MigrateRollbackCommand(Command):
             command_class=self,
             connection=self.option("connection"),
             migration_directory=self.option("directory"),
+            config_path=self.option("config"),
         ).rollback(output=self.option("show"))

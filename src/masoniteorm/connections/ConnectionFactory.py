@@ -1,3 +1,6 @@
+from ..config import load_config
+
+
 class ConnectionFactory:
     """Class for controlling the registration and creation of connection types."""
 
@@ -32,9 +35,9 @@ class ConnectionFactory:
             masoniteorm.connection.BaseConnection -- Returns an instance of a BaseConnection class.
         """
 
-        from config.database import ConnectionResolver
+        DB = load_config().DB
 
-        connections = ConnectionResolver().get_connection_details()
+        connections = DB.get_connection_details()
 
         if key == "default":
             connection_details = connections.get(connections.get("default"))

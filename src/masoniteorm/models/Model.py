@@ -8,6 +8,7 @@ from ..query import QueryBuilder
 from ..collection import Collection
 from ..observers import ObservesEvents
 from ..scopes import TimeStampsMixin
+from ..config import load_config
 
 """This is a magic class that will help using models like User.first() instead of having to instatiate a class like
 User().first()
@@ -260,9 +261,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return self.builder.select(*self.__selects__)
 
     def get_connection_details(self):
-        from config.database import ConnectionResolver
-
-        return ConnectionResolver().get_connection_details()
+        DB = load_config().DB
+        return DB.get_connection_details()
 
     def boot(self):
         if not self._booted:
