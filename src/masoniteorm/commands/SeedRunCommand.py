@@ -15,13 +15,20 @@ class SeedRunCommand(Command):
     """
 
     def handle(self):
+
+        seeder = Seeder(dry=self.option("dry"), seed_path=self.option("directory"))
+
         if self.argument("table") == "None":
-            return Seeder(
-                dry=self.option("dry"), seed_path=self.option("directory")
-            ).run_database_seed()
+            seeder.run_database_seed()
+            seeder_seeded = "Database Seeder"
 
-        file_name = f"{underscore(self.argument('table'))}_table_seeder.{camelize(self.argument('table'))}TableSeeder"
+        else:
 
-        return Seeder(
-            dry=self.option("dry"), seed_path=self.option("directory")
-        ).run_specific_seed(file_name)
+            table = self.argument("table")
+            seeder_file = (
+                f"{underscore(table)}_table_seeder.{camelize(table)}TableSeeder"
+            )
+            seeder.run_specific_seed(seeder_file)
+            seeder_seeded = f"{camelize(table)}TableSeeder"
+
+        self.line(f"<info>{seeder_seeded} seeded!</info>")

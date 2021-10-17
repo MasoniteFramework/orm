@@ -33,6 +33,9 @@ class MSSQLPlatform(Platform):
         "geometry": "GEOMETRY",
         "json": "JSON",
         "jsonb": "LONGBLOB",
+        "inet": "VARCHAR",
+        "cidr": "VARCHAR",
+        "macaddr": "VARCHAR",
         "long_text": "LONGTEXT",
         "point": "POINT",
         "time": "TIME",
@@ -73,7 +76,17 @@ class MSSQLPlatform(Platform):
             )
         )
 
-        return sql[0]
+        if table.added_indexes:
+            for name, index in table.added_indexes.items():
+                sql.append(
+                    "CREATE INDEX {name} ON {table}({column})".format(
+                        name=index.name,
+                        table=self.wrap_table(table.name),
+                        column=",".join(index.column),
+                    )
+                )
+
+        return sql
 
     def compile_alter_sql(self, table):
         sql = []
@@ -129,12 +142,11 @@ class MSSQLPlatform(Platform):
                 sql.append(
                     f"ALTER TABLE {self.wrap_table(table.name)} ADD "
                     + self.get_foreign_key_constraint_string().format(
-                        clean_column=column,
                         constraint_name=foreign_key_constraint.constraint_name,
-                        column=self.wrap_table(column),
-                        table=table.name,
-                        foreign_table=foreign_key_constraint.foreign_table,
-                        foreign_column=self.wrap_table(
+                        column=self.wrap_column(column),
+                        table=self.wrap_table(table.name),
+                        foreign_table=self.wrap_table(foreign_key_constraint.foreign_table),
+                        foreign_column=self.wrap_column(
                             foreign_key_constraint.foreign_column
                         ),
                         cascade=cascade,
@@ -158,8 +170,14 @@ class MSSQLPlatform(Platform):
                     )
                 )
 
-        if table.removed_indexes:
+        if (
+            table.removed_indexes
+            or table.removed_unique_indexes
+            or table.dropped_primary_keys
+        ):
             constraints = table.removed_indexes
+            constraints += table.removed_unique_indexes
+            constraints += table.dropped_primary_keys
             for constraint in constraints:
                 sql.append(
                     f"DROP INDEX {self.wrap_table(table.name)}.{self.wrap_table(constraint)}"
@@ -173,6 +191,10 @@ class MSSQLPlatform(Platform):
                     )
                 elif constraint.constraint_type == "fulltext":
                     pass
+                elif constraint.constraint_type == "primary_key":
+                    sql.append(
+                        f"ALTER TABLE {self.wrap_table(table.name)} ADD CONSTRAINT {constraint.name} PRIMARY KEY ({','.join(constraint.columns)})"
+                    )
         return sql
 
     def add_column_string(self):
@@ -200,7 +222,7 @@ class MSSQLPlatform(Platform):
             elif column.default in self.premapped_defaults.keys():
                 default = self.premapped_defaults.get(column.default)
             elif column.default:
-                if isinstance(column.default, (str,)):
+                if isinstance(column.default, (str,)) and not column.default_is_raw:
                     default = f" DEFAULT '{column.default}'"
                 else:
                     default = f" DEFAULT {column.default}"
@@ -254,6 +276,9 @@ class MSSQLPlatform(Platform):
     def get_table_string(self):
         return "[{table}]"
 
+    def get_column_string(self):
+        return "[{column}]"
+
     def create_format(self):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
 
@@ -267,7 +292,7 @@ class MSSQLPlatform(Platform):
         return "CONSTRAINT {constraint_name} PRIMARY KEY ({columns})"
 
     def get_unique_constraint_string(self):
-        return "CONSTRAINT {table}_{name_columns}_unique UNIQUE ({columns})"
+        return "CONSTRAINT {constraint_name} UNIQUE ({columns})"
 
     def compile_table_exists(self, table, database):
         return f"SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{table}'"
@@ -298,11 +323,9 @@ class MSSQLPlatform(Platform):
         return Table(table_name)
 
     def enable_foreign_key_constraints(self):
-        """MSSQL does not allow a global way to enable foreign key constraints
-        """
+        """MSSQL does not allow a global way to enable foreign key constraints"""
         return ""
 
     def disable_foreign_key_constraints(self):
-        """MSSQL does not allow a global way to disable foreign key constraints
-        """
+        """MSSQL does not allow a global way to disable foreign key constraints"""
         return ""

@@ -9,6 +9,10 @@ class PostgresPlatform(Platform):
         "tiny_integer",
         "small_integer",
         "medium_integer",
+        "inet",
+        "cidr",
+        "macaddr",
+        "uuid",
     ]
 
     type_map = {
@@ -21,7 +25,7 @@ class PostgresPlatform(Platform):
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
         "increments": "SERIAL UNIQUE",
-        "uuid": "CHAR",
+        "uuid": "UUID",
         "binary": "BYTEA",
         "boolean": "BOOLEAN",
         "decimal": "DECIMAL",
@@ -32,13 +36,16 @@ class PostgresPlatform(Platform):
         "geometry": "GEOMETRY",
         "json": "JSON",
         "jsonb": "JSONB",
+        "inet": "INET",
+        "cidr": "CIDR",
+        "macaddr": "MACADDR",
         "long_text": "LONGTEXT",
         "point": "POINT",
         "time": "TIME",
         "timestamp": "TIMESTAMP",
         "date": "DATE",
         "year": "YEAR",
-        "datetime": "TIMESTAMP",
+        "datetime": "TIMESTAMPTZ",
         "tiny_increments": "TINYINT AUTO_INCREMENT",
         "unsigned": "INT",
         "unsigned_integer": "INT",
@@ -49,7 +56,7 @@ class PostgresPlatform(Platform):
     premapped_defaults = {
         "current": " DEFAULT CURRENT_TIMESTAMP",
         "now": " DEFAULT NOW()",
-        "null": " DEFAULT NULL",
+        "null": " DEFAULT NULL"
     }
 
     premapped_nulls = {True: "NULL", False: "NOT NULL"}
@@ -74,7 +81,17 @@ class PostgresPlatform(Platform):
             )
         )
 
-        return sql[0]
+        if table.added_indexes:
+            for name, index in table.added_indexes.items():
+                sql.append(
+                    "CREATE INDEX {name} ON {table}({column})".format(
+                        name=index.name,
+                        table=self.wrap_table(table.name),
+                        column=",".join(index.column),
+                    )
+                )
+
+        return sql
 
     def columnize(self, columns):
         sql = []
@@ -91,7 +108,7 @@ class PostgresPlatform(Platform):
             elif column.default in self.premapped_defaults.keys():
                 default = self.premapped_defaults.get(column.default)
             elif column.default:
-                if isinstance(column.default, (str,)):
+                if isinstance(column.default, (str,)) and not column.default_is_raw:
                     default = f" DEFAULT '{column.default}'"
                 else:
                     default = f" DEFAULT {column.default}"
@@ -110,7 +127,7 @@ class PostgresPlatform(Platform):
             sql.append(
                 self.columnize_string()
                 .format(
-                    name=column.name,
+                    name=self.wrap_column(column.name),
                     data_type=self.type_map.get(column.column_type, ""),
                     column_constraint=column_constraint,
                     length=length,
@@ -153,7 +170,7 @@ class PostgresPlatform(Platform):
                 add_columns.append(
                     self.add_column_string()
                     .format(
-                        name=column.name,
+                        name=self.wrap_column(column.name),
                         data_type=self.type_map.get(column.column_type, ""),
                         length=length,
                         constraint="PRIMARY KEY" if column.primary else "",
@@ -182,7 +199,7 @@ class PostgresPlatform(Platform):
                     length = ""
 
                 renamed_sql.append(
-                    self.rename_column_string().format(to=column.name, old=name).strip()
+                    self.rename_column_string().format(to=self.wrap_column(column.name), old=self.wrap_column(name)).strip()
                 )
 
             sql.append(
@@ -196,7 +213,7 @@ class PostgresPlatform(Platform):
             dropped_sql = []
 
             for name in table.get_dropped_columns():
-                dropped_sql.append(self.drop_column_string().format(name=name).strip())
+                dropped_sql.append(self.drop_column_string().format(name=self.wrap_column(name)).strip())
 
             sql.append(
                 self.alter_format().format(
@@ -211,7 +228,7 @@ class PostgresPlatform(Platform):
                 changed_sql.append(
                     self.modify_column_string()
                     .format(
-                        name=name,
+                        name=self.wrap_column(name),
                         data_type=self.type_map.get(column.column_type),
                         nullable="NULL" if column.is_null else "NOT NULL",
                     )
@@ -219,13 +236,13 @@ class PostgresPlatform(Platform):
                 )
 
                 if column.is_null:
-                    changed_sql.append(f"ALTER COLUMN {name} DROP NOT NULL")
+                    changed_sql.append(f"ALTER COLUMN {self.wrap_column(name)} DROP NOT NULL")
                 else:
-                    changed_sql.append(f"ALTER COLUMN {name} SET NOT NULL")
+                    changed_sql.append(f"ALTER COLUMN {self.wrap_column(name)} SET NOT NULL")
 
                 if column.default is not None:
                     changed_sql.append(
-                        f"ALTER COLUMN {name} SET DEFAULT {column.default}"
+                        f"ALTER COLUMN {self.wrap_column(name)} SET DEFAULT {column.default}"
                     )
 
             sql.append(
@@ -246,18 +263,28 @@ class PostgresPlatform(Platform):
                 sql.append(
                     f"ALTER TABLE {self.wrap_table(table.name)} ADD "
                     + self.get_foreign_key_constraint_string().format(
-                        column=column,
+                        column=self.wrap_column(column),
                         constraint_name=foreign_key_constraint.constraint_name,
-                        table=table.name,
-                        foreign_table=foreign_key_constraint.foreign_table,
-                        foreign_column=foreign_key_constraint.foreign_column,
+                        table=self.wrap_table(table.name),
+                        foreign_table=self.wrap_table(foreign_key_constraint.foreign_table),
+                        foreign_column=self.wrap_column(foreign_key_constraint.foreign_column),
                         cascade=cascade,
                     )
                 )
 
-        if table.dropped_foreign_keys or table.removed_indexes:
+        if table.removed_indexes:
+            constraints = table.removed_indexes
+            for constraint in constraints:
+                sql.append(f"DROP INDEX {constraint}")
+
+        if (
+            table.dropped_foreign_keys
+            or table.removed_unique_indexes
+            or table.dropped_primary_keys
+        ):
             constraints = table.dropped_foreign_keys
-            constraints += table.removed_indexes
+            constraints += table.removed_unique_indexes
+            constraints += table.dropped_primary_keys
             for constraint in constraints:
                 sql.append(
                     f"ALTER TABLE {self.wrap_table(table.name)} DROP CONSTRAINT {constraint}"
@@ -278,6 +305,10 @@ class PostgresPlatform(Platform):
                 if constraint.constraint_type == "unique":
                     sql.append(
                         f"ALTER TABLE {self.wrap_table(table.name)} ADD CONSTRAINT {constraint.name} UNIQUE({','.join(constraint.columns)})"
+                    )
+                elif constraint.constraint_type == "primary_key":
+                    sql.append(
+                        f"ALTER TABLE {self.wrap_table(table.name)} ADD CONSTRAINT {constraint.name} PRIMARY KEY ({','.join(constraint.columns)})"
                     )
 
         return sql
@@ -328,10 +359,13 @@ class PostgresPlatform(Platform):
         return "CONSTRAINT {constraint_name} PRIMARY KEY ({columns})"
 
     def get_unique_constraint_string(self):
-        return "CONSTRAINT {table}_{name_columns}_unique UNIQUE ({columns})"
+        return "CONSTRAINT {constraint_name} UNIQUE ({columns})"
 
     def get_table_string(self):
         return '"{table}"'
+
+    def get_column_string(self):
+        return '"{column}"'
 
     def table_information_string(self):
         return "SELECT * FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '{table}'"
@@ -382,11 +416,9 @@ class PostgresPlatform(Platform):
         return table
 
     def enable_foreign_key_constraints(self):
-        """Postgres does not allow a global way to enable foreign key constraints
-        """
+        """Postgres does not allow a global way to enable foreign key constraints"""
         return ""
 
     def disable_foreign_key_constraints(self):
-        """Postgres does not allow a global way to disable foreign key constraints
-        """
+        """Postgres does not allow a global way to disable foreign key constraints"""
         return ""

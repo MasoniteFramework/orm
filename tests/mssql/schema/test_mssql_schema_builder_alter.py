@@ -88,7 +88,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         sql = [
             "ALTER TABLE [users] ADD [playlist_id] INT NULL",
-            "ALTER TABLE [users] ADD CONSTRAINT users_playlist_id_foreign FOREIGN KEY ([playlist_id]) REFERENCES playlists([id]) ON DELETE CASCADE",
+            "ALTER TABLE [users] ADD CONSTRAINT users_playlist_id_foreign FOREIGN KEY ([playlist_id]) REFERENCES [playlists]([id]) ON DELETE CASCADE",
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)
@@ -100,7 +100,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         sql = [
             "ALTER TABLE [users] ADD [playlist_id] INT NULL",
-            "ALTER TABLE [users] ADD CONSTRAINT users_playlist_id_foreign FOREIGN KEY ([playlist_id]) REFERENCES playlists([id]) ON DELETE CASCADE",
+            "ALTER TABLE [users] ADD CONSTRAINT users_playlist_id_foreign FOREIGN KEY ([playlist_id]) REFERENCES [playlists]([id]) ON DELETE CASCADE",
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)
@@ -126,6 +126,16 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
             blueprint.drop_unique("users_playlist_id_unique")
 
         sql = ["DROP INDEX [users].[users_playlist_id_unique]"]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_alter_add_primary(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.primary("playlist_id")
+
+        sql = [
+            "ALTER TABLE [users] ADD CONSTRAINT users_playlist_id_primary PRIMARY KEY (playlist_id)"
+        ]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -158,6 +168,14 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
             blueprint.drop_unique(["playlist_id"])
 
         sql = ["DROP INDEX [users].[users_playlist_id_unique]"]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_alter_drop_primary(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.drop_primary(["id"])
+
+        sql = ["DROP INDEX [users].[users_id_primary]"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -248,8 +266,6 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         blueprint.table.from_table = table
 
-        sql = [
-            "ALTER TABLE [users] ADD [due_date] DATETIME NULL DEFAULT CURRENT_TIMESTAMP"
-        ]
+        sql = ["ALTER TABLE [users] ADD [due_date] DATETIME NULL"]
 
         self.assertEqual(blueprint.to_sql(), sql)

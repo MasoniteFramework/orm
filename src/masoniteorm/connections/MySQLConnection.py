@@ -55,6 +55,16 @@ class MySQLConnection(BaseConnection):
                 "You must have the 'pymysql' package installed to make a connection to MySQL. Please install it using 'pip install pymysql'"
             )
 
+        try:
+            import pendulum
+            import pymysql.converters
+
+            pymysql.converters.conversions[
+                pendulum.DateTime
+            ] = pymysql.converters.escape_datetime
+        except ImportError:
+            pass
+
         if self.has_global_connection():
             return self.get_global_connection()
 

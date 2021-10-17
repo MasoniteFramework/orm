@@ -2,6 +2,7 @@ import inspect
 
 from ..collection.Collection import Collection
 from ..expressions.expressions import (
+    JoinClause,
     SubGroupExpression,
     SubSelectExpression,
     SelectExpression,
@@ -11,7 +12,6 @@ from ..expressions.expressions import (
     QueryExpression,
     OrderByExpression,
     UpdateQueryExpression,
-    JoinExpression,
     HavingExpression,
     FromTable,
 )
@@ -22,6 +22,8 @@ from ..observers import ObservesEvents
 from ..exceptions import ModelNotFound, HTTP404, ConnectionNotRegistered
 from ..pagination import LengthAwarePaginator, SimplePaginator
 from .EagerRelation import EagerRelations
+from datetime import datetime, date as datetimedate, time as datetimetime
+import pendulum
 
 
 class QueryBuilder(ObservesEvents):
@@ -57,6 +59,7 @@ class QueryBuilder(ObservesEvents):
         self._connection_details = connection_details or {}
         self._connection_driver = connection_driver
         self._scopes = scopes or {}
+        self.lock = False
         self._eager_relation = EagerRelations()
         if model:
             self._global_scopes = model._global_scopes
@@ -101,6 +104,16 @@ class QueryBuilder(ObservesEvents):
 
         if connection_class:
             self.connection_class = connection_class
+
+    def shared_lock(self):
+        return self.make_lock("share")
+
+    def lock_for_update(self):
+        return self.make_lock("update")
+
+    def make_lock(self, lock):
+        self.lock = lock
+        return self
 
     def reset(self):
         """Resets the query builder instance so you can make multiple calls with the same builder instance"""
@@ -537,13 +550,6 @@ class QueryBuilder(ObservesEvents):
         """
         operator, value = self._extract_operator_value(*args)
 
-        if value is None:
-            value = ""
-        elif value is True:
-            value = "1"
-        elif value is False:
-            value = "0"
-
         if inspect.isfunction(column):
             builder = column(self.new())
             self._wheres += (
@@ -551,6 +557,7 @@ class QueryBuilder(ObservesEvents):
             )
         elif isinstance(column, dict):
             for key, value in column.items():
+
                 self._wheres += ((QueryExpression(key, "=", value, "value")),)
         elif isinstance(value, QueryBuilder):
             self._wheres += (
@@ -732,6 +739,12 @@ class QueryBuilder(ObservesEvents):
         self._wheres += (BetweenExpression(column, low, high),)
         return self
 
+    def where_between(self, *args, **kwargs):
+        return self.between(*args, **kwargs)
+
+    def where_not_between(self, *args, **kwargs):
+        return self.not_between(*args, **kwargs)
+
     def not_between(self, column: str, low: [str, int], high: [str, int]):
         """Specifies a where not between expression.
 
@@ -862,17 +875,12 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def join(
-        self,
-        foreign_table: str,
-        column1: str,
-        equality: ["=", "<", "<=", ">", ">="],
-        column2: str,
-        clause="inner",
+        self, table: str, column1=None, equality=None, column2=None, clause="inner"
     ):
         """Specifies a join expression.
 
         Arguments:
-            foreign_table {string} -- The name of the table to join on.
+            table {string} -- The name of the table or an instance of JoinClause.
             column1 {string} -- The name of the foreign table.
             equality {string} -- The equality to join on.
             column2 {string} -- The name of the local column.
@@ -883,16 +891,21 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._joins += (
-            JoinExpression(foreign_table, column1, equality, column2, clause=clause),
-        )
+        if inspect.isfunction(column1):
+            self._joins += (column1(JoinClause(table, clause=clause)),)
+        elif isinstance(table, str):
+            self._joins += (
+                JoinClause(table, clause=clause).on(column1, equality, column2),
+            )
+        else:
+            self._joins += (table,)
         return self
 
-    def left_join(self, foreign_table, column1, equality, column2):
+    def left_join(self, table, column1=None, equality=None, column2=None):
         """A helper method to add a left join expression.
 
         Arguments:
-            foreign_table {string} -- The name of the table to join on.
+            table {string} -- The name of the table to join on.
             column1 {string} -- The name of the foreign table.
             equality {string} -- The equality to join on.
             column2 {string} -- The name of the local column.
@@ -900,16 +913,19 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._joins += (
-            JoinExpression(foreign_table, column1, equality, column2, "left"),
+        return self.join(
+            table=table,
+            column1=column1,
+            equality=equality,
+            column2=column2,
+            clause="left",
         )
-        return self
 
-    def right_join(self, foreign_table, column1, equality, column2):
+    def right_join(self, table, column1=None, equality=None, column2=None):
         """A helper method to add a right join expression.
 
         Arguments:
-            foreign_table {string} -- The name of the table to join on.
+            table {string} -- The name of the table to join on.
             column1 {string} -- The name of the foreign table.
             equality {string} -- The equality to join on.
             column2 {string} -- The name of the local column.
@@ -917,10 +933,13 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._joins += (
-            JoinExpression(foreign_table, column1, equality, column2, "right"),
+        return self.join(
+            table=table,
+            column1=column1,
+            equality=equality,
+            column2=column2,
+            clause="right",
         )
-        return self
 
     def joins(self, *relationships, clause="inner"):
         for relationship in relationships:
@@ -970,8 +989,7 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def take(self, *args, **kwargs):
-        """Alias for limit method
-        """
+        """Alias for limit method"""
         return self.limit(*args, **kwargs)
 
     def limit(self, amount):
@@ -999,8 +1017,7 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def skip(self, *args, **kwargs):
-        """Alias for limit method
-        """
+        """Alias for limit method"""
         return self.offset(*args, **kwargs)
 
     def update(self, updates: dict, dry=False, force=False):
@@ -1155,6 +1172,32 @@ class QueryBuilder(ObservesEvents):
         else:
             return self
 
+    def cast_value(self, value):
+
+        if isinstance(value, datetime):
+            return str(pendulum.instance(value))
+        elif isinstance(value, datetimedate):
+            return str(pendulum.datetime(value.year, value.month, value.day))
+        elif isinstance(value, datetimetime):
+            return str(pendulum.parse(f"{value.hour}:{value.minute}:{value.second}"))
+
+        return value
+
+    def cast_dates(self, result):
+        if isinstance(result, dict):
+            new_dict = {}
+            for key, value in result.items():
+                new_dict.update({key: self.cast_value(value)})
+
+            return new_dict
+        elif isinstance(result, list):
+            new_list = []
+            for res in result:
+                new_list.append(self.cast_dates(res))
+            return new_list
+
+        return result
+
     def max(self, column):
         """Aggregates a columns values.
 
@@ -1283,7 +1326,7 @@ class QueryBuilder(ObservesEvents):
             record_id {int} -- The ID of the primary key to fetch.
 
         Returns:
-            Model
+            Model|None
         """
 
         return self.where(self._model.get_primary_key(), record_id).first()
@@ -1516,6 +1559,7 @@ class QueryBuilder(ObservesEvents):
             aggregates=self._aggregates,
             order_by=self._order_by,
             group_by=self._group_by,
+            lock=self.lock,
             joins=self._joins,
             having=self._having,
         )

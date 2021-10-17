@@ -150,8 +150,10 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(
-            column, "increments", nullable=nullable, primary=True
+            column, "increments", nullable=nullable
         )
+
+        self.primary(column)
         return self
 
     def tiny_increments(self, column, nullable=False):
@@ -167,8 +169,10 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(
-            column, "tiny_increments", nullable=nullable, primary=True
+            column, "tiny_increments", nullable=nullable
         )
+
+        self.primary(column)
         return self
 
     def uuid(self, column, nullable=False, length=36):
@@ -201,8 +205,10 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(
-            column, "big_increments", nullable=nullable, primary=True
+            column, "big_increments", nullable=nullable
         )
+
+        self.primary(column)
         return self
 
     def binary(self, column, nullable=False):
@@ -235,8 +241,13 @@ class Blueprint:
         self._last_column = self.table.add_column(column, "boolean", nullable=nullable)
         return self
 
-    def default(self, value):
+    def default(self, value, raw=False):
         self._last_column.default = value
+        self._last_column.default_is_raw = raw
+        return self
+
+    def default_raw(self, value):
+        self.default(value, True)
         return self
 
     def char(self, column, length=1, nullable=False):
@@ -287,22 +298,28 @@ class Blueprint:
         self._last_column = self.table.add_column(column, "time", nullable=nullable)
         return self
 
-    def datetime(self, column, nullable=False):
+    def datetime(self, column, nullable=False, now=False):
         """Sets a column to be the datetime representation for the table.
 
         Arguments:
             column {string} -- The column name.
 
+
         Keyword Arguments:
             nullable {bool} -- Whether the column is nullable. (default: {False})
+            now {bool} -- Whether the default for the column should be the current time. (default: {False})
 
         Returns:
             self
         """
         self._last_column = self.table.add_column(column, "datetime", nullable=nullable)
+
+        if now:
+            self._last_column.use_current()
+
         return self
 
-    def timestamp(self, column, nullable=False, now=None):
+    def timestamp(self, column, nullable=False, now=False):
         """Sets a column to be the timestamp representation for the table.
 
         Arguments:
@@ -315,14 +332,12 @@ class Blueprint:
         Returns:
             self
         """
-        if now:
-            now = "now"
 
         self._last_column = self.table.add_column(
             column, "timestamp", nullable=nullable
         )
 
-        if not now:
+        if now:
             self._last_column.use_current()
 
         return self
@@ -333,9 +348,9 @@ class Blueprint:
         Returns:
             self
         """
-        self.table.add_column("created_at", "timestamp", nullable=True).use_current()
+        self.datetime("created_at", nullable=True, now=True)
 
-        self.table.add_column("updated_at", "timestamp", nullable=True).use_current()
+        self.datetime("updated_at", nullable=True, now=True)
 
         return self
 
@@ -464,6 +479,57 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(column, "jsonb", nullable=nullable)
+        return self
+
+    def inet(self, column, length=255, nullable=False):
+        """Sets a column to be the inet representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(
+            column, "inet", length=255, nullable=nullable
+        )
+        return self
+
+    def cidr(self, column, length=255, nullable=False):
+        """Sets a column to be the cidr representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(
+            column, "cidr", length=255, nullable=nullable
+        )
+        return self
+
+    def macaddr(self, column, length=255, nullable=False):
+        """Sets a column to be the macaddr representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(
+            column, "macaddr", length=255, nullable=nullable
+        )
         return self
 
     def point(self, column, nullable=False):
@@ -724,7 +790,9 @@ class Blueprint:
             columns {string} -- The name of the from_column . to_column . table
         """
         if len(columns.split(".")) != 3:
-            raise Exception("Wrong add_foreign argument, the struncture is from_column.to_column.table")
+            raise Exception(
+                "Wrong add_foreign argument, the struncture is from_column.to_column.table"
+            )
         from_column, to_column, table = columns.split(".")
         return self.foreign(from_column, name=name).references(to_column).on(table)
 
@@ -862,11 +930,28 @@ class Blueprint:
         """
         if isinstance(index, list):
             for column in index:
-                self.table.remove_index(f"{self.table.name}_{column}_unique")
+                self.table.remove_unique_index(f"{self.table.name}_{column}_unique")
 
             return self
 
-        self.table.remove_index(index)
+        self.table.remove_unique_index(index)
+
+    def drop_primary(self, index):
+        """Drops a unique index.
+
+        Arguments:
+            indexes {list|string} -- Either a list of indexes or a specific index.
+
+        Returns:
+            self
+        """
+        if isinstance(index, list):
+            for column in index:
+                self.table.drop_primary(f"{self.table.name}_{column}_primary")
+
+            return self
+
+        self.table.drop_primary(index)
 
     def drop_foreign(self, index):
         """Drops foreign key indexes.

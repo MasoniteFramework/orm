@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, date as datetimedate, time as datetimetime
 
 from inflection import tableize
 import inspect
@@ -52,6 +52,9 @@ class JsonCast:
     """Casts a value to JSON"""
 
     def get(self, value):
+        if isinstance(value, dict):
+            return value
+
         return json.loads(value)
 
     def set(self, value):
@@ -102,6 +105,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     __casts__ = {}
     __dates__ = []
     __hidden__ = []
+    __relationship_hidden__ = {}
     __visible__ = []
     __timestamps__ = True
     __timezone__ = "UTC"
@@ -115,45 +119,75 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     Anytime one of these methods are called on the model it will actually be called on the query builder class.
     """
     __passthrough__ = [
-        "all",
         "add_select",
+        "aggregate",
+        "all",
         "avg",
+        "between",
         "bulk_create",
         "chunk",
         "count",
+        "decrement",
         "delete",
         "find_or_404",
         "find_or_fail",
         "first_or_fail",
         "first",
+        "force_update",
+        "from_",
+        "from_raw",
         "get",
+        "group_by_raw",
+        "group_by",
         "has",
+        "having",
+        "increment",
+        "join_on",
         "join",
         "joins",
-        "join_on",
         "last",
+        "left_join",
         "limit",
+        "lock_for_update",
+        "make_lock",
         "max",
         "min",
-        "order_by",
+        "new_from_builder",
+        "new",
+        "not_between",
+        "offset",
+        "on",
         "or_where",
+        "order_by_raw",
+        "order_by",
         "paginate",
+        "right_join",
+        "select_raw",
         "select",
         "set_global_scope",
+        "shared_lock",
         "simple_paginate",
+        "skip",
         "statement",
         "sum",
+        "table_raw",
+        "take",
         "to_qmark",
         "to_sql",
         "truncate",
         "update",
-        "force_update",
         "when",
-        "where_has",
+        "where_between",
+        "where_column",
+        "where_exists",
         "where_from_builder",
+        "where_has",
         "where_in",
         "where_like",
+        "where_not_between",
+        "where_not_in",
         "where_not_like",
+        "where_not_null",
         "where_null",
         "where_raw",
         "where",
@@ -411,13 +445,15 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             .first()
         )
 
-    def serialize(self):
+    def serialize(self, exclude=[]):
         """Takes the data as a model and converts it into a dictionary.
 
         Returns:
             dict
         """
         serialized_dictionary = self.__attributes__
+
+        self.__hidden__ += exclude
 
         # prevent using both hidden and visible at the same time
         if self.__visible__ and self.__hidden__:
@@ -454,16 +490,26 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         # Serialize relationships as well
         serialized_dictionary.update(self.relations_to_dict())
+
         for append in self.__appends__:
             serialized_dictionary.update({append: getattr(self, append)})
 
+        remove_keys = []
         for key, value in serialized_dictionary.items():
+
+            if key in self.__hidden__:
+                remove_keys.append(key)
+            if hasattr(value, "serialize"):
+                value = value.serialize(self.__relationship_hidden__.get(key, []))
             if isinstance(value, datetime):
                 value = self.get_new_serialized_date(value)
             if key in self.__casts__:
                 value = self._cast_attribute(key, value)
 
             serialized_dictionary.update({key: value})
+
+        for key in remove_keys:
+            serialized_dictionary.pop(key)
 
         return serialized_dictionary
 
@@ -501,7 +547,14 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 if value is None:
                     new_dic.update({key: {}})
                     continue
-                new_dic.update({key: value.serialize()})
+
+                new_dic.update(
+                    {
+                        key: value.serialize(
+                            exclude=self.__relationship_hidden__.get(key, [])
+                        )
+                    }
+                )
 
         return new_dic
 
@@ -662,6 +715,13 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return attributes
 
+    def delete_attribute(self, key):
+        if key in self.__attributes__:
+            del self.__attributes__[key]
+            return True
+
+        return False
+
     def get_dirty_attributes(self):
         if "builder" in self.__dirty_attributes__:
             self.__dirty_attributes__.pop("builder")
@@ -675,6 +735,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     def _cast_attribute(self, attribute, value):
         cast_method = self.__casts__[attribute]
         cast_map = self.get_cast_map()
+
+        if value is None:
+            return None
 
         if isinstance(cast_method, str):
             return cast_map[cast_method]().get(value)
@@ -709,7 +772,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return self.__dates__ + defaults
 
-    def get_new_date(self, datetime=None):
+    def get_new_date(self, _datetime=None):
         """
         Get the attributes that should be converted to dates.
 
@@ -717,29 +780,39 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         import pendulum
 
-        if not datetime:
-            return pendulum.now(self.__timezone__)
+        if not _datetime:
+            return pendulum.now(tz=self.__timezone__)
+        elif isinstance(_datetime, str):
+            return pendulum.parse(_datetime, tz=self.__timezone__)
+        elif isinstance(_datetime, datetime):
+            return pendulum.instance(_datetime, tz=self.__timezone__)
+        elif isinstance(_datetime, datetimedate):
+            return pendulum.datetime(
+                _datetime.year, _datetime.month, _datetime.day, tz=self.__timezone__
+            )
+        elif isinstance(_datetime, datetimetime):
+            return pendulum.parse(
+                f"{_datetime.hour}:{_datetime.minute}:{_datetime.second}",
+                tz=self.__timezone__,
+            )
 
-        if isinstance(datetime, str):
-            return pendulum.parse(datetime, tz=self.__timezone__)
+        return pendulum.instance(_datetime, tz=self.__timezone__)
 
-        return pendulum.instance(datetime, tz=self.__timezone__)
-
-    def get_new_datetime_string(self, datetime=None):
+    def get_new_datetime_string(self, _datetime=None):
         """
         Get the attributes that should be converted to dates.
 
         :rtype: list
         """
-        return self.get_new_date(datetime).to_datetime_string()
+        return self.get_new_date(_datetime).to_datetime_string()
 
-    def get_new_serialized_date(self, datetime):
+    def get_new_serialized_date(self, _datetime):
         """
         Get the attributes that should be converted to dates.
 
         :rtype: list
         """
-        return self.get_new_date(datetime).isoformat()
+        return self.get_new_date(_datetime).isoformat()
 
     def set_appends(self, appends):
         """

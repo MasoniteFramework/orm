@@ -17,7 +17,7 @@ class TestTableDiff(unittest.TestCase):
         diff.from_table = table
         diff.new_name = "clients"
 
-        sql = ["ALTER TABLE users RENAME TO clients"]
+        sql = ['ALTER TABLE "users" RENAME TO "clients"']
 
         self.assertEqual(sql, self.platform.compile_alter_sql(diff))
 
@@ -42,7 +42,7 @@ class TestTableDiff(unittest.TestCase):
         diff.new_name = "clients"
         diff.remove_index("name_unique")
 
-        sql = ["DROP INDEX name_unique", "ALTER TABLE users RENAME TO clients"]
+        sql = ["DROP INDEX name_unique", 'ALTER TABLE "users" RENAME TO "clients"']
 
         self.assertEqual(sql, self.platform.compile_alter_sql(diff))
 
@@ -55,8 +55,8 @@ class TestTableDiff(unittest.TestCase):
         diff.add_column("email", "string")
 
         sql = [
-            "ALTER TABLE users ADD COLUMN name VARCHAR NOT NULL",
-            "ALTER TABLE users ADD COLUMN email VARCHAR NOT NULL",
+            'ALTER TABLE "users" ADD COLUMN "name" VARCHAR NOT NULL',
+            'ALTER TABLE "users" ADD COLUMN "email" VARCHAR NOT NULL',
         ]
 
         self.assertEqual(sql, self.platform.compile_alter_sql(diff))
@@ -71,9 +71,9 @@ class TestTableDiff(unittest.TestCase):
 
         sql = [
             "CREATE TEMPORARY TABLE __temp__users AS SELECT post FROM users",
-            "DROP TABLE users",
-            'CREATE TABLE "users" (comment INTEGER NOT NULL)',
-            'INSERT INTO "users" (comment) SELECT post FROM __temp__users',
+            'DROP TABLE "users"',
+            'CREATE TABLE "users" ("comment" INTEGER NOT NULL)',
+            'INSERT INTO "users" ("comment") SELECT post FROM __temp__users',
             "DROP TABLE __temp__users",
         ]
 
@@ -91,9 +91,9 @@ class TestTableDiff(unittest.TestCase):
 
         sql = [
             "CREATE TEMPORARY TABLE __temp__users AS SELECT post, user, email FROM users",
-            "DROP TABLE users",
-            'CREATE TABLE "users" (comment INTEGER NOT NULL, user INTEGER NOT NULL, email INTEGER NOT NULL)',
-            'INSERT INTO "users" (comment, user, email) SELECT post, user, email FROM __temp__users',
+            'DROP TABLE "users"',
+            'CREATE TABLE "users" ("comment" INTEGER NOT NULL, "user" INTEGER NOT NULL, "email" INTEGER NOT NULL)',
+            'INSERT INTO "users" ("comment", "user", "email") SELECT post, user, email FROM __temp__users',
             "DROP TABLE __temp__users",
         ]
 
@@ -110,11 +110,11 @@ class TestTableDiff(unittest.TestCase):
 
         sql = [
             "CREATE TEMPORARY TABLE __temp__users AS SELECT post FROM users",
-            "DROP TABLE users",
-            'CREATE TABLE "users" (comment INTEGER NOT NULL)',
-            'INSERT INTO "users" (comment) SELECT post FROM __temp__users',
+            'DROP TABLE "users"',
+            'CREATE TABLE "users" ("comment" INTEGER NOT NULL)',
+            'INSERT INTO "users" ("comment") SELECT post FROM __temp__users',
             "DROP TABLE __temp__users",
-            "ALTER TABLE users RENAME TO clients",
+            'ALTER TABLE "users" RENAME TO "clients"',
         ]
 
         self.assertEqual(sql, self.platform.compile_alter_sql(diff))
@@ -133,11 +133,11 @@ class TestTableDiff(unittest.TestCase):
         sql = [
             "DROP INDEX name",
             "CREATE TEMPORARY TABLE __temp__users AS SELECT post FROM users",
-            "DROP TABLE users",
-            'CREATE TABLE "users" (comment INTEGER NOT NULL)',
-            'INSERT INTO "users" (comment) SELECT post FROM __temp__users',
+            'DROP TABLE "users"',
+            'CREATE TABLE "users" ("comment" INTEGER NOT NULL)',
+            'INSERT INTO "users" ("comment") SELECT post FROM __temp__users',
             "DROP TABLE __temp__users",
-            "ALTER TABLE users RENAME TO clients",
+            'ALTER TABLE "users" RENAME TO "clients"',
         ]
 
         self.assertEqual(sql, self.platform.compile_alter_sql(diff))
@@ -154,9 +154,9 @@ class TestTableDiff(unittest.TestCase):
 
         sql = [
             "CREATE TEMPORARY TABLE __temp__users AS SELECT name, email FROM users",
-            "DROP TABLE users",
-            'CREATE TABLE "users" (name VARCHAR NOT NULL, email VARCHAR NOT NULL)',
-            'INSERT INTO "users" (name, email) SELECT name, email FROM __temp__users',
+            'DROP TABLE "users"',
+            'CREATE TABLE "users" ("name" VARCHAR NOT NULL, "email" VARCHAR NOT NULL)',
+            'INSERT INTO "users" ("name", "email") SELECT name, email FROM __temp__users',
             "DROP TABLE __temp__users",
         ]
 

@@ -8,6 +8,7 @@ from src.masoniteorm.query.grammars import MySQLGrammar
 from src.masoniteorm.relationships import has_many
 from src.masoniteorm.scopes import SoftDeleteScope
 from tests.utils import MockConnectionFactory
+import datetime
 
 
 class Articles(Model):
@@ -532,6 +533,31 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(sql, sql_ref)
 
+    def test_shared_lock(self):
+        builder = self.get_builder(dry=True)
+        sql = builder.where("votes", ">=", 100).shared_lock().to_sql()
+        sql_ref = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(sql, sql_ref)
+
+    def test_update_lock(self):
+        builder = self.get_builder(dry=True)
+        sql = builder.where("votes", ">=", 100).lock_for_update().to_sql()
+        sql_ref = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(sql, sql_ref)
+
+    def test_cast_values(self):
+        builder = self.get_builder(dry=True)
+        result = builder.cast_dates({"created_at": datetime.datetime(2021, 1, 1)})
+        self.assertEqual(result, {"created_at": "2021-01-01T00:00:00+00:00"})
+        result = builder.cast_dates({"created_at": datetime.date(2021, 1, 1)})
+        self.assertEqual(result, {"created_at": "2021-01-01T00:00:00+00:00"})
+        result = builder.cast_dates([{"created_at": datetime.date(2021, 1, 1)}])
+        self.assertEqual(result, [{"created_at": "2021-01-01T00:00:00+00:00"}])
+
 
 class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
     grammar = MySQLGrammar
@@ -877,3 +903,17 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
             "TRUNCATE TABLE `users`",
             "SET FOREIGN_KEY_CHECKS=1",
         ]
+
+    def shared_lock(self):
+        """
+        builder = self.get_builder()
+        builder.truncate()
+        """
+        return "SELECT * FROM `users` WHERE `users`.`votes` >= '100' LOCK IN SHARE MODE"
+
+    def update_lock(self):
+        """
+        builder = self.get_builder()
+        builder.truncate()
+        """
+        return "SELECT * FROM `users` WHERE `users`.`votes` >= '100' FOR UPDATE"

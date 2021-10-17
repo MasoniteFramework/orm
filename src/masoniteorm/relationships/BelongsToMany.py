@@ -18,12 +18,13 @@ class BelongsToMany(BaseRelationship):
         with_timestamps=False,
         pivot_id="id",
         attribute="pivot",
+        with_fields=[],
     ):
         if isinstance(fn, str):
             self.fn = None
             self.local_foreign_key = fn
             self.other_foreign_key = local_foreign_key
-            self.local_owner_key = other_foreign_key
+            self.local_owner_key = other_foreign_key or "id"
             self.other_owner_key = local_owner_key or "id"
         else:
             self.fn = fn
@@ -36,6 +37,7 @@ class BelongsToMany(BaseRelationship):
         self.with_timestamps = with_timestamps
         self._as = attribute
         self.pivot_id = pivot_id
+        self.with_fields = with_fields
 
     def set_keys(self, owner, attribute):
         self.local_foreign_key = self.local_foreign_key or "id"
@@ -43,10 +45,11 @@ class BelongsToMany(BaseRelationship):
         return self
 
     def apply_query(self, query, owner):
-        """Apply the query and return a dictionary to be hydrated
+        """Apply the query and return a dictionary to be hydrated.
+            Used during accessing a relationship on a model
 
         Arguments:
-            foreign {oject} -- The relationship object
+            query {oject} -- The relationship object
             owner {object} -- The current model oject.
 
         Returns:
@@ -68,21 +71,21 @@ class BelongsToMany(BaseRelationship):
             self.other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
             self.local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
 
-        table1 = owner.builder.get_table_name()
+        table1 = owner.get_table_name()
         table2 = query.get_table_name()
         result = query.select(
             f"{query.get_table_name()}.*",
-            f"{self._table}.{self.local_foreign_key}",
-            f"{self._table}.{self.other_foreign_key}",
+            f"{self._table}.{self.local_foreign_key} as {self._table}_id",
+            f"{self._table}.{self.other_foreign_key} as m_reserved2",
         ).table(f"{table1}")
 
         if self.pivot_id:
-            result.select(f"{self._table}.id as m_reserved_3")
+            result.select(f"{self._table}.{self.pivot_id} as m_reserved3")
 
         if self.with_timestamps:
             result.select(
-                f"{self._table}.updated_at as m_reserved_1",
-                f"{self._table}.created_at as m_reserved_2",
+                f"{self._table}.updated_at as m_reserved4",
+                f"{self._table}.created_at as m_reserved5",
             )
 
         result.join(
@@ -103,26 +106,40 @@ class BelongsToMany(BaseRelationship):
                 f"{table1}.{self.local_owner_key}", getattr(owner, self.local_owner_key)
             )
 
+        if self.with_fields:
+            for field in self.with_fields:
+                result.select(f"{self._table}.{field}")
+
         result = result.get()
 
-        for p in result:
+        for model in result:
             pivot_data = {
-                self.local_foreign_key: getattr(p, self.local_foreign_key),
-                self.other_foreign_key: getattr(p, self.other_foreign_key),
+                self.local_foreign_key: getattr(model, f"{self._table}_id"),
+                self.other_foreign_key: getattr(model, "m_reserved2"),
             }
 
-            if self.pivot_id:
-                pivot_data.update({self.pivot_id: getattr(p, "m_reserved_3")})
-
             if self.with_timestamps:
-                pivot_data.update(
-                    {
-                        "updated_at": getattr(p, "m_reserved_1"),
-                        "created_at": getattr(p, "m_reserved_2"),
-                    }
-                )
+                pivot_data = {
+                    "created_at": getattr(model, "m_reserved5"),
+                    "updated_at": getattr(model, "m_reserved4"),
+                }
+
+                model.delete_attribute("m_reserved4")
+                model.delete_attribute("m_reserved5")
+
+            model.delete_attribute("m_reserved2")
+
+            if self.pivot_id:
+                pivot_data.update({self.pivot_id: getattr(model, "m_reserved3")})
+                model.delete_attribute("m_reserved3")
+
+            if self.with_fields:
+                for field in self.with_fields:
+                    pivot_data.update({field: getattr(model, field)})
+                    model.delete_attribute(field)
+
             setattr(
-                p,
+                model,
                 self._as,
                 Pivot.on(query.connection)
                 .table(self._table)
@@ -136,7 +153,22 @@ class BelongsToMany(BaseRelationship):
         self._table = table
         return self
 
-    def get_related(self, query, relation, eagers=None):
+    def make_builder(self, eagers=None):
+        builder = self.get_builder().with_(eagers)
+
+        return builder
+
+    def make_query(self, query, relation, eagers=None):
+        """Used during eager loading a relationship
+
+        Args:
+            query ([type]): [description]
+            relation ([type]): [description]
+            eagers (list, optional): List of eager loaded relationships. Defaults to None.
+
+        Returns:
+            [type]: [description]
+        """
         eagers = eagers or []
         builder = self.get_builder().with_(eagers)
 
@@ -159,9 +191,13 @@ class BelongsToMany(BaseRelationship):
         table1 = query.get_table_name()
         result = builder.select(
             f"{table2}.*",
-            f"{self._table}.{self.local_foreign_key}",
-            f"{self._table}.{self.other_foreign_key}",
+            f"{self._table}.{self.local_foreign_key} as {self._table}_id",
+            f"{self._table}.{self.other_foreign_key} as m_reserved2",
         ).table(f"{table1}")
+
+        if self.with_fields:
+            for field in self.with_fields:
+                result.select(f"{self._table}.{field}")
 
         result.join(
             f"{self._table}",
@@ -179,12 +215,12 @@ class BelongsToMany(BaseRelationship):
 
         if self.with_timestamps:
             result.select(
-                f"{self._table}.updated_at as m_reserved_1",
-                f"{self._table}.created_at as m_reserved_2",
+                f"{self._table}.updated_at as m_reserved4",
+                f"{self._table}.created_at as m_reserved5",
             )
 
         if self.pivot_id:
-            result.select(f"{self._table}.id as m_reserved_3")
+            result.select(f"{self._table}.{self.pivot_id} as m_reserved3")
 
         if isinstance(relation, Collection):
             final_result = result.where_in(
@@ -196,22 +232,36 @@ class BelongsToMany(BaseRelationship):
                 self.local_owner_key, getattr(relation, self.local_owner_key)
             ).get()
 
+        return final_result
+
+    def get_related(self, query, relation, eagers=None):
+        final_result = self.make_query(query, relation, eagers=eagers)
+        builder = self.make_builder(eagers)
+
         for model in final_result:
             pivot_data = {
-                self.local_foreign_key: getattr(model, self.local_foreign_key),
-                self.other_foreign_key: getattr(model, self.other_foreign_key),
+                self.local_foreign_key: getattr(model, f"{self._table}_id"),
+                self.other_foreign_key: getattr(model, "m_reserved2"),
             }
+
+            model.delete_attribute("m_reserved2")
 
             if self.with_timestamps:
                 pivot_data.update(
                     {
-                        "updated_at": getattr(p, "m_reserved_1"),
-                        "created_at": getattr(p, "m_reserved_2"),
+                        "updated_at": getattr(model, "m_reserved4"),
+                        "created_at": getattr(model, "m_reserved5"),
                     }
                 )
 
             if self.pivot_id:
-                pivot_data.update({self.pivot_id: getattr(model, "m_reserved_3")})
+                pivot_data.update({self.pivot_id: getattr(model, "m_reserved3")})
+                model.delete_attribute("m_reserved3")
+
+            if self.with_fields:
+                for field in self.with_fields:
+                    pivot_data.update({field: getattr(model, field)})
+                    model.delete_attribute(field)
 
             setattr(
                 model,
@@ -228,7 +278,7 @@ class BelongsToMany(BaseRelationship):
         model.add_relation(
             {
                 key: collection.where(
-                    self.local_foreign_key, getattr(model, self.local_owner_key)
+                    f"{self._table}_id", getattr(model, self.local_owner_key)
                 )
             }
         )

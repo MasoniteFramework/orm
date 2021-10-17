@@ -1,3 +1,8 @@
+import inspect
+
+from ..helpers.misc import deprecated
+
+
 class QueryExpression:
     """A helper class to manage query expressions."""
 
@@ -41,17 +46,6 @@ class FromTable:
     def __init__(self, name, raw=False):
         self.name = name
         self.raw = raw
-
-
-class JoinExpression:
-    """A helper class to manage join expressions."""
-
-    def __init__(self, foreign_table, column1, equality, column2, clause="inner"):
-        self.foreign_table = foreign_table
-        self.column1 = column1
-        self.equality = equality
-        self.column2 = column2
-        self.clause = clause
 
 
 class UpdateQueryExpression:
@@ -147,3 +141,145 @@ class AggregateExpression:
 class Raw:
     def __init__(self, expression):
         self.expression = expression
+
+
+class JoinClause:
+    def __init__(self, table, clause="join"):
+        self.table = table
+        self.alias = None
+        self.clause = clause
+        self.on_clauses = []
+
+        if " as " in self.table:
+            self.table = table.split(" as ")[0]
+            self.alias = table.split(" as ")[1]
+
+    def on(self, column1, equality, column2):
+        self.on_clauses.append(OnClause(column1, equality, column2))
+        return self
+
+    def or_on(self, column1, equality, column2):
+        self.on_clauses.append(OnClause(column1, equality, column2, "or"))
+        return self
+
+    def on_value(self, column, *args):
+        equality, value = self._extract_operator_value(*args)
+        self.on_clauses += ((OnValueClause(column, equality, value, "value")),)
+        return self
+
+    def or_on_value(self, column, *args):
+        equality, value = self._extract_operator_value(*args)
+        self.on_clauses += (
+            (OnValueClause(column, equality, value, "value", operator="or")),
+        )
+        return self
+
+    def on_null(self, column):
+        """Specifies an ON expression where the column IS NULL.
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Returns:
+            self
+        """
+        self.on_clauses += ((OnValueClause(column, "=", None, "NULL")),)
+        return self
+
+    def on_not_null(self, column: str):
+        """Specifies an ON expression where the column IS NOT NULL.
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Returns:
+            self
+        """
+        self.on_clauses += ((OnValueClause(column, "=", True, "NOT NULL")),)
+        return self
+
+    def or_on_null(self, column):
+        """Specifies an ON expression where the column IS NULL.
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Returns:
+            self
+        """
+        self.on_clauses += ((OnValueClause(column, "=", None, "NULL", operator="or")),)
+        return self
+
+    def or_on_not_null(self, column: str):
+        """Specifies an ON expression where the column IS NOT NULL.
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Returns:
+            self
+        """
+        self.on_clauses += (
+            (OnValueClause(column, "=", True, "NOT NULL", operator="or")),
+        )
+        return self
+
+    @deprecated("Using where() in a Join clause has been superceded by on_value()")
+    def where(self, column, *args):
+        return self.on_value(column, *args)
+
+    def _extract_operator_value(self, *args):
+        operators = ["=", ">", ">=", "<", "<=", "!=", "<>", "like", "not like"]
+
+        operator = operators[0]
+
+        value = None
+
+        if (len(args)) >= 2:
+            operator = args[0]
+            value = args[1]
+        elif len(args) == 1:
+            value = args[0]
+
+        if operator not in operators:
+            raise ValueError(
+                "Invalid comparison operator. The operator can be %s"
+                % ", ".join(operators)
+            )
+
+        return operator, value
+
+    def get_on_clauses(self):
+        return self.on_clauses
+
+
+class OnClause:
+    def __init__(self, column1, equality, column2, operator="and"):
+        self.column1 = column1
+        self.column2 = column2
+        self.equality = equality
+        self.operator = operator
+
+
+class OnValueClause:
+    """A helper class to manage ON expressions in joins with a value."""
+
+    def __init__(
+        self,
+        column,
+        equality,
+        value,
+        value_type="value",
+        keyword=None,
+        raw=False,
+        bindings=(),
+        operator="and",
+    ):
+        self.column = column
+        self.equality = equality
+        self.value = value
+        self.value_type = value_type
+        self.keyword = keyword
+        self.raw = raw
+        self.bindings = bindings
+        self.operator = operator

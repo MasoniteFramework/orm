@@ -26,6 +26,9 @@ class MySQLPlatform(Platform):
         "geometry": "GEOMETRY",
         "json": "JSON",
         "jsonb": "LONGBLOB",
+        "inet": "VARCHAR",
+        "cidr": "VARCHAR",
+        "macaddr": "VARCHAR",
         "long_text": "LONGTEXT",
         "point": "POINT",
         "time": "TIME",
@@ -61,7 +64,7 @@ class MySQLPlatform(Platform):
             elif column.default in self.premapped_defaults.keys():
                 default = self.premapped_defaults.get(column.default)
             elif column.default:
-                if isinstance(column.default, (str,)):
+                if isinstance(column.default, (str,)) and not column.default_is_raw:
                     default = f" DEFAULT '{column.default}'"
                 else:
                     default = f" DEFAULT {column.default}"
@@ -113,7 +116,17 @@ class MySQLPlatform(Platform):
             )
         )
 
-        return sql[0]
+        if table.added_indexes:
+            for name, index in table.added_indexes.items():
+                sql.append(
+                    "CREATE INDEX {name} ON {table}({column})".format(
+                        name=index.name,
+                        table=self.wrap_table(table.name),
+                        column=",".join(index.column),
+                    )
+                )
+
+        return sql
 
     def compile_alter_sql(self, table):
         sql = []
@@ -264,9 +277,19 @@ class MySQLPlatform(Platform):
                     sql.append(
                         f"ALTER TABLE {self.wrap_table(table.name)} ADD FULLTEXT {constraint.name}({','.join(constraint.columns)})"
                     )
+                elif constraint.constraint_type == "primary_key":
+                    sql.append(
+                        f"ALTER TABLE {self.wrap_table(table.name)} ADD CONSTRAINT {constraint.name} PRIMARY KEY ({','.join(constraint.columns)})"
+                    )
 
-        if table.removed_indexes:
+        if (
+            table.removed_indexes
+            or table.removed_unique_indexes
+            or table.dropped_primary_keys
+        ):
             constraints = table.removed_indexes
+            constraints += table.removed_unique_indexes
+            constraints += table.dropped_primary_keys
             for constraint in constraints:
                 sql.append(
                     f"ALTER TABLE {self.wrap_table(table.name)} DROP INDEX {constraint}"
@@ -324,7 +347,7 @@ class MySQLPlatform(Platform):
         return "CONSTRAINT {constraint_name} PRIMARY KEY ({columns})"
 
     def get_unique_constraint_string(self):
-        return "CONSTRAINT {table}_{name_columns}_unique UNIQUE ({columns})"
+        return "CONSTRAINT {constraint_name} UNIQUE ({columns})"
 
     def compile_table_exists(self, table, database):
         return f"SELECT * from information_schema.tables where table_name='{table}' AND table_schema = '{database}'"

@@ -4,6 +4,9 @@ from ...expressions.expressions import (
     SubGroupExpression,
     SubSelectExpression,
     SelectExpression,
+    BetweenExpression,
+    JoinClause,
+    OnClause,
 )
 
 
@@ -32,6 +35,7 @@ class BaseGrammar:
         order_by=(),
         group_by=(),
         joins=(),
+        lock=False,
         having=(),
         connection_details=None,
     ):
@@ -47,6 +51,7 @@ class BaseGrammar:
         self._group_by = group_by
         self._joins = joins
         self._having = having
+        self.lock = lock
         self._connection_details = connection_details or {}
         self._column = None
 
@@ -77,14 +82,15 @@ class BaseGrammar:
                 .format(
                     columns=self.process_columns(separator=", ", qmark=qmark),
                     table=self.process_table(self.table),
+                    joins=self.process_joins(qmark=qmark),
                     wheres=self.process_wheres(qmark=qmark),
                     limit=self.process_limit(),
                     offset=self.process_offset(),
                     aggregates=self.process_aggregates(),
                     order_by=self.process_order_by(),
                     group_by=self.process_group_by(),
-                    joins=self.process_joins(),
                     having=self.process_having(),
+                    lock=self.process_locks(),
                 )
                 .strip()
             )
@@ -94,14 +100,15 @@ class BaseGrammar:
                 .format(
                     columns=self.process_columns(separator=", ", qmark=qmark),
                     table=self.process_table(self.table),
+                    joins=self.process_joins(qmark=qmark),
                     wheres=self.process_wheres(qmark=qmark),
                     limit=self.process_limit(),
                     offset=self.process_offset(),
                     aggregates=self.process_aggregates(),
                     order_by=self.process_order_by(),
                     group_by=self.process_group_by(),
-                    joins=self.process_joins(),
                     having=self.process_having(),
+                    lock=self.process_locks(),
                 )
                 .strip()
             )
@@ -225,7 +232,7 @@ class BaseGrammar:
 
         return self.process_column(columns)
 
-    def process_joins(self):
+    def process_joins(self, qmark=False):
         """Compiles a join expression.
 
         Returns:
@@ -233,18 +240,41 @@ class BaseGrammar:
         """
         sql = ""
         for join in self._joins:
-            local_table = join.column1.split(".")[0]
-            column1 = join.column1
-            column2 = join.column2
-            sql += self.join_string().format(
-                foreign_table=self.process_table(join.foreign_table),
-                local_table=self.process_table(local_table),
-                column1=self._table_column_string(column1),
-                equality=join.equality,
-                column2=self._table_column_string(column2),
-                keyword=self.join_keywords[join.clause],
-            )
-            sql += " "
+            if isinstance(join, JoinClause):
+                on_string = ""
+                for clause_idx, clause in enumerate(join.get_on_clauses()):
+                    keyword = clause.operator.upper() if clause_idx else "ON"
+
+                    if isinstance(clause, OnClause):
+                        on_string += f"{keyword} {self._table_column_string(clause.column1)} {clause.equality} {self._table_column_string(clause.column2)} "
+                    else:
+                        if clause.value_type == "NULL":
+                            sql_string = self.where_null_string()
+                            on_string += sql_string.format(
+                                keyword=keyword,
+                                column=self.process_column(clause.column),
+                            )
+                        elif clause.value_type == "NOT NULL":
+                            sql_string = self.where_not_null_string()
+                            on_string += sql_string.format(
+                                keyword=keyword,
+                                column=self.process_column(clause.column),
+                            )
+                        else:
+                            if qmark:
+                                value = "'?'"
+                                self.add_binding(clause.value)
+                            else:
+                                value = self._compile_value(clause.value)
+                            on_string += f"{keyword} {self._table_column_string(clause.column)} {clause.equality} {value} "
+
+                sql += self.join_string().format(
+                    foreign_table=self.process_table(join.table),
+                    alias=f" AS {self.process_table(join.alias)}" if join.alias else "",
+                    on=on_string,
+                    keyword=self.join_keywords[join.clause],
+                )
+                sql += " "
 
         return sql
 
@@ -457,6 +487,9 @@ class BaseGrammar:
 
         return self.offset_string().format(offset=self._offset, limit=self._limit or 1)
 
+    def process_locks(self):
+        return self.locks.get(self.lock, "")
+
     def process_having(self, qmark=False):
         """Compiles having expression.
 
@@ -514,7 +547,7 @@ class BaseGrammar:
                     keyword = ""
                 else:
                     keyword = " " + self.first_where_string()
-            elif where.keyword == "or":
+            elif hasattr(where, "keyword") and where.keyword == "or":
                 keyword = " " + self.or_where_string()
             else:
                 keyword = " " + self.additional_where_string()
@@ -545,9 +578,17 @@ class BaseGrammar:
             If it is a WHERE NULL, WHERE EXISTS, WHERE `col` = 'val' etc
             """
             if equality == "BETWEEN":
+                low = where.low
+                high = where.high
+                if qmark:
+                    self.add_binding(low)
+                    self.add_binding(high)
+                    low = "?"
+                    high = "?"
+
                 sql_string = self.between_string().format(
-                    low=self._compile_value(where.low),
-                    high=self._compile_value(where.high),
+                    low=self._compile_value(low),
+                    high=self._compile_value(high),
                     column=self._table_column_string(where.column),
                     keyword=keyword,
                 )
@@ -610,12 +651,19 @@ class BaseGrammar:
                             value=val, separator=","
                         )
                 query_value = query_value.rstrip(",").rstrip(", ") + ")"
+            elif value is True and value_type != "NOT NULL":
+                sql_string = self.get_true_column_string()
+                query_value = 1
+            elif value is False and value_type != "NOT NULL":
+                sql_string = self.get_false_column_string()
+                query_value = 0
             elif qmark and value_type != "column":
                 query_value = "'?'"
                 if (
                     value is not True
                     and value_type != "value_equals"
                     and value_type != "NULL"
+                    and value_type != "BETWEEN"
                 ):
                     self.add_binding(value)
             elif value_type == "value":
@@ -623,6 +671,7 @@ class BaseGrammar:
                     query_value = "'?'"
                 else:
                     query_value = self.value_string().format(value=value, separator="")
+
                 self.add_binding(value)
             elif value_type == "column":
                 query_value = self._table_column_string(column=value, separator="")
@@ -638,6 +687,12 @@ class BaseGrammar:
             loop_count += 1
 
         return sql
+
+    def get_true_column_string(self):
+        return "{keyword} {column} = '1'"
+
+    def get_false_column_string(self):
+        return "{keyword} {column} = '0'"
 
     def add_binding(self, binding):
         """Adds a binding to the bindings tuple.

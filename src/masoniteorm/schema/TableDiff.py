@@ -8,11 +8,13 @@ class TableDiff(Table):
         self.from_table = None
         self.new_name = None
         self.removed_indexes = []
+        self.removed_unique_indexes = []
         self.added_indexes = {}
         self.added_columns = {}
         self.changed_columns = {}
         self.dropped_columns = []
         self.dropped_foreign_keys = []
+        self.dropped_primary_keys = []
         self.renamed_columns = {}
         self.removed_constraints = {}
         self.added_constraints = {}
@@ -51,6 +53,9 @@ class TableDiff(Table):
     def remove_index(self, name):
         self.removed_indexes.append(name)
 
+    def remove_unique_index(self, name):
+        self.removed_unique_indexes.append(name)
+
     def drop_column(self, name):
         self.dropped_columns.append(name)
 
@@ -62,6 +67,10 @@ class TableDiff(Table):
 
     def drop_foreign(self, name):
         self.dropped_foreign_keys.append(name)
+        return self
+
+    def drop_primary(self, name):
+        self.dropped_primary_keys.append(name)
         return self
 
     def change_column(self, added_column):

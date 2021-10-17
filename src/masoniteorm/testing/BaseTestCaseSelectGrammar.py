@@ -1,6 +1,7 @@
 import inspect
 
 from ..query import QueryBuilder
+from ..expressions import JoinClause
 from ..models import Model
 
 
@@ -274,6 +275,80 @@ class BaseTestCaseSelectGrammar:
         )()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_join_clause(self):
+        clause = (
+            JoinClause("report_groups as rg")
+            .on("bgt.fund", "=", "rg.fund")
+            .on("bgt.dept", "=", "rg.dept")
+            .on("bgt.acct", "=", "rg.acct")
+            .on("bgt.sub", "=", "rg.sub")
+        )
+        to_sql = self.builder.join(clause).to_sql()
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_join_clause_with_value(self):
+        clause = (
+            JoinClause("report_groups as rg")
+            .on_value("bgt.active", "=", "1")
+            .or_on_value("bgt.acct", "=", "1234")
+        )
+        to_sql = self.builder.join(clause).to_sql()
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_join_clause_with_null(self):
+        clause = (
+            JoinClause("report_groups as rg")
+            .on_null("bgt.acct")
+            .or_on_not_null("bgt.dept")
+        )
+        to_sql = self.builder.join(clause).to_sql()
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_join_clause_with_lambda(self):
+        to_sql = self.builder.join(
+            "report_groups as rg",
+            lambda clause: (clause.on("bgt.fund", "=", "rg.fund").on_null("bgt")),
+        ).to_sql()
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_left_join_clause_with_lambda(self):
+        to_sql = self.builder.left_join(
+            "report_groups as rg",
+            lambda clause: (clause.on("bgt.fund", "=", "rg.fund").or_on_null("bgt")),
+        ).to_sql()
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_right_join_clause_with_lambda(self):
+        to_sql = self.builder.right_join(
+            "report_groups as rg",
+            lambda clause: (clause.on("bgt.fund", "=", "rg.fund").or_on_null("bgt")),
+        ).to_sql()
+
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
     def test_can_compile_left_join(self):
         to_sql = self.builder.left_join(
             "contacts", "users.id", "=", "contacts.user_id"
@@ -333,6 +408,20 @@ class BaseTestCaseSelectGrammar:
 
     def test_where_not_like(self):
         to_sql = self.builder.where("age", "not like", "%name%").to_sql()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_shared_lock(self):
+        to_sql = self.builder.where("votes", ">=", 100).shared_lock().to_sql()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_update_lock(self):
+        to_sql = self.builder.where("votes", ">=", 100).lock_for_update().to_sql()
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()

@@ -22,5 +22,6 @@ class MySQLPostProcessor:
             dictionary: Should return the modified dictionary.
         """
 
-        results.update({id_key: builder._connection.get_cursor().lastrowid})
+        if id_key not in results:
+            results.update({id_key: builder._connection.get_cursor().lastrowid})
         return results

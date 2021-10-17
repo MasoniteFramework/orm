@@ -124,6 +124,16 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_alter_add_primary(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.primary("playlist_id")
+
+        sql = [
+            "ALTER TABLE `users` ADD CONSTRAINT users_playlist_id_primary PRIMARY KEY (playlist_id)"
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_alter_drop_index_shortcut(self):
         with self.schema.table("users") as blueprint:
             blueprint.drop_index(["playlist_id"])
@@ -137,6 +147,14 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
             blueprint.drop_unique(["playlist_id"])
 
         sql = ["ALTER TABLE `users` DROP INDEX users_playlist_id_unique"]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_alter_drop_primary(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.drop_primary("users_id_primary")
+
+        sql = ["ALTER TABLE `users` DROP INDEX users_id_primary"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -172,9 +190,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         blueprint.table.from_table = table
 
-        sql = [
-            "ALTER TABLE `users` ADD `due_date` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP"
-        ]
+        sql = ["ALTER TABLE `users` ADD `due_date` TIMESTAMP NULL"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -205,6 +221,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
             blueprint.index("name")
             blueprint.index(["name", "email"])
             blueprint.unique("name")
+            blueprint.unique("name", name="table_unique")
             blueprint.unique(["name", "email"])
             blueprint.fulltext("description")
 
@@ -216,6 +233,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
                 "CREATE INDEX users_name_index ON `users`(name)",
                 "CREATE INDEX users_name_email_index ON `users`(name,email)",
                 "ALTER TABLE `users` ADD CONSTRAINT UNIQUE INDEX users_name_unique(name)",
+                "ALTER TABLE `users` ADD CONSTRAINT UNIQUE INDEX table_unique(name)",
                 "ALTER TABLE `users` ADD CONSTRAINT UNIQUE INDEX users_name_email_unique(name,email)",
                 "ALTER TABLE `users` ADD FULLTEXT description_fulltext(description)",
             ],

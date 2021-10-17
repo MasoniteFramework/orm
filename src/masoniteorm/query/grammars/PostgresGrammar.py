@@ -16,6 +16,7 @@ class PostgresGrammar(BaseGrammar):
 
     join_keywords = {
         "inner": "INNER JOIN",
+        "join": "INNER JOIN",
         "outer": "OUTER JOIN",
         "left": "LEFT JOIN",
         "right": "RIGHT JOIN",
@@ -31,11 +32,13 @@ class PostgresGrammar(BaseGrammar):
         "delete": '{table}."{column}"{separator}',
     }
 
+    locks = {"share": "FOR SHARE", "update": "FOR UPDATE"}
+
     def select_no_table(self):
-        return "SELECT {columns}"
+        return "SELECT {columns} {lock}"
 
     def select_format(self):
-        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by} {order_by} {limit} {offset} {having}"
+        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by} {order_by} {limit} {offset} {having} {lock}"
 
     def update_format(self):
         return "UPDATE {table} SET {key_equals} {wheres}"
@@ -54,6 +57,12 @@ class PostgresGrammar(BaseGrammar):
 
     def aggregate_string_without_alias(self):
         return "{aggregate_function}({column})"
+
+    def get_true_column_string(self):
+        return "{keyword} {column} IS True"
+
+    def get_false_column_string(self):
+        return "{keyword} {column} IS False"
 
     def subquery_string(self):
         return "({query})"
@@ -147,7 +156,7 @@ class PostgresGrammar(BaseGrammar):
         return "'{value}'{separator}"
 
     def join_string(self):
-        return "{keyword} {foreign_table} ON {column1} {equality} {column2}"
+        return "{keyword} {foreign_table}{alias} {on}"
 
     def limit_string(self, offset=False):
         return "LIMIT {limit}"
@@ -180,7 +189,7 @@ class PostgresGrammar(BaseGrammar):
         return "HAVING {column} {equality} {value}"
 
     def where_null_string(self):
-        return "{keyword} {column} IS NULL"
+        return " {keyword} {column} IS NULL"
 
     def where_not_null_string(self):
         return " {keyword} {column} IS NOT NULL"

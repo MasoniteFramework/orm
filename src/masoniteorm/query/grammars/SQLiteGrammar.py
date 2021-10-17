@@ -16,6 +16,7 @@ class SQLiteGrammar(BaseGrammar):
 
     join_keywords = {
         "inner": "INNER JOIN",
+        "join": "INNER JOIN",
         "outer": "OUTER JOIN",
         "left": "LEFT JOIN",
         "right": "LEFT JOIN",
@@ -31,11 +32,13 @@ class SQLiteGrammar(BaseGrammar):
         "delete": '"{column}"{separator}',
     }
 
+    locks = {"share": "", "update": ""}
+
     def select_format(self):
-        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by} {order_by} {limit} {offset} {having}"
+        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by} {order_by} {limit} {offset} {having} {lock}"
 
     def select_no_table(self):
-        return "SELECT {columns}"
+        return "SELECT {columns} {lock}"
 
     def update_format(self):
         return "UPDATE {table} SET {key_equals} {wheres}"
@@ -142,7 +145,7 @@ class SQLiteGrammar(BaseGrammar):
         return "'{value}'{separator}"
 
     def join_string(self):
-        return "{keyword} {foreign_table} ON {column1} {equality} {column2}"
+        return "{keyword} {foreign_table}{alias} {on}"
 
     def limit_string(self, offset=False):
         return "LIMIT {limit}"
@@ -172,7 +175,7 @@ class SQLiteGrammar(BaseGrammar):
         return "HAVING {column} {equality} {value}"
 
     def where_null_string(self):
-        return "{keyword} {column} IS NULL"
+        return " {keyword} {column} IS NULL"
 
     def value_equal_string(self):
         return "{keyword} {value1} = {value2}"
@@ -185,6 +188,12 @@ class SQLiteGrammar(BaseGrammar):
 
     def disable_foreign_key_constraints(self):
         return "PRAGMA foreign_keys = OFF"
+
+    def get_true_column_string(self):
+        return "{keyword} {column} = '1'"
+
+    def get_false_column_string(self):
+        return "{keyword} {column} = '0'"
 
     def truncate_table(self, table, foreign_keys=False):
         # SQLite do not have TRUNCATE TABLE command but we can

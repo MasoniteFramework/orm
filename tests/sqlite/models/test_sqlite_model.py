@@ -126,3 +126,19 @@ class BaseTestQueryRelationships(unittest.TestCase):
         user = User.first()
         sql = user.update({"name": user.name}).to_sql()
         self.assertNotIn("UPDATE", sql)
+
+    def test_should_collect_correct_amount_data_using_between(self):
+        class ModelUser(Model):
+            __connection__ = "dev"
+            __table__ = "users"
+
+        count = User.between("age", 1, 2).get().count()
+        self.assertEqual(count, 2)
+
+    def test_should_collect_correct_amount_data_using_not_between(self):
+        class ModelUser(Model):
+            __connection__ = "dev"
+            __table__ = "users"
+
+        count = User.where_not_null("id").not_between("age", 1, 2).get().count()
+        self.assertEqual(count, 0)

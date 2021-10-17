@@ -280,7 +280,7 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder = self.get_builder()
         builder.where("is_admin", "=", True).first_or_fail()
         """
-        return """SELECT * FROM "users" WHERE "users"."is_admin" = '1' LIMIT 1"""
+        return """SELECT * FROM "users" WHERE "users"."is_admin" IS True LIMIT 1"""
 
     def where_not_like(self):
         """
@@ -292,6 +292,96 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
     def where_like(self):
         """
         builder = self.get_builder()
-        builder.where("age", "not like", "%name%").to_sql()
+        builder.where("age", "like", "%name%").to_sql()
         """
         return """SELECT * FROM "users" WHERE "users"."age" ILIKE '%name%'"""
+
+    def can_compile_join_clause(self):
+        """
+        builder = self.get_builder()
+        clause = (
+            JoinClause("report_groups as rg")
+            .on("bgt.fund", "=", "rg.fund")
+            .on_value("bgt.active", "=", "1")
+            .or_on_value("bgt.acct", "=", "1234")
+        )
+        builder.join(clause).to_sql()
+        """
+        return """SELECT * FROM "users" INNER JOIN "report_groups" AS "rg" ON "bgt"."fund" = "rg"."fund" AND "bgt"."dept" = "rg"."dept" AND "bgt"."acct" = "rg"."acct" AND "bgt"."sub" = "rg"."sub\""""
+
+    def can_compile_join_clause_with_value(self):
+        """
+        builder = self.get_builder()
+        clause = (
+            JoinClause("report_groups as rg")
+            .on_value("bgt.active", "=", "1")
+            .or_on_value("bgt.acct", "=", "1234")
+        )
+        builder.join(clause).to_sql()
+        """
+        return """SELECT * FROM "users" INNER JOIN "report_groups" AS "rg" ON "bgt"."active" = '1' OR "bgt"."acct" = '1234'"""
+
+    def can_compile_join_clause_with_null(self):
+        """
+        builder = self.get_builder()
+        clause = (
+            JoinClause("report_groups as rg")
+            .on_null("bgt.acct")
+            .or_on_not_null("bgt.dept")
+        )
+        builder.join(clause).to_sql()
+        """
+        return """SELECT * FROM "users" INNER JOIN "report_groups" AS "rg" ON "acct" IS NULL OR "dept" IS NOT NULL"""
+
+    def can_compile_join_clause_with_lambda(self):
+        """
+        builder = self.get_builder()
+        builder.join(
+            "report_groups as rg",
+            lambda clause: (
+                clause.on("bgt.fund", "=", "rg.fund")
+                .on_null("bgt")
+            ),
+        ).to_sql()
+        """
+        return """SELECT * FROM "users" INNER JOIN "report_groups" AS "rg" ON "bgt"."fund" = "rg"."fund" AND "bgt" IS NULL"""
+
+    def can_compile_left_join_clause_with_lambda(self):
+        """
+        builder = self.get_builder()
+        builder.left_join(
+            "report_groups as rg",
+            lambda clause: (
+                clause.on("bgt.fund", "=", "rg.fund")
+                .or_on_null("bgt")
+            ),
+        ).to_sql()
+        """
+        return """SELECT * FROM "users" LEFT JOIN "report_groups" AS "rg" ON "bgt"."fund" = "rg"."fund" OR "bgt" IS NULL"""
+
+    def can_compile_right_join_clause_with_lambda(self):
+        """
+        builder = self.get_builder()
+        builder.right_join(
+            "report_groups as rg",
+            lambda clause: (
+                clause.on("bgt.fund", "=", "rg.fund")
+                .or_on_null("bgt")
+            ),
+        ).to_sql()
+        """
+        return """SELECT * FROM "users" RIGHT JOIN "report_groups" AS "rg" ON "bgt"."fund" = "rg"."fund" OR "bgt" IS NULL"""
+
+    def shared_lock(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "not like", "%name%").to_sql()
+        """
+        return """SELECT * FROM "users" WHERE "users"."votes" >= '100' FOR SHARE"""
+
+    def update_lock(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "not like", "%name%").to_sql()
+        """
+        return """SELECT * FROM "users" WHERE "users"."votes" >= '100' FOR UPDATE"""
