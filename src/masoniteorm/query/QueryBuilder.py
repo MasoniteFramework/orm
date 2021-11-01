@@ -1384,7 +1384,7 @@ class QueryBuilder(ObservesEvents):
         return self._model.get_primary_key()
 
     def prepare_result(self, result, collection=False):
-        if self._model:
+        if self._model and result:
             # eager load here
             hydrated_model = self._model.hydrate(result)
             if self._eager_relation.eagers and hydrated_model:
