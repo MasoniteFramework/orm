@@ -1,7 +1,6 @@
-# Masonite ORM
-
 <p align="center">
-    <img src="https://i.imgur.com/rEXcoMn.png" width="130px">
+  <img src="https://masoniteframework.github.io/img/logo.png" width="160px">
+  <h1 align="center">Masonite ORM</h1>
 </p>
 
 <p align="center">
@@ -15,7 +14,6 @@
   <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 </p>
 
-
 ## Installation & Usage
 
 All documentation can be found here [https://orm.masoniteproject.com](https://orm.masoniteproject.com).
@@ -25,7 +23,6 @@ Also be sure to join the [Slack channel](https://slack.masoniteproject.com)!
 ## Contributing
 
 If you would like to contribute please read the [Contributing Documentation](CONTRIBUTING.md) here.
-
 
 ## License
 
