@@ -145,7 +145,9 @@ class MSSQLPlatform(Platform):
                         constraint_name=foreign_key_constraint.constraint_name,
                         column=self.wrap_column(column),
                         table=self.wrap_table(table.name),
-                        foreign_table=self.wrap_table(foreign_key_constraint.foreign_table),
+                        foreign_table=self.wrap_table(
+                            foreign_key_constraint.foreign_table
+                        ),
                         foreign_column=self.wrap_column(
                             foreign_key_constraint.foreign_column
                         ),

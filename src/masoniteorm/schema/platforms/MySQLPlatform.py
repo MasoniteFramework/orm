@@ -164,6 +164,9 @@ class MySQLPlatform(Platform):
                         constraint="PRIMARY KEY" if column.primary else "",
                         nullable="NULL" if column.is_null else "NOT NULL",
                         default=default,
+                        after=(" AFTER " + self.wrap_column(column._after))
+                        if column._after
+                        else "",
                     )
                     .strip()
                 )
@@ -298,7 +301,7 @@ class MySQLPlatform(Platform):
         return sql
 
     def add_column_string(self):
-        return "ADD {name} {data_type}{length} {nullable}{default}"
+        return "ADD {name} {data_type}{length} {nullable}{default}{after}"
 
     def drop_column_string(self):
         return "DROP COLUMN {name}"
