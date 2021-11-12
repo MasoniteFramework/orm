@@ -31,6 +31,7 @@ class Platform:
             else:
                 default = ""
 
+            print(column._after)
             sql.append(
                 self.columnize_string()
                 .format(

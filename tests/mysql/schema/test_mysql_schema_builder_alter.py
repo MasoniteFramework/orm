@@ -34,6 +34,16 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_can_add_column_after(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.string("name").after("age")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+
+        sql = ["ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL AFTER `age`"]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_alter_rename(self):
         with self.schema.table("users") as blueprint:
             blueprint.rename("post", "comment", "integer")

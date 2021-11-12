@@ -56,7 +56,7 @@ class PostgresPlatform(Platform):
     premapped_defaults = {
         "current": " DEFAULT CURRENT_TIMESTAMP",
         "now": " DEFAULT NOW()",
-        "null": " DEFAULT NULL"
+        "null": " DEFAULT NULL",
     }
 
     premapped_nulls = {True: "NULL", False: "NOT NULL"}
@@ -176,6 +176,9 @@ class PostgresPlatform(Platform):
                         constraint="PRIMARY KEY" if column.primary else "",
                         nullable="NULL" if column.is_null else "NOT NULL",
                         default=default,
+                        after=(" AFTER " + self.wrap_column(column._after))
+                        if column._after
+                        else "",
                     )
                     .strip()
                 )
@@ -199,7 +202,11 @@ class PostgresPlatform(Platform):
                     length = ""
 
                 renamed_sql.append(
-                    self.rename_column_string().format(to=self.wrap_column(column.name), old=self.wrap_column(name)).strip()
+                    self.rename_column_string()
+                    .format(
+                        to=self.wrap_column(column.name), old=self.wrap_column(name)
+                    )
+                    .strip()
                 )
 
             sql.append(
@@ -213,7 +220,11 @@ class PostgresPlatform(Platform):
             dropped_sql = []
 
             for name in table.get_dropped_columns():
-                dropped_sql.append(self.drop_column_string().format(name=self.wrap_column(name)).strip())
+                dropped_sql.append(
+                    self.drop_column_string()
+                    .format(name=self.wrap_column(name))
+                    .strip()
+                )
 
             sql.append(
                 self.alter_format().format(
@@ -236,9 +247,13 @@ class PostgresPlatform(Platform):
                 )
 
                 if column.is_null:
-                    changed_sql.append(f"ALTER COLUMN {self.wrap_column(name)} DROP NOT NULL")
+                    changed_sql.append(
+                        f"ALTER COLUMN {self.wrap_column(name)} DROP NOT NULL"
+                    )
                 else:
-                    changed_sql.append(f"ALTER COLUMN {self.wrap_column(name)} SET NOT NULL")
+                    changed_sql.append(
+                        f"ALTER COLUMN {self.wrap_column(name)} SET NOT NULL"
+                    )
 
                 if column.default is not None:
                     changed_sql.append(
@@ -266,8 +281,12 @@ class PostgresPlatform(Platform):
                         column=self.wrap_column(column),
                         constraint_name=foreign_key_constraint.constraint_name,
                         table=self.wrap_table(table.name),
-                        foreign_table=self.wrap_table(foreign_key_constraint.foreign_table),
-                        foreign_column=self.wrap_column(foreign_key_constraint.foreign_column),
+                        foreign_table=self.wrap_table(
+                            foreign_key_constraint.foreign_table
+                        ),
+                        foreign_column=self.wrap_column(
+                            foreign_key_constraint.foreign_column
+                        ),
                         cascade=cascade,
                     )
                 )
