@@ -108,14 +108,14 @@ class Migration:
 
     def migrate(self, migration=None, output=False):
         
-        migrations_to_migrate = self.get_unran_migrations() if migration == 'all' else [migration]
+        default_migrations = self.get_unran_migrations()
+        migrations = default_migrations if migration == 'all' else [migration]
 
         batch = self.get_last_batch_number() + 1
 
-        for migration in migrations_to_migrate:
+        for migration in migrations:
             
             try:
-
                 migration_class = self.locate(migration)
 
             except TypeError:
@@ -158,18 +158,23 @@ class Migration:
                 {"batch": batch, "migration": migration.replace(".py", "")}
             )
 
-    def rollback(self, output=False):
-        for migration in self.get_rollback_migrations():
+    def rollback(self, migration=None, output=False):
+        
+        default_migrations = self.get_rollback_migrations()
+        migrations = default_migrations if migration == 'all' else [migration]
+
+        for migration in migrations:
+
             if self.command_class:
-                self.command_class.line(
-                    f"<comment>Rolling back:</comment> <question>{migration}</question>"
-                )
+                self.command_class.line(f"<comment>Rolling back:</comment> <question>{migration}</question>")
 
             try:
-                migration_class = self.locate(migration)(connection=self.connection)
+                migration_class = self.locate(migration)
             except TypeError:
                 self.command_class.line(f"<error>Not Found: {migration}</error>")
                 continue
+
+            migration_class = migration_class(connection=self.connection)
 
             if output:
                 migration_class.schema.dry()
