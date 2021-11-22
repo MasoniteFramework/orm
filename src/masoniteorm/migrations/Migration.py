@@ -107,14 +107,14 @@ class Migration:
         return ran
 
     def migrate(self, migration=None, output=False):
-        
+
         default_migrations = self.get_unran_migrations()
-        migrations = default_migrations if migration == 'all' else [migration]
+        migrations = default_migrations if migration == "all" else [migration]
 
         batch = self.get_last_batch_number() + 1
 
         for migration in migrations:
-            
+
             try:
                 migration_class = self.locate(migration)
 
@@ -159,14 +159,16 @@ class Migration:
             )
 
     def rollback(self, migration=None, output=False):
-        
+
         default_migrations = self.get_rollback_migrations()
-        migrations = default_migrations if migration == 'all' else [migration]
+        migrations = default_migrations if migration == "all" else [migration]
 
         for migration in migrations:
 
             if self.command_class:
-                self.command_class.line(f"<comment>Rolling back:</comment> <question>{migration}</question>")
+                self.command_class.line(
+                    f"<comment>Rolling back:</comment> <question>{migration}</question>"
+                )
 
             try:
                 migration_class = self.locate(migration)
