@@ -106,21 +106,18 @@ class Migration:
                 ran.append(migration)
         return ran
 
-    def migrate(self, output=False):
+    def migrate(self, migration=None, output=False):
+        
+        migrations_to_migrate = self.get_unran_migrations() if migration == 'all' else [migration]
+
         batch = self.get_last_batch_number() + 1
 
-        for migration in self.get_unran_migrations():
-            migration_module = migration.replace(".py", "")
-            migration_name = camelize(
-                "_".join(migration.split("_")[4:]).replace(".py", "")
-            )
-
-            migration_directory = self.migration_directory.replace("/", ".")
-
+        for migration in migrations_to_migrate:
+            
             try:
-                migration_class = locate(
-                    f"{migration_directory}.{migration_module}.{migration_name}"
-                )
+
+                migration_class = self.locate(migration)
+
             except TypeError:
                 self.command_class.line(f"<error>Not Found: {migration}</error>")
                 continue
