@@ -67,7 +67,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         sql = [
             "ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL",
-            "ALTER TABLE `users` RENAME COLUMN `post` TO `comment`",
+            "ALTER TABLE `users` CHANGE `post` `comment` INT NOT NULL",
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)
