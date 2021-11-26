@@ -194,7 +194,6 @@ class MySQLPlatform(Platform):
                     .format(
                         to=self.columnize({column.name: column})[0],
                         old=self.get_column_string().format(column=name),
-
                     )
                     .strip()
                 )
