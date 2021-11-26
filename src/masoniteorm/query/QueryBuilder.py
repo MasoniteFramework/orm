@@ -838,12 +838,7 @@ class QueryBuilder(ObservesEvents):
     def where_has(self, relationship, callback):
         related = getattr(self._model, relationship)
         related_builder = related.get_builder()
-        self.where_exists(
-            related_builder.where_column(
-                f"{related_builder.get_table_name()}.{related.foreign_key}",
-                f"{self.get_table_name()}.{related.local_key}",
-            )
-        )
+        self.where_exists(related.get_where_exists_query(related_builder, self))
 
         callback(related_builder)
 
