@@ -283,7 +283,7 @@ class BelongsToMany(BaseRelationship):
             }
         )
 
-    def get_where_exists_query(self, query, builder):
+    def get_where_exists_query(self, query, builder, callback):
         self._table = self.get_pivot_table_name(query, builder)
         return (
             query.new()
@@ -293,6 +293,7 @@ class BelongsToMany(BaseRelationship):
                 f"{self._table}.{self.local_key}",
                 f"{builder.get_table_name()}.{self.local_key}",
             )
+            .where_in(self.foreign_key, callback(query.select(self.foreign_key)))
         )
 
     def get_pivot_table_name(self, query, builder):

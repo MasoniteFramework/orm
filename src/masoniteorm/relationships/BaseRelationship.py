@@ -79,8 +79,11 @@ class BaseRelationship:
         """
         return foreign.where(foreign_key, owner().__attributes__[local_key]).first()
 
-    def get_where_exists_query(self, query, builder):
-        return query.where_column(
+    def get_where_exists_query(self, query, builder, callback):
+        query.where_column(
             f"{query.get_table_name()}.{self.foreign_key}",
             f"{builder.get_table_name()}.{self.local_key}",
         )
+
+        callback(query)
+        return query
