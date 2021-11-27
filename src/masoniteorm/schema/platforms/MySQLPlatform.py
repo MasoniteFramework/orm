@@ -192,7 +192,7 @@ class MySQLPlatform(Platform):
                 renamed_sql.append(
                     self.rename_column_string()
                     .format(
-                        to=self.get_column_string().format(column=column.name),
+                        to=self.columnize({column.name: column})[0],
                         old=self.get_column_string().format(column=name),
                     )
                     .strip()
@@ -310,7 +310,7 @@ class MySQLPlatform(Platform):
         return "MODIFY {name}{data_type}{length} {nullable}{default} {constraint}"
 
     def rename_column_string(self):
-        return "RENAME COLUMN {old} TO {to}"
+        return "CHANGE {old} {to}"
 
     def columnize_string(self):
         return "{name} {data_type}{length}{column_constraint} {nullable}{default} {constraint}"
