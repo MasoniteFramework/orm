@@ -839,16 +839,9 @@ class QueryBuilder(ObservesEvents):
         related = getattr(self._model, relationship)
         related_builder = related.get_builder()
         self.where_exists(
-            related_builder.where_column(
-                f"{related_builder.get_table_name()}.{related.foreign_key}",
-                f"{self.get_table_name()}.{related.local_key}",
-            )
+            related.get_where_exists_query(related_builder, self, callback)
         )
-
-        callback(related_builder)
-
         return self
-        # return self.owner.where_has(*args, **kwargs)
 
     def where_not_in(self, column, wheres=None):
         """Specifies where a column does not contain a list of a values.

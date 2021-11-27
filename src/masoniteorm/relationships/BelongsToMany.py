@@ -282,3 +282,24 @@ class BelongsToMany(BaseRelationship):
                 )
             }
         )
+
+    def get_where_exists_query(self, query, builder, callback):
+        self._table = self.get_pivot_table_name(query, builder)
+        return (
+            query.new()
+            .select("*")
+            .table(self._table)
+            .where_column(
+                f"{self._table}.{self.local_key}",
+                f"{builder.get_table_name()}.{self.local_key}",
+            )
+            .where_in(self.foreign_key, callback(query.select(self.foreign_key)))
+        )
+
+    def get_pivot_table_name(self, query, builder):
+        pivot_tables = [
+            singularize(query.get_table_name()),
+            singularize(builder.get_table_name()),
+        ]
+        pivot_tables.sort()
+        return "_".join(pivot_tables)

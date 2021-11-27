@@ -78,3 +78,11 @@ class BaseRelationship:
             dict -- A dictionary of data which will be hydrated.
         """
         return foreign.where(foreign_key, owner().__attributes__[local_key]).first()
+
+    def get_where_exists_query(self, query, builder, callback):
+        return callback(
+            query.where_column(
+                f"{query.get_table_name()}.{self.foreign_key}",
+                f"{builder.get_table_name()}.{self.local_key}",
+            )
+        )
