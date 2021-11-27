@@ -106,21 +106,18 @@ class Migration:
                 ran.append(migration)
         return ran
 
-    def migrate(self, output=False):
+    def migrate(self, migration=None, output=False):
+
+        default_migrations = self.get_unran_migrations()
+        migrations = default_migrations if migration == "all" else [migration]
+
         batch = self.get_last_batch_number() + 1
 
-        for migration in self.get_unran_migrations():
-            migration_module = migration.replace(".py", "")
-            migration_name = camelize(
-                "_".join(migration.split("_")[4:]).replace(".py", "")
-            )
-
-            migration_directory = self.migration_directory.replace("/", ".")
+        for migration in migrations:
 
             try:
-                migration_class = locate(
-                    f"{migration_directory}.{migration_module}.{migration_name}"
-                )
+                migration_class = self.locate(migration)
+
             except TypeError:
                 self.command_class.line(f"<error>Not Found: {migration}</error>")
                 continue
@@ -161,18 +158,25 @@ class Migration:
                 {"batch": batch, "migration": migration.replace(".py", "")}
             )
 
-    def rollback(self, output=False):
-        for migration in self.get_rollback_migrations():
+    def rollback(self, migration=None, output=False):
+
+        default_migrations = self.get_rollback_migrations()
+        migrations = default_migrations if migration == "all" else [migration]
+
+        for migration in migrations:
+
             if self.command_class:
                 self.command_class.line(
                     f"<comment>Rolling back:</comment> <question>{migration}</question>"
                 )
 
             try:
-                migration_class = self.locate(migration)(connection=self.connection)
+                migration_class = self.locate(migration)
             except TypeError:
                 self.command_class.line(f"<error>Not Found: {migration}</error>")
                 continue
+
+            migration_class = migration_class(connection=self.connection)
 
             if output:
                 migration_class.schema.dry()
