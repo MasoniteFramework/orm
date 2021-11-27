@@ -97,7 +97,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     __resolved_connection__ = None
     __selects__ = []
 
-    __observers__ = []
+    __observers__ = {}
 
     _booted = False
     _scopes = {}
