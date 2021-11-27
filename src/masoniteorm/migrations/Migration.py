@@ -106,7 +106,7 @@ class Migration:
                 ran.append(migration)
         return ran
 
-    def migrate(self, migration=None, output=False):
+    def migrate(self, migration="all", output=False):
 
         default_migrations = self.get_unran_migrations()
         migrations = default_migrations if migration == "all" else [migration]
@@ -158,7 +158,7 @@ class Migration:
                 {"batch": batch, "migration": migration.replace(".py", "")}
             )
 
-    def rollback(self, migration=None, output=False):
+    def rollback(self, migration="all", output=False):
 
         default_migrations = self.get_rollback_migrations()
         migrations = default_migrations if migration == "all" else [migration]
