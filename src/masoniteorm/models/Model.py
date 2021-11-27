@@ -637,6 +637,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         if attribute in self.__casts__:
             value = self._set_cast_attribute(attribute, value)
 
+        if attribute in self.get_dates():
+            value = self.get_new_datetime_string(value)
+
         try:
             if not attribute.startswith("_"):
                 self.__dict__["__dirty_attributes__"].update({attribute: value})
