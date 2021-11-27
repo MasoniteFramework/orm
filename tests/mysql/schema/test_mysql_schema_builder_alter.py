@@ -59,7 +59,23 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
     def test_alter_add_and_rename(self):
         with self.schema.table("users") as blueprint:
             blueprint.string("name")
-            blueprint.rename("post", "comment", "integer")
+            blueprint.rename("post", "comment", "string")
+
+        table = Table("users")
+        table.add_column("post", "string")
+        blueprint.table.from_table = table
+
+        sql = [
+            "ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL",
+            "ALTER TABLE `users` CHANGE `post` `comment` VARCHAR NOT NULL",
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_alter_add_and_rename_to_string(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.string("name")
+            blueprint.rename("post", "comment", "string", length=200)
 
         table = Table("users")
         table.add_column("post", "integer")
@@ -67,7 +83,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         sql = [
             "ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL",
-            "ALTER TABLE `users` CHANGE `post` `comment` INT NOT NULL",
+            "ALTER TABLE `users` CHANGE `post` `comment` VARCHAR(200) NOT NULL",
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)

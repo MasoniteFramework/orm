@@ -858,7 +858,7 @@ class Blueprint:
         self._last_foreign.on_update(action)
         return self
 
-    def rename(self, old_column, new_column, data_type):
+    def rename(self, old_column, new_column, data_type, length=None):
         """Rename a column from the old value to a new value.
 
         Arguments:
@@ -868,7 +868,7 @@ class Blueprint:
         Returns:
             self
         """
-        self.table.rename_column(old_column, new_column, data_type)
+        self.table.rename_column(old_column, new_column, data_type, length=length)
         return self
 
     def after(self, old_column):
