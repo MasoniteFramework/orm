@@ -1,6 +1,7 @@
 import unittest
+# from src.masoniteorm import query
 from src.masoniteorm.models import Model
-from src.masoniteorm.relationships import belongs_to, has_one
+from src.masoniteorm.relationships import belongs_to, has_one, belongs_to_many
 
 
 class User(Model):
@@ -11,6 +12,18 @@ class User(Model):
 
 class Profile(Model):
     pass
+
+class Permission(Model):
+
+    @belongs_to_many("permission_id", "role_id", "id", "id")
+    def role(self):
+        return Role
+
+class Role(Model):
+
+    @belongs_to_many("role_id", "permission_id", "id", "id")
+    def permissions(self):
+        return Permission
 
 
 class MySQLRelationships(unittest.TestCase):
@@ -35,4 +48,15 @@ class MySQLRelationships(unittest.TestCase):
         self.assertEqual(
             sql,
             """SELECT * FROM `users` INNER JOIN `profiles` ON `users`.`id` = `profiles`.`profile_id` WHERE (`profiles`.`active` = '1')""",
+        )
+
+    def test_belongs_to_many(self):
+        sql = Permission.where_has("role", lambda query: (
+            query.where('slug', "users")
+        )).to_sql()
+
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `permissions` WHERE EXISTS (SELECT `permission_role`.* FROM `permission_role` WHERE `permission_role`.`permission_id` = `permissions`.`id` AND `permission_role`.`role_id` IN (SELECT `roles`.`id` FROM `roles` WHERE `roles`.`slug` = 'users'))""",
         )

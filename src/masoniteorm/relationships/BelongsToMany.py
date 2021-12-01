@@ -291,9 +291,9 @@ class BelongsToMany(BaseRelationship):
             .table(self._table)
             .where_column(
                 f"{self._table}.{self.local_key}",
-                f"{builder.get_table_name()}.{self.local_key}",
+                f"{builder.get_table_name()}.{self.local_owner_key}",
             )
-            .where_in(self.foreign_key, callback(query.select(self.foreign_key)))
+            .where_in(self.foreign_key, callback(query.select(self.other_owner_key)))
         )
 
     def get_pivot_table_name(self, query, builder):
