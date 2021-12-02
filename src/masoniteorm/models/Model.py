@@ -192,6 +192,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "where_raw",
         "where",
         "with_",
+        "with_count",
     ]
 
     __cast_map__ = {}

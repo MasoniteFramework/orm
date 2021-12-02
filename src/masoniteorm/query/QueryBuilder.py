@@ -843,6 +843,12 @@ class QueryBuilder(ObservesEvents):
         )
         return self
 
+    def with_count(self, relationship, callback=None):
+        related = getattr(self._model, relationship)
+        related_builder = related.get_builder()
+
+        return related.get_with_count_query(related_builder, self, callback=callback)
+
     def where_not_in(self, column, wheres=None):
         """Specifies where a column does not contain a list of a values.
 

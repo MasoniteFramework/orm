@@ -303,3 +303,31 @@ class BelongsToMany(BaseRelationship):
         ]
         pivot_tables.sort()
         return "_".join(pivot_tables)
+
+    def get_with_count_query(self, query, builder, callback):
+        self._table = self.get_pivot_table_name(query, builder)
+
+        return_query = builder.select("*").add_select(
+            f"{query.get_table_name()}_count",
+            lambda q: (
+                (
+                    q.count("*")
+                    .where_column(
+                        f"{builder.get_table_name()}.{self.local_owner_key}",
+                        f"{self._table}.{self.local_key}",
+                    )
+                    .table(self._table)
+                    .when(
+                        callback,
+                        lambda q: (
+                            q.where_in(
+                                self.foreign_key,
+                                callback(query.select(self.other_owner_key)),
+                            )
+                        ),
+                    )
+                )
+            ),
+        )
+
+        return return_query
