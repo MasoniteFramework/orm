@@ -60,3 +60,11 @@ class MySQLRelationships(unittest.TestCase):
             sql,
             """SELECT * FROM `permissions` WHERE EXISTS (SELECT `permission_role`.* FROM `permission_role` WHERE `permission_role`.`permission_id` = `permissions`.`id` AND `permission_role`.`role_id` IN (SELECT `roles`.`id` FROM `roles` WHERE `roles`.`slug` = 'users'))""",
         )
+
+    def test_with_count(self):
+        sql = Permission.with_count("role").to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT `permissions`.*, (SELECT COUNT(*) AS m_count_reserved FROM `permission_role` WHERE `permissions`.`id` = `permission_role`.`permission_id`) AS roles_count FROM `permissions`""",
+        )
