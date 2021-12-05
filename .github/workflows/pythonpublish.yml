@@ -60,7 +60,7 @@ jobs:
           python orm migrate --connection postgres
           python orm migrate --connection mysql
           make publish
-        - name: Discord notification
+      - name: Discord notification
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@master
