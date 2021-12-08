@@ -98,7 +98,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     __resolved_connection__ = None
     __selects__ = []
 
-    __observers__ = []
+    __observers__ = {}
 
     _booted = False
     _scopes = {}
@@ -193,6 +193,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "where_raw",
         "where",
         "with_",
+        "with_count",
     ]
 
     __cast_map__ = {}
@@ -636,6 +637,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         if attribute in self.__casts__:
             value = self._set_cast_attribute(attribute, value)
+
+        if attribute in self.get_dates():
+            value = self.get_new_datetime_string(value)
 
         try:
             if not attribute.startswith("_"):

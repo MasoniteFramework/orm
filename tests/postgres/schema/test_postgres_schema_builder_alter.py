@@ -92,7 +92,6 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
             blueprint.fulltext("description")
 
         self.assertEqual(len(blueprint.table.added_columns), 0)
-        print(blueprint.to_sql())
         self.assertEqual(
             blueprint.to_sql(),
             [

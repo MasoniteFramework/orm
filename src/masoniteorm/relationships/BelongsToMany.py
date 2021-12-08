@@ -22,14 +22,14 @@ class BelongsToMany(BaseRelationship):
     ):
         if isinstance(fn, str):
             self.fn = None
-            self.local_foreign_key = fn
-            self.other_foreign_key = local_foreign_key
+            self.local_key = fn
+            self.foreign_key = local_foreign_key
             self.local_owner_key = other_foreign_key or "id"
             self.other_owner_key = local_owner_key or "id"
         else:
             self.fn = fn
-            self.local_foreign_key = local_foreign_key
-            self.other_foreign_key = other_foreign_key
+            self.local_key = local_foreign_key
+            self.foreign_key = other_foreign_key
             self.local_owner_key = local_owner_key or "id"
             self.other_owner_key = other_owner_key or "id"
 
@@ -40,8 +40,8 @@ class BelongsToMany(BaseRelationship):
         self.with_fields = with_fields
 
     def set_keys(self, owner, attribute):
-        self.local_foreign_key = self.local_foreign_key or "id"
-        self.other_foreign_key = self.other_foreign_key or f"{attribute}_id"
+        self.local_key = self.local_key or "id"
+        self.foreign_key = self.foreign_key or f"{attribute}_id"
         return self
 
     def apply_query(self, query, owner):
@@ -64,19 +64,19 @@ class BelongsToMany(BaseRelationship):
             pivot_tables.sort()
             pivot_table_1, pivot_table_2 = pivot_tables
             self._table = "_".join(pivot_tables)
-            self.other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
-            self.local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
+            self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
+            self.local_key = self.local_key or f"{pivot_table_2}_id"
         else:
             pivot_table_1, pivot_table_2 = self._table.split("_", 1)
-            self.other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
-            self.local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
+            self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
+            self.local_key = self.local_key or f"{pivot_table_2}_id"
 
         table1 = owner.get_table_name()
         table2 = query.get_table_name()
         result = query.select(
             f"{query.get_table_name()}.*",
-            f"{self._table}.{self.local_foreign_key} as {self._table}_id",
-            f"{self._table}.{self.other_foreign_key} as m_reserved2",
+            f"{self._table}.{self.local_key} as {self._table}_id",
+            f"{self._table}.{self.foreign_key} as m_reserved2",
         ).table(f"{table1}")
 
         if self.pivot_id:
@@ -90,13 +90,13 @@ class BelongsToMany(BaseRelationship):
 
         result.join(
             f"{self._table}",
-            f"{self._table}.{self.local_foreign_key}",
+            f"{self._table}.{self.local_key}",
             "=",
             f"{table1}.{self.local_owner_key}",
         )
         result.join(
             f"{table2}",
-            f"{self._table}.{self.other_foreign_key}",
+            f"{self._table}.{self.foreign_key}",
             "=",
             f"{table2}.{self.other_owner_key}",
         )
@@ -114,8 +114,8 @@ class BelongsToMany(BaseRelationship):
 
         for model in result:
             pivot_data = {
-                self.local_foreign_key: getattr(model, f"{self._table}_id"),
-                self.other_foreign_key: getattr(model, "m_reserved2"),
+                self.local_key: getattr(model, f"{self._table}_id"),
+                self.foreign_key: getattr(model, "m_reserved2"),
             }
 
             if self.with_timestamps:
@@ -180,19 +180,19 @@ class BelongsToMany(BaseRelationship):
             pivot_tables.sort()
             pivot_table_1, pivot_table_2 = pivot_tables
             self._table = "_".join(pivot_tables)
-            self.other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
-            self.local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
+            self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
+            self.local_key = self.local_key or f"{pivot_table_2}_id"
         else:
             pivot_table_1, pivot_table_2 = self._table.split("_", 1)
-            self.other_foreign_key = self.other_foreign_key or f"{pivot_table_1}_id"
-            self.local_foreign_key = self.local_foreign_key or f"{pivot_table_2}_id"
+            self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
+            self.local_key = self.local_key or f"{pivot_table_2}_id"
 
         table2 = builder.get_table_name()
         table1 = query.get_table_name()
         result = builder.select(
             f"{table2}.*",
-            f"{self._table}.{self.local_foreign_key} as {self._table}_id",
-            f"{self._table}.{self.other_foreign_key} as m_reserved2",
+            f"{self._table}.{self.local_key} as {self._table}_id",
+            f"{self._table}.{self.foreign_key} as m_reserved2",
         ).table(f"{table1}")
 
         if self.with_fields:
@@ -201,14 +201,14 @@ class BelongsToMany(BaseRelationship):
 
         result.join(
             f"{self._table}",
-            f"{self._table}.{self.local_foreign_key}",
+            f"{self._table}.{self.local_key}",
             "=",
             f"{table1}.{self.local_owner_key}",
         )
 
         result.join(
             f"{table2}",
-            f"{self._table}.{self.other_foreign_key}",
+            f"{self._table}.{self.foreign_key}",
             "=",
             f"{table2}.{self.other_owner_key}",
         )
@@ -240,8 +240,8 @@ class BelongsToMany(BaseRelationship):
 
         for model in final_result:
             pivot_data = {
-                self.local_foreign_key: getattr(model, f"{self._table}_id"),
-                self.other_foreign_key: getattr(model, "m_reserved2"),
+                self.local_key: getattr(model, f"{self._table}_id"),
+                self.foreign_key: getattr(model, "m_reserved2"),
             }
 
             model.delete_attribute("m_reserved2")
@@ -282,3 +282,52 @@ class BelongsToMany(BaseRelationship):
                 )
             }
         )
+
+    def get_where_exists_query(self, query, builder, callback):
+        self._table = self.get_pivot_table_name(query, builder)
+        return (
+            query.new()
+            .select("*")
+            .table(self._table)
+            .where_column(
+                f"{self._table}.{self.local_key}",
+                f"{builder.get_table_name()}.{self.local_owner_key}",
+            )
+            .where_in(self.foreign_key, callback(query.select(self.other_owner_key)))
+        )
+
+    def get_pivot_table_name(self, query, builder):
+        pivot_tables = [
+            singularize(query.get_table_name()),
+            singularize(builder.get_table_name()),
+        ]
+        pivot_tables.sort()
+        return "_".join(pivot_tables)
+
+    def get_with_count_query(self, query, builder, callback):
+        self._table = self.get_pivot_table_name(query, builder)
+
+        return_query = builder.select("*").add_select(
+            f"{query.get_table_name()}_count",
+            lambda q: (
+                (
+                    q.count("*")
+                    .where_column(
+                        f"{builder.get_table_name()}.{self.local_owner_key}",
+                        f"{self._table}.{self.local_key}",
+                    )
+                    .table(self._table)
+                    .when(
+                        callback,
+                        lambda q: (
+                            q.where_in(
+                                self.foreign_key,
+                                callback(query.select(self.other_owner_key)),
+                            )
+                        ),
+                    )
+                )
+            ),
+        )
+
+        return return_query

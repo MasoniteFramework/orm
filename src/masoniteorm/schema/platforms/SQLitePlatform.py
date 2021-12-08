@@ -234,7 +234,8 @@ class SQLitePlatform(Platform):
         if diff.new_name:
             sql.append(
                 "ALTER TABLE {old_name} RENAME TO {new_name}".format(
-                    old_name=self.wrap_table(diff.name), new_name=self.wrap_table(diff.new_name)
+                    old_name=self.wrap_table(diff.name),
+                    new_name=self.wrap_table(diff.new_name),
                 )
             )
 

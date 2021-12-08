@@ -8,6 +8,7 @@ class MigrateCommand(CanOverrideConfig):
     Run migrations.
 
     migrate
+        {--m|migration=all : Migration's name to be migrated}
         {--c|connection=default : The connection you want to run migrations on}
         {--f|force : Force migrations without prompt in production}
         {--s|show : Shows the output of SQL for migrations that would be running}
@@ -37,4 +38,7 @@ class MigrateCommand(CanOverrideConfig):
             self.info("Nothing To Migrate!")
             return
 
-        migration.migrate(output=self.option("show"))
+        migration_name = self.option("migration")
+        show_output = self.option("show")
+
+        migration.migrate(migration=migration_name, output=show_output)

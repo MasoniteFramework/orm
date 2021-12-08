@@ -164,6 +164,9 @@ class MySQLPlatform(Platform):
                         constraint="PRIMARY KEY" if column.primary else "",
                         nullable="NULL" if column.is_null else "NOT NULL",
                         default=default,
+                        after=(" AFTER " + self.wrap_column(column._after))
+                        if column._after
+                        else "",
                     )
                     .strip()
                 )
@@ -189,7 +192,7 @@ class MySQLPlatform(Platform):
                 renamed_sql.append(
                     self.rename_column_string()
                     .format(
-                        to=self.get_column_string().format(column=column.name),
+                        to=self.columnize({column.name: column})[0],
                         old=self.get_column_string().format(column=name),
                     )
                     .strip()
@@ -298,7 +301,7 @@ class MySQLPlatform(Platform):
         return sql
 
     def add_column_string(self):
-        return "ADD {name} {data_type}{length} {nullable}{default}"
+        return "ADD {name} {data_type}{length} {nullable}{default}{after}"
 
     def drop_column_string(self):
         return "DROP COLUMN {name}"
@@ -307,7 +310,7 @@ class MySQLPlatform(Platform):
         return "MODIFY {name}{data_type}{length} {nullable}{default} {constraint}"
 
     def rename_column_string(self):
-        return "RENAME COLUMN {old} TO {to}"
+        return "CHANGE {old} {to}"
 
     def columnize_string(self):
         return "{name} {data_type}{length}{column_constraint} {nullable}{default} {constraint}"

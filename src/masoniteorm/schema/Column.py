@@ -2,14 +2,21 @@ class Column:
     """Used for creating or modifying columns."""
 
     def __init__(
-        self, name, column_type, length=None, values=None, nullable=False, default=None, default_is_raw=False
+        self,
+        name,
+        column_type,
+        length=None,
+        values=None,
+        nullable=False,
+        default=None,
+        default_is_raw=False,
     ):
         self.column_type = column_type
         self.name = name
         self.length = length
         self.values = values or []
         self.is_null = nullable
-        self.after = None
+        self._after = None
         self.old_column = ""
         self.default = default
         self.default_is_raw = default_is_raw
@@ -59,8 +66,21 @@ class Column:
         Returns:
             self
         """
-        self.after = after
+        self._after = after
         return self
+
+    def get_after_column(self):
+        """Sets the column that this new column should be created after.
+
+        This is useful for setting the location of the new column in the table schema.
+
+        Arguments:
+            after {string} -- The column that this new column should be created after
+
+        Returns:
+            self
+        """
+        return self._after
 
     def default(self, value, raw=False):
         """Sets a default value for this column

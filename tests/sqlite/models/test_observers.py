@@ -52,7 +52,7 @@ class UserObserver:
 class Observer(Model):
     __connection__ = "dev"
     __timestamps__ = False
-    __observers__ = []
+    __observers__ = {}
 
 
 Observer.observe(UserObserver())

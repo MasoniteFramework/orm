@@ -60,6 +60,13 @@ jobs:
           python orm migrate --connection postgres
           python orm migrate --connection mysql
           make publish
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed. Checkout the full release notes here: https://github.com/{{ EVENT_PAYLOAD.repository.full_name }}/releases'
+
   publish:
       runs-on: ubuntu-latest
       steps:

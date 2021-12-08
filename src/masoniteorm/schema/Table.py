@@ -34,7 +34,7 @@ class Table:
             nullable=nullable,
             values=values or [],
             default=default,
-            default_is_raw=default_is_raw
+            default_is_raw=default_is_raw,
         )
         if primary:
             column.set_as_primary()
