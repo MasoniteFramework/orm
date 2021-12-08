@@ -1508,6 +1508,7 @@ class QueryBuilder(ObservesEvents):
 
         new_from_builder = self.new_from_builder()
         new_from_builder._order_by = ()
+        new_from_builder._columns = ()
 
         result = self.limit(per_page).offset(offset).get()
         total = new_from_builder.count()
