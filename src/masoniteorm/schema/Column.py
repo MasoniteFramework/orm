@@ -21,6 +21,7 @@ class Column:
         self.default = default
         self.default_is_raw = default_is_raw
         self.primary = False
+        self.comment = None
 
     def nullable(self):
         """Sets this column to be nullable
@@ -114,4 +115,8 @@ class Column:
             self
         """
         self.default = "current"
+        return self
+
+    def add_comment(self, comment):
+        self.comment = comment
         return self
