@@ -59,7 +59,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             ],
         )
 
-    def test_add_table_comment(self):
+    def test_can_add_table_comment(self):
         with self.schema.create("users") as blueprint:
             blueprint.string("name")
             blueprint.table_comment("A users table")
