@@ -170,6 +170,9 @@ class MySQLPlatform(Platform):
                         after=(" AFTER " + self.wrap_column(column._after))
                         if column._after
                         else "",
+                        comment=" COMMENT '" + column.comment + "'"
+                        if column.comment
+                        else "",
                     )
                     .strip()
                 )
@@ -304,7 +307,7 @@ class MySQLPlatform(Platform):
         return sql
 
     def add_column_string(self):
-        return "ADD {name} {data_type}{length} {nullable}{default}{after}"
+        return "ADD {name} {data_type}{length} {nullable}{default}{after}{comment}"
 
     def drop_column_string(self):
         return "DROP COLUMN {name}"
