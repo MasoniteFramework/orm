@@ -91,6 +91,12 @@ class PostgresPlatform(Platform):
                     )
                 )
 
+        for name, column in table.get_added_columns().items():
+            if column.comment:
+                sql.append(
+                    f"""COMMENT ON COLUMN "{table.name}"."{name}" is '{column.comment}'"""
+                )
+
         return sql
 
     def columnize(self, columns):

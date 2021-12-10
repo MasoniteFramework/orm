@@ -31,6 +31,19 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             ],
         )
 
+    def test_can_add_column_comment(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.string("name").comment("A users username")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(
+            blueprint.to_sql(),
+            [
+                'CREATE TABLE "users" ("name" VARCHAR(255) NOT NULL)',
+                """COMMENT ON COLUMN "users"."name" is 'A users username'""",
+            ],
+        )
+
     def test_can_truncate(self):
         sql = self.schema.truncate("users")
 
