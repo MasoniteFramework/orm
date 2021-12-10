@@ -92,7 +92,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 2)
         sql = [
-            'CREATE TABLE "likes" ("record_id" UNSIGNED INT NOT NULL, "record_type" VARCHAR NOT NULL)',
+            'CREATE TABLE "likes" ("record_id" UNSIGNED INT NOT NULL, "record_type" VARCHAR(255) NOT NULL)',
             'CREATE INDEX likes_record_id_index ON "likes"(record_id)',
             'CREATE INDEX likes_record_type_index ON "likes"(record_type)',
         ]
