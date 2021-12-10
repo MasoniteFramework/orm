@@ -116,6 +116,7 @@ class MySQLPlatform(Platform):
                 )
                 if table.added_foreign_keys
                 else "",
+                comment=f" COMMENT '{table.comment}'" if table.comment else ""
             )
         )
 
@@ -181,6 +182,7 @@ class MySQLPlatform(Platform):
                 self.alter_format().format(
                     table=self.wrap_table(table.name),
                     columns=", ".join(add_columns).strip(),
+                    comment=f" COMMENT '{table.comment}'" if table.comment else "",
                 )
             )
 
@@ -344,10 +346,10 @@ class MySQLPlatform(Platform):
         return "`{column}`"
 
     def create_format(self):
-        return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
+        return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys}){comment}"
 
     def alter_format(self):
-        return "ALTER TABLE {table} {columns}"
+        return "ALTER TABLE {table} {columns}{comment}"
 
     def get_foreign_key_constraint_string(self):
         return "CONSTRAINT {constraint_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){cascade}"

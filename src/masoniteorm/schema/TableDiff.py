@@ -19,6 +19,7 @@ class TableDiff(Table):
         self.removed_constraints = {}
         self.added_constraints = {}
         self.added_foreign_keys = {}
+        self.comment = None
 
     def remove_constraint(self, name):
         self.removed_constraints.update({name: self.from_table.get_constraint(name)})
@@ -77,3 +78,7 @@ class TableDiff(Table):
         self.added_columns.pop(added_column.name)
 
         self.changed_columns.update({added_column.name: added_column})
+
+    def add_comment(self, comment):
+        self.comment = comment
+        return self
