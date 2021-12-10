@@ -220,6 +220,7 @@ class MySQLPlatform(Platform):
                     columns=", ".join(
                         f"MODIFY {x}" for x in self.columnize(table.changed_columns)
                     ),
+
                 )
             )
 
@@ -352,7 +353,7 @@ class MySQLPlatform(Platform):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys}){comment}"
 
     def alter_format(self):
-        return "ALTER TABLE {table} {columns}{comment}"
+        return "ALTER TABLE {table} {columns}"
 
     def get_foreign_key_constraint_string(self):
         return "CONSTRAINT {constraint_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){cascade}"
