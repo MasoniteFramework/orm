@@ -44,6 +44,25 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
             "ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL COMMENT 'A users username'"
         ]
 
+    def test_can_add_table_comment(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.string("name")
+            blueprint.table_comment("A users username")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+
+        sql = [
+            "ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL COMMENT 'A users username'"
+        ]
+
+    def test_can_add_table_comment_with_no_columns(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.table_comment("A users username")
+
+        self.assertEqual(len(blueprint.table.added_columns), 0)
+
+        sql = ["ALTER TABLE `users` COMMENT 'A users username'"]
+
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_can_add_column_after(self):

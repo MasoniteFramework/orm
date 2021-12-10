@@ -116,6 +116,7 @@ class MySQLPlatform(Platform):
                 )
                 if table.added_foreign_keys
                 else "",
+                comment=f" COMMENT '{table.comment}'" if table.comment else "",
             )
         )
 
@@ -181,6 +182,7 @@ class MySQLPlatform(Platform):
                 self.alter_format().format(
                     table=self.wrap_table(table.name),
                     columns=", ".join(add_columns).strip(),
+                    comment=f" COMMENT '{table.comment}'" if table.comment else "",
                 )
             )
 
@@ -218,6 +220,7 @@ class MySQLPlatform(Platform):
                     columns=", ".join(
                         f"MODIFY {x}" for x in self.columnize(table.changed_columns)
                     ),
+
                 )
             )
 
@@ -303,7 +306,10 @@ class MySQLPlatform(Platform):
                 sql.append(
                     f"ALTER TABLE {self.wrap_table(table.name)} DROP INDEX {constraint}"
                 )
-
+        if table.comment:
+            sql.append(
+                f"ALTER TABLE {self.wrap_table(table.name)} COMMENT '{table.comment}'"
+            )
         return sql
 
     def add_column_string(self):
@@ -344,7 +350,7 @@ class MySQLPlatform(Platform):
         return "`{column}`"
 
     def create_format(self):
-        return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
+        return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys}){comment}"
 
     def alter_format(self):
         return "ALTER TABLE {table} {columns}"

@@ -59,6 +59,19 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             ],
         )
 
+    def test_can_add_table_comment(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.string("name")
+            blueprint.table_comment("A users table")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(
+            blueprint.to_sql(),
+            [
+                "CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL) COMMENT 'A users table'"
+            ],
+        )
+
     def test_can_add_columns_with_foreign_key_constaint(self):
         with self.schema.create("users") as blueprint:
             blueprint.string("name").unique()

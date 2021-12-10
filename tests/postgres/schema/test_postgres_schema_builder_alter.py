@@ -46,6 +46,20 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_can_add_table_comment(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.string("name")
+            blueprint.table_comment("A users table")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+
+        sql = [
+            'ALTER TABLE "users" ADD COLUMN "name" VARCHAR(255) NOT NULL',
+            """COMMENT ON TABLE "users" is 'A users table'""",
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_alter_rename(self):
         with self.schema.table("users") as blueprint:
             blueprint.rename("post", "comment", "integer")

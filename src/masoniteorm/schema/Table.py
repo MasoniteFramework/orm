@@ -15,6 +15,7 @@ class Table:
         self.drop_indexes = {}
         self.foreign_keys = {}
         self.primary_key = None
+        self.comment = None
 
     def add_column(
         self,
@@ -78,3 +79,7 @@ class Table:
 
     def get_index(self, name):
         return self.added_indexes[name]
+
+    def add_comment(self, comment):
+        self.comment = comment
+        return self

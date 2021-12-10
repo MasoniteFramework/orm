@@ -862,6 +862,10 @@ class Blueprint:
         self._last_column.add_comment(comment)
         return self
 
+    def table_comment(self, comment):
+        self.table.add_comment(comment)
+        return self
+
     def rename(self, old_column, new_column, data_type, length=None):
         """Rename a column from the old value to a new value.
 
