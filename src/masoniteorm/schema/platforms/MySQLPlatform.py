@@ -116,7 +116,7 @@ class MySQLPlatform(Platform):
                 )
                 if table.added_foreign_keys
                 else "",
-                comment=f" COMMENT '{table.comment}'" if table.comment else ""
+                comment=f" COMMENT '{table.comment}'" if table.comment else "",
             )
         )
 
