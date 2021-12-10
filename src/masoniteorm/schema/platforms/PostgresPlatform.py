@@ -95,7 +95,12 @@ class PostgresPlatform(Platform):
             if column.comment:
                 sql.append(
                     f"""COMMENT ON COLUMN "{table.name}"."{name}" is '{column.comment}'"""
-                )
+                )    
+
+        if table.comment:
+            sql.append(
+                f"""COMMENT ON TABLE "{table.name}" is '{table.comment}'"""
+            )
 
         return sql
 
@@ -341,6 +346,11 @@ class PostgresPlatform(Platform):
                 sql.append(
                     f"""COMMENT ON COLUMN "{table.name}"."{name}" is '{column.comment}'"""
                 )
+
+        if table.comment:
+            sql.append(
+                f"""COMMENT ON TABLE "{table.name}" is '{table.comment}'"""
+            )
 
         return sql
 
