@@ -346,7 +346,9 @@ class PostgresPlatform(Platform):
                 )
 
         if table.comment:
-            sql.append(f"""COMMENT ON TABLE {self.wrap_table(table.name)} is '{table.comment}'""")
+            sql.append(
+                f"""COMMENT ON TABLE {self.wrap_table(table.name)} is '{table.comment}'"""
+            )
 
         return sql
 
