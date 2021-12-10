@@ -305,7 +305,10 @@ class MySQLPlatform(Platform):
                 sql.append(
                     f"ALTER TABLE {self.wrap_table(table.name)} DROP INDEX {constraint}"
                 )
-
+        if table.comment:
+            sql.append(
+                f"ALTER TABLE {self.wrap_table(table.name)} COMMENT '{table.comment}'"
+            )
         return sql
 
     def add_column_string(self):
