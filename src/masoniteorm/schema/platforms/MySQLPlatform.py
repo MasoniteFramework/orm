@@ -220,7 +220,6 @@ class MySQLPlatform(Platform):
                     columns=", ".join(
                         f"MODIFY {x}" for x in self.columnize(table.changed_columns)
                     ),
-
                 )
             )
 

@@ -638,7 +638,12 @@ class Blueprint:
             )
         )
         _columns.append(
-            self.table.add_column("{}_type".format(column), "string", nullable=nullable, length=self._default_string_length)
+            self.table.add_column(
+                "{}_type".format(column),
+                "string",
+                nullable=nullable,
+                length=self._default_string_length,
+            )
         )
 
         if indexes:
