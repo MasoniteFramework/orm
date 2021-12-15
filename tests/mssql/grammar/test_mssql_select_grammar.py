@@ -182,7 +182,7 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
     def can_compile_sub_select_where(self):
         """
         self.builder.where_in('age',
-            self.builder.new().sum('age').where('age', 2).where('name', 'Joe')
+            QueryBuilder(GrammarFactory.make(self.grammar), table='users').select('age').where('age', 2).where('name', 'Joe')
         ).to_sql()
         """
 
