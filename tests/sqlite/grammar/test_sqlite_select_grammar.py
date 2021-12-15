@@ -187,6 +187,15 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
 
         return """SELECT * FROM "users" WHERE "users"."name" IN (SELECT "users"."age" FROM "users")"""
 
+    def can_compile_sub_select_where(self):
+        """
+        self.builder.where('name',
+            self.builder.new().sum('age')
+        ).to_sql()
+        """
+
+        return """SELECT * FROM "users" WHERE "users"."age" IN (SELECT "users"."age" FROM "users" WHERE "users"."age" = '2' AND "users"."name" = 'Joe')"""
+
     def can_compile_sub_select_value(self):
         """
         self.builder.where('name',

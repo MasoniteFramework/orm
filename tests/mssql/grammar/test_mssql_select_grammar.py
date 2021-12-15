@@ -179,6 +179,15 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
 
         return "SELECT * FROM [users] WHERE [users].[name] IN (SELECT [users].[age] FROM [users])"
 
+    def can_compile_sub_select_where(self):
+        """
+        self.builder.where_in('age',
+            self.builder.new().sum('age').where('age', 2).where('name', 'Joe')
+        ).to_sql()
+        """
+
+        return "SELECT * FROM [users] WHERE [users].[age] IN (SELECT [users].[age] FROM [users] WHERE [users].[age] = '2' AND [users].[name] = 'Joe')"
+
     def can_compile_sub_select_value(self):
         """
         self.builder.where('name',
