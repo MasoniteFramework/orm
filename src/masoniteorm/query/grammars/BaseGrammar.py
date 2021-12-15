@@ -636,7 +636,7 @@ class BaseGrammar:
                 if qmark:
                     query_from_builder = value.builder.to_qmark()
                     if value.builder._bindings:
-                        self.add_binding(*value.builder._bindings)
+                        self.add_binding(value.builder._bindings)
                 else:
                     query_from_builder = value.builder.to_sql()
                 query_value = self.subquery_string().format(query=query_from_builder)
