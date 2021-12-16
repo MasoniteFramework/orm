@@ -394,3 +394,9 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder.where("age", "not like", "%name%").to_sql()
         """
         return """SELECT * FROM "users" WHERE "users"."votes" >= '100' FOR UPDATE"""
+
+    def can_user_where_raw_and_where(self):
+        """
+        builder.where_raw("`age` = '18'").where("name", "=", "James").to_sql()
+        """
+        return """SELECT * FROM "users" WHERE age = '18' AND "users"."name" = 'James'"""

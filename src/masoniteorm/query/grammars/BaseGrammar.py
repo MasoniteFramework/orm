@@ -568,6 +568,8 @@ class BaseGrammar:
                 if where.bindings:
                     self.add_binding(*where.bindings)
 
+                loop_count += 1
+
                 continue
 
             """The column is an easy compile
