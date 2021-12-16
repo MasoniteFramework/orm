@@ -224,7 +224,7 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
 
     def can_compile_not_exists(self):
         """
-        self.builder.select('age').where_exists(
+        self.builder.select('age').where_not_exists(
             self.builder.new().select('username').where('age', 12)
         ).to_sql()
         """
