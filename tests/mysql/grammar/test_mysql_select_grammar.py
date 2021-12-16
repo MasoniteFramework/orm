@@ -222,6 +222,14 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         return "SELECT `users`.`age` FROM `users` WHERE EXISTS (SELECT `users`.`username` FROM `users` WHERE `users`.`age` = '12')"
 
+    def can_compile_not_exists(self):
+        """
+        self.builder.select('age').where_not_exists(
+            self.builder.new().select('username').where('age', 12)
+        ).to_sql()
+        """
+        return "SELECT `users`.`age` FROM `users` WHERE NOT EXISTS (SELECT `users`.`username` FROM `users` WHERE `users`.`age` = '12')"
+
     def can_compile_having(self):
         """
         builder.sum('age').group_by('age').having('age').to_sql()

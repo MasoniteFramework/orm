@@ -659,7 +659,7 @@ class QueryBuilder(ObservesEvents):
             )
         return self
 
-    def where_exists(self, value: [str, int, "QueryBuilder"]):
+    def where_exists(self, value: "str|int|QueryBuilder"):
         """Specifies a where exists expression.
 
         Arguments:
@@ -674,6 +674,24 @@ class QueryBuilder(ObservesEvents):
             )
         else:
             self._wheres += ((QueryExpression(None, "EXISTS", value, "value")),)
+
+        return self
+
+    def where_not_exists(self, value: "str|int|QueryBuilder"):
+        """Specifies a where exists expression.
+
+        Arguments:
+            value {string|int|QueryBuilder} -- A value to check for the existence of a query expression.
+
+        Returns:
+            self
+        """
+        if isinstance(value, QueryBuilder):
+            self._wheres += (
+                (QueryExpression(None, "NOT EXISTS", SubSelectExpression(value))),
+            )
+        else:
+            self._wheres += ((QueryExpression(None, "NOT EXISTS", value, "value")),)
 
         return self
 
