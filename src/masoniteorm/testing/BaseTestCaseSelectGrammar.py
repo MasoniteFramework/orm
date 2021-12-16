@@ -390,6 +390,13 @@ class BaseTestCaseSelectGrammar:
         )()
         self.assertEqual(to_sql, sql)
 
+    def test_can_user_where_raw_and_where(self):
+        to_sql = self.builder.where_raw("age = '18'").where("name", "=", "James").to_sql()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
     def test_can_compile_first_or_fail(self):
         to_sql = (
             self.builder.where("is_admin", "=", True).first_or_fail(query=True).to_sql()

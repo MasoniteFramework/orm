@@ -389,3 +389,9 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder.where("age", "not like", "%name%").to_sql()
         """
         return "SELECT * FROM [users] WITH(ROWLOCK) WHERE [users].[votes] >= '100'"
+
+    def can_user_where_raw_and_where(self):
+        """
+        builder.where_raw("`age` = '18'").where("name", "=", "James").to_sql()
+        """
+        return "SELECT * FROM [users] WHERE age = '18' AND [users].[name] = 'James'"
