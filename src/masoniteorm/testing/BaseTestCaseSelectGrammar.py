@@ -228,7 +228,9 @@ class BaseTestCaseSelectGrammar:
         self.assertEqual(to_sql, sql)
 
     def test_can_compile_sub_select_where(self):
-        to_sql = self.builder.where_in("age", self.builder.new().select("age").where('age', 2).where('name', 'Joe')).to_sql()
+        to_sql = self.builder.where_in(
+            "age", self.builder.new().select("age").where("age", 2).where("name", "Joe")
+        ).to_sql()
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -245,6 +247,17 @@ class BaseTestCaseSelectGrammar:
         to_sql = (
             self.builder.select("age")
             .where_exists(self.builder.new().select("username").where("age", 12))
+            .to_sql()
+        )
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_not_exists(self):
+        to_sql = (
+            self.builder.select("age")
+            .where_not_exists(self.builder.new().select("username").where("age", 12))
             .to_sql()
         )
         sql = getattr(

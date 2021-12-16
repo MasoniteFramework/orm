@@ -611,6 +611,8 @@ class BaseGrammar:
                 sql_string = self.where_not_null_string()
             elif equality == "EXISTS":
                 sql_string = self.where_exists_string()
+            elif equality == "NOT EXISTS":
+                sql_string = self.where_not_exists_string()
             elif equality.upper() == "LIKE":
                 sql_string = self.where_like_string()
             elif equality.upper() == "NOT LIKE":
