@@ -1,12 +1,15 @@
 from masonite.providers import Provider
 
 from masoniteorm.commands import (
+    MigrateCommand,
+    MigrateRollbackCommand,
+    MigrateRefreshCommand,
+    MigrateResetCommand,
+    MakeModelCommand,
+    MakeObserverCommand,
+    MigrateStatusCommand,
     MakeMigrationCommand,
     MakeSeedCommand,
-    MakeObserverCommand,
-    MigrateCommand,
-    MigrateRefreshCommand,
-    MigrateRollbackCommand,
     SeedRunCommand,
 )
 
@@ -24,6 +27,9 @@ class ORMProvider(Provider):
             MakeSeedCommand(),
             MakeObserverCommand(),
             MigrateCommand(),
+            MigrateResetCommand(),
+            MakeModelCommand(),
+            MigrateStatusCommand(),
             MigrateRefreshCommand(),
             MigrateRollbackCommand(),
             SeedRunCommand(),
