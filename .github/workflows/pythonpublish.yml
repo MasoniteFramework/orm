@@ -65,15 +65,15 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@master
         with:
-          args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed. Checkout the full release notes here: https://github.com/{{ EVENT_PAYLOAD.repository.full_name }}/releases'
+          args: "{{ EVENT_PAYLOAD.release.tag_name }} has been released for the project {{ EVENT_PAYLOAD.repository.full_name }}. Checkout the full release notes here: {{ EVENT_PAYLOAD.release.html_url }}"
 
   publish:
-      runs-on: ubuntu-latest
-      steps:
+    runs-on: ubuntu-latest
+    steps:
       - uses: actions/checkout@v2
       - name: publish-to-conda
         uses: fcakyon/conda-publish-action@v1.3
         with:
-          subdir: 'conda'
+          subdir: "conda"
           anacondatoken: ${{ secrets.ANACONDA_TOKEN }}
-          platforms: 'win osx linux'
+          platforms: "win osx linux"
