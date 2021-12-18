@@ -449,7 +449,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             .first()
         )
 
-    def serialize(self, exclude=[]):
+    def serialize(self, exclude=None, include=None):
         """Takes the data as a model and converts it into a dictionary.
 
         Returns:
@@ -457,7 +457,17 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         serialized_dictionary = self.__attributes__
 
-        self.__hidden__ += exclude
+        # prevent using both exclude and include at the same time
+        if exclude is not None and include is not None:
+            raise AttributeError(
+                f"defines both exclude and include paramter."
+            )
+
+        if exclude is not None:
+            self.__hidden__ = exclude
+
+        if include is not None:
+            self.__visible__ = include
 
         # prevent using both hidden and visible at the same time
         if self.__visible__ and self.__hidden__:
