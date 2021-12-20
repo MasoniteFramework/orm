@@ -729,39 +729,6 @@ class QueryBuilder(ObservesEvents):
 
             yield self.prepare_result(result)
 
-    def hydrated_model_with_eagers(self, hydrated_model):
-        for eager_load in self._eager_relation.get_eagers():
-            if isinstance(eager_load, dict):
-                # Nested
-                for relation, eagers in eager_load.items():
-                    if inspect.isclass(self._model):
-                        related = getattr(self._model, relation)
-                    else:
-                        related = self._model.get_related(relation)
-
-                    result_set = related.get_related(
-                        self, hydrated_model, eagers=eagers
-                    )
-
-                    self._register_relationships_to_model(
-                        related, result_set, hydrated_model, relation_key=relation
-                    )
-            else:
-                # Not Nested
-                for eager in eager_load:
-                    if inspect.isclass(self._model):
-                        related = getattr(self._model, eager)
-                    else:
-                        related = self._model.get_related(eager)
-
-                    result_set = related.get_related(self, hydrated_model)
-
-                    self._register_relationships_to_model(
-                        related, result_set, hydrated_model, relation_key=eager
-                    )
-
-        yield hydrated_model
-
     def where_not_null(self, column: str):
         """Specifies a where expression where the column is not NULL.
 
