@@ -1482,7 +1482,7 @@ class QueryBuilder(ObservesEvents):
                 return hydrated_model if result else None
 
         if collection:
-            return result or Collection([])
+            return Collection(result) if result else Collection([])
         else:
             return result or None
 
