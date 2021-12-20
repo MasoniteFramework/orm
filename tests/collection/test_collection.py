@@ -591,3 +591,8 @@ class TestCollection(unittest.TestCase):
         items = collection.random(1)
         self.assertEqual(items.count(), 1)
         self.assertIsInstance(items, Collection)
+
+    def test_make_comparison(self):
+        collection = Collection([])
+        self.assertTrue(collection._make_comparison(1, 1, '=='))
+        self.assertTrue(collection._make_comparison(1, '1', '=='))

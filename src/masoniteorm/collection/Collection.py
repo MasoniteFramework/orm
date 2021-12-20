@@ -402,7 +402,6 @@ class Collection:
                 comparison = getattr(item, key)
             if self._make_comparison(comparison, value, op):
                 attributes.append(item)
-
         return self.__class__(attributes)
 
     def zip(self, items):
@@ -471,7 +470,7 @@ class Collection:
             ">": operator.gt,
             ">=": operator.ge,
         }
-        return operators[op](a, b)
+        return operators[op](str(a), str(b))
 
     def __iter__(self):
         for item in self._items:
