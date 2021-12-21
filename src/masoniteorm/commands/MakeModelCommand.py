@@ -1,12 +1,12 @@
 import os
 import pathlib
 
-from cleo import Command
-from inflection import camelize, underscore, tableize
-from .CanOverrideOptionsDefault import CanOverrideOptionsDefault
+from inflection import camelize, tableize
+
+from .Command import Command
 
 
-class MakeModelCommand(CanOverrideOptionsDefault, Command):
+class MakeModelCommand(Command):
     """
     Creates a new model file.
 

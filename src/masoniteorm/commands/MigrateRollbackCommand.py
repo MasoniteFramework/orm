@@ -1,9 +1,8 @@
-from .CanOverrideConfig import CanOverrideConfig
-from .CanOverrideOptionsDefault import CanOverrideOptionsDefault
 from ..migrations import Migration
+from .Command import Command
 
 
-class MigrateRollbackCommand(CanOverrideOptionsDefault, CanOverrideConfig):
+class MigrateRollbackCommand(Command):
     """
     Rolls back the last batch of migrations.
 

@@ -2,12 +2,12 @@ import datetime
 import os
 import pathlib
 
-from cleo import Command
 from inflection import camelize, tableize
-from .CanOverrideOptionsDefault import CanOverrideOptionsDefault
+
+from .Command import Command
 
 
-class MakeMigrationCommand(CanOverrideOptionsDefault, Command):
+class MakeMigrationCommand(Command):
     """
     Creates a new migration file.
 

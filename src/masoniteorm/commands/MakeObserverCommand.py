@@ -1,12 +1,12 @@
 import os
 import pathlib
 
-from cleo import Command
 from inflection import camelize, underscore
-from .CanOverrideOptionsDefault import CanOverrideOptionsDefault
+
+from .Command import Command
 
 
-class MakeObserverCommand(CanOverrideOptionsDefault, Command):
+class MakeObserverCommand(Command):
     """
     Creates a new observer file.
 
