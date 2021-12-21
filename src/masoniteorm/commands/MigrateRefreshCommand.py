@@ -1,8 +1,9 @@
 from .CanOverrideConfig import CanOverrideConfig
 from ..migrations import Migration
+from .CanOverrideOptionsDefault import CanOverrideOptionsDefault
 
 
-class MigrateRefreshCommand(CanOverrideConfig):
+class MigrateRefreshCommand(CanOverrideOptionsDefault, CanOverrideConfig):
     """
     Rolls back all migrations and migrates them again.
 

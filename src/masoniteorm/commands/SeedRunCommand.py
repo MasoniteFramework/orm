@@ -1,9 +1,10 @@
 from cleo import Command
 from ..seeds import Seeder
 from inflection import camelize, underscore
+from .CanOverrideOptionsDefault import CanOverrideOptionsDefault
 
 
-class SeedRunCommand(Command):
+class SeedRunCommand(CanOverrideOptionsDefault, Command):
     """
     Run seeds.
 

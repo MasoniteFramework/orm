@@ -1,9 +1,10 @@
 import os
 from ..migrations import Migration
 from .CanOverrideConfig import CanOverrideConfig
+from .CanOverrideOptionsDefault import CanOverrideOptionsDefault
 
 
-class MigrateCommand(CanOverrideConfig):
+class MigrateCommand(CanOverrideOptionsDefault, CanOverrideConfig):
     """
     Run migrations.
 

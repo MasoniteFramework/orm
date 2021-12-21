@@ -1,8 +1,9 @@
 from .CanOverrideConfig import CanOverrideConfig
+from .CanOverrideOptionsDefault import CanOverrideOptionsDefault
 from ..migrations import Migration
 
 
-class MigrateStatusCommand(CanOverrideConfig):
+class MigrateStatusCommand(CanOverrideOptionsDefault, CanOverrideConfig):
     """
     Display migrations status.
 

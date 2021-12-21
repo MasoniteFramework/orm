@@ -4,9 +4,10 @@ import pathlib
 
 from cleo import Command
 from inflection import camelize, tableize
+from .CanOverrideOptionsDefault import CanOverrideOptionsDefault
 
 
-class MakeMigrationCommand(Command):
+class MakeMigrationCommand(CanOverrideOptionsDefault, Command):
     """
     Creates a new migration file.
 

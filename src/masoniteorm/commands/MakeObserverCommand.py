@@ -3,9 +3,10 @@ import pathlib
 
 from cleo import Command
 from inflection import camelize, underscore
+from .CanOverrideOptionsDefault import CanOverrideOptionsDefault
 
 
-class MakeObserverCommand(Command):
+class MakeObserverCommand(CanOverrideOptionsDefault, Command):
     """
     Creates a new observer file.
 

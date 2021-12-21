@@ -2,12 +2,11 @@ import os
 import pathlib
 
 from cleo import Command
-from inflection import camelize
+from inflection import camelize, underscore
+from .CanOverrideOptionsDefault import CanOverrideOptionsDefault
 
-from inflection import underscore
 
-
-class MakeSeedCommand(Command):
+class MakeSeedCommand(CanOverrideOptionsDefault, Command):
     """
     Creates a new seed file.
 
