@@ -14,9 +14,9 @@ class CanOverrideOptionsDefault:
         super().__init__()
         self.overriden_default = kwargs
         for option_name, option in self.config.options.items():
-            # Cleo does not authorize _ in option name but - are authorized unfortunately -
-            # cannot be used in Python variables, so this make sure that option-a will be
-            # accessible with option_a in Python
+            # Cleo does not authorize _ in option name but - are authorized and unfortunately -
+            # cannot be used in Python variables. So underscore() is called to make sure that
+            # an option like 'option-a' will be accessible with 'option_a' in kwargs
             default = self.overriden_default.get(underscore(option_name))
             if default:
                 option.set_default(default)
