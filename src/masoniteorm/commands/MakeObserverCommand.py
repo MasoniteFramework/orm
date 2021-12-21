@@ -13,6 +13,7 @@ class MakeObserverCommand(Command):
     observer
         {name : The name of the observer}
         {--m|model=None : The name of the model}
+        {--d|directory=app/observers : The location of the observers directory}
     """
 
     def handle(self):
@@ -21,7 +22,7 @@ class MakeObserverCommand(Command):
         if model == "None":
             model = name
 
-        observer_directory = "app/observers"
+        observer_directory = self.option("directory")
 
         with open(
             os.path.join(
