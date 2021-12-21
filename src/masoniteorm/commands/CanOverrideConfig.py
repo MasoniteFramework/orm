@@ -1,4 +1,4 @@
-from cleo.commands.command import Command
+from cleo import Command
 
 
 class CanOverrideConfig(Command):

@@ -1,6 +1,7 @@
-from cleo import Command
-from ..seeds import Seeder
 from inflection import camelize, underscore
+
+from ..seeds import Seeder
+from .Command import Command
 
 
 class SeedRunCommand(Command):

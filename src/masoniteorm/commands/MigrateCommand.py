@@ -1,9 +1,10 @@
 import os
+
 from ..migrations import Migration
-from .CanOverrideConfig import CanOverrideConfig
+from .Command import Command
 
 
-class MigrateCommand(CanOverrideConfig):
+class MigrateCommand(Command):
     """
     Run migrations.
 

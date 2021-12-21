@@ -1,8 +1,9 @@
 import os
 import pathlib
 
-from cleo import Command
 from inflection import camelize, underscore
+
+from .Command import Command
 
 
 class MakeObserverCommand(Command):

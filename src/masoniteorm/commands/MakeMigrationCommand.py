@@ -2,8 +2,9 @@ import datetime
 import os
 import pathlib
 
-from cleo import Command
 from inflection import camelize, tableize
+
+from .Command import Command
 
 
 class MakeMigrationCommand(Command):

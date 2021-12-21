@@ -1,10 +1,9 @@
 import os
 import pathlib
 
-from cleo import Command
-from inflection import camelize
+from inflection import camelize, underscore
 
-from inflection import underscore
+from .Command import Command
 
 
 class MakeSeedCommand(Command):
