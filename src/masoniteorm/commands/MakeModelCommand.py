@@ -16,6 +16,7 @@ class MakeModelCommand(Command):
         {--c|create : If the migration file should create a table}
         {--t|table : If the migration file should modify an existing table}
         {--d|directory=app : The location of the model directory}
+        {--D|migrations-directory=databases/migrations : The location of the migration directory}
     """
 
     def handle(self):
@@ -46,13 +47,14 @@ class MakeModelCommand(Command):
 
         self.info(f"Model created: {os.path.join(model_directory, file_name)}")
         if self.option("migration"):
+            migrations_directory = self.option("migrations-directory")
             if self.option("create"):
                 self.call(
                     "migration",
-                    f"create_{tableize(name)}_table --create {tableize(name)}",
+                    f"create_{tableize(name)}_table --create {tableize(name)} --directory {migrations_directory}",
                 )
             else:
                 self.call(
                     "migration",
-                    f"update_{tableize(name)}_table --table {tableize(name)}",
+                    f"update_{tableize(name)}_table --table {tableize(name)} --directory {migrations_directory}",
                 )
