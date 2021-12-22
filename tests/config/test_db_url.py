@@ -103,7 +103,7 @@ class TestDbUrlHelper(unittest.TestCase):
         }
 
     def test_using_it_with_connection_resolver(self):
-        DATABASES = {
+        TEST_DATABASES = {
             "default": "test",
             "test": {
                 **db_url("mysql://root:@localhost:3306/orm"),
@@ -111,7 +111,7 @@ class TestDbUrlHelper(unittest.TestCase):
                 "log_queries": True,
             },
         }
-        resolver = ConnectionResolver().set_connection_details(DATABASES)
+        resolver = ConnectionResolver().set_connection_details(TEST_DATABASES)
         config = resolver.get_connection_details().get("test")
         assert config.get("database") == "orm"
         assert config.get("user") == "root"
@@ -119,3 +119,7 @@ class TestDbUrlHelper(unittest.TestCase):
         assert config.get("port") == 3306
         assert config.get("host") == "localhost"
         assert config.get("log_queries")
+        # reset connection resolver to default for other tests to continue working
+        from config.database import DATABASES
+
+        ConnectionResolver().set_connection_details(DATABASES)
