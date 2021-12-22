@@ -88,6 +88,7 @@ class ShellCommand(Command):
             command += f" {options_string}"
 
         # prepare environment in which command will be run
+        # some drivers need to define env variable such as psql for specifying password
         try:
             driver_env = getattr(self, f"get_{driver}_env")(config)
         except AttributeError:
@@ -182,6 +183,9 @@ class ShellCommand(Command):
         return ["-P"]
 
     def hide_sensitive_options(self, config, command):
+        """Hide sensitive options in command string before it's displayed in the shell for
+        security reasons. All drivers can declare what options are considered sensitive, their
+        values will be then replaced by *** when displayed only."""
         cleaned_command = command
         sensitive_options = self.get_sensitive_options(config)
         for option in sensitive_options:
