@@ -1,4 +1,6 @@
 import subprocess
+import os
+import re
 import shlex
 from collections import OrderedDict
 
@@ -35,19 +37,24 @@ class ShellCommand(Command):
             )
             exit(-1)
 
-        command = self.get_command(config)
+        command, env = self.get_command(config)
+
         if self.option("show"):
-            self.comment(command)
+            cleaned_command = self.hide_sensitive_options(config, command)
+            self.comment(cleaned_command)
             self.line("")
 
         # let shlex split command in a list as it's safer
         command_args = shlex.split(command)
         try:
-            subprocess.run(command_args, check=True)
+            subprocess.run(command_args, check=True, env=env)
         except FileNotFoundError:
             self.line(
                 f"<error>Cannot find {config.get('full_details').get('driver')} program ! Please ensure you can call this program in your shell first.</error>"
             )
+            exit(-1)
+        except subprocess.CalledProcessError:
+            self.line(f"<error>An error happened calling the command.</error>")
             exit(-1)
 
     def get_shell_program(self, connection):
@@ -79,7 +86,15 @@ class ShellCommand(Command):
             command += f" {args}"
         if options_string:
             command += f" {options_string}"
-        return command
+
+        # prepare environment in which command will be run
+        try:
+            driver_env = getattr(self, f"get_{driver}_env")(config)
+        except AttributeError:
+            driver_env = {}
+        command_env = {**os.environ.copy(), **driver_env}
+
+        return command, command_env
 
     def get_mysql_args(self, config):
         """Get command positional arguments and options for MySQL driver."""
@@ -103,10 +118,12 @@ class ShellCommand(Command):
                 "--host": config.get("host"),
                 "--port": config.get("port"),
                 "--username": config.get("user"),
-                "--password": config.get("password"),
             }
         )
         return args, options
+
+    def get_postgres_env(self, config):
+        return {"PGPASSWORD": config.get("password")}
 
     def get_mssql_args(self, config):
         """Get command positional arguments and options for MSSQL driver."""
@@ -149,3 +166,28 @@ class ShellCommand(Command):
             elif value:
                 cleaned_options[key] = value
         return cleaned_options
+
+    def get_sensitive_options(self, config):
+        driver = config.get("full_details").get("driver")
+        try:
+            sensitive_options = getattr(self, f"get_{driver}_sensitive_options")()
+        except AttributeError:
+            sensitive_options = []
+        return sensitive_options
+
+    def get_mysql_sensitive_options(self):
+        return ["--password"]
+
+    def get_mssql_sensitive_options(self):
+        return ["-P"]
+
+    def hide_sensitive_options(self, config, command):
+        cleaned_command = command
+        sensitive_options = self.get_sensitive_options(config)
+        for option in sensitive_options:
+            # if option is used obfuscate its value
+            if option in command:
+                match = re.search(rf"{option} (\w+)", command)
+                if match.groups():
+                    cleaned_command = cleaned_command.replace(match.groups()[0], "***")
+        return cleaned_command
