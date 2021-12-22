@@ -62,7 +62,7 @@ def db_url(database_url=None, prefix="", options={}, log_queries=False):
     # this is a special case, because if we pass this URL into
     # urlparse, urlparse will choke trying to interpret "memory"
     # as a port number
-    if url in ["sqlite://:memory:", ":memory:"]:
+    if url in ["sqlite://:memory:", "sqlite://memory"]:
         driver = DRIVERS_MAP["sqlite"]
         path = ":memory:"
     # otherwise parse the url as normal
