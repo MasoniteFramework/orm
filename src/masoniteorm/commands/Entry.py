@@ -17,6 +17,7 @@ from . import (
     MigrateResetCommand,
     MakeSeedCommand,
     SeedRunCommand,
+    ShellCommand,
 )
 
 application = Application("ORM Version:", 0.1)
@@ -31,6 +32,7 @@ application.add(MigrateResetCommand())
 application.add(MigrateStatusCommand())
 application.add(MakeSeedCommand())
 application.add(SeedRunCommand())
+application.add(ShellCommand())
 
 if __name__ == "__main__":
     application.run()
