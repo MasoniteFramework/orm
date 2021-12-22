@@ -59,7 +59,7 @@ DATABASES = {
     },
     # Example with db_url()
     # "postgres": db_url(
-    #     "postgres://craggeek:@localhost:5432/archibien_app2_db", log_queries=True
+    #     "postgres://user:@localhost:5432/postgres", log_queries=True
     # ),
     "dev": {
         "driver": "sqlite",
