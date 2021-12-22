@@ -66,12 +66,13 @@ class ShellCommand(Command):
         driver = config.get("full_details").get("driver")
         program = self.get_shell_program(driver)
         try:
-            args, options = getattr(self, f"get_{driver}_args")(config)
+            get_driver_args = getattr(self, f"get_{driver}_args")
         except AttributeError:
             self.line(
                 f"<error>Connecting with driver '{driver}' is not implemented !</error>"
             )
             exit(-1)
+        args, options = get_driver_args(config)
         # process positional arguments
         args = " ".join(args)
         # process optional arguments
@@ -106,7 +107,7 @@ class ShellCommand(Command):
                 "--port": config.get("port"),
                 "--user": config.get("user"),
                 "--password": config.get("password"),
-                "--default-character-set": config.get("options").get("charset"),
+                "--default-character-set": config.get("options", {}).get("charset"),
             }
         )
         return args, options
@@ -143,7 +144,7 @@ class ShellCommand(Command):
                 "-P": config.get("password"),
                 "-S": server,
                 "-E": trusted_connection,
-                "-t": config.get("options").get("connection_timeout"),
+                "-t": config.get("options", {}).get("connection_timeout"),
             }
         )
         return args, options
