@@ -68,7 +68,7 @@ DATABASES = {
         "log_queries": True,
     },
     # Example with db_url()
-    # "dev": {**db_url("sqlite:///orm.sqlite3"), "prefix": "", "log_queries": True},
+    # "dev": {**db_url("sqlite://orm.sqlite3"), "prefix": "", "log_queries": True},
     "mssql": {
         "driver": "mssql",
         "host": os.getenv("MSSQL_DATABASE_HOST"),
