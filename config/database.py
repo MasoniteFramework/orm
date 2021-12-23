@@ -1,11 +1,11 @@
 """ Database Settings """
-
 import os
-
-from src.masoniteorm.query import QueryBuilder
-from src.masoniteorm.connections import ConnectionResolver
-from dotenv import load_dotenv
 import logging
+
+from dotenv import load_dotenv
+
+from src.masoniteorm.connections import ConnectionResolver
+from src.masoniteorm.config import db_url
 
 """
 |--------------------------------------------------------------------------
@@ -16,7 +16,7 @@ import logging
 |
 """
 
-load_dotenv('.env')
+load_dotenv(".env")
 
 
 """
@@ -25,57 +25,59 @@ They can be named whatever you want.
 """
 
 DATABASES = {
-    'default': 'mysql',
-    'mysql': {
-        'driver': 'mysql',
-        'host': os.getenv('MYSQL_DATABASE_HOST'),
-        'user': os.getenv('MYSQL_DATABASE_USER'),
-        'password': os.getenv('MYSQL_DATABASE_PASSWORD'),
-        'database': os.getenv('MYSQL_DATABASE_DATABASE'),
-        'port': os.getenv('MYSQL_DATABASE_PORT'),
-        'prefix': '',
-        'options': {
-            'charset': 'utf8mb4',
-        },
-        'log_queries': True
+    "default": "mysql",
+    "mysql": {
+        "driver": "mysql",
+        "host": os.getenv("MYSQL_DATABASE_HOST"),
+        "user": os.getenv("MYSQL_DATABASE_USER"),
+        "password": os.getenv("MYSQL_DATABASE_PASSWORD"),
+        "database": os.getenv("MYSQL_DATABASE_DATABASE"),
+        "port": os.getenv("MYSQL_DATABASE_PORT"),
+        "prefix": "",
+        "options": {"charset": "utf8mb4"},
+        "log_queries": True,
     },
-    'many': {
-        'driver': 'mysql',
-        'host': 'localhost',
-        'user': 'root',
-        'password': '',
-        'database': 'replicate',
-        'port': os.getenv('MYSQL_DATABASE_PORT'),
-        'options': {
-            'charset': 'utf8mb4',
-        },
-        'log_queries': True
+    "many": {
+        "driver": "mysql",
+        "host": "localhost",
+        "user": "root",
+        "password": "",
+        "database": "replicate",
+        "port": os.getenv("MYSQL_DATABASE_PORT"),
+        "options": {"charset": "utf8mb4"},
+        "log_queries": True,
     },
-    'postgres': {
-        'driver': 'postgres',
-        'host': os.getenv('POSTGRES_DATABASE_HOST'),
-        'user': os.getenv('POSTGRES_DATABASE_USER'),
-        'password': os.getenv('POSTGRES_DATABASE_PASSWORD'),
-        'database': os.getenv('POSTGRES_DATABASE_DATABASE'),
-        'port': os.getenv('POSTGRES_DATABASE_PORT'),
-        'prefix': '',
-        'log_queries': True
+    "postgres": {
+        "driver": "postgres",
+        "host": os.getenv("POSTGRES_DATABASE_HOST"),
+        "user": os.getenv("POSTGRES_DATABASE_USER"),
+        "password": os.getenv("POSTGRES_DATABASE_PASSWORD"),
+        "database": os.getenv("POSTGRES_DATABASE_DATABASE"),
+        "port": os.getenv("POSTGRES_DATABASE_PORT"),
+        "prefix": "",
+        "log_queries": True,
     },
-    'dev': {
-        'driver': 'sqlite',
-        'database': 'orm.sqlite3',
-        'prefix': '',
-        'log_queries': True
+    # Example with db_url()
+    # "postgres": db_url(
+    #     "postgres://user:@localhost:5432/postgres", log_queries=True
+    # ),
+    "dev": {
+        "driver": "sqlite",
+        "database": "orm.sqlite3",
+        "prefix": "",
+        "log_queries": True,
     },
-    'mssql': {
-        'driver': 'mssql',
-        'host': os.getenv('MSSQL_DATABASE_HOST'),
-        'user': os.getenv('MSSQL_DATABASE_USER'),
-        'password': os.getenv('MSSQL_DATABASE_PASSWORD'),
-        'database': os.getenv('MSSQL_DATABASE_DATABASE'),
-        'port': os.getenv('MSSQL_DATABASE_PORT'),
-        'prefix': '',
-        'log_queries': True,
+    # Example with db_url()
+    # "dev": {**db_url("sqlite://orm.sqlite3"), "prefix": "", "log_queries": True},
+    "mssql": {
+        "driver": "mssql",
+        "host": os.getenv("MSSQL_DATABASE_HOST"),
+        "user": os.getenv("MSSQL_DATABASE_USER"),
+        "password": os.getenv("MSSQL_DATABASE_PASSWORD"),
+        "database": os.getenv("MSSQL_DATABASE_DATABASE"),
+        "port": os.getenv("MSSQL_DATABASE_PORT"),
+        "prefix": "",
+        "log_queries": True,
         "options": {
             "trusted_connection": "Yes",
             "integrated_security": "sspi",
@@ -83,21 +85,19 @@ DATABASES = {
             "authentication": "ActiveDirectoryPassword",
             "driver": "ODBC Driver 17 for SQL Server",
             "connection_timeout": 15,
-        }
+        },
     },
 }
 
 DB = ConnectionResolver().set_connection_details(DATABASES)
 
-logger = logging.getLogger('masoniteorm.connection.queries')
+logger = logging.getLogger("masoniteorm.connection.queries")
 logger.setLevel(logging.DEBUG)
 
-formatter = logging.Formatter(
-    'It executed the query %(query)s'
-)
+formatter = logging.Formatter("It executed the query %(query)s")
 
 stream_handler = logging.StreamHandler()
-file_handler   = logging.FileHandler("queries.log")
+file_handler = logging.FileHandler("queries.log")
 
 logger.addHandler(stream_handler)
 logger.addHandler(file_handler)

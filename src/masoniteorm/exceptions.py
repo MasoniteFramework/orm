@@ -24,3 +24,7 @@ class MigrationNotFound(Exception):
 
 class ConfigurationNotFound(Exception):
     pass
+
+
+class InvalidUrlConfiguration(Exception):
+    pass
