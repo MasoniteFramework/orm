@@ -18,8 +18,5 @@ class MigrateRollbackCommand(Command):
             command_class=self,
             connection=self.option("connection"),
             migration_directory=self.option("directory"),
-        ).rollback(
-            migration=self.option("migration"),
             config_path=self.option("config"),
-            output=self.option("show"),
-        )
+        ).rollback(migration=self.option("migration"), output=self.option("show"))
