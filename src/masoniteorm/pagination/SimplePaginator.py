@@ -11,9 +11,9 @@ class SimplePaginator(BasePaginator):
         self.previous_page = (int(self.current_page) - 1) or None
         self.url = url
 
-    def serialize(self):
+    def serialize(self, *args, **kwargs):
         return {
-            "data": self.result.serialize(),
+            "data": self.result.serialize(*args, **kwargs),
             "meta": {
                 "next_page": self.next_page,
                 "count": self.count,

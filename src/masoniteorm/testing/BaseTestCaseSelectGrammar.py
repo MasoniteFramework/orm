@@ -227,6 +227,15 @@ class BaseTestCaseSelectGrammar:
         )()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_sub_select_where(self):
+        to_sql = self.builder.where_in(
+            "age", self.builder.new().select("age").where("age", 2).where("name", "Joe")
+        ).to_sql()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
     def test_can_compile_sub_select_value(self):
         to_sql = self.builder.where("name", self.builder.new().sum("age")).to_sql()
         sql = getattr(
@@ -238,6 +247,17 @@ class BaseTestCaseSelectGrammar:
         to_sql = (
             self.builder.select("age")
             .where_exists(self.builder.new().select("username").where("age", 12))
+            .to_sql()
+        )
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_compile_not_exists(self):
+        to_sql = (
+            self.builder.select("age")
+            .where_not_exists(self.builder.new().select("username").where("age", 12))
             .to_sql()
         )
         sql = getattr(
@@ -385,6 +405,15 @@ class BaseTestCaseSelectGrammar:
 
     def test_can_compile_not_between(self):
         to_sql = self.builder.not_between("age", 18, 21).to_sql()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_can_user_where_raw_and_where(self):
+        to_sql = (
+            self.builder.where_raw("age = '18'").where("name", "=", "James").to_sql()
+        )
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()

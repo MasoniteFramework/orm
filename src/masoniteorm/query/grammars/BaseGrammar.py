@@ -568,6 +568,8 @@ class BaseGrammar:
                 if where.bindings:
                     self.add_binding(*where.bindings)
 
+                loop_count += 1
+
                 continue
 
             """The column is an easy compile
@@ -609,6 +611,8 @@ class BaseGrammar:
                 sql_string = self.where_not_null_string()
             elif equality == "EXISTS":
                 sql_string = self.where_exists_string()
+            elif equality == "NOT EXISTS":
+                sql_string = self.where_not_exists_string()
             elif equality.upper() == "LIKE":
                 sql_string = self.where_like_string()
             elif equality.upper() == "NOT LIKE":
@@ -636,7 +640,7 @@ class BaseGrammar:
                 if qmark:
                     query_from_builder = value.builder.to_qmark()
                     if value.builder._bindings:
-                        self.add_binding(*value.builder._bindings)
+                        self.add_binding(value.builder._bindings)
                 else:
                     query_from_builder = value.builder.to_sql()
                 query_value = self.subquery_string().format(query=query_from_builder)

@@ -185,6 +185,15 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
 
         return "SELECT * FROM `users` WHERE `users`.`name` IN (SELECT `users`.`age` FROM `users`)"
 
+    def can_compile_sub_select_where(self):
+        """
+        self.builder.where_in('age',
+            QueryBuilder(GrammarFactory.make(self.grammar), table='users').select('age').where('age', 2).where('name', 'Joe')
+        ).to_sql()
+        """
+
+        return "SELECT * FROM `users` WHERE `users`.`age` IN (SELECT `users`.`age` FROM `users` WHERE `users`.`age` = '2' AND `users`.`name` = 'Joe')"
+
     def can_compile_sub_select_value(self):
         """
         self.builder.where('name',
@@ -212,6 +221,14 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         ).to_sql()
         """
         return "SELECT `users`.`age` FROM `users` WHERE EXISTS (SELECT `users`.`username` FROM `users` WHERE `users`.`age` = '12')"
+
+    def can_compile_not_exists(self):
+        """
+        self.builder.select('age').where_not_exists(
+            self.builder.new().select('username').where('age', 12)
+        ).to_sql()
+        """
+        return "SELECT `users`.`age` FROM `users` WHERE NOT EXISTS (SELECT `users`.`username` FROM `users` WHERE `users`.`age` = '12')"
 
     def can_compile_having(self):
         """
@@ -383,3 +400,9 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder.where("age", "not like", "%name%").to_sql()
         """
         return "SELECT * FROM `users` WHERE `users`.`votes` >= '100' FOR UPDATE"
+
+    def can_user_where_raw_and_where(self):
+        """
+        builder.where_raw("`age` = '18'").where("name", "=", "James").to_sql()
+        """
+        return "SELECT * FROM `users` WHERE age = '18' AND `users`.`name` = 'James'"

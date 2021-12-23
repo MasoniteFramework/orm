@@ -659,7 +659,7 @@ class QueryBuilder(ObservesEvents):
             )
         return self
 
-    def where_exists(self, value: [str, int, "QueryBuilder"]):
+    def where_exists(self, value: "str|int|QueryBuilder"):
         """Specifies a where exists expression.
 
         Arguments:
@@ -674,6 +674,24 @@ class QueryBuilder(ObservesEvents):
             )
         else:
             self._wheres += ((QueryExpression(None, "EXISTS", value, "value")),)
+
+        return self
+
+    def where_not_exists(self, value: "str|int|QueryBuilder"):
+        """Specifies a where exists expression.
+
+        Arguments:
+            value {string|int|QueryBuilder} -- A value to check for the existence of a query expression.
+
+        Returns:
+            self
+        """
+        if isinstance(value, QueryBuilder):
+            self._wheres += (
+                (QueryExpression(None, "NOT EXISTS", SubSelectExpression(value))),
+            )
+        else:
+            self._wheres += ((QueryExpression(None, "NOT EXISTS", value, "value")),)
 
         return self
 
@@ -708,10 +726,8 @@ class QueryBuilder(ObservesEvents):
     def chunk(self, chunk_amount):
         chunk_connection = self.new_connection()
         for result in chunk_connection.select_many(self.to_sql(), (), chunk_amount):
-            if not self._model:
-                yield result
-            else:
-                yield self._model.hydrate(result)
+
+            yield self.prepare_result(result)
 
     def where_not_null(self, column: str):
         """Specifies a where expression where the column is not NULL.
@@ -1426,7 +1442,7 @@ class QueryBuilder(ObservesEvents):
                 return hydrated_model if result else None
 
         if collection:
-            return result or Collection([])
+            return Collection(result) if result else Collection([])
         else:
             return result or None
 
@@ -1508,6 +1524,7 @@ class QueryBuilder(ObservesEvents):
 
         new_from_builder = self.new_from_builder()
         new_from_builder._order_by = ()
+        new_from_builder._columns = ()
 
         result = self.limit(per_page).offset(offset).get()
         total = new_from_builder.count()

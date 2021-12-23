@@ -91,6 +91,15 @@ class PostgresPlatform(Platform):
                     )
                 )
 
+        for name, column in table.get_added_columns().items():
+            if column.comment:
+                sql.append(
+                    f"""COMMENT ON COLUMN "{table.name}"."{name}" is '{column.comment}'"""
+                )
+
+        if table.comment:
+            sql.append(f"""COMMENT ON TABLE "{table.name}" is '{table.comment}'""")
+
         return sql
 
     def columnize(self, columns):
@@ -329,6 +338,17 @@ class PostgresPlatform(Platform):
                     sql.append(
                         f"ALTER TABLE {self.wrap_table(table.name)} ADD CONSTRAINT {constraint.name} PRIMARY KEY ({','.join(constraint.columns)})"
                     )
+
+        for name, column in table.get_added_columns().items():
+            if column.comment:
+                sql.append(
+                    f"""COMMENT ON COLUMN {self.wrap_table(table.name)}.{self.wrap_column(name)} is '{column.comment}'"""
+                )
+
+        if table.comment:
+            sql.append(
+                f"""COMMENT ON TABLE {self.wrap_table(table.name)} is '{table.comment}'"""
+            )
 
         return sql
 

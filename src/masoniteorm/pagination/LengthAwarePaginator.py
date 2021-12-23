@@ -14,9 +14,9 @@ class LengthAwarePaginator(BasePaginator):
         self.total = total
         self.url = url
 
-    def serialize(self):
+    def serialize(self, *args, **kwargs):
         return {
-            "data": self.result.serialize(),
+            "data": self.result.serialize(*args, **kwargs),
             "meta": {
                 "total": self.total,
                 "next_page": self.next_page,

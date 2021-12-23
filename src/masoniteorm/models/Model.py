@@ -419,6 +419,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Returns:
             self: A hydrated version of a model
         """
+
         if not dictionary:
             dictionary = kwargs
 
@@ -435,9 +436,11 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                     dictionary.pop(x)
 
         if query:
-            return cls.builder.create(dictionary, query=True).to_sql()
+            return cls.builder.create(
+                dictionary, query=True, id_key=cls.__primary_key__
+            ).to_sql()
 
-        return cls.builder.create(dictionary)
+        return cls.builder.create(dictionary, id_key=cls.__primary_key__)
 
     def fresh(self):
         return (
@@ -446,7 +449,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             .first()
         )
 
-    def serialize(self, exclude=[]):
+    def serialize(self, exclude=None, include=None):
         """Takes the data as a model and converts it into a dictionary.
 
         Returns:
@@ -454,7 +457,17 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         serialized_dictionary = self.__attributes__
 
-        self.__hidden__ += exclude
+        # prevent using both exclude and include at the same time
+        if exclude is not None and include is not None:
+            raise AttributeError(
+                "Can not define both includes and exclude values."
+            )
+
+        if exclude is not None:
+            self.__hidden__ = exclude
+
+        if include is not None:
+            self.__visible__ = include
 
         # prevent using both hidden and visible at the same time
         if self.__visible__ and self.__hidden__:
@@ -530,7 +543,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         total.update(updates)
         total.update(wheres)
         if not record:
-            return self.create(total)
+            return self.create(total, id_key=cls.get_primary_key())
 
         return self.where(wheres).update(total)
 
@@ -684,7 +697,11 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             if self.is_loaded():
                 result = builder.update(self.__dirty_attributes__)
             else:
-                result = self.create(self.__dirty_attributes__, query=query)
+                result = self.create(
+                    self.__dirty_attributes__,
+                    query=query,
+                    id_key=self.get_primary_key(),
+                )
             self.observe_events(self, "saved")
             self.fill(result.__attributes__)
             return result

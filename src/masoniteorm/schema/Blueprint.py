@@ -638,7 +638,12 @@ class Blueprint:
             )
         )
         _columns.append(
-            self.table.add_column("{}_type".format(column), "string", nullable=nullable)
+            self.table.add_column(
+                "{}_type".format(column),
+                "string",
+                nullable=nullable,
+                length=self._default_string_length,
+            )
         )
 
         if indexes:
@@ -856,6 +861,14 @@ class Blueprint:
             self
         """
         self._last_foreign.on_update(action)
+        return self
+
+    def comment(self, comment):
+        self._last_column.add_comment(comment)
+        return self
+
+    def table_comment(self, comment):
+        self.table.add_comment(comment)
         return self
 
     def rename(self, old_column, new_column, data_type, length=None):

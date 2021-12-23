@@ -90,6 +90,9 @@ class MySQLPlatform(Platform):
                     constraint=constraint,
                     nullable=self.premapped_nulls.get(column.is_null) or "",
                     default=default,
+                    comment="COMMENT '" + column.comment + "'"
+                    if column.comment
+                    else "",
                 )
                 .strip()
             )
@@ -113,6 +116,7 @@ class MySQLPlatform(Platform):
                 )
                 if table.added_foreign_keys
                 else "",
+                comment=f" COMMENT '{table.comment}'" if table.comment else "",
             )
         )
 
@@ -167,6 +171,9 @@ class MySQLPlatform(Platform):
                         after=(" AFTER " + self.wrap_column(column._after))
                         if column._after
                         else "",
+                        comment=" COMMENT '" + column.comment + "'"
+                        if column.comment
+                        else "",
                     )
                     .strip()
                 )
@@ -175,6 +182,7 @@ class MySQLPlatform(Platform):
                 self.alter_format().format(
                     table=self.wrap_table(table.name),
                     columns=", ".join(add_columns).strip(),
+                    comment=f" COMMENT '{table.comment}'" if table.comment else "",
                 )
             )
 
@@ -297,11 +305,14 @@ class MySQLPlatform(Platform):
                 sql.append(
                     f"ALTER TABLE {self.wrap_table(table.name)} DROP INDEX {constraint}"
                 )
-
+        if table.comment:
+            sql.append(
+                f"ALTER TABLE {self.wrap_table(table.name)} COMMENT '{table.comment}'"
+            )
         return sql
 
     def add_column_string(self):
-        return "ADD {name} {data_type}{length} {nullable}{default}{after}"
+        return "ADD {name} {data_type}{length} {nullable}{default}{after}{comment}"
 
     def drop_column_string(self):
         return "DROP COLUMN {name}"
@@ -313,7 +324,7 @@ class MySQLPlatform(Platform):
         return "CHANGE {old} {to}"
 
     def columnize_string(self):
-        return "{name} {data_type}{length}{column_constraint} {nullable}{default} {constraint}"
+        return "{name} {data_type}{length}{column_constraint} {nullable}{default} {constraint}{comment}"
 
     def constraintize(self, constraints, table):
         sql = []
@@ -338,7 +349,7 @@ class MySQLPlatform(Platform):
         return "`{column}`"
 
     def create_format(self):
-        return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
+        return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys}){comment}"
 
     def alter_format(self):
         return "ALTER TABLE {table} {columns}"
