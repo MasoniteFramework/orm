@@ -15,7 +15,9 @@ def load_config(config_path=None):
         config_path or os.getenv("DB_CONFIG_PATH", None) or "config/database"
     )
     # format path as python module if needed
-    selected_config_path = selected_config_path.replace("/", ".").rstrip(".py")
+    selected_config_path = (
+        selected_config_path.replace("/", ".").replace("\\", ".").rstrip(".py")
+    )
     config_module = pydoc.locate(selected_config_path)
     if config_module is None:
         raise ConfigurationNotFound(

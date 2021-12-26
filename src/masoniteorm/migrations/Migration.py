@@ -89,7 +89,9 @@ class Migration:
     def locate(self, file_name):
         migration_name = camelize("_".join(file_name.split("_")[4:]).replace(".py", ""))
         file_name = file_name.replace(".py", "")
-        migration_directory = self.migration_directory.replace("/", ".")
+        migration_directory = self.migration_directory.replace("/", ".").replace(
+            "\\", "."
+        )
         return locate(f"{migration_directory}.{file_name}.{migration_name}")
 
     def get_ran_migrations(self):

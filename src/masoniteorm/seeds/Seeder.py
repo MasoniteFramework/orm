@@ -6,7 +6,7 @@ class Seeder:
         self.ran_seeds = []
         self.dry = dry
         self.seed_path = seed_path
-        self.seed_module = seed_path.replace("/", ".")
+        self.seed_module = seed_path.replace("/", ".").replace("\\", ".")
 
     def call(self, *seeder_classes):
         for seeder_class in seeder_classes:
