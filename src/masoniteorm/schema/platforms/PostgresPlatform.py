@@ -84,10 +84,11 @@ class PostgresPlatform(Platform):
         if table.added_indexes:
             for name, index in table.added_indexes.items():
                 sql.append(
-                    "CREATE INDEX {name} ON {table}({column})".format(
+                    "CREATE INDEX {name} ON {table} USING {type} ({column})".format(
                         name=index.name,
                         table=self.wrap_table(table.name),
                         column=",".join(index.column),
+                        type=index.index_type
                     )
                 )
 
@@ -321,10 +322,11 @@ class PostgresPlatform(Platform):
         if table.added_indexes:
             for name, index in table.added_indexes.items():
                 sql.append(
-                    "CREATE INDEX {name} ON {table}({column})".format(
+                    "CREATE INDEX {name} ON {table} USING {type} ({column})".format(
                         name=index.name,
                         table=self.wrap_table(table.name),
                         column=",".join(index.column),
+                        type=index.index_type
                     )
                 )
 
