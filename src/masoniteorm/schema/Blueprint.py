@@ -721,7 +721,7 @@ class Blueprint:
 
         return self
 
-    def index(self, column=None, name=None):
+    def index(self, column=None, name=None, index_type='btree'):
         """Creates a constraint based on the index constraint representation of the table.
 
         Arguments:
@@ -737,7 +737,7 @@ class Blueprint:
             column = [column]
 
         self.table.add_index(
-            column, name or f"{self.table.name}_{'_'.join(column)}_index", "index"
+            column, name or f"{self.table.name}_{'_'.join(column)}_index", index_type
         )
 
         return self

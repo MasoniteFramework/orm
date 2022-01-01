@@ -122,8 +122,8 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             [
-                'CREATE INDEX users_name_index ON "users"(name)',
-                'CREATE INDEX users_name_email_index ON "users"(name,email)',
+                'CREATE INDEX users_name_index ON "users" USING btree (name)',
+                'CREATE INDEX users_name_email_index ON "users" USING btree (name,email)',
                 'ALTER TABLE "users" ADD CONSTRAINT users_name_unique UNIQUE(name)',
                 'ALTER TABLE "users" ADD CONSTRAINT users_name_email_unique UNIQUE(name,email)',
             ],
@@ -157,7 +157,7 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.index("playlist_id")
 
-        sql = ['CREATE INDEX users_playlist_id_index ON "users"(playlist_id)']
+        sql = ['CREATE INDEX users_playlist_id_index ON "users" USING btree (playlist_id)']
 
         self.assertEqual(blueprint.to_sql(), sql)
 
