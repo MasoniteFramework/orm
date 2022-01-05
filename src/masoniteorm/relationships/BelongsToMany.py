@@ -193,7 +193,7 @@ class BelongsToMany(BaseRelationship):
             f"{table2}.*",
             f"{self._table}.{self.local_key} as {self._table}_id",
             f"{self._table}.{self.foreign_key} as m_reserved2",
-        ).table(f"{table1}")
+        ).run_scopes().table(f"{table1}")
 
         if self.with_fields:
             for field in self.with_fields:
