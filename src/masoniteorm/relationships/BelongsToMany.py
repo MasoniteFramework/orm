@@ -189,11 +189,15 @@ class BelongsToMany(BaseRelationship):
 
         table2 = builder.get_table_name()
         table1 = query.get_table_name()
-        result = builder.select(
-            f"{table2}.*",
-            f"{self._table}.{self.local_key} as {self._table}_id",
-            f"{self._table}.{self.foreign_key} as m_reserved2",
-        ).run_scopes().table(f"{table1}")
+        result = (
+            builder.select(
+                f"{table2}.*",
+                f"{self._table}.{self.local_key} as {self._table}_id",
+                f"{self._table}.{self.foreign_key} as m_reserved2",
+            )
+            .run_scopes()
+            .table(f"{table1}")
+        )
 
         if self.with_fields:
             for field in self.with_fields:

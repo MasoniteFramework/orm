@@ -1592,11 +1592,11 @@ class QueryBuilder(ObservesEvents):
         grammar = self.get_grammar()
         sql = grammar.compile(self._action, qmark=False).to_sql()
         return sql
-    
+
     def run_scopes(self):
         for name, scope in self._global_scopes.get(self._action, {}).items():
             scope(self)
-        
+
         return self
 
     def to_qmark(self):
