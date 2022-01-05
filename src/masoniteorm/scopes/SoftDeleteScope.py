@@ -22,7 +22,9 @@ class SoftDeleteScope(BaseScope):
         builder.remove_global_scope("_query_set_null_on_delete", action="delete")
 
     def _where_null(self, builder):
-        return builder.where_null(self.deleted_at_column)
+        return builder.where_null(
+            f"{builder.get_table_name()}.{self.deleted_at_column}"
+        )
 
     def _with_trashed(self, model, builder):
         builder.remove_global_scope("_where_null", action="select")
