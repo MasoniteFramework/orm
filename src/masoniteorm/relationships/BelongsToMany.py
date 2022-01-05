@@ -222,6 +222,8 @@ class BelongsToMany(BaseRelationship):
         if self.pivot_id:
             result.select(f"{self._table}.{self.pivot_id} as m_reserved3")
 
+        result.without_global_scopes()
+
         if isinstance(relation, Collection):
             final_result = result.where_in(
                 self.local_owner_key,
