@@ -11,5 +11,4 @@ class ObservesEvents:
         if cls in cls.__observers__:
             cls.__observers__[cls].append(observer)
         else:
-            print(cls)
             cls.__observers__.update({cls: [observer]})
