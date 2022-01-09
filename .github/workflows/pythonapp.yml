@@ -52,6 +52,7 @@ jobs:
           MYSQL_DATABASE_DATABASE: orm
           MYSQL_DATABASE_USER: root
           MYSQL_DATABASE_PORT: ${{ job.services.mysql.ports[3306] }}
+          DB_CONFIG_PATH: tests/integrations/config/database.py
         run: |
           python orm migrate --connection postgres
           python orm migrate --connection mysql
