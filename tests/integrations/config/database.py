@@ -36,6 +36,7 @@ DATABASES = {
         "prefix": "",
         "options": {"charset": "utf8mb4"},
         "log_queries": True,
+        "propagate": False,
     },
     "many": {
         "driver": "mysql",
@@ -46,6 +47,7 @@ DATABASES = {
         "port": os.getenv("MYSQL_DATABASE_PORT"),
         "options": {"charset": "utf8mb4"},
         "log_queries": True,
+        "propagate": False,
     },
     "postgres": {
         "driver": "postgres",
@@ -56,6 +58,7 @@ DATABASES = {
         "port": os.getenv("POSTGRES_DATABASE_PORT"),
         "prefix": "",
         "log_queries": True,
+        "propagate": False,
     },
     # Example with db_url()
     # "postgres": db_url(

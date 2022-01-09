@@ -594,5 +594,5 @@ class TestCollection(unittest.TestCase):
 
     def test_make_comparison(self):
         collection = Collection([])
-        self.assertTrue(collection._make_comparison(1, 1, '=='))
-        self.assertTrue(collection._make_comparison(1, '1', '=='))
+        self.assertTrue(collection._make_comparison(1, 1, "=="))
+        self.assertTrue(collection._make_comparison(1, "1", "=="))
