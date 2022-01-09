@@ -3,7 +3,7 @@ import unittest
 
 from src.masoniteorm.models import Model
 from src.masoniteorm.relationships import belongs_to, has_many, has_one, belongs_to_many
-from config.database import DB
+from tests.integrations.config.database import DB
 
 
 class Profile(Model):
