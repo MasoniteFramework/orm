@@ -1,7 +1,7 @@
 import unittest
 
 from src.masoniteorm.connections import ConnectionResolver
-from config.database import DB
+from tests.integrations.config.database import DB
 
 
 class TestDefaultBehaviorConnections(unittest.TestCase):

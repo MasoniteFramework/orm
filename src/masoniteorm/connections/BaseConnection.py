@@ -17,6 +17,8 @@ class BaseConnection:
         self, query, bindings, query_time=0, logger="masoniteorm.connections.queries"
     ):
         logger = logging.getLogger("masoniteorm.connection.queries")
+        logger.propagate = self.full_details.get("propagate", True)
+
         logger.debug(
             f"Running query {query}, {bindings}. Executed in {query_time}ms",
             extra={"query": query, "bindings": bindings, "query_time": query_time},

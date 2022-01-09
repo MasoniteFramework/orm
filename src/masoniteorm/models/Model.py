@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, date as datetimedate, time as datetimetime
+import logging
 
 from inflection import tableize
 import inspect
@@ -369,6 +370,14 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                     value = model.get_new_date(value)
                 dic.update({key: value})
 
+            logger = logging.getLogger("masoniteorm.models.hydrate")
+            logger.setLevel(logging.INFO)
+            logger.propagate = False
+            logger.info(
+                f"Hydrating Model {cls.__name__}",
+                extra={"class_name": cls.__name__, "class_module": cls.__module__},
+            )
+
             model.observe_events(model, "hydrating")
             model.__attributes__.update(dic or {})
             model.__original_attributes__.update(dic or {})
@@ -459,9 +468,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         # prevent using both exclude and include at the same time
         if exclude is not None and include is not None:
-            raise AttributeError(
-                "Can not define both includes and exclude values."
-            )
+            raise AttributeError("Can not define both includes and exclude values.")
 
         if exclude is not None:
             self.__hidden__ = exclude

@@ -2,7 +2,7 @@ import inspect
 import os
 import unittest
 
-from config.database import DATABASES
+from tests.integrations.config.database import DATABASES
 from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder

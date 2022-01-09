@@ -1,7 +1,7 @@
 import unittest
 import os
 
-from config.database import DATABASES
+from tests.integrations.config.database import DATABASES
 from src.masoniteorm.connections import MySQLConnection
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import MySQLPlatform

@@ -1,7 +1,7 @@
 import inspect
 import unittest
 
-from config.database import DATABASES
+from tests.integrations.config.database import DATABASES
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import MySQLGrammar
