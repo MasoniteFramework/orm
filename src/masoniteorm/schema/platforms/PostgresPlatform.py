@@ -392,7 +392,7 @@ class PostgresPlatform(Platform):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
     
     def create_if_not_exists_format(self):
-        return "CREATE TABLE IF NOT EXISTS {table} ({columns}{constraints}{foreign_keys}){comment}"
+        return "CREATE TABLE IF NOT EXISTS {table} ({columns}{constraints}{foreign_keys})"
 
     def get_foreign_key_constraint_string(self):
         return "CONSTRAINT {constraint_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){cascade}"
