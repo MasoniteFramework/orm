@@ -99,11 +99,11 @@ class MySQLPlatform(Platform):
 
         return sql
 
-    def compile_create_sql(self, table):
+    def compile_create_sql(self, table, if_not_exists=False):
         sql = []
-
+        table_create_format = self.create_if_not_exists_format() if if_not_exists else self.create_format()
         sql.append(
-            self.create_format().format(
+            table_create_format.format(
                 table=self.get_table_string().format(table=table.name),
                 columns=", ".join(self.columnize(table.get_added_columns())).strip(),
                 constraints=", "
@@ -350,6 +350,9 @@ class MySQLPlatform(Platform):
 
     def create_format(self):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys}){comment}"
+    
+    def create_if_not_exists_format(self):
+        return "CREATE TABLE IF NOT EXISTS {table} ({columns}{constraints}{foreign_keys}){comment}"
 
     def alter_format(self):
         return "ALTER TABLE {table} {columns}"

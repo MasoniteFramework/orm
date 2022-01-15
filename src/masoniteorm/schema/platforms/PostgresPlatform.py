@@ -61,11 +61,11 @@ class PostgresPlatform(Platform):
 
     premapped_nulls = {True: "NULL", False: "NOT NULL"}
 
-    def compile_create_sql(self, table):
+    def compile_create_sql(self, table, if_not_exists=False):
         sql = []
-
+        table_create_format = self.create_if_not_exists_format() if if_not_exists else self.create_format()
         sql.append(
-            self.create_format().format(
+            table_create_format.format(
                 table=self.wrap_table(table.name),
                 columns=", ".join(self.columnize(table.get_added_columns())).strip(),
                 constraints=", "
@@ -390,6 +390,9 @@ class PostgresPlatform(Platform):
 
     def create_format(self):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
+    
+    def create_if_not_exists_format(self):
+        return "CREATE TABLE IF NOT EXISTS {table} ({columns}{constraints}{foreign_keys}){comment}"
 
     def get_foreign_key_constraint_string(self):
         return "CONSTRAINT {constraint_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){cascade}"
