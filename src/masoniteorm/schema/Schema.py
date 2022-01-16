@@ -98,7 +98,7 @@ class Schema:
         )
 
         return self._blueprint
-    
+
     def create_table_if_not_exists(self, table):
         self._table = table
 
