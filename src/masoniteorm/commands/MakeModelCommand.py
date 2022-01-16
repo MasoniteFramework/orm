@@ -13,10 +13,12 @@ class MakeModelCommand(Command):
     model
         {name : The name of the model}
         {--m|migration : Optionally create a migration file}
+        {--s|seeder : Optionally create a seeder file}
         {--c|create : If the migration file should create a table}
         {--t|table : If the migration file should modify an existing table}
         {--d|directory=app : The location of the model directory}
         {--D|migrations-directory=databases/migrations : The location of the migration directory}
+        {--S|seeders-directory=databases/seeds : The location of the seeders directory}
     """
 
     def handle(self):
@@ -58,3 +60,7 @@ class MakeModelCommand(Command):
                     "migration",
                     f"update_{tableize(name)}_table --table {tableize(name)} --directory {migrations_directory}",
                 )
+
+        if self.option("seeder"):
+            directory = self.option("seeders-directory")
+            self.call("seed", f"{self.argument('name')} --directory {directory}")
