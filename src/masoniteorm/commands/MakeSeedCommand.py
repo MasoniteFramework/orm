@@ -35,7 +35,7 @@ class MakeSeedCommand(Command):
 
         file_name = f"{underscore(name)}.py"
         full_path = pathlib.Path(os.path.join(os.getcwd(), seed_directory, file_name))
-        
+
         path_normalized = pathlib.Path(seed_directory) / pathlib.Path(file_name)
 
         if os.path.exists(full_path):
@@ -43,5 +43,5 @@ class MakeSeedCommand(Command):
 
         with open(full_path, "w") as fp:
             fp.write(output)
-        
+
         self.info(f"Seed file created: {path_normalized}")
