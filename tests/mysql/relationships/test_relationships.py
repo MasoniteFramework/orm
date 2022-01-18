@@ -21,6 +21,16 @@ class Permission(Model):
         return Role
 
 
+class PermissionSelect(Model):
+    __table__ = "permissions"
+
+    __selects__ = ["permission_id"]
+
+    @belongs_to_many("permission_id", "role_id", "id", "id")
+    def role(self):
+        return Role
+
+
 class Role(Model):
     @belongs_to_many("role_id", "permission_id", "id", "id")
     def permissions(self):
@@ -67,4 +77,12 @@ class MySQLRelationships(unittest.TestCase):
         self.assertEqual(
             sql,
             """SELECT `permissions`.*, (SELECT COUNT(*) AS m_count_reserved FROM `permission_role` WHERE `permissions`.`id` = `permission_role`.`permission_id`) AS roles_count FROM `permissions`""",
+        )
+
+    def test_with_count_with_selects(self):
+        sql = PermissionSelect.with_count("role").to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT `permissions`.`permission_id`, (SELECT COUNT(*) AS m_count_reserved FROM `permission_role` WHERE `permissions`.`id` = `permission_role`.`permission_id`) AS roles_count FROM `permissions`""",
         )

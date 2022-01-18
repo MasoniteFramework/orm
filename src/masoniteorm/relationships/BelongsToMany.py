@@ -313,7 +313,10 @@ class BelongsToMany(BaseRelationship):
     def get_with_count_query(self, query, builder, callback):
         self._table = self.get_pivot_table_name(query, builder)
 
-        return_query = builder.select("*").add_select(
+        if not builder._columns:
+            builder = builder.select("*")
+
+        return_query = builder.add_select(
             f"{query.get_table_name()}_count",
             lambda q: (
                 (
