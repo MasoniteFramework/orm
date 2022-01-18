@@ -30,6 +30,19 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             ],
         )
 
+    def test_can_create_table_if_not_exists(self):
+        with self.schema.create_table_if_not_exists("users") as blueprint:
+            blueprint.string("name")
+            blueprint.integer("age")
+
+        self.assertEqual(len(blueprint.table.added_columns), 2)
+        self.assertEqual(
+            blueprint.to_sql(),
+            [
+                'CREATE TABLE IF NOT EXISTS "users" ("name" VARCHAR(255) NOT NULL, "age" INTEGER NOT NULL)'
+            ],
+        )
+
     def test_can_add_columns_with_constraint(self):
         with self.schema.create("users") as blueprint:
             blueprint.string("name")
