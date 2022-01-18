@@ -29,6 +29,19 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             [
                 'CREATE TABLE "users" ("name" VARCHAR(255) NOT NULL, "age" INTEGER NOT NULL)'
             ],
+        )        
+
+    def test_can_create_table_if_not_exists(self):
+        with self.schema.create_table_if_not_exists("users") as blueprint:
+            blueprint.string("name")
+            blueprint.integer("age")
+
+        self.assertEqual(len(blueprint.table.added_columns), 2)
+        self.assertEqual(
+            blueprint.to_sql(),
+            [
+                'CREATE TABLE IF NOT EXISTS "users" ("name" VARCHAR(255) NOT NULL, "age" INTEGER NOT NULL)'
+            ],
         )
 
     def test_can_add_column_comment(self):
