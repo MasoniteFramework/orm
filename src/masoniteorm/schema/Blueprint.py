@@ -661,6 +661,8 @@ class Blueprint:
         """
         if self._action == "create":
             return self.platform().compile_create_sql(self.table)
+        elif self._action == "create_table_if_not_exists":
+            return self.platform().compile_create_sql(self.table, if_not_exists=True)
         else:
             if not self._dry:
                 # get current table schema

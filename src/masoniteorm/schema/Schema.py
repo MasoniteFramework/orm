@@ -99,6 +99,21 @@ class Schema:
 
         return self._blueprint
 
+    def create_table_if_not_exists(self, table):
+        self._table = table
+
+        self._blueprint = Blueprint(
+            self.grammar,
+            connection=self.new_connection(),
+            table=Table(table),
+            action="create_table_if_not_exists",
+            platform=self.platform,
+            default_string_length=self._default_string_length,
+            dry=self._dry,
+        )
+
+        return self._blueprint
+
     def table(self, table):
         """Sets the table and returns the blueprint.
 
