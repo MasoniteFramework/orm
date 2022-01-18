@@ -101,7 +101,11 @@ class MySQLPlatform(Platform):
 
     def compile_create_sql(self, table, if_not_exists=False):
         sql = []
-        table_create_format = self.create_if_not_exists_format() if if_not_exists else self.create_format()
+        table_create_format = (
+            self.create_if_not_exists_format()
+            if if_not_exists
+            else self.create_format()
+        )
         sql.append(
             table_create_format.format(
                 table=self.get_table_string().format(table=table.name),

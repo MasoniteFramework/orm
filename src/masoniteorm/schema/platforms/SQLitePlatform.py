@@ -58,7 +58,11 @@ class SQLitePlatform(Platform):
 
     def compile_create_sql(self, table, if_not_exists=False):
         sql = []
-        table_create_format = self.create_if_not_exists_format() if if_not_exists else self.create_format()
+        table_create_format = (
+            self.create_if_not_exists_format()
+            if if_not_exists
+            else self.create_format()
+        )
         sql.append(
             table_create_format.format(
                 table=self.get_table_string().format(table=table.name).strip(),
@@ -261,7 +265,9 @@ class SQLitePlatform(Platform):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
 
     def create_if_not_exists_format(self):
-        return "CREATE TABLE IF NOT EXISTS {table} ({columns}{constraints}{foreign_keys})"
+        return (
+            "CREATE TABLE IF NOT EXISTS {table} ({columns}{constraints}{foreign_keys})"
+        )
 
     def get_table_string(self):
         return '"{table}"'

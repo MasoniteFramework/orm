@@ -20,6 +20,7 @@ class Permission(Model):
     def role(self):
         return Role
 
+
 class PermissionSelect(Model):
     __table__ = "permissions"
 
