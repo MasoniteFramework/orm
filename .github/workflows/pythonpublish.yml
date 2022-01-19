@@ -56,6 +56,7 @@ jobs:
           MYSQL_DATABASE_PORT: ${{ job.services.mysql.ports[3306] }}
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+          DB_CONFIG_PATH: tests/integrations/config/database.py
         run: |
           python orm migrate --connection postgres
           python orm migrate --connection mysql
