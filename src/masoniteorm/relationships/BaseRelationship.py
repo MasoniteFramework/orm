@@ -123,3 +123,8 @@ class BaseRelationship:
         return current_model.update(
             {self.local_key: getattr(related_record, self.foreign_key)}
         )
+
+    def attach_related(self, current_model, related_record):
+        return related_record.update(
+            {self.foreign_key: getattr(current_model, self.local_key)}
+        )

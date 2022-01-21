@@ -855,7 +855,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     def save_many(self, relation, relating_records):
         related = getattr(self.__class__, relation)
         for related_record in relating_records:
-            related.attach(relation, related_record)
+            if not related_record.is_created():
+                related_record.create(related_record.all_attributes())
+            else:
+                related_record.save()
+
+            related.attach_related(self, related_record)
 
     def related(self, relation):
         related = getattr(self.__class__, relation)
@@ -874,6 +879,16 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             related_record.save()
 
         return related.attach(self, related_record)
+
+    def attach_related(self, relation, related_record):
+        related = getattr(self.__class__, relation)
+
+        if not related_record.is_created():
+            related_record = related_record.create(related_record.all_attributes())
+        else:
+            related_record.save()
+
+        return related.attach_related(self, related_record)
 
     @classmethod
     def on(cls, connection):

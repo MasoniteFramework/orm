@@ -148,7 +148,7 @@ class TestRelationships(unittest.TestCase):
         DB.begin_transaction("dev")
         user = User.first()
 
-        articles = [Articles.hydrate({"title": "associate records"})]
+        articles = [Articles.hydrate({"id": 1, "title": "associate records"})]
 
         user.save_many("articles", articles)
         DB.rollback("dev")
