@@ -855,15 +855,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     def save_many(self, relation, relating_records):
         related = getattr(self.__class__, relation)
         for related_record in relating_records:
-            setattr(
-                related_record,
-                related.foreign_key,
-                self.__attributes__[related.local_key],
-            )
-            if not related_record.is_created():
-                related_record.create(related_record.all_attributes())
-            else:
-                related_record.save()
+            related.attach(relation, related_record)
 
     def related(self, relation):
         related = getattr(self.__class__, relation)
