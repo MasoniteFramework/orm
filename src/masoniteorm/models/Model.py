@@ -877,7 +877,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         related = getattr(self.__class__, relation)
 
         if not related_record.is_created():
-            related_record.create(related_record.all_attributes())
+            related_record = related_record.create(related_record.all_attributes())
         else:
             related_record.save()
 
