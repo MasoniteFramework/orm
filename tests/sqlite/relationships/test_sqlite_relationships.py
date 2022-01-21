@@ -153,15 +153,6 @@ class TestRelationships(unittest.TestCase):
         user.save_many("articles", articles)
         DB.rollback("dev")
 
-    def test_attach_records(self):
-        DB.begin_transaction("dev")
-        article = Articles.first()
-
-        logo = Logo.hydrate({"url": "yahoo.com"})
-
-        article.attach("logo", logo)
-        DB.rollback("dev")
-
     def test_belongs_to_many(self):
         store = Store.hydrate({"id": 2, "name": "Walmart"})
         self.assertEqual(store.products.count(), 3)
