@@ -349,12 +349,16 @@ class BelongsToMany(BaseRelationship):
         }
 
         if self.with_timestamps:
-            data.update({
-                'created_at': pendulum.now().to_datetime_string(),
-                'updated_at': pendulum.now().to_datetime_string()
-            })
+            data.update(
+                {
+                    "created_at": pendulum.now().to_datetime_string(),
+                    "updated_at": pendulum.now().to_datetime_string(),
+                }
+            )
 
-        return (Pivot.on(current_model.builder.connection)
+        return (
+            Pivot.on(current_model.builder.connection)
             .table(self._table)
             .without_global_scopes()
-            .create(data))
+            .create(data)
+        )

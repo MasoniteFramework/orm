@@ -120,6 +120,6 @@ class BaseRelationship:
         return return_query
 
     def attach(self, current_model, related_record):
-        return current_model.update({
-            self.local_key: getattr(related_record, self.foreign_key)
-        })
+        return current_model.update(
+            {self.local_key: getattr(related_record, self.foreign_key)}
+        )
