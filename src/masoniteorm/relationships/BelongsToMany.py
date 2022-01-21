@@ -2,6 +2,7 @@ from .BaseRelationship import BaseRelationship
 from ..collection import Collection
 from inflection import singularize
 from ..models.Pivot import Pivot
+import pendulum
 
 
 class BelongsToMany(BaseRelationship):
@@ -340,3 +341,20 @@ class BelongsToMany(BaseRelationship):
         )
 
         return return_query
+
+    def attach(self, current_model, related_record):
+        data = {
+            self.local_key: getattr(current_model, self.local_owner_key),
+            self.foreign_key: getattr(related_record, self.other_owner_key),
+        }
+
+        if self.with_timestamps:
+            data.update({
+                'created_at': pendulum.now().to_datetime_string(),
+                'updated_at': pendulum.now().to_datetime_string()
+            })
+
+        return (Pivot.on(current_model.builder.connection)
+            .table(self._table)
+            .without_global_scopes()
+            .create(data))

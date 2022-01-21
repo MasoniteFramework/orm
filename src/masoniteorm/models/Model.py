@@ -192,6 +192,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "where_not_null",
         "where_null",
         "where_raw",
+        "without_global_scopes",
         "where",
         "with_",
         "with_count",
@@ -874,14 +875,13 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
     def attach(self, relation, related_record):
         related = getattr(self.__class__, relation)
-        setattr(
-            related_record, related.foreign_key, self.__attributes__[related.local_key]
-        )
 
         if not related_record.is_created():
             related_record.create(related_record.all_attributes())
         else:
             related_record.save()
+
+        return related.attach(self, related_record)
 
     @classmethod
     def on(cls, connection):
