@@ -39,7 +39,7 @@ class PostgresPlatform(Platform):
         "inet": "INET",
         "cidr": "CIDR",
         "macaddr": "MACADDR",
-        "long_text": "LONGTEXT",
+        "long_text": "TEXT",
         "point": "POINT",
         "time": "TIME",
         "timestamp": "TIMESTAMP",
