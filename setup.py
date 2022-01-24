@@ -56,6 +56,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Framework :: Masonite",
         "Topic :: Software Development :: Libraries :: Python Modules",
+        "Framework :: Masonite",
     ],
     # What does your project relate to?
     keywords="Masonite, MasoniteFramework, Python, ORM",
