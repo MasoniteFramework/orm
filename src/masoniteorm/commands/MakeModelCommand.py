@@ -1,7 +1,7 @@
 import os
 import pathlib
 
-from inflection import camelize, tableize
+from inflection import camelize, tableize, underscore
 
 from .Command import Command
 
@@ -16,6 +16,7 @@ class MakeModelCommand(Command):
         {--s|seeder : Optionally create a seeder file}
         {--c|create : If the migration file should create a table}
         {--t|table : If the migration file should modify an existing table}
+        {--p|pep : Makes the file into pep 8 standards}
         {--d|directory=app : The location of the model directory}
         {--D|migrations-directory=databases/migrations : The location of the migration directory}
         {--S|seeders-directory=databases/seeds : The location of the seeders directory}
@@ -23,6 +24,7 @@ class MakeModelCommand(Command):
 
     def handle(self):
         name = self.argument("name")
+
 
         model_directory = self.option("directory")
 
@@ -32,7 +34,10 @@ class MakeModelCommand(Command):
             output = fp.read()
             output = output.replace("__CLASS__", camelize(name))
 
-        file_name = f"{camelize(name)}.py"
+        if self.option("pep"):
+            file_name = f"{underscore(name)}.py"
+        else:
+            file_name = f"{camelize(name)}.py"
 
         full_directory_path = os.path.join(os.getcwd(), model_directory)
 
