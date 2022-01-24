@@ -25,7 +25,6 @@ class MakeModelCommand(Command):
     def handle(self):
         name = self.argument("name")
 
-
         model_directory = self.option("directory")
 
         with open(
