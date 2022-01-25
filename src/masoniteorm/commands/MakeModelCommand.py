@@ -54,15 +54,15 @@ class MakeModelCommand(Command):
         self.info(f"Model created: {os.path.join(model_directory, file_name)}")
         if self.option("migration"):
             migrations_directory = self.option("migrations-directory")
-            if self.option("create"):
+            if self.option("table"):
                 self.call(
                     "migration",
-                    f"create_{tableize(name)}_table --create {tableize(name)} --directory {migrations_directory}",
+                    f"update_{tableize(name)}_table --table {tableize(name)} --directory {migrations_directory}",
                 )
             else:
                 self.call(
                     "migration",
-                    f"update_{tableize(name)}_table --table {tableize(name)} --directory {migrations_directory}",
+                    f"create_{tableize(name)}_table --create {tableize(name)} --directory {migrations_directory}",
                 )
 
         if self.option("seeder"):
