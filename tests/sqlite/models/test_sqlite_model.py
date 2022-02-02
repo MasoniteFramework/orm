@@ -35,6 +35,12 @@ class SelectPass(Model):
     __dry__ = True
 
 
+class UserHydrateHidden(Model):
+    __connection__ = "dev"
+    __dry__ = True
+    __hidden__ = ["token", "password"]
+
+
 class BaseTestQueryRelationships(unittest.TestCase):
 
     maxDiff = None
@@ -142,3 +148,17 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
         count = User.where_not_null("id").not_between("age", 1, 2).get().count()
         self.assertEqual(count, 0)
+
+    def test_should_hide_fields_from_hidden_attribute(self):
+        data = {
+            "id": 1,
+            "name": "joe",
+            "customer_id": 1,
+            "token": "token_value",
+            "password": "password_value",
+        }
+
+        user = UserHydrateHidden.hydrate(data)
+
+        self.assertNotIn("token", user.serialize())
+        self.assertNotIn("password", user.serialize())
