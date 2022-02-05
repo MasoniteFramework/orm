@@ -54,7 +54,7 @@ class JsonCast:
     """Casts a value to JSON"""
 
     def get(self, value):
-        if isinstance(value, dict):
+        if isinstance(value, dict) or isinstance(value, list):
             return value
 
         return json.loads(value)
