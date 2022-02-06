@@ -6,7 +6,9 @@ from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
-from src.masoniteorm.relationships import belongs_to
+from src.masoniteorm.relationships import belongs_to, belongs_to_many
+from src.masoniteorm.schema import Schema
+from src.masoniteorm.schema.platforms.SQLitePlatform import SQLitePlatform
 from tests.utils import MockConnectionFactory
 
 
@@ -37,8 +39,19 @@ class SelectPass(Model):
 
 class UserHydrateHidden(Model):
     __connection__ = "dev"
-    __dry__ = True
+    __table__ = "users_hidden"
     __hidden__ = ["token", "password"]
+
+
+class Group(Model):
+    __connection__ = "dev"
+    __table__ = "groups"
+    __fillable = ["name"]
+    __with__ = ["team"]
+
+    @belongs_to_many("group_id", "user_id", "id", "id", table="group_user")
+    def team(self):
+        return UserHydrateHidden
 
 
 class BaseTestQueryRelationships(unittest.TestCase):
@@ -149,16 +162,56 @@ class BaseTestQueryRelationships(unittest.TestCase):
         count = User.where_not_null("id").not_between("age", 1, 2).get().count()
         self.assertEqual(count, 0)
 
-    def test_should_hide_fields_from_hidden_attribute(self):
-        data = {
-            "id": 1,
-            "name": "joe",
-            "customer_id": 1,
-            "token": "token_value",
-            "password": "password_value",
-        }
+    def test_should_return_relation_applying_hidden_attributes(self):
 
-        user = UserHydrateHidden.hydrate(data)
+        schema = Schema(connection_details=DATABASES, platform=SQLitePlatform).on("dev")
 
-        self.assertNotIn("token", user.serialize())
-        self.assertNotIn("password", user.serialize())
+        tables = ["users_hidden", "group_user", "groups"]
+
+        for table in tables:
+            schema.drop_table_if_exists(table)
+
+        with schema.create("users_hidden") as blueprint:
+            blueprint.increments("id")
+            blueprint.string("name")
+            blueprint.integer("token")
+            blueprint.string("password")
+            blueprint.timestamps()
+
+        with schema.create("groups") as blueprint:
+            blueprint.increments("id")
+            blueprint.string("name")
+            blueprint.timestamps()
+
+        with schema.create("group_user") as blueprint:
+            blueprint.increments("id")
+
+            blueprint.unsigned_integer("group_id")
+            blueprint.unsigned_integer("user_id")
+
+            blueprint.foreign("group_id").references("id").on("groups")
+            blueprint.foreign("user_id").references("id").on("users_hidden")
+
+        UserHydrateHidden.create(
+            name="Name", password="pass_value", token="token_value"
+        )
+
+        Group.create(name="Group")
+
+        user = UserHydrateHidden.first()
+        group = Group.first()
+
+        group.attach_related("team", user)
+
+        serialized = Group.first().serialize()
+
+        self.assertIn("team", serialized)
+        self.assertTrue("team", serialized)
+
+        relation_serialized = serialized.get("team")
+
+        self.assertNotIn("password", relation_serialized)
+        self.assertNotIn("token", relation_serialized)
+
+        for table in tables:
+            schema.truncate(table)
