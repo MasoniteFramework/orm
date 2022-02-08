@@ -17,7 +17,7 @@
 
 All documentation can be found here [https://orm.masoniteproject.com](https://orm.masoniteproject.com).
 
-Also be sure to join the [Slack channel](https://slack.masoniteproject.com)!
+Hop on [Masonite Discord Community](https://discord.gg/TwKeFahmPZ) to ask any questions you need!
 
 ## Contributing
 
