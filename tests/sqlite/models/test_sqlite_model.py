@@ -164,7 +164,9 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
     def test_should_return_relation_applying_hidden_attributes(self):
 
-        schema = Schema(connection_details=DATABASES, platform=SQLitePlatform).on("dev")
+        schema = Schema(
+            connection_details=DATABASES, connection="dev", platform=SQLitePlatform
+        ).on("dev")
 
         tables = ["users_hidden", "group_user", "groups"]
 
