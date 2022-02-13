@@ -570,11 +570,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                     new_dic.update({key: {}})
                     continue
 
-                # TODO: Possibly deprecate this __relationship_hidden__? I think this was a workaround for the below line
-                exclude = self.__relationship_hidden__.get(key, [])
-                exclude += value.__hidden__
-
-                new_dic.update({key: value.serialize(exclude=exclude)})
+                new_dic.update({key: value.serialize()})
 
         return new_dic
 
