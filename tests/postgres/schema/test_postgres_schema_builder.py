@@ -119,10 +119,7 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 1)
         self.assertEqual(
-            blueprint.to_sql(),
-            [
-                'CREATE TABLE "users" ("description" TEXT NOT NULL)'
-            ],
+            blueprint.to_sql(), ['CREATE TABLE "users" ("description" TEXT NOT NULL)']
         )
 
     def test_can_add_columns_with_foreign_key_constaint(self):

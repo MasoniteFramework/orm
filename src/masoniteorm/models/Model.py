@@ -369,7 +369,11 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             for key, value in result.items():
                 if key in model.get_dates() and value:
                     value = model.get_new_date(value)
-                dic.update({key: value})
+
+                should_add_key = key not in model.__hidden__ or key in model.__visible__
+
+                if should_add_key:
+                    dic.update({key: value})
 
             logger = logging.getLogger("masoniteorm.models.hydrate")
             logger.setLevel(logging.INFO)
