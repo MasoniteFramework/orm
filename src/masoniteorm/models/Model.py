@@ -570,13 +570,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                     new_dic.update({key: {}})
                     continue
 
-                new_dic.update(
-                    {
-                        key: value.serialize(
-                            exclude=self.__relationship_hidden__.get(key, [])
-                        )
-                    }
-                )
+                new_dic.update({key: value.serialize()})
 
         return new_dic
 
