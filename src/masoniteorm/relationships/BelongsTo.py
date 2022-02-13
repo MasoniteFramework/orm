@@ -7,6 +7,7 @@ class BelongsTo(BaseRelationship):
 
     def __init__(self, fn, local_key=None, foreign_key=None):
         if isinstance(fn, str):
+            self.fn = None
             self.local_key = fn or "id"
             self.foreign_key = local_key
         else:
@@ -15,8 +16,8 @@ class BelongsTo(BaseRelationship):
             self.foreign_key = foreign_key
 
     def set_keys(self, owner, attribute):
-        self.local_key = self.local_key or "id"
-        self.foreign_key = self.foreign_key or f"{attribute}_id"
+        self.local_key = self.local_key or f"{attribute}_id"
+        self.foreign_key = self.foreign_key or "id"
         return self
 
     def apply_query(self, foreign, owner):
