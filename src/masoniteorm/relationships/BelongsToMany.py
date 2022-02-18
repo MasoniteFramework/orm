@@ -348,6 +348,8 @@ class BelongsToMany(BaseRelationship):
             self.foreign_key: getattr(related_record, self.other_owner_key),
         }
 
+        self._table = self.get_pivot_table_name(current_model, related_record)
+
         if self.with_timestamps:
             data.update(
                 {
@@ -383,6 +385,8 @@ class BelongsToMany(BaseRelationship):
             self.foreign_key: getattr(related_record, self.other_owner_key),
         }
 
+        self._table = self.get_pivot_table_name(current_model, related_record)
+
         if self.with_timestamps:
             data.update(
                 {
@@ -403,6 +407,8 @@ class BelongsToMany(BaseRelationship):
             self.local_key: getattr(current_model, self.local_owner_key),
             self.foreign_key: getattr(related_record, self.other_owner_key),
         }
+
+        self._table = self.get_pivot_table_name(current_model, related_record)
 
         if self.with_timestamps:
             data.update(
