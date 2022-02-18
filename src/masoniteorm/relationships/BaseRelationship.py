@@ -1,3 +1,6 @@
+from attr import attr
+
+
 class BaseRelationship:
     def __init__(self, fn, local_key=None, foreign_key=None):
         if isinstance(fn, str):
@@ -62,6 +65,7 @@ class BaseRelationship:
             return self
 
     def __getattr__(self, attribute):
+        print(attribute)
         relationship = self.fn(self)()
         return getattr(relationship.builder, attribute)
 

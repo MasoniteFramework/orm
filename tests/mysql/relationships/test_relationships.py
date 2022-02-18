@@ -2,7 +2,9 @@ import unittest
 
 # from src.masoniteorm import query
 from src.masoniteorm.models import Model
-from src.masoniteorm.relationships import belongs_to, has_one, belongs_to_many
+from src.masoniteorm.relationships import belongs_to, has_one, belongs_to_many, has_one_through
+from dotenv import load_dotenv
+load_dotenv(".env")
 
 
 class User(Model):
@@ -36,6 +38,20 @@ class Role(Model):
     def permissions(self):
         return Permission
 
+class InboundShipment(Model):
+
+    @has_one_through("port_id", "country_id", "from_port_id", "country_id")
+    def from_country(self):
+        return [
+            Country, Port
+        ]
+    # return $this->hasOneThrough(Country::class, Port::class, 'port_id', 'country_id', 'from_port_id', 'country_id');
+        
+class Country(Model):
+    pass
+
+class Port(Model):
+    pass
 
 class MySQLRelationships(unittest.TestCase):
     def test_relationship_keys(self):
@@ -86,3 +102,10 @@ class MySQLRelationships(unittest.TestCase):
             sql,
             """SELECT `permissions`.`permission_id`, (SELECT COUNT(*) AS m_count_reserved FROM `permission_role` WHERE `permissions`.`id` = `permission_role`.`permission_id`) AS roles_count FROM `permissions`""",
         )
+
+    def test_has_one_through(self):
+        # sql = InboundShipment.has("from_country").to_sql()
+        sql = InboundShipment.with_("from_country").to_sql()
+        print(sql)
+
+        

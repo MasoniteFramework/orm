@@ -841,7 +841,9 @@ class QueryBuilder(ObservesEvents):
                     )
                     last_builder = related_builder
             else:
+                print(self._model, relationship)
                 related = getattr(self._model, relationship)
+                print(related)
                 related_builder = related.get_builder()
                 self.where_exists(
                     related_builder.where_column(
