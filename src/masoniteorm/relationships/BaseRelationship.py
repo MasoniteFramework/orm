@@ -133,3 +133,8 @@ class BaseRelationship:
         return related_record.update(
             {self.foreign_key: getattr(current_model, self.local_key)}
         )
+
+    def detach_related(self, current_model, related_record):
+        return related_record.where(
+            {self.foreign_key: getattr(current_model, self.local_key)}
+        ).delete()
