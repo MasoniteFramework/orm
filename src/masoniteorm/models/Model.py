@@ -850,6 +850,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return self
 
     def save_many(self, relation, relating_records):
+
+        if isinstance(relating_records, Model):
+            raise ValueError(
+                "Saving many records requires an iterable like a collection or a list of models and not a Model object. To attach a model, use the 'attach' method."
+            )
+
         related = getattr(self.__class__, relation)
         for related_record in relating_records:
             if not related_record.is_created():
@@ -860,6 +866,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             related.attach_related(self, related_record)
 
     def detach_many(self, relation, relating_records):
+
+        if isinstance(relating_records, Model):
+            raise ValueError(
+                "Detaching many records requires an iterable like a collection or a list of models and not a Model object. To detach a model, use the 'detach' method."
+            )
+
         related = getattr(self.__class__, relation)
         for related_record in relating_records:
             if not related_record.is_created():
