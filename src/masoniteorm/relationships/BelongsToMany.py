@@ -373,7 +373,8 @@ class BelongsToMany(BaseRelationship):
             Pivot.on(current_model.builder.connection)
             .table(self._table)
             .without_global_scopes()
-            .where(data).delete()
+            .where(data)
+            .delete()
         )
 
     def attach_related(self, current_model, related_record):
@@ -415,5 +416,6 @@ class BelongsToMany(BaseRelationship):
             Pivot.on(current_model.builder.connection)
             .table(self._table)
             .without_global_scopes()
-            .where(data).delete()
+            .where(data)
+            .delete()
         )
