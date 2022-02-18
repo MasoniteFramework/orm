@@ -363,6 +363,19 @@ class BelongsToMany(BaseRelationship):
             .create(data)
         )
 
+    def detach(self, current_model, related_record):
+        data = {
+            self.local_key: getattr(current_model, self.local_owner_key),
+            self.foreign_key: getattr(related_record, self.other_owner_key),
+        }
+
+        return (
+            Pivot.on(current_model.builder.connection)
+            .table(self._table)
+            .without_global_scopes()
+            .where(data).delete()
+        )
+
     def attach_related(self, current_model, related_record):
         data = {
             self.local_key: getattr(current_model, self.local_owner_key),
