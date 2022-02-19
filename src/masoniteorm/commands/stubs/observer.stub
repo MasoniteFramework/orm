@@ -93,7 +93,7 @@ class __CLASS__Observer:
         pass
 
     def deleted(self, __MODEL_VARIABLE__):
-        """Handle the __MODEL__ "created" event.
+        """Handle the __MODEL__ "deleted" event.
 
         Args:
             __MODEL_VARIABLE__ (masoniteorm.models.Model): __MODEL__ model.
