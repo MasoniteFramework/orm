@@ -1,4 +1,3 @@
-from attr import attr
 
 
 class BaseRelationship:
