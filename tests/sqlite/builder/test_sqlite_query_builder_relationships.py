@@ -8,6 +8,10 @@ from src.masoniteorm.query.grammars import SQLiteGrammar
 from src.masoniteorm.relationships import belongs_to
 from tests.utils import MockConnectionFactory
 
+from dotenv import load_dotenv
+
+load_dotenv(".env")
+
 
 class Logo(Model):
     __connection__ = "dev"

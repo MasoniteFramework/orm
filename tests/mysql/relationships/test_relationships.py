@@ -3,6 +3,9 @@ import unittest
 # from src.masoniteorm import query
 from src.masoniteorm.models import Model
 from src.masoniteorm.relationships import belongs_to, has_one, belongs_to_many
+from dotenv import load_dotenv
+
+load_dotenv(".env")
 
 
 class User(Model):
