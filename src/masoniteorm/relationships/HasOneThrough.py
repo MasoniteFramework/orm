@@ -78,7 +78,10 @@ class HasOneThrough(BaseRelationship):
         """
         # select * from `countries` inner join `ports` on `ports`.`country_id` = `countries`.`country_id` where `ports`.`port_id` is null and `countries`.`deleted_at` is null and `ports`.`deleted_at` is null
         distant_builder.join(
-            f"{self.intermediary_builder.get_table_name()}", f"{self.intermediary_builder.get_table_name()}.{self.foreign_key}", "=", f"{distant_builder.get_table_name()}.{self.other_owner_key}"
+            f"{self.intermediary_builder.get_table_name()}",
+            f"{self.intermediary_builder.get_table_name()}.{self.foreign_key}",
+            "=",
+            f"{distant_builder.get_table_name()}.{self.other_owner_key}",
         )
 
         return self
@@ -111,8 +114,14 @@ class HasOneThrough(BaseRelationship):
 
         current_query_builder.where_exists(
             query.join(
-                f"{self.intermediary_builder.get_table_name()}", f"{self.intermediary_builder.get_table_name()}.{self.foreign_key}", "=", f"{query.get_table_name()}.{self.other_owner_key}"
-            ).where_column(f"{current_query_builder.get_table_name()}.{self.local_owner_key}", f"{self.intermediary_builder.get_table_name()}.{self.local_key}")
+                f"{self.intermediary_builder.get_table_name()}",
+                f"{self.intermediary_builder.get_table_name()}.{self.foreign_key}",
+                "=",
+                f"{query.get_table_name()}.{self.other_owner_key}",
+            ).where_column(
+                f"{current_query_builder.get_table_name()}.{self.local_owner_key}",
+                f"{self.intermediary_builder.get_table_name()}.{self.local_key}",
+            )
         ).when(callback, lambda q: (callback(q)))
 
     def get_pivot_table_name(self, query, builder):
@@ -135,9 +144,15 @@ class HasOneThrough(BaseRelationship):
                 (
                     q.count("*")
                     .join(
-                        f"{self.intermediary_builder.get_table_name()}", f"{self.intermediary_builder.get_table_name()}.{self.foreign_key}", "=", f"{query.get_table_name()}.{self.other_owner_key}"
+                        f"{self.intermediary_builder.get_table_name()}",
+                        f"{self.intermediary_builder.get_table_name()}.{self.foreign_key}",
+                        "=",
+                        f"{query.get_table_name()}.{self.other_owner_key}",
                     )
-                    .where_column(f"{builder.get_table_name()}.{self.local_owner_key}", f"{self.intermediary_builder.get_table_name()}.{self.local_key}")
+                    .where_column(
+                        f"{builder.get_table_name()}.{self.local_owner_key}",
+                        f"{self.intermediary_builder.get_table_name()}.{self.local_key}",
+                    )
                     .table(query.get_table_name())
                     .when(
                         callback,
@@ -201,8 +216,14 @@ class HasOneThrough(BaseRelationship):
 
         current_query_builder.where_exists(
             self.distant_builder.where_column(
-                f"{current_query_builder.get_table_name()}.{self.local_owner_key}", f"{self.intermediary_builder.get_table_name()}.{self.local_key}"
-            ).join(f"{self.intermediary_builder.get_table_name()}", f"{self.intermediary_builder.get_table_name()}.{self.foreign_key}", "=", f"{self.distant_builder.get_table_name()}.{self.other_owner_key}")
+                f"{current_query_builder.get_table_name()}.{self.local_owner_key}",
+                f"{self.intermediary_builder.get_table_name()}.{self.local_key}",
+            ).join(
+                f"{self.intermediary_builder.get_table_name()}",
+                f"{self.intermediary_builder.get_table_name()}.{self.foreign_key}",
+                "=",
+                f"{self.distant_builder.get_table_name()}.{self.other_owner_key}",
+            )
         )
 
         return related_builder
