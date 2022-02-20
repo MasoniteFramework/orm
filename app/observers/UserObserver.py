@@ -29,7 +29,7 @@ class UserObserver:
         pass
 
     def saved(self, clients):
-        """Handle the Clients "creating" event.
+        """Handle the Clients "saved" event.
 
         Args:
             clients (masoniteorm.models.Model): Clients model.
@@ -37,7 +37,7 @@ class UserObserver:
         pass
 
     def updating(self, clients):
-        """Handle the Clients "creating" event.
+        """Handle the Clients "updating" event.
 
         Args:
             clients (masoniteorm.models.Model): Clients model.
@@ -45,7 +45,7 @@ class UserObserver:
         pass
 
     def updated(self, clients):
-        """Handle the Clients "creating" event.
+        """Handle the Clients "updated" event.
 
         Args:
             clients (masoniteorm.models.Model): Clients model.
@@ -53,7 +53,7 @@ class UserObserver:
         pass
 
     def booted(self, clients):
-        """Handle the Clients "creating" event.
+        """Handle the Clients "booted" event.
 
         Args:
             clients (masoniteorm.models.Model): Clients model.
@@ -61,7 +61,7 @@ class UserObserver:
         pass
 
     def booting(self, clients):
-        """Handle the Clients "creating" event.
+        """Handle the Clients "booting" event.
 
         Args:
             clients (masoniteorm.models.Model): Clients model.
@@ -69,7 +69,7 @@ class UserObserver:
         pass
 
     def hydrating(self, clients):
-        """Handle the Clients "creating" event.
+        """Handle the Clients "hydrating" event.
 
         Args:
             clients (masoniteorm.models.Model): Clients model.
@@ -77,7 +77,7 @@ class UserObserver:
         pass
 
     def hydrated(self, clients):
-        """Handle the Clients "creating" event.
+        """Handle the Clients "hydrated" event.
 
         Args:
             clients (masoniteorm.models.Model): Clients model.
@@ -85,7 +85,7 @@ class UserObserver:
         pass
 
     def deleting(self, clients):
-        """Handle the Clients "creating" event.
+        """Handle the Clients "deleting" event.
 
         Args:
             clients (masoniteorm.models.Model): Clients model.
@@ -93,7 +93,7 @@ class UserObserver:
         pass
 
     def deleted(self, clients):
-        """Handle the Clients "creating" event.
+        """Handle the Clients "deleted" event.
 
         Args:
             clients (masoniteorm.models.Model): Clients model.
