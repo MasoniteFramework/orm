@@ -1,7 +1,6 @@
 import json
 from datetime import datetime, date as datetimedate, time as datetimetime
 import logging
-from attr import attr
 
 from inflection import tableize
 import inspect
