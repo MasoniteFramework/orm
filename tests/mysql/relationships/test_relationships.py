@@ -3,7 +3,6 @@ import unittest
 # from src.masoniteorm import query
 from src.masoniteorm.models import Model
 from src.masoniteorm.relationships import (
-    belongs_to,
     has_one,
     belongs_to_many,
     has_one_through,
@@ -64,7 +63,6 @@ class MySQLRelationships(unittest.TestCase):
 
     def test_relationship_keys(self):
         sql = User.has("profile").to_sql()
-        print(sql)
         self.assertEqual(
             sql,
             """SELECT * FROM `users` WHERE EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id`)""",

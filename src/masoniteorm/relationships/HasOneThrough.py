@@ -77,7 +77,9 @@ class HasOneThrough(BaseRelationship):
             dict -- A dictionary of data which will be hydrated.
         """
         # select * from `countries` inner join `ports` on `ports`.`country_id` = `countries`.`country_id` where `ports`.`port_id` is null and `countries`.`deleted_at` is null and `ports`.`deleted_at` is null
-        distant_builder.join(f"ports", "ports.country_id", "=", "countries.country_id")
+        distant_builder.join(
+            f"{self.intermediary_builder.get_table_name()}", f"{self.intermediary_builder.get_table_name()}.{self.foreign_key}", "=", f"{distant_builder.get_table_name()}.{self.other_owner_key}"
+        )
 
         return self
 
@@ -89,76 +91,7 @@ class HasOneThrough(BaseRelationship):
 
         return builder
 
-    def make_query(self, query, relation, eagers=None):
-        print("make query")
-        """Used during eager loading a relationship
-
-        Args:
-            query ([type]): [description]
-            relation ([type]): [description]
-            eagers (list, optional): List of eager loaded relationships. Defaults to None.
-
-        Returns:
-            [type]: [description]
-        """
-        eagers = eagers or []
-        builder = self.get_builder().with_(eagers)
-
-        table2 = builder.get_table_name()
-        table1 = query.get_table_name()
-        result = (
-            builder.select(
-                f"{table2}.*",
-                f"{self._table}.{self.local_key} as {self._table}_id",
-                f"{self._table}.{self.foreign_key} as m_reserved2",
-            )
-            .run_scopes()
-            .table(f"{table1}")
-        )
-
-        if self.with_fields:
-            for field in self.with_fields:
-                result.select(f"{self._table}.{field}")
-
-        result.join(
-            f"{self._table}",
-            f"{self._table}.{self.local_key}",
-            "=",
-            f"{table1}.{self.local_owner_key}",
-        )
-
-        result.join(
-            f"{table2}",
-            f"{self._table}.{self.foreign_key}",
-            "=",
-            f"{table2}.{self.other_owner_key}",
-        )
-
-        if self.with_timestamps:
-            result.select(
-                f"{self._table}.updated_at as m_reserved4",
-                f"{self._table}.created_at as m_reserved5",
-            )
-
-        if self.pivot_id:
-            result.select(f"{self._table}.{self.pivot_id} as m_reserved3")
-
-        result.without_global_scopes()
-
-        if isinstance(relation, Collection):
-            final_result = result.where_in(
-                self.local_owner_key,
-                relation.pluck(self.local_owner_key, keep_nulls=False),
-            ).get()
-        else:
-            final_result = result.where(
-                self.local_owner_key, getattr(relation, self.local_owner_key)
-            ).get()
-
-        return final_result
-
     def get_related(self, query, relation, eagers=None):
-        print("get related", query)
         builder = self.distant_builder
 
         if isinstance(relation, Collection):
@@ -173,24 +106,13 @@ class HasOneThrough(BaseRelationship):
             ).first()
             return result
 
-        # return final_result
-
-    def register_related(self, key, model, collection):
-        model.add_relation(
-            {
-                key: collection.where(
-                    f"{self._table}_id", getattr(model, self.local_owner_key)
-                )
-            }
-        )
-
     def get_where_exists_query(self, current_query_builder, callback):
         query = self.distant_builder
 
         current_query_builder.where_exists(
             query.join(
-                "ports", "ports.country_id", "=", "countries.country_id"
-            ).where_column("inbound_shipments.from_port_id", "ports.port_id")
+                f"{self.intermediary_builder.get_table_name()}", f"{self.intermediary_builder.get_table_name()}.{self.foreign_key}", "=", f"{query.get_table_name()}.{self.other_owner_key}"
+            ).where_column(f"{current_query_builder.get_table_name()}.{self.local_owner_key}", f"{self.intermediary_builder.get_table_name()}.{self.local_key}")
         ).when(callback, lambda q: (callback(q)))
 
     def get_pivot_table_name(self, query, builder):
@@ -212,8 +134,10 @@ class HasOneThrough(BaseRelationship):
             lambda q: (
                 (
                     q.count("*")
-                    .join("ports", "ports.country_id", "=", "countries.country_id")
-                    .where_column("inbound_shipments.from_port_id", "ports.port_id")
+                    .join(
+                        f"{self.intermediary_builder.get_table_name()}", f"{self.intermediary_builder.get_table_name()}.{self.foreign_key}", "=", f"{query.get_table_name()}.{self.other_owner_key}"
+                    )
+                    .where_column(f"{builder.get_table_name()}.{self.local_owner_key}", f"{self.intermediary_builder.get_table_name()}.{self.local_key}")
                     .table(query.get_table_name())
                     .when(
                         callback,
@@ -277,8 +201,8 @@ class HasOneThrough(BaseRelationship):
 
         current_query_builder.where_exists(
             self.distant_builder.where_column(
-                "inbound_shipments.from_port_id", "ports.port_id"
-            ).join(f"ports", "ports.country_id", "=", "countries.country_id")
+                f"{current_query_builder.get_table_name()}.{self.local_owner_key}", f"{self.intermediary_builder.get_table_name()}.{self.local_key}"
+            ).join(f"{self.intermediary_builder.get_table_name()}", f"{self.intermediary_builder.get_table_name()}.{self.foreign_key}", "=", f"{self.distant_builder.get_table_name()}.{self.other_owner_key}")
         )
 
         return related_builder
