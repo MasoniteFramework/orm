@@ -47,20 +47,21 @@ class HasOneThrough(BaseRelationship):
             object -- Either returns a builder or a hydrated model.
         """
         attribute = self.fn.__name__
+        self.attribute = attribute
         relationship1 = self.fn(self)[0]()
         relationship2 = self.fn(self)[1]()
         self.set_keys(instance, attribute)
         self.distant_builder = relationship1.builder
         self.intermediary_builder = relationship2.builder
 
-
-
         if instance.is_loaded():
             if attribute in instance._relationships:
                 return instance._relationships[attribute]
 
-            result = self.apply_query(self.distant_builder, self.intermediary_builder, instance)
-            print('rr')
+            result = self.apply_query(
+                self.distant_builder, self.intermediary_builder, instance
+            )
+            print("rr")
             return result
         else:
             return self
@@ -76,15 +77,18 @@ class HasOneThrough(BaseRelationship):
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-        print('here')
+        print("here")
         # select * from `countries` inner join `ports` on `ports`.`country_id` = `countries`.`country_id` where `ports`.`port_id` is null and `countries`.`deleted_at` is null and `ports`.`deleted_at` is null
-        return distant_builder.join(
-            f"ports", "ports.country_id", "=", "countries.country_id"
-        ).where("ports.port_id", 1).first()
+        return (
+            distant_builder.join(
+                f"ports", "ports.country_id", "=", "countries.country_id"
+            )
+            .where("ports.port_id", 1)
+            .first()
+        )
 
     def get_builder(self):
         return self.distant_builder
-
 
     def make_builder(self, eagers=None):
         builder = self.get_builder().with_(eagers)
@@ -175,7 +179,7 @@ class HasOneThrough(BaseRelationship):
         return final_result
 
     def get_related(self, query, relation, eagers=None):
-        print('get related')
+        print("get related")
         final_result = self.make_query(query, relation, eagers=eagers)
         builder = self.make_builder(eagers)
 
@@ -224,18 +228,29 @@ class HasOneThrough(BaseRelationship):
             }
         )
 
-    def get_where_exists_query(self, query, builder, callback):
-        self._table = self.get_pivot_table_name(query, builder)
-        return (
-            query.new()
-            .select("*")
-            .table(self._table)
-            .where_column(
-                f"{self._table}.{self.local_key}",
-                f"{builder.get_table_name()}.{self.local_owner_key}",
-            )
-            .where_in(self.foreign_key, callback(query.select(self.other_owner_key)))
+    def get_where_exists_query(self, current_query_builder, callback):
+        query = self.distant_builder
+
+        current_query_builder.where_exists(
+            query.join(
+                "ports", "ports.country_id", "=", "countries.country_id"
+            ).where_column("inbound_shipments.from_port_id", "ports.port_id")
+        ).when(
+            callback,
+            lambda q: (
+                callback(q)
+            ),
         )
+        # return (
+        #     query.new()
+        #     .select("*")
+        #     .table(self._table)
+        #     .where_column(
+        #         f"{self._table}.{self.local_key}",
+        #         f"{builder.get_table_name()}.{self.local_owner_key}",
+        #     )
+        #     .where_in(self.foreign_key, callback(query.select(self.other_owner_key)))
+        # )
 
     def get_pivot_table_name(self, query, builder):
         pivot_tables = [
@@ -245,22 +260,19 @@ class HasOneThrough(BaseRelationship):
         pivot_tables.sort()
         return "_".join(pivot_tables)
 
-    def get_with_count_query(self, query, builder, callback):
-        self._table = self.get_pivot_table_name(query, builder)
+    def get_with_count_query(self, builder, callback):
+        query = self.distant_builder
 
         if not builder._columns:
             builder = builder.select("*")
 
         return_query = builder.add_select(
-            f"{query.get_table_name()}_count",
+            f"{self.attribute}_count",
             lambda q: (
                 (
                     q.count("*")
-                    .where_column(
-                        f"{builder.get_table_name()}.{self.local_owner_key}",
-                        f"{self._table}.{self.local_key}",
-                    )
-                    .table(self._table)
+                    .join("ports", "ports.country_id", "=", "countries.country_id").where_column("inbound_shipments.from_port_id", "ports.port_id")
+                    .table(query.get_table_name())
                     .when(
                         callback,
                         lambda q: (
@@ -317,3 +329,15 @@ class HasOneThrough(BaseRelationship):
             .without_global_scopes()
             .create(data)
         )
+
+    def query_has(self, current_query_builder):
+        related_builder = self.get_builder()
+        print(self.distant_builder.get_table_name())
+
+        current_query_builder.where_exists(
+            self.distant_builder.join(
+                "ports", "ports.country_id", "=", "countries.country_id"
+            ).where_column("inbound_shipments.from_port_id", "ports.port_id")
+        )
+
+        return related_builder

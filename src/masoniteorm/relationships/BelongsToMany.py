@@ -290,9 +290,10 @@ class BelongsToMany(BaseRelationship):
             }
         )
 
-    def get_where_exists_query(self, query, builder, callback):
+    def get_where_exists_query(self, builder, callback):
+        query = self.get_builder()
         self._table = self._table or self.get_pivot_table_name(query, builder)
-        return (
+        return builder.where_exists(
             query.new()
             .select("*")
             .table(self._table)
@@ -311,7 +312,8 @@ class BelongsToMany(BaseRelationship):
         pivot_tables.sort()
         return "_".join(pivot_tables)
 
-    def get_with_count_query(self, query, builder, callback):
+    def get_with_count_query(self, builder, callback):
+        query = self.get_builder()
         self._table = self._table or self.get_pivot_table_name(query, builder)
 
         if not builder._columns:
@@ -348,7 +350,9 @@ class BelongsToMany(BaseRelationship):
             self.foreign_key: getattr(related_record, self.other_owner_key),
         }
 
-        self._table = self._table or self.get_pivot_table_name(current_model, related_record)
+        self._table = self._table or self.get_pivot_table_name(
+            current_model, related_record
+        )
 
         if self.with_timestamps:
             data.update(
@@ -371,7 +375,9 @@ class BelongsToMany(BaseRelationship):
             self.foreign_key: getattr(related_record, self.other_owner_key),
         }
 
-        self._table = self._table or self.get_pivot_table_name(current_model, related_record)
+        self._table = self._table or self.get_pivot_table_name(
+            current_model, related_record
+        )
 
         return (
             Pivot.on(current_model.builder.connection)
@@ -387,7 +393,9 @@ class BelongsToMany(BaseRelationship):
             self.foreign_key: getattr(related_record, self.other_owner_key),
         }
 
-        self._table = self._table or self.get_pivot_table_name(current_model, related_record)
+        self._table = self._table or self.get_pivot_table_name(
+            current_model, related_record
+        )
 
         if self.with_timestamps:
             data.update(
@@ -410,7 +418,9 @@ class BelongsToMany(BaseRelationship):
             self.foreign_key: getattr(related_record, self.other_owner_key),
         }
 
-        self._table = self._table or self.get_pivot_table_name(current_model, related_record)
+        self._table = self._table or self.get_pivot_table_name(
+            current_model, related_record
+        )
 
         if self.with_timestamps:
             data.update(

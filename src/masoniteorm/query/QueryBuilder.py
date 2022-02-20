@@ -832,40 +832,20 @@ class QueryBuilder(ObservesEvents):
                 last_builder = self._model.builder
                 for split_relationship in relationship.split("."):
                     related = last_builder.get_relation(split_relationship)
-                    related_builder = related.get_builder()
-                    last_builder.where_exists(
-                        related_builder.where_column(
-                            f"{related_builder.get_table_name()}.{related.foreign_key}",
-                            f"{last_builder.get_table_name()}.{related.local_key}",
-                        )
-                    )
-                    last_builder = related_builder
+                    last_builder = related.query_has(last_builder)
             else:
-                print(self._model, relationship)
                 related = getattr(self._model, relationship)
-                print(related)
-                related_builder = related.get_builder()
-                self.where_exists(
-                    related_builder.where_column(
-                        f"{related_builder.get_table_name()}.{related.foreign_key}",
-                        f"{self.get_table_name()}.{related.local_key}",
-                    )
-                )
+                related.query_has(self)
         return self
 
     def where_has(self, relationship, callback):
-        related = getattr(self._model, relationship)
-        related_builder = related.get_builder()
-        self.where_exists(
-            related.get_where_exists_query(related_builder, self, callback)
-        )
+        getattr(self._model, relationship).get_where_exists_query(self, callback)
         return self
 
     def with_count(self, relationship, callback=None):
-        related = getattr(self._model, relationship)
-        related_builder = related.get_builder()
-
-        return related.get_with_count_query(related_builder, self, callback=callback)
+        return getattr(self._model, relationship).get_with_count_query(
+            self, callback=callback
+        )
 
     def where_not_in(self, column, wheres=None):
         """Specifies where a column does not contain a list of a values.
