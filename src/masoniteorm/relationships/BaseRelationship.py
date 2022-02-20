@@ -62,7 +62,6 @@ class BaseRelationship:
             return self
 
     def __getattr__(self, attribute):
-        print(attribute)
         relationship = self.fn(self)()
         return getattr(relationship.builder, attribute)
 
