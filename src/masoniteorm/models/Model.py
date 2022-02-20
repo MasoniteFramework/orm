@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, date as datetimedate, time as datetimetime
 import logging
+from attr import attr
 
 from inflection import tableize
 import inspect
@@ -607,6 +608,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Returns:
             mixed: Could be anything that a method can return.
         """
+
 
         if attribute in self.__passthrough__:
 

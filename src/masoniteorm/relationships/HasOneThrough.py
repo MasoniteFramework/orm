@@ -64,6 +64,7 @@ class HasOneThrough(BaseRelationship):
             print("rr")
             return result
         else:
+            print('rt self')
             return self
 
     def apply_query(self, distant_builder, intermediary_builder, owner):
@@ -77,15 +78,11 @@ class HasOneThrough(BaseRelationship):
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-        print("here")
         # select * from `countries` inner join `ports` on `ports`.`country_id` = `countries`.`country_id` where `ports`.`port_id` is null and `countries`.`deleted_at` is null and `ports`.`deleted_at` is null
-        return (
-            distant_builder.join(
-                f"ports", "ports.country_id", "=", "countries.country_id"
-            )
-            .where("ports.port_id", 1)
-            .first()
-        )
+        distant_builder.join(f"ports", "ports.country_id", "=", "countries.country_id").where("ports.port_id", 1)
+        
+        return self
+        # return foreign.where(foreign_key, owner().__attributes__[local_key]).first()
 
     def get_builder(self):
         return self.distant_builder
@@ -110,20 +107,6 @@ class HasOneThrough(BaseRelationship):
         eagers = eagers or []
         builder = self.get_builder().with_(eagers)
 
-        if not self._table:
-            pivot_tables = [
-                singularize(builder.get_table_name()),
-                singularize(query.get_table_name()),
-            ]
-            pivot_tables.sort()
-            pivot_table_1, pivot_table_2 = pivot_tables
-            self._table = "_".join(pivot_tables)
-            self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
-            self.local_key = self.local_key or f"{pivot_table_2}_id"
-        else:
-            pivot_table_1, pivot_table_2 = self._table.split("_", 1)
-            self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
-            self.local_key = self.local_key or f"{pivot_table_2}_id"
 
         table2 = builder.get_table_name()
         table1 = query.get_table_name()
@@ -179,45 +162,24 @@ class HasOneThrough(BaseRelationship):
         return final_result
 
     def get_related(self, query, relation, eagers=None):
-        print("get related")
-        final_result = self.make_query(query, relation, eagers=eagers)
-        builder = self.make_builder(eagers)
+        print("get related", query)
+        builder = self.distant_builder
 
-        for model in final_result:
-            pivot_data = {
-                self.local_key: getattr(model, f"{self._table}_id"),
-                self.foreign_key: getattr(model, "m_reserved2"),
-            }
+        if isinstance(relation, Collection):
+            return builder.on(query.connection).where_in(
+                f"{builder.get_table_name()}.{self.foreign_key}",
+                relation.pluck(self.local_key, keep_nulls=False).unique(),
+            ).get()
+        else:
+            result = builder.on(query.connection).where(
+                f"{builder.get_table_name()}.{self.foreign_key}",
+                getattr(relation, "from_port_id"),
+            ).first()
+            return result
 
-            model.delete_attribute("m_reserved2")
 
-            if self.with_timestamps:
-                pivot_data.update(
-                    {
-                        "updated_at": getattr(model, "m_reserved4"),
-                        "created_at": getattr(model, "m_reserved5"),
-                    }
-                )
 
-            if self.pivot_id:
-                pivot_data.update({self.pivot_id: getattr(model, "m_reserved3")})
-                model.delete_attribute("m_reserved3")
-
-            if self.with_fields:
-                for field in self.with_fields:
-                    pivot_data.update({field: getattr(model, field)})
-                    model.delete_attribute(field)
-
-            setattr(
-                model,
-                self._as,
-                Pivot.on(builder.connection)
-                .table(self._table)
-                .hydrate(pivot_data)
-                .activate_timestamps(self.with_timestamps),
-            )
-
-        return final_result
+        # return final_result
 
     def register_related(self, key, model, collection):
         model.add_relation(
@@ -241,16 +203,6 @@ class HasOneThrough(BaseRelationship):
                 callback(q)
             ),
         )
-        # return (
-        #     query.new()
-        #     .select("*")
-        #     .table(self._table)
-        #     .where_column(
-        #         f"{self._table}.{self.local_key}",
-        #         f"{builder.get_table_name()}.{self.local_owner_key}",
-        #     )
-        #     .where_in(self.foreign_key, callback(query.select(self.other_owner_key)))
-        # )
 
     def get_pivot_table_name(self, query, builder):
         pivot_tables = [
