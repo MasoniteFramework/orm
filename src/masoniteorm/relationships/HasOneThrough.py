@@ -121,7 +121,6 @@ class HasOneThrough(BaseRelationship):
             )
         ).when(callback, lambda q: (callback(q)))
 
-
     def get_with_count_query(self, builder, callback):
         query = self.distant_builder
 
@@ -160,10 +159,14 @@ class HasOneThrough(BaseRelationship):
         return return_query
 
     def attach(self, current_model, related_record):
-        raise NotImplementedError("HasOneThrough relationship does not implement the attach method")
+        raise NotImplementedError(
+            "HasOneThrough relationship does not implement the attach method"
+        )
 
     def attach_related(self, current_model, related_record):
-        raise NotImplementedError("HasOneThrough relationship does not implement the attach_related method")
+        raise NotImplementedError(
+            "HasOneThrough relationship does not implement the attach_related method"
+        )
 
     def query_has(self, current_query_builder):
         related_builder = self.get_builder()
