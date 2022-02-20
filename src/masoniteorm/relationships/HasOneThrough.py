@@ -61,10 +61,8 @@ class HasOneThrough(BaseRelationship):
             result = self.apply_query(
                 self.distant_builder, self.intermediary_builder, instance
             )
-            print("rr")
             return result
         else:
-            print('rt self')
             return self
 
     def apply_query(self, distant_builder, intermediary_builder, owner):
@@ -79,7 +77,7 @@ class HasOneThrough(BaseRelationship):
             dict -- A dictionary of data which will be hydrated.
         """
         # select * from `countries` inner join `ports` on `ports`.`country_id` = `countries`.`country_id` where `ports`.`port_id` is null and `countries`.`deleted_at` is null and `ports`.`deleted_at` is null
-        distant_builder.join(f"ports", "ports.country_id", "=", "countries.country_id").where("ports.port_id", 1)
+        distant_builder.join(f"ports", "ports.country_id", "=", "countries.country_id")
         
         return self
         # return foreign.where(foreign_key, owner().__attributes__[local_key]).first()
@@ -173,7 +171,7 @@ class HasOneThrough(BaseRelationship):
         else:
             result = builder.on(query.connection).where(
                 f"{builder.get_table_name()}.{self.foreign_key}",
-                getattr(relation, "from_port_id"),
+                getattr(relation, self.local_owner_key),
             ).first()
             return result
 
@@ -284,12 +282,9 @@ class HasOneThrough(BaseRelationship):
 
     def query_has(self, current_query_builder):
         related_builder = self.get_builder()
-        print(self.distant_builder.get_table_name())
 
         current_query_builder.where_exists(
-            self.distant_builder.join(
-                "ports", "ports.country_id", "=", "countries.country_id"
-            ).where_column("inbound_shipments.from_port_id", "ports.port_id")
+            self.distant_builder.where_column("inbound_shipments.from_port_id", "ports.port_id")
         )
 
         return related_builder
