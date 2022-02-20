@@ -1,8 +1,5 @@
 from .BaseRelationship import BaseRelationship
 from ..collection import Collection
-from inflection import singularize
-from ..models.Pivot import Pivot
-import pendulum
 
 
 class HasOneThrough(BaseRelationship):
@@ -124,13 +121,6 @@ class HasOneThrough(BaseRelationship):
             )
         ).when(callback, lambda q: (callback(q)))
 
-    def get_pivot_table_name(self, query, builder):
-        pivot_tables = [
-            singularize(query.get_table_name()),
-            singularize(builder.get_table_name()),
-        ]
-        pivot_tables.sort()
-        return "_".join(pivot_tables)
 
     def get_with_count_query(self, builder, callback):
         query = self.distant_builder
@@ -170,46 +160,10 @@ class HasOneThrough(BaseRelationship):
         return return_query
 
     def attach(self, current_model, related_record):
-        data = {
-            self.local_key: getattr(current_model, self.local_owner_key),
-            self.foreign_key: getattr(related_record, self.other_owner_key),
-        }
-
-        if self.with_timestamps:
-            data.update(
-                {
-                    "created_at": pendulum.now().to_datetime_string(),
-                    "updated_at": pendulum.now().to_datetime_string(),
-                }
-            )
-
-        return (
-            Pivot.on(current_model.builder.connection)
-            .table(self._table)
-            .without_global_scopes()
-            .create(data)
-        )
+        raise NotImplementedError("HasOneThrough relationship does not implement the attach method")
 
     def attach_related(self, current_model, related_record):
-        data = {
-            self.local_key: getattr(current_model, self.local_owner_key),
-            self.foreign_key: getattr(related_record, self.other_owner_key),
-        }
-
-        if self.with_timestamps:
-            data.update(
-                {
-                    "created_at": pendulum.now().to_datetime_string(),
-                    "updated_at": pendulum.now().to_datetime_string(),
-                }
-            )
-
-        return (
-            Pivot.on(current_model.builder.connection)
-            .table(self._table)
-            .without_global_scopes()
-            .create(data)
-        )
+        raise NotImplementedError("HasOneThrough relationship does not implement the attach_related method")
 
     def query_has(self, current_query_builder):
         related_builder = self.get_builder()
