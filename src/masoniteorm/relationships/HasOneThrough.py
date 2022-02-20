@@ -80,7 +80,6 @@ class HasOneThrough(BaseRelationship):
         distant_builder.join(f"ports", "ports.country_id", "=", "countries.country_id")
 
         return self
-        # return foreign.where(foreign_key, owner().__attributes__[local_key]).first()
 
     def get_builder(self):
         return self.distant_builder
@@ -279,7 +278,7 @@ class HasOneThrough(BaseRelationship):
         current_query_builder.where_exists(
             self.distant_builder.where_column(
                 "inbound_shipments.from_port_id", "ports.port_id"
-            )
+            ).join(f"ports", "ports.country_id", "=", "countries.country_id")
         )
 
         return related_builder
