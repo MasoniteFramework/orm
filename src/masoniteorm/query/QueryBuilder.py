@@ -843,8 +843,6 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def with_count(self, relationship, callback=None):
-        print('qqq', relationship)
-        print(getattr(self._model, relationship))
         return getattr(self._model, relationship).get_with_count_query(
             self, callback=callback
         )
@@ -1415,8 +1413,6 @@ class QueryBuilder(ObservesEvents):
                                 related = self._model.get_related(eager)
 
                             result_set = related.get_related(self, hydrated_model)
-
-                            print('set', result_set)
 
                             self._register_relationships_to_model(
                                 related, result_set, hydrated_model, relation_key=eager

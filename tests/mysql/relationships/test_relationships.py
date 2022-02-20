@@ -120,7 +120,9 @@ class MySQLRelationships(unittest.TestCase):
         )
 
     def test_has_one_through_where_has_query(self):
-        sql = InboundShipment.where_has("from_country", lambda query: query.where("name", "USA")).to_sql()
+        sql = InboundShipment.where_has(
+            "from_country", lambda query: query.where("name", "USA")
+        ).to_sql()
 
         self.assertEqual(
             sql,

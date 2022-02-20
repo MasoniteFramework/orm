@@ -78,7 +78,7 @@ class HasOneThrough(BaseRelationship):
         """
         # select * from `countries` inner join `ports` on `ports`.`country_id` = `countries`.`country_id` where `ports`.`port_id` is null and `countries`.`deleted_at` is null and `ports`.`deleted_at` is null
         distant_builder.join(f"ports", "ports.country_id", "=", "countries.country_id")
-        
+
         return self
         # return foreign.where(foreign_key, owner().__attributes__[local_key]).first()
 
@@ -104,7 +104,6 @@ class HasOneThrough(BaseRelationship):
         """
         eagers = eagers or []
         builder = self.get_builder().with_(eagers)
-
 
         table2 = builder.get_table_name()
         table1 = query.get_table_name()
@@ -164,18 +163,16 @@ class HasOneThrough(BaseRelationship):
         builder = self.distant_builder
 
         if isinstance(relation, Collection):
-            return builder.on(query.connection).where_in(
+            return builder.where_in(
                 f"{builder.get_table_name()}.{self.foreign_key}",
                 relation.pluck(self.local_key, keep_nulls=False).unique(),
             ).get()
         else:
-            result = builder.on(query.connection).where(
+            result = builder.where(
                 f"{builder.get_table_name()}.{self.foreign_key}",
                 getattr(relation, self.local_owner_key),
             ).first()
             return result
-
-
 
         # return final_result
 
@@ -195,12 +192,7 @@ class HasOneThrough(BaseRelationship):
             query.join(
                 "ports", "ports.country_id", "=", "countries.country_id"
             ).where_column("inbound_shipments.from_port_id", "ports.port_id")
-        ).when(
-            callback,
-            lambda q: (
-                callback(q)
-            ),
-        )
+        ).when(callback, lambda q: (callback(q)))
 
     def get_pivot_table_name(self, query, builder):
         pivot_tables = [
@@ -221,7 +213,8 @@ class HasOneThrough(BaseRelationship):
             lambda q: (
                 (
                     q.count("*")
-                    .join("ports", "ports.country_id", "=", "countries.country_id").where_column("inbound_shipments.from_port_id", "ports.port_id")
+                    .join("ports", "ports.country_id", "=", "countries.country_id")
+                    .where_column("inbound_shipments.from_port_id", "ports.port_id")
                     .table(query.get_table_name())
                     .when(
                         callback,
@@ -284,7 +277,9 @@ class HasOneThrough(BaseRelationship):
         related_builder = self.get_builder()
 
         current_query_builder.where_exists(
-            self.distant_builder.where_column("inbound_shipments.from_port_id", "ports.port_id")
+            self.distant_builder.where_column(
+                "inbound_shipments.from_port_id", "ports.port_id"
+            )
         )
 
         return related_builder

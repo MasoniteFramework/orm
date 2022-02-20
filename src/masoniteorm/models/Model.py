@@ -609,7 +609,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             mixed: Could be anything that a method can return.
         """
 
-
         if attribute in self.__passthrough__:
 
             def method(*args, **kwargs):
