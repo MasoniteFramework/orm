@@ -3,7 +3,7 @@ from ..collection import Collection
 
 
 class HasOneThrough(BaseRelationship):
-    """Has Many Relationship Class."""
+    """HasOneThrough Relationship Class."""
 
     def __init__(
         self,
