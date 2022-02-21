@@ -26,9 +26,11 @@ class HasOneThrough(BaseRelationship):
             self.local_owner_key = local_owner_key or "id"
             self.other_owner_key = other_owner_key or "id"
 
-    def set_keys(self, owner, attribute):
+    def set_keys(self, distant_builder, intermediary_builder, attribute):
         self.local_key = self.local_key or "id"
         self.foreign_key = self.foreign_key or f"{attribute}_id"
+        self.local_owner_key = self.local_owner_key or "id"
+        self.other_owner_key = self.other_owner_key or "id"
         return self
 
     def __get__(self, instance, owner):
@@ -47,9 +49,9 @@ class HasOneThrough(BaseRelationship):
         self.attribute = attribute
         relationship1 = self.fn(self)[0]()
         relationship2 = self.fn(self)[1]()
-        self.set_keys(instance, attribute)
         self.distant_builder = relationship1.builder
         self.intermediary_builder = relationship2.builder
+        self.set_keys(self.distant_builder, self.intermediary_builder, attribute)
 
         if instance.is_loaded():
             if attribute in instance._relationships:

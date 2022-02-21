@@ -43,7 +43,7 @@ class Role(Model):
 class InboundShipment(Model):
     @has_one_through("port_id", "country_id", "from_port_id", "country_id")
     def from_country(self):
-        return [Country, Port]
+        return Country, Port
 
 
 class Country(Model):
