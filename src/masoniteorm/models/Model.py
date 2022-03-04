@@ -263,6 +263,11 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return self.builder.select(*self.__selects__)
 
+    @classmethod
+    def get_columns(cls):
+        return list(cls.first().__attributes__.keys())
+
+
     def get_connection_details(self):
         DB = load_config().DB
         return DB.get_connection_details()
