@@ -38,6 +38,18 @@ DATABASES = {
         "log_queries": True,
         "propagate": False,
     },
+    "devprod": {
+        "driver": "mysql",
+        "host": os.getenv("MYSQL_DATABASE_HOST"),
+        "user": os.getenv("MYSQL_DATABASE_USER"),
+        "password": os.getenv("MYSQL_DATABASE_PASSWORD"),
+        "database": "DEVPROD",
+        "port": os.getenv("MYSQL_DATABASE_PORT"),
+        "prefix": "",
+        "options": {"charset": "utf8mb4"},
+        "log_queries": True,
+        "propagate": False,
+    },
     "many": {
         "driver": "mysql",
         "host": "localhost",

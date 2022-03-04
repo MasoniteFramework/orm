@@ -2,7 +2,10 @@ import unittest
 
 # from src.masoniteorm import query
 from src.masoniteorm.models import Model
-from src.masoniteorm.relationships import belongs_to, has_one, belongs_to_many
+from src.masoniteorm.relationships import has_one, belongs_to_many, has_one_through
+from dotenv import load_dotenv
+
+load_dotenv(".env")
 
 
 class User(Model):
@@ -37,10 +40,25 @@ class Role(Model):
         return Permission
 
 
+class InboundShipment(Model):
+    @has_one_through("port_id", "country_id", "from_port_id", "country_id")
+    def from_country(self):
+        return Country, Port
+
+
+class Country(Model):
+    pass
+
+
+class Port(Model):
+    pass
+
+
 class MySQLRelationships(unittest.TestCase):
+    maxDiff = None
+
     def test_relationship_keys(self):
         sql = User.has("profile").to_sql()
-        print(sql)
         self.assertEqual(
             sql,
             """SELECT * FROM `users` WHERE EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id`)""",
@@ -85,4 +103,30 @@ class MySQLRelationships(unittest.TestCase):
         self.assertEqual(
             sql,
             """SELECT `permissions`.`permission_id`, (SELECT COUNT(*) AS m_count_reserved FROM `permission_role` WHERE `permissions`.`id` = `permission_role`.`permission_id`) AS roles_count FROM `permissions`""",
+        )
+
+    def test_has_one_through_has_query(self):
+        sql = InboundShipment.has("from_country").to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `inbound_shipments` WHERE EXISTS (SELECT * FROM `countries` INNER JOIN `ports` ON `ports`.`country_id` = `countries`.`country_id` WHERE `inbound_shipments`.`from_port_id` = `ports`.`port_id`)""",
+        )
+
+    def test_has_one_through_where_has_query(self):
+        sql = InboundShipment.where_has(
+            "from_country", lambda query: query.where("name", "USA")
+        ).to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `inbound_shipments` WHERE EXISTS (SELECT * FROM `countries` INNER JOIN `ports` ON `ports`.`country_id` = `countries`.`country_id` WHERE `inbound_shipments`.`from_port_id` = `ports`.`port_id`) AND `inbound_shipments`.`name` = 'USA'""",
+        )
+
+    def test_has_one_through_with_count(self):
+        sql = InboundShipment.with_count("from_country").to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT `inbound_shipments`.*, (SELECT COUNT(*) AS m_count_reserved FROM `countries` INNER JOIN `ports` ON `ports`.`country_id` = `countries`.`country_id` WHERE `inbound_shipments`.`from_port_id` = `ports`.`port_id`) AS from_country_count FROM `inbound_shipments`""",
         )
