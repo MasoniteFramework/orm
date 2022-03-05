@@ -1720,5 +1720,6 @@ class QueryBuilder(ObservesEvents):
         builder._having = from_builder._having
         builder._macros = from_builder._macros
         builder._aggregates = from_builder._aggregates
+        builder._global_scopes = from_builder._global_scopes
 
         return builder
