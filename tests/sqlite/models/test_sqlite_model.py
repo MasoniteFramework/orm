@@ -165,7 +165,31 @@ class BaseTestQueryRelationships(unittest.TestCase):
     def test_get_columns(self):
 
         columns = User.get_columns()
-        self.assertEqual(columns, ['id','name','email','password','remember_token','created_at','is_admin','age','boo','tool1','tool2','active','updated_at','profile_id','name5','name6','age6','age7','age8','age10'])
+        self.assertEqual(
+            columns,
+            [
+                "id",
+                "name",
+                "email",
+                "password",
+                "remember_token",
+                "created_at",
+                "is_admin",
+                "age",
+                "boo",
+                "tool1",
+                "tool2",
+                "active",
+                "updated_at",
+                "profile_id",
+                "name5",
+                "name6",
+                "age6",
+                "age7",
+                "age8",
+                "age10",
+            ],
+        )
 
     def test_should_return_relation_applying_hidden_attributes(self):
 
