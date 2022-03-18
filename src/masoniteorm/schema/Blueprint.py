@@ -667,7 +667,7 @@ class Blueprint:
             if not self._dry:
                 # get current table schema
                 table = self.platform().get_current_schema(
-                    self.connection, "table_schema"
+                    self.connection, self.table.name
                 )
                 self.table.from_table = table
 
