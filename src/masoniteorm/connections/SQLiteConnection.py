@@ -2,7 +2,7 @@ from ..query.grammars import SQLiteGrammar
 from .BaseConnection import BaseConnection
 from ..schema.platforms import SQLitePlatform
 from ..query.processors import SQLitePostProcessor
-from ..exceptions import QueryException
+from ..exceptions import DriverNotFound, QueryException
 
 
 class SQLiteConnection(BaseConnection):
@@ -47,7 +47,7 @@ class SQLiteConnection(BaseConnection):
             import sqlite3
         except ModuleNotFoundError:
             raise DriverNotFound(
-                "You must have the 'sqlite3' package installed to make a connection to MySQL. Please install it using 'pip install pymysql'"
+                "You must have the 'sqlite3' package installed to make a connection to SQLite."
             )
 
         if self.has_global_connection():

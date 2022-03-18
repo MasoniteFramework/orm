@@ -340,10 +340,14 @@ class SQLitePlatform(Platform):
 
         result = connection.query(sql, ())
         for column in result:
+            default = column.get("dflt_value")
+            if default:
+                default = default.replace('\'', "")
+
             table.add_column(
                 column["name"],
                 reversed_type_map.get(column["type"]),
-                default=column.get("dflt_value"),
+                default=default,
             )
             if column.get("pk") == 1:
                 table.set_primary_key(column["name"])
