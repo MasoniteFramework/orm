@@ -27,7 +27,6 @@ class MigrateCommand(Command):
             if answer != "y":
                 self.info("Migrations cancelled")
                 exit(0)
-
         migration = Migration(
             command_class=self,
             connection=self.option("connection"),
