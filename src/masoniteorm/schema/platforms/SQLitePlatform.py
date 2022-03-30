@@ -21,7 +21,7 @@ class SQLitePlatform(Platform):
         "big_increments": "BIGINT",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
-        
+
         "integer_unsigned": "INT UNSIGNED",
         "big_integer_unsigned": "BIGINT UNSIGNED",
         "tiny_integer_unsigned": "TINYINT UNSIGNED",
@@ -53,7 +53,6 @@ class SQLitePlatform(Platform):
         "datetime": "DATETIME",
         "tiny_increments": "TINYINT AUTO_INCREMENT",
         "unsigned": "INT UNSIGNED",
-        "unsigned_integer": "UNSIGNED INT",
     }
 
     premapped_defaults = {

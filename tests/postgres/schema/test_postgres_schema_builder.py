@@ -215,7 +215,7 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
                     """CREATE TABLE "users" ("id" BIGSERIAL UNIQUE NOT NULL, "name" VARCHAR(255) NOT NULL, "gender" VARCHAR(255) CHECK(gender IN ('male', 'female')) NOT NULL, """
                     """"duration" VARCHAR(255) NOT NULL, "money" DECIMAL(17, 6) NOT NULL, "url" VARCHAR(255) NOT NULL, "option" VARCHAR(255) NOT NULL DEFAULT 'ADMIN', "payload" JSONB NOT NULL, "last_address" INET NULL, """
                     '"route_origin" CIDR NULL, "mac_address" MACADDR NULL, "published_at" TIMESTAMPTZ NOT NULL, "thumbnail" VARCHAR(255) NULL, "premium" INTEGER NOT NULL, "amount" DOUBLE PRECISION NOT NULL DEFAULT 0.0, '
-                    '"author_id" INT NULL, "description" TEXT NOT NULL, "created_at" TIMESTAMPTZ NULL DEFAULT CURRENT_TIMESTAMP, '
+                    '"author_id" INTEGER NULL, "description" TEXT NOT NULL, "created_at" TIMESTAMPTZ NULL DEFAULT CURRENT_TIMESTAMP, '
                     '"updated_at" TIMESTAMPTZ NULL DEFAULT CURRENT_TIMESTAMP, '
                     'CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_author_id_foreign FOREIGN KEY ("author_id") REFERENCES "authors"("id") ON DELETE CASCADE)'
                 ]
