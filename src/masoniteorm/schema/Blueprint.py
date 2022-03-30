@@ -593,7 +593,7 @@ class Blueprint:
             self
         """
         if not column:
-            self._last_column.column_type = "unsigned_integer"
+            self._last_column.column_type += "_unsigned"
             self._last_column.length = None
             return self
 
@@ -615,7 +615,7 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(
-            column, "unsigned_integer", nullable=nullable
+            column, "integer_unsigned", nullable=nullable
         )
         return self
 
