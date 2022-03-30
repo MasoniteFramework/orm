@@ -278,7 +278,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 class_name = base_class.__name__
 
                 if class_name.endswith("Mixin"):
-                    getattr(base_class(), "boot_" + class_name)(self.builder)
+                    getattr(self, "boot_" + class_name)(self.builder)
 
             self._booted = True
             self.observe_events(self, "booted")
