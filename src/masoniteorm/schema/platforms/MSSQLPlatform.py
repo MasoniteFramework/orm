@@ -21,13 +21,11 @@ class MSSQLPlatform(Platform):
         "tiny_integer": "TINYINT",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
-
         "integer_unsigned": "INT",
         "big_integer_unsigned": "BIGINT",
         "tiny_integer_unsigned": "TINYINT",
         "small_integer_unsigned": "SMALLINT",
         "medium_integer_unsigned": "MEDIUMINT",
-
         "increments": "INT IDENTITY",
         "uuid": "CHAR",
         "binary": "LONGBLOB",

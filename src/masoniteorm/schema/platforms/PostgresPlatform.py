@@ -24,7 +24,6 @@ class PostgresPlatform(Platform):
         "big_increments": "BIGSERIAL UNIQUE",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
-
         # Postgres database does not implement unsigned types
         # So the below types are the same as the normal ones
         "integer_unsigned": "INTEGER",
@@ -32,7 +31,6 @@ class PostgresPlatform(Platform):
         "tiny_integer_unsigned": "TINYINT",
         "small_integer_unsigned": "SMALLINT",
         "medium_integer_unsigned": "MEDIUMINT",
-
         "increments": "SERIAL UNIQUE",
         "uuid": "UUID",
         "binary": "BYTEA",

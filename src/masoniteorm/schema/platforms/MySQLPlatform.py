@@ -13,13 +13,11 @@ class MySQLPlatform(Platform):
         "tiny_integer": "TINYINT",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
-
         "integer_unsigned": "INT UNSIGNED",
         "big_integer_unsigned": "BIGINT UNSIGNED",
         "tiny_integer_unsigned": "TINYINT UNSIGNED",
         "small_integer_unsigned": "SMALLINT UNSIGNED",
         "medium_integer_unsigned": "MEDIUMINT UNSIGNED",
-        
         "big_increments": "BIGINT UNSIGNED AUTO_INCREMENT",
         "increments": "INT UNSIGNED AUTO_INCREMENT",
         "uuid": "CHAR",
@@ -44,7 +42,7 @@ class MySQLPlatform(Platform):
         "year": "YEAR",
         "datetime": "DATETIME",
         "tiny_increments": "TINYINT AUTO_INCREMENT",
-        "unsigned": "INT UNSIGNED", 
+        "unsigned": "INT UNSIGNED",
     }
 
     premapped_nulls = {True: "NULL", False: "NOT NULL"}

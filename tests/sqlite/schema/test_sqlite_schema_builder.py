@@ -291,7 +291,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.tiny_integer("tiny_profile_id").unsigned()
             blueprint.small_integer("small_profile_id").unsigned()
             blueprint.medium_integer("medium_profile_id").unsigned()
-        
+
         print(blueprint.to_sql())
 
         self.assertEqual(

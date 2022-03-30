@@ -122,7 +122,6 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             blueprint.to_sql(), ['CREATE TABLE "users" ("description" TEXT NOT NULL)']
         )
 
-
     def test_can_have_unsigned_columns(self):
         with self.schema.create("users") as blueprint:
             blueprint.integer("profile_id").unsigned()
