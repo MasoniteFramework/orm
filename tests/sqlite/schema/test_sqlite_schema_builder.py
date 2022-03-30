@@ -284,6 +284,28 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             "SELECT column_name FROM information_schema.columns WHERE table_name='users' and column_name='name'",
         )
 
+    def test_can_have_unsigned_columns(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.integer("profile_id").unsigned()
+            blueprint.big_integer("big_profile_id").unsigned()
+            blueprint.tiny_integer("tiny_profile_id").unsigned()
+            blueprint.small_integer("small_profile_id").unsigned()
+            blueprint.medium_integer("medium_profile_id").unsigned()
+        
+        print(blueprint.to_sql())
+
+        self.assertEqual(
+            blueprint.to_sql(),
+            [
+                """CREATE TABLE "users" ("""
+                """"profile_id" INT UNSIGNED NOT NULL, """
+                """"big_profile_id" BIGINT UNSIGNED NOT NULL, """
+                """"tiny_profile_id" TINYINT UNSIGNED NOT NULL, """
+                """"small_profile_id" SMALLINT UNSIGNED NOT NULL, """
+                """"medium_profile_id" MEDIUMINT UNSIGNED NOT NULL)"""
+            ],
+        )
+
     def test_can_enable_foreign_keys(self):
         sql = self.schema.enable_foreign_key_constraints()
 

@@ -21,6 +21,14 @@ class SQLitePlatform(Platform):
         "big_increments": "BIGINT",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
+        
+        "integer_unsigned": "INT UNSIGNED",
+        "big_integer_unsigned": "BIGINT UNSIGNED",
+        "tiny_integer_unsigned": "TINYINT UNSIGNED",
+        "small_integer_unsigned": "SMALLINT UNSIGNED",
+        "medium_integer_unsigned": "MEDIUMINT UNSIGNED",
+
+
         "increments": "INTEGER",
         "uuid": "CHAR",
         "binary": "LONGBLOB",
