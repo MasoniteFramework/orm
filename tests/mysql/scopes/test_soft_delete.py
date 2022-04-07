@@ -16,6 +16,7 @@ from tests.User import User
 class UserSoft(Model, SoftDeletesMixin):
     __dry__ = True
 
+
 class UserSoftArchived(Model, SoftDeletesMixin):
     __dry__ = True
 

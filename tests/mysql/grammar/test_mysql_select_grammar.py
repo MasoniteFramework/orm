@@ -304,6 +304,20 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         return "SELECT * FROM `users` WHERE `users`.`age` NOT LIKE '%name%'"
 
+    def where_regexp(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "regexp", "Joe").to_sql()
+        """
+        return "SELECT * FROM `users` WHERE `users`.`age` REGEXP 'Joe'"
+
+    def where_not_regexp(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "not regexp", "Joe").to_sql()
+        """
+        return "SELECT * FROM `users` WHERE `users`.`age` NOT REGEXP 'Joe'"
+
     def where_like(self):
         """
         builder = self.get_builder()

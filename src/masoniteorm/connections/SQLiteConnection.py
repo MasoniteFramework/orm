@@ -3,6 +3,12 @@ from .BaseConnection import BaseConnection
 from ..schema.platforms import SQLitePlatform
 from ..query.processors import SQLitePostProcessor
 from ..exceptions import DriverNotFound, QueryException
+import re
+
+
+def regexp(expr, item):
+    reg = re.compile(expr)
+    return reg.search(item) is not None
 
 
 class SQLiteConnection(BaseConnection):
@@ -54,6 +60,7 @@ class SQLiteConnection(BaseConnection):
             return self.get_global_connection()
 
         self._connection = sqlite3.connect(self.database, isolation_level=None)
+        self._connection.create_function("REGEXP", 2, regexp)
 
         self._connection.row_factory = sqlite3.Row
         self.open = 1

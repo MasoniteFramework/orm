@@ -579,6 +579,8 @@ class BaseGrammar:
             """Need to find which type of where string it is.
             If it is a WHERE NULL, WHERE EXISTS, WHERE `col` = 'val' etc
             """
+            equality = equality.upper()
+
             if equality == "BETWEEN":
                 low = where.low
                 high = where.high
@@ -613,9 +615,13 @@ class BaseGrammar:
                 sql_string = self.where_exists_string()
             elif equality == "NOT EXISTS":
                 sql_string = self.where_not_exists_string()
-            elif equality.upper() == "LIKE":
+            elif equality == "LIKE":
                 sql_string = self.where_like_string()
-            elif equality.upper() == "NOT LIKE":
+            elif equality == "REGEXP":
+                sql_string = self.where_regexp_string()
+            elif equality == "NOT REGEXP":
+                sql_string = self.where_not_regexp_string()
+            elif equality == "NOT LIKE":
                 sql_string = self.where_not_like_string()
             else:
                 sql_string = self.where_string()
@@ -961,3 +967,9 @@ class BaseGrammar:
         raise NotImplementedError(
             f"'{self.__class__.__name__}' does not support truncating"
         )
+
+    def where_regexp_string(self):
+        return "{keyword} {column} REGEXP {value}"
+
+    def where_not_regexp_string(self):
+        return "{keyword} {column} NOT REGEXP {value}"

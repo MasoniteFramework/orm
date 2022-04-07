@@ -313,6 +313,20 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         return """SELECT * FROM "users" WHERE "users"."age" LIKE '%name%'"""
 
+    def where_regexp(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "regexp", "Joe").to_sql()
+        """
+        return """SELECT * FROM "users" WHERE "users"."age" REGEXP 'Joe'"""
+
+    def where_not_regexp(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "regexp", "Joe").to_sql()
+        """
+        return """SELECT * FROM "users" WHERE "users"."age" NOT REGEXP 'Joe'"""
+
     def can_compile_join_clause(self):
         """
         builder = self.get_builder()
