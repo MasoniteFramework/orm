@@ -1645,7 +1645,19 @@ class QueryBuilder(ObservesEvents):
 
     def _extract_operator_value(self, *args):
 
-        operators = ["=", ">", ">=", "<", "<=", "!=", "<>", "like", "not like", "regexp", "not regexp"]
+        operators = [
+            "=",
+            ">",
+            ">=",
+            "<",
+            "<=",
+            "!=",
+            "<>",
+            "like",
+            "not like",
+            "regexp",
+            "not regexp",
+        ]
 
         operator = operators[0]
 

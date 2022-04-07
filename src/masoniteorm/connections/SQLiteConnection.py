@@ -5,9 +5,11 @@ from ..query.processors import SQLitePostProcessor
 from ..exceptions import DriverNotFound, QueryException
 import re
 
+
 def regexp(expr, item):
     reg = re.compile(expr)
     return reg.search(item) is not None
+
 
 class SQLiteConnection(BaseConnection):
     """SQLite Connection class."""
