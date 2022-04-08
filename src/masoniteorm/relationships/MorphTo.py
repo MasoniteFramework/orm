@@ -1,4 +1,6 @@
+from ..collection import Collection
 from .BaseRelationship import BaseRelationship
+from ..config import load_config
 
 
 class MorphTo(BaseRelationship):
@@ -50,6 +52,7 @@ class MorphTo(BaseRelationship):
             return self
 
     def __getattr__(self, attribute):
+        print(attribute)
         relationship = self.fn(self)()
         return getattr(relationship.builder, attribute)
 
@@ -66,8 +69,6 @@ class MorphTo(BaseRelationship):
         model = self.morph_map().get(instance.__attributes__[self.morph_key])
         record = instance.__attributes__[self.morph_id]
 
-        # return
-
         return model.where(model.get_primary_key(), record).first()
 
     def get_related(self, query, relation, eagers=None):
@@ -82,13 +83,33 @@ class MorphTo(BaseRelationship):
         Returns:
             Model|Collection
         """
-        raise NotImplementedError
+        builder = self.get_builder().with_(eagers)
+        if isinstance(relation, Collection):
+            relations = []
+            for group, items in relation.group_by(self.morph_key).items():
+                morphed_model = self.morph_map().get(group)
+                relations.append(morphed_model.where_in(
+                    f"{morphed_model.get_table_name()}.{morphed_model.get_primary_key()}",
+                    Collection(items).pluck(self.morph_id, keep_nulls=False).unique(),
+                ).get())
+            return relations
+        else:
+            model = self.morph_map().get(getattr(relation, self.morph_key))
+            if model:
+                return model.find(getattr(relation, self.morph_id))
 
     def register_related(self, key, model, collection):
-        raise NotImplementedError
+        morphed_model = self.morph_map().get(getattr(model, self.morph_key))
+
+        print(collection.serialize())
+        related = collection.where(
+            morphed_model.get_primary_key(), getattr(model, self.morph_id)
+        ).first()
+
+        model.add_relation({key: related})
 
     def morph_map(self):
-        return self._morph_map
+        return load_config().DB._morph_map
 
     @classmethod
     def set_morph_map(cls, morph_map):

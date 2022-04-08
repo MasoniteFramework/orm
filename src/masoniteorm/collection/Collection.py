@@ -44,6 +44,9 @@ class Collection:
             response = filtered[0]
         return response
 
+    def items(self):
+        return self._items.items()
+
     def last(self, callback=None):
         """Takes the last result in the items.
 
@@ -359,6 +362,7 @@ class Collection:
         for k, v in groupby(self._items, key=lambda x: x[key]):
             new_dict.update({k: list(v)})
 
+        print(new_dict)
         return Collection(new_dict)
 
     def transform(self, callback):
