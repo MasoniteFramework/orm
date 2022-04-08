@@ -5,6 +5,7 @@ class ConnectionResolver:
 
     _connection_details = {}
     _connections = {}
+    _morph_map = {}
 
     def __init__(self):
         from ..connections import (
@@ -22,6 +23,10 @@ class ConnectionResolver:
         self.register(PostgresConnection)
         self.register(MySQLConnection)
         self.register(MSSQLConnection)
+    
+    def morph_map(self, map):
+        self._morph_map = map
+        return self
 
     def set_connection_details(self, connection_details):
         self.__class__._connection_details = connection_details
