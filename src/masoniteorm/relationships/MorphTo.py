@@ -87,10 +87,16 @@ class MorphTo(BaseRelationship):
             relations = Collection()
             for group, items in relation.group_by(self.morph_key).items():
                 morphed_model = self.morph_map().get(group)
-                relations.merge(morphed_model.where_in(
-                    f"{morphed_model.get_table_name()}.{morphed_model.get_primary_key()}",
-                    Collection(items).pluck(self.morph_id, keep_nulls=False).unique(),
-                ).get().serialize())
+                relations.merge(
+                    morphed_model.where_in(
+                        f"{morphed_model.get_table_name()}.{morphed_model.get_primary_key()}",
+                        Collection(items)
+                        .pluck(self.morph_id, keep_nulls=False)
+                        .unique(),
+                    )
+                    .get()
+                    .serialize()
+                )
             return relations
         else:
             model = self.morph_map().get(getattr(relation, self.morph_key))
@@ -98,7 +104,7 @@ class MorphTo(BaseRelationship):
                 return model.find(getattr(relation, self.morph_id))
 
     def register_related(self, key, model, collection):
-        print('register reated')
+        print("register reated")
         morphed_model = self.morph_map().get(getattr(model, self.morph_key))
 
         related = collection.where(

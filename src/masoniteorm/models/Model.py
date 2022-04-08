@@ -583,7 +583,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 else:
                     value = value.serialize()
 
-
                 new_dic.update({key: value})
 
         return new_dic

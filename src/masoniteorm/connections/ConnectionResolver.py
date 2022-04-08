@@ -23,7 +23,7 @@ class ConnectionResolver:
         self.register(PostgresConnection)
         self.register(MySQLConnection)
         self.register(MSSQLConnection)
-    
+
     def morph_map(self, map):
         self._morph_map = map
         return self
