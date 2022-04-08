@@ -576,8 +576,15 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 if value is None:
                     new_dic.update({key: {}})
                     continue
+                elif isinstance(value, list):
+                    value = Collection(value).serialize()
+                elif isinstance(value, dict):
+                    pass
+                else:
+                    value = value.serialize()
 
-                new_dic.update({key: value.serialize()})
+
+                new_dic.update({key: value})
 
         return new_dic
 
