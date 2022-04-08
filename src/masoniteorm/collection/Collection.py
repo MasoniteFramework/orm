@@ -315,7 +315,7 @@ class Collection:
                 exclude = []
                 if hasattr(item, "__hidden__"):
                     exclude = item.__hidden__
-                return item.serialize(exclude=exclude, *args, **kwargs)
+                return item.serialize(*args, **kwargs)
             elif hasattr(item, "to_dict"):
                 return item.to_dict()
             return item
