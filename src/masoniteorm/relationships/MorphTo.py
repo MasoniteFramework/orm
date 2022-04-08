@@ -37,13 +37,13 @@ class MorphTo(BaseRelationship):
         Returns:
             object -- Either returns a builder or a hydrated model.
         """
-
+        attribute = self.fn.__name__
         self._related_builder = instance.builder
         self.set_keys(owner, self.fn)
 
         if instance.is_loaded():
-            if self.morph_key in instance._relationships:
-                return instance._relationships[self.morph_key]
+            if attribute in instance._relationships:
+                return instance._relationships[attribute]
 
             result = self.apply_query(self._related_builder, instance)
 
@@ -83,15 +83,14 @@ class MorphTo(BaseRelationship):
         Returns:
             Model|Collection
         """
-        builder = self.get_builder().with_(eagers)
         if isinstance(relation, Collection):
-            relations = []
+            relations = Collection()
             for group, items in relation.group_by(self.morph_key).items():
                 morphed_model = self.morph_map().get(group)
-                relations.append(morphed_model.where_in(
+                relations.merge(morphed_model.where_in(
                     f"{morphed_model.get_table_name()}.{morphed_model.get_primary_key()}",
                     Collection(items).pluck(self.morph_id, keep_nulls=False).unique(),
-                ).get())
+                ).get().serialize())
             return relations
         else:
             model = self.morph_map().get(getattr(relation, self.morph_key))
@@ -99,9 +98,9 @@ class MorphTo(BaseRelationship):
                 return model.find(getattr(relation, self.morph_id))
 
     def register_related(self, key, model, collection):
+        print('register reated')
         morphed_model = self.morph_map().get(getattr(model, self.morph_key))
 
-        print(collection.serialize())
         related = collection.where(
             morphed_model.get_primary_key(), getattr(model, self.morph_id)
         ).first()
