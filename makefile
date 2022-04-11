@@ -1,10 +1,18 @@
+export POSTGRES_DATABASE_PORT:=$(shell docker port masonite-test-postgres 5432/tcp | head -n 1 | cut -d: -f2-)
+export MYSQL_DATABASE_PORT:=$(shell docker port masonite-test-mysql 3306 | head -n 1 | cut -d: -f2-)
+export DB_CONFIG_PATH:=...tests.integrations.config.database
+
 init:
 	cp .env-example .env
 	pip install -r requirements.txt
 	pip install .
-	# Create MySQL Database
-	# Create Postgres Database
+	docker-compose pull 
+bootstrap:
+	docker-compose up -d
+	python orm migrate --connection postgres
+	python orm migrate --connection mysql
 test:
+	make bootstrap
 	python -m pytest tests
 ci:
 	make test
