@@ -31,7 +31,7 @@ setup(
     install_requires=[
         "inflection>=0.3,<0.6",
         "pendulum>=2.1,<2.2",
-        "faker>=4.1.0,<5.0",
+        "faker>=4.1.0,<14.0",
         "cleo>=0.8.0,<0.9",
     ],
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
