@@ -13,7 +13,7 @@ class UUIDPrimaryKeyScope(BaseScope):
     def on_remove(self, builder):
         pass
 
-    def generate_uuid(self, builder, uuid_version, bytes = False):
+    def generate_uuid(self, builder, uuid_version, bytes=False):
         # UUID 3 and 5 requires parameters
         uuid_func = getattr(uuid, f"uuid{uuid_version}")
         args = []

@@ -37,14 +37,16 @@ class TestUUIDPrimaryKeyScope(unittest.TestCase):
         self.builder = MockBuilder(UserWithUUID)
         self.scope = UUIDPrimaryKeyScope()
         # reset User attributes before each test
-        try:
-            UserWithUUID.__primary_key__ = "id"
-            del UserWithUUID.__uuid_version__
-            del UserWithUUID.__uuid_namespace__
-            del UserWithUUID.__uuid_name__
-            del UserWithUUID.__uuid_bytes__
-        except:
-            pass
+        UserWithUUID.__primary_key__ = "id"
+        flags = {
+            '__uuid_version__',
+            '__uuid_namespace__',
+            '__uuid_name__',
+            '__uuid_bytes__',
+        }
+        for flag in flags:
+            if hasattr(UserWithUUID, flag):
+                delattr(UserWithUUID, flag)
 
     def test_default_to_uuid4(self):
         self.scope.set_uuid_create(self.builder)
