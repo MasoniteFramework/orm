@@ -42,6 +42,7 @@ class TestUUIDPrimaryKeyScope(unittest.TestCase):
             del UserWithUUID.__uuid_version__
             del UserWithUUID.__uuid_namespace__
             del UserWithUUID.__uuid_name__
+            del UserWithUUID.__uuid_bytes__
         except:
             pass
 
@@ -60,6 +61,17 @@ class TestUUIDPrimaryKeyScope(unittest.TestCase):
             uuid_value = uuid.UUID(self.builder._creates["id"])
             self.assertEqual(version, uuid_value.version)
             del self.builder._creates["id"]
+
+    def test_default_to_uuid_str(self):
+        # Generates UUIDs as strings by default
+        self.scope.set_uuid_create(self.builder)
+        self.assertIsInstance(self.builder._creates["id"], str)
+
+    def test_can_set_uuid_bytes(self):
+        # Generates UUIDs in bytes instead of strings
+        UserWithUUID.__uuid_bytes__ = True
+        self.scope.set_uuid_create(self.builder)
+        self.assertIsInstance(self.builder._creates["id"], bytes)
 
     def test_works_with_custom_pk_column(self):
         UserWithUUID.__primary_key__ = "ref"
