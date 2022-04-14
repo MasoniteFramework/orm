@@ -38,6 +38,7 @@ DATABASES = {
         "log_queries": True,
         "propagate": False,
     },
+    "t": {"driver": "sqlite", "database": "ormtestreg.sqlite3", "log_queries": True},
     "devprod": {
         "driver": "mysql",
         "host": os.getenv("MYSQL_DATABASE_HOST"),

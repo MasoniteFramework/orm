@@ -272,6 +272,18 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             ],
         )
 
+    def test_can_have_default_blank_string(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.string("profile_id").default("")
+
+        self.assertEqual(
+            blueprint.to_sql(),
+            [
+                "CREATE TABLE `users` ("
+                "`profile_id` VARCHAR(255) NOT NULL DEFAULT '')"
+            ],
+        )
+
     def test_has_table(self):
         schema_sql = self.schema.has_table("users")
 
