@@ -4,7 +4,6 @@ from ..config import load_config
 
 
 class MorphTo(BaseRelationship):
-
     def __init__(self, fn, morph_key="record_type", morph_id="record_id"):
         if isinstance(fn, str):
             self.fn = fn = None

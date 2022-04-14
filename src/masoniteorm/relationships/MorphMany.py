@@ -4,7 +4,6 @@ from ..config import load_config
 
 
 class MorphMany(BaseRelationship):
-
     def __init__(self, fn, morph_key="record_type", morph_id="record_id"):
         if isinstance(fn, str):
             self.fn = fn = None
@@ -96,7 +95,10 @@ class MorphMany(BaseRelationship):
         else:
             model = self.morph_map().get(getattr(relation, self.morph_key))
             if model:
-                return model.where(f"{model.get_table_name()}.{self.foreign_key}", getattr(relation, self.morph_id)).get()
+                return model.where(
+                    f"{model.get_table_name()}.{self.foreign_key}",
+                    getattr(relation, self.morph_id),
+                ).get()
 
     def register_related(self, key, model, collection):
         morphed_model = self.morph_map().get(getattr(model, self.morph_key))
