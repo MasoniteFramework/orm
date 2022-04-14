@@ -5,8 +5,6 @@ from ..config import load_config
 
 class MorphTo(BaseRelationship):
 
-    _morph_map = {}
-
     def __init__(self, fn, morph_key="record_type", morph_id="record_id"):
         if isinstance(fn, str):
             self.fn = fn = None
@@ -112,7 +110,12 @@ class MorphTo(BaseRelationship):
     def morph_map(self):
         return load_config().DB._morph_map
 
-    @classmethod
-    def set_morph_map(cls, morph_map):
-        cls._morph_map = morph_map
-        return cls
+    def attach(self, current_model, related_record):
+        raise NotImplementedError(
+            "HasOneThrough relationship does not implement the attach method"
+        )
+
+    def attach_related(self, current_model, related_record):
+        raise NotImplementedError(
+            "HasOneThrough relationship does not implement the attach_related method"
+        )
