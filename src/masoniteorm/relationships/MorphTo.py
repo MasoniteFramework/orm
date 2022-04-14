@@ -52,7 +52,6 @@ class MorphTo(BaseRelationship):
             return self
 
     def __getattr__(self, attribute):
-        print(attribute)
         relationship = self.fn(self)()
         return getattr(relationship.builder, attribute)
 
@@ -95,7 +94,6 @@ class MorphTo(BaseRelationship):
                         .unique(),
                     )
                     .get()
-                    .serialize()
                 )
             return relations
         else:
@@ -104,7 +102,6 @@ class MorphTo(BaseRelationship):
                 return model.find(getattr(relation, self.morph_id))
 
     def register_related(self, key, model, collection):
-        print("register reated")
         morphed_model = self.morph_map().get(getattr(model, self.morph_key))
 
         related = collection.where(

@@ -222,7 +222,9 @@ class Collection:
         return self.__class__(results)
 
     def merge(self, items):
-        if not isinstance(items, list):
+        if isinstance(items, Collection):
+            items = items._items
+        elif not isinstance(items, list):
             raise ValueError("Unable to merge uncompatible types")
 
         items = self.__get_items(items)
@@ -362,7 +364,6 @@ class Collection:
         for k, v in groupby(self._items, key=lambda x: x[key]):
             new_dict.update({k: list(v)})
 
-        print(new_dict)
         return Collection(new_dict)
 
     def transform(self, callback):
