@@ -407,7 +407,7 @@ class Collection:
             if isinstance(item, dict):
                 comparison = item.get(key)
             else:
-                comparison = getattr(item, key)
+                comparison = getattr(item, key) if hasattr(item, key) else False
             if self._make_comparison(comparison, value, op):
                 attributes.append(item)
         return self.__class__(attributes)
