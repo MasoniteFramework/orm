@@ -3,7 +3,7 @@ from .BaseRelationship import BaseRelationship
 from ..config import load_config
 
 
-class MorphMany(BaseRelationship):
+class MorphToMany(BaseRelationship):
     def __init__(self, fn, morph_key="record_type", morph_id="record_id"):
         if isinstance(fn, str):
             self.fn = fn = None
