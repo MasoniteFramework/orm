@@ -39,10 +39,10 @@ class TestUUIDPrimaryKeyScope(unittest.TestCase):
         # reset User attributes before each test
         UserWithUUID.__primary_key__ = "id"
         flags = {
-            '__uuid_version__',
-            '__uuid_namespace__',
-            '__uuid_name__',
-            '__uuid_bytes__',
+            "__uuid_version__",
+            "__uuid_namespace__",
+            "__uuid_name__",
+            "__uuid_bytes__",
         }
         for flag in flags:
             if hasattr(UserWithUUID, flag):

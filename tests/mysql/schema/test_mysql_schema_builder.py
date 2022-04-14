@@ -278,10 +278,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(
             blueprint.to_sql(),
-            [
-                "CREATE TABLE `users` ("
-                "`profile_id` VARCHAR(255) NOT NULL DEFAULT '')"
-            ],
+            ["CREATE TABLE `users` (" "`profile_id` VARCHAR(255) NOT NULL DEFAULT '')"],
         )
 
     def test_has_table(self):
