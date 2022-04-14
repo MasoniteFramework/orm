@@ -236,6 +236,15 @@ class BaseTestCaseSelectGrammar:
         )()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_sub_select_from_lambda(self):
+        to_sql = self.builder.new().where_in(
+            "age", lambda q: (q.select("age").where("age", 2).where("name", "Joe"))
+        ).to_sql()
+        sql = getattr(
+            self, "can_compile_sub_select_where"
+        )()
+        self.assertEqual(to_sql, sql)
+
     def test_can_compile_sub_select_value(self):
         to_sql = self.builder.where("name", self.builder.new().sum("age")).to_sql()
         sql = getattr(
