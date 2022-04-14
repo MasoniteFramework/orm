@@ -216,7 +216,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         self._relationships = {}
         self._global_scopes = {}
 
-        self.get_builder()
         self.boot()
 
     @classmethod
@@ -278,12 +277,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 class_name = base_class.__name__
 
                 if class_name.endswith("Mixin"):
-                    getattr(self, "boot_" + class_name)(self.builder)
+                    getattr(self, "boot_" + class_name)(self.get_builder())
 
             self._booted = True
             self.observe_events(self, "booted")
 
-            self.append_passthrough(list(self.builder._macros.keys()))
+            self.append_passthrough(list(self.get_builder()._macros.keys()))
 
     def append_passthrough(self, passthrough):
         self.__passthrough__ += passthrough
