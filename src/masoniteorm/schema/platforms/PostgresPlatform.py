@@ -122,7 +122,9 @@ class PostgresPlatform(Platform):
             else:
                 length = ""
 
-            if column.default in (0,):
+            if column.default == "":
+                default = " DEFAULT ''"
+            elif column.default in (0,):
                 default = f" DEFAULT {column.default}"
             elif column.default in self.premapped_defaults.keys():
                 default = self.premapped_defaults.get(column.default)
