@@ -312,9 +312,9 @@ class Collection:
                 item.set_appends(self.__appends__)
 
             if hasattr(item, "serialize"):
-                exclude = []
-                if hasattr(item, "__hidden__"):
-                    exclude = item.__hidden__
+                # exclude = []
+                # if hasattr(item, "__hidden__"):
+                #     exclude = item.__hidden__
                 return item.serialize(*args, **kwargs)
             elif hasattr(item, "to_dict"):
                 return item.to_dict()
