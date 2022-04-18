@@ -309,7 +309,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return cls
 
     @classmethod
-    def find(cls, record_id):
+    def find(cls, record_id, query=False):
         """Finds a row by the primary key ID.
 
         Arguments:
@@ -332,7 +332,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             return builder.first()
 
     @classmethod
-    def find_or_fail(cls, record_id):
+    def find_or_fail(cls, record_id, query=False):
         """Finds a row by the primary key ID or raise a ModelNotFound exception.
 
         Arguments:
@@ -341,7 +341,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Returns:
             Model
         """
-        result = cls.find(record_id)
+        result = cls.find(record_id, query)
 
         if not result:
             raise ModelNotFound()
