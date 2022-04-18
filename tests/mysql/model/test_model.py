@@ -2,9 +2,9 @@ import datetime
 import json
 import os
 import unittest
-
 import pendulum
 
+from src.masoniteorm.exceptions import ModelNotFound
 from src.masoniteorm.collection import Collection
 from src.masoniteorm.models import Model
 from tests.User import User
@@ -220,6 +220,10 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
 
         def test_can_find_first(self):
             profile = User.find(1)
+
+        def test_find_or_fail_raise_an_exception_if_not_exists(self):
+            with self.assertRaises(ModelNotFound):
+                User.find(100)
 
         def test_serialize_with_dirty_attribute(self):
             profile = ProfileFillAsterisk.hydrate({"name": "Joe", "id": 1})
