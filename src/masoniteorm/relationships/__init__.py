@@ -7,3 +7,4 @@ from .HasManyThrough import HasManyThrough as has_many_through
 from .MorphTo import MorphTo as morph_to
 from .MorphToMany import MorphToMany as morph_to_many
 from .MorphOne import MorphOne as morph_one
+from .MorphMany import MorphMany as morph_many

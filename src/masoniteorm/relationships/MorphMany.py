@@ -3,7 +3,7 @@ from .BaseRelationship import BaseRelationship
 from ..config import load_config
 
 
-class MorphOne(BaseRelationship):
+class MorphMany(BaseRelationship):
     def __init__(self, fn, morph_key="record_type", morph_id="record_id"):
         if isinstance(fn, str):
             self.fn = fn = None
@@ -73,7 +73,7 @@ class MorphOne(BaseRelationship):
         return (
             polymorphic_builder.where("record_type", polymorphic_key)
             .where("record_id", instance.get_primary_key_value())
-            .first()
+            .get()
         )
 
     def get_related(self, query, relation, eagers=None):
@@ -111,15 +111,13 @@ class MorphOne(BaseRelationship):
             return (
                 self.polymorphic_builder.where(self.morph_key, record_type)
                 .where(self.morph_id, relation.get_primary_key_value())
-                .first()
+                .get()
             )
 
     def register_related(self, key, model, collection):
         record_type = self.get_record_key_lookup(model)
-        related = (
-            collection.where(self.morph_key, record_type)
-            .where(self.morph_id, model.get_primary_key_value())
-            .first()
+        related = collection.where(self.morph_key, record_type).where(
+            self.morph_id, model.get_primary_key_value()
         )
 
         model.add_relation({key: related})
