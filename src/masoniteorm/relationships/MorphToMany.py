@@ -3,7 +3,7 @@ from .BaseRelationship import BaseRelationship
 from ..config import load_config
 
 
-class MorphTo(BaseRelationship):
+class MorphToMany(BaseRelationship):
     def __init__(self, fn, morph_key="record_type", morph_id="record_id"):
         if isinstance(fn, str):
             self.fn = fn = None
@@ -95,14 +95,14 @@ class MorphTo(BaseRelationship):
         else:
             model = self.morph_map().get(getattr(relation, self.morph_key))
             if model:
-                return model.find(getattr(relation, self.morph_id))
+                return model.find([getattr(relation, self.morph_id)])
 
     def register_related(self, key, model, collection):
         morphed_model = self.morph_map().get(getattr(model, self.morph_key))
 
         related = collection.where(
             morphed_model.get_primary_key(), getattr(model, self.morph_id)
-        ).first()
+        )
 
         model.add_relation({key: related})
 
@@ -111,10 +111,10 @@ class MorphTo(BaseRelationship):
 
     def attach(self, current_model, related_record):
         raise NotImplementedError(
-            "MorphTo relationship does not implement the attach method"
+            "MorphToMany relationship does not implement the attach method"
         )
 
     def attach_related(self, current_model, related_record):
         raise NotImplementedError(
-            "MorphTo relationship does not implement the attach_related method"
+            "MorphToMany relationship does not implement the attach_related method"
         )
