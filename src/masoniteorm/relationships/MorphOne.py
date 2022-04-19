@@ -63,12 +63,8 @@ class MorphOne(BaseRelationship):
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-        polymorphic_key = None
+        polymorphic_key = self.get_record_key_lookup(builder._model)
         polymorphic_builder = self.polymorphic_builder
-        for key, model in self.morph_map().items():
-            if model == builder._model.__class__:
-                polymorphic_key = key
-                break
 
         return (
             polymorphic_builder.where("record_type", polymorphic_key)
