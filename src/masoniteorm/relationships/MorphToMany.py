@@ -114,10 +114,10 @@ class MorphToMany(BaseRelationship):
 
     def attach(self, current_model, related_record):
         raise NotImplementedError(
-            "HasOneThrough relationship does not implement the attach method"
+            "MorphToMany relationship does not implement the attach method"
         )
 
     def attach_related(self, current_model, related_record):
         raise NotImplementedError(
-            "HasOneThrough relationship does not implement the attach_related method"
+            "MorphToMany relationship does not implement the attach_related method"
         )
