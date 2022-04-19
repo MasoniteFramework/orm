@@ -62,7 +62,7 @@ class MorphOne(BaseRelationship):
 
         Returns:
             dict -- A dictionary of data which will be hydrated.
-        """ 
+        """
         polymorphic_key = None
         polymorphic_builder = self.polymorphic_builder
         for key, model in self.morph_map().items():
@@ -70,7 +70,11 @@ class MorphOne(BaseRelationship):
                 polymorphic_key = key
                 break
 
-        return polymorphic_builder.where("record_type", polymorphic_key).where("record_id", instance.get_primary_key_value()).first()
+        return (
+            polymorphic_builder.where("record_type", polymorphic_key)
+            .where("record_id", instance.get_primary_key_value())
+            .first()
+        )
 
     def get_related(self, query, relation, eagers=None):
         """Gets the relation needed between the relation and the related builder. If the relation is a collection
