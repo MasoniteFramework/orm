@@ -95,10 +95,7 @@ class MorphToMany(BaseRelationship):
         else:
             model = self.morph_map().get(getattr(relation, self.morph_key))
             if model:
-                return model.where(
-                    f"{model.get_table_name()}.{self.foreign_key}",
-                    getattr(relation, self.morph_id),
-                ).get()
+                return model.find([getattr(relation, self.morph_id)])
 
     def register_related(self, key, model, collection):
         morphed_model = self.morph_map().get(getattr(model, self.morph_key))
