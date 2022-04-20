@@ -1296,7 +1296,11 @@ class QueryBuilder(ObservesEvents):
         return self.prepare_result(result)
 
     def sole(self, query=False):
+        """Gets the only record matching a given criteria.
 
+        Returns:
+            dictionary -- Returns a dictionary of results.
+        """
         result = self.take(2).get()
 
         if result.is_empty():
