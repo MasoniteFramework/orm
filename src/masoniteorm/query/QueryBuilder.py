@@ -1300,10 +1300,10 @@ class QueryBuilder(ObservesEvents):
         result = self.take(2).get()
 
         if result.is_empty():
-            raise NoRecordsFound
+            raise NoRecordsFound()
 
         if result.count() > 1:
-            raise MultipleRecordsFound
+            raise MultipleRecordsFound()
 
         return result.first()
 
