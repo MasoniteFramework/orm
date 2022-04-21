@@ -20,8 +20,7 @@ from ..expressions.expressions import (
 from ..scopes import BaseScope
 from ..schema import Schema
 from ..observers import ObservesEvents
-from ..exceptions import ModelNotFound, HTTP404, ConnectionNotRegistered, NoRecordsFound, \
-    MultipleRecordsFound
+from ..exceptions import ModelNotFound, HTTP404, ConnectionNotRegistered
 from ..pagination import LengthAwarePaginator, SimplePaginator
 from .EagerRelation import EagerRelations
 from datetime import datetime, date as datetimedate, time as datetimetime
@@ -1295,21 +1294,15 @@ class QueryBuilder(ObservesEvents):
 
         return self.prepare_result(result)
 
-    def sole(self, query=False):
-        """Gets the only record matching a given criteria.
+    def first_where(self, column, *args):
+        """Gets the first record with the given key / value pair
 
         Returns:
             dictionary -- Returns a dictionary of results.
         """
-        result = self.take(2).get()
-
-        if result.is_empty():
-            raise NoRecordsFound()
-
-        if result.count() > 1:
-            raise MultipleRecordsFound()
-
-        return result.first()
+        if not args:
+            return self.where_not_null(column).first()
+        return self.where(column, *args).first()
 
     def last(self, column=None, query=False):
         """Gets the last record, ordered by column in descendant order or primary
