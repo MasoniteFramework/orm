@@ -10,6 +10,7 @@ from ..collection import Collection
 from ..observers import ObservesEvents
 from ..scopes import TimeStampsMixin
 from ..config import load_config
+from ..exceptions import ModelNotFound
 
 """This is a magic class that will help using models like User.first() instead of having to instatiate a class like
 User().first()
@@ -329,6 +330,23 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 return builder.get()
 
             return builder.first()
+
+    @classmethod
+    def find_or_fail(cls, record_id, query=False):
+        """Finds a row by the primary key ID or raise a ModelNotFound exception.
+
+        Arguments:
+            record_id {int} -- The ID of the primary key to fetch.
+
+        Returns:
+            Model
+        """
+        result = cls.find(record_id, query)
+
+        if not result:
+            raise ModelNotFound()
+
+        return result
 
     def first_or_new(self):
         pass
