@@ -57,11 +57,11 @@ class TestCollection(unittest.TestCase):
                 {"id": 3, "name": "Bob"},
             ]
         )
-        self.assertEqual(len(collection.where_in("id", [1,2])), 2)
+        self.assertEqual(len(collection.where_in("id", [1, 2])), 2)
         self.assertEqual(len(collection.where_in("id", [3])), 1)
         self.assertEqual(len(collection.where_in("id", [4])), 0)
 
-        self.assertEqual(len(collection.where_in("id", ["1","2"])), 2)
+        self.assertEqual(len(collection.where_in("id", ["1", "2"])), 2)
         self.assertEqual(len(collection.where_in("id", ["3"])), 1)
         self.assertEqual(len(collection.where_in("id", ["4"])), 0)
 
