@@ -1294,6 +1294,16 @@ class QueryBuilder(ObservesEvents):
 
         return self.prepare_result(result)
 
+    def first_where(self, column, *args):
+        """Gets the first record with the given key / value pair
+
+        Returns:
+            dictionary -- Returns a dictionary of results.
+        """
+        if not args:
+            return self.where_not_null(column).first()
+        return self.where(column, *args).first()
+
     def last(self, column=None, query=False):
         """Gets the last record, ordered by column in descendant order or primary
         key if no column is given.

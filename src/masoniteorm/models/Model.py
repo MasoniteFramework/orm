@@ -136,6 +136,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "find_or_fail",
         "first_or_fail",
         "first",
+        "first_where",
         "force_update",
         "from_",
         "from_raw",
