@@ -28,3 +28,12 @@ class ConfigurationNotFound(Exception):
 
 class InvalidUrlConfiguration(Exception):
     pass
+
+
+class NoRecordsFound(Exception):
+    pass
+
+
+class MultipleRecordsFound(Exception):
+    pass
+
