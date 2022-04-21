@@ -363,7 +363,7 @@ class BelongsToMany(BaseRelationship):
             )
 
         return (
-            Pivot.on(current_model.builder.connection)
+            Pivot.on(current_model.get_builder().connection)
             .table(self._table)
             .without_global_scopes()
             .create(data)
@@ -380,7 +380,7 @@ class BelongsToMany(BaseRelationship):
         )
 
         return (
-            Pivot.on(current_model.builder.connection)
+            Pivot.on(current_model.get_builder().connection)
             .table(self._table)
             .without_global_scopes()
             .where(data)
@@ -406,7 +406,7 @@ class BelongsToMany(BaseRelationship):
             )
 
         return (
-            Pivot.on(current_model.builder.connection)
+            Pivot.on(current_model.get_builder().connection)
             .table(self._table)
             .without_global_scopes()
             .create(data)
@@ -431,7 +431,7 @@ class BelongsToMany(BaseRelationship):
             )
 
         return (
-            Pivot.on(current_model.builder.connection)
+            Pivot.on(current_model.get_builder().connection)
             .table(self._table)
             .without_global_scopes()
             .where(data)
