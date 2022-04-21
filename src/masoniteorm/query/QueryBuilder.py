@@ -20,8 +20,13 @@ from ..expressions.expressions import (
 from ..scopes import BaseScope
 from ..schema import Schema
 from ..observers import ObservesEvents
-from ..exceptions import ModelNotFound, HTTP404, ConnectionNotRegistered, NoRecordsFound, \
-    MultipleRecordsFound
+from ..exceptions import (
+    ModelNotFound,
+    HTTP404,
+    ConnectionNotRegistered,
+    ModelNotFound,
+    MultipleRecordsFound,
+)
 from ..pagination import LengthAwarePaginator, SimplePaginator
 from .EagerRelation import EagerRelations
 from datetime import datetime, date as datetimedate, time as datetimetime
@@ -1304,7 +1309,7 @@ class QueryBuilder(ObservesEvents):
         result = self.take(2).get()
 
         if result.is_empty():
-            raise NoRecordsFound()
+            raise ModelNotFound()
 
         if result.count() > 1:
             raise MultipleRecordsFound()
