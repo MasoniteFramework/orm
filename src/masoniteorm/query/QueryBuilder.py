@@ -1301,11 +1301,8 @@ class QueryBuilder(ObservesEvents):
         return self.prepare_result(result)
 
     def sole(self, query=False):
-        """Gets the only record matching a given criteria.
+        """Gets the only record matching a given criteria."""
 
-        Returns:
-            dictionary -- Returns a dictionary of results.
-        """
         result = self.take(2).get()
 
         if result.is_empty():
@@ -1315,6 +1312,12 @@ class QueryBuilder(ObservesEvents):
             raise MultipleRecordsFound()
 
         return result.first()
+
+    def first_where(self, column, *args):
+        """Gets the first record with the given key / value pair"""
+        if not args:
+            return self.where_not_null(column).first()
+        return self.where(column, *args).first()
 
     def last(self, column=None, query=False):
         """Gets the last record, ordered by column in descendant order or primary
