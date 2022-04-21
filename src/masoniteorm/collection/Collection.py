@@ -409,7 +409,6 @@ class Collection:
                 attributes.append(item)
         return self.__class__(attributes)
 
-    
     def where_in(self, key, args: list):
 
         attributes = []
@@ -420,12 +419,11 @@ class Collection:
                 comparison = item.get(key)
             else:
                 comparison = getattr(item, key) if hasattr(item, key) else False
-            
+
             if str(comparison) in args:
                 attributes.append(item)
 
         return self.__class__(attributes)
-
 
     def zip(self, items):
         items = self.__get_items(items)
