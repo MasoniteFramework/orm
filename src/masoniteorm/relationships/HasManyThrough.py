@@ -85,6 +85,14 @@ class HasManyThrough(BaseRelationship):
 
         return self
 
+    def relate(self, related_model):
+        return self.distant_builder.join(
+            f"{self.intermediary_builder.get_table_name()}",
+            f"{self.intermediary_builder.get_table_name()}.{self.foreign_key}",
+            "=",
+            f"{self.distant_builder.get_table_name()}.{self.other_owner_key}",
+        ).where(f"{self.intermediary_builder.get_table_name()}.{self.local_key}", getattr(related_model, self.local_owner_key))
+
     def get_builder(self):
         return self.distant_builder
 
