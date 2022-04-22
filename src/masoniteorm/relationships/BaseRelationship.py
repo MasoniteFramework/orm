@@ -128,9 +128,11 @@ class BaseRelationship:
         return current_model.update(
             {self.local_key: getattr(related_record, self.foreign_key)}
         )
-    
+
     def relate(self, related_record):
-        return self.get_builder().where(self.foreign_key, related_record.__attributes__[self.local_key])
+        return self.get_builder().where(
+            self.foreign_key, related_record.__attributes__[self.local_key]
+        )
 
     def detach(self, current_model, related_record):
         return current_model.where(
