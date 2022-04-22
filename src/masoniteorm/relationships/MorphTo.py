@@ -106,6 +106,11 @@ class MorphTo(BaseRelationship):
 
         model.add_relation({key: related})
 
+    def relate(self, related_record):
+        raise NotImplementedError(
+            "MorphTo relationship does not implement the relate method"
+        )
+
     def morph_map(self):
         return load_config().DB._morph_map
 

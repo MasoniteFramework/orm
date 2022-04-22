@@ -146,3 +146,8 @@ class MorphOne(BaseRelationship):
         raise NotImplementedError(
             "HasOneThrough relationship does not implement the attach_related method"
         )
+
+    def relate(self, related_record):
+        raise NotImplementedError(
+            "MorphOne relationship does not implement the relate method"
+        )
