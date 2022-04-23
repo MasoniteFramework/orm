@@ -8,6 +8,9 @@ class ConnectionFactory:
         #
     }
 
+    def __init__(self, config_path=None):
+        self._config_path = config_path
+
     @classmethod
     def register(cls, key, connection):
         """Registers new connections
@@ -35,7 +38,7 @@ class ConnectionFactory:
             masoniteorm.connection.BaseConnection -- Returns an instance of a BaseConnection class.
         """
 
-        DB = load_config().DB
+        DB = load_config(self._config_path).DB
 
         connections = DB.get_connection_details()
 

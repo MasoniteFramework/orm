@@ -6,7 +6,7 @@ class ConnectionResolver:
     _connection_details = {}
     _connections = {}
 
-    def __init__(self):
+    def __init__(self, config_path=None):
         from ..connections import (
             SQLiteConnection,
             PostgresConnection,
@@ -16,7 +16,7 @@ class ConnectionResolver:
 
         from ..connections import ConnectionFactory
 
-        self.connection_factory = ConnectionFactory()
+        self.connection_factory = ConnectionFactory(config_path=config_path)
 
         self.register(SQLiteConnection)
         self.register(PostgresConnection)
