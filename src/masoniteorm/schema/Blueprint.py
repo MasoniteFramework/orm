@@ -593,7 +593,7 @@ class Blueprint:
             self
         """
         if not column:
-            self._last_column.column_type = "unsigned_integer"
+            self._last_column.column_type += "_unsigned"
             self._last_column.length = None
             return self
 
@@ -615,7 +615,7 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(
-            column, "unsigned_integer", nullable=nullable
+            column, "integer_unsigned", nullable=nullable
         )
         return self
 
@@ -634,7 +634,7 @@ class Blueprint:
         _columns = []
         _columns.append(
             self.table.add_column(
-                "{}_id".format(column), "unsigned_integer", nullable=nullable
+                "{}_id".format(column), "integer_unsigned", nullable=nullable
             )
         )
         _columns.append(
@@ -667,7 +667,7 @@ class Blueprint:
             if not self._dry:
                 # get current table schema
                 table = self.platform().get_current_schema(
-                    self.connection, "table_schema"
+                    self.connection, self.table.name
                 )
                 self.table.from_table = table
 

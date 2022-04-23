@@ -21,6 +21,11 @@ class SQLitePlatform(Platform):
         "big_increments": "BIGINT",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
+        "integer_unsigned": "INT UNSIGNED",
+        "big_integer_unsigned": "BIGINT UNSIGNED",
+        "tiny_integer_unsigned": "TINYINT UNSIGNED",
+        "small_integer_unsigned": "SMALLINT UNSIGNED",
+        "medium_integer_unsigned": "MEDIUMINT UNSIGNED",
         "increments": "INTEGER",
         "uuid": "CHAR",
         "binary": "LONGBLOB",
@@ -45,7 +50,6 @@ class SQLitePlatform(Platform):
         "datetime": "DATETIME",
         "tiny_increments": "TINYINT AUTO_INCREMENT",
         "unsigned": "INT UNSIGNED",
-        "unsigned_integer": "UNSIGNED INT",
     }
 
     premapped_defaults = {
@@ -98,7 +102,9 @@ class SQLitePlatform(Platform):
             else:
                 length = ""
 
-            if column.default in (0,):
+            if column.default == "":
+                default = " DEFAULT ''"
+            elif column.default in (0,):
                 default = f" DEFAULT {column.default}"
             elif column.default in self.premapped_defaults.keys():
                 default = self.premapped_defaults.get(column.default)
@@ -340,10 +346,12 @@ class SQLitePlatform(Platform):
 
         result = connection.query(sql, ())
         for column in result:
+            default = column.get("dflt_value")
+            if default:
+                default = default.replace("'", "")
+
             table.add_column(
-                column["name"],
-                reversed_type_map.get(column["type"]),
-                default=column.get("dflt_value"),
+                column["name"], reversed_type_map.get(column["type"]), default=default
             )
             if column.get("pk") == 1:
                 table.set_primary_key(column["name"])

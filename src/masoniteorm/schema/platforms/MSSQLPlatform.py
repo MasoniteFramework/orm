@@ -15,12 +15,17 @@ class MSSQLPlatform(Platform):
     type_map = {
         "string": "VARCHAR",
         "char": "CHAR",
+        "big_increments": "BIGINT IDENTITY",
         "integer": "INT",
         "big_integer": "BIGINT",
         "tiny_integer": "TINYINT",
-        "big_increments": "BIGINT IDENTITY",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
+        "integer_unsigned": "INT",
+        "big_integer_unsigned": "BIGINT",
+        "tiny_integer_unsigned": "TINYINT",
+        "small_integer_unsigned": "SMALLINT",
+        "medium_integer_unsigned": "MEDIUMINT",
         "increments": "INT IDENTITY",
         "uuid": "CHAR",
         "binary": "LONGBLOB",
@@ -222,8 +227,9 @@ class MSSQLPlatform(Platform):
             else:
                 length = ""
 
-            default = ""
-            if column.default in (0,):
+            if column.default == "":
+                default = " DEFAULT ''"
+            elif column.default in (0,):
                 default = f" DEFAULT {column.default}"
             elif column.default in self.premapped_defaults.keys():
                 default = self.premapped_defaults.get(column.default)

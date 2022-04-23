@@ -3,7 +3,7 @@ from .BaseRelationship import BaseRelationship
 from ..config import load_config
 
 
-class MorphTo(BaseRelationship):
+class MorphMany(BaseRelationship):
     def __init__(self, fn, morph_key="record_type", morph_id="record_id"):
         if isinstance(fn, str):
             self.fn = None
@@ -36,6 +36,7 @@ class MorphTo(BaseRelationship):
         """
         attribute = self.fn.__name__
         self._related_builder = instance.builder
+        self.polymorphic_builder = self.fn(self)()
         self.set_keys(owner, self.fn)
 
         if instance.is_loaded():
@@ -62,10 +63,13 @@ class MorphTo(BaseRelationship):
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-        model = self.morph_map().get(instance.__attributes__[self.morph_key])
-        record = instance.__attributes__[self.morph_id]
-
-        return model.where(model.get_primary_key(), record).first()
+        polymorphic_key = self.get_record_key_lookup(builder._model)
+        polymorphic_builder = self.polymorphic_builder
+        return (
+            polymorphic_builder.where(self.morph_key, polymorphic_key)
+            .where(self.morph_id, instance.get_primary_key_value())
+            .get()
+        )
 
     def get_related(self, query, relation, eagers=None):
         """Gets the relation needed between the relation and the related builder. If the relation is a collection
@@ -79,47 +83,68 @@ class MorphTo(BaseRelationship):
         Returns:
             Model|Collection
         """
+
         if isinstance(relation, Collection):
-            relations = Collection()
-            for group, items in relation.group_by(self.morph_key).items():
-                morphed_model = self.morph_map().get(group)
-                relations.merge(
-                    morphed_model.where_in(
-                        f"{morphed_model.get_table_name()}.{morphed_model.get_primary_key()}",
-                        Collection(items)
-                        .pluck(self.morph_id, keep_nulls=False)
-                        .unique(),
-                    ).get()
+            record_type = self.get_record_key_lookup(relation.first())
+            return (
+                self.polymorphic_builder.where(
+                    f"{self.polymorphic_builder.get_table_name()}.{self.morph_key}",
+                    record_type,
                 )
-            return relations
+                .where_in(
+                    self.morph_id,
+                    relation.pluck(
+                        relation.first().get_primary_key(), keep_nulls=False
+                    ).unique(),
+                )
+                .get()
+            )
+
         else:
-            model = self.morph_map().get(getattr(relation, self.morph_key))
-            if model:
-                return model.find(getattr(relation, self.morph_id))
+            record_type = self.get_record_key_lookup(relation)
+
+            return (
+                self.polymorphic_builder.where(self.morph_key, record_type)
+                .where(self.morph_id, relation.get_primary_key_value())
+                .get()
+            )
 
     def register_related(self, key, model, collection):
-        morphed_model = self.morph_map().get(getattr(model, self.morph_key))
-
-        related = collection.where(
-            morphed_model.get_primary_key(), getattr(model, self.morph_id)
-        ).first()
+        record_type = self.get_record_key_lookup(model)
+        related = collection.where(self.morph_key, record_type).where(
+            self.morph_id, model.get_primary_key_value()
+        )
 
         model.add_relation({key: related})
-
-    def relate(self, related_record):
-        raise NotImplementedError(
-            "MorphTo relationship does not implement the relate method"
-        )
 
     def morph_map(self):
         return load_config().DB._morph_map
 
+    def get_record_key_lookup(self, relation):
+        record_type = None
+        for record_type_loop, model in self.morph_map().items():
+            if model == relation.__class__:
+                record_type = record_type_loop
+                break
+
+        if not record_type:
+            raise ValueError(
+                f"Could not find the record type key for the {relation} class"
+            )
+
+        return record_type
+
     def attach(self, current_model, related_record):
         raise NotImplementedError(
-            "MorphTo relationship does not implement the attach method"
+            "HasOneThrough relationship does not implement the attach method"
         )
 
     def attach_related(self, current_model, related_record):
         raise NotImplementedError(
-            "MorphTo relationship does not implement the attach_related method"
+            "HasOneThrough relationship does not implement the attach_related method"
+        )
+
+    def relate(self, related_record):
+        raise NotImplementedError(
+            "MorphMany relationship does not implement the relate method"
         )

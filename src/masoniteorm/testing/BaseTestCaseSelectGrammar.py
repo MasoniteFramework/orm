@@ -236,6 +236,17 @@ class BaseTestCaseSelectGrammar:
         )()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_sub_select_from_lambda(self):
+        to_sql = (
+            self.builder.new()
+            .where_in(
+                "age", lambda q: (q.select("age").where("age", 2).where("name", "Joe"))
+            )
+            .to_sql()
+        )
+        sql = getattr(self, "can_compile_sub_select_where")()
+        self.assertEqual(to_sql, sql)
+
     def test_can_compile_sub_select_value(self):
         to_sql = self.builder.where("name", self.builder.new().sum("age")).to_sql()
         sql = getattr(
@@ -430,6 +441,20 @@ class BaseTestCaseSelectGrammar:
 
     def test_where_like(self):
         to_sql = self.builder.where("age", "like", "%name%").to_sql()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_where_regexp(self):
+        to_sql = self.builder.where("age", "regexp", "Joe").to_sql()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_where_not_regexp(self):
+        to_sql = self.builder.where("age", "not regexp", "Joe").to_sql()
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()

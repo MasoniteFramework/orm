@@ -1,6 +1,7 @@
 class BaseRelationship:
     def __init__(self, fn, local_key=None, foreign_key=None):
         if isinstance(fn, str):
+            self.fn = None
             self.local_key = fn
             self.foreign_key = local_key
         else:
@@ -79,16 +80,20 @@ class BaseRelationship:
         """
         return foreign.where(foreign_key, owner().__attributes__[local_key]).first()
 
-    def get_where_exists_query(self, query, builder, callback):
-        return callback(
-            query.where_column(
-                f"{query.get_table_name()}.{self.foreign_key}",
-                f"{builder.get_table_name()}.{self.local_key}",
+    def get_where_exists_query(self, builder, callback):
+        query = self.get_builder()
+        builder.where_exists(
+            callback(
+                query.where_column(
+                    f"{query.get_table_name()}.{self.foreign_key}",
+                    f"{builder.get_table_name()}.{self.local_key}",
+                )
             )
         )
+        return query
 
-    def get_with_count_query(self, query, builder, callback):
-
+    def get_with_count_query(self, builder, callback):
+        query = self.get_builder()
         if not builder._columns:
             builder = builder.select("*")
 
@@ -124,7 +129,34 @@ class BaseRelationship:
             {self.local_key: getattr(related_record, self.foreign_key)}
         )
 
+    def relate(self, related_record):
+        return self.get_builder().where(
+            self.foreign_key, related_record.__attributes__[self.local_key]
+        )
+
+    def detach(self, current_model, related_record):
+        return current_model.where(
+            {self.local_key: getattr(related_record, self.foreign_key)}
+        ).delete()
+
     def attach_related(self, current_model, related_record):
         return related_record.update(
             {self.foreign_key: getattr(current_model, self.local_key)}
         )
+
+    def detach_related(self, current_model, related_record):
+        return related_record.where(
+            {self.foreign_key: getattr(current_model, self.local_key)}
+        ).delete()
+
+    def query_has(self, current_query_builder):
+        related_builder = self.get_builder()
+
+        current_query_builder.where_exists(
+            related_builder.where_column(
+                f"{related_builder.get_table_name()}.{self.foreign_key}",
+                f"{current_query_builder.get_table_name()}.{self.local_key}",
+            )
+        )
+
+        return related_builder

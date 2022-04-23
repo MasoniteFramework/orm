@@ -290,9 +290,10 @@ class BelongsToMany(BaseRelationship):
             }
         )
 
-    def get_where_exists_query(self, query, builder, callback):
-        self._table = self.get_pivot_table_name(query, builder)
-        return (
+    def get_where_exists_query(self, builder, callback):
+        query = self.get_builder()
+        self._table = self._table or self.get_pivot_table_name(query, builder)
+        return builder.where_exists(
             query.new()
             .select("*")
             .table(self._table)
@@ -311,8 +312,9 @@ class BelongsToMany(BaseRelationship):
         pivot_tables.sort()
         return "_".join(pivot_tables)
 
-    def get_with_count_query(self, query, builder, callback):
-        self._table = self.get_pivot_table_name(query, builder)
+    def get_with_count_query(self, builder, callback):
+        query = self.get_builder()
+        self._table = self._table or self.get_pivot_table_name(query, builder)
 
         if not builder._columns:
             builder = builder.select("*")
@@ -348,6 +350,10 @@ class BelongsToMany(BaseRelationship):
             self.foreign_key: getattr(related_record, self.other_owner_key),
         }
 
+        self._table = self._table or self.get_pivot_table_name(
+            current_model, related_record
+        )
+
         if self.with_timestamps:
             data.update(
                 {
@@ -357,10 +363,28 @@ class BelongsToMany(BaseRelationship):
             )
 
         return (
-            Pivot.on(current_model.builder.connection)
+            Pivot.on(current_model.get_builder().connection)
             .table(self._table)
             .without_global_scopes()
             .create(data)
+        )
+
+    def detach(self, current_model, related_record):
+        data = {
+            self.local_key: getattr(current_model, self.local_owner_key),
+            self.foreign_key: getattr(related_record, self.other_owner_key),
+        }
+
+        self._table = self._table or self.get_pivot_table_name(
+            current_model, related_record
+        )
+
+        return (
+            Pivot.on(current_model.get_builder().connection)
+            .table(self._table)
+            .without_global_scopes()
+            .where(data)
+            .delete()
         )
 
     def attach_related(self, current_model, related_record):
@@ -369,6 +393,10 @@ class BelongsToMany(BaseRelationship):
             self.foreign_key: getattr(related_record, self.other_owner_key),
         }
 
+        self._table = self._table or self.get_pivot_table_name(
+            current_model, related_record
+        )
+
         if self.with_timestamps:
             data.update(
                 {
@@ -378,8 +406,34 @@ class BelongsToMany(BaseRelationship):
             )
 
         return (
-            Pivot.on(current_model.builder.connection)
+            Pivot.on(current_model.get_builder().connection)
             .table(self._table)
             .without_global_scopes()
             .create(data)
+        )
+
+    def detach_related(self, current_model, related_record):
+        data = {
+            self.local_key: getattr(current_model, self.local_owner_key),
+            self.foreign_key: getattr(related_record, self.other_owner_key),
+        }
+
+        self._table = self._table or self.get_pivot_table_name(
+            current_model, related_record
+        )
+
+        if self.with_timestamps:
+            data.update(
+                {
+                    "created_at": pendulum.now().to_datetime_string(),
+                    "updated_at": pendulum.now().to_datetime_string(),
+                }
+            )
+
+        return (
+            Pivot.on(current_model.get_builder().connection)
+            .table(self._table)
+            .without_global_scopes()
+            .where(data)
+            .delete()
         )

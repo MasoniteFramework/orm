@@ -49,6 +49,22 @@ class TestCollection(unittest.TestCase):
         self.assertEqual(len(collection.where("id", "<=", 1)), 1)
         self.assertEqual(len(collection.where("id", "<", 3)), 2)
 
+    def test_where_in(self):
+        collection = Collection(
+            [
+                {"id": 1, "name": "Joe"},
+                {"id": 2, "name": "Joe"},
+                {"id": 3, "name": "Bob"},
+            ]
+        )
+        self.assertEqual(len(collection.where_in("id", [1, 2])), 2)
+        self.assertEqual(len(collection.where_in("id", [3])), 1)
+        self.assertEqual(len(collection.where_in("id", [4])), 0)
+
+        self.assertEqual(len(collection.where_in("id", ["1", "2"])), 2)
+        self.assertEqual(len(collection.where_in("id", ["3"])), 1)
+        self.assertEqual(len(collection.where_in("id", ["4"])), 0)
+
     def test_pop(self):
         collection = Collection([1, 2, 3])
         self.assertEqual(collection.pop(), 3)

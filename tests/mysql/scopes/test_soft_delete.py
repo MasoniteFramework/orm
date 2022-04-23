@@ -17,6 +17,13 @@ class UserSoft(Model, SoftDeletesMixin):
     __dry__ = True
 
 
+class UserSoftArchived(Model, SoftDeletesMixin):
+    __dry__ = True
+
+    __deleted_at__ = "archived_at"
+    __table__ = "users"
+
+
 class TestSoftDeleteScope(unittest.TestCase):
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("default")
@@ -62,3 +69,7 @@ class TestSoftDeleteScope(unittest.TestCase):
     def test_only_trashed_on_model(self):
         sql = "SELECT * FROM `user_softs` WHERE `user_softs`.`deleted_at` IS NOT NULL"
         self.assertEqual(sql, UserSoft.only_trashed().to_sql())
+
+    def test_can_change_column(self):
+        sql = "SELECT * FROM `users` WHERE `users`.`archived_at` IS NOT NULL"
+        self.assertEqual(sql, UserSoftArchived.only_trashed().to_sql())

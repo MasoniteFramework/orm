@@ -2,7 +2,13 @@ from ..query.grammars import SQLiteGrammar
 from .BaseConnection import BaseConnection
 from ..schema.platforms import SQLitePlatform
 from ..query.processors import SQLitePostProcessor
-from ..exceptions import QueryException
+from ..exceptions import DriverNotFound, QueryException
+import re
+
+
+def regexp(expr, item):
+    reg = re.compile(expr)
+    return reg.search(item) is not None
 
 
 class SQLiteConnection(BaseConnection):
@@ -47,13 +53,14 @@ class SQLiteConnection(BaseConnection):
             import sqlite3
         except ModuleNotFoundError:
             raise DriverNotFound(
-                "You must have the 'sqlite3' package installed to make a connection to MySQL. Please install it using 'pip install pymysql'"
+                "You must have the 'sqlite3' package installed to make a connection to SQLite."
             )
 
         if self.has_global_connection():
             return self.get_global_connection()
 
         self._connection = sqlite3.connect(self.database, isolation_level=None)
+        self._connection.create_function("REGEXP", 2, regexp)
 
         self._connection.row_factory = sqlite3.Row
         self.open = 1

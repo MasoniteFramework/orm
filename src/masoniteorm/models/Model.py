@@ -10,6 +10,7 @@ from ..collection import Collection
 from ..observers import ObservesEvents
 from ..scopes import TimeStampsMixin
 from ..config import load_config
+from ..exceptions import ModelNotFound
 
 """This is a magic class that will help using models like User.first() instead of having to instatiate a class like
 User().first()
@@ -54,7 +55,7 @@ class JsonCast:
     """Casts a value to JSON"""
 
     def get(self, value):
-        if isinstance(value, dict):
+        if isinstance(value, dict) or isinstance(value, list):
             return value
 
         return json.loads(value)
@@ -135,6 +136,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "find_or_fail",
         "first_or_fail",
         "first",
+        "first_where",
         "force_update",
         "from_",
         "from_raw",
@@ -216,7 +218,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         self._relationships = {}
         self._global_scopes = {}
 
-        self.get_builder()
         self.boot()
 
     @classmethod
@@ -263,6 +264,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return self.builder.select(*self.__selects__)
 
+    @classmethod
+    def get_columns(cls):
+        return list(cls.first().__attributes__.keys())
+
     def get_connection_details(self):
         DB = load_config().DB
         return DB.get_connection_details()
@@ -274,12 +279,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 class_name = base_class.__name__
 
                 if class_name.endswith("Mixin"):
-                    getattr(base_class(), "boot_" + class_name)(self.builder)
+                    getattr(self, "boot_" + class_name)(self.get_builder())
 
             self._booted = True
             self.observe_events(self, "booted")
 
-            self.append_passthrough(list(self.builder._macros.keys()))
+            self.append_passthrough(list(self.get_builder()._macros.keys()))
 
     def append_passthrough(self, passthrough):
         self.__passthrough__ += passthrough
@@ -322,7 +327,27 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         if query:
             return builder.to_sql()
         else:
+            if isinstance(record_id, (list, tuple)):
+                return builder.get()
+
             return builder.first()
+
+    @classmethod
+    def find_or_fail(cls, record_id, query=False):
+        """Finds a row by the primary key ID or raise a ModelNotFound exception.
+
+        Arguments:
+            record_id {int} -- The ID of the primary key to fetch.
+
+        Returns:
+            Model
+        """
+        result = cls.find(record_id, query)
+
+        if not result:
+            raise ModelNotFound()
+
+        return result
 
     def first_or_new(self):
         pass
@@ -569,14 +594,14 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 if value is None:
                     new_dic.update({key: {}})
                     continue
+                elif isinstance(value, list):
+                    value = Collection(value).serialize()
+                elif isinstance(value, dict):
+                    pass
+                else:
+                    value = value.serialize()
 
-                new_dic.update(
-                    {
-                        key: value.serialize(
-                            exclude=self.__relationship_hidden__.get(key, [])
-                        )
-                    }
-                )
+                new_dic.update({key: value})
 
         return new_dic
 
@@ -853,6 +878,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return self
 
     def save_many(self, relation, relating_records):
+
+        if isinstance(relating_records, Model):
+            raise ValueError(
+                "Saving many records requires an iterable like a collection or a list of models and not a Model object. To attach a model, use the 'attach' method."
+            )
+
         related = getattr(self.__class__, relation)
         for related_record in relating_records:
             if not related_record.is_created():
@@ -862,9 +893,25 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
             related.attach_related(self, related_record)
 
+    def detach_many(self, relation, relating_records):
+
+        if isinstance(relating_records, Model):
+            raise ValueError(
+                "Detaching many records requires an iterable like a collection or a list of models and not a Model object. To detach a model, use the 'detach' method."
+            )
+
+        related = getattr(self.__class__, relation)
+        for related_record in relating_records:
+            if not related_record.is_created():
+                related_record.create(related_record.all_attributes())
+            else:
+                related_record.save()
+
+            related.detach_related(self, related_record)
+
     def related(self, relation):
         related = getattr(self.__class__, relation)
-        return related.where(related.foreign_key, self.get_primary_key_value())
+        return related.relate(self)
 
     def get_related(self, relation):
         related = getattr(self.__class__, relation)
@@ -879,6 +926,16 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             related_record.save()
 
         return related.attach(self, related_record)
+
+    def detach(self, relation, related_record):
+        related = getattr(self.__class__, relation)
+
+        if not related_record.is_created():
+            related_record = related_record.create(related_record.all_attributes())
+        else:
+            related_record.save()
+
+        return related.detach(self, related_record)
 
     def attach_related(self, relation, related_record):
         related = getattr(self.__class__, relation)

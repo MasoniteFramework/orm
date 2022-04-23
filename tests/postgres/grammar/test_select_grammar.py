@@ -181,6 +181,15 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
 
         return """SELECT * FROM "users" WHERE "users"."name" IN (SELECT "users"."age" FROM "users")"""
 
+    def can_compile_sub_select_from_lambda(self):
+        """
+        self.builder.where_in('name',
+            QueryBuilder(GrammarFactory.make(self.grammar), table='users').select('age')
+        ).to_sql()
+        """
+
+        return """SELECT * FROM "users" WHERE "users"."name" IN (SELECT "users"."age" FROM "users")"""
+
     def can_compile_sub_select_where(self):
         """
         self.builder.where_in('age',
@@ -312,6 +321,20 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder.where("age", "like", "%name%").to_sql()
         """
         return """SELECT * FROM "users" WHERE "users"."age" ILIKE '%name%'"""
+
+    def where_regexp(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "regexp", "Joe").to_sql()
+        """
+        return """SELECT * FROM "users" WHERE "users"."age" REGEXP 'Joe'"""
+
+    def where_not_regexp(self):
+        """
+        builder = self.get_builder()
+        builder.where("age", "regexp", "Joe").to_sql()
+        """
+        return """SELECT * FROM "users" WHERE "users"."age" NOT REGEXP 'Joe'"""
 
     def can_compile_join_clause(self):
         """

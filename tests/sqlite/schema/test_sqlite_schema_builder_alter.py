@@ -176,10 +176,10 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         blueprint.table.from_table = table
 
         sql = [
-            'ALTER TABLE "users" ADD COLUMN "playlist_id" UNSIGNED INT NULL REFERENCES "playlists"("id")',
+            'ALTER TABLE "users" ADD COLUMN "playlist_id" INT UNSIGNED NULL REFERENCES "playlists"("id")',
             "CREATE TEMPORARY TABLE __temp__users AS SELECT age, email FROM users",
             'DROP TABLE "users"',
-            'CREATE TABLE "users" ("age" VARCHAR NOT NULL, "email" VARCHAR NOT NULL, "playlist_id" UNSIGNED INT NULL, '
+            'CREATE TABLE "users" ("age" VARCHAR NOT NULL, "email" VARCHAR NOT NULL, "playlist_id" INT UNSIGNED NULL, '
             'CONSTRAINT users_playlist_id_foreign FOREIGN KEY ("playlist_id") REFERENCES "playlists"("id") ON DELETE CASCADE ON UPDATE SET NULL)',
             'INSERT INTO "users" ("age", "email") SELECT age, email FROM __temp__users',
             "DROP TABLE __temp__users",

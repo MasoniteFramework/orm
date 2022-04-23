@@ -24,6 +24,13 @@ class PostgresPlatform(Platform):
         "big_increments": "BIGSERIAL UNIQUE",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
+        # Postgres database does not implement unsigned types
+        # So the below types are the same as the normal ones
+        "integer_unsigned": "INTEGER",
+        "big_integer_unsigned": "BIGINT",
+        "tiny_integer_unsigned": "TINYINT",
+        "small_integer_unsigned": "SMALLINT",
+        "medium_integer_unsigned": "MEDIUMINT",
         "increments": "SERIAL UNIQUE",
         "uuid": "UUID",
         "binary": "BYTEA",
@@ -48,7 +55,6 @@ class PostgresPlatform(Platform):
         "datetime": "TIMESTAMPTZ",
         "tiny_increments": "TINYINT AUTO_INCREMENT",
         "unsigned": "INT",
-        "unsigned_integer": "INT",
     }
 
     table_info_map = {"CHARACTER VARYING": "string"}
@@ -116,7 +122,9 @@ class PostgresPlatform(Platform):
             else:
                 length = ""
 
-            if column.default in (0,):
+            if column.default == "":
+                default = " DEFAULT ''"
+            elif column.default in (0,):
                 default = f" DEFAULT {column.default}"
             elif column.default in self.premapped_defaults.keys():
                 default = self.premapped_defaults.get(column.default)

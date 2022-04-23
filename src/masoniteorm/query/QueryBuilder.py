@@ -20,7 +20,13 @@ from ..expressions.expressions import (
 from ..scopes import BaseScope
 from ..schema import Schema
 from ..observers import ObservesEvents
-from ..exceptions import ModelNotFound, HTTP404, ConnectionNotRegistered
+from ..exceptions import (
+    ModelNotFound,
+    HTTP404,
+    ConnectionNotRegistered,
+    ModelNotFound,
+    MultipleRecordsFound,
+)
 from ..pagination import LengthAwarePaginator, SimplePaginator
 from .EagerRelation import EagerRelations
 from datetime import datetime, date as datetimedate, time as datetimetime
@@ -834,38 +840,20 @@ class QueryBuilder(ObservesEvents):
                 last_builder = self._model.builder
                 for split_relationship in relationship.split("."):
                     related = last_builder.get_relation(split_relationship)
-                    related_builder = related.get_builder()
-                    last_builder.where_exists(
-                        related_builder.where_column(
-                            f"{related_builder.get_table_name()}.{related.foreign_key}",
-                            f"{last_builder.get_table_name()}.{related.local_key}",
-                        )
-                    )
-                    last_builder = related_builder
+                    last_builder = related.query_has(last_builder)
             else:
                 related = getattr(self._model, relationship)
-                related_builder = related.get_builder()
-                self.where_exists(
-                    related_builder.where_column(
-                        f"{related_builder.get_table_name()}.{related.foreign_key}",
-                        f"{self.get_table_name()}.{related.local_key}",
-                    )
-                )
+                related.query_has(self)
         return self
 
     def where_has(self, relationship, callback):
-        related = getattr(self._model, relationship)
-        related_builder = related.get_builder()
-        self.where_exists(
-            related.get_where_exists_query(related_builder, self, callback)
-        )
+        getattr(self._model, relationship).get_where_exists_query(self, callback)
         return self
 
     def with_count(self, relationship, callback=None):
-        related = getattr(self._model, relationship)
-        related_builder = related.get_builder()
-
-        return related.get_with_count_query(related_builder, self, callback=callback)
+        return getattr(self._model, relationship).get_with_count_query(
+            self, callback=callback
+        )
 
     def where_not_in(self, column, wheres=None):
         """Specifies where a column does not contain a list of a values.
@@ -1314,6 +1302,25 @@ class QueryBuilder(ObservesEvents):
 
         return self.prepare_result(result)
 
+    def sole(self, query=False):
+        """Gets the only record matching a given criteria."""
+
+        result = self.take(2).get()
+
+        if result.is_empty():
+            raise ModelNotFound()
+
+        if result.count() > 1:
+            raise MultipleRecordsFound()
+
+        return result.first()
+
+    def first_where(self, column, *args):
+        """Gets the first record with the given key / value pair"""
+        if not args:
+            return self.where_not_null(column).first()
+        return self.where(column, *args).first()
+
     def last(self, column=None, query=False):
         """Gets the last record, ordered by column in descendant order or primary
         key if no column is given.
@@ -1595,6 +1602,16 @@ class QueryBuilder(ObservesEvents):
         sql = grammar.compile(self._action, qmark=False).to_sql()
         return sql
 
+    def explain(self):
+        """Explains the Query execution plan.
+
+        Returns:
+            Collection
+        """
+        sql = self.to_sql()
+        explanation = self.statement(f'EXPLAIN {sql}')
+        return explanation
+
     def run_scopes(self):
         for name, scope in self._global_scopes.get(self._action, {}).items():
             scope(self)
@@ -1665,7 +1682,19 @@ class QueryBuilder(ObservesEvents):
 
     def _extract_operator_value(self, *args):
 
-        operators = ["=", ">", ">=", "<", "<=", "!=", "<>", "like", "not like"]
+        operators = [
+            "=",
+            ">",
+            ">=",
+            "<",
+            "<=",
+            "!=",
+            "<>",
+            "like",
+            "not like",
+            "regexp",
+            "not regexp",
+        ]
 
         operator = operators[0]
 
@@ -1740,5 +1769,6 @@ class QueryBuilder(ObservesEvents):
         builder._having = from_builder._having
         builder._macros = from_builder._macros
         builder._aggregates = from_builder._aggregates
+        builder._global_scopes = from_builder._global_scopes
 
         return builder
