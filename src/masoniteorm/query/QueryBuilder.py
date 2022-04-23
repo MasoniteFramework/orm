@@ -1600,6 +1600,16 @@ class QueryBuilder(ObservesEvents):
         sql = grammar.compile(self._action, qmark=False).to_sql()
         return sql
 
+    def explain(self):
+        """Explains the Query execution plan.
+
+        Returns:
+            Collection
+        """
+        sql = self.to_sql()
+        explanation = self.statement(f'EXPLAIN {sql}')
+        return explanation
+
     def run_scopes(self):
         for name, scope in self._global_scopes.get(self._action, {}).items():
             scope(self)
