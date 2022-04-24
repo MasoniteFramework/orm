@@ -137,6 +137,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "first_or_fail",
         "first",
         "first_where",
+        "first_or_create",
         "force_update",
         "from_",
         "from_raw",
@@ -348,12 +349,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             raise ModelNotFound()
 
         return result
-
-    def first_or_new(self):
-        pass
-
-    def first_or_create(self):
-        pass
 
     def is_loaded(self):
         return bool(self.__attributes__)
@@ -567,6 +562,22 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             string
         """
         return json.dumps(self.serialize())
+
+    @classmethod
+    def first_or_create(cls, wheres, creates):
+        """Get the first record matching the attributes or create it.
+
+        Returns:
+            Model
+        """
+        self = cls()
+        record = self.where(wheres).first()
+        total = {}
+        total.update(creates)
+        total.update(wheres)
+        if not record:
+            return self.create(total, id_key=cls.get_primary_key())
+        return record
 
     @classmethod
     def update_or_create(cls, wheres, updates):
