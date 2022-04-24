@@ -1067,7 +1067,7 @@ class QueryBuilder(ObservesEvents):
 
         additional.update(updates)
 
-        result = self.new_connection().query(self.to_qmark(), self._bindings)
+        self.new_connection().query(self.to_qmark(), self._bindings)
         if model:
             model.fill(additional)
             self.observe_events(model, "updated")
@@ -1607,7 +1607,7 @@ class QueryBuilder(ObservesEvents):
             Collection
         """
         sql = self.to_sql()
-        explanation = self.statement(f'EXPLAIN {sql}')
+        explanation = self.statement(f"EXPLAIN {sql}")
         return explanation
 
     def run_scopes(self):
