@@ -421,6 +421,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
     def fill(self, attributes):
         self.__attributes__.update(attributes)
+        return self
+
+    def fill_with_original(self, attributes):
+        self.__attributes__.update(attributes)
         self.__original_attributes__.update(attributes)
         return self
 
@@ -723,6 +727,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     def get_original(self, key):
         return self.__original_attributes__.get(key)
 
+    def get_all_original(self):
+        return self.__original_attributes__
+
+    def get_all_attributes(self):
+        return self.__attributes__
+
     def get_dirty(self, key):
         return self.__dirty_attributes__.get(key)
 
@@ -747,7 +757,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                     id_key=self.get_primary_key(),
                 )
             self.observe_events(self, "saved")
-            self.fill(result.__attributes__)
+            self.fill_with_original(result.__attributes__)
             return result
 
         if self.is_loaded():
