@@ -564,6 +564,21 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return json.dumps(self.serialize())
 
     @classmethod
+    def first_or(cls, wheres, callback=None, *args):
+        """Execute the query and get the first result or call a callback.
+
+        Returns:
+            Record|Mixed
+        """
+        self = cls()
+        self._check_is_callable(callback)
+        record = self.where(wheres).first()
+        if not record:
+            return callback(*args)
+
+        return record
+
+    @classmethod
     def first_or_create(cls, wheres, creates):
         """Get the first record matching the attributes or create it.
 
@@ -957,6 +972,13 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             related_record.save()
 
         return related.attach_related(self, related_record)
+
+    def _check_is_callable(self, callback, raise_exception=True):
+        if not callable(callback):
+            if not raise_exception:
+                return False
+            raise ValueError("The 'callback' should be a function")
+        return True
 
     @classmethod
     def on(cls, connection):
