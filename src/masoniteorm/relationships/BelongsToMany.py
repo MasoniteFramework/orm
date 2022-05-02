@@ -272,7 +272,7 @@ class BelongsToMany(BaseRelationship):
 
             model.__original_attributes__.update({
                 self._as: (
-                    Pivot.on(query.connection)
+                    Pivot.on(builder.connection)
                     .table(self._table)
                     .hydrate(pivot_data)
                     .activate_timestamps(self.with_timestamps)
