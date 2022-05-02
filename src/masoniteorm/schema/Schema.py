@@ -17,6 +17,7 @@ class Schema:
         platform=None,
         grammar=None,
         connection_details=None,
+        config_path=None,
         connection_driver=None,
     ):
         self._dry = dry
@@ -26,6 +27,8 @@ class Schema:
         self.grammar = grammar
         self.platform = platform
         self.connection_details = connection_details or {}
+
+        self._config_path = config_path
         self._blueprint = None
         self._sql = None
 
@@ -45,7 +48,7 @@ class Schema:
         Returns:
             cls
         """
-        DB = load_config().DB
+        DB = load_config(self._config_path).DB
 
         if connection_key == "default":
             self.connection = self.connection_details.get("default")
