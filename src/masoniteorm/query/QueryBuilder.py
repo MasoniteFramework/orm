@@ -102,7 +102,7 @@ class QueryBuilder(ObservesEvents):
         self.set_action("select")
 
         if not self._connection_details:
-            DB = load_config(self._config_location).DB
+            DB = load_config(self._config_path).DB
             self._connection_details = DB.get_connection_details()
 
         self.on(connection)
