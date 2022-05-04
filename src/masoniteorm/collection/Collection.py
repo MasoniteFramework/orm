@@ -44,6 +44,9 @@ class Collection:
             response = filtered[0]
         return response
 
+    def items(self):
+        return self._items.items()
+
     def last(self, callback=None):
         """Takes the last result in the items.
 
@@ -219,7 +222,9 @@ class Collection:
         return self.__class__(results)
 
     def merge(self, items):
-        if not isinstance(items, list):
+        if isinstance(items, Collection):
+            items = items._items
+        elif not isinstance(items, list):
             raise ValueError("Unable to merge uncompatible types")
 
         items = self.__get_items(items)
@@ -309,10 +314,7 @@ class Collection:
                 item.set_appends(self.__appends__)
 
             if hasattr(item, "serialize"):
-                exclude = []
-                if hasattr(item, "__hidden__"):
-                    exclude = item.__hidden__
-                return item.serialize(exclude=exclude, *args, **kwargs)
+                return item.serialize(*args, **kwargs)
             elif hasattr(item, "to_dict"):
                 return item.to_dict()
             return item
@@ -402,9 +404,25 @@ class Collection:
             if isinstance(item, dict):
                 comparison = item.get(key)
             else:
-                comparison = getattr(item, key)
+                comparison = getattr(item, key) if hasattr(item, key) else False
             if self._make_comparison(comparison, value, op):
                 attributes.append(item)
+        return self.__class__(attributes)
+
+    def where_in(self, key, args: list):
+
+        attributes = []
+        args = [str(x) for x in args]
+
+        for item in self._items:
+            if isinstance(item, dict):
+                comparison = item.get(key)
+            else:
+                comparison = getattr(item, key) if hasattr(item, key) else False
+
+            if str(comparison) in args:
+                attributes.append(item)
+
         return self.__class__(attributes)
 
     def zip(self, items):

@@ -1,6 +1,7 @@
 class BaseRelationship:
     def __init__(self, fn, local_key=None, foreign_key=None):
         if isinstance(fn, str):
+            self.fn = None
             self.local_key = fn
             self.foreign_key = local_key
         else:
@@ -126,6 +127,11 @@ class BaseRelationship:
     def attach(self, current_model, related_record):
         return current_model.update(
             {self.local_key: getattr(related_record, self.foreign_key)}
+        )
+
+    def relate(self, related_record):
+        return self.get_builder().where(
+            self.foreign_key, related_record.__attributes__[self.local_key]
         )
 
     def detach(self, current_model, related_record):

@@ -181,6 +181,15 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
 
         return """SELECT * FROM "users" WHERE "users"."name" IN (SELECT "users"."age" FROM "users")"""
 
+    def can_compile_sub_select_from_lambda(self):
+        """
+        self.builder.where_in('name',
+            QueryBuilder(GrammarFactory.make(self.grammar), table='users').select('age')
+        ).to_sql()
+        """
+
+        return """SELECT * FROM "users" WHERE "users"."name" IN (SELECT "users"."age" FROM "users")"""
+
     def can_compile_sub_select_where(self):
         """
         self.builder.where_in('age',

@@ -20,7 +20,13 @@ from ..expressions.expressions import (
 from ..scopes import BaseScope
 from ..schema import Schema
 from ..observers import ObservesEvents
-from ..exceptions import ModelNotFound, HTTP404, ConnectionNotRegistered
+from ..exceptions import (
+    ModelNotFound,
+    HTTP404,
+    ConnectionNotRegistered,
+    ModelNotFound,
+    MultipleRecordsFound,
+)
 from ..pagination import LengthAwarePaginator, SimplePaginator
 from .EagerRelation import EagerRelations
 from datetime import datetime, date as datetimedate, time as datetimetime
@@ -1294,6 +1300,25 @@ class QueryBuilder(ObservesEvents):
 
         return self.prepare_result(result)
 
+    def sole(self, query=False):
+        """Gets the only record matching a given criteria."""
+
+        result = self.take(2).get()
+
+        if result.is_empty():
+            raise ModelNotFound()
+
+        if result.count() > 1:
+            raise MultipleRecordsFound()
+
+        return result.first()
+
+    def first_where(self, column, *args):
+        """Gets the first record with the given key / value pair"""
+        if not args:
+            return self.where_not_null(column).first()
+        return self.where(column, *args).first()
+
     def last(self, column=None, query=False):
         """Gets the last record, ordered by column in descendant order or primary
         key if no column is given.
@@ -1574,6 +1599,16 @@ class QueryBuilder(ObservesEvents):
         grammar = self.get_grammar()
         sql = grammar.compile(self._action, qmark=False).to_sql()
         return sql
+
+    def explain(self):
+        """Explains the Query execution plan.
+
+        Returns:
+            Collection
+        """
+        sql = self.to_sql()
+        explanation = self.statement(f'EXPLAIN {sql}')
+        return explanation
 
     def run_scopes(self):
         for name, scope in self._global_scopes.get(self._action, {}).items():

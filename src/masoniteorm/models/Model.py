@@ -10,6 +10,7 @@ from ..collection import Collection
 from ..observers import ObservesEvents
 from ..scopes import TimeStampsMixin
 from ..config import load_config
+from ..exceptions import ModelNotFound
 
 """This is a magic class that will help using models like User.first() instead of having to instatiate a class like
 User().first()
@@ -135,6 +136,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "find_or_fail",
         "first_or_fail",
         "first",
+        "first_where",
+        "first_or_create",
         "force_update",
         "from_",
         "from_raw",
@@ -216,7 +219,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         self._relationships = {}
         self._global_scopes = {}
 
-        self.get_builder()
         self.boot()
 
     @classmethod
@@ -278,12 +280,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 class_name = base_class.__name__
 
                 if class_name.endswith("Mixin"):
-                    getattr(self, "boot_" + class_name)(self.builder)
+                    getattr(self, "boot_" + class_name)(self.get_builder())
 
             self._booted = True
             self.observe_events(self, "booted")
 
-            self.append_passthrough(list(self.builder._macros.keys()))
+            self.append_passthrough(list(self.get_builder()._macros.keys()))
 
     def append_passthrough(self, passthrough):
         self.__passthrough__ += passthrough
@@ -331,11 +333,22 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
             return builder.first()
 
-    def first_or_new(self):
-        pass
+    @classmethod
+    def find_or_fail(cls, record_id, query=False):
+        """Finds a row by the primary key ID or raise a ModelNotFound exception.
 
-    def first_or_create(self):
-        pass
+        Arguments:
+            record_id {int} -- The ID of the primary key to fetch.
+
+        Returns:
+            Model
+        """
+        result = cls.find(record_id, query)
+
+        if not result:
+            raise ModelNotFound()
+
+        return result
 
     def is_loaded(self):
         return bool(self.__attributes__)
@@ -551,6 +564,22 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return json.dumps(self.serialize())
 
     @classmethod
+    def first_or_create(cls, wheres, creates):
+        """Get the first record matching the attributes or create it.
+
+        Returns:
+            Model
+        """
+        self = cls()
+        record = self.where(wheres).first()
+        total = {}
+        total.update(creates)
+        total.update(wheres)
+        if not record:
+            return self.create(total, id_key=cls.get_primary_key())
+        return record
+
+    @classmethod
     def update_or_create(cls, wheres, updates):
         self = cls()
         record = self.where(wheres).first()
@@ -576,8 +605,14 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 if value is None:
                     new_dic.update({key: {}})
                     continue
+                elif isinstance(value, list):
+                    value = Collection(value).serialize()
+                elif isinstance(value, dict):
+                    pass
+                else:
+                    value = value.serialize()
 
-                new_dic.update({key: value.serialize()})
+                new_dic.update({key: value})
 
         return new_dic
 
@@ -887,7 +922,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
     def related(self, relation):
         related = getattr(self.__class__, relation)
-        return related.where(related.foreign_key, self.get_primary_key_value())
+        return related.relate(self)
 
     def get_related(self, relation):
         related = getattr(self.__class__, relation)
