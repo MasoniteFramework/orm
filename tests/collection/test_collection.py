@@ -90,6 +90,22 @@ class TestCollection(unittest.TestCase):
         self.assertEqual(len(obj_collection.where_in("nonexistent_key", [False])), 0)
         self.assertEqual(len(obj_collection.where_in("nonexistent_key", [True])), 0)
 
+    def test_where_in_bytes(self):
+        byte_strs = [
+            bytes('should find this', 'utf-8'),
+            bytes('and this', 'utf-8')
+        ]
+        collection = Collection(
+            [
+                {"id": 1, "name": "Joe", "bytes_val": byte_strs[0]},
+                {"id": 2, "name": "Joe", "bytes_val": byte_strs[1]},
+                {"id": 3, "name": "Bob", "bytes_val": bytes('should not find', 'utf-8')},
+                {"id": 4, "name": "Bob"},
+            ]
+        )
+        self.assertEqual(len(collection.where_in("bytes_val", byte_strs)), 2)
+        self.assertEqual(len(collection.where_in("bytes_val", [byte_strs[0]])), 1)
+
     def test_pop(self):
         collection = Collection([1, 2, 3])
         self.assertEqual(collection.pop(), 3)
