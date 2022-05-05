@@ -812,8 +812,7 @@ class QueryBuilder(ObservesEvents):
                 ),
             )
         else:
-            wheres = [str(x) for x in wheres]
-            self._wheres += ((QueryExpression(column, "IN", wheres)),)
+            self._wheres += ((QueryExpression(column, "IN", list(wheres))),)
         return self
 
     def get_relation(self, relationship, builder=None):
@@ -873,8 +872,7 @@ class QueryBuilder(ObservesEvents):
                 (QueryExpression(column, "NOT IN", SubSelectExpression(wheres))),
             )
         else:
-            wheres = [str(x) for x in wheres]
-            self._wheres += ((QueryExpression(column, "NOT IN", wheres)),)
+            self._wheres += ((QueryExpression(column, "NOT IN", list(wheres))),)
         return self
 
     def join(

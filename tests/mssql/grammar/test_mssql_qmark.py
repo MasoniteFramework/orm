@@ -32,6 +32,11 @@ class TestMSSQLQmark(unittest.TestCase):
     def test_can_compile_where_in(self):
         mark = self.builder.where_in("id", [1, 2, 3])
 
-        sql = "SELECT * FROM [users] WHERE [users].[id] IN ('?', '?', '?')"
-        self.assertEqual(mark.to_qmark(), sql)
-        self.assertEqual(mark._bindings, ["1", "2", "3"])
+        qmark_sql = "SELECT * FROM [users] WHERE [users].[id] IN ('?', '?', '?')"
+        sql = "SELECT * FROM [users] WHERE [users].[id] IN ('1','2','3')"
+        self.assertEqual(mark.to_qmark(), qmark_sql)
+        self.assertEqual(mark._bindings, [1, 2, 3])
+        self.assertEqual(self.builder.where_in("id", [1, 2, 3]).to_sql(), sql)
+        self.builder.reset()
+        # Assert that when passed string values it generates synonymous sql
+        self.assertEqual(self.builder.where_in("id", ['1', '2', '3']).to_sql(), sql)

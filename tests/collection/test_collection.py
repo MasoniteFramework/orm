@@ -65,6 +65,47 @@ class TestCollection(unittest.TestCase):
         self.assertEqual(len(collection.where_in("id", ["3"])), 1)
         self.assertEqual(len(collection.where_in("id", ["4"])), 0)
 
+    def test_where_in_bytes(self):
+        byte_strs = [
+            bytes('should find this', 'utf-8'),
+            bytes('and this', 'utf-8')
+        ]
+        collection = Collection(
+            [
+                {"id": 1, "name": "Joe", "bytes_val": byte_strs[0]},
+                {"id": 2, "name": "Joe", "bytes_val": byte_strs[1]},
+                {"id": 3, "name": "Bob", "bytes_val": bytes('should not find', 'utf-8')},
+                {"id": 4, "name": "Bob"},
+            ]
+        )
+        self.assertEqual(len(collection.where_in("bytes_val", byte_strs)), 2)
+        self.assertEqual(len(collection.where_in("bytes_val", [byte_strs[0]])), 1)
+
+    def test_where_in_bool(self):
+        nested_collection = Collection(
+            [
+                {"id": 1, "is_active": True},
+                {"id": 2, "is_active": True},
+                {"id": 3, "is_active": True},
+                {"id": 4}
+            ]
+        )
+        self.assertEqual(len(nested_collection.where_in("is_active", [False])), 0)
+        self.assertEqual(len(nested_collection.where_in("is_active", [True])), 3)
+        self.assertEqual(len(nested_collection.where_in("is_active", [True, False])), 3)
+        obj_collection = Collection(
+            [
+                type('',(),{'is_active': True, 'is_disabled': False}),
+                type('',(),{'is_active': False, 'is_disabled': True}),
+                type('',(),{'is_active': True, 'is_disabled': True}),
+            ]
+        )
+        self.assertEqual(len(obj_collection.where_in("is_active", [False])), 1)
+        self.assertEqual(len(obj_collection.where_in("is_active", [True])), 2)
+        self.assertEqual(len(obj_collection.where_in("is_active", [True, False])), 3)
+        self.assertEqual(len(obj_collection.where_in("nonexistent_key", [False])), 0)
+        self.assertEqual(len(obj_collection.where_in("nonexistent_key", [True])), 0)
+
     def test_pop(self):
         collection = Collection([1, 2, 3])
         self.assertEqual(collection.pop(), 3)
