@@ -409,10 +409,9 @@ class Collection:
                 attributes.append(item)
         return self.__class__(attributes)
 
-    def where_in(self, key, args: list):
+    def where_in(self, key, args: list) -> 'Collection':
 
         attributes = []
-        args = [str(x) for x in args]
 
         for item in self._items:
             if isinstance(item, dict):
@@ -420,8 +419,13 @@ class Collection:
             else:
                 comparison = getattr(item, key) if hasattr(item, key) else False
 
-            if str(comparison) in args:
+            if comparison in args:
                 attributes.append(item)
+
+        # Compatibility patch - allow numeric strings to match integers
+        # (if all args are numeric strings and no matches were found)
+        if len(attributes) == 0 and all([isinstance(arg, str) and arg.isnumeric() for arg in args]):
+            return self.where_in(key, [int(arg) for arg in args])
 
         return self.__class__(attributes)
 

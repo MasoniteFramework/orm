@@ -115,7 +115,7 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         """
         return (
             "SELECT * FROM `users` WHERE `users`.`id` IN ('?', '?', '?')",
-            ["1", "2", "3"],
+            [1, 2, 3],
         )
 
     def can_compile_where_not_null(self):
