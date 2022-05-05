@@ -415,9 +415,13 @@ class Collection:
 
         for item in self._items:
             if isinstance(item, dict):
+                if key not in item:
+                    continue
                 comparison = item.get(key)
             else:
-                comparison = getattr(item, key) if hasattr(item, key) else False
+                if not hasattr(item, key):
+                    continue
+                comparison = getattr(item, key)
 
             if comparison in args:
                 attributes.append(item)
