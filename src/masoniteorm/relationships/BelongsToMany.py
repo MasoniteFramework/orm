@@ -139,14 +139,14 @@ class BelongsToMany(BaseRelationship):
                     pivot_data.update({field: getattr(model, field)})
                     model.delete_attribute(field)
 
-            setattr(
-                model,
-                self._as,
-                Pivot.on(query.connection)
-                .table(self._table)
-                .hydrate(pivot_data)
-                .activate_timestamps(self.with_timestamps),
-            )
+            model.__original_attributes__.update({
+                self._as: (
+                    Pivot.on(query.connection)
+                    .table(self._table)
+                    .hydrate(pivot_data)
+                    .activate_timestamps(self.with_timestamps)
+                )
+            })
 
         return result
 
@@ -270,14 +270,14 @@ class BelongsToMany(BaseRelationship):
                     pivot_data.update({field: getattr(model, field)})
                     model.delete_attribute(field)
 
-            setattr(
-                model,
-                self._as,
-                Pivot.on(builder.connection)
-                .table(self._table)
-                .hydrate(pivot_data)
-                .activate_timestamps(self.with_timestamps),
-            )
+            model.__original_attributes__.update({
+                self._as: (
+                    Pivot.on(builder.connection)
+                    .table(self._table)
+                    .hydrate(pivot_data)
+                    .activate_timestamps(self.with_timestamps)
+                )
+            })
 
         return final_result
 
