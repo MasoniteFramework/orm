@@ -409,7 +409,7 @@ class Collection:
                 attributes.append(item)
         return self.__class__(attributes)
 
-    def where_in(self, key, args: list) -> 'Collection':
+    def where_in(self, key, args: list) -> "Collection":
 
         attributes = []
 
@@ -428,7 +428,9 @@ class Collection:
 
         # Compatibility patch - allow numeric strings to match integers
         # (if all args are numeric strings and no matches were found)
-        if len(attributes) == 0 and all([isinstance(arg, str) and arg.isnumeric() for arg in args]):
+        if len(attributes) == 0 and all(
+            [isinstance(arg, str) and arg.isnumeric() for arg in args]
+        ):
             return self.where_in(key, [int(arg) for arg in args])
 
         return self.__class__(attributes)
