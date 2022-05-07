@@ -1,5 +1,4 @@
 import inspect
-from tabnanny import check
 
 from ..config import load_config
 from ..collection.Collection import Collection
