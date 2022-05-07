@@ -234,3 +234,4 @@ class MySQLGrammar(BaseGrammar):
 
     def compile_random(self):
         return f"RAND()"
+

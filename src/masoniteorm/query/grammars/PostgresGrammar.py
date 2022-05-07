@@ -210,3 +210,4 @@ class PostgresGrammar(BaseGrammar):
 
     def compile_random(self):
         return "random()"
+

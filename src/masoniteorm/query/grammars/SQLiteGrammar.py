@@ -212,3 +212,4 @@ class SQLiteGrammar(BaseGrammar):
 
     def compile_random(self):
         return "random()"
+
