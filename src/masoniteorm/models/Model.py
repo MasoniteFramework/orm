@@ -564,12 +564,14 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return json.dumps(self.serialize())
 
     @classmethod
-    def first_or_create(cls, wheres, creates):
+    def first_or_create(cls, wheres, creates: dict = None):
         """Get the first record matching the attributes or create it.
 
         Returns:
             Model
         """
+        if creates is None:
+            creates = {}
         self = cls()
         record = self.where(wheres).first()
         total = {}
