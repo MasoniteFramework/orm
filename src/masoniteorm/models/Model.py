@@ -5,6 +5,8 @@ import logging
 from inflection import tableize
 import inspect
 
+import pendulum
+
 from ..query import QueryBuilder
 from ..collection import Collection
 from ..observers import ObservesEvents
@@ -82,6 +84,16 @@ class FloatCast:
 
     def set(self, value):
         return float(value)
+
+
+class DateCast:
+    """Casts a value to a float"""
+
+    def get(self, value):
+        return pendulum.parse(value).to_date_string()
+
+    def set(self, value):
+        return pendulum.parse(value).to_date_string()
 
 
 class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
@@ -208,6 +220,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "json": JsonCast,
         "int": IntCast,
         "float": FloatCast,
+        "date": DateCast,
     }
 
     def __init__(self):
