@@ -399,8 +399,12 @@ class QueryBuilder(ObservesEvents):
             self
         """
         for arg in args:
-            for column in arg.split(","):
-                self._columns += (SelectExpression(column),)
+            if isinstance(arg, list):
+                for column in arg:
+                    self._columns += (SelectExpression(column),)
+            else:
+                for column in arg.split(","):
+                    self._columns += (SelectExpression(column),)
 
         return self
 
@@ -1287,12 +1291,18 @@ class QueryBuilder(ObservesEvents):
             AggregateExpression(aggregate=aggregate, column=column, alias=alias),
         )
 
-    def first(self, query=False):
+    def first(self, fields=None, query=False):
         """Gets the first record.
 
         Returns:
             dictionary -- Returns a dictionary of results.
         """
+
+        if not fields:
+            fields = []
+
+        if fields:
+            self.select(fields)
 
         if query:
             return self.limit(1)
