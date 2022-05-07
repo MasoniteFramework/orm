@@ -1,4 +1,5 @@
 import inspect
+from tabnanny import check
 
 from ..config import load_config
 from ..collection.Collection import Collection
@@ -60,6 +61,7 @@ class QueryBuilder(ObservesEvents):
         self.grammar = grammar
         self.table(table)
         self.dry = dry
+        self._creates_related = {}
         self.connection = connection
         self.connection_class = connection_class
         self._connection = None
@@ -110,6 +112,10 @@ class QueryBuilder(ObservesEvents):
 
         if connection_class:
             self.connection_class = connection_class
+
+    def _set_creates_related(self, fields: dict):
+        self._creates_related = fields
+        return self
 
     def shared_lock(self):
         return self.make_lock("share")
@@ -1297,6 +1303,29 @@ class QueryBuilder(ObservesEvents):
         )
 
         return self.prepare_result(result)
+
+    def first_or_create(self, wheres, creates):
+        """Get the first record matching the attributes or create it.
+
+        Returns:
+            Model
+        """
+        record = self.where(wheres).first()
+        total = {}
+        if record:
+            if hasattr(record, "serialize"):
+                total.update(record.serialize())
+            else:
+                total.update(record)
+
+        total.update(creates)
+        total.update(wheres)
+        
+        total.update(self._creates_related)
+
+        if not record:
+            return self.create(total, id_key=self.get_primary_key())
+        return record
 
     def sole(self, query=False):
         """Gets the only record matching a given criteria."""
