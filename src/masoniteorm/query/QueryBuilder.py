@@ -1320,7 +1320,7 @@ class QueryBuilder(ObservesEvents):
 
         total.update(creates)
         total.update(wheres)
-        
+
         total.update(self._creates_related)
 
         if not record:
@@ -1634,7 +1634,7 @@ class QueryBuilder(ObservesEvents):
             Collection
         """
         sql = self.to_sql()
-        explanation = self.statement(f'EXPLAIN {sql}')
+        explanation = self.statement(f"EXPLAIN {sql}")
         return explanation
 
     def run_scopes(self):
