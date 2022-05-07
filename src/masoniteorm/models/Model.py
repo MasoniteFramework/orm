@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, date as datetimedate, time as datetimetime
 import logging
+from venv import create
 
 from inflection import tableize
 import inspect
@@ -564,12 +565,14 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return json.dumps(self.serialize())
 
     @classmethod
-    def first_or_create(cls, wheres, creates):
+    def first_or_create(cls, wheres, creates: dict = None):
         """Get the first record matching the attributes or create it.
 
         Returns:
             Model
         """
+        if creates is None:
+            creates = {}
         self = cls()
         record = self.where(wheres).first()
         total = {}

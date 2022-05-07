@@ -1304,12 +1304,15 @@ class QueryBuilder(ObservesEvents):
 
         return self.prepare_result(result)
 
-    def first_or_create(self, wheres, creates):
+    def first_or_create(self, wheres, creates: dict = None):
         """Get the first record matching the attributes or create it.
 
         Returns:
             Model
         """
+        if creates is None:
+            creates = {}
+
         record = self.where(wheres).first()
         total = {}
         if record:
