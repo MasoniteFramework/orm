@@ -21,7 +21,7 @@ services:
     container_name: masonite-test-mysql
     image: mysql:5.7
     environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: yes
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
       MYSQL_DATABASE: ${MYSQL_DATABASE_DATABASE}
       MYSQL_PASSWORD: ${MYSQL_DATABASE_PASSWORD}
       MYSQL_USER: ${MYSQL_DATABASE_USER}
