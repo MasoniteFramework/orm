@@ -1775,6 +1775,10 @@ class QueryBuilder(ObservesEvents):
 
         return self.new_connection().query(sql, ())
 
+    def in_random_order(self):
+        """Puts Query results in random order"""
+        return self.order_by_raw(self.grammar().compile_random())
+
     def new_from_builder(self, from_builder=None):
         """Creates a new QueryBuilder class.
 

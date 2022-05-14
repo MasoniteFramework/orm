@@ -209,3 +209,6 @@ class SQLiteGrammar(BaseGrammar):
             f"DELETE FROM {self.wrap_table(table)}",
             self.enable_foreign_key_constraints(),
         ]
+
+    def compile_random(self):
+        return "random()"
