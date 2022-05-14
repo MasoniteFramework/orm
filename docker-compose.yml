@@ -28,7 +28,7 @@ services:
     ports:
       - 3306
     healthcheck:
-      test: ['mysqladmin ping']
+      test: ['CMD', 'mysqladmin ping']
       interval: 10s 
       timeout: 5s
       retries: 3
