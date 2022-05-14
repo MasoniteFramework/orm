@@ -430,6 +430,14 @@ class BaseTestCaseSelectGrammar:
         )()
         self.assertEqual(to_sql, sql)
 
+    def test_can_compile_where_raw_and_where_with_multiple_bindings(self):
+        query = self.builder.where_raw("`age` = '?' AND `is_admin` = '?'", [18, True]).where("email", "test@example.com")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(query.to_qmark(), sql)
+        self.assertEqual(query._bindings, [18, True, "test@example.com"])
+
     def test_can_compile_first_or_fail(self):
         to_sql = (
             self.builder.where("is_admin", "=", True).first_or_fail(query=True).to_sql()

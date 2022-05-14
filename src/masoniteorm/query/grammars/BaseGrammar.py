@@ -704,16 +704,13 @@ class BaseGrammar:
     def get_false_column_string(self):
         return "{keyword} {column} = '0'"
 
-    def add_binding(self, binding):
-        """Adds a binding to the bindings tuple.
+    def add_binding(self, *bindings):
+        """Adds one or more bindings to the bindings tuple.
 
         Arguments:
             binding {string} -- A value to bind.
         """
-        if isinstance(binding, list):
-            self._bindings += binding
-        else:
-            self._bindings.append(binding)
+        self._bindings += bindings
 
     def column_exists(self, column):
         """Check if a column exists
