@@ -452,7 +452,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return Collection(data)
 
     @classmethod
-    def create(cls, dictionary=None, query=False, **kwargs):
+    def create(cls, dictionary=None, query=False, cast=True, **kwargs):
         """Creates new records based off of a dictionary as well as data set on the model
         such as fillable values.
 
@@ -471,7 +471,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             d = {}
             for x in cls.__fillable__:
                 if x in dictionary:
-                    d.update({x: dictionary[x]})
+                    if cast == True:
+                        d.update({x: cls._get_casted_value(x, dictionary[x])})
+                    else:
+                        d.update({x: dictionary[x]})
             dictionary = d
 
         if cls.__guarded__ != ["*"]:
@@ -485,6 +488,21 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             ).to_sql()
 
         return cls.builder.create(dictionary, id_key=cls.__primary_key__)
+
+    @classmethod
+    def _get_casted_value(cls, attribute, value):
+        cast_method = cls.__casts__.get(attribute)
+        cast_map = cls.get_cast_map(cls)
+
+        if value is None:
+            return None
+
+        if isinstance(cast_method, str):
+            return cast_map[cast_method]().get(value)
+
+        if cast_method:
+            return cast_method(value)
+        return value
 
     def fresh(self):
         return (
