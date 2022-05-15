@@ -452,7 +452,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return Collection(data)
 
     @classmethod
-    def create(cls, dictionary=None, query=False, cast=True, **kwargs):
+    def create(cls, dictionary=None, query=False, cast=False, **kwargs):
         """Creates new records based off of a dictionary as well as data set on the model
         such as fillable values.
 
