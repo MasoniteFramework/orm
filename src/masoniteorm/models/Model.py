@@ -63,6 +63,7 @@ class JsonCast:
         return json.loads(value)
 
     def set(self, value):
+        print('sss', value)
         return json.dumps(value)
 
 
@@ -472,7 +473,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             for x in cls.__fillable__:
                 if x in dictionary:
                     if cast == True:
-                        d.update({x: cls._get_casted_value(x, dictionary[x])})
+                        d.update({x: cls._set_casted_value(x, dictionary[x])})
                     else:
                         d.update({x: dictionary[x]})
             dictionary = d
@@ -490,7 +491,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return cls.builder.create(dictionary, id_key=cls.__primary_key__)
 
     @classmethod
-    def _get_casted_value(cls, attribute, value):
+    def _set_casted_value(cls, attribute, value):
         cast_method = cls.__casts__.get(attribute)
         cast_map = cls.get_cast_map(cls)
 
@@ -498,7 +499,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             return None
 
         if isinstance(cast_method, str):
-            return cast_map[cast_method]().get(value)
+            return cast_map[cast_method]().set(value)
 
         if cast_method:
             return cast_method(value)
