@@ -496,6 +496,16 @@ class QueryBuilder(ObservesEvents):
 
         if not self.dry:
             connection = self.new_connection()
+
+            if model:
+                d = {}
+                for x in self._creates:
+                    if x in self._creates:
+                        if kwargs.get("cast") == True:
+                            d.update({x: self._model._set_casted_value(x, self._creates[x])})
+                        else:
+                            d.update({x: self._creates[x]})
+                self._creates = d
             query_result = connection.query(self.to_qmark(), self._bindings, results=1)
 
             if model:
