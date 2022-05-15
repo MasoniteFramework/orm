@@ -63,7 +63,6 @@ class JsonCast:
         return json.loads(value)
 
     def set(self, value):
-        print('sss', value)
         return json.dumps(value)
 
 
