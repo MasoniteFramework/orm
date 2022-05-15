@@ -505,6 +505,7 @@ class QueryBuilder(ObservesEvents):
                             d.update({x: self._model._set_casted_value(x, self._creates[x])})
                         else:
                             d.update({x: self._creates[x]})
+                d.update(self._creates_related)
                 self._creates = d
             query_result = connection.query(self.to_qmark(), self._bindings, results=1)
 
