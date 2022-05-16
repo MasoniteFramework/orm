@@ -431,3 +431,9 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder.where_raw("`age` = '18'").where("name", "=", "James").to_sql()
         """
         return "SELECT * FROM [users] WHERE age = '18' AND [users].[name] = 'James'"
+
+    def where_exists_with_lambda(self):
+        return """SELECT * FROM [users] WHERE EXISTS (SELECT * FROM [users] WHERE [users].[age] = '1')"""
+
+    def where_not_exists_with_lambda(self):
+        return """SELECT * FROM [users] WHERE NOT EXISTS (SELECT * FROM [users] WHERE [users].[age] = '1')"""

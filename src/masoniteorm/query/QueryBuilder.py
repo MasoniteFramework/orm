@@ -694,7 +694,15 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        if isinstance(value, QueryBuilder):
+        if inspect.isfunction(value):
+            self._wheres += (
+                (
+                    QueryExpression(
+                        None, "EXISTS", SubSelectExpression(value(self.new()))
+                    )
+                ),
+            )
+        elif isinstance(value, QueryBuilder):
             self._wheres += (
                 (QueryExpression(None, "EXISTS", SubSelectExpression(value))),
             )
@@ -712,7 +720,16 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        if isinstance(value, QueryBuilder):
+
+        if inspect.isfunction(value):
+            self._wheres += (
+                (
+                    QueryExpression(
+                        None, "NOT EXISTS", SubSelectExpression(value(self.new()))
+                    )
+                ),
+            )
+        elif isinstance(value, QueryBuilder):
             self._wheres += (
                 (QueryExpression(None, "NOT EXISTS", SubSelectExpression(value))),
             )
