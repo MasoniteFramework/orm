@@ -43,6 +43,16 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
             ],
         )
 
+    def test_can_have_float_type(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.float("amount")
+
+        self.assertEqual(
+            blueprint.to_sql(),
+            ["""CREATE TABLE [users] ("""
+            """[amount] FLOAT(19, 4) NOT NULL)"""],
+        )
+
     def test_can_have_unsigned_columns(self):
         with self.schema.create("users") as blueprint:
             blueprint.integer("profile_id").unsigned()

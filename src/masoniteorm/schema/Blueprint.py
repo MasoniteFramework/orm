@@ -376,6 +376,28 @@ class Blueprint:
         )
         return self
 
+    def float(self, column, length=19, precision=4, nullable=False):
+        """Sets a column to be the float representation for the table.
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Keyword Arguments:
+            length {int} -- The total length of the float number (default: {17})
+            precision {int} -- The number of places that should be used for floating numbers. (default: {6})
+            nullable {bool} -- Whether the column is nullable (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(
+            column,
+            "float",
+            length="{length}, {precision}".format(length=length, precision=precision),
+            nullable=nullable,
+        )
+        return self
+
     def double(self, column, nullable=False):
         """Sets a column to be the the double representation for the table
 
