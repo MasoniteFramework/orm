@@ -168,6 +168,8 @@ class Migration:
         migrations = default_migrations if migration == "all" else [migration]
 
         for migration in migrations:
+            if migration.endswith(".py"):
+                migration = migration.replace(".py", "")
 
             if self.command_class:
                 self.command_class.line(
