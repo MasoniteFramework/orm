@@ -461,6 +461,22 @@ class BaseTestCaseSelectGrammar:
         )()
         self.assertEqual(to_sql, sql)
 
+    def test_where_exists_with_lambda(self):
+        to_sql = self.builder.where_exists(lambda q: q.where("age", 1)).to_sql()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        print(to_sql)
+        self.assertEqual(to_sql, sql)
+
+    def test_where_not_exists_with_lambda(self):
+        to_sql = self.builder.where_not_exists(lambda q: q.where("age", 1)).to_sql()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        print(to_sql)
+        self.assertEqual(to_sql, sql)
+
     def test_where_not_regexp(self):
         to_sql = self.builder.where("age", "not regexp", "Joe").to_sql()
         sql = getattr(
