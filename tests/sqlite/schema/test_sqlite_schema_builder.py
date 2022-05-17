@@ -63,8 +63,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(
             blueprint.to_sql(),
-            ["""CREATE TABLE "users" ("""
-            """\"amount" FLOAT(19, 4) NOT NULL)"""],
+            ["""CREATE TABLE "users" (""" """\"amount" FLOAT(19, 4) NOT NULL)"""],
         )
 
     def test_can_add_columns_with_foreign_key_constraint(self):

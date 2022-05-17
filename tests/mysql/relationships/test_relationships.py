@@ -90,10 +90,7 @@ class MySQLRelationships(unittest.TestCase):
         )
 
     def test_belongs_to_many_relate_method(self):
-        permission = Permission.hydrate({
-            "id": 1,
-            "name": "Create Users"
-        })
+        permission = Permission.hydrate({"id": 1, "name": "Create Users"})
         sql = permission.related("role").to_sql()
 
         self.assertEqual(
@@ -102,10 +99,7 @@ class MySQLRelationships(unittest.TestCase):
         )
 
     def test_belongs_to_many_relate_method_reversed(self):
-        role = Role.hydrate({
-            "id": 1,
-            "name": "Create Users"
-        })
+        role = Role.hydrate({"id": 1, "name": "Create Users"})
         sql = role.related("permissions").to_sql()
 
         self.assertEqual(
