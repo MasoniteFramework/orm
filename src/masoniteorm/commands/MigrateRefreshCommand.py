@@ -5,9 +5,10 @@ from .Command import Command
 
 class MigrateRefreshCommand(Command):
     """
-    Rolls back all migrations and migrates them again.
+    Rolls back migrations and migrates them again.
 
     migrate:refresh
+        {--m|migration=all : Migration's name to be refreshed}
         {--c|connection=default : The connection you want to run migrations on}
         {--d|directory=databases/migrations : The location of the migration directory}
         {--s|seed=? : Seed database after refresh. The seeder to be ran can be provided in argument}
@@ -23,7 +24,7 @@ class MigrateRefreshCommand(Command):
             config_path=self.option("config"),
         )
 
-        migration.refresh()
+        migration.refresh(self.option("migration"))
 
         self.line("")
 
