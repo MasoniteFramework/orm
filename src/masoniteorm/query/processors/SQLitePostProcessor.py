@@ -26,3 +26,16 @@ class SQLitePostProcessor:
             results.update({id_key: builder.get_connection().get_cursor().lastrowid})
 
         return results
+
+    def get_column_value(self, builder, column, results, id_key, id_value):
+        """
+        """
+
+        new_builder = builder.select(column)
+        if id_key and id_value:
+            new_builder.where(id_key, id_value)
+            return new_builder.first()[column]
+
+        return {}
+
+        

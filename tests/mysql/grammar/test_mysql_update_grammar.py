@@ -44,7 +44,7 @@ class BaseTestCaseUpdateGrammar:
         self.assertEqual(to_sql, sql)
 
     def test_can_compile_increment(self):
-        to_sql = self.builder.increment("age").to_sql()
+        to_sql = self.builder.increment("age")
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")

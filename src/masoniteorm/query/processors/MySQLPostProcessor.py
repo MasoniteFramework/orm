@@ -25,3 +25,26 @@ class MySQLPostProcessor:
         if id_key not in results:
             results.update({id_key: builder._connection.get_cursor().lastrowid})
         return results
+
+    def get_column_value(self, builder, column, results, id_key, id_value):
+        """Process the results from the query to the database.
+
+        Args:
+            builder (masoniteorm.builder.QueryBuilder): The query builder class
+            results (dict): The result from an insert query or the creates from the query builder.
+            This is usually a dictionary.
+            id_key (string): The key to set the primary key to. This is usually the primary key of the table.
+
+        Returns:
+            dictionary: Should return the modified dictionary.
+        """
+
+
+        new_builder = builder.select(column)
+        if id_key and id_value:
+            new_builder.where(id_key, id_value)
+            return new_builder.first()[column]
+
+        return {}
+
+        

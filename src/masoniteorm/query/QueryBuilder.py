@@ -1141,11 +1141,32 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
+        model = None
+        id_key="id"
+        id_value=None
+
+        additional = {}
+
+        if self._model:
+            model = self._model
+            id_value = self._model.get_primary_key_value()
+
+        if model and model.is_loaded():
+            self.where(model.get_primary_key(), model.get_primary_key_value())
+            additional.update({model.get_primary_key(): model.get_primary_key_value()})
+
+            self.observe_events(model, "updating")
+
         self._updates += (
             UpdateQueryExpression(column, value, update_type="increment"),
         )
+
         self.set_action("update")
-        return self
+        results = self.new_connection().query(self.to_qmark(), self._bindings)
+        processed_results = self.get_processor().get_column_value(
+            self, column, results, id_key, id_value
+        )
+        return processed_results
 
     def decrement(self, column, value=1):
         """Decrements a column's value.
@@ -1159,11 +1180,32 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
+        model = None
+        id_key="id"
+        id_value=None
+
+        additional = {}
+
+        if self._model:
+            model = self._model
+            id_value = self._model.get_primary_key_value()
+
+        if model and model.is_loaded():
+            self.where(model.get_primary_key(), model.get_primary_key_value())
+            additional.update({model.get_primary_key(): model.get_primary_key_value()})
+
+            self.observe_events(model, "updating")
+
         self._updates += (
             UpdateQueryExpression(column, value, update_type="decrement"),
         )
+
         self.set_action("update")
-        return self
+        self.new_connection().query(self.to_qmark(), self._bindings)
+        processed_results = self.get_processor().get_column_value(
+            self, column, id_key, id_value
+        )
+        return processed_results
 
     def sum(self, column):
         """Aggregates a columns values.

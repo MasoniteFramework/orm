@@ -25,3 +25,17 @@ class PostgresPostProcessor:
         """
 
         return results
+
+    def get_column_value(self, builder, column, results, id_key, id_value):
+        """
+        """
+
+        if column in results:
+            return results[column]
+
+        new_builder = builder.select(column)
+        if id_key and id_value:
+            new_builder.where(id_key, id_value)
+            return new_builder.first()[column]
+
+        return {}
