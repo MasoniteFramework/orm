@@ -37,5 +37,3 @@ class SQLitePostProcessor:
             return new_builder.first()[column]
 
         return {}
-
-        

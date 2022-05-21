@@ -51,7 +51,6 @@ class MSSQLPostProcessor:
             dictionary: Should return the modified dictionary.
         """
 
-
         new_builder = builder.select(column)
         if id_key and id_value:
             new_builder.where(id_key, id_value)

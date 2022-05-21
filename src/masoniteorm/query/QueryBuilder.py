@@ -1142,8 +1142,8 @@ class QueryBuilder(ObservesEvents):
             self
         """
         model = None
-        id_key="id"
-        id_value=None
+        id_key = "id"
+        id_value = None
 
         additional = {}
 
@@ -1181,8 +1181,8 @@ class QueryBuilder(ObservesEvents):
             self
         """
         model = None
-        id_key="id"
-        id_value=None
+        id_key = "id"
+        id_value = None
 
         additional = {}
 
