@@ -1201,9 +1201,9 @@ class QueryBuilder(ObservesEvents):
         )
 
         self.set_action("update")
-        self.new_connection().query(self.to_qmark(), self._bindings)
+        result = self.new_connection().query(self.to_qmark(), self._bindings)
         processed_results = self.get_processor().get_column_value(
-            self, column, id_key, id_value
+            self, column, result, id_key, id_value
         )
         return processed_results
 
