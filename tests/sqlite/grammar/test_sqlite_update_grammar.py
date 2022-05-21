@@ -49,7 +49,6 @@ class BaseTestCaseUpdateGrammar:
 
     #     self.assertTrue(to_sql.isnumeric())
 
-
     # def test_can_compile_decrement(self):
     #     to_sql = self.builder.decrement("age", 20).to_sql()
 
