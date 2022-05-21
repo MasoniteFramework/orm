@@ -39,16 +39,15 @@ class MSSQLPostProcessor:
         return results
 
     def get_column_value(self, builder, column, results, id_key, id_value):
-        """Process the results from the query to the database.
+        """Gets the specific column value from a table. Typically done after an update to 
+        refetch the new value of a field.
 
-        Args:
             builder (masoniteorm.builder.QueryBuilder): The query builder class
-            results (dict): The result from an insert query or the creates from the query builder.
+            column (string): The column to refetch the value for.
+            results (dict): The result from an update query from the query builder.
             This is usually a dictionary.
-            id_key (string): The key to set the primary key to. This is usually the primary key of the table.
-
-        Returns:
-            dictionary: Should return the modified dictionary.
+            id_key (string): The key to fetch the primary key for. This is usually the primary key of the table.
+            id_value (string): The value of the primary key to fetch
         """
 
         new_builder = builder.select(column)
