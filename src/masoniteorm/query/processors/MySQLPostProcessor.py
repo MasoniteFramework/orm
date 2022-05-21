@@ -27,7 +27,7 @@ class MySQLPostProcessor:
         return results
 
     def get_column_value(self, builder, column, results, id_key, id_value):
-        """Gets the specific column value from a table. Typically done after an update to 
+        """Gets the specific column value from a table. Typically done after an update to
         refetch the new value of a field.
 
             builder (masoniteorm.builder.QueryBuilder): The query builder class
