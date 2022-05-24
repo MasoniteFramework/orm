@@ -3,7 +3,6 @@ import unittest
 from src.masoniteorm.collection import Collection
 from src.masoniteorm.factories import Factory as factory
 from src.masoniteorm.models import Model
-
 from tests.User import User
 
 
@@ -654,3 +653,10 @@ class TestCollection(unittest.TestCase):
         collection = Collection([])
         self.assertTrue(collection._make_comparison(1, 1, "=="))
         self.assertTrue(collection._make_comparison(1, "1", "=="))
+
+    def test_eq(self):
+        collection = Collection([1, 2, 3, 4])
+        other = Collection([1, 2, 3, 4])
+        self.assertTrue(collection == other)
+        different = Collection([1, 2, 3])
+        self.assertFalse(collection == different)
