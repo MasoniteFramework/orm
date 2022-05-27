@@ -207,3 +207,6 @@ class PostgresGrammar(BaseGrammar):
             string
         """
         return f"TRUNCATE TABLE {self.wrap_table(table)}"
+
+    def compile_random(self):
+        return "random()"

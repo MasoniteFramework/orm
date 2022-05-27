@@ -4,9 +4,10 @@ from .Command import Command
 
 class MigrateResetCommand(Command):
     """
-    Rolls back all migrations.
+    Reset migrations.
 
     migrate:reset
+        {--m|migration=all : Migration's name to be rollback}
         {--c|connection=default : The connection you want to run migrations on}
         {--d|directory=databases/migrations : The location of the migration directory}
     """
@@ -18,4 +19,4 @@ class MigrateResetCommand(Command):
             migration_directory=self.option("directory"),
             config_path=self.option("config"),
         )
-        migration.reset()
+        migration.reset(self.option("migration"))

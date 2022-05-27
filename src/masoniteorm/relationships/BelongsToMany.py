@@ -139,14 +139,16 @@ class BelongsToMany(BaseRelationship):
                     pivot_data.update({field: getattr(model, field)})
                     model.delete_attribute(field)
 
-            model.__original_attributes__.update({
-                self._as: (
-                    Pivot.on(query.connection)
-                    .table(self._table)
-                    .hydrate(pivot_data)
-                    .activate_timestamps(self.with_timestamps)
-                )
-            })
+            model.__original_attributes__.update(
+                {
+                    self._as: (
+                        Pivot.on(query.connection)
+                        .table(self._table)
+                        .hydrate(pivot_data)
+                        .activate_timestamps(self.with_timestamps)
+                    )
+                }
+            )
 
         return result
 
@@ -270,16 +272,78 @@ class BelongsToMany(BaseRelationship):
                     pivot_data.update({field: getattr(model, field)})
                     model.delete_attribute(field)
 
-            model.__original_attributes__.update({
-                self._as: (
-                    Pivot.on(builder.connection)
-                    .table(self._table)
-                    .hydrate(pivot_data)
-                    .activate_timestamps(self.with_timestamps)
-                )
-            })
+            model.__original_attributes__.update(
+                {
+                    self._as: (
+                        Pivot.on(builder.connection)
+                        .table(self._table)
+                        .hydrate(pivot_data)
+                        .activate_timestamps(self.with_timestamps)
+                    )
+                }
+            )
 
         return final_result
+
+    def relate(self, related_record):
+        owner = related_record.get_builder()
+        query = self.get_builder()
+
+        if not self._table:
+            pivot_tables = [
+                singularize(owner.builder.get_table_name()),
+                singularize(query.get_table_name()),
+            ]
+            pivot_tables.sort()
+            pivot_table_1, pivot_table_2 = pivot_tables
+            self._table = "_".join(pivot_tables)
+            self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
+            self.local_key = self.local_key or f"{pivot_table_2}_id"
+        else:
+            pivot_table_1, pivot_table_2 = self._table.split("_", 1)
+            self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
+            self.local_key = self.local_key or f"{pivot_table_2}_id"
+
+        table1 = owner.get_table_name()
+        table2 = query.get_table_name()
+        result = query.select(
+            f"{query.get_table_name()}.*",
+            f"{self._table}.{self.local_key} as {self._table}_id",
+            f"{self._table}.{self.foreign_key} as m_reserved2",
+        ).table(f"{table1}")
+
+        if self.pivot_id:
+            result.select(f"{self._table}.{self.pivot_id} as m_reserved3")
+
+        if self.with_timestamps:
+            result.select(
+                f"{self._table}.updated_at as m_reserved4",
+                f"{self._table}.created_at as m_reserved5",
+            )
+
+        result.join(
+            f"{self._table}",
+            f"{self._table}.{self.local_key}",
+            "=",
+            f"{table1}.{self.local_owner_key}",
+        )
+        result.join(
+            f"{table2}",
+            f"{self._table}.{self.foreign_key}",
+            "=",
+            f"{table2}.{self.other_owner_key}",
+        )
+
+        if hasattr(owner, self.local_owner_key):
+            result.where(
+                f"{table1}.{self.local_owner_key}", getattr(owner, self.local_owner_key)
+            )
+
+        if self.with_fields:
+            for field in self.with_fields:
+                result.select(f"{self._table}.{field}")
+
+        return result
 
     def register_related(self, key, model, collection):
         model.add_relation(

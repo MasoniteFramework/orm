@@ -496,6 +496,19 @@ class QueryBuilder(ObservesEvents):
 
         if not self.dry:
             connection = self.new_connection()
+
+            if model:
+                d = {}
+                for x in self._creates:
+                    if x in self._creates:
+                        if kwargs.get("cast") == True:
+                            d.update(
+                                {x: self._model._set_casted_value(x, self._creates[x])}
+                            )
+                        else:
+                            d.update({x: self._creates[x]})
+                d.update(self._creates_related)
+                self._creates = d
             query_result = connection.query(self.to_qmark(), self._bindings, results=1)
 
             if model:
@@ -683,7 +696,15 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        if isinstance(value, QueryBuilder):
+        if inspect.isfunction(value):
+            self._wheres += (
+                (
+                    QueryExpression(
+                        None, "EXISTS", SubSelectExpression(value(self.new()))
+                    )
+                ),
+            )
+        elif isinstance(value, QueryBuilder):
             self._wheres += (
                 (QueryExpression(None, "EXISTS", SubSelectExpression(value))),
             )
@@ -701,7 +722,16 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        if isinstance(value, QueryBuilder):
+
+        if inspect.isfunction(value):
+            self._wheres += (
+                (
+                    QueryExpression(
+                        None, "NOT EXISTS", SubSelectExpression(value(self.new()))
+                    )
+                ),
+            )
+        elif isinstance(value, QueryBuilder):
             self._wheres += (
                 (QueryExpression(None, "NOT EXISTS", SubSelectExpression(value))),
             )
@@ -1111,11 +1141,32 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
+        model = None
+        id_key = "id"
+        id_value = None
+
+        additional = {}
+
+        if self._model:
+            model = self._model
+            id_value = self._model.get_primary_key_value()
+
+        if model and model.is_loaded():
+            self.where(model.get_primary_key(), model.get_primary_key_value())
+            additional.update({model.get_primary_key(): model.get_primary_key_value()})
+
+            self.observe_events(model, "updating")
+
         self._updates += (
             UpdateQueryExpression(column, value, update_type="increment"),
         )
+
         self.set_action("update")
-        return self
+        results = self.new_connection().query(self.to_qmark(), self._bindings)
+        processed_results = self.get_processor().get_column_value(
+            self, column, results, id_key, id_value
+        )
+        return processed_results
 
     def decrement(self, column, value=1):
         """Decrements a column's value.
@@ -1129,11 +1180,32 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
+        model = None
+        id_key = "id"
+        id_value = None
+
+        additional = {}
+
+        if self._model:
+            model = self._model
+            id_value = self._model.get_primary_key_value()
+
+        if model and model.is_loaded():
+            self.where(model.get_primary_key(), model.get_primary_key_value())
+            additional.update({model.get_primary_key(): model.get_primary_key_value()})
+
+            self.observe_events(model, "updating")
+
         self._updates += (
             UpdateQueryExpression(column, value, update_type="decrement"),
         )
+
         self.set_action("update")
-        return self
+        result = self.new_connection().query(self.to_qmark(), self._bindings)
+        processed_results = self.get_processor().get_column_value(
+            self, column, result, id_key, id_value
+        )
+        return processed_results
 
     def sum(self, column):
         """Aggregates a columns values.
@@ -1796,6 +1868,10 @@ class QueryBuilder(ObservesEvents):
             return False
         else:
             return True
+
+    def in_random_order(self):
+        """Puts Query results in random order"""
+        return self.order_by_raw(self.grammar().compile_random())
 
     def new_from_builder(self, from_builder=None):
         """Creates a new QueryBuilder class.

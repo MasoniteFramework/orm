@@ -215,19 +215,19 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
             "UPDATE [users] SET [users].[name] = 'Joe', [users].[email] = 'joe@yopmail.com'",
         )
 
-    def test_increment(self):
-        builder = self.get_builder()
-        builder.increment("age", 1)
-        self.assertEqual(
-            builder.to_sql(), "UPDATE [users] SET [users].[age] = [users].[age] + '1'"
-        )
+    # def test_increment(self):
+    #     builder = self.get_builder()
+    #     builder.increment("age", 1)
+    #     self.assertEqual(
+    #         builder.to_sql(), "UPDATE [users] SET [users].[age] = [users].[age] + '1'"
+    #     )
 
-    def test_decrement(self):
-        builder = self.get_builder()
-        builder.decrement("age", 1)
-        self.assertEqual(
-            builder.to_sql(), "UPDATE [users] SET [users].[age] = [users].[age] - '1'"
-        )
+    # def test_decrement(self):
+    #     builder = self.get_builder()
+    #     builder.decrement("age", 1)
+    #     self.assertEqual(
+    #         builder.to_sql(), "UPDATE [users] SET [users].[age] = [users].[age] - '1'"
+    #     )
 
     def test_count(self):
         builder = self.get_builder()
