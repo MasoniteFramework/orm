@@ -39,4 +39,4 @@ class TestMSSQLQmark(unittest.TestCase):
         self.assertEqual(self.builder.where_in("id", [1, 2, 3]).to_sql(), sql)
         self.builder.reset()
         # Assert that when passed string values it generates synonymous sql
-        self.assertEqual(self.builder.where_in("id", ['1', '2', '3']).to_sql(), sql)
+        self.assertEqual(self.builder.where_in("id", ["1", "2", "3"]).to_sql(), sql)

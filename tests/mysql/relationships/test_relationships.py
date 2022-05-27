@@ -89,6 +89,24 @@ class MySQLRelationships(unittest.TestCase):
             """SELECT * FROM `permissions` WHERE EXISTS (SELECT `permission_role`.* FROM `permission_role` WHERE `permission_role`.`permission_id` = `permissions`.`id` AND `permission_role`.`role_id` IN (SELECT `roles`.`id` FROM `roles` WHERE `roles`.`slug` = 'users'))""",
         )
 
+    def test_belongs_to_many_relate_method(self):
+        permission = Permission.hydrate({"id": 1, "name": "Create Users"})
+        sql = permission.related("role").to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT `roles`.*, `permission_role`.`permission_id` AS permission_role_id, `permission_role`.`role_id` AS m_reserved2, `permission_role`.`id` AS m_reserved3 FROM `permissions` INNER JOIN `permission_role` ON `permission_role`.`permission_id` = `permissions`.`id` INNER JOIN `roles` ON `permission_role`.`role_id` = `roles`.`id`""",
+        )
+
+    def test_belongs_to_many_relate_method_reversed(self):
+        role = Role.hydrate({"id": 1, "name": "Create Users"})
+        sql = role.related("permissions").to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT `permissions`.*, `permission_role`.`role_id` AS permission_role_id, `permission_role`.`permission_id` AS m_reserved2, `permission_role`.`id` AS m_reserved3 FROM `roles` INNER JOIN `permission_role` ON `permission_role`.`role_id` = `roles`.`id` INNER JOIN `permissions` ON `permission_role`.`permission_id` = `permissions`.`id`""",
+        )
+
     def test_with_count(self):
         sql = Permission.with_count("role").to_sql()
 

@@ -303,21 +303,21 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
-    def test_increment(self):
-        builder = self.get_builder()
-        builder.increment("age", 1)
-        sql = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
-        self.assertEqual(builder.to_sql(), sql)
+    # def test_increment(self):
+    #     builder = self.get_builder()
+    #     builder.increment("age", 1)
+    #     sql = getattr(
+    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
+    #     )()
+    #     self.assertEqual(builder.to_sql(), sql)
 
-    def test_decrement(self):
-        builder = self.get_builder()
-        builder.decrement("age", 1)
-        sql = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
-        self.assertEqual(builder.to_sql(), sql)
+    # def test_decrement(self):
+    #     builder = self.get_builder()
+    #     builder.decrement("age", 1)
+    #     sql = getattr(
+    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
+    #     )()
+    #     self.assertEqual(builder.to_sql(), sql)
 
     def test_count(self):
         builder = self.get_builder()

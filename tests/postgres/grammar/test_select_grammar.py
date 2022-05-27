@@ -293,6 +293,16 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         to_sql = self.builder.where_raw(""" "age" = '18'""").to_sql()
         self.assertEqual(to_sql, """SELECT * FROM "users" WHERE "age" = '18'""")
 
+    def test_can_compile_where_raw_and_where_with_multiple_bindings(self):
+        query = self.builder.where_raw(
+            """ "age" = '?' AND "is_admin" = '?'""", [18, True]
+        ).where("email", "test@example.com")
+        self.assertEqual(
+            query.to_qmark(),
+            """SELECT * FROM "users" WHERE "age" = '?' AND "is_admin" = '?' AND "users"."email" = '?'""",
+        )
+        self.assertEqual(query._bindings, [18, True, "test@example.com"])
+
     def test_can_compile_select_raw(self):
         to_sql = self.builder.select_raw("COUNT(*)").to_sql()
         self.assertEqual(to_sql, """SELECT COUNT(*) FROM "users\"""")
@@ -431,3 +441,9 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder.where_raw("`age` = '18'").where("name", "=", "James").to_sql()
         """
         return """SELECT * FROM "users" WHERE age = '18' AND "users"."name" = 'James'"""
+
+    def where_exists_with_lambda(self):
+        return """SELECT * FROM "users" WHERE EXISTS (SELECT * FROM "users" WHERE "users"."age" = '1')"""
+
+    def where_not_exists_with_lambda(self):
+        return """SELECT * FROM "users" WHERE NOT EXISTS (SELECT * FROM "users" WHERE "users"."age" = '1')"""

@@ -231,3 +231,6 @@ class MySQLGrammar(BaseGrammar):
             f"TRUNCATE TABLE {self.wrap_table(table)}",
             self.enable_foreign_key_constraints(),
         ]
+
+    def compile_random(self):
+        return f"RAND()"

@@ -5,6 +5,8 @@ import logging
 from inflection import tableize
 import inspect
 
+import pendulum
+
 from ..query import QueryBuilder
 from ..collection import Collection
 from ..observers import ObservesEvents
@@ -84,6 +86,16 @@ class FloatCast:
         return float(value)
 
 
+class DateCast:
+    """Casts a value to a float"""
+
+    def get(self, value):
+        return pendulum.parse(value).to_date_string()
+
+    def set(self, value):
+        return pendulum.parse(value).to_date_string()
+
+
 class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     """The ORM Model class
 
@@ -149,6 +161,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "has",
         "having",
         "increment",
+        "in_random_order",
         "join_on",
         "join",
         "joins",
@@ -210,6 +223,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "json": JsonCast,
         "int": IntCast,
         "float": FloatCast,
+        "date": DateCast,
     }
 
     def __init__(self):
@@ -440,7 +454,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return Collection(data)
 
     @classmethod
-    def create(cls, dictionary=None, query=False, **kwargs):
+    def create(cls, dictionary=None, query=False, cast=False, **kwargs):
         """Creates new records based off of a dictionary as well as data set on the model
         such as fillable values.
 
@@ -459,7 +473,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             d = {}
             for x in cls.__fillable__:
                 if x in dictionary:
-                    d.update({x: dictionary[x]})
+                    if cast == True:
+                        d.update({x: cls._set_casted_value(x, dictionary[x])})
+                    else:
+                        d.update({x: dictionary[x]})
             dictionary = d
 
         if cls.__guarded__ != ["*"]:
@@ -474,6 +491,21 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return cls.builder.create(dictionary, id_key=cls.__primary_key__)
 
+    @classmethod
+    def _set_casted_value(cls, attribute, value):
+        cast_method = cls.__casts__.get(attribute)
+        cast_map = cls.get_cast_map(cls)
+
+        if value is None:
+            return None
+
+        if isinstance(cast_method, str):
+            return cast_map[cast_method]().set(value)
+
+        if cast_method:
+            return cast_method(value)
+        return value
+
     def fresh(self):
         return (
             self.get_builder()
@@ -487,7 +519,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Returns:
             dict
         """
-        serialized_dictionary = self.__attributes__
+        serialized_dictionary = self.__attributes__.copy()
 
         # prevent using both exclude and include at the same time
         if exclude is not None and include is not None:

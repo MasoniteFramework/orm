@@ -3,7 +3,6 @@ import unittest
 from src.masoniteorm.collection import Collection
 from src.masoniteorm.factories import Factory as factory
 from src.masoniteorm.models import Model
-
 from tests.User import User
 
 
@@ -71,7 +70,7 @@ class TestCollection(unittest.TestCase):
                 {"id": 1, "is_active": True},
                 {"id": 2, "is_active": True},
                 {"id": 3, "is_active": True},
-                {"id": 4}
+                {"id": 4},
             ]
         )
         self.assertEqual(len(nested_collection.where_in("is_active", [False])), 0)
@@ -79,9 +78,9 @@ class TestCollection(unittest.TestCase):
         self.assertEqual(len(nested_collection.where_in("is_active", [True, False])), 3)
         obj_collection = Collection(
             [
-                type('',(),{'is_active': True, 'is_disabled': False}),
-                type('',(),{'is_active': False, 'is_disabled': True}),
-                type('',(),{'is_active': True, 'is_disabled': True}),
+                type("", (), {"is_active": True, "is_disabled": False}),
+                type("", (), {"is_active": False, "is_disabled": True}),
+                type("", (), {"is_active": True, "is_disabled": True}),
             ]
         )
         self.assertEqual(len(obj_collection.where_in("is_active", [False])), 1)
@@ -91,15 +90,16 @@ class TestCollection(unittest.TestCase):
         self.assertEqual(len(obj_collection.where_in("nonexistent_key", [True])), 0)
 
     def test_where_in_bytes(self):
-        byte_strs = [
-            bytes('should find this', 'utf-8'),
-            bytes('and this', 'utf-8')
-        ]
+        byte_strs = [bytes("should find this", "utf-8"), bytes("and this", "utf-8")]
         collection = Collection(
             [
                 {"id": 1, "name": "Joe", "bytes_val": byte_strs[0]},
                 {"id": 2, "name": "Joe", "bytes_val": byte_strs[1]},
-                {"id": 3, "name": "Bob", "bytes_val": bytes('should not find', 'utf-8')},
+                {
+                    "id": 3,
+                    "name": "Bob",
+                    "bytes_val": bytes("should not find", "utf-8"),
+                },
                 {"id": 4, "name": "Bob"},
             ]
         )
@@ -653,3 +653,10 @@ class TestCollection(unittest.TestCase):
         collection = Collection([])
         self.assertTrue(collection._make_comparison(1, 1, "=="))
         self.assertTrue(collection._make_comparison(1, "1", "=="))
+
+    def test_eq(self):
+        collection = Collection([1, 2, 3, 4])
+        other = Collection([1, 2, 3, 4])
+        self.assertTrue(collection == other)
+        different = Collection([1, 2, 3])
+        self.assertFalse(collection == different)

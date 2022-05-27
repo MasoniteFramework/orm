@@ -81,6 +81,23 @@ class BaseQMarkTest:
         self.assertEqual(mark.to_qmark(), sql)
         self.assertEqual(mark._bindings, bindings)
 
+    def test_can_compile_sub_group_bindings(self):
+
+        mark = self.builder.where(
+            lambda query: (
+                query.where("challenger", 1)
+                .or_where("proposer", 1)
+                .or_where("referee", 1)
+            )
+        )
+
+
+        sql, bindings = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(mark.to_qmark(), sql)
+        self.assertEqual(mark._bindings, bindings)
+
 
 class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
     def can_compile_select(self):
@@ -141,3 +158,9 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         self.builder.where("is_admin", True).to_qmark()
         """
         return ("SELECT * FROM `users` WHERE `users`.`is_admin` = '0'", [])
+
+    def can_compile_sub_group_bindings(self):
+        """
+        self.builder.where("is_admin", True).to_qmark()
+        """
+        return ("SELECT * FROM `users` WHERE (`users`.`challenger` = '?' OR `users`.`proposer` = '?' OR `users`.`referee` = '?')", [1,1,1])
