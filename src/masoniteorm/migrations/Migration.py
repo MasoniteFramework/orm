@@ -226,8 +226,11 @@ class Migration:
             "batch", self.get_last_batch_number()
         ).delete()
 
-    def reset(self):
-        for migration in self.get_all_migrations(reverse=True):
+    def reset(self, migration="all"):
+        default_migrations = self.get_all_migrations(reverse=True)
+        migrations = default_migrations if migration == "all" else [migration]
+
+        for migration in migrations:
             if self.command_class:
                 self.command_class.line(
                     f"<comment>Rolling back:</comment> <question>{migration}</question>"
@@ -253,6 +256,6 @@ class Migration:
         if self.command_class:
             self.command_class.line("")
 
-    def refresh(self):
-        self.reset()
-        self.migrate()
+    def refresh(self, migration="all"):
+        self.reset(migration)
+        self.migrate(migration)
