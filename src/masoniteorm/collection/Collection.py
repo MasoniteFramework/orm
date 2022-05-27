@@ -508,8 +508,7 @@ class Collection:
             yield item
 
     def __eq__(self, other):
-        if isinstance(other, Collection):
-            return other == other.all()
+        other = self.__get_items(other)
         return other == self._items
 
     def __getitem__(self, item):
