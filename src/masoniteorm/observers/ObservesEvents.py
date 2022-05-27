@@ -16,8 +16,14 @@ class ObservesEvents:
 
     @classmethod
     def without_events(cls):
+        """Sets __has_events__ attribute on model to false.
         """
-        Sets __has_events__ attribute on model to false.
+        cls.__has_events__ = False
+        return cls
+
+    @classmethod
+    def with_events(cls):
+        """Sets __has_events__ attribute on model to True.
         """
         cls.__has_events__ = False
         return cls
