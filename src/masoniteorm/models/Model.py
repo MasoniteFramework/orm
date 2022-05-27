@@ -132,6 +132,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "count",
         "decrement",
         "delete",
+        "doesnt_exists",
+        "exists",
         "find_or_404",
         "find_or_fail",
         "first_or_fail",

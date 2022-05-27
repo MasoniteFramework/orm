@@ -1775,6 +1775,18 @@ class QueryBuilder(ObservesEvents):
 
         return self.new_connection().query(sql, ())
 
+    def exists(self):
+        if self.first():
+            return True
+        else:
+            return False
+
+    def doesnt_exist(self):
+        if self.exists():
+            return False
+        else:
+            return True
+
     def new_from_builder(self, from_builder=None):
         """Creates a new QueryBuilder class.
 
