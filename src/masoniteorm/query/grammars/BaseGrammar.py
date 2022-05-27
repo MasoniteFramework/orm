@@ -640,7 +640,7 @@ class BaseGrammar:
                     .replace("(  ", "(")
                 )
                 if grammar._bindings:
-                    self.add_binding(grammar._bindings)
+                    self.add_binding(*grammar._bindings)
                 sql_string = self.where_group_string()
             elif isinstance(value, SubSelectExpression):
                 if qmark:
