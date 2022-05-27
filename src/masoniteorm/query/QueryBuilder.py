@@ -1776,12 +1776,22 @@ class QueryBuilder(ObservesEvents):
         return self.new_connection().query(sql, ())
 
     def exists(self):
+        """Determine if rows exist for the current query.
+
+        Returns:
+            Bool - True or False
+        """
         if self.first():
             return True
         else:
             return False
 
     def doesnt_exist(self):
+        """Determine if no rows exist for the current query.
+
+        Returns:
+            Bool - True or False
+        """
         if self.exists():
             return False
         else:
