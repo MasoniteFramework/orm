@@ -517,7 +517,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Returns:
             dict
         """
-        serialized_dictionary = self.__attributes__
+        serialized_dictionary = self.__attributes__.copy()
 
         # prevent using both exclude and include at the same time
         if exclude is not None and include is not None:
