@@ -184,3 +184,6 @@ class MSSQLGrammar(BaseGrammar):
 
     def truncate_table(self, table, foreign_keys=False):
         return f"TRUNCATE TABLE {self.wrap_table(table)}"
+
+    def compile_random(self, seed):
+        return "NEWID()"

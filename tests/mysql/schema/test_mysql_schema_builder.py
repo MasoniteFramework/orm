@@ -281,6 +281,15 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             ["CREATE TABLE `users` (" "`profile_id` VARCHAR(255) NOT NULL DEFAULT '')"],
         )
 
+    def test_can_have_float_type(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.float("amount")
+
+        self.assertEqual(
+            blueprint.to_sql(),
+            ["CREATE TABLE `users` (" "`amount` FLOAT(19, 4) NOT NULL)"],
+        )
+
     def test_has_table(self):
         schema_sql = self.schema.has_table("users")
 

@@ -123,6 +123,12 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         return "SELECT * FROM `users` WHERE `users`.`age` = '18'"
 
+    def can_compile_where_raw_and_where_with_multiple_bindings(self):
+        """
+        self.builder.where_raw("`age` = '?' AND `is_admin` = '?'", [18, True]).where("email", "test@example.com")
+        """
+        return "SELECT * FROM `users` WHERE `age` = '?' AND `is_admin` = '?' AND `users`.`email` = '?'"
+
     def can_compile_select_raw(self):
         """
         self.builder.select_raw("COUNT(*)").to_sql()
@@ -420,3 +426,9 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder.where_raw("`age` = '18'").where("name", "=", "James").to_sql()
         """
         return "SELECT * FROM `users` WHERE age = '18' AND `users`.`name` = 'James'"
+
+    def where_exists_with_lambda(self):
+        return """SELECT * FROM `users` WHERE EXISTS (SELECT * FROM `users` WHERE `users`.`age` = '1')"""
+
+    def where_not_exists_with_lambda(self):
+        return """SELECT * FROM `users` WHERE NOT EXISTS (SELECT * FROM `users` WHERE `users`.`age` = '1')"""

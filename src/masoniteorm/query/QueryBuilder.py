@@ -60,6 +60,7 @@ class QueryBuilder(ObservesEvents):
         self.grammar = grammar
         self.table(table)
         self.dry = dry
+        self._creates_related = {}
         self.connection = connection
         self.connection_class = connection_class
         self._connection = None
@@ -110,6 +111,10 @@ class QueryBuilder(ObservesEvents):
 
         if connection_class:
             self.connection_class = connection_class
+
+    def _set_creates_related(self, fields: dict):
+        self._creates_related = fields
+        return self
 
     def shared_lock(self):
         return self.make_lock("share")
@@ -394,8 +399,12 @@ class QueryBuilder(ObservesEvents):
             self
         """
         for arg in args:
-            for column in arg.split(","):
-                self._columns += (SelectExpression(column),)
+            if isinstance(arg, list):
+                for column in arg:
+                    self._columns += (SelectExpression(column),)
+            else:
+                for column in arg.split(","):
+                    self._columns += (SelectExpression(column),)
 
         return self
 
@@ -487,6 +496,19 @@ class QueryBuilder(ObservesEvents):
 
         if not self.dry:
             connection = self.new_connection()
+
+            if model:
+                d = {}
+                for x in self._creates:
+                    if x in self._creates:
+                        if kwargs.get("cast") == True:
+                            d.update(
+                                {x: self._model._set_casted_value(x, self._creates[x])}
+                            )
+                        else:
+                            d.update({x: self._creates[x]})
+                d.update(self._creates_related)
+                self._creates = d
             query_result = connection.query(self.to_qmark(), self._bindings, results=1)
 
             if model:
@@ -674,7 +696,15 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        if isinstance(value, QueryBuilder):
+        if inspect.isfunction(value):
+            self._wheres += (
+                (
+                    QueryExpression(
+                        None, "EXISTS", SubSelectExpression(value(self.new()))
+                    )
+                ),
+            )
+        elif isinstance(value, QueryBuilder):
             self._wheres += (
                 (QueryExpression(None, "EXISTS", SubSelectExpression(value))),
             )
@@ -692,7 +722,16 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        if isinstance(value, QueryBuilder):
+
+        if inspect.isfunction(value):
+            self._wheres += (
+                (
+                    QueryExpression(
+                        None, "NOT EXISTS", SubSelectExpression(value(self.new()))
+                    )
+                ),
+            )
+        elif isinstance(value, QueryBuilder):
             self._wheres += (
                 (QueryExpression(None, "NOT EXISTS", SubSelectExpression(value))),
             )
@@ -812,8 +851,7 @@ class QueryBuilder(ObservesEvents):
                 ),
             )
         else:
-            wheres = [str(x) for x in wheres]
-            self._wheres += ((QueryExpression(column, "IN", wheres)),)
+            self._wheres += ((QueryExpression(column, "IN", list(wheres))),)
         return self
 
     def get_relation(self, relationship, builder=None):
@@ -873,8 +911,7 @@ class QueryBuilder(ObservesEvents):
                 (QueryExpression(column, "NOT IN", SubSelectExpression(wheres))),
             )
         else:
-            wheres = [str(x) for x in wheres]
-            self._wheres += ((QueryExpression(column, "NOT IN", wheres)),)
+            self._wheres += ((QueryExpression(column, "NOT IN", list(wheres))),)
         return self
 
     def join(
@@ -1104,11 +1141,32 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
+        model = None
+        id_key = "id"
+        id_value = None
+
+        additional = {}
+
+        if self._model:
+            model = self._model
+            id_value = self._model.get_primary_key_value()
+
+        if model and model.is_loaded():
+            self.where(model.get_primary_key(), model.get_primary_key_value())
+            additional.update({model.get_primary_key(): model.get_primary_key_value()})
+
+            self.observe_events(model, "updating")
+
         self._updates += (
             UpdateQueryExpression(column, value, update_type="increment"),
         )
+
         self.set_action("update")
-        return self
+        results = self.new_connection().query(self.to_qmark(), self._bindings)
+        processed_results = self.get_processor().get_column_value(
+            self, column, results, id_key, id_value
+        )
+        return processed_results
 
     def decrement(self, column, value=1):
         """Decrements a column's value.
@@ -1122,11 +1180,32 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
+        model = None
+        id_key = "id"
+        id_value = None
+
+        additional = {}
+
+        if self._model:
+            model = self._model
+            id_value = self._model.get_primary_key_value()
+
+        if model and model.is_loaded():
+            self.where(model.get_primary_key(), model.get_primary_key_value())
+            additional.update({model.get_primary_key(): model.get_primary_key_value()})
+
+            self.observe_events(model, "updating")
+
         self._updates += (
             UpdateQueryExpression(column, value, update_type="decrement"),
         )
+
         self.set_action("update")
-        return self
+        result = self.new_connection().query(self.to_qmark(), self._bindings)
+        processed_results = self.get_processor().get_column_value(
+            self, column, result, id_key, id_value
+        )
+        return processed_results
 
     def sum(self, column):
         """Aggregates a columns values.
@@ -1284,12 +1363,18 @@ class QueryBuilder(ObservesEvents):
             AggregateExpression(aggregate=aggregate, column=column, alias=alias),
         )
 
-    def first(self, query=False):
+    def first(self, fields=None, query=False):
         """Gets the first record.
 
         Returns:
             dictionary -- Returns a dictionary of results.
         """
+
+        if not fields:
+            fields = []
+
+        if fields:
+            self.select(fields)
 
         if query:
             return self.limit(1)
@@ -1299,6 +1384,32 @@ class QueryBuilder(ObservesEvents):
         )
 
         return self.prepare_result(result)
+
+    def first_or_create(self, wheres, creates: dict = None):
+        """Get the first record matching the attributes or create it.
+
+        Returns:
+            Model
+        """
+        if creates is None:
+            creates = {}
+
+        record = self.where(wheres).first()
+        total = {}
+        if record:
+            if hasattr(record, "serialize"):
+                total.update(record.serialize())
+            else:
+                total.update(record)
+
+        total.update(creates)
+        total.update(wheres)
+
+        total.update(self._creates_related)
+
+        if not record:
+            return self.create(total, id_key=self.get_primary_key())
+        return record
 
     def sole(self, query=False):
         """Gets the only record matching a given criteria."""
@@ -1607,7 +1718,7 @@ class QueryBuilder(ObservesEvents):
             Collection
         """
         sql = self.to_sql()
-        explanation = self.statement(f'EXPLAIN {sql}')
+        explanation = self.statement(f"EXPLAIN {sql}")
         return explanation
 
     def run_scopes(self):
@@ -1735,6 +1846,10 @@ class QueryBuilder(ObservesEvents):
             return sql
 
         return self.new_connection().query(sql, ())
+
+    def in_random_order(self):
+        """Puts Query results in random order"""
+        return self.order_by_raw(self.grammar().compile_random())
 
     def new_from_builder(self, from_builder=None):
         """Creates a new QueryBuilder class.

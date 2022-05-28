@@ -319,6 +319,15 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             ['CREATE TABLE "binary_storing" ("filecontent" BYTEA NOT NULL)'],
         )
 
+    def test_can_have_float_type(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.float("amount")
+
+        self.assertEqual(
+            blueprint.to_sql(),
+            ["""CREATE TABLE "users" (""" """\"amount" FLOAT(19, 4) NOT NULL)"""],
+        )
+
     def test_can_enable_foreign_keys(self):
         sql = self.schema.enable_foreign_key_constraints()
 
