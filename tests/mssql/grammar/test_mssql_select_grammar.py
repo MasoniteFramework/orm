@@ -149,7 +149,7 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         self.builder.select_raw("COUNT(*) as counts").having_raw("counts > 18").to_sql()
         """
-        return "SELECT COUNT(*) as counts FROM [users] WHERE counts > 18"
+        return "SELECT COUNT(*) as counts FROM [users] HAVING counts > 18"
 
     def can_compile_count(self):
         """
@@ -300,7 +300,7 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
 
     def test_can_compile_having_raw(self):
         to_sql = self.builder.select_raw("COUNT(*) as counts").having_raw("counts > 10").to_sql()
-        self.assertEqual(to_sql, "SELECT COUNT(*) as counts FROM [users] WHERE counts > 10")
+        self.assertEqual(to_sql, "SELECT COUNT(*) as counts FROM [users] HAVING counts > 10")
 
     def test_can_compile_select_raw(self):
         to_sql = self.builder.select_raw("COUNT(*)").to_sql()

@@ -121,6 +121,12 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         return """SELECT * FROM "users" WHERE "users"."age" = '18'"""
 
+    def can_compile_having_raw(self):
+        """
+        self.builder.select_raw("COUNT(*) as counts").having_raw("counts > 18").to_sql()
+        """
+        return """SELECT COUNT(*) as counts FROM "users" HAVING counts > 18"""
+
     def can_compile_select_raw(self):
         """
         self.builder.select_raw("COUNT(*)").to_sql()
@@ -292,6 +298,10 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
     def test_can_compile_where_raw(self):
         to_sql = self.builder.where_raw(""" "age" = '18'""").to_sql()
         self.assertEqual(to_sql, """SELECT * FROM "users" WHERE "age" = '18'""")
+
+    def test_can_compile_having_raw(self):
+        to_sql = self.builder.select_raw("COUNT(*) as counts").having_raw("counts > 10").to_sql()
+        self.assertEqual(to_sql, """SELECT COUNT(*) as counts FROM "users" HAVING counts > 10""")
 
     def test_can_compile_where_raw_and_where_with_multiple_bindings(self):
         query = self.builder.where_raw(

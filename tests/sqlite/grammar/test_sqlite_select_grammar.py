@@ -239,6 +239,12 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         return """SELECT SUM("users"."age") AS age FROM "users" GROUP BY "users"."age" HAVING "users"."age\""""
 
+    def can_compile_having_raw(self):
+        """
+        builder.select_raw("COUNT(*) as counts").having_raw("counts > 18").to_sql()
+        """
+        return """SELECT COUNT(*) as counts FROM "users" HAVING counts > 18"""
+
     def can_compile_having_with_expression(self):
         """
         builder.sum('age').group_by('age').having('age', 10).to_sql()
