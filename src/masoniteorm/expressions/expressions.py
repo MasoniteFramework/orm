@@ -28,16 +28,17 @@ class QueryExpression:
 class HavingExpression:
     """A helper class to manage having expressions."""
 
-    def __init__(self, column, equality=None, value=None):
+    def __init__(self, column, equality=None, value=None, raw=False):
         self.column = column
-
-        if equality and not value:
-            value = equality
-            equality = "="
-
-        self.equality = equality
-        self.value = value
         self.value_type = "having"
+
+        if raw is False:
+            if equality and not value:
+                value = equality
+                equality = "="
+
+            self.equality = equality
+            self.value = value
 
 
 class FromTable:

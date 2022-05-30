@@ -158,6 +158,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "group_by",
         "has",
         "having",
+        "having_raw",
         "increment",
         "in_random_order",
         "join_on",
