@@ -1104,9 +1104,9 @@ class QueryBuilder(ObservesEvents):
 
         additional.update(updates)
 
-        result = self.new_connection().query(self.to_qmark(), self._bindings)
+        self.new_connection().query(self.to_qmark(), self._bindings)
         if model:
-            model.fill(result)
+            model.fill(updates)
             self.observe_events(model, "updated")
             return model
         return additional
