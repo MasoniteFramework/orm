@@ -504,6 +504,7 @@ class BaseGrammar:
             column = having.column
             equality = having.equality
             value = having.value
+            raw = having.raw
 
             if not equality and not value:
                 sql_string = self.having_string()
@@ -511,7 +512,7 @@ class BaseGrammar:
                 sql_string = self.having_equality_string()
 
             sql += sql_string.format(
-                column=self._table_column_string(column),
+                column=self._table_column_string(column) if raw is False else column,
                 equality=equality,
                 value=self._compile_value(value),
             )
