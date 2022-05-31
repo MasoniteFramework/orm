@@ -1108,6 +1108,7 @@ class QueryBuilder(ObservesEvents):
         if model:
             model.fill(updates)
             self.observe_events(model, "updated")
+            model.fill_original(updates)
             return model
         return additional
 
