@@ -437,7 +437,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     def fill(self, attributes):
         self.__attributes__.update(attributes)
         return self
-    
+
     def fill_original(self, attributes):
         self.__original_attributes__.update(attributes)
         return self
