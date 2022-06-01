@@ -756,6 +756,18 @@ class QueryBuilder(ObservesEvents):
         self._having += ((HavingExpression(column, equality, value)),)
         return self
 
+    def having_raw(self, string):
+        """Specifies raw SQL that should be injected into the having expression.
+
+        Arguments:
+            string {string} -- The raw query string.
+
+        Returns:
+            self
+        """
+        self._having += ((HavingExpression(string, raw=True)),)
+        return self
+
     def where_null(self, column):
         """Specifies a where expression where the column is NULL.
 
