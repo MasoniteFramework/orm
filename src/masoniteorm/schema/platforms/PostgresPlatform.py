@@ -1,3 +1,4 @@
+from ...schema import Schema
 from .Platform import Platform
 from ..Table import Table
 
@@ -57,7 +58,11 @@ class PostgresPlatform(Platform):
         "unsigned": "INT",
     }
 
-    table_info_map = {"CHARACTER VARYING": "string"}
+    table_info_map = {
+        "CHARACTER VARYING": "string",
+        "TIMESTAMP WITH TIME ZONE": "datetime",
+        "TIMESTAMP WITHOUT TIME ZONE": "datetime",
+    }
 
     premapped_defaults = {
         "current": " DEFAULT CURRENT_TIMESTAMP",
@@ -460,14 +465,31 @@ class PostgresPlatform(Platform):
 
         result = connection.query(sql, ())
         for column in result:
+            column_type = reversed_type_map.get(column["data_type"].upper())
+
+            # find length
+            if column.get("character_maximum_length", None):
+                length = column.get("character_maximum_length")
+            elif column.get("numeric_precision", None):
+                length = column.get("numeric_precision")
+            elif column.get("datetime_precision", None):
+                length = column.get("datetime_precision")
+            else:
+                length = None
+
+            # find default
+            default = column.get("dflt_value", "") or column.get("column_default", "")
+            if default and default.startswith("nextval"):
+                table.set_primary_key(column["column_name"])
+                default = None
+
             table.add_column(
                 column["column_name"],
-                reversed_type_map.get(column["data_type"].upper()),
-                default=column.get("dflt_value"),
+                column_type,
+                default=default,
+                column_python_type=Schema._type_hints_map.get(column_type, str),
+                length=length,
             )
-            column_default = column.get("column_default", "")
-            if column_default and column_default.startswith("nextval"):
-                table.set_primary_key(column["column_name"])
 
         return table
 
