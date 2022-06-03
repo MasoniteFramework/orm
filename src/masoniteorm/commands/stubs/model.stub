@@ -1,4 +1,4 @@
-""" User Model """
+""" __CLASS__ Model """
 
 from masoniteorm.models import Model
 
