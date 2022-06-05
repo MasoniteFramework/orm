@@ -1,8 +1,11 @@
 import inspect
 
+import pendulum
+
 from ..query import QueryBuilder
 from ..expressions import JoinClause
 from ..models import Model
+import pendulum
 
 
 class MockConnection:
@@ -502,6 +505,20 @@ class BaseTestCaseSelectGrammar:
 
     def test_update_lock(self):
         to_sql = self.builder.where("votes", ">=", 100).lock_for_update().to_sql()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_where_date(self):
+        to_sql = self.builder.where_date("created_at", "2022-06-01").to_sql()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
+
+    def test_or_where_null(self):
+        to_sql = self.builder.where_null("column1").or_where_null("column2").to_sql()
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()

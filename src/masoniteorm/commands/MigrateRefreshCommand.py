@@ -29,7 +29,10 @@ class MigrateRefreshCommand(Command):
         self.line("")
 
         if self.option("seed") == "null":
-            self.call("seed:run", f"None --directory {self.option('seed-directory')} --connection {self.option('connection', 'default')}")
+            self.call(
+                "seed:run",
+                f"None --directory {self.option('seed-directory')} --connection {self.option('connection', 'default')}",
+            )
         elif self.option("seed"):
             self.call(
                 "seed:run",

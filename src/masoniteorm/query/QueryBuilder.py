@@ -780,6 +780,18 @@ class QueryBuilder(ObservesEvents):
         self._wheres += ((QueryExpression(column, "=", None, "NULL")),)
         return self
 
+    def or_where_null(self, column):
+        """Specifies a where expression where the column is NULL.
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Returns:
+            self
+        """
+        self._wheres += ((QueryExpression(column, "=", None, "NULL", keyword="or")),)
+        return self
+
     def chunk(self, chunk_amount):
         chunk_connection = self.new_connection()
         for result in chunk_connection.select_many(self.to_sql(), (), chunk_amount):
@@ -796,6 +808,47 @@ class QueryBuilder(ObservesEvents):
             self
         """
         self._wheres += ((QueryExpression(column, "=", True, "NOT NULL")),)
+        return self
+
+    def _get_date_string(self, date):
+        if isinstance(date, str):
+            return date
+        elif hasattr(date, "to_date_string"):
+            return date.to_date_string()
+        elif hasattr(date, "strftime"):
+            return date.strftime("%m-%d-%Y")
+
+    def where_date(self, column: str, date: "str|datetime|pendulum"):
+        """Specifies a where DATE expression
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Returns:
+            self
+        """
+        self._wheres += (
+            (QueryExpression(column, "=", self._get_date_string(date), "DATE")),
+        )
+        return self
+
+    def or_where_date(self, column: str, date: "str|datetime|pendulum"):
+        """Specifies a where DATE expression
+
+        Arguments:
+            column {string} -- The name of the column.
+            date {string|datetime|pendulum} -- The name of the column.
+
+        Returns:
+            self
+        """
+        self._wheres += (
+            (
+                QueryExpression(
+                    column, "=", self._get_date_string(date), "DATE", keyword="or"
+                )
+            ),
+        )
         return self
 
     def between(self, column: str, low: [str, int], high: [str, int]):

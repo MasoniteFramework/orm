@@ -610,6 +610,8 @@ class BaseGrammar:
                 )
             elif value_type == "NULL":
                 sql_string = self.where_null_string()
+            elif value_type == "DATE":
+                sql_string = self.where_date_string()
             elif value_type == "NOT NULL":
                 sql_string = self.where_not_null_string()
             elif equality == "EXISTS":
@@ -686,6 +688,8 @@ class BaseGrammar:
                 self.add_binding(value)
             elif value_type == "column":
                 query_value = self._table_column_string(column=value, separator="")
+            elif value_type == "DATE":
+                query_value = self.value_string().format(value=value, separator="")
             elif value_type == "having":
                 query_value = self._table_column_string(column=value, separator="")
             else:

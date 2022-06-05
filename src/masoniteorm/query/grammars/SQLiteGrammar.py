@@ -180,6 +180,9 @@ class SQLiteGrammar(BaseGrammar):
     def where_null_string(self):
         return " {keyword} {column} IS NULL"
 
+    def where_date_string(self):
+        return "{keyword} DATE({column}) {equality} {value}"
+
     def value_equal_string(self):
         return "{keyword} {value1} = {value2}"
 

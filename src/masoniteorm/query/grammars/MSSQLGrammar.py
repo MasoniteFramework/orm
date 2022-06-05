@@ -72,6 +72,9 @@ class MSSQLGrammar(BaseGrammar):
     def where_not_like_string(self):
         return "{keyword} {column} NOT LIKE {value}"
 
+    def where_date_string(self):
+        return "{keyword} DATE({column}) {equality} {value}"
+
     def where_regexp_string(self):
         return self.where_like_string()
 
