@@ -809,7 +809,7 @@ class QueryBuilder(ObservesEvents):
         """
         self._wheres += ((QueryExpression(column, "=", True, "NOT NULL")),)
         return self
-    
+
     def _get_date_string(self, date):
         if isinstance(date, str):
             return date
@@ -827,7 +827,9 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._wheres += ((QueryExpression(column, "=", self._get_date_string(date), "DATE")),)
+        self._wheres += (
+            (QueryExpression(column, "=", self._get_date_string(date), "DATE")),
+        )
         return self
 
     def or_where_date(self, column: str, date: "str|datetime|pendulum"):
@@ -840,7 +842,13 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._wheres += ((QueryExpression(column, "=", self._get_date_string(date), "DATE", keyword="or")),)
+        self._wheres += (
+            (
+                QueryExpression(
+                    column, "=", self._get_date_string(date), "DATE", keyword="or"
+                )
+            ),
+        )
         return self
 
     def between(self, column: str, low: [str, int], high: [str, int]):
