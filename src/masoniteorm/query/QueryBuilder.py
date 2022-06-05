@@ -780,6 +780,18 @@ class QueryBuilder(ObservesEvents):
         self._wheres += ((QueryExpression(column, "=", None, "NULL")),)
         return self
 
+    def or_where_null(self, column):
+        """Specifies a where expression where the column is NULL.
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Returns:
+            self
+        """
+        self._wheres += ((QueryExpression(column, "=", None, "NULL", keyword="or")),)
+        return self
+
     def chunk(self, chunk_amount):
         chunk_connection = self.new_connection()
         for result in chunk_connection.select_many(self.to_sql(), (), chunk_amount):

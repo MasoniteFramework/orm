@@ -460,3 +460,6 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
 
     def where_date(self):
         return """SELECT * FROM "users" WHERE DATE("users"."created_at") = '2022-06-01'"""
+
+    def or_where_null(self):
+        return """SELECT * FROM "users" WHERE "users"."column1" IS NULL OR "users"."column2" IS NULL"""

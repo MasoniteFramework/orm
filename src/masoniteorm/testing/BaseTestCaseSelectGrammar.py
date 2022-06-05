@@ -516,3 +516,10 @@ class BaseTestCaseSelectGrammar:
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
         self.assertEqual(to_sql, sql)
+
+    def test_or_where_null(self):
+        to_sql = self.builder.where_null("column1").or_where_null("column2").to_sql()
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(to_sql, sql)
