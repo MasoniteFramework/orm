@@ -809,9 +809,17 @@ class QueryBuilder(ObservesEvents):
         """
         self._wheres += ((QueryExpression(column, "=", True, "NOT NULL")),)
         return self
+    
+    def _get_date_string(self, date):
+        if isinstance(date, str):
+            return date
+        elif hasattr(date, "to_date_string"):
+            return date.to_date_string()
+        elif hasattr(date, "strftime"):
+            return date.strftime("%m-%d-%Y")
 
     def where_date(self, column: str, date: "str|datetime|pendulum"):
-        """Specifies a where expression where the column is not NULL.
+        """Specifies a where DATE expression
 
         Arguments:
             column {string} -- The name of the column.
@@ -819,7 +827,20 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._wheres += ((QueryExpression(column, "=", date, "DATE")),)
+        self._wheres += ((QueryExpression(column, "=", self._get_date_string(date), "DATE")),)
+        return self
+
+    def or_where_date(self, column: str, date: "str|datetime|pendulum"):
+        """Specifies a where DATE expression
+
+        Arguments:
+            column {string} -- The name of the column.
+            date {string|datetime|pendulum} -- The name of the column.
+
+        Returns:
+            self
+        """
+        self._wheres += ((QueryExpression(column, "=", self._get_date_string(date), "DATE", keyword="or")),)
         return self
 
     def between(self, column: str, low: [str, int], high: [str, int]):

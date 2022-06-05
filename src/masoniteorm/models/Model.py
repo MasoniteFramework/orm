@@ -200,6 +200,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "when",
         "where_between",
         "where_column",
+        "where_date",
+        "or_where_date",
         "where_exists",
         "where_from_builder",
         "where_has",
