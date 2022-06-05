@@ -582,7 +582,6 @@ class BaseGrammar:
             """
             equality = equality.upper()
 
-
             if equality == "BETWEEN":
                 low = where.low
                 high = where.high
