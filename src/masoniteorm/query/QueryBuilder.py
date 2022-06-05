@@ -798,6 +798,18 @@ class QueryBuilder(ObservesEvents):
         self._wheres += ((QueryExpression(column, "=", True, "NOT NULL")),)
         return self
 
+    def where_date(self, column: str, date: "str|datetime|pendulum"):
+        """Specifies a where expression where the column is not NULL.
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Returns:
+            self
+        """
+        self._wheres += ((QueryExpression(column, "=", date, "DATE")),)
+        return self
+
     def between(self, column: str, low: [str, int], high: [str, int]):
         """Specifies a where between expression.
 
