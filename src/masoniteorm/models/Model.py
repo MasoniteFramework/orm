@@ -179,6 +179,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "offset",
         "on",
         "or_where",
+        "or_where_null",
         "order_by_raw",
         "order_by",
         "paginate",
