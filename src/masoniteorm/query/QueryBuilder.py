@@ -1389,7 +1389,7 @@ class QueryBuilder(ObservesEvents):
             self
         """
         if bindings is None:
-            bindings=[]
+            bindings = []
         self._order_by += (OrderByExpression(query, raw=True, bindings=bindings),)
         return self
 
