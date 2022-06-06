@@ -113,6 +113,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     __selects__ = []
 
     __observers__ = {}
+    __has_events__ = True
 
     _booted = False
     _scopes = {}
