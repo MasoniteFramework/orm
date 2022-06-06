@@ -659,7 +659,7 @@ class QueryBuilder(ObservesEvents):
         )
         return self
 
-    def or_where(self, column: tuple[str, int], *args) -> "self":
+    def or_where(self, column, *args) -> "self":
         """Specifies an or where query expression.
 
         Arguments:
@@ -873,7 +873,7 @@ class QueryBuilder(ObservesEvents):
     def where_not_between(self, *args, **kwargs):
         return self.not_between(*args, **kwargs)
 
-    def not_between(self, column: str, low: tuple[str, int], high: tuple[str, int]):
+    def not_between(self, column: str, low: str, high: str):
         """Specifies a where not between expression.
 
         Arguments:
