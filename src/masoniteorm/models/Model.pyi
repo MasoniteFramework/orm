@@ -6,7 +6,7 @@ from ..query.QueryBuilder import QueryBuilder
 from collections.abc import Sequence
 
 class Model:
-    def add_select(alias: str, callable):
+    def add_select(alias: str, callable: Any):
         """Specifies a select subquery.
         """
         pass
