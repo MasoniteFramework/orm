@@ -196,16 +196,16 @@ class QueryBuilder(ObservesEvents):
         """
         return self.table(table, raw=True)
 
-    def table_raw(self, table):
-        """Sets a table on the query builder
+    def table_raw(self, query):
+        """Sets a query on the query builder
 
         Arguments:
-            table {string} -- The name of the table
+            query {string} -- The query to use for the table
 
         Returns:
             self
         """
-        return self.from_raw(table)
+        return self.from_raw(query)
 
     def get_table_name(self):
         """Sets a table on the query builder
@@ -419,17 +419,19 @@ class QueryBuilder(ObservesEvents):
 
         return self
 
-    def statement(self, query, bindings=()):
+    def statement(self, query, bindings=None):
+        if bindings is None:
+            bindings = []
         result = self.new_connection().query(query, bindings)
         return self.prepare_result(result)
 
-    def select_raw(self, string):
+    def select_raw(self, query):
         """Specifies raw SQL that should be injected into the select expression.
 
         Returns:
             self
         """
-        self._columns += (SelectExpression(string, raw=True),)
+        self._columns += (SelectExpression(query, raw=True),)
         return self
 
     def get_processor(self):
@@ -657,7 +659,7 @@ class QueryBuilder(ObservesEvents):
         )
         return self
 
-    def or_where(self, column: [str, int], *args) -> "self":
+    def or_where(self, column: tuple[str, int], *args) -> "self":
         """Specifies an or where query expression.
 
         Arguments:
@@ -871,7 +873,7 @@ class QueryBuilder(ObservesEvents):
     def where_not_between(self, *args, **kwargs):
         return self.not_between(*args, **kwargs)
 
-    def not_between(self, column: str, low: [str, int], high: [str, int]):
+    def not_between(self, column: str, low: tuple[str, int], high: tuple[str, int]):
         """Specifies a where not between expression.
 
         Arguments:
@@ -1374,7 +1376,7 @@ class QueryBuilder(ObservesEvents):
             self._order_by += (OrderByExpression(col, direction=direction),)
         return self
 
-    def order_by_raw(self, query, bindings=()):
+    def order_by_raw(self, query, bindings=None):
         """Specifies a column to order by.
 
         Arguments:
@@ -1386,6 +1388,8 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
+        if bindings is None:
+            bindings=[]
         self._order_by += (OrderByExpression(query, raw=True, bindings=bindings),)
         return self
 
@@ -1403,15 +1407,17 @@ class QueryBuilder(ObservesEvents):
 
         return self
 
-    def group_by_raw(self, query, bindings=()):
+    def group_by_raw(self, query, bindings=None):
         """Specifies a column to group by.
 
         Arguments:
-            column {string} -- The name of the column to group by.
+            query {string} -- A raw query
 
         Returns:
             self
         """
+        if bindings is None:
+            bindings = []
         self._group_by += (
             GroupByExpression(column=query, raw=True, bindings=bindings),
         )
