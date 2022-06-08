@@ -44,6 +44,7 @@ class QueryBuilder(ObservesEvents):
         table=None,
         connection_details=None,
         connection_driver="default",
+        config_path=None,
         model=None,
         scopes=None,
         dry=False,
@@ -66,6 +67,7 @@ class QueryBuilder(ObservesEvents):
         self._connection = None
         self._connection_details = connection_details or {}
         self._connection_driver = connection_driver
+        self._config_path = config_path
         self._scopes = scopes or {}
         self.lock = False
         self._eager_relation = EagerRelations()
@@ -101,7 +103,7 @@ class QueryBuilder(ObservesEvents):
         self.set_action("select")
 
         if not self._connection_details:
-            DB = load_config().DB
+            DB = load_config(self._config_path).DB
             self._connection_details = DB.get_connection_details()
 
         self.on(connection)
@@ -371,7 +373,7 @@ class QueryBuilder(ObservesEvents):
         )
 
     def on(self, connection):
-        DB = load_config().DB
+        DB = load_config(self._config_path).DB
 
         if connection == "default":
             self.connection = self._connection_details.get("default")
