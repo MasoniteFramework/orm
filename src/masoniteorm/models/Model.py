@@ -793,6 +793,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         else:
             result = self.create(self.__dirty_attributes__, query=query)
 
+        self.__dirty_attributes__ = {}
         return result
 
     def get_value(self, attribute):
