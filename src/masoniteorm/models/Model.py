@@ -792,6 +792,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 )
             self.observe_events(self, "saved")
             self.fill(result.__attributes__)
+            self.__dirty_attributes__ = {}
             return result
 
         if self.is_loaded():
