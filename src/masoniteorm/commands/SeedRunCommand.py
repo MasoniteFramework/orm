@@ -2,9 +2,6 @@ from inflection import camelize, underscore
 
 from ..seeds import Seeder
 from .Command import Command
-from dotenv import load_dotenv
-load_dotenv(".env")
-from ..config import load_config
 
 
 class SeedRunCommand(Command):
