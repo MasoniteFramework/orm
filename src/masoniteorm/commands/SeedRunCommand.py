@@ -2,6 +2,9 @@ from inflection import camelize, underscore
 
 from ..seeds import Seeder
 from .Command import Command
+from dotenv import load_dotenv
+load_dotenv(".env")
+from ..config import load_config
 
 
 class SeedRunCommand(Command):
@@ -16,8 +19,7 @@ class SeedRunCommand(Command):
     """
 
     def handle(self):
-
-        seeder = Seeder(dry=self.option("dry"), seed_path=self.option("directory"))
+        seeder = Seeder(dry=self.option("dry"), seed_path=self.option("directory"), connection=self.option("connection"))
 
         if self.argument("table") == "None":
             seeder.run_database_seed()
