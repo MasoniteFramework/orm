@@ -11,42 +11,45 @@ from tests.utils import MockConnectionFactory
 from tests.integrations.config.database import DB
 
 
+class TestM:
+    pass
+
 class UserObserver:
     def created(self, user):
-        user.observed_created = 1
+        TestM.observed_created = 1
 
     def creating(self, user):
-        user.observed_creating = 1
+        TestM.observed_creating = 1
 
     def saving(self, user):
-        user.observed_saving = 1
+        TestM.observed_saving = 1
 
     def saved(self, user):
-        user.observed_saved = 1
+        TestM.observed_saved = 1
 
     def updating(self, user):
-        user.observed_updating = 1
+        TestM.observed_updating = 1
 
     def updated(self, user):
-        user.observed_updated = 1
+        TestM.observed_updated = 1
 
     def booted(self, user):
-        user.observed_booting = 1
+        TestM.observed_booting = 1
 
     def booting(self, user):
-        user.observed_booted = 1
+        TestM.observed_booted = 1
 
     def hydrating(self, user):
-        user.observed_hydrating = 1
+        TestM.observed_hydrating = 1
 
     def hydrated(self, user):
-        user.observed_hydrated = 1
+        TestM.observed_hydrated = 1
 
     def deleting(self, user):
-        user.observed_deleting = 1
+        TestM.observed_deleting = 1
 
     def deleted(self, user):
-        user.observed_deleted = 1
+        TestM.observed_deleted = 1
 
 
 class Observer(Model):
@@ -65,8 +68,8 @@ class BaseTestQueryRelationships(unittest.TestCase):
     def test_created_is_observed(self):
         # DB.begin_transaction("dev")
         user = Observer.create({"name": "joe"})
-        self.assertEqual(user.observed_creating, 1)
-        self.assertEqual(user.observed_created, 1)
+        self.assertEqual(TestM.observed_creating, 1)
+        self.assertEqual(TestM.observed_created, 1)
         # DB.rollback("dev")
 
     def test_saving_is_observed(self):
@@ -76,8 +79,8 @@ class BaseTestQueryRelationships(unittest.TestCase):
         user.name = "bill"
         user.save()
 
-        self.assertEqual(user.observed_saving, 1)
-        self.assertEqual(user.observed_saved, 1)
+        self.assertEqual(TestM.observed_saving, 1)
+        self.assertEqual(TestM.observed_saved, 1)
         # DB.rollback("dev")
 
     def test_updating_is_observed(self):
@@ -86,8 +89,8 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
         re = user.update({"name": "bill"})
 
-        self.assertEqual(user.observed_updated, 1)
-        self.assertEqual(user.observed_updating, 1)
+        self.assertEqual(TestM.observed_updated, 1)
+        self.assertEqual(TestM.observed_updating, 1)
         # DB.rollback("dev")
 
     def test_booting_is_observed(self):
@@ -96,8 +99,8 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
         re = user.update({"name": "bill"})
 
-        self.assertEqual(user.observed_booting, 1)
-        self.assertEqual(user.observed_booted, 1)
+        self.assertEqual(TestM.observed_booting, 1)
+        self.assertEqual(TestM.observed_booted, 1)
         # DB.rollback("dev")
 
     def test_deleting_is_observed(self):
@@ -106,14 +109,14 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
         re = user.delete()
 
-        self.assertEqual(user.observed_deleting, 1)
-        self.assertEqual(user.observed_deleted, 1)
+        self.assertEqual(TestM.observed_deleting, 1)
+        self.assertEqual(TestM.observed_deleted, 1)
         DB.rollback("dev")
 
     def test_hydrating_is_observed(self):
         DB.begin_transaction("dev")
         user = Observer.hydrate({"id": 10, "name": "joe"})
 
-        self.assertEqual(user.observed_hydrating, 1)
-        self.assertEqual(user.observed_hydrated, 1)
+        self.assertEqual(TestM.observed_hydrating, 1)
+        self.assertEqual(TestM.observed_hydrated, 1)
         DB.rollback("dev")
