@@ -1,4 +1,5 @@
 import inspect
+from copy import deepcopy
 
 from ..config import load_config
 from ..collection.Collection import Collection
@@ -1964,18 +1965,18 @@ class QueryBuilder(ObservesEvents):
         if self._table:
             builder.table(self._table.name)
 
-        builder._columns = from_builder._columns
-        builder._creates = from_builder._creates
+        builder._columns = deepcopy(from_builder._columns)
+        builder._creates = deepcopy(from_builder._creates)
         builder._sql = from_builder._sql = ""
-        builder._bindings = from_builder._bindings
-        builder._updates = from_builder._updates
-        builder._wheres = from_builder._wheres
-        builder._order_by = from_builder._order_by
-        builder._group_by = from_builder._group_by
-        builder._joins = from_builder._joins
-        builder._having = from_builder._having
-        builder._macros = from_builder._macros
-        builder._aggregates = from_builder._aggregates
-        builder._global_scopes = from_builder._global_scopes
+        builder._bindings = deepcopy(from_builder._bindings)
+        builder._updates = deepcopy(from_builder._updates)
+        builder._wheres = deepcopy(from_builder._wheres)
+        builder._order_by = deepcopy(from_builder._order_by)
+        builder._group_by = deepcopy(from_builder._group_by)
+        builder._joins = deepcopy(from_builder._joins)
+        builder._having = deepcopy(from_builder._having)
+        builder._macros = deepcopy(from_builder._macros)
+        builder._aggregates = deepcopy(from_builder._aggregates)
+        builder._global_scopes = deepcopy(from_builder._global_scopes)
 
         return builder
