@@ -1,4 +1,3 @@
-from distutils.command.build import build
 from .BaseRelationship import BaseRelationship
 from ..collection import Collection
 from inflection import singularize
