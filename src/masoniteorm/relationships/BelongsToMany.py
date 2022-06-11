@@ -369,7 +369,7 @@ class BelongsToMany(BaseRelationship):
             pivot_table_1, pivot_table_2 = self._table.split("_", 1)
             self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
             self.local_key = self.local_key or f"{pivot_table_2}_id"
-        
+
         query = self.get_builder()
         table1 = query.get_table_name()
         table2 = builder.get_table_name()
@@ -399,7 +399,7 @@ class BelongsToMany(BaseRelationship):
             f"{self._table}.{self.local_key}",
             "=",
             f"{table2}.{self.local_owner_key}",
-            clause="inner"
+            clause="inner",
         )
 
         result.join(
