@@ -92,6 +92,17 @@ class BaseRelationship:
         )
         return query
 
+    def joins(self, builder, clause=None):
+        other_table = self.get_builder().get_table_name()
+        local_table = builder.get_table_name()
+        return builder.join(
+            other_table,
+            f"{local_table}.{self.local_key}",
+            "=",
+            f"{other_table}.{self.foreign_key}",
+            clause=clause,
+        )
+
     def get_with_count_query(self, builder, callback):
         query = self.get_builder()
         if not builder._columns:
