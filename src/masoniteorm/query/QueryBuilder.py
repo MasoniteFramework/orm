@@ -1052,17 +1052,16 @@ class QueryBuilder(ObservesEvents):
     def joins(self, *relationships, clause="inner"):
         for relationship in relationships:
             getattr(self._model, relationship).joins(self, clause=clause)
-            
 
         return self
 
     def join_on(self, relationship, callback=None, clause="inner"):
         relation = getattr(self._model, relationship)
-        relation.joins(self)
+        relation.joins(self, clause=clause)
 
         if callback:
             new_from_builder = self.new_from_builder()
-            new_from_builder.table(other_table)
+            new_from_builder.table(relation.get_builder().get_table_name())
             self.where_from_builder(callback(new_from_builder))
 
         return self
