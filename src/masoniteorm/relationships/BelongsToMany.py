@@ -354,6 +354,68 @@ class BelongsToMany(BaseRelationship):
             }
         )
 
+    def joins(self, builder, clause=None):
+        if not self._table:
+            pivot_tables = [
+                singularize(self.get_builder().get_table_name()),
+                singularize(builder.get_table_name()),
+            ]
+            pivot_tables.sort()
+            pivot_table_1, pivot_table_2 = pivot_tables
+            self._table = "_".join(pivot_tables)
+            self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
+            self.local_key = self.local_key or f"{pivot_table_2}_id"
+        else:
+            pivot_table_1, pivot_table_2 = self._table.split("_", 1)
+            self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
+            self.local_key = self.local_key or f"{pivot_table_2}_id"
+
+        query = self.get_builder()
+        table1 = query.get_table_name()
+        table2 = builder.get_table_name()
+        result = builder
+        if not builder._columns:
+            result = result.select(
+                f"{table2}.*",
+                f"{self._table}.{self.local_key} as {self._table}_id",
+                f"{self._table}.{self.foreign_key} as m_reserved2",
+            )
+
+            if self.pivot_id:
+                result.select(f"{self._table}.{self.pivot_id} as m_reserved3")
+
+            if self.with_timestamps:
+                result.select(
+                    f"{self._table}.updated_at as m_reserved4",
+                    f"{self._table}.created_at as m_reserved5",
+                )
+
+            if self.with_fields:
+                for field in self.with_fields:
+                    result.select(f"{self._table}.{field}")
+        # Join pivot table with an inner join
+        result.join(
+            f"{self._table}",
+            f"{self._table}.{self.local_key}",
+            "=",
+            f"{table2}.{self.local_owner_key}",
+            clause="inner",
+        )
+
+        result.join(
+            f"{table1}",
+            f"{self._table}.{self.local_owner_key}",
+            "=",
+            f"{table1}.{self.other_owner_key}",
+            clause=clause,
+        )
+
+        if self.with_fields:
+            for field in self.with_fields:
+                result.select(f"{self._table}.{field}")
+
+        return result
+
     def get_where_exists_query(self, builder, callback):
         query = self.get_builder()
         self._table = self._table or self.get_pivot_table_name(query, builder)
