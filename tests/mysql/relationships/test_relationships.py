@@ -107,6 +107,13 @@ class MySQLRelationships(unittest.TestCase):
             """SELECT `permissions`.*, `permission_role`.`role_id` AS permission_role_id, `permission_role`.`permission_id` AS m_reserved2, `permission_role`.`id` AS m_reserved3 FROM `roles` INNER JOIN `permission_role` ON `permission_role`.`role_id` = `roles`.`id` INNER JOIN `permissions` ON `permission_role`.`permission_id` = `permissions`.`id`""",
         )
 
+    def test_belongs_to_many_joins(self):
+        sql = Role.joins("permissions").to_sql()
+        self.assertEqual(
+            sql,
+            """SELECT `roles`.*, `permission_role`.`role_id` AS permission_role_id, `permission_role`.`permission_id` AS m_reserved2, `permission_role`.`id` AS m_reserved3 FROM `roles` INNER JOIN `permission_role` ON `permission_role`.`role_id` = `roles`.`id` INNER JOIN `permissions` ON `permission_role`.`id` = `permissions`.`id`""",
+        )
+
     def test_with_count(self):
         sql = Permission.with_count("role").to_sql()
 
