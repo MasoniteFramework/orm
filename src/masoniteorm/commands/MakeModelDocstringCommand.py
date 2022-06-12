@@ -1,5 +1,8 @@
 from ..config import load_config
 from .Command import Command
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class MakeModelDocstringCommand(Command):
@@ -16,10 +19,8 @@ class MakeModelDocstringCommand(Command):
         table = self.argument("table")
         DB = load_config(self.option("config")).DB
 
-        if self.option("connection") == "default":
-            schema = DB.get_schema_builder()
-        else:
-            schema = DB.get_schema_builder(self.option("connection"))
+        
+        schema = DB.get_schema_builder(self.option("connection"))
 
         if not schema.has_table(table):
             return self.line_error(
@@ -32,7 +33,7 @@ class MakeModelDocstringCommand(Command):
             default = f" default: {column.default}"
             print(f"{column.name}: {column.column_type}{length}{default}")
 
-        if self.option("type-hints"):
+        if self.option('type-hints'):
             self.info(f"Model Type Hints for table: {table}")
             for name, column in schema.get_columns(table).items():
                 print(f"    {name}:{column.column_python_type.__name__}")
