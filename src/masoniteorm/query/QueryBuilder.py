@@ -35,7 +35,6 @@ import pendulum
 from ..schema import Schema
 
 
-
 class QueryBuilder(ObservesEvents):
     """A builder class to manage the building and creation of query expressions."""
 
