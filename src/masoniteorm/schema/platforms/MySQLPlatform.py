@@ -446,7 +446,7 @@ class MySQLPlatform(Platform):
         return reversed_type_map.get(column_type)
 
     def get_column_length(self, raw_column_type):
-        regex = re.compile("^\w+\((\d+)\)")
+        regex = re.compile(r"/^\w+\((\d+)\)/")
         match = regex.match(raw_column_type)
         if match:
             return match.groups()[0]

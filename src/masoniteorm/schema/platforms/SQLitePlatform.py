@@ -186,7 +186,7 @@ class SQLitePlatform(Platform):
             or diff.changed_columns
             or diff.added_foreign_keys
         ):
-            original_columns = diff.from_table.added_columns
+            original_columns = diff.added_columns
             # pop off the dropped columns. No need for them here
             for column in diff.dropped_columns:
                 original_columns.pop(column)
