@@ -1969,8 +1969,12 @@ class QueryBuilder(ObservesEvents):
         columns_standardized_output = Collection(columns_standardized_output)
         return columns_standardized_output
 
-    def has_column(self, column) -> bool:
-        print(self.get_column_listing().first().keys())
+    def has_column(self, column: str) -> bool:
+        """Determine if the given table has a given column.
+
+        Returns:
+              bool
+        """
         if column in self.get_column_listing().first().keys():
             return True
         else:
