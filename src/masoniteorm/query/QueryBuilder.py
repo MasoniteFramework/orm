@@ -32,6 +32,8 @@ from ..pagination import LengthAwarePaginator, SimplePaginator
 from .EagerRelation import EagerRelations
 from datetime import datetime, date as datetimedate, time as datetimetime
 import pendulum
+from ..schema import Schema
+
 
 
 class QueryBuilder(ObservesEvents):
@@ -1963,3 +1965,8 @@ class QueryBuilder(ObservesEvents):
         builder._global_scopes = deepcopy(from_builder._global_scopes)
 
         return builder
+
+    def get_table_schema(self):
+        return Schema(
+            connection=self.connection, connection_details=self._connection_details
+        ).get_columns(self._table.name)
