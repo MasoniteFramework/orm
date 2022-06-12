@@ -8,6 +8,46 @@ from ..config import load_config
 class Schema:
 
     _default_string_length = "255"
+    _type_hints_map = {
+        "string": str,
+        "char": str,
+        "big_increments": int,
+        "integer": int,
+        "big_integer": int,
+        "tiny_integer": int,
+        "small_integer": int,
+        "medium_integer": int,
+        "integer_unsigned": int,
+        "big_integer_unsigned": int,
+        "tiny_integer_unsigned": int,
+        "small_integer_unsigned": int,
+        "medium_integer_unsigned": int,
+        "increments": int,
+        "uuid": str,
+        "binary": bytes,
+        "boolean": bool,
+        "decimal": float,
+        "double": float,
+        "enum": str,
+        "text": str,
+        "float": float,
+        "geometry": str,  # ?
+        "json": dict,
+        "jsonb": bytes,
+        "inet": str,
+        "cidr": str,
+        "macaddr": str,
+        "long_text": str,
+        "point": str,  # ?
+        "time": str,  # or pendulum.DateTime
+        "timestamp": str,  # or pendulum.DateTime
+        "date": str,  # or pendulum.DateTime
+        "year": str,
+        "datetime": str,  # or pendulum.DateTime
+        "tiny_increments": int,
+        "unsigned": int,
+        "unsigned_integer": int,
+    }
 
     def __init__(
         self,
@@ -183,6 +223,16 @@ class Schema:
             return sql
 
         return bool(self.new_connection().query(sql, ()))
+
+    def get_columns(self, table, dict=True):
+        table = self.platform().get_current_schema(self.new_connection(), table)
+        result = {}
+        if dict:
+            for column in table.get_added_columns().items():
+                result.update({column[0]: column[1]})
+            return result
+        else:
+            return table.get_added_columns().items()
 
     @classmethod
     def set_default_string_length(cls, length):
