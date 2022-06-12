@@ -1967,6 +1967,9 @@ class QueryBuilder(ObservesEvents):
         return builder
 
     def get_table_schema(self):
+        return self.get_schema().get_columns(self._table.name)
+
+    def get_schema(self):
         return Schema(
             connection=self.connection, connection_details=self._connection_details
-        ).get_columns(self._table.name)
+        )
