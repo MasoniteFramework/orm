@@ -4,7 +4,6 @@ from ...expressions.expressions import (
     SubGroupExpression,
     SubSelectExpression,
     SelectExpression,
-    BetweenExpression,
     JoinClause,
     OnClause,
 )
@@ -33,6 +32,7 @@ class BaseGrammar:
         updates=None,
         aggregates=(),
         order_by=(),
+        distinct=False,
         group_by=(),
         joins=(),
         lock=False,
@@ -49,6 +49,7 @@ class BaseGrammar:
         self._aggregates = aggregates
         self._order_by = order_by
         self._group_by = group_by
+        self._distinct = distinct
         self._joins = joins
         self._having = having
         self.lock = lock
@@ -99,6 +100,7 @@ class BaseGrammar:
                 self.select_format()
                 .format(
                     columns=self.process_columns(separator=", ", qmark=qmark),
+                    keyword="DISTINCT" if self._distinct else "",
                     table=self.process_table(self.table),
                     joins=self.process_joins(qmark=qmark),
                     wheres=self.process_wheres(qmark=qmark),
