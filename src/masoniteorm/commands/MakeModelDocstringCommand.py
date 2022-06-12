@@ -8,6 +8,7 @@ class MakeModelDocstringCommand(Command):
 
     model:docstring
         {table : The table you want to generate docstring and type hints}
+        {--t|type-hints : The table you want to generate docstring and type hints}
         {--c|connection=default : The connection you want to use}
     """
 
@@ -26,11 +27,12 @@ class MakeModelDocstringCommand(Command):
             )
 
         self.info(f"Model Docstring for table: {table}")
-        for name, column in schema.get_columns(table):
+        for _, column in schema.get_columns(table).items():
             length = f"({column.length})" if column.length else ""
             default = f" default: {column.default}"
             print(f"{column.name}: {column.column_type}{length}{default}")
 
-        self.info(f"Model Type Hints for table: {table}")
-        for name, column in schema.get_columns(table):
-            print(f"    {name}:{column.column_python_type.__name__}")
+        if self.option("type-hints"):
+            self.info(f"Model Type Hints for table: {table}")
+            for name, column in schema.get_columns(table).items():
+                print(f"    {name}:{column.column_python_type.__name__}")

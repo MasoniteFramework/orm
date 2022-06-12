@@ -1,4 +1,5 @@
 from typing import Any, TypeVar, Generic, Tuple
+from typing_extensions import Self
 
 import pendulum
 from ..query.QueryBuilder import QueryBuilder
@@ -41,7 +42,7 @@ class Model:
             self
         """
         pass
-    def between(self, column: str, low: tuple[str, int], high: tuple[str, int]):
+    def between(self, column: str, low: str | int, high: str | int):
         """Specifies a where between expression.
 
         Arguments:
@@ -55,7 +56,7 @@ class Model:
         pass
     def bulk_create(creates: dict, query: bool = False):
         pass
-    def chunk(chunk_amount: tuple[str, int]):
+    def chunk(chunk_amount: str | int):
         pass
     def count(column: str = None):
         """Aggregates a columns values.
@@ -105,7 +106,7 @@ class Model:
             Bool - True or False
         """
         pass
-    def find_or_404(self, record_id: tuple[str, int]):
+    def find_or_404(self, record_id: str | int):
         """Finds a row by the primary key ID (Requires a model) or raise an 404 exception.
 
         Arguments:
@@ -115,7 +116,17 @@ class Model:
             Model|HTTP404
         """
         pass
-    def find_or_fail(self, record_id: tuple[str, int]):
+    def find(record_id: str | list) -> Self:
+        """Finds a row by the primary key ID (Requires a model) or raise an 404 exception.
+
+        Arguments:
+            record_id {int} -- The ID of the primary key to fetch.
+
+        Returns:
+            Model|Collection
+        """
+        pass
+    def find_or_fail(self, record_id: str | int):
         """Finds a row by the primary key ID (Requires a model) or raise a ModelNotFound exception.
 
         Arguments:
@@ -316,7 +327,7 @@ class Model:
             QueryBuilder -- The ORM QueryBuilder class.
         """
         pass
-    def not_between(column: str, low: tuple[str, int], high: tuple[str, int]):
+    def not_between(column: str, low: str | int, high: str | int):
         """Specifies a where not between expression.
 
         Arguments:
@@ -340,7 +351,7 @@ class Model:
         pass
     def on(self, connection: str):
         pass
-    def or_where(self, column: tuple[str, int], *args) -> QueryBuilder:
+    def or_where(self, column: str | int, *args) -> QueryBuilder:
         """Specifies an or where query expression.
 
         Arguments:

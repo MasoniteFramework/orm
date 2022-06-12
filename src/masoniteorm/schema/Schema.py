@@ -224,9 +224,15 @@ class Schema:
 
         return bool(self.new_connection().query(sql, ()))
 
-    def get_columns(self, table):
+    def get_columns(self, table, dict=True):
         table = self.platform().get_current_schema(self.new_connection(), table)
-        return table.get_added_columns().items()
+        result = {}
+        if dict:
+            for column in table.get_added_columns().items():
+                result.update({column[0]: column[1]})
+            return result
+        else:
+            return table.get_added_columns().items()
 
     @classmethod
     def set_default_string_length(cls, length):
