@@ -1,4 +1,3 @@
-from tkinter import E
 from ...schema import Schema
 from ..Table import Table
 from .Platform import Platform
