@@ -1980,6 +1980,15 @@ class QueryBuilder(ObservesEvents):
         else:
             return False
 
+    def has_columns(self, columns: list) -> bool:
+        """Determine if the given table has given columns.
+
+        Returns:
+              bool
+        """
+        self.get_column_listing().first().keys()
+        return all(column in self.get_column_listing().first().keys() for column in columns)
+
     def new_from_builder(self, from_builder=None):
         """Creates a new QueryBuilder class.
 
