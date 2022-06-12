@@ -347,7 +347,7 @@ class SQLitePlatform(Platform):
 
         result = connection.query(sql, ())
         for column in result:
-            column_type = self.get_column_type(reversed_type_map, column["type"])
+            column_type = self.get_column_type(reversed_type_map, column["type"].upper())
             length = self.get_column_length(column["type"])
 
             # find default

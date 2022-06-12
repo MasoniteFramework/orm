@@ -28,10 +28,12 @@ class MakeModelDocstringCommand(Command):
             )
 
         self.info(f"Model Docstring for table: {table}")
+        print('"""')
         for _, column in schema.get_columns(table).items():
             length = f"({column.length})" if column.length else ""
             default = f" default: {column.default}"
             print(f"{column.name}: {column.column_type}{length}{default}")
+        print('"""')
 
         if self.option('type-hints'):
             self.info(f"Model Type Hints for table: {table}")

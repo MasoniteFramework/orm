@@ -1,6 +1,7 @@
 from ...schema import Schema
 from .Platform import Platform
 from ..Table import Table
+import re
 
 
 class MySQLPlatform(Platform):
@@ -415,6 +416,7 @@ class MySQLPlatform(Platform):
             length = self.get_column_length(column["Type"])
             default = column.get("Default")
 
+            print('lll', length)
             table.add_column(
                 column["Field"],
                 column_type,
@@ -444,6 +446,11 @@ class MySQLPlatform(Platform):
         return reversed_type_map.get(column_type)
 
     def get_column_length(self, raw_column_type):
+        regex = re.compile("^\w+\((\d+)\)")
+        match = regex.match(raw_column_type)
+        if match:
+            return match.groups()[0]
+
         if "(" in raw_column_type:
             parenthesis_index = raw_column_type.find("(")
             return raw_column_type[parenthesis_index + 1 : -1]
