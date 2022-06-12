@@ -215,3 +215,8 @@ class SQLiteGrammar(BaseGrammar):
 
     def compile_random(self):
         return "random()"
+
+    def get_column_listing_string(self):
+        return (
+            "PRAGMA table_info('{table}')"
+        )

@@ -1929,6 +1929,46 @@ class QueryBuilder(ObservesEvents):
         """Puts Query results in random order"""
         return self.order_by_raw(self.grammar().compile_random())
 
+    def get_column_listing(self):
+        """Get the column listing for a given table.
+
+        Returns:
+            collection
+        """
+
+        def rename(old_dict: dict, old_name: str, new_name: str) -> dict:
+            new_dict = {}
+            for key, value in zip(old_dict.keys(), old_dict.values()):
+                new_key = key if key != old_name else new_name
+                new_dict[new_key] = old_dict[key]
+            return new_dict
+
+        self._sql = ""
+        sql = self.grammar().get_column_listing()._sql
+        columns_from_db = self.statement(f"{sql}")
+        columns_standardized_output = []
+        unwanted_keys = ['cid', 'notnull', 'dflt_value', 'pk', 'Null', 'Key', 'Default', 'Extra']
+
+        for column in columns_from_db:
+            column = column.serialize()
+            for unwanted_key in unwanted_keys:
+                try:
+                    del column[f"{unwanted_key}"]
+                except KeyError:
+                    pass
+            if "SQLite" in self.grammar.__dict__['__doc__']:
+                column = rename(column, "name", "column_name")
+                column = rename(column, "type", "data_type")
+            if "MySQL" in self.grammar.__dict__['__doc__']:
+                column = rename(column, "Field", "column_name")
+                column = rename(column, "Type", "data_type")
+            if "MSSQL" in self.grammar.__dict__['__doc__']:
+                column = rename(column, "COLUMN_NAME", "column_name")
+                column = rename(column, "DATA_TYPE", "data_type")
+            columns_standardized_output.append(column)
+        columns_standardized_output = Collection(columns_standardized_output)
+        return columns_standardized_output
+
     def new_from_builder(self, from_builder=None):
         """Creates a new QueryBuilder class.
 

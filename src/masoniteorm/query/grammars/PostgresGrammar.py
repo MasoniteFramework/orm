@@ -213,3 +213,8 @@ class PostgresGrammar(BaseGrammar):
 
     def compile_random(self):
         return "random()"
+
+    def get_column_listing_string(self):
+        return (
+            "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '{table}'"
+        )

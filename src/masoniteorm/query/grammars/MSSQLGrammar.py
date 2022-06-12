@@ -190,3 +190,8 @@ class MSSQLGrammar(BaseGrammar):
 
     def compile_random(self, seed):
         return "NEWID()"
+
+    def get_column_listing_string(self):
+        return (
+            "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table}';"
+        )

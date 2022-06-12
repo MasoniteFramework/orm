@@ -743,6 +743,12 @@ class BaseGrammar:
         )
         return self
 
+    def get_column_listing(self):
+        self._sql = self.get_column_listing_string().format(
+            table=self.table
+        )
+        return self
+
     def wrap_table(self, table_name):
         return self.table_string().format(table=table_name)
 

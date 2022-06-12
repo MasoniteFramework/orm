@@ -157,6 +157,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "from_",
         "from_raw",
         "get",
+        "get_column_listing",
         "group_by_raw",
         "group_by",
         "has",

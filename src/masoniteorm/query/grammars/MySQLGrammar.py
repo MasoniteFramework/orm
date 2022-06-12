@@ -237,3 +237,8 @@ class MySQLGrammar(BaseGrammar):
 
     def compile_random(self):
         return f"RAND()"
+
+    def get_column_listing_string(self):
+        return (
+            "SHOW COLUMNS FROM {table};"
+        )
