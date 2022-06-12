@@ -411,13 +411,13 @@ class QueryBuilder(ObservesEvents):
 
         return self
 
-    def distinct(self):
+    def distinct(self, boolean=True):
         """Specifies that all columns should be distinct
 
         Returns:
             self
         """
-        self._distinct = True
+        self._distinct = boolean
         return self
 
     def add_select(self, alias, callable):
