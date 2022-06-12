@@ -100,6 +100,7 @@ class QueryBuilder(ObservesEvents):
 
         self._limit = False
         self._offset = False
+        self._distinct = False
         self._model = model
         self.set_action("select")
 
@@ -409,6 +410,15 @@ class QueryBuilder(ObservesEvents):
                 for column in arg.split(","):
                     self._columns += (SelectExpression(column),)
 
+        return self
+
+    def distinct(self):
+        """Specifies that all columns should be distinct
+
+        Returns:
+            self
+        """
+        self._distinct = True
         return self
 
     def add_select(self, alias, callable):
@@ -1751,6 +1761,7 @@ class QueryBuilder(ObservesEvents):
             aggregates=self._aggregates,
             order_by=self._order_by,
             group_by=self._group_by,
+            distinct=self._distinct,
             lock=self.lock,
             joins=self._joins,
             having=self._having,

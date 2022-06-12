@@ -471,3 +471,6 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
 
     def or_where_null(self):
         return """SELECT * FROM "users" WHERE "users"."column1" IS NULL OR "users"."column2" IS NULL"""
+
+    def select_distinct(self):
+        return """SELECT DISTINCT "users"."group" FROM "users\""""

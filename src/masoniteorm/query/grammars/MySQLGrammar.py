@@ -50,7 +50,7 @@ class MySQLGrammar(BaseGrammar):
     locks = {"share": "LOCK IN SHARE MODE", "update": "FOR UPDATE"}
 
     def select_format(self):
-        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by} {order_by} {limit} {offset} {having} {lock}"
+        return "SELECT {keyword} {columns} FROM {table} {joins} {wheres} {group_by} {order_by} {limit} {offset} {having} {lock}"
 
     def select_no_table(self):
         return "SELECT {columns} {lock}"
