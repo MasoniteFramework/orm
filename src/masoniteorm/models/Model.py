@@ -6,7 +6,7 @@ from inflection import tableize
 import inspect
 
 import pendulum
-
+from ..helpers.misc import deprecated
 from ..query import QueryBuilder
 from ..collection import Collection
 from ..observers import ObservesEvents
@@ -464,7 +464,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return Collection(data)
 
     @classmethod
+    @deprecated("Casts are now always checked, the 'cast' parameter can be safely removed")
     def create(cls, dictionary=None, query=False, cast=False, **kwargs):
+        return cls.create(dictionary, query, **kwargs)
+
+    @classmethod
+    def create(cls, dictionary=None, query=False, **kwargs):
         """Creates new records based off of a dictionary as well as data set on the model
         such as fillable values.
 
@@ -483,7 +488,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             d = {}
             for x in cls.__fillable__:
                 if x in dictionary:
-                    if cast == True:
+                    if x in cls.__casts__:
                         d.update({x: cls._set_casted_value(x, dictionary[x])})
                     else:
                         d.update({x: dictionary[x]})
