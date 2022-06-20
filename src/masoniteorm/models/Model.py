@@ -277,6 +277,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     def get_builder(self):
         if hasattr(self, "builder"):
             return self.builder
+
         self.builder = QueryBuilder(
             connection=self.__connection__,
             table=self.get_table_name(),
@@ -1007,6 +1008,13 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
     @classmethod
     def on(cls, connection):
-        cls = cls()
-        cls.get_builder().on(connection)
-        return cls
+        self = cls()
+        cls.builder = QueryBuilder(
+            connection=connection,
+            table=self.get_table_name(),
+            connection_details=self.get_connection_details(),
+            model=self,
+            scopes=self._scopes,
+            dry=self.__dry__,
+        )
+        return self
