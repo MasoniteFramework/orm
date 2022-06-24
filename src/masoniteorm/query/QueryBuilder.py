@@ -1,5 +1,5 @@
 import inspect
-from copy import deepcopy
+from copy import deepcopy, copy
 
 from ..config import load_config
 from ..collection.Collection import Collection
@@ -1965,10 +1965,10 @@ class QueryBuilder(ObservesEvents):
 
         builder._columns = deepcopy(from_builder._columns)
         builder._creates = deepcopy(from_builder._creates)
-        builder._sql = from_builder._sql = ""
+        builder._sql = ""
         builder._bindings = deepcopy(from_builder._bindings)
         builder._updates = deepcopy(from_builder._updates)
-        builder._wheres = deepcopy(from_builder._wheres)
+        builder._wheres = copy(from_builder._wheres)
         builder._order_by = deepcopy(from_builder._order_by)
         builder._group_by = deepcopy(from_builder._group_by)
         builder._joins = deepcopy(from_builder._joins)
