@@ -1009,7 +1009,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     @classmethod
     def on(cls, connection):
         self = cls()
-        cls.builder = QueryBuilder(
+        self.builder = QueryBuilder(
             connection=connection,
             table=self.get_table_name(),
             connection_details=self.get_connection_details(),
