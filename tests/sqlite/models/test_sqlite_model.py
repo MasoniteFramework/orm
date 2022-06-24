@@ -222,6 +222,7 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
             blueprint.foreign("group_id").references("id").on("groups")
             blueprint.foreign("user_id").references("id").on("users_hidden")
+            blueprint.timestamps()
 
         UserHydrateHidden.create(
             name="Name", password="pass_value", token="token_value"

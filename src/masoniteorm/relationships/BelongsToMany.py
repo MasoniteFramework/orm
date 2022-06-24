@@ -532,8 +532,9 @@ class BelongsToMany(BaseRelationship):
             )
 
         return (
-            Pivot.on(current_model.get_builder().connection)
+            Pivot
             .table(self._table)
+            .on(current_model.get_builder().connection)
             .without_global_scopes()
             .create(data)
         )
