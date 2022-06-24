@@ -540,7 +540,7 @@ class QueryBuilder(ObservesEvents):
             return model
 
         return processed_results
-    
+
     def hydrate(self, result, relations=None):
         return self._model.hydrate(result, relations)
 
