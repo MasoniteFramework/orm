@@ -1005,16 +1005,3 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             related_record.save()
 
         return related.attach_related(self, related_record)
-
-    @classmethod
-    def on(cls, connection):
-        self = cls()
-        self.builder = QueryBuilder(
-            connection=connection,
-            table=self.get_table_name(),
-            connection_details=self.get_connection_details(),
-            model=self,
-            scopes=self._scopes,
-            dry=self.__dry__,
-        )
-        return self

@@ -540,6 +540,9 @@ class QueryBuilder(ObservesEvents):
             return model
 
         return processed_results
+    
+    def hydrate(self, result, relations=None):
+        return self._model.hydrate(result, relations)
 
     def delete(self, column=None, value=None, query=False):
         """Specify the column and value to delete
