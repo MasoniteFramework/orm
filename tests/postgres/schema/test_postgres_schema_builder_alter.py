@@ -236,6 +236,22 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(blueprint.to_sql(), sql)
 
+    def test_change_string(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.string("name", 93).change()
+
+        self.assertEqual(len(blueprint.table.changed_columns), 1)
+        table = Table("users")
+        table.add_column("age", "string")
+
+        blueprint.table.from_table = table
+
+        sql = [
+            'ALTER TABLE "users" ALTER COLUMN "name" TYPE VARCHAR(93), ALTER COLUMN "name" SET NOT NULL',
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
     def test_drop_add_and_change(self):
         with self.schema.table("users") as blueprint:
             blueprint.integer("age").default(0).nullable().change()

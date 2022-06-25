@@ -268,6 +268,7 @@ class PostgresPlatform(Platform):
                         name=self.wrap_column(name),
                         data_type=self.type_map.get(column.column_type),
                         nullable="NULL" if column.is_null else "NOT NULL",
+                        length="("+str(column.length)+")" if column.column_type not in self.types_without_lengths else "",
                     )
                     .strip()
                 )
@@ -382,7 +383,7 @@ class PostgresPlatform(Platform):
         return "DROP COLUMN {name}"
 
     def modify_column_string(self):
-        return "ALTER COLUMN {name} TYPE {data_type}"
+        return "ALTER COLUMN {name} TYPE {data_type}{length}"
 
     def rename_column_string(self):
         return "RENAME COLUMN {old} TO {to}"
