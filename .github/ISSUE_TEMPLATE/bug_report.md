@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Create a report to help us improve. **Please make sure the issue is actually a bug. A bug would be defined as an issue in the original requirement. If the feature works but should be enhanced please use the feature request option.**
 title: ''
 labels: 'bug'
 assignees: ''
