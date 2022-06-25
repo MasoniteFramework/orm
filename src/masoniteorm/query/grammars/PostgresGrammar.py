@@ -95,7 +95,7 @@ class PostgresGrammar(BaseGrammar):
         return "AS {alias}"
 
     def key_value_string(self):
-        return "{column} = '{value}'{separator}"
+        return "{column} = {value}{separator}"
 
     def column_value_string(self):
         return "{column} = {value}{separator}"

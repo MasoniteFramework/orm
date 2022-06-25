@@ -314,7 +314,7 @@ class BaseGrammar:
                     else:
                         sql += sql_string.format(
                             column=self._table_column_string(key),
-                            value=value if not qmark else "?",
+                            value=self.value_string().format(value=value, separator="") if not qmark else "?",
                             separator=", ",
                         )
 
@@ -323,7 +323,7 @@ class BaseGrammar:
             else:
                 sql += sql_string.format(
                     column=self._table_column_string(column),
-                    value=value if not qmark else "?",
+                    value=self.value_string().format(value=value, separator=", ") if not qmark else "?",
                     separator=", ",
                 )
                 if qmark:
