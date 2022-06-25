@@ -590,19 +590,23 @@ class BaseGrammar:
                 if qmark:
                     self.add_binding(low)
                     self.add_binding(high)
-                    low = "?"
-                    high = "?"
 
                 sql_string = self.between_string().format(
-                    low=self._compile_value(low),
-                    high=self._compile_value(high),
+                    low=self._compile_value(low) if not qmark else "?",
+                    high=self._compile_value(high) if not qmark else "?",
                     column=self._table_column_string(where.column),
                     keyword=keyword,
                 )
             elif equality == "NOT BETWEEN":
+                low = where.low
+                high = where.high
+                if qmark:
+                    self.add_binding(low)
+                    self.add_binding(high)
+
                 sql_string = self.not_between_string().format(
-                    low=self._compile_value(where.low),
-                    high=self._compile_value(where.high),
+                    low=self._compile_value(low) if not qmark else "?",
+                    high=self._compile_value(high) if not qmark else "?",
                     column=self._table_column_string(where.column),
                     keyword=keyword,
                 )
