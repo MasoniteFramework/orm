@@ -268,7 +268,7 @@ class PostgresPlatform(Platform):
                         name=self.wrap_column(name),
                         data_type=self.type_map.get(column.column_type),
                         nullable="NULL" if column.is_null else "NOT NULL",
-                        length="("+str(column.length)+")" if column.column_type not in self.types_without_lengths else "",
+                        length="(" + str(column.length) + ")" if column.column_type not in self.types_without_lengths else "",
                     )
                     .strip()
                 )
