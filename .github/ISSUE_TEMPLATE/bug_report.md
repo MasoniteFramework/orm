@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: **A bug would be defined as an issue / problem in the original requirement. If the feature works but could be enhanced please use the feature request option.**
+about: A bug would be defined as an issue / problem in the original requirement. If the feature works but could be enhanced please use the feature request option.
 title: ''
 labels: 'bug'
 assignees: ''
