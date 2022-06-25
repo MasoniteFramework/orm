@@ -1195,7 +1195,7 @@ class QueryBuilder(ObservesEvents):
         self._updates += (UpdateQueryExpression(updates),)
         return self
 
-    def increment(self, column, value=1):
+    def increment(self, column, value=1, dry=False):
         """Increments a column's value.
 
         Arguments:
@@ -1228,13 +1228,16 @@ class QueryBuilder(ObservesEvents):
         )
 
         self.set_action("update")
+        if dry:
+            return self
+
         results = self.new_connection().query(self.to_qmark(), self._bindings)
         processed_results = self.get_processor().get_column_value(
             self, column, results, id_key, id_value
         )
         return processed_results
 
-    def decrement(self, column, value=1):
+    def decrement(self, column, value=1, dry=False):
         """Decrements a column's value.
 
         Arguments:
@@ -1267,6 +1270,8 @@ class QueryBuilder(ObservesEvents):
         )
 
         self.set_action("update")
+        if dry:
+            return self
         result = self.new_connection().query(self.to_qmark(), self._bindings)
         processed_results = self.get_processor().get_column_value(
             self, column, result, id_key, id_value

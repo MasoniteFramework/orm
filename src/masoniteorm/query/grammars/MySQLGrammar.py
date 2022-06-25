@@ -140,10 +140,10 @@ class MySQLGrammar(BaseGrammar):
         return "{column} = {value}{separator}"
 
     def increment_string(self):
-        return "{column} = {column} + '{value}'"
+        return "{column} = {column} + {value}"
 
     def decrement_string(self):
-        return "{column} = {column} - '{value}'"
+        return "{column} = {column} - {value}"
 
     def create_column_string(self):
         return "{column} {data_type}{length}{nullable}{default_value}, "

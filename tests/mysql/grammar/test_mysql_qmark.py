@@ -97,6 +97,26 @@ class BaseQMarkTest:
         self.assertEqual(mark.to_qmark(), sql)
         self.assertEqual(mark._bindings, bindings)
 
+    def test_can_increment(self):
+
+        mark = self.builder.increment("age", dry=True)
+
+        sql, bindings = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(mark.to_qmark(), sql)
+        self.assertEqual(mark._bindings, bindings)
+
+    def test_can_decrement(self):
+
+        mark = self.builder.decrement("age", dry=True)
+
+        sql, bindings = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(mark.to_qmark(), sql)
+        self.assertEqual(mark._bindings, bindings)
+
 
 class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
     def can_compile_select(self):
@@ -165,4 +185,22 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         return (
             "SELECT * FROM `users` WHERE (`users`.`challenger` = ? OR `users`.`proposer` = ? OR `users`.`referee` = ?)",
             [1, 1, 1],
+        )
+
+    def can_increment(self):
+        """
+        self.builder.increment("age", dry=True)
+        """
+        return (
+            "UPDATE `users` SET `users`.`age` = `users`.`age` + ?",
+            [1],
+        )
+
+    def can_decrement(self):
+        """
+        self.builder.decrement("age", dry=True)
+        """
+        return (
+            "UPDATE `users` SET `users`.`age` = `users`.`age` - ?",
+            [1],
         )
