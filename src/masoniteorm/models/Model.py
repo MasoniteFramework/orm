@@ -281,7 +281,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         self.builder = QueryBuilder(
             connection=self.__connection__,
             table=self.get_table_name(),
-            connection_details=self.get_connection_details(),
+            # connection_details=self.get_connection_details(),
             model=self,
             scopes=self._scopes,
             dry=self.__dry__,
@@ -465,7 +465,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return Collection(data)
 
     @classmethod
-    def create(cls, dictionary=None, query=False, cast=False, **kwargs):
+    def create(cls, dictionary=None, query=False, cast=True, **kwargs):
         """Creates new records based off of a dictionary as well as data set on the model
         such as fillable values.
 
