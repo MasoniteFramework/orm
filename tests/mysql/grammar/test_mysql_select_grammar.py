@@ -125,9 +125,9 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
 
     def can_compile_where_raw_and_where_with_multiple_bindings(self):
         """
-        self.builder.where_raw("`age` = '?' AND `is_admin` = '?'", [18, True]).where("email", "test@example.com")
+        self.builder.where_raw("`age` = ? AND `is_admin` = ?", [18, True]).where("email", "test@example.com")
         """
-        return "SELECT * FROM `users` WHERE `age` = '?' AND `is_admin` = '?' AND `users`.`email` = '?'"
+        return "SELECT * FROM `users` WHERE `age` = ? AND `is_admin` = ? AND `users`.`email` = ?"
 
     def can_compile_having_raw(self):
         """

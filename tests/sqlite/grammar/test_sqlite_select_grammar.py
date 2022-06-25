@@ -293,11 +293,11 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
 
     def test_can_compile_where_raw_and_where_with_multiple_bindings(self):
         query = self.builder.where_raw(
-            """ "age" = '?' AND "is_admin" = '?' """, [18, True]
+            """ "age" = ? AND "is_admin" = ? """, [18, True]
         ).where("email", "test@example.com")
         self.assertEqual(
             query.to_qmark(),
-            """SELECT * FROM "users" WHERE "age" = '?' AND "is_admin" = '?' AND "users"."email" = '?'""",
+            """SELECT * FROM "users" WHERE "age" = ? AND "is_admin" = ? AND "users"."email" = ?""",
         )
         self.assertEqual(query._bindings, [18, True, "test@example.com"])
 

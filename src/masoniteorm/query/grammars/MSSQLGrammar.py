@@ -144,16 +144,16 @@ class MSSQLGrammar(BaseGrammar):
         return "OFFSET {offset} ROWS FETCH NEXT {limit} ROWS ONLY"
 
     def increment_string(self):
-        return "{column} = {column} + '{value}'"
+        return "{column} = {column} + {value}"
 
     def decrement_string(self):
-        return "{column} = {column} - '{value}'"
+        return "{column} = {column} - {value}"
 
     def aggregate_string_with_alias(self):
         return "{aggregate_function}({column}) AS {alias}"
 
     def key_value_string(self):
-        return "{column} = '{value}'{separator}"
+        return "{column} = {value}{separator}"
 
     def column_value_string(self):
         return "{column} = {value}{separator}"

@@ -435,7 +435,7 @@ class BaseTestCaseSelectGrammar:
 
     def test_can_compile_where_raw_and_where_with_multiple_bindings(self):
         query = self.builder.where_raw(
-            "`age` = '?' AND `is_admin` = '?'", [18, True]
+            "`age` = ? AND `is_admin` = ?", [18, True]
         ).where("email", "test@example.com")
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")

@@ -146,7 +146,7 @@ class PostgresConnection(BaseConnection):
                         self.statement(q, ())
                     return
 
-                query = query.replace("'?'", "%s")
+                query = query.replace("?", "%s")
                 self.statement(query, bindings)
                 if results == 1:
                     return dict(cursor.fetchone() or {})

@@ -156,11 +156,11 @@ class MySQLConnection(BaseConnection):
             with self._cursor as cursor:
                 if isinstance(query, list):
                     for q in query:
-                        q = q.replace("'?'", "%s")
+                        q = q.replace("?", "%s")
                         self.statement(q, ())
                     return
 
-                query = query.replace("'?'", "%s")
+                query = query.replace("?", "%s")
                 self.statement(query, bindings)
                 if results == 1:
                     return self.format_cursor_results(cursor.fetchone())
