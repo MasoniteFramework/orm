@@ -145,7 +145,6 @@ class SQLiteConnection(BaseConnection):
                 for query in query:
                     self.statement(query)
             else:
-                query = query.replace("'?'", "?")
                 self.statement(query, bindings)
                 if results == 1:
                     result = [dict(row) for row in self._cursor.fetchall()]

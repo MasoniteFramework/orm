@@ -104,7 +104,7 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         self.builder.select('username').where('name', 'Joe')
         """
         return (
-            "SELECT `users`.`username` FROM `users` WHERE `users`.`name` = '?'",
+            "SELECT `users`.`username` FROM `users` WHERE `users`.`name` = ?",
             ["Joe"],
         )
 
@@ -112,7 +112,7 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         """
         self.builder.where('name', 'Joe').delete()
         """
-        return "DELETE FROM `users` WHERE `users`.`name` = '?'", ["Joe"]
+        return "DELETE FROM `users` WHERE `users`.`name` = ?", ["Joe"]
 
     def can_compile_update(self):
         """
@@ -121,7 +121,7 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         }).where('name', 'Joe')
         """
         return (
-            "UPDATE `users` SET `users`.`name` = '?' WHERE `users`.`name` = '?'",
+            "UPDATE `users` SET `users`.`name` = ? WHERE `users`.`name` = ?",
             ["Bob", "Joe"],
         )
 
@@ -130,7 +130,7 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         self.builder.where_in('id', [1,2,3]).to_qmark()
         """
         return (
-            "SELECT * FROM `users` WHERE `users`.`id` IN ('?', '?', '?')",
+            "SELECT * FROM `users` WHERE `users`.`id` IN (?, ?, ?)",
             [1, 2, 3],
         )
 
@@ -144,7 +144,7 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         """
         self.builder.where_not_null("id").to_qmark()
         """
-        return ("SELECT * FROM `users` WHERE `users`.`name` = '?'", [0])
+        return ("SELECT * FROM `users` WHERE `users`.`name` = ?", [0])
 
     def can_compile_where_with_true_value(self):
         """
@@ -163,6 +163,6 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         self.builder.where("is_admin", True).to_qmark()
         """
         return (
-            "SELECT * FROM `users` WHERE (`users`.`challenger` = '?' OR `users`.`proposer` = '?' OR `users`.`referee` = '?')",
+            "SELECT * FROM `users` WHERE (`users`.`challenger` = ? OR `users`.`proposer` = ? OR `users`.`referee` = ?)",
             [1, 1, 1],
         )

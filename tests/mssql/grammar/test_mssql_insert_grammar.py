@@ -28,5 +28,5 @@ class TestMySQLInsertGrammar(unittest.TestCase):
             [{"name": "Joe"}, {"name": "Bill"}, {"name": "John"}], query=True
         ).to_qmark()
 
-        sql = "INSERT INTO [users] ([name]) VALUES ('?'), ('?'), ('?')"
+        sql = "INSERT INTO [users] ([name]) VALUES (?), (?), (?)"
         self.assertEqual(to_sql, sql)
