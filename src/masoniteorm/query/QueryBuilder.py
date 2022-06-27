@@ -356,7 +356,9 @@ class QueryBuilder(ObservesEvents):
             self
         """
         if attribute == "__setstate__":
-            raise AttributeError(attribute)
+            raise AttributeError(
+                "'QueryBuilder' object has no attribute '{}'".format(attribute)
+            )
 
         if attribute in self._scopes:
 
