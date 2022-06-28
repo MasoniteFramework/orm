@@ -1,5 +1,5 @@
 import inspect
-from copy import deepcopy, copy
+from copy import deepcopy
 
 from ..config import load_config
 from ..collection.Collection import Collection
@@ -355,6 +355,11 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
+        if attribute == "__setstate__":
+            raise AttributeError(
+                "'QueryBuilder' object has no attribute '{}'".format(attribute)
+            )
+
         if attribute in self._scopes:
 
             def method(*args, **kwargs):
@@ -1963,19 +1968,19 @@ class QueryBuilder(ObservesEvents):
         if self._table:
             builder.table(self._table.name)
 
-        builder._columns = copy(from_builder._columns)
-        builder._creates = copy(from_builder._creates)
+        builder._columns = deepcopy(from_builder._columns)
+        builder._creates = deepcopy(from_builder._creates)
         builder._sql = ""
-        builder._bindings = copy(from_builder._bindings)
-        builder._updates = copy(from_builder._updates)
-        builder._wheres = copy(from_builder._wheres)
-        builder._order_by = copy(from_builder._order_by)
-        builder._group_by = copy(from_builder._group_by)
-        builder._joins = copy(from_builder._joins)
-        builder._having = copy(from_builder._having)
-        builder._macros = copy(from_builder._macros)
-        builder._aggregates = copy(from_builder._aggregates)
-        builder._global_scopes = copy(from_builder._global_scopes)
+        builder._bindings = deepcopy(from_builder._bindings)
+        builder._updates = deepcopy(from_builder._updates)
+        builder._wheres = deepcopy(from_builder._wheres)
+        builder._order_by = deepcopy(from_builder._order_by)
+        builder._group_by = deepcopy(from_builder._group_by)
+        builder._joins = deepcopy(from_builder._joins)
+        builder._having = deepcopy(from_builder._having)
+        builder._macros = deepcopy(from_builder._macros)
+        builder._aggregates = deepcopy(from_builder._aggregates)
+        builder._global_scopes = deepcopy(from_builder._global_scopes)
 
         return builder
 
