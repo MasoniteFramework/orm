@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, date as datetimedate, time as datetimetime
 import logging
+from decimal import Decimal
 
 from inflection import tableize
 import inspect
@@ -94,6 +95,25 @@ class DateCast:
 
     def set(self, value):
         return pendulum.parse(value).to_date_string()
+
+
+class DecimalCast:
+    """Casts a value to Decimal for accuracy"""
+
+    def get(self, value):
+        """
+        Get the value
+        """
+        if isinstance(value, Decimal):
+            return value
+
+        return Decimal(str(value))
+
+    def set(self, value):
+        """
+        Set the value
+        """
+        return Decimal(str(value))
 
 
 class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
@@ -231,6 +251,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "int": IntCast,
         "float": FloatCast,
         "date": DateCast,
+        "decimal": DecimalCast,
     }
 
     def __init__(self):
