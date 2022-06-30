@@ -89,6 +89,54 @@ class MySQLRelationships(unittest.TestCase):
             """SELECT * FROM `permissions` WHERE EXISTS (SELECT * FROM `roles` INNER JOIN `permission_role` ON `roles`.`id` = `permission_role`.`role_id` WHERE `permission_role`.`permission_id` = `permissions`.`id` AND `roles`.`id` IN (SELECT `roles`.`id` FROM `roles` WHERE `roles`.`slug` = 'users'))""",
         )
 
+    def test_relationship_has(self):
+        sql = User.has("profile").to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `users` WHERE EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id`)""",
+        )
+
+    def test_relationship_or_has(self):
+        sql = User.where("name", "Joe").or_has("profile").to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `users` WHERE `users`.`name` = 'Joe' OR EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id`)""",
+        )
+
+    def test_relationship_or_where_has(self):
+        sql = User.where("name", "Joe").or_where_has("profile", lambda q: q.where("profile_id", 1)).to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `users` WHERE `users`.`name` = 'Joe' OR EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id` AND `profiles`.`profile_id` = '1')""",
+        )
+
+    def test_relationship_doesnt_have(self):
+        sql = User.doesnt_have("profile").to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `users` WHERE NOT EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id`)""",
+        )
+
+    def test_relationship_where_doesnt_have(self):
+        sql = User.where_doesnt_have("profile", lambda q: q.where("profile_id", 1)).to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `users` WHERE NOT EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id` AND `profiles`.`profile_id` = '1')""",
+        )
+
+    def test_relationship_or_where_doesnt_have(self):
+        sql = User.or_where_doesnt_have("profile", lambda q: q.where("profile_id", 1)).to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `users` WHERE NOT EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id` AND `profiles`.`profile_id` = '1')""",
+        )
+
     def test_belongs_to_many_has(self):
         sql = Role.has("permissions").to_sql()
 
@@ -103,6 +151,14 @@ class MySQLRelationships(unittest.TestCase):
         self.assertEqual(
             sql,
             """SELECT * FROM `roles` WHERE `roles`.`name` = 'role_name' OR EXISTS (SELECT * FROM `permissions` INNER JOIN `permission_role` ON `permissions`.`id` = `permission_role`.`permission_id` WHERE `permission_role`.`role_id` = `roles`.`id`)""",
+        )
+
+    def test_belongs_to_many_or_where_has(self):
+        sql = Role.where("name", "role_name").or_where_has("permissions", lambda q: q.where("permission_id", 1)).to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `roles` WHERE `roles`.`name` = 'role_name' OR EXISTS (SELECT * FROM `permissions` INNER JOIN `permission_role` ON `permissions`.`id` = `permission_role`.`permission_id` WHERE `permission_role`.`role_id` = `roles`.`id` AND `permissions`.`id` IN (SELECT `permissions`.`id` FROM `permissions` WHERE `permissions`.`permission_id` = '1'))""",
         )
 
     def test_belongs_to_many_or_doesnt_have(self):

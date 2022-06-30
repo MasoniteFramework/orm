@@ -1077,6 +1077,10 @@ class QueryBuilder(ObservesEvents):
         getattr(self._model, relationship).get_where_exists_query(self, callback)
         return self
 
+    def or_where_has(self, relationship, callback):
+        getattr(self._model, relationship).get_or_where_exists_query(self, callback)
+        return self
+
     def where_doesnt_have(self, relationship, callback):
         getattr(self._model, relationship).get_where_not_exists_query(self, callback)
         return self

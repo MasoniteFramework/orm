@@ -92,9 +92,33 @@ class BaseRelationship:
         )
         return query
 
+    def get_or_where_exists_query(self, builder, callback):
+        query = self.get_builder()
+        builder.or_where_exists(
+            callback(
+                query.where_column(
+                    f"{query.get_table_name()}.{self.foreign_key}",
+                    f"{builder.get_table_name()}.{self.local_key}",
+                )
+            )
+        )
+        return query
+
     def get_where_not_exists_query(self, builder, callback):
         query = self.get_builder()
         builder.where_not_exists(
+            callback(
+                query.where_column(
+                    f"{query.get_table_name()}.{self.foreign_key}",
+                    f"{builder.get_table_name()}.{self.local_key}",
+                )
+            )
+        )
+        return query
+
+    def get_or_where_not_exists_query(self, builder, callback):
+        query = self.get_builder()
+        builder.or_where_not_exists(
             callback(
                 query.where_column(
                     f"{query.get_table_name()}.{self.foreign_key}",
@@ -180,6 +204,18 @@ class BaseRelationship:
         related_builder = self.get_builder()
 
         current_query_builder.where_exists(
+            related_builder.where_column(
+                f"{related_builder.get_table_name()}.{self.foreign_key}",
+                f"{current_query_builder.get_table_name()}.{self.local_key}",
+            )
+        )
+
+        return related_builder
+
+    def query_or_has(self, current_query_builder):
+        related_builder = self.get_builder()
+
+        current_query_builder.or_where_exists(
             related_builder.where_column(
                 f"{related_builder.get_table_name()}.{self.foreign_key}",
                 f"{current_query_builder.get_table_name()}.{self.local_key}",
