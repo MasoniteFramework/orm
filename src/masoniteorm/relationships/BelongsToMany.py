@@ -432,11 +432,86 @@ class BelongsToMany(BaseRelationship):
             .where_in(self.other_owner_key, callback(query.select(self.other_owner_key)))
         )
 
+    def get_where_not_exists_query(self, builder, callback):
+        query = self.get_builder()
+        pivot_table = self._table or self.get_pivot_table_name(query, builder)
+        table = self.get_builder().get_table_name()
+
+        return builder.where_not_exists(
+            query.new()
+            .table(table)
+            .join(f"{pivot_table}", f"{table}.{self.other_owner_key}", "=", f"{pivot_table}.{self.foreign_key}")
+            .where_column(
+                f"{pivot_table}.{self.local_key}",
+                f"{builder.get_table_name()}.{self.local_owner_key}",
+            )
+            .where_in(self.other_owner_key, callback(query.select(self.other_owner_key)))
+        )
+
+    def get_or_where_not_exists_query(self, builder, callback):
+        query = self.get_builder()
+        pivot_table = self._table or self.get_pivot_table_name(query, builder)
+        table = self.get_builder().get_table_name()
+
+        return builder.or_where_not_exists(
+            query.new()
+            .table(table)
+            .join(f"{pivot_table}", f"{table}.{self.other_owner_key}", "=", f"{pivot_table}.{self.foreign_key}")
+            .where_column(
+                f"{pivot_table}.{self.local_key}",
+                f"{builder.get_table_name()}.{self.local_owner_key}",
+            )
+            .where_in(self.other_owner_key, callback(query.select(self.other_owner_key)))
+        )
+        
+
     def query_has(self, builder):
         query = self.get_builder()
         pivot_table = self._table or self.get_pivot_table_name(query, builder)
         table = self.get_builder().get_table_name()
         return builder.where_exists(
+            query.new()
+            .table(table)
+            .join(f"{pivot_table}", f"{table}.{self.other_owner_key}", "=", f"{pivot_table}.{self.foreign_key}")
+            .where_column(
+                f"{pivot_table}.{self.local_key}",
+                f"{builder.get_table_name()}.{self.local_owner_key}",
+            )
+        )
+
+    def query_doesnt_have(self, builder):
+        query = self.get_builder()
+        pivot_table = self._table or self.get_pivot_table_name(query, builder)
+        table = self.get_builder().get_table_name()
+        return builder.where_not_exists(
+            query.new()
+            .table(table)
+            .join(f"{pivot_table}", f"{table}.{self.other_owner_key}", "=", f"{pivot_table}.{self.foreign_key}")
+            .where_column(
+                f"{pivot_table}.{self.local_key}",
+                f"{builder.get_table_name()}.{self.local_owner_key}",
+            )
+        )
+
+    def query_or_doesnt_have(self, builder):
+        query = self.get_builder()
+        pivot_table = self._table or self.get_pivot_table_name(query, builder)
+        table = self.get_builder().get_table_name()
+        return builder.or_where_not_exists(
+            query.new()
+            .table(table)
+            .join(f"{pivot_table}", f"{table}.{self.other_owner_key}", "=", f"{pivot_table}.{self.foreign_key}")
+            .where_column(
+                f"{pivot_table}.{self.local_key}",
+                f"{builder.get_table_name()}.{self.local_owner_key}",
+            )
+        )
+
+    def query_or_has(self, builder):
+        query = self.get_builder()
+        pivot_table = self._table or self.get_pivot_table_name(query, builder)
+        table = self.get_builder().get_table_name()
+        return builder.or_where_exists(
             query.new()
             .table(table)
             .join(f"{pivot_table}", f"{table}.{self.other_owner_key}", "=", f"{pivot_table}.{self.foreign_key}")

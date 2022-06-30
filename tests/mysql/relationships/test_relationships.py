@@ -97,6 +97,42 @@ class MySQLRelationships(unittest.TestCase):
             """SELECT * FROM `roles` WHERE EXISTS (SELECT * FROM `permissions` INNER JOIN `permission_role` ON `permissions`.`id` = `permission_role`.`permission_id` WHERE `permission_role`.`role_id` = `roles`.`id`)""",
         )
 
+    def test_belongs_to_many_or_has(self):
+        sql = Role.where("name", "role_name").or_has("permissions").to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `roles` WHERE `roles`.`name` = 'role_name' OR EXISTS (SELECT * FROM `permissions` INNER JOIN `permission_role` ON `permissions`.`id` = `permission_role`.`permission_id` WHERE `permission_role`.`role_id` = `roles`.`id`)""",
+        )
+
+    def test_belongs_to_many_or_doesnt_have(self):
+        sql = Role.where("name", "role_name").or_doesnt_have("permissions").to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `roles` WHERE `roles`.`name` = 'role_name' OR NOT EXISTS (SELECT * FROM `permissions` INNER JOIN `permission_role` ON `permissions`.`id` = `permission_role`.`permission_id` WHERE `permission_role`.`role_id` = `roles`.`id`)""",
+        )
+
+    def test_where_doesnt_have(self):
+        sql = Role.where("name", "role_name").where_doesnt_have("permissions", lambda q: q.where("name", "Creates Users")).to_sql()
+
+        print(sql)
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `roles` WHERE `roles`.`name` = 'role_name' AND NOT EXISTS (SELECT * FROM `permissions` INNER JOIN `permission_role` ON `permissions`.`id` = `permission_role`.`permission_id` WHERE `permission_role`.`role_id` = `roles`.`id` AND `permissions`.`id` IN (SELECT `permissions`.`id` FROM `permissions` WHERE `permissions`.`name` = 'Creates Users'))""",
+        )
+
+    def test_or_where_doesnt_have(self):
+        sql = Role.where("name", "role_name").or_where_doesnt_have("permissions", lambda q: q.where("name", "Creates Users")).to_sql()
+
+        print(sql)
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `roles` WHERE `roles`.`name` = 'role_name' OR NOT EXISTS (SELECT * FROM `permissions` INNER JOIN `permission_role` ON `permissions`.`id` = `permission_role`.`permission_id` WHERE `permission_role`.`role_id` = `roles`.`id` AND `permissions`.`id` IN (SELECT `permissions`.`id` FROM `permissions` WHERE `permissions`.`name` = 'Creates Users'))""",
+        )
+
     def test_belongs_to_many_where_has(self):
         sql = Role.where_has("permissions", lambda q: q.where("name", "Creates Users")).to_sql()
 
