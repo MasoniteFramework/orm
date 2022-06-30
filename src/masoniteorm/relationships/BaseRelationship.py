@@ -92,6 +92,18 @@ class BaseRelationship:
         )
         return query
 
+    def get_where_not_exists_query(self, builder, callback):
+        query = self.get_builder()
+        builder.where_not_exists(
+            callback(
+                query.where_column(
+                    f"{query.get_table_name()}.{self.foreign_key}",
+                    f"{builder.get_table_name()}.{self.local_key}",
+                )
+            )
+        )
+        return query
+
     def joins(self, builder, clause=None):
         other_table = self.get_builder().get_table_name()
         local_table = builder.get_table_name()

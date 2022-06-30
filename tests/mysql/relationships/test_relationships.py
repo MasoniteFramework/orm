@@ -86,7 +86,23 @@ class MySQLRelationships(unittest.TestCase):
 
         self.assertEqual(
             sql,
-            """SELECT * FROM `permissions` WHERE EXISTS (SELECT `permission_role`.* FROM `permission_role` WHERE `permission_role`.`permission_id` = `permissions`.`id` AND `permission_role`.`role_id` IN (SELECT `roles`.`id` FROM `roles` WHERE `roles`.`slug` = 'users'))""",
+            """SELECT * FROM `permissions` WHERE EXISTS (SELECT * FROM `roles` INNER JOIN `permission_role` ON `roles`.`id` = `permission_role`.`role_id` WHERE `permission_role`.`permission_id` = `permissions`.`id` AND `roles`.`id` IN (SELECT `roles`.`id` FROM `roles` WHERE `roles`.`slug` = 'users'))""",
+        )
+
+    def test_belongs_to_many_has(self):
+        sql = Role.has("permissions").to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `roles` WHERE EXISTS (SELECT * FROM `permissions` INNER JOIN `permission_role` ON `permissions`.`id` = `permission_role`.`permission_id` WHERE `permission_role`.`role_id` = `roles`.`id`)""",
+        )
+
+    def test_belongs_to_many_where_has(self):
+        sql = Role.where_has("permissions", lambda q: q.where("name", "Creates Users")).to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `roles` WHERE EXISTS (SELECT * FROM `permissions` INNER JOIN `permission_role` ON `permissions`.`id` = `permission_role`.`permission_id` WHERE `permission_role`.`role_id` = `roles`.`id` AND `permissions`.`id` IN (SELECT `permissions`.`id` FROM `permissions` WHERE `permissions`.`name` = 'Creates Users'))""",
         )
 
     def test_belongs_to_many_relate_method(self):

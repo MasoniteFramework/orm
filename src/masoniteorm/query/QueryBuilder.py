@@ -990,6 +990,10 @@ class QueryBuilder(ObservesEvents):
         getattr(self._model, relationship).get_where_exists_query(self, callback)
         return self
 
+    def where_doesnt_have(self, relationship, callback):
+        getattr(self._model, relationship).get_where_not_exists_query(self, callback)
+        return self
+
     def with_count(self, relationship, callback=None):
         return getattr(self._model, relationship).get_with_count_query(
             self, callback=callback

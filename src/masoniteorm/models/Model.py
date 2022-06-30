@@ -220,6 +220,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "where_raw",
         "without_global_scopes",
         "where",
+        "where_doesnt_have",
         "with_",
         "with_count",
     ]
