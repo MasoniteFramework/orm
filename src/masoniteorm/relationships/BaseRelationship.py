@@ -175,3 +175,15 @@ class BaseRelationship:
         )
 
         return related_builder
+
+    def query_doesnt_have(self, current_query_builder):
+        related_builder = self.get_builder()
+
+        current_query_builder.where_not_exists(
+            related_builder.where_column(
+                f"{related_builder.get_table_name()}.{self.foreign_key}",
+                f"{current_query_builder.get_table_name()}.{self.local_key}",
+            )
+        )
+
+        return related_builder

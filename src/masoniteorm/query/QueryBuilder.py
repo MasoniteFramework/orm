@@ -969,6 +969,23 @@ class QueryBuilder(ObservesEvents):
                 related.query_has(self)
         return self
 
+    def doesnt_have(self, *relationships):
+        if not self._model:
+            raise AttributeError(
+                "You must specify a model in order to use the 'doesnt_have' relationship methods"
+            )
+
+        for relationship in relationships:
+            if "." in relationship:
+                last_builder = self._model.builder
+                for split_relationship in relationship.split("."):
+                    related = last_builder.get_relation(split_relationship)
+                    last_builder = related.query_doesnt_have(last_builder)
+            else:
+                related = getattr(self._model, relationship)
+                related.query_doesnt_have(self)
+        return self
+
     def where_has(self, relationship, callback):
         getattr(self._model, relationship).get_where_exists_query(self, callback)
         return self

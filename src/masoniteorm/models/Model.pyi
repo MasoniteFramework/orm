@@ -94,7 +94,14 @@ class Model:
         """
         pass
     def doesnt_exist() -> bool:
-        """Determine if no rows exist for the current query.
+        """Determines if any rows exist for the current query.
+
+        Returns:
+            Bool - True or False
+        """
+        pass
+    def doesnt_have() -> bool:
+        """Determine if any related rows exist for the current query.
 
         Returns:
             Bool - True or False
