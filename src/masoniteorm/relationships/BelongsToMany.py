@@ -463,7 +463,6 @@ class BelongsToMany(BaseRelationship):
             )
             .where_in(self.other_owner_key, callback(query.select(self.other_owner_key)))
         )
-        
 
     def query_has(self, builder):
         query = self.get_builder()

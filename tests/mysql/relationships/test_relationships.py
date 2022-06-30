@@ -116,7 +116,6 @@ class MySQLRelationships(unittest.TestCase):
     def test_where_doesnt_have(self):
         sql = Role.where("name", "role_name").where_doesnt_have("permissions", lambda q: q.where("name", "Creates Users")).to_sql()
 
-        print(sql)
 
         self.assertEqual(
             sql,
@@ -126,7 +125,6 @@ class MySQLRelationships(unittest.TestCase):
     def test_or_where_doesnt_have(self):
         sql = Role.where("name", "role_name").or_where_doesnt_have("permissions", lambda q: q.where("name", "Creates Users")).to_sql()
 
-        print(sql)
 
         self.assertEqual(
             sql,
