@@ -197,3 +197,20 @@ class HasOneThrough(BaseRelationship):
         )
 
         return related_builder
+
+    def query_doesnt_have(self, current_query_builder):
+        related_builder = self.get_builder()
+
+        current_query_builder.where_not_exists(
+            self.distant_builder.where_column(
+                f"{current_query_builder.get_table_name()}.{self.local_owner_key}",
+                f"{self.intermediary_builder.get_table_name()}.{self.local_key}",
+            ).join(
+                f"{self.intermediary_builder.get_table_name()}",
+                f"{self.intermediary_builder.get_table_name()}.{self.foreign_key}",
+                "=",
+                f"{self.distant_builder.get_table_name()}.{self.other_owner_key}",
+            )
+        )
+
+        return related_builder
