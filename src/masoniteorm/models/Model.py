@@ -105,7 +105,7 @@ class DecimalCast:
         Get the value
         """
         if isinstance(value, Decimal):
-            return value
+            return str(value)
 
         return Decimal(str(value))
 
