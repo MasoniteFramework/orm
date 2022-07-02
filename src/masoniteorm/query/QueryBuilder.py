@@ -1132,7 +1132,7 @@ class QueryBuilder(ObservesEvents):
             for index, split_relationship in enumerate(splits):
                 related = last_builder.get_relation(split_relationship)
                 if index + 1 != split_count:
-                    last_builder = related.query_has(
+                    last_builder = related.query_where_exists(
                         last_builder, method="where_exists"
                     )
                     continue
@@ -1158,13 +1158,13 @@ class QueryBuilder(ObservesEvents):
             for index, split_relationship in enumerate(splits):
                 related = last_builder.get_relation(split_relationship)
                 if index + 1 != split_count:
-                    last_builder = related.query_has(
-                        last_builder, method="or_where_exists"
+                    last_builder = related.query_where_exists(
+                        last_builder,  callback, method="or_where_exists"
                     )
                     continue
 
-                last_builder = related.query_where_exists(
-                    last_builder, callback, method="where_exists"
+                last_builder = related.query_has(
+                    last_builder, method="where_exists"
                 )
         else:
             related = getattr(self._model, relationship)
