@@ -579,12 +579,14 @@ class QueryBuilder(ObservesEvents):
             self.where(model.get_primary_key(), model.get_primary_key_value())
             self.observe_events(model, "deleting")
 
-        result = self.new_connection().query(self.to_qmark(), self._bindings)
+        connection = self.new_connection()
+
+        connection.query(self.to_qmark(), self._bindings)
 
         if model:
             self.observe_events(model, "deleted")
 
-        return result
+        return connection.get_row_count()
 
     def where(self, column, *args):
         """Specifies a where expression.
@@ -1313,7 +1315,7 @@ class QueryBuilder(ObservesEvents):
 
         # do not perform update query if no changes
         if len(updates.keys()) == 0:
-            return model if model else self
+            return 0
 
         self._updates = (UpdateQueryExpression(updates),)
         self.set_action("update")
@@ -1321,13 +1323,14 @@ class QueryBuilder(ObservesEvents):
             return self
 
         additional.update(updates)
+        connection = self.new_connection()
 
-        self.new_connection().query(self.to_qmark(), self._bindings)
+        connection.query(self.to_qmark(), self._bindings)
         if model:
             model.fill(updates)
             self.observe_events(model, "updated")
             model.fill_original(updates)
-            return model
+            return connection.get_row_count()
         return additional
 
     def force_update(self, updates: dict, dry=False):
