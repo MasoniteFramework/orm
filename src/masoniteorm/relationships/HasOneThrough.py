@@ -197,4 +197,3 @@ class HasOneThrough(BaseRelationship):
         )
 
         return related_builder
-

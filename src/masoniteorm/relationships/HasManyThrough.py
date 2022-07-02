@@ -197,4 +197,3 @@ class HasManyThrough(BaseRelationship):
         )
 
         return related_builder
-

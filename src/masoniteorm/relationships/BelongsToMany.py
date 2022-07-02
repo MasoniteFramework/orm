@@ -462,7 +462,6 @@ class BelongsToMany(BaseRelationship):
             )
         )
 
-
     def get_pivot_table_name(self, query, builder):
         pivot_tables = [
             singularize(query.get_table_name()),
