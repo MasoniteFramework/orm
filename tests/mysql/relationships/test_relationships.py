@@ -1,7 +1,12 @@
 import unittest
 
 from src.masoniteorm.models import Model
-from src.masoniteorm.relationships import has_one, belongs_to_many, has_one_through, has_many
+from src.masoniteorm.relationships import (
+    has_one,
+    belongs_to_many,
+    has_one_through,
+    has_many,
+)
 from dotenv import load_dotenv
 
 load_dotenv(".env")
@@ -11,6 +16,7 @@ class User(Model):
     @has_one
     def profile(self):
         return Profile
+
 
 class Profile(Model):
     pass
@@ -71,7 +77,11 @@ class MySQLRelationships(unittest.TestCase):
         )
 
     def test_relationship_where_has(self):
-        sql = User.where("name", "Joe").where_has("profile", lambda q: q.where("profile_id", 1)).to_sql()
+        sql = (
+            User.where("name", "Joe")
+            .where_has("profile", lambda q: q.where("profile_id", 1))
+            .to_sql()
+        )
 
         self.assertEqual(
             sql,
@@ -79,7 +89,11 @@ class MySQLRelationships(unittest.TestCase):
         )
 
     def test_relationship_or_where_has(self):
-        sql = User.where("name", "Joe").or_where_has("profile", lambda q: q.where("profile_id", 1)).to_sql()
+        sql = (
+            User.where("name", "Joe")
+            .or_where_has("profile", lambda q: q.where("profile_id", 1))
+            .to_sql()
+        )
 
         self.assertEqual(
             sql,
@@ -95,7 +109,9 @@ class MySQLRelationships(unittest.TestCase):
         )
 
     def test_relationship_where_doesnt_have(self):
-        sql = User.where_doesnt_have("profile", lambda q: q.where("profile_id", 1)).to_sql()
+        sql = User.where_doesnt_have(
+            "profile", lambda q: q.where("profile_id", 1)
+        ).to_sql()
 
         self.assertEqual(
             sql,
@@ -103,7 +119,9 @@ class MySQLRelationships(unittest.TestCase):
         )
 
     def test_relationship_or_where_doesnt_have(self):
-        sql = User.or_where_doesnt_have("profile", lambda q: q.where("profile_id", 1)).to_sql()
+        sql = User.or_where_doesnt_have(
+            "profile", lambda q: q.where("profile_id", 1)
+        ).to_sql()
 
         self.assertEqual(
             sql,

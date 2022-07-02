@@ -456,4 +456,3 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
 
     def select_distinct(self):
         return """SELECT DISTINCT "users"."group" FROM "users\""""
-

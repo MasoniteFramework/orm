@@ -89,7 +89,7 @@ class Model:
             self
         """
         pass
-    def distinct(boolean: bool=True):
+    def distinct(boolean: bool = True):
         """Species that the select query should be a SELECT DISTINCT query.
         """
         pass
@@ -168,7 +168,7 @@ class Model:
         """
         pass
     def force_update(updates: dict, dry: bool = False):
-        return self.update(updates, dry=dry, force=True)
+        pass
     def from_(table: str):
         """Alias for the table method
 

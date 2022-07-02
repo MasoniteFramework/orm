@@ -183,7 +183,9 @@ class HasManyThrough(BaseRelationship):
 
         return related_builder
 
-    def query_where_exists(self, current_query_builder, callback, method="where_exists"):
+    def query_where_exists(
+        self, current_query_builder, callback, method="where_exists"
+    ):
         query = self.distant_builder
 
         getattr(current_query_builder, method)(

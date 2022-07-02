@@ -679,7 +679,7 @@ class QueryBuilder(ObservesEvents):
         )
         return self
 
-    def or_where(self, column, *args) -> "self":
+    def or_where(self, column, *args):
         """Specifies an or where query expression.
 
         Arguments:
@@ -748,16 +748,25 @@ class QueryBuilder(ObservesEvents):
             self._wheres += (
                 (
                     QueryExpression(
-                        None, "EXISTS", SubSelectExpression(value(self.new())), keyword="or"
+                        None,
+                        "EXISTS",
+                        SubSelectExpression(value(self.new())),
+                        keyword="or",
                     )
                 ),
             )
         elif isinstance(value, QueryBuilder):
             self._wheres += (
-                (QueryExpression(None, "EXISTS", SubSelectExpression(value), keyword="or")),
+                (
+                    QueryExpression(
+                        None, "EXISTS", SubSelectExpression(value), keyword="or"
+                    )
+                ),
             )
         else:
-            self._wheres += ((QueryExpression(None, "EXISTS", value, "value", keyword="or")),)
+            self._wheres += (
+                (QueryExpression(None, "EXISTS", value, "value", keyword="or")),
+            )
 
         return self
 
@@ -802,16 +811,25 @@ class QueryBuilder(ObservesEvents):
             self._wheres += (
                 (
                     QueryExpression(
-                        None, "NOT EXISTS", SubSelectExpression(value(self.new())), keyword="or"
+                        None,
+                        "NOT EXISTS",
+                        SubSelectExpression(value(self.new())),
+                        keyword="or",
                     )
                 ),
             )
         elif isinstance(value, QueryBuilder):
             self._wheres += (
-                (QueryExpression(None, "NOT EXISTS", SubSelectExpression(value), keyword="or")),
+                (
+                    QueryExpression(
+                        None, "NOT EXISTS", SubSelectExpression(value), keyword="or"
+                    )
+                ),
             )
         else:
-            self._wheres += ((QueryExpression(None, "NOT EXISTS", value, "value", keyword="or")),)
+            self._wheres += (
+                (QueryExpression(None, "NOT EXISTS", value, "value", keyword="or")),
+            )
 
         return self
 
@@ -893,7 +911,7 @@ class QueryBuilder(ObservesEvents):
         elif hasattr(date, "strftime"):
             return date.strftime("%m-%d-%Y")
 
-    def where_date(self, column: str, date: "str|datetime|pendulum"):
+    def where_date(self, column: str, date: "str|datetime"):
         """Specifies a where DATE expression
 
         Arguments:
@@ -907,7 +925,7 @@ class QueryBuilder(ObservesEvents):
         )
         return self
 
-    def or_where_date(self, column: str, date: "str|datetime|pendulum"):
+    def or_where_date(self, column: str, date: "str|datetime"):
         """Specifies a where DATE expression
 
         Arguments:
@@ -926,7 +944,7 @@ class QueryBuilder(ObservesEvents):
         )
         return self
 
-    def between(self, column: str, low: [str, int], high: [str, int]):
+    def between(self, column: str, low: int, high: int):
         """Specifies a where between expression.
 
         Arguments:
@@ -1033,7 +1051,9 @@ class QueryBuilder(ObservesEvents):
                 last_builder = self._model.builder
                 for split_relationship in relationship.split("."):
                     related = last_builder.get_relation(split_relationship)
-                    last_builder = related.query_has(last_builder, method="or_where_exists")
+                    last_builder = related.query_has(
+                        last_builder, method="or_where_exists"
+                    )
             else:
                 related = getattr(self._model, relationship)
                 related.query_has(self, method="or_where_exists")
@@ -1050,7 +1070,9 @@ class QueryBuilder(ObservesEvents):
                 last_builder = self._model.builder
                 for split_relationship in relationship.split("."):
                     related = last_builder.get_relation(split_relationship)
-                    last_builder = related.query_has(last_builder, method="where_not_exists")
+                    last_builder = related.query_has(
+                        last_builder, method="where_not_exists"
+                    )
             else:
                 related = getattr(self._model, relationship)
                 related.query_has(self, method="where_not_exists")
@@ -1067,26 +1089,36 @@ class QueryBuilder(ObservesEvents):
                 last_builder = self._model.builder
                 for split_relationship in relationship.split("."):
                     related = last_builder.get_relation(split_relationship)
-                    last_builder = related.query_has(last_builder, method="or_where_not_exists")
+                    last_builder = related.query_has(
+                        last_builder, method="or_where_not_exists"
+                    )
             else:
                 related = getattr(self._model, relationship)
                 related.query_has(self, method="or_where_not_exists")
         return self
 
     def where_has(self, relationship, callback):
-        getattr(self._model, relationship).query_where_exists(self, callback, method="where_exists")
+        getattr(self._model, relationship).query_where_exists(
+            self, callback, method="where_exists"
+        )
         return self
 
     def or_where_has(self, relationship, callback):
-        getattr(self._model, relationship).query_where_exists(self, callback, method="or_where_exists")
+        getattr(self._model, relationship).query_where_exists(
+            self, callback, method="or_where_exists"
+        )
         return self
 
     def where_doesnt_have(self, relationship, callback):
-        getattr(self._model, relationship).query_where_exists(self, callback, method="where_not_exists")
+        getattr(self._model, relationship).query_where_exists(
+            self, callback, method="where_not_exists"
+        )
         return self
 
     def or_where_doesnt_have(self, relationship, callback):
-        getattr(self._model, relationship).query_where_exists(self, callback, method="or_where_not_exists")
+        getattr(self._model, relationship).query_where_exists(
+            self, callback, method="or_where_not_exists"
+        )
         return self
 
     def with_count(self, relationship, callback=None):

@@ -424,12 +424,19 @@ class BelongsToMany(BaseRelationship):
         getattr(builder, method)(
             query.new()
             .table(table)
-            .join(f"{pivot_table}", f"{table}.{self.other_owner_key}", "=", f"{pivot_table}.{self.foreign_key}")
+            .join(
+                f"{pivot_table}",
+                f"{table}.{self.other_owner_key}",
+                "=",
+                f"{pivot_table}.{self.foreign_key}",
+            )
             .where_column(
                 f"{pivot_table}.{self.local_key}",
                 f"{builder.get_table_name()}.{self.local_owner_key}",
             )
-            .where_in(self.other_owner_key, callback(query.select(self.other_owner_key)))
+            .where_in(
+                self.other_owner_key, callback(query.select(self.other_owner_key))
+            )
         )
 
     def query_has(self, builder, method="where_exists"):
@@ -439,7 +446,12 @@ class BelongsToMany(BaseRelationship):
         return getattr(builder, method)(
             query.new()
             .table(table)
-            .join(f"{pivot_table}", f"{table}.{self.other_owner_key}", "=", f"{pivot_table}.{self.foreign_key}")
+            .join(
+                f"{pivot_table}",
+                f"{table}.{self.other_owner_key}",
+                "=",
+                f"{pivot_table}.{self.foreign_key}",
+            )
             .where_column(
                 f"{pivot_table}.{self.local_key}",
                 f"{builder.get_table_name()}.{self.local_owner_key}",
@@ -548,8 +560,7 @@ class BelongsToMany(BaseRelationship):
             )
 
         return (
-            Pivot
-            .table(self._table)
+            Pivot.table(self._table)
             .on(current_model.get_builder().connection)
             .without_global_scopes()
             .create(data)

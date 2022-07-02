@@ -119,7 +119,9 @@ class HasOneThrough(BaseRelationship):
             ).first()
             return result
 
-    def query_where_exists(self, current_query_builder, callback, method="where_exists"):
+    def query_where_exists(
+        self, current_query_builder, callback, method="where_exists"
+    ):
         query = self.distant_builder
 
         getattr(current_query_builder, method)(

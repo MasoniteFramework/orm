@@ -170,7 +170,7 @@ class BaseRelationship:
         getattr(current_query_builder, method)(
             related_builder.where_column(
                 f"{related_builder.get_table_name()}.{self.foreign_key}",
-                f"{current_query_builder.get_table_name()}.{self.local_key}"
+                f"{current_query_builder.get_table_name()}.{self.local_key}",
             )
         )
 

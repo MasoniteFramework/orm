@@ -14,6 +14,7 @@ from tests.integrations.config.database import DB
 class TestM:
     pass
 
+
 class UserObserver:
     def created(self, user):
         TestM.observed_created = 1
