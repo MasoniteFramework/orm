@@ -119,21 +119,6 @@ class HasManyThrough(BaseRelationship):
             ).get()
             return result
 
-    def query_where_exists(self, current_query_builder, callback):
-        query = self.distant_builder
-
-        current_query_builder.where_exists(
-            query.join(
-                f"{self.intermediary_builder.get_table_name()}",
-                f"{self.intermediary_builder.get_table_name()}.{self.foreign_key}",
-                "=",
-                f"{query.get_table_name()}.{self.other_owner_key}",
-            ).where_column(
-                f"{current_query_builder.get_table_name()}.{self.local_owner_key}",
-                f"{self.intermediary_builder.get_table_name()}.{self.local_key}",
-            )
-        ).when(callback, lambda q: (callback(q)))
-
     def get_with_count_query(self, builder, callback):
         query = self.distant_builder
 
@@ -197,3 +182,18 @@ class HasManyThrough(BaseRelationship):
         )
 
         return related_builder
+
+    def query_where_exists(self, current_query_builder, callback, method="where_exists"):
+        query = self.distant_builder
+
+        getattr(current_query_builder, method)(
+            query.join(
+                f"{self.intermediary_builder.get_table_name()}",
+                f"{self.intermediary_builder.get_table_name()}.{self.foreign_key}",
+                "=",
+                f"{query.get_table_name()}.{self.other_owner_key}",
+            ).where_column(
+                f"{current_query_builder.get_table_name()}.{self.local_owner_key}",
+                f"{self.intermediary_builder.get_table_name()}.{self.local_key}",
+            )
+        ).when(callback, lambda q: (callback(q)))
