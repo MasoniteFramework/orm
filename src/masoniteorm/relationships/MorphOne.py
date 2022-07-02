@@ -151,3 +151,13 @@ class MorphOne(BaseRelationship):
         raise NotImplementedError(
             "MorphOne relationship does not implement the relate method"
         )
+
+    def query_has(self, related_record, method="where_exists"):
+        raise NotImplementedError(
+            "MorphOne relationship does not implement the has method"
+        )
+
+    def query_where_exists(self, related_record, method="where_exists"):
+        raise NotImplementedError(
+            "MorphOne relationship does not implement the where_exists method"
+        )

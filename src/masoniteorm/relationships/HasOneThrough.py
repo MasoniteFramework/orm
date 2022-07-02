@@ -119,10 +119,12 @@ class HasOneThrough(BaseRelationship):
             ).first()
             return result
 
-    def get_where_exists_query(self, current_query_builder, callback):
+    def query_where_exists(
+        self, current_query_builder, callback, method="where_exists"
+    ):
         query = self.distant_builder
 
-        current_query_builder.where_exists(
+        getattr(current_query_builder, method)(
             query.join(
                 f"{self.intermediary_builder.get_table_name()}",
                 f"{self.intermediary_builder.get_table_name()}.{self.foreign_key}",
@@ -181,10 +183,10 @@ class HasOneThrough(BaseRelationship):
             "HasOneThrough relationship does not implement the attach_related method"
         )
 
-    def query_has(self, current_query_builder):
+    def query_has(self, current_query_builder, method="where_exists"):
         related_builder = self.get_builder()
 
-        current_query_builder.where_exists(
+        getattr(current_query_builder, method)(
             self.distant_builder.where_column(
                 f"{current_query_builder.get_table_name()}.{self.local_owner_key}",
                 f"{self.intermediary_builder.get_table_name()}.{self.local_key}",

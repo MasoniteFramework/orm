@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, date as datetimedate, time as datetimetime
 import logging
+from decimal import Decimal
 
 from inflection import tableize
 import inspect
@@ -96,6 +97,25 @@ class DateCast:
         return pendulum.parse(value).to_date_string()
 
 
+class DecimalCast:
+    """Casts a value to Decimal for accuracy"""
+
+    def get(self, value):
+        """
+        Get the value
+        """
+        if isinstance(value, Decimal):
+            return str(value)
+
+        return Decimal(str(value))
+
+    def set(self, value):
+        """
+        Set the value
+        """
+        return Decimal(str(value))
+
+
 class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     """The ORM Model class
 
@@ -147,6 +167,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "delete",
         "distinct",
         "doesnt_exist",
+        "doesnt_have",
         "exists",
         "find_or_404",
         "find_or_fail",
@@ -205,6 +226,11 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "where_between",
         "where_column",
         "where_date",
+        "or_where_doesnt_have",
+        "or_has",
+        "or_where_has",
+        "or_doesnt_have",
+        "or_where_not_exists",
         "or_where_date",
         "where_exists",
         "where_from_builder",
@@ -219,6 +245,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "where_raw",
         "without_global_scopes",
         "where",
+        "where_doesnt_have",
         "with_",
         "with_count",
     ]
@@ -231,6 +258,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "int": IntCast,
         "float": FloatCast,
         "date": DateCast,
+        "decimal": DecimalCast,
     }
 
     def __init__(self):

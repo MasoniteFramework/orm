@@ -80,9 +80,9 @@ class BaseRelationship:
         """
         return foreign.where(foreign_key, owner().__attributes__[local_key]).first()
 
-    def get_where_exists_query(self, builder, callback):
+    def query_where_exists(self, builder, callback, method="where_exists"):
         query = self.get_builder()
-        builder.where_exists(
+        getattr(builder, method)(
             callback(
                 query.where_column(
                     f"{query.get_table_name()}.{self.foreign_key}",
@@ -164,10 +164,10 @@ class BaseRelationship:
             {self.foreign_key: getattr(current_model, self.local_key)}
         ).delete()
 
-    def query_has(self, current_query_builder):
+    def query_has(self, current_query_builder, method="where_exists"):
         related_builder = self.get_builder()
 
-        current_query_builder.where_exists(
+        getattr(current_query_builder, method)(
             related_builder.where_column(
                 f"{related_builder.get_table_name()}.{self.foreign_key}",
                 f"{current_query_builder.get_table_name()}.{self.local_key}",

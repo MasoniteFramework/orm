@@ -6,7 +6,13 @@ import datetime
 
 class ModelTest(Model):
     __dates__ = ["due_date"]
-    __casts__ = {"is_vip": "bool", "payload": "json", "x": "int", "f": "float"}
+    __casts__ = {
+        "is_vip": "bool",
+        "payload": "json",
+        "x": "int",
+        "f": "float",
+        "d": "decimal",
+    }
 
 
 class ModelTestForced(Model):
@@ -81,7 +87,13 @@ class TestModels(unittest.TestCase):
 
     def test_model_can_cast_attributes(self):
         model = ModelTest.hydrate(
-            {"is_vip": 1, "payload": '{"key": "value"}', "x": True, "f": "10.5"}
+            {
+                "is_vip": 1,
+                "payload": '{"key": "value"}',
+                "x": True,
+                "f": "10.5",
+                "d": 3.14,
+            }
         )
 
         self.assertEqual(type(model.payload), dict)

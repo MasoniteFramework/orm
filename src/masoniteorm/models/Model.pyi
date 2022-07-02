@@ -89,12 +89,19 @@ class Model:
             self
         """
         pass
-    def distinct(boolean: bool=True):
+    def distinct(boolean: bool = True):
         """Species that the select query should be a SELECT DISTINCT query.
         """
         pass
     def doesnt_exist() -> bool:
-        """Determine if no rows exist for the current query.
+        """Determines if any rows exist for the current query.
+
+        Returns:
+            Bool - True or False
+        """
+        pass
+    def doesnt_have() -> bool:
+        """Determine if any related rows exist for the current query.
 
         Returns:
             Bool - True or False
@@ -161,7 +168,7 @@ class Model:
         """
         pass
     def force_update(updates: dict, dry: bool = False):
-        return self.update(updates, dry=dry, force=True)
+        pass
     def from_(table: str):
         """Alias for the table method
 

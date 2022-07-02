@@ -1,5 +1,5 @@
 import inspect
-from copy import deepcopy, copy
+from copy import deepcopy
 
 from ..config import load_config
 from ..collection.Collection import Collection
@@ -355,6 +355,11 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
+        if attribute == "__setstate__":
+            raise AttributeError(
+                "'QueryBuilder' object has no attribute '{}'".format(attribute)
+            )
+
         if attribute in self._scopes:
 
             def method(*args, **kwargs):
@@ -674,7 +679,7 @@ class QueryBuilder(ObservesEvents):
         )
         return self
 
-    def or_where(self, column, *args) -> "self":
+    def or_where(self, column, *args):
         """Specifies an or where query expression.
 
         Arguments:
@@ -730,6 +735,41 @@ class QueryBuilder(ObservesEvents):
 
         return self
 
+    def or_where_exists(self, value: "str|int|QueryBuilder"):
+        """Specifies a where exists expression.
+
+        Arguments:
+            value {string|int|QueryBuilder} -- A value to check for the existence of a query expression.
+
+        Returns:
+            self
+        """
+        if inspect.isfunction(value):
+            self._wheres += (
+                (
+                    QueryExpression(
+                        None,
+                        "EXISTS",
+                        SubSelectExpression(value(self.new())),
+                        keyword="or",
+                    )
+                ),
+            )
+        elif isinstance(value, QueryBuilder):
+            self._wheres += (
+                (
+                    QueryExpression(
+                        None, "EXISTS", SubSelectExpression(value), keyword="or"
+                    )
+                ),
+            )
+        else:
+            self._wheres += (
+                (QueryExpression(None, "EXISTS", value, "value", keyword="or")),
+            )
+
+        return self
+
     def where_not_exists(self, value: "str|int|QueryBuilder"):
         """Specifies a where exists expression.
 
@@ -754,6 +794,42 @@ class QueryBuilder(ObservesEvents):
             )
         else:
             self._wheres += ((QueryExpression(None, "NOT EXISTS", value, "value")),)
+
+        return self
+
+    def or_where_not_exists(self, value: "str|int|QueryBuilder"):
+        """Specifies a where exists expression.
+
+        Arguments:
+            value {string|int|QueryBuilder} -- A value to check for the existence of a query expression.
+
+        Returns:
+            self
+        """
+
+        if inspect.isfunction(value):
+            self._wheres += (
+                (
+                    QueryExpression(
+                        None,
+                        "NOT EXISTS",
+                        SubSelectExpression(value(self.new())),
+                        keyword="or",
+                    )
+                ),
+            )
+        elif isinstance(value, QueryBuilder):
+            self._wheres += (
+                (
+                    QueryExpression(
+                        None, "NOT EXISTS", SubSelectExpression(value), keyword="or"
+                    )
+                ),
+            )
+        else:
+            self._wheres += (
+                (QueryExpression(None, "NOT EXISTS", value, "value", keyword="or")),
+            )
 
         return self
 
@@ -835,7 +911,7 @@ class QueryBuilder(ObservesEvents):
         elif hasattr(date, "strftime"):
             return date.strftime("%m-%d-%Y")
 
-    def where_date(self, column: str, date: "str|datetime|pendulum"):
+    def where_date(self, column: str, date: "str|datetime"):
         """Specifies a where DATE expression
 
         Arguments:
@@ -849,7 +925,7 @@ class QueryBuilder(ObservesEvents):
         )
         return self
 
-    def or_where_date(self, column: str, date: "str|datetime|pendulum"):
+    def or_where_date(self, column: str, date: "str|datetime"):
         """Specifies a where DATE expression
 
         Arguments:
@@ -868,7 +944,7 @@ class QueryBuilder(ObservesEvents):
         )
         return self
 
-    def between(self, column: str, low: [str, int], high: [str, int]):
+    def between(self, column: str, low: int, high: int):
         """Specifies a where between expression.
 
         Arguments:
@@ -964,8 +1040,85 @@ class QueryBuilder(ObservesEvents):
                 related.query_has(self)
         return self
 
+    def or_has(self, *relationships):
+        if not self._model:
+            raise AttributeError(
+                "You must specify a model in order to use 'has' relationship methods"
+            )
+
+        for relationship in relationships:
+            if "." in relationship:
+                last_builder = self._model.builder
+                for split_relationship in relationship.split("."):
+                    related = last_builder.get_relation(split_relationship)
+                    last_builder = related.query_has(
+                        last_builder, method="or_where_exists"
+                    )
+            else:
+                related = getattr(self._model, relationship)
+                related.query_has(self, method="or_where_exists")
+        return self
+
+    def doesnt_have(self, *relationships):
+        if not self._model:
+            raise AttributeError(
+                "You must specify a model in order to use the 'doesnt_have' relationship methods"
+            )
+
+        for relationship in relationships:
+            if "." in relationship:
+                last_builder = self._model.builder
+                for split_relationship in relationship.split("."):
+                    related = last_builder.get_relation(split_relationship)
+                    last_builder = related.query_has(
+                        last_builder, method="where_not_exists"
+                    )
+            else:
+                related = getattr(self._model, relationship)
+                related.query_has(self, method="where_not_exists")
+        return self
+
+    def or_doesnt_have(self, *relationships):
+        if not self._model:
+            raise AttributeError(
+                "You must specify a model in order to use the 'doesnt_have' relationship methods"
+            )
+
+        for relationship in relationships:
+            if "." in relationship:
+                last_builder = self._model.builder
+                for split_relationship in relationship.split("."):
+                    related = last_builder.get_relation(split_relationship)
+                    last_builder = related.query_has(
+                        last_builder, method="or_where_not_exists"
+                    )
+            else:
+                related = getattr(self._model, relationship)
+                related.query_has(self, method="or_where_not_exists")
+        return self
+
     def where_has(self, relationship, callback):
-        getattr(self._model, relationship).get_where_exists_query(self, callback)
+        getattr(self._model, relationship).query_where_exists(
+            self, callback, method="where_exists"
+        )
+        return self
+
+    def or_where_has(self, relationship, callback):
+        getattr(self._model, relationship).query_where_exists(
+            self, callback, method="or_where_exists"
+        )
+        return self
+
+    def where_doesnt_have(self, relationship, callback):
+        getattr(self._model, relationship).query_where_exists(
+            self, callback, method="where_not_exists"
+        )
+        return self
+
+    def or_where_doesnt_have(self, relationship, callback):
+        getattr(self._model, relationship).query_where_exists(
+            self, callback, method="or_where_not_exists"
+        )
         return self
 
     def with_count(self, relationship, callback=None):
@@ -1968,19 +2121,19 @@ class QueryBuilder(ObservesEvents):
         if self._table:
             builder.table(self._table.name)
 
-        builder._columns = copy(from_builder._columns)
-        builder._creates = copy(from_builder._creates)
+        builder._columns = deepcopy(from_builder._columns)
+        builder._creates = deepcopy(from_builder._creates)
         builder._sql = ""
-        builder._bindings = copy(from_builder._bindings)
-        builder._updates = copy(from_builder._updates)
-        builder._wheres = copy(from_builder._wheres)
-        builder._order_by = copy(from_builder._order_by)
-        builder._group_by = copy(from_builder._group_by)
-        builder._joins = copy(from_builder._joins)
-        builder._having = copy(from_builder._having)
-        builder._macros = copy(from_builder._macros)
-        builder._aggregates = copy(from_builder._aggregates)
-        builder._global_scopes = copy(from_builder._global_scopes)
+        builder._bindings = deepcopy(from_builder._bindings)
+        builder._updates = deepcopy(from_builder._updates)
+        builder._wheres = deepcopy(from_builder._wheres)
+        builder._order_by = deepcopy(from_builder._order_by)
+        builder._group_by = deepcopy(from_builder._group_by)
+        builder._joins = deepcopy(from_builder._joins)
+        builder._having = deepcopy(from_builder._having)
+        builder._macros = deepcopy(from_builder._macros)
+        builder._aggregates = deepcopy(from_builder._aggregates)
+        builder._global_scopes = deepcopy(from_builder._global_scopes)
 
         return builder
 
