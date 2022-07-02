@@ -19,10 +19,10 @@ class User(Model):
 
 
 class Profile(Model):
-    
     @has_one
     def identification(self):
         return Identification
+
 
 class Identification(Model):
     pass
@@ -87,7 +87,9 @@ class MySQLRelationships(unittest.TestCase):
     def test_relationship_or_where_has_nested(self):
         sql = (
             User.where("name", "Joe")
-            .or_where_has("profile.identification", lambda q: q.where("identification_id", 1))
+            .or_where_has(
+                "profile.identification", lambda q: q.where("identification_id", 1)
+            )
             .to_sql()
         )
 
@@ -104,6 +106,14 @@ class MySQLRelationships(unittest.TestCase):
             """SELECT * FROM `users` WHERE NOT EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id`)""",
         )
 
+    def test_relationship_doesnt_have_nested(self):
+        sql = User.doesnt_have("profile.identification").to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `users` WHERE NOT EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id` AND EXISTS (SELECT * FROM `identifications` WHERE `identifications`.`identification_id` = `profiles`.`id`))""",
+        )
+
     def test_relationship_where_doesnt_have(self):
         sql = User.where_doesnt_have(
             "profile", lambda q: q.where("profile_id", 1)
@@ -114,6 +124,16 @@ class MySQLRelationships(unittest.TestCase):
             """SELECT * FROM `users` WHERE NOT EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id` AND `profiles`.`profile_id` = '1')""",
         )
 
+    def test_relationship_where_doesnt_have_nested(self):
+        sql = User.where_doesnt_have(
+            "profile.identification", lambda q: q.where("identification_id", 1)
+        ).to_sql()
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `users` WHERE NOT EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id` AND `profiles`.`identification_id` = '1' AND EXISTS (SELECT * FROM `identifications` WHERE `identifications`.`identification_id` = `profiles`.`id`))""",
+        )
+
     def test_relationship_or_where_doesnt_have(self):
         sql = User.or_where_doesnt_have(
             "profile", lambda q: q.where("profile_id", 1)
@@ -122,6 +142,18 @@ class MySQLRelationships(unittest.TestCase):
         self.assertEqual(
             sql,
             """SELECT * FROM `users` WHERE NOT EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id` AND `profiles`.`profile_id` = '1')""",
+        )
+
+    def test_relationship_or_where_doesnt_have_nested(self):
+        sql = User.or_where_doesnt_have(
+            "profile.identification", lambda q: q.where("identification_id", 1)
+        ).to_sql()
+
+        print(sql)
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `users` WHERE NOT EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id` AND `profiles`.`identification_id` = '1' AND EXISTS (SELECT * FROM `identifications` WHERE `identifications`.`identification_id` = `profiles`.`id`))""",
         )
 
     def test_joins(self):
