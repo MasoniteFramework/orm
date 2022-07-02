@@ -1196,7 +1196,7 @@ class QueryBuilder(ObservesEvents):
                 last_builder = related.query_has(last_builder, method="where_exists")
         else:
             related = getattr(self._model, relationship)
-            related.query_has(self, method="where_not_exists")
+            related.query_where_exists(self, callback, method="where_not_exists")
         return self
 
     def or_where_doesnt_have(self, relationship, callback):
@@ -1219,7 +1219,7 @@ class QueryBuilder(ObservesEvents):
                 last_builder = related.query_has(last_builder, method="where_exists")
         else:
             related = getattr(self._model, relationship)
-            related.query_has(self, method="or_where_not_exists")
+            related.query_where_exists(self, callback, method="or_where_not_exists")
         return self
 
     def with_count(self, relationship, callback=None):
