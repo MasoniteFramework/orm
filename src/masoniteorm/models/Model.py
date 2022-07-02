@@ -814,7 +814,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         if not query:
             if self.is_loaded():
-                result = builder.update(self.__dirty_attributes__)
+                builder.update(self.__dirty_attributes__)
             else:
                 result = self.create(
                     self.__dirty_attributes__,
@@ -822,8 +822,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                     id_key=self.get_primary_key(),
                 )
             self.observe_events(self, "saved")
-            self.fill(result.__attributes__)
             self.__dirty_attributes__ = {}
+            if self.is_loaded():
+                return self
             return result
 
         if self.is_loaded():
