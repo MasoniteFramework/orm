@@ -1315,6 +1315,8 @@ class QueryBuilder(ObservesEvents):
 
         # do not perform update query if no changes
         if len(updates.keys()) == 0:
+            if dry or self.dry:
+                return self
             return 0
 
         self._updates = (UpdateQueryExpression(updates),)
