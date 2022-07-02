@@ -92,18 +92,6 @@ class BaseRelationship:
         )
         return query
 
-    def get_or_where_exists_query(self, builder, callback):
-        query = self.get_builder()
-        builder.or_where_exists(
-            callback(
-                query.where_column(
-                    f"{query.get_table_name()}.{self.foreign_key}",
-                    f"{builder.get_table_name()}.{self.local_key}",
-                )
-            )
-        )
-        return query
-
     def joins(self, builder, clause=None):
         other_table = self.get_builder().get_table_name()
         local_table = builder.get_table_name()
