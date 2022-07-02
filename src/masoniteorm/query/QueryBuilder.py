@@ -119,6 +119,11 @@ class QueryBuilder(ObservesEvents):
         self._creates_related = fields
         return self
 
+    def add_new_wheres(self, wheres: tuple):
+        self._wheres = ()
+        self._wheres += wheres
+        return self
+
     def shared_lock(self):
         return self.make_lock("share")
 
@@ -1049,10 +1054,18 @@ class QueryBuilder(ObservesEvents):
         for relationship in relationships:
             if "." in relationship:
                 last_builder = self._model.builder
-                for split_relationship in relationship.split("."):
+                split_count = len(relationship.split("."))
+                for index, split_relationship in enumerate(relationship.split(".")):
                     related = last_builder.get_relation(split_relationship)
+
+                    if index + 1 != split_count:
+                        last_builder = related.query_has(
+                            last_builder, method="or_where_exists"
+                        )
+                        continue
+
                     last_builder = related.query_has(
-                        last_builder, method="or_where_exists"
+                        last_builder, method="where_exists"
                     )
             else:
                 related = getattr(self._model, relationship)
@@ -1098,16 +1111,61 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def where_has(self, relationship, callback):
-        getattr(self._model, relationship).query_where_exists(
-            self, callback, method="where_exists"
-        )
+        if not self._model:
+            raise AttributeError(
+                "You must specify a model in order to use 'has' relationship methods"
+            )
+
+        if "." in relationship:
+            last_builder = self._model.builder
+            splits = relationship.split(".")
+            split_count = len(splits)
+            for index, split_relationship in enumerate(splits):
+                related = last_builder.get_relation(split_relationship)
+                if index + 1 != split_count:
+                    last_builder = related.query_has(
+                        last_builder, method="where_exists"
+                    )
+                    continue
+                
+                last_builder = related.query_where_exists(
+                    last_builder, callback if (index + 1 == split_count) else None, method="where_exists"
+                )
+        else:
+            related = getattr(self._model, relationship)
+            related.query_where_exists(
+                self, callback, method="where_exists"
+            )
         return self
 
     def or_where_has(self, relationship, callback):
-        getattr(self._model, relationship).query_where_exists(
-            self, callback, method="or_where_exists"
-        )
+        if not self._model:
+            raise AttributeError(
+                "You must specify a model in order to use 'has' relationship methods"
+            )
+
+        if "." in relationship:
+            last_builder = self._model.builder
+            splits = relationship.split(".")
+            split_count = len(splits)
+            for index, split_relationship in enumerate(splits):
+                related = last_builder.get_relation(split_relationship)
+                if index + 1 != split_count:
+                    last_builder = related.query_has(
+                        last_builder, method="or_where_exists"
+                    )
+                    continue
+                
+                last_builder = related.query_where_exists(
+                    last_builder, callback if (index + 1 == split_count) else None, method="where_exists"
+                )
+        else:
+            related = getattr(self._model, relationship)
+            related.query_where_exists(
+                self, callback, method="or_where_exists"
+            )
         return self
+
 
     def where_doesnt_have(self, relationship, callback):
         getattr(self._model, relationship).query_where_exists(
@@ -1982,6 +2040,7 @@ class QueryBuilder(ObservesEvents):
             connection_class=self.connection_class,
             connection=self.connection,
             connection_driver=self._connection_driver,
+            model=self._model,
         )
 
         if self._table:

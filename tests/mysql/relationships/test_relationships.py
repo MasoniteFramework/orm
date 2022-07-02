@@ -19,42 +19,12 @@ class User(Model):
 
 
 class Profile(Model):
-    pass
+    
+    @has_one
+    def identification(self):
+        return Identification
 
-
-class Permission(Model):
-    @belongs_to_many("permission_id", "role_id", "id", "id")
-    def role(self):
-        return Role
-
-
-class PermissionSelect(Model):
-    __table__ = "permissions"
-
-    __selects__ = ["permission_id"]
-
-    @belongs_to_many("permission_id", "role_id", "id", "id")
-    def role(self):
-        return Role
-
-
-class Role(Model):
-    @belongs_to_many("role_id", "permission_id", "id", "id")
-    def permissions(self):
-        return Permission
-
-
-class InboundShipment(Model):
-    @has_one_through("port_id", "country_id", "from_port_id", "country_id")
-    def from_country(self):
-        return Country, Port
-
-
-class Country(Model):
-    pass
-
-
-class Port(Model):
+class Identification(Model):
     pass
 
 
@@ -68,12 +38,26 @@ class MySQLRelationships(unittest.TestCase):
             """SELECT * FROM `users` WHERE EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id`)""",
         )
 
+    def test_has_nested(self):
+        sql = User.has("profile.identification").to_sql()
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `users` WHERE EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id` AND EXISTS (SELECT * FROM `identifications` WHERE `identifications`.`identification_id` = `profiles`.`id`))""",
+        )
+
     def test_or_has(self):
         sql = User.where("name", "Joe").or_has("profile").to_sql()
 
         self.assertEqual(
             sql,
             """SELECT * FROM `users` WHERE `users`.`name` = 'Joe' OR EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id`)""",
+        )
+
+    def test_or_has_nested(self):
+        sql = User.where("name", "Joe").or_has("profile.identification").to_sql()
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `users` WHERE `users`.`name` = 'Joe' OR EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id` AND EXISTS (SELECT * FROM `identifications` WHERE `identifications`.`identification_id` = `profiles`.`id`))""",
         )
 
     def test_relationship_where_has(self):
@@ -98,6 +82,18 @@ class MySQLRelationships(unittest.TestCase):
         self.assertEqual(
             sql,
             """SELECT * FROM `users` WHERE `users`.`name` = 'Joe' OR EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id` AND `profiles`.`profile_id` = '1')""",
+        )
+
+    def test_relationship_or_where_has_nested(self):
+        sql = (
+            User.where("name", "Joe")
+            .or_where_has("profile.identification", lambda q: q.where("identification_id", 1))
+            .to_sql()
+        )
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `users` WHERE `users`.`name` = 'Joe' OR EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id` AND EXISTS (SELECT * FROM `identifications` WHERE `identifications`.`identification_id` = `profiles`.`id` AND `identifications`.`identification_id` = '1'))""",
         )
 
     def test_relationship_doesnt_have(self):
