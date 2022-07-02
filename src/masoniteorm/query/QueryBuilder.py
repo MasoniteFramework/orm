@@ -1159,7 +1159,7 @@ class QueryBuilder(ObservesEvents):
                 related = last_builder.get_relation(split_relationship)
                 if index + 1 != split_count:
                     last_builder = related.query_where_exists(
-                        last_builder,  callback, method="or_where_exists"
+                        last_builder, callback, method="or_where_exists"
                     )
                     continue
 
