@@ -119,11 +119,6 @@ class QueryBuilder(ObservesEvents):
         self._creates_related = fields
         return self
 
-    def add_new_wheres(self, wheres: tuple):
-        self._wheres = ()
-        self._wheres += wheres
-        return self
-
     def shared_lock(self):
         return self.make_lock("share")
 
