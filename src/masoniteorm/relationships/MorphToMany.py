@@ -118,3 +118,13 @@ class MorphToMany(BaseRelationship):
         raise NotImplementedError(
             "MorphToMany relationship does not implement the attach_related method"
         )
+
+    def query_has(self, related_record, method="where_exists"):
+        raise NotImplementedError(
+            "MorphMany relationship does not implement the has method"
+        )
+
+    def query_where_exists(self, related_record, method="where_exists"):
+        raise NotImplementedError(
+            "MorphMany relationship does not implement the where_exists method"
+        )
