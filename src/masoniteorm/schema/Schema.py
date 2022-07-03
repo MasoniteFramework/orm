@@ -57,7 +57,7 @@ class Schema:
         platform=None,
         grammar=None,
         connection_details=None,
-        connection_driver=None,
+        schema=None,
     ):
         self._dry = dry
         self.connection = connection
@@ -68,6 +68,7 @@ class Schema:
         self.connection_details = connection_details or {}
         self._blueprint = None
         self._sql = None
+        self.schema = schema
 
         if not self.connection_class:
             self.on(self.connection)
@@ -278,6 +279,13 @@ class Schema:
 
         return bool(self.new_connection().query(sql, ()))
 
+    def get_schema(self):
+        """Gets the schema set on the migration class
+        """
+        return self.schema or self.get_connection_information().get("full_details").get(
+            "schema"
+        )
+
     def has_table(self, table, query_only=False):
         """Checks if the a database has a specific table
         Arguments:
@@ -286,7 +294,9 @@ class Schema:
             masoniteorm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
         sql = self.platform().compile_table_exists(
-            table, database=self.get_connection_information().get("database")
+            table,
+            database=self.get_connection_information().get("database"),
+            schema=self.get_schema(),
         )
 
         if self._dry:

@@ -35,6 +35,10 @@ class ConnectionResolver:
     def get_connection_details(self):
         return self._connection_details
 
+    def set_connection_option(self, connection: str, options: dict):
+        self._connection_details.get(connection).update(options)
+        return self
+
     def get_global_connections(self):
         return self._connections
 

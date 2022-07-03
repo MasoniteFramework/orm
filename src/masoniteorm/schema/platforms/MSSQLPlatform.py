@@ -311,7 +311,7 @@ class MSSQLPlatform(Platform):
     def get_unique_constraint_string(self):
         return "CONSTRAINT {constraint_name} UNIQUE ({columns})"
 
-    def compile_table_exists(self, table, database):
+    def compile_table_exists(self, table, database=None, schema=None):
         return f"SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{table}'"
 
     def compile_truncate(self, table, foreign_keys=False):

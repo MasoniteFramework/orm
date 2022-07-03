@@ -396,7 +396,7 @@ class SQLitePlatform(Platform):
         else:
             return reversed_type_map.get(column_type)
 
-    def compile_table_exists(self, table, database=None):
+    def compile_table_exists(self, table, database=None, schema=None):
         return f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}'"
 
     def compile_column_exists(self, table, column):

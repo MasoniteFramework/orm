@@ -48,6 +48,7 @@ class QueryBuilder(ObservesEvents):
         connection_driver="default",
         model=None,
         scopes=None,
+        schema=None,
         dry=False,
     ):
         """QueryBuilder initializer
@@ -66,10 +67,11 @@ class QueryBuilder(ObservesEvents):
         self.connection = connection
         self.connection_class = connection_class
         self._connection = None
-        self._connection_details = connection_details or {}
+        self._connection_details = None
         self._connection_driver = connection_driver
         self._scopes = scopes or {}
         self.lock = False
+        self._schema = schema
         self._eager_relation = EagerRelations()
         if model:
             self._global_scopes = model._global_scopes
@@ -105,6 +107,7 @@ class QueryBuilder(ObservesEvents):
 
         if not self._connection_details:
             DB = load_config().DB
+            print(DB)
             self._connection_details = DB.get_connection_details()
 
         self.on(connection)
@@ -117,6 +120,10 @@ class QueryBuilder(ObservesEvents):
 
     def _set_creates_related(self, fields: dict):
         self._creates_related = fields
+        return self
+
+    def set_schema(self, schema):
+        self._schema = schema
         return self
 
     def shared_lock(self):
@@ -1163,9 +1170,7 @@ class QueryBuilder(ObservesEvents):
                     )
                     continue
 
-                last_builder = related.query_has(
-                    last_builder, method="where_exists"
-                )
+                last_builder = related.query_has(last_builder, method="where_exists")
         else:
             related = getattr(self._model, relationship)
             related.query_where_exists(self, callback, method="or_where_exists")
@@ -1937,9 +1942,13 @@ class QueryBuilder(ObservesEvents):
         if self._connection:
             return self._connection
 
-        self._connection = self.connection_class(
-            **self.get_connection_information(), name=self.connection
-        ).make_connection()
+        self._connection = (
+            self.connection_class(
+                **self.get_connection_information(), name=self.connection
+            )
+            .set_schema(self._schema)
+            .make_connection()
+        )
         return self._connection
 
     def get_connection(self):
