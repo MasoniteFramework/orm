@@ -339,7 +339,7 @@ class SQLitePlatform(Platform):
 
         return names
 
-    def get_current_schema(self, connection, table_name):
+    def get_current_schema(self, connection, table_name, schema=None):
         sql = f"PRAGMA table_info({table_name})"
 
         reversed_type_map = {v: k for k, v in self.type_map.items()}

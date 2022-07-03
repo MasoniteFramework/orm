@@ -336,7 +336,7 @@ class MSSQLPlatform(Platform):
     def compile_column_exists(self, table, column):
         return f"SELECT 1 FROM sys.columns WHERE Name = N'{column}' AND Object_ID = Object_ID(N'{table}')"
 
-    def get_current_schema(self, connection, table_name):
+    def get_current_schema(self, connection, table_name, schema=None):
         return Table(table_name)
 
     def enable_foreign_key_constraints(self):

@@ -134,6 +134,7 @@ class Schema:
             table=Table(table),
             action="create",
             platform=self.platform,
+            schema=self.schema,
             default_string_length=self._default_string_length,
             dry=self._dry,
         )
@@ -149,6 +150,7 @@ class Schema:
             table=Table(table),
             action="create_table_if_not_exists",
             platform=self.platform,
+            schema=self.schema,
             default_string_length=self._default_string_length,
             dry=self._dry,
         )
@@ -174,6 +176,7 @@ class Schema:
             table=TableDiff(table),
             action="alter",
             platform=self.platform,
+            schema=self.schema,
             default_string_length=self._default_string_length,
             dry=self._dry,
         )
@@ -226,7 +229,7 @@ class Schema:
         return bool(self.new_connection().query(sql, ()))
 
     def get_columns(self, table, dict=True):
-        table = self.platform().get_current_schema(self.new_connection(), table)
+        table = self.platform().get_current_schema(self.new_connection(), table, schema=self.schema)
         result = {}
         if dict:
             for column in table.get_added_columns().items():
