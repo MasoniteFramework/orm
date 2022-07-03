@@ -206,14 +206,14 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
     def test_has_table(self):
         schema_sql = self.schema.has_table("users")
 
-        sql = "SELECT * from information_schema.tables where table_name='users'"
+        sql = "SELECT * from information_schema.tables where table_name='users' AND table_schema = 'public'"
 
         self.assertEqual(schema_sql, sql)
 
     def test_drop_table(self):
         schema_sql = self.schema.has_table("users")
 
-        sql = "SELECT * from information_schema.tables where table_name='users'"
+        sql = "SELECT * from information_schema.tables where table_name='users' AND table_schema = 'public'"
 
         self.assertEqual(schema_sql, sql)
 
