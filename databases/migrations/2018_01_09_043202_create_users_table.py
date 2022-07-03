@@ -17,7 +17,7 @@ class CreateUsersTable(Migration):
             table.timestamps()
 
         if not self.schema._dry:
-            User.on(self.connection).set_schema(self.schema).create({
+            User.on(self.connection).set_schema(self.schema_name).create({
                 'name': 'Joe',
                 'email': 'joe@email.com',
                 'password': 'secret'
