@@ -107,7 +107,6 @@ class QueryBuilder(ObservesEvents):
 
         if not self._connection_details:
             DB = load_config().DB
-            print(DB)
             self._connection_details = DB.get_connection_details()
 
         self.on(connection)

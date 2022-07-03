@@ -41,6 +41,7 @@ class PostgresConnection(BaseConnection):
         self._cursor = None
         self.transaction_level = 0
         self.open = 0
+        self.schema = None
         if name:
             self.name = name
 
