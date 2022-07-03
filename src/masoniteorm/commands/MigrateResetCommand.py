@@ -9,6 +9,7 @@ class MigrateResetCommand(Command):
     migrate:reset
         {--m|migration=all : Migration's name to be rollback}
         {--c|connection=default : The connection you want to run migrations on}
+        {--schema=? : Sets the schema to be migrated}
         {--d|directory=databases/migrations : The location of the migration directory}
     """
 
@@ -18,5 +19,7 @@ class MigrateResetCommand(Command):
             connection=self.option("connection"),
             migration_directory=self.option("directory"),
             config_path=self.option("config"),
+            schema=self.option("schema"),
         )
+
         migration.reset(self.option("migration"))

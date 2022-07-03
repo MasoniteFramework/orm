@@ -108,11 +108,11 @@ class ConnectionResolver:
             "full_details": details.get(name, {}),
         }
 
-    def get_schema_builder(self, connection="default"):
+    def get_schema_builder(self, connection="default", schema=None):
         from ..schema import Schema
 
         return Schema(
-            connection=connection, connection_details=self.get_connection_details()
+            connection=connection, connection_details=self.get_connection_details(), schema=schema
         )
 
     def get_query_builder(self, connection="default"):

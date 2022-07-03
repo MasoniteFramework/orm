@@ -16,12 +16,12 @@ class CreateUsersTable(Migration):
             table.timestamp('verified_at').nullable()
             table.timestamps()
 
-        if not self.schema._dry:
-            User.on(self.connection).create({
-                'name': 'Joe',
-                'email': 'joe@email.com',
-                'password': 'secret'
-            })
+        # if not self.schema._dry:
+        #     User.on(self.connection).create({
+        #         'name': 'Joe',
+        #         'email': 'joe@email.com',
+        #         'password': 'secret'
+        #     })
 
     def down(self):
         """Revert the migrations."""

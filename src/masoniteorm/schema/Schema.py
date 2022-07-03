@@ -207,7 +207,7 @@ class Schema:
 
         self._connection = self.connection_class(
             **self.get_connection_information()
-        ).make_connection()
+        ).set_schema(self.schema).make_connection()
 
         return self._connection
 
