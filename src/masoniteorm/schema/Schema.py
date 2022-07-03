@@ -229,7 +229,9 @@ class Schema:
         return bool(self.new_connection().query(sql, ()))
 
     def get_columns(self, table, dict=True):
-        table = self.platform().get_current_schema(self.new_connection(), table, schema=self.schema)
+        table = self.platform().get_current_schema(
+            self.new_connection(), table, schema=self.schema
+        )
         result = {}
         if dict:
             for column in table.get_added_columns().items():

@@ -460,7 +460,9 @@ class PostgresPlatform(Platform):
         return f"SELECT column_name FROM information_schema.columns WHERE table_name='{table}' and column_name='{column}'"
 
     def get_current_schema(self, connection, table_name, schema=None):
-        sql = self.table_information_string().format(table=table_name, schema=schema or "public")
+        sql = self.table_information_string().format(
+            table=table_name, schema=schema or "public"
+        )
 
         reversed_type_map = {v: k for k, v in self.type_map.items()}
         reversed_type_map.update(self.table_info_map)
