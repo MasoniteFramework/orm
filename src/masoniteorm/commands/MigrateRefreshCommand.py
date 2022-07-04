@@ -12,6 +12,7 @@ class MigrateRefreshCommand(Command):
         {--c|connection=default : The connection you want to run migrations on}
         {--d|directory=databases/migrations : The location of the migration directory}
         {--s|seed=? : Seed database after refresh. The seeder to be ran can be provided in argument}
+        {--schema=? : Sets the schema to be migrated}
         {--D|seed-directory=databases/seeds : The location of the seed directory if seed option is used.}
     """
 
@@ -22,6 +23,7 @@ class MigrateRefreshCommand(Command):
             connection=self.option("connection"),
             migration_directory=self.option("directory"),
             config_path=self.option("config"),
+            schema=self.option("schema")
         )
 
         migration.refresh(self.option("migration"))
@@ -33,6 +35,7 @@ class MigrateRefreshCommand(Command):
                 "seed:run",
                 f"None --directory {self.option('seed-directory')} --connection {self.option('connection', 'default')}",
             )
+
         elif self.option("seed"):
             self.call(
                 "seed:run",

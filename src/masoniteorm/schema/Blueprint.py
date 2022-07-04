@@ -7,6 +7,7 @@ class Blueprint:
         table="",
         connection=None,
         platform=None,
+        schema=None,
         action=None,
         default_string_length=None,
         dry=False,
@@ -16,6 +17,7 @@ class Blueprint:
         self._last_column = None
         self._default_string_length = default_string_length
         self.platform = platform
+        self.schema = schema
         self._dry = dry
         self._action = action
         self.connection = connection
@@ -689,7 +691,7 @@ class Blueprint:
             if not self._dry:
                 # get current table schema
                 table = self.platform().get_current_schema(
-                    self.connection, self.table.name
+                    self.connection, self.table.name, schema=self.schema
                 )
                 self.table.from_table = table
 

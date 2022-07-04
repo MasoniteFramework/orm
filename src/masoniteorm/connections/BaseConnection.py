@@ -13,6 +13,10 @@ class BaseConnection:
         self._dry = True
         return self
 
+    def set_schema(self, schema):
+        self.schema = schema
+        return self
+
     def log(
         self, query, bindings, query_time=0, logger="masoniteorm.connections.queries"
     ):

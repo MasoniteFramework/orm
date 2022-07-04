@@ -41,6 +41,7 @@ class PostgresConnection(BaseConnection):
         self._cursor = None
         self.transaction_level = 0
         self.open = 0
+        self.schema = None
         if name:
             self.name = name
 
@@ -56,12 +57,15 @@ class PostgresConnection(BaseConnection):
         if self.has_global_connection():
             return self.get_global_connection()
 
+        schema = self.schema or self.full_details.get("schema")
+
         self._connection = psycopg2.connect(
             database=self.database,
             user=self.user,
             password=self.password,
             host=self.host,
             port=self.port,
+            options=f"-c search_path={schema}" if schema else "",
         )
 
         self._connection.autocommit = True

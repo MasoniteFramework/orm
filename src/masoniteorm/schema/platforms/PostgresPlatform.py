@@ -432,10 +432,10 @@ class PostgresPlatform(Platform):
         return '"{column}"'
 
     def table_information_string(self):
-        return "SELECT * FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '{table}'"
+        return "SELECT * FROM information_schema.columns WHERE table_schema = '{schema}' AND table_name = '{table}'"
 
-    def compile_table_exists(self, table, database=None):
-        return f"SELECT * from information_schema.tables where table_name='{table}'"
+    def compile_table_exists(self, table, database=None, schema=None):
+        return f"SELECT * from information_schema.tables where table_name='{table}' AND table_schema = '{schema or 'public'}'"
 
     def compile_truncate(self, table, foreign_keys=False):
         if not foreign_keys:
@@ -459,8 +459,10 @@ class PostgresPlatform(Platform):
     def compile_column_exists(self, table, column):
         return f"SELECT column_name FROM information_schema.columns WHERE table_name='{table}' and column_name='{column}'"
 
-    def get_current_schema(self, connection, table_name):
-        sql = self.table_information_string().format(table=table_name)
+    def get_current_schema(self, connection, table_name, schema=None):
+        sql = self.table_information_string().format(
+            table=table_name, schema=schema or "public"
+        )
 
         reversed_type_map = {v: k for k, v in self.type_map.items()}
         reversed_type_map.update(self.table_info_map)
