@@ -211,6 +211,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "select_raw",
         "select",
         "set_global_scope",
+        "set_schema",
         "shared_lock",
         "simple_paginate",
         "skip",
