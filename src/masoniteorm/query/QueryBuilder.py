@@ -1843,7 +1843,7 @@ class QueryBuilder(ObservesEvents):
         if self._model and result:
             # eager load here
             hydrated_model = self._model.hydrate(result)
-            if self._eager_relation.eagers and hydrated_model:
+            if (self._eager_relation.eagers or self._eager_relation.nested_eagers) and hydrated_model:
                 for eager_load in self._eager_relation.get_eagers():
                     if isinstance(eager_load, dict):
                         # Nested
