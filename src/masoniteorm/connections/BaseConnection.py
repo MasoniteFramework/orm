@@ -77,3 +77,6 @@ class BaseConnection:
             yield result
 
             result = self.format_cursor_results(self._cursor.fetchmany(amount))
+
+    def get_row_count(self):
+        return self._cursor.rowcount
