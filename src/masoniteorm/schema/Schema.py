@@ -230,7 +230,7 @@ class Schema:
 
     def get_columns(self, table, dict=True):
         table = self.platform().get_current_schema(
-            self.new_connection(), table, schema=self.schema
+            self.new_connection(), table, schema=self.get_schema()
         )
         result = {}
         if dict:
