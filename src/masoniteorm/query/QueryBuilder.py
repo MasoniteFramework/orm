@@ -67,7 +67,7 @@ class QueryBuilder(ObservesEvents):
         self.connection = connection
         self.connection_class = connection_class
         self._connection = None
-        self._connection_details = None
+        self._connection_details = connection_details or {}
         self._connection_driver = connection_driver
         self._scopes = scopes or {}
         self.lock = False
