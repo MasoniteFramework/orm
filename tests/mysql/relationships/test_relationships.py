@@ -72,6 +72,18 @@ class MySQLRelationships(unittest.TestCase):
             """SELECT * FROM `users` WHERE `users`.`name` = 'Joe' AND EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id` AND `profiles`.`profile_id` = '1')""",
         )
 
+    def test_relationship_where_has_nested(self):
+        sql = (
+            User.where("name", "Joe")
+            .where_has("profile.identification", lambda q: q.where("identification_id", 1))
+            .to_sql()
+        )
+
+        self.assertEqual(
+            sql,
+            """SELECT * FROM `users` WHERE `users`.`name` = 'Joe' AND EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id` AND `profiles`.`identification_id` = '1' AND EXISTS (SELECT * FROM `identifications` WHERE `identifications`.`identification_id` = `profiles`.`id`))""",
+        )
+
     def test_relationship_or_where_has(self):
         sql = (
             User.where("name", "Joe")
