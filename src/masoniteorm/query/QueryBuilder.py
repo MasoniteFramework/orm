@@ -1143,8 +1143,8 @@ class QueryBuilder(ObservesEvents):
                     )
                     continue
 
-                last_builder = related.query_where_exists(
-                    last_builder, callback, method="where_exists"
+                last_builder = related.query_has(
+                    last_builder, method="where_exists"
                 )
         else:
             related = getattr(self._model, relationship)
