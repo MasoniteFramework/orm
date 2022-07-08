@@ -3,7 +3,7 @@ from datetime import datetime, date as datetimedate, time as datetimetime
 import logging
 from decimal import Decimal
 
-from inflection import tableize
+from inflection import tableize, underscore
 import inspect
 
 import pendulum
@@ -138,6 +138,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     _booted = False
     _scopes = {}
     __primary_key__ = "id"
+    __primary_key_type__ = "int"
     __casts__ = {}
     __dates__ = []
     __hidden__ = []
@@ -282,6 +283,14 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         return self.__primary_key__
 
+    def get_primary_key_type(self):
+        """Gets the primary key column type
+
+        Returns:
+            mixed
+        """
+        return self.__primary_key_type__
+
     def get_primary_key_value(self):
         """Gets the primary key value.
 
@@ -299,6 +308,17 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             raise AttributeError(
                 f"class '{name}' has no attribute {self.get_primary_key()}. Did you set the primary key correctly on the model using the __primary_key__ attribute?"
             )
+
+    def get_foreign_key(self):
+        """Gets the foreign key based on this model name.
+
+        Args:
+            relationship (str): The relationship name.
+
+        Returns:
+            str
+        """
+        return underscore(self.__class__.__name__ + "_" + self.get_primary_key())
 
     def query(self):
         return self.get_builder()
