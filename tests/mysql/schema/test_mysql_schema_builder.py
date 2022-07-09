@@ -142,7 +142,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.timestamp("verified_at").nullable()
             blueprint.timestamps()
 
-        self.assertEqual(len(blueprint.table.added_columns), 13)
+        self.assertEqual(len(blueprint.table.added_columns), 14)
         self.assertEqual(
             blueprint.to_sql(),
             [
@@ -275,7 +275,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
                 "`big_profile_id` BIGINT UNSIGNED NOT NULL, "
                 "`tiny_profile_id` TINYINT UNSIGNED NOT NULL, "
                 "`small_profile_id` SMALLINT UNSIGNED NOT NULL, "
-                "`medium_profile_id` MEDIUMINT UNSIGNED NOT NULL"
+                "`medium_profile_id` MEDIUMINT UNSIGNED NOT NULL, "
                 "`unsigned_profile_id` INT UNSIGNED NOT NULL, "
                 "`unsigned_big_profile_id` BIGINT UNSIGNED NOT NULL)"
             ],
