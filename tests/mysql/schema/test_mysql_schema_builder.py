@@ -146,12 +146,12 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             [
-                "CREATE TABLE `users` (`id` INT UNSIGNED AUTO_INCREMENT NOT NULL,"
+                "CREATE TABLE `users` (`id` INT UNSIGNED AUTO_INCREMENT NOT NULL, "
                 "`id2` BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, "
                 "`name` VARCHAR(255) NOT NULL, `active` TINYINT(1) NOT NULL, `email` VARCHAR(255) NOT NULL, `gender` ENUM('male', 'female') NOT NULL, "
                 "`password` VARCHAR(255) NOT NULL, `money` DECIMAL(17, 6) NOT NULL, "
                 "`admin` INT(11) NOT NULL DEFAULT 0, `option` VARCHAR(255) NOT NULL DEFAULT 'ADMIN', `remember_token` VARCHAR(255) NULL, `verified_at` TIMESTAMP NULL, "
-                "`created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, `updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_email_unique UNIQUE (email))"
+                "`created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, `updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_id2_primary PRIMARY KEY (id2), CONSTRAINT users_email_unique UNIQUE (email))"
             ],
         )
 
@@ -265,7 +265,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.small_integer("small_profile_id").unsigned()
             blueprint.medium_integer("medium_profile_id").unsigned()
             blueprint.unsigned_integer("unsigned_profile_id")
-            blueprint.unsigned_big_integer("big_unsigned_profile_id")
+            blueprint.unsigned_big_integer("unsigned_big_profile_id")
 
         self.assertEqual(
             blueprint.to_sql(),
