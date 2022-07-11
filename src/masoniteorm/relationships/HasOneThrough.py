@@ -122,10 +122,12 @@ class HasOneThrough(BaseRelationship):
             ).get()
         else:
             if callback:
-                return callback(builder.where(
-                    f"{builder.get_table_name()}.{self.foreign_key}",
-                    getattr(relation, self.local_owner_key),
-                )).first()         
+                return callback(
+                    builder.where(
+                        f"{builder.get_table_name()}.{self.foreign_key}",
+                        getattr(relation, self.local_owner_key),
+                    )
+                ).first()
             return builder.where(
                 f"{builder.get_table_name()}.{self.foreign_key}",
                 getattr(relation, self.local_owner_key),
