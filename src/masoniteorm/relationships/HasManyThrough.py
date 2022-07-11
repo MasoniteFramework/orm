@@ -109,11 +109,13 @@ class HasManyThrough(BaseRelationship):
 
         if isinstance(relation, Collection):
             if callback:
-                return callback(builder.where_in(
-                    f"{builder.get_table_name()}.{self.foreign_key}",
-                    relation.pluck(self.local_key, keep_nulls=False).unique(),
-                )).get()   
-             
+                return callback(
+                    builder.where_in(
+                        f"{builder.get_table_name()}.{self.foreign_key}",
+                        relation.pluck(self.local_key, keep_nulls=False).unique(),
+                    )
+                ).get()
+
             return builder.where_in(
                 f"{builder.get_table_name()}.{self.foreign_key}",
                 relation.pluck(self.local_key, keep_nulls=False).unique(),

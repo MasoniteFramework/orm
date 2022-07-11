@@ -88,19 +88,17 @@ class MorphOne(BaseRelationship):
         if isinstance(relation, Collection):
             record_type = self.get_record_key_lookup(relation.first())
             if callback:
-                return (
-                    callback(self.polymorphic_builder.where(
+                return callback(
+                    self.polymorphic_builder.where(
                         f"{self.polymorphic_builder.get_table_name()}.{self.morph_key}",
                         record_type,
-                    )
-                    .where_in(
+                    ).where_in(
                         self.morph_id,
                         relation.pluck(
                             relation.first().get_primary_key(), keep_nulls=False
                         ).unique(),
-                    ))
-                    .get()
-                )
+                    )
+                ).get()
 
             return (
                 self.polymorphic_builder.where(
@@ -119,11 +117,11 @@ class MorphOne(BaseRelationship):
         else:
             record_type = self.get_record_key_lookup(relation)
             if callback:
-                return (
-                    callback(self.polymorphic_builder.where(self.morph_key, record_type)
-                    .where(self.morph_id, relation.get_primary_key_value()))
-                    .first()
-                )
+                return callback(
+                    self.polymorphic_builder.where(self.morph_key, record_type).where(
+                        self.morph_id, relation.get_primary_key_value()
+                    )
+                ).first()
 
             return (
                 self.polymorphic_builder.where(self.morph_key, record_type)
