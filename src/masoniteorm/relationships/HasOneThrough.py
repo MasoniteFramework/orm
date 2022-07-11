@@ -121,11 +121,15 @@ class HasOneThrough(BaseRelationship):
                 relation.pluck(self.local_key, keep_nulls=False).unique(),
             ).get()
         else:
-            result = builder.where(
+            if callback:
+                return callback(builder.where(
+                    f"{builder.get_table_name()}.{self.foreign_key}",
+                    getattr(relation, self.local_owner_key),
+                )).first()         
+            return builder.where(
                 f"{builder.get_table_name()}.{self.foreign_key}",
                 getattr(relation, self.local_owner_key),
             ).first()
-            return result
 
     def query_where_exists(
         self, current_query_builder, callback, method="where_exists"
