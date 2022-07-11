@@ -72,7 +72,7 @@ class MorphOne(BaseRelationship):
             .first()
         )
 
-    def get_related(self, query, relation, eagers=None):
+    def get_related(self, query, relation, eagers=None, callback=None):
         """Gets the relation needed between the relation and the related builder. If the relation is a collection
         then will need to pluck out all the keys from the collection and fetch from the related builder. If
         relation is just a Model then we can just call the model based on the value of the related
@@ -87,6 +87,19 @@ class MorphOne(BaseRelationship):
 
         if isinstance(relation, Collection):
             record_type = self.get_record_key_lookup(relation.first())
+            if callback:
+                return callback(
+                    self.polymorphic_builder.where(
+                        f"{self.polymorphic_builder.get_table_name()}.{self.morph_key}",
+                        record_type,
+                    ).where_in(
+                        self.morph_id,
+                        relation.pluck(
+                            relation.first().get_primary_key(), keep_nulls=False
+                        ).unique(),
+                    )
+                ).get()
+
             return (
                 self.polymorphic_builder.where(
                     f"{self.polymorphic_builder.get_table_name()}.{self.morph_key}",
@@ -103,6 +116,12 @@ class MorphOne(BaseRelationship):
 
         else:
             record_type = self.get_record_key_lookup(relation)
+            if callback:
+                return callback(
+                    self.polymorphic_builder.where(self.morph_key, record_type).where(
+                        self.morph_id, relation.get_primary_key_value()
+                    )
+                ).first()
 
             return (
                 self.polymorphic_builder.where(self.morph_key, record_type)

@@ -104,20 +104,32 @@ class HasManyThrough(BaseRelationship):
 
         return builder
 
-    def get_related(self, query, relation, eagers=None):
+    def get_related(self, query, relation, eagers=None, callback=None):
         builder = self.distant_builder
 
         if isinstance(relation, Collection):
+            if callback:
+                return callback(
+                    builder.where_in(
+                        f"{builder.get_table_name()}.{self.foreign_key}",
+                        relation.pluck(self.local_key, keep_nulls=False).unique(),
+                    )
+                ).get()
+
             return builder.where_in(
                 f"{builder.get_table_name()}.{self.foreign_key}",
                 relation.pluck(self.local_key, keep_nulls=False).unique(),
             ).get()
         else:
-            result = builder.where(
+            if callback:
+                return builder.where(
+                    f"{builder.get_table_name()}.{self.foreign_key}",
+                    getattr(relation, self.local_owner_key),
+                ).get()
+            return builder.where(
                 f"{builder.get_table_name()}.{self.foreign_key}",
                 getattr(relation, self.local_owner_key),
             ).get()
-            return result
 
     def get_with_count_query(self, builder, callback):
         query = self.distant_builder
