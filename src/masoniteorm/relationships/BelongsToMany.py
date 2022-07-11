@@ -233,26 +233,32 @@ class BelongsToMany(BaseRelationship):
 
         if isinstance(relation, Collection):
             if callback:
-                return callback(result.where_in(
-                    self.local_owner_key,
-                    relation.pluck(self.local_owner_key, keep_nulls=False),
-                )).get()
+                return callback(
+                    result.where_in(
+                        self.local_owner_key,
+                        relation.pluck(self.local_owner_key, keep_nulls=False),
+                    )
+                ).get()
             return result.where_in(
                 self.local_owner_key,
                 relation.pluck(self.local_owner_key, keep_nulls=False),
             ).get()
         else:
             if callback:
-                return callback(result.where(
-                    self.local_owner_key, getattr(relation, self.local_owner_key)
-                )).get()
+                return callback(
+                    result.where(
+                        self.local_owner_key, getattr(relation, self.local_owner_key)
+                    )
+                ).get()
 
             return result.where(
                 self.local_owner_key, getattr(relation, self.local_owner_key)
             ).get()
 
     def get_related(self, query, relation, eagers=None, callback=None):
-        final_result = self.make_query(query, relation, eagers=eagers, callback=callback)
+        final_result = self.make_query(
+            query, relation, eagers=eagers, callback=callback
+        )
         builder = self.make_builder(eagers)
 
         for model in final_result:
