@@ -1843,18 +1843,20 @@ class QueryBuilder(ObservesEvents):
         if self._model and result:
             # eager load here
             hydrated_model = self._model.hydrate(result)
-            if (self._eager_relation.eagers or self._eager_relation.nested_eagers) and hydrated_model:
+            if (self._eager_relation.eagers or self._eager_relation.nested_eagers or self._eager_relation.callback_eagers) and hydrated_model:
                 for eager_load in self._eager_relation.get_eagers():
                     if isinstance(eager_load, dict):
                         # Nested
                         for relation, eagers in eager_load.items():
                             if inspect.isclass(self._model):
                                 related = getattr(self._model, relation)
+                            elif callable(eagers):
+                                related = getattr(self._model, relation)
                             else:
                                 related = self._model.get_related(relation)
 
                             result_set = related.get_related(
-                                self, hydrated_model, eagers=eagers
+                                self, hydrated_model, eagers=eagers, callback=eagers
                             )
 
                             self._register_relationships_to_model(
