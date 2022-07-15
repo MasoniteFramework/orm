@@ -1000,7 +1000,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             else:
                 related_record.save()
 
-            related.detach_related(self, related_record)
+            related.detach(self, related_record)
 
     def related(self, relation):
         related = getattr(self.__class__, relation)
