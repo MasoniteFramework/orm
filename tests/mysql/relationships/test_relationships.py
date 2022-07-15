@@ -75,7 +75,9 @@ class MySQLRelationships(unittest.TestCase):
     def test_relationship_where_has_nested(self):
         sql = (
             User.where("name", "Joe")
-            .where_has("profile.identification", lambda q: q.where("identification_id", 1))
+            .where_has(
+                "profile.identification", lambda q: q.where("identification_id", 1)
+            )
             .to_sql()
         )
 

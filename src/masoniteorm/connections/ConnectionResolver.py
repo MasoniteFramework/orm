@@ -112,7 +112,9 @@ class ConnectionResolver:
         from ..schema import Schema
 
         return Schema(
-            connection=connection, connection_details=self.get_connection_details(), schema=schema
+            connection=connection,
+            connection_details=self.get_connection_details(),
+            schema=schema,
         )
 
     def get_query_builder(self, connection="default"):
