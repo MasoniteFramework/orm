@@ -728,13 +728,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             mixed: Could be anything that a method can return.
         """
 
-        if attribute in self.__passthrough__:
-
-            def method(*args, **kwargs):
-                return getattr(self.get_builder(), attribute)(*args, **kwargs)
-
-            return method
-
         new_name_accessor = "get_" + attribute + "_attribute"
 
         if (new_name_accessor) in self.__class__.__dict__:
@@ -757,6 +750,13 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                     else None
                 )
             return self.get_value(attribute)
+
+        if attribute in self.__passthrough__:
+
+            def method(*args, **kwargs):
+                return getattr(self.get_builder(), attribute)(*args, **kwargs)
+
+            return method
 
         if attribute in self.__dict__.get("_relationships", {}):
             return self.__dict__["_relationships"][attribute]
