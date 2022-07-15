@@ -205,9 +205,11 @@ class Schema:
         if self._dry:
             return
 
-        self._connection = self.connection_class(
-            **self.get_connection_information()
-        ).set_schema(self.schema).make_connection()
+        self._connection = (
+            self.connection_class(**self.get_connection_information())
+            .set_schema(self.schema)
+            .make_connection()
+        )
 
         return self._connection
 

@@ -15,4 +15,5 @@ class __MIGRATION_NAME__(Migration):
         """
         Revert the migrations.
         """
-        pass
+        with self.schema.table("__TABLE_NAME__") as table:
+            pass
