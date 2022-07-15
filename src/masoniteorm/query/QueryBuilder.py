@@ -1405,7 +1405,7 @@ class QueryBuilder(ObservesEvents):
         if model and not model.__force_update__ and not force:
             changes = {}
             for attribute, value in updates.items():
-                if model.__original_attributes__.get(attribute, None) != value:
+                if model.__original_attributes__.get(attribute, None) != value or value is None:
                     changes.update({attribute: value})
             updates = changes
 
