@@ -1137,7 +1137,7 @@ class QueryBuilder(ObservesEvents):
             split_count = len(splits)
             for index, split_relationship in enumerate(splits):
                 related = last_builder.get_relation(split_relationship)
-                
+
                 if index + 1 == split_count:
                     last_builder = related.query_where_exists(
                         last_builder, callback, method="where_exists"
@@ -1405,7 +1405,10 @@ class QueryBuilder(ObservesEvents):
         if model and not model.__force_update__ and not force:
             changes = {}
             for attribute, value in updates.items():
-                if model.__original_attributes__.get(attribute, None) != value or value is None:
+                if (
+                    model.__original_attributes__.get(attribute, None) != value
+                    or value is None
+                ):
                     changes.update({attribute: value})
             updates = changes
 
