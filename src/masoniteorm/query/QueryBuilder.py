@@ -1059,14 +1059,14 @@ class QueryBuilder(ObservesEvents):
                 for index, split_relationship in enumerate(relationship.split(".")):
                     related = last_builder.get_relation(split_relationship)
 
-                    if index + 1 != split_count:
+                    if index + 1 == split_count:
                         last_builder = related.query_has(
-                            last_builder, method="or_where_exists"
+                            last_builder, method="where_exists"
                         )
                         continue
 
                     last_builder = related.query_has(
-                        last_builder, method="where_exists"
+                        last_builder, method="or_where_exists"
                     )
             else:
                 related = getattr(self._model, relationship)
@@ -1085,14 +1085,14 @@ class QueryBuilder(ObservesEvents):
                 split_count = len(relationship.split("."))
                 for index, split_relationship in enumerate(relationship.split(".")):
                     related = last_builder.get_relation(split_relationship)
-                    if index + 1 != split_count:
+                    if index + 1 == split_count:
                         last_builder = related.query_has(
-                            last_builder, method="where_not_exists"
+                            last_builder, method="where_exists"
                         )
                         continue
 
                     last_builder = related.query_has(
-                        last_builder, method="where_exists"
+                        last_builder, method="where_not_exists"
                     )
             else:
                 related = getattr(self._model, relationship)
@@ -1111,14 +1111,14 @@ class QueryBuilder(ObservesEvents):
                 split_count = len(relationship.split("."))
                 for index, split_relationship in enumerate(relationship.split(".")):
                     related = last_builder.get_relation(split_relationship)
-                    if index + 1 != split_count:
+                    if index + 1 == split_count:
                         last_builder = related.query_has(
-                            last_builder, method="or_where_not_exists"
+                            last_builder, method="where_exists"
                         )
                         continue
 
                     last_builder = related.query_has(
-                        last_builder, method="where_exists"
+                        last_builder, method="or_where_not_exists"
                     )
             else:
                 related = getattr(self._model, relationship)
@@ -1137,12 +1137,12 @@ class QueryBuilder(ObservesEvents):
             split_count = len(splits)
             for index, split_relationship in enumerate(splits):
                 related = last_builder.get_relation(split_relationship)
-                if index + 1 != split_count:
+
+                if index + 1 == split_count:
                     last_builder = related.query_where_exists(
                         last_builder, callback, method="where_exists"
                     )
                     continue
-
                 last_builder = related.query_has(last_builder, method="where_exists")
         else:
             related = getattr(self._model, relationship)
@@ -1161,13 +1161,13 @@ class QueryBuilder(ObservesEvents):
             split_count = len(splits)
             for index, split_relationship in enumerate(splits):
                 related = last_builder.get_relation(split_relationship)
-                if index + 1 != split_count:
+                if index + 1 == split_count:
                     last_builder = related.query_where_exists(
-                        last_builder, callback, method="or_where_exists"
+                        last_builder, callback, method="where_exists"
                     )
                     continue
 
-                last_builder = related.query_has(last_builder, method="where_exists")
+                last_builder = related.query_has(last_builder, method="or_where_exists")
         else:
             related = getattr(self._model, relationship)
             related.query_where_exists(self, callback, method="or_where_exists")
@@ -1184,13 +1184,13 @@ class QueryBuilder(ObservesEvents):
             split_count = len(relationship.split("."))
             for index, split_relationship in enumerate(relationship.split(".")):
                 related = last_builder.get_relation(split_relationship)
-                if index + 1 != split_count:
+                if index + 1 == split_count:
                     last_builder = getattr(
-                        self._model, split_relationship
-                    ).query_where_exists(self, callback, method="where_not_exists")
+                        last_builder._model, split_relationship
+                    ).query_where_exists(self, callback, method="where_exists")
                     continue
 
-                last_builder = related.query_has(last_builder, method="where_exists")
+                last_builder = related.query_has(last_builder, method="where_not_exists")
         else:
             related = getattr(self._model, relationship)
             related.query_where_exists(self, callback, method="where_not_exists")
@@ -1207,13 +1207,13 @@ class QueryBuilder(ObservesEvents):
             split_count = len(relationship.split("."))
             for index, split_relationship in enumerate(relationship.split(".")):
                 related = last_builder.get_relation(split_relationship)
-                if index + 1 != split_count:
+                if index + 1 == split_count:
                     last_builder = getattr(
-                        self._model, split_relationship
-                    ).query_where_exists(self, callback, method="or_where_not_exists")
+                        last_builder._model, split_relationship
+                    ).query_where_exists(self, callback, method="where_exists")
                     continue
 
-                last_builder = related.query_has(last_builder, method="where_exists")
+                last_builder = related.query_has(last_builder, method="or_where_not_exists")
         else:
             related = getattr(self._model, relationship)
             related.query_where_exists(self, callback, method="or_where_not_exists")
@@ -1405,7 +1405,10 @@ class QueryBuilder(ObservesEvents):
         if model and not model.__force_update__ and not force:
             changes = {}
             for attribute, value in updates.items():
-                if model.__original_attributes__.get(attribute, None) != value or value is None:
+                if (
+                    model.__original_attributes__.get(attribute, None) != value
+                    or value is None
+                ):
                     changes.update({attribute: value})
             updates = changes
 
