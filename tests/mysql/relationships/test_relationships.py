@@ -124,7 +124,6 @@ class MySQLRelationships(unittest.TestCase):
     def test_relationship_doesnt_have_nested(self):
         sql = User.doesnt_have("profile.identification").to_sql()
 
-
         self.assertEqual(
             sql,
             """SELECT * FROM `users` WHERE EXISTS (SELECT * FROM `profiles` WHERE `profiles`.`profile_id` = `users`.`id` AND NOT EXISTS (SELECT * FROM `identifications` WHERE `identifications`.`identification_id` = `profiles`.`id`))""",
