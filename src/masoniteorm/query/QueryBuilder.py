@@ -1186,7 +1186,7 @@ class QueryBuilder(ObservesEvents):
                 related = last_builder.get_relation(split_relationship)
                 if index + 1 == split_count:
                     last_builder = getattr(
-                        self._model, split_relationship
+                        last_builder._model, split_relationship
                     ).query_where_exists(self, callback, method="where_not_exists")
                     continue
 
@@ -1209,7 +1209,7 @@ class QueryBuilder(ObservesEvents):
                 related = last_builder.get_relation(split_relationship)
                 if index + 1 == split_count:
                     last_builder = getattr(
-                        self._model, split_relationship
+                        last_builder._model, split_relationship
                     ).query_where_exists(self, callback, method="or_where_not_exists")
                     continue
 
