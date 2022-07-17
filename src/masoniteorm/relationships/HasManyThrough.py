@@ -107,25 +107,15 @@ class HasManyThrough(BaseRelationship):
     def get_related(self, query, relation, eagers=None, callback=None):
         builder = self.distant_builder
 
-        if isinstance(relation, Collection):
-            if callback:
-                return callback(
-                    builder.where_in(
-                        f"{builder.get_table_name()}.{self.foreign_key}",
-                        relation.pluck(self.local_key, keep_nulls=False).unique(),
-                    )
-                ).get()
+        if callback:
+            callback(builder)
 
+        if isinstance(relation, Collection):
             return builder.where_in(
                 f"{builder.get_table_name()}.{self.foreign_key}",
                 relation.pluck(self.local_key, keep_nulls=False).unique(),
             ).get()
         else:
-            if callback:
-                return builder.where(
-                    f"{builder.get_table_name()}.{self.foreign_key}",
-                    getattr(relation, self.local_owner_key),
-                ).get()
             return builder.where(
                 f"{builder.get_table_name()}.{self.foreign_key}",
                 getattr(relation, self.local_owner_key),
