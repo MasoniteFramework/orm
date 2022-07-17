@@ -1190,7 +1190,9 @@ class QueryBuilder(ObservesEvents):
                     ).query_where_exists(self, callback, method="where_exists")
                     continue
 
-                last_builder = related.query_has(last_builder, method="where_not_exists")
+                last_builder = related.query_has(
+                    last_builder, method="where_not_exists"
+                )
         else:
             related = getattr(self._model, relationship)
             related.query_where_exists(self, callback, method="where_not_exists")
@@ -1213,7 +1215,9 @@ class QueryBuilder(ObservesEvents):
                     ).query_where_exists(self, callback, method="where_exists")
                     continue
 
-                last_builder = related.query_has(last_builder, method="or_where_not_exists")
+                last_builder = related.query_has(
+                    last_builder, method="or_where_not_exists"
+                )
         else:
             related = getattr(self._model, relationship)
             related.query_where_exists(self, callback, method="or_where_not_exists")
