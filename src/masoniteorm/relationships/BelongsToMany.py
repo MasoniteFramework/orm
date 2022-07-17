@@ -231,26 +231,15 @@ class BelongsToMany(BaseRelationship):
 
         result.without_global_scopes()
 
+        if callback:
+            callback(result)
+
         if isinstance(relation, Collection):
-            if callback:
-                return callback(
-                    result.where_in(
-                        self.local_owner_key,
-                        relation.pluck(self.local_owner_key, keep_nulls=False),
-                    )
-                ).get()
             return result.where_in(
                 self.local_owner_key,
                 relation.pluck(self.local_owner_key, keep_nulls=False),
             ).get()
         else:
-            if callback:
-                return callback(
-                    result.where(
-                        self.local_owner_key, getattr(relation, self.local_owner_key)
-                    )
-                ).get()
-
             return result.where(
                 self.local_owner_key, getattr(relation, self.local_owner_key)
             ).get()
