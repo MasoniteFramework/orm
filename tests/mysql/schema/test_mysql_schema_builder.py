@@ -1,10 +1,15 @@
 import os
 import unittest
 
+from masoniteorm import Model
 from tests.integrations.config.database import DATABASES
 from src.masoniteorm.connections import MySQLConnection
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import MySQLPlatform
+
+
+class Discussion(Model):
+    pass
 
 
 class TestMySQLSchemaBuilder(unittest.TestCase):
@@ -92,6 +97,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.integer("profile_id")
             blueprint.foreign("profile_id").references("id").on("profiles")
             blueprint.foreign_id("post_id").references("id").on("posts")
+            blueprint.foreign_id_for(Discussion).references("id").on("discussions")
 
         self.assertEqual(len(blueprint.table.added_columns), 3)
         self.assertEqual(
@@ -103,7 +109,8 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
                 "`post_id` BIGINT UNSIGNED NOT NULL, "
                 "CONSTRAINT users_name_unique UNIQUE (name), "
                 "CONSTRAINT users_profile_id_foreign FOREIGN KEY (`profile_id`) REFERENCES `profiles`(`id`), "
-                "CONSTRAINT users_profile_id_foreign FOREIGN KEY (`post_id`) REFERENCES `posts`(`id`))"
+                "CONSTRAINT users_profile_id_foreign FOREIGN KEY (`post_id`) REFERENCES `posts`(`id`)), "
+                "CONSTRAINT users_discussions_id_foreign FOREIGN KEY (`discussion_id`) REFERENCES `posts`(`id`))"
             ],
         )
 
