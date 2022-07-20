@@ -1416,6 +1416,11 @@ class QueryBuilder(ObservesEvents):
                     changes.update({attribute: value})
             updates = changes
 
+        if model and updates:
+            for key, value in updates.items():
+                if key in model.get_dates():
+                    updates.update({key: model.get_new_datetime_string(value)})
+
         # do not perform update query if no changes
         if len(updates.keys()) == 0:
             return model if model else self
