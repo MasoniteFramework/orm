@@ -3,7 +3,7 @@ from datetime import datetime, date as datetimedate, time as datetimetime
 import logging
 from decimal import Decimal
 
-from inflection import tableize
+from inflection import tableize, underscore
 import inspect
 
 import pendulum
@@ -58,12 +58,17 @@ class JsonCast:
     """Casts a value to JSON"""
 
     def get(self, value):
-        if isinstance(value, dict) or isinstance(value, list):
-            return value
+        if not isinstance(value, str):
+            return json.dumps(value)
 
-        return json.loads(value)
+        return value
 
     def set(self, value):
+        if isinstance(value, str):
+            # make sure the string is valid JSON
+            json.loads(value)
+            return value
+
         return json.dumps(value)
 
 
@@ -138,6 +143,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     _booted = False
     _scopes = {}
     __primary_key__ = "id"
+    __primary_key_type__ = "int"
     __casts__ = {}
     __dates__ = []
     __hidden__ = []
@@ -282,6 +288,14 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         return self.__primary_key__
 
+    def get_primary_key_type(self):
+        """Gets the primary key column type
+
+        Returns:
+            mixed
+        """
+        return self.__primary_key_type__
+
     def get_primary_key_value(self):
         """Gets the primary key value.
 
@@ -299,6 +313,17 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             raise AttributeError(
                 f"class '{name}' has no attribute {self.get_primary_key()}. Did you set the primary key correctly on the model using the __primary_key__ attribute?"
             )
+
+    def get_foreign_key(self):
+        """Gets the foreign key based on this model name.
+
+        Args:
+            relationship (str): The relationship name.
+
+        Returns:
+            str
+        """
+        return underscore(self.__class__.__name__ + "_" + self.get_primary_key())
 
     def query(self):
         return self.get_builder()
@@ -723,13 +748,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             mixed: Could be anything that a method can return.
         """
 
-        if attribute in self.__passthrough__:
-
-            def method(*args, **kwargs):
-                return getattr(self.get_builder(), attribute)(*args, **kwargs)
-
-            return method
-
         new_name_accessor = "get_" + attribute + "_attribute"
 
         if (new_name_accessor) in self.__class__.__dict__:
@@ -752,6 +770,13 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                     else None
                 )
             return self.get_value(attribute)
+
+        if attribute in self.__passthrough__:
+
+            def method(*args, **kwargs):
+                return getattr(self.get_builder(), attribute)(*args, **kwargs)
+
+            return method
 
         if attribute in self.__dict__.get("_relationships", {}):
             return self.__dict__["_relationships"][attribute]
@@ -996,7 +1021,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             else:
                 related_record.save()
 
-            related.detach_related(self, related_record)
+            related.detach(self, related_record)
 
     def related(self, relation):
         related = getattr(self.__class__, relation)

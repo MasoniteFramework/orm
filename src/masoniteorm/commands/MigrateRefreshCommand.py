@@ -23,7 +23,7 @@ class MigrateRefreshCommand(Command):
             connection=self.option("connection"),
             migration_directory=self.option("directory"),
             config_path=self.option("config"),
-            schema=self.option("schema")
+            schema=self.option("schema"),
         )
 
         migration.refresh(self.option("migration"))

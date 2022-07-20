@@ -2,10 +2,11 @@ class EagerRelations:
     def __init__(self, relation=None):
         self.eagers = []
         self.nested_eagers = {}
+        self.callback_eagers = {}
         self.is_nested = False
         self.relation = relation
 
-    def register(self, *relations):
+    def register(self, *relations, callback=None):
         for relation in relations:
             if isinstance(relation, str) and "." not in relation:
                 self.eagers += [relation]
@@ -20,6 +21,8 @@ class EagerRelations:
                 for eagers in relations:
                     for eager in eagers:
                         self.register(eager)
+            elif isinstance(relation, dict):
+                self.callback_eagers.update(relation)
 
         return self
 
@@ -30,5 +33,8 @@ class EagerRelations:
 
         if self.nested_eagers:
             eagers.append(self.nested_eagers)
+
+        if self.callback_eagers:
+            eagers.append(self.callback_eagers)
 
         return eagers
