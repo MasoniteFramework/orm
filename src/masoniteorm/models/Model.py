@@ -921,6 +921,18 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return cast_method(value)
 
+    def transform_dict(self, attributes: dict):
+        new_dict = {}
+        for key, value in attributes.items():
+            if key in self.get_dates():
+                new_dict.update({key: self.get_new_datetime_string(value)})
+            elif key in self.__casts__:
+                new_dict.update({key: self._cast_attribute(key, value)})
+            else:
+                new_dict.update({key: value})
+
+        return new_dict
+
     @classmethod
     def load(cls, *loads):
         cls.boot()

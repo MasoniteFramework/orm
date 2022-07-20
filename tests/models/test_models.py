@@ -104,6 +104,23 @@ class TestModels(unittest.TestCase):
         self.assertEqual(type(model.is_vip), bool)
         self.assertEqual(type(model.serialize()["is_vip"]), bool)
 
+    def test_model_can_transform_dict(self):
+        model = ModelTest.hydrate({})
+
+        transformed = model.transform_dict(
+            {
+                "is_vip": 1,
+                "payload": '["item1", "item2"]',
+                "x": True,
+                "due_date": pendulum.now(),
+                "f": "10.5",
+                "d": 3.14,
+            }
+        )
+
+        self.assertEqual(type(transformed.get("x")), int)
+        self.assertEqual(type(transformed.get("is_vip")), bool)
+
     def test_model_can_cast_dict_attributes(self):
         """test cast with dict object to json field"""
         dictcasttest = {}
