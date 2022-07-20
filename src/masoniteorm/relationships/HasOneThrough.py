@@ -104,8 +104,11 @@ class HasOneThrough(BaseRelationship):
 
         return builder
 
-    def get_related(self, query, relation, eagers=None):
+    def get_related(self, query, relation, eagers=None, callback=None):
         builder = self.distant_builder
+
+        if callback:
+            callback(builder)
 
         if isinstance(relation, Collection):
             return builder.where_in(
@@ -113,11 +116,10 @@ class HasOneThrough(BaseRelationship):
                 relation.pluck(self.local_key, keep_nulls=False).unique(),
             ).get()
         else:
-            result = builder.where(
+            return builder.where(
                 f"{builder.get_table_name()}.{self.foreign_key}",
                 getattr(relation, self.local_owner_key),
             ).first()
-            return result
 
     def query_where_exists(
         self, current_query_builder, callback, method="where_exists"

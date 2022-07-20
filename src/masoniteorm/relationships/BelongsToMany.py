@@ -161,7 +161,7 @@ class BelongsToMany(BaseRelationship):
 
         return builder
 
-    def make_query(self, query, relation, eagers=None):
+    def make_query(self, query, relation, eagers=None, callback=None):
         """Used during eager loading a relationship
 
         Args:
@@ -231,20 +231,23 @@ class BelongsToMany(BaseRelationship):
 
         result.without_global_scopes()
 
+        if callback:
+            callback(result)
+
         if isinstance(relation, Collection):
-            final_result = result.where_in(
+            return result.where_in(
                 self.local_owner_key,
                 relation.pluck(self.local_owner_key, keep_nulls=False),
             ).get()
         else:
-            final_result = result.where(
+            return result.where(
                 self.local_owner_key, getattr(relation, self.local_owner_key)
             ).get()
 
-        return final_result
-
-    def get_related(self, query, relation, eagers=None):
-        final_result = self.make_query(query, relation, eagers=eagers)
+    def get_related(self, query, relation, eagers=None, callback=None):
+        final_result = self.make_query(
+            query, relation, eagers=eagers, callback=callback
+        )
         builder = self.make_builder(eagers)
 
         for model in final_result:
@@ -538,7 +541,7 @@ class BelongsToMany(BaseRelationship):
             .table(self._table)
             .without_global_scopes()
             .where(data)
-            .delete()
+            .update({self.foreign_key: None, self.local_key: None})
         )
 
     def attach_related(self, current_model, related_record):

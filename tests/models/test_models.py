@@ -1,3 +1,4 @@
+import json
 import unittest
 from src.masoniteorm.models import Model
 import pendulum
@@ -89,18 +90,36 @@ class TestModels(unittest.TestCase):
         model = ModelTest.hydrate(
             {
                 "is_vip": 1,
-                "payload": '{"key": "value"}',
+                "payload": '["item1", "item2"]',
                 "x": True,
                 "f": "10.5",
                 "d": 3.14,
             }
         )
 
-        self.assertEqual(type(model.payload), dict)
+        self.assertEqual(type(model.payload), str)
+        self.assertEqual(type(json.loads(model.payload)), list)
         self.assertEqual(type(model.x), int)
         self.assertEqual(type(model.f), float)
         self.assertEqual(type(model.is_vip), bool)
         self.assertEqual(type(model.serialize()["is_vip"]), bool)
+
+    def test_model_can_transform_dict(self):
+        model = ModelTest.hydrate({})
+
+        transformed = model.transform_dict(
+            {
+                "is_vip": 1,
+                "payload": '["item1", "item2"]',
+                "x": True,
+                "due_date": pendulum.now(),
+                "f": "10.5",
+                "d": 3.14,
+            }
+        )
+
+        self.assertEqual(type(transformed.get("x")), int)
+        self.assertEqual(type(transformed.get("is_vip")), bool)
 
     def test_model_can_cast_dict_attributes(self):
         """test cast with dict object to json field"""
@@ -110,7 +129,8 @@ class TestModels(unittest.TestCase):
             {"is_vip": 1, "payload": dictcasttest, "x": True, "f": "10.5"}
         )
 
-        self.assertEqual(type(model.payload), dict)
+        self.assertEqual(type(model.payload), str)
+        self.assertEqual(type(json.loads(model.payload)), dict)
         self.assertEqual(type(model.x), int)
         self.assertEqual(type(model.f), float)
         self.assertEqual(type(model.is_vip), bool)

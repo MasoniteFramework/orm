@@ -1,3 +1,7 @@
+from distutils.command.build import build
+from ..collection import Collection
+
+
 class BaseRelationship:
     def __init__(self, fn, local_key=None, foreign_key=None):
         if isinstance(fn, str):
@@ -136,9 +140,26 @@ class BaseRelationship:
         return return_query
 
     def attach(self, current_model, related_record):
-        return current_model.update(
-            {self.local_key: getattr(related_record, self.foreign_key)}
+        return related_record.update(
+            {self.foreign_key: getattr(current_model, self.local_key)}
         )
+
+    def get_related(self, query, relation, eagers=None, callback=None):
+        eagers = eagers or []
+        builder = self.get_builder().with_(eagers)
+
+        if callback:
+            callback(builder)
+        if isinstance(relation, Collection):
+            return builder.where_in(
+                f"{builder.get_table_name()}.{self.foreign_key}",
+                relation.pluck(self.local_key, keep_nulls=False).unique(),
+            ).get()
+        else:
+            return builder.where(
+                f"{builder.get_table_name()}.{self.foreign_key}",
+                getattr(relation, self.local_key),
+            ).get()
 
     def relate(self, related_record):
         return (
@@ -150,9 +171,7 @@ class BaseRelationship:
         )
 
     def detach(self, current_model, related_record):
-        return current_model.where(
-            {self.local_key: getattr(related_record, self.foreign_key)}
-        ).delete()
+        return related_record.update({self.foreign_key: None})
 
     def attach_related(self, current_model, related_record):
         return related_record.update(
