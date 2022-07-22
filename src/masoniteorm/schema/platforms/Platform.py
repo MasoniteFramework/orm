@@ -9,10 +9,7 @@ class Platform:
         "default": "SET DEFAULT",
     }
 
-    signed = {
-        "signed": "SIGNED",
-        "unsigned": "UNSIGNED"
-    }
+    signed = {"signed": "SIGNED", "unsigned": "UNSIGNED"}
 
     def columnize(self, columns):
         sql = []

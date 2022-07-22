@@ -940,9 +940,11 @@ class Blueprint:
         """
         clm = column if column else model.get_foreign_key()
 
-        return self.foreign_id(clm)\
-            if model.get_primary_key_type() == 'int'\
+        return (
+            self.foreign_id(clm)
+            if model.get_primary_key_type() == "int"
             else self.foreign_uuid(column)
+        )
 
     def references(self, column):
         """Sets the other column on the foreign table that the local column will use to reference.

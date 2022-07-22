@@ -134,7 +134,7 @@ class SQLitePlatform(Platform):
                     data_type=self.type_map.get(column.column_type, ""),
                     column_constraint=column_constraint,
                     length=length,
-                    signed=" "+self.signed.get(column._signed) or "",
+                    signed=" " + self.signed.get(column._signed) or "",
                     constraint=constraint,
                     nullable=self.premapped_nulls.get(column.is_null) or "",
                     default=default,

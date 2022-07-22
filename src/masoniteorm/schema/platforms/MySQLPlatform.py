@@ -56,10 +56,7 @@ class MySQLPlatform(Platform):
         "null": " DEFAULT NULL",
     }
 
-    signed = {
-        "unsigned": "UNSIGNED",
-        "signed": "SIGNED"
-    }
+    signed = {"unsigned": "UNSIGNED", "signed": "SIGNED"}
 
     def columnize(self, columns):
         sql = []
