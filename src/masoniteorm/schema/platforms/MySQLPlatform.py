@@ -183,6 +183,7 @@ class MySQLPlatform(Platform):
                         constraint="PRIMARY KEY" if column.primary else "",
                         nullable="NULL" if column.is_null else "NOT NULL",
                         default=default,
+                        signed=" " + self.signed.get(column._signed) if column._signed else "",
                         after=(" AFTER " + self.wrap_column(column._after))
                         if column._after
                         else "",
@@ -327,7 +328,7 @@ class MySQLPlatform(Platform):
         return sql
 
     def add_column_string(self):
-        return "ADD {name} {data_type}{length} {nullable}{default}{after}{comment}"
+        return "ADD {name} {data_type}{length}{signed} {nullable}{default}{after}{comment}"
 
     def drop_column_string(self):
         return "DROP COLUMN {name}"

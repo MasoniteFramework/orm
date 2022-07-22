@@ -724,8 +724,8 @@ class Blueprint:
         _columns = []
         _columns.append(
             self.table.add_column(
-                "{}_id".format(column), "integer_unsigned", nullable=nullable
-            )
+                "{}_id".format(column), "integer", nullable=nullable
+            ).unsigned()
         )
         _columns.append(
             self.table.add_column(
