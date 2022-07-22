@@ -9,6 +9,11 @@ class Platform:
         "default": "SET DEFAULT",
     }
 
+    signed = {
+        "signed": "SIGNED",
+        "unsigned": "UNSIGNED"
+    }
+
     def columnize(self, columns):
         sql = []
         for name, column in columns.items():

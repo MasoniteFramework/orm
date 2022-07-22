@@ -56,6 +56,11 @@ class MySQLPlatform(Platform):
         "null": " DEFAULT NULL",
     }
 
+    signed = {
+        "unsigned": "UNSIGNED",
+        "signed": "SIGNED"
+    }
+
     def columnize(self, columns):
         sql = []
         for name, column in columns.items():
@@ -88,7 +93,6 @@ class MySQLPlatform(Platform):
             if column.column_type == "enum":
                 values = ", ".join(f"'{x}'" for x in column.values)
                 column_constraint = f"({values})"
-
             sql.append(
                 self.columnize_string()
                 .format(
@@ -99,6 +103,7 @@ class MySQLPlatform(Platform):
                     constraint=constraint,
                     nullable=self.premapped_nulls.get(column.is_null) or "",
                     default=default,
+                    signed=" " + self.signed.get(column._signed, "") or "",
                     comment="COMMENT '" + column.comment + "'"
                     if column.comment
                     else "",
@@ -337,7 +342,7 @@ class MySQLPlatform(Platform):
         return "CHANGE {old} {to}"
 
     def columnize_string(self):
-        return "{name} {data_type}{length}{column_constraint} {nullable}{default} {constraint}{comment}"
+        return "{name} {data_type}{length}{column_constraint}{signed} {nullable}{default} {constraint}{comment}"
 
     def constraintize(self, constraints, table):
         sql = []

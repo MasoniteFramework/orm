@@ -42,6 +42,18 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             ],
         )
 
+    def test_can_add_unsigned_decimal(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.unsigned_decimal("amount", 19, 4)
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(
+            blueprint.to_sql(),
+            [
+                'CREATE TABLE "users" ("amount" DECIMAL(19, 4) NOT NULL)'
+            ],
+        )
+
     def test_can_create_table_if_not_exists(self):
         with self.schema.create_table_if_not_exists("users") as blueprint:
             blueprint.string("name")
@@ -313,13 +325,11 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.small_integer("small_profile_id").unsigned()
             blueprint.medium_integer("medium_profile_id").unsigned()
 
-        print(blueprint.to_sql())
-
         self.assertEqual(
             blueprint.to_sql(),
             [
                 """CREATE TABLE "users" ("""
-                """"profile_id" INT UNSIGNED NOT NULL, """
+                """"profile_id" INTEGER UNSIGNED NOT NULL, """
                 """"big_profile_id" BIGINT UNSIGNED NOT NULL, """
                 """"tiny_profile_id" TINYINT UNSIGNED NOT NULL, """
                 """"small_profile_id" SMALLINT UNSIGNED NOT NULL, """

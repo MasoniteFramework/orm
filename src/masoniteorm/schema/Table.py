@@ -25,6 +25,7 @@ class Table:
         values=None,
         nullable=False,
         default=None,
+        signed=None,
         default_is_raw=False,
         primary=False,
         column_python_type=str,
@@ -36,6 +37,7 @@ class Table:
             nullable=nullable,
             values=values or [],
             default=default,
+            signed=signed,
             default_is_raw=default_is_raw,
             column_python_type=column_python_type,
         )

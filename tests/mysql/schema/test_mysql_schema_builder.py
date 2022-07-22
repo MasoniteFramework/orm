@@ -49,6 +49,18 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             ],
         )
 
+    def test_can_add_unsigned_decimal(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.unsigned_decimal("amount", 19, 4)
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(
+            blueprint.to_sql(),
+            [
+                'CREATE TABLE `users` (`amount` DECIMAL(19, 4) UNSIGNED NOT NULL)'
+            ],
+        )
+
     def test_can_create_table_if_not_exists(self):
         with self.schema.create_table_if_not_exists("users") as blueprint:
             blueprint.string("name")
@@ -290,13 +302,13 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.to_sql(),
             [
                 "CREATE TABLE `users` ("
-                "`profile_id` INT UNSIGNED NOT NULL, "
-                "`big_profile_id` BIGINT UNSIGNED NOT NULL, "
-                "`tiny_profile_id` TINYINT UNSIGNED NOT NULL, "
-                "`small_profile_id` SMALLINT UNSIGNED NOT NULL, "
-                "`medium_profile_id` MEDIUMINT UNSIGNED NOT NULL, "
+                "`profile_id` INT(11) UNSIGNED NOT NULL, "
+                "`big_profile_id` BIGINT(32) UNSIGNED NOT NULL, "
+                "`tiny_profile_id` TINYINT(1) UNSIGNED NOT NULL, "
+                "`small_profile_id` SMALLINT(5) UNSIGNED NOT NULL, "
+                "`medium_profile_id` MEDIUMINT(7) UNSIGNED NOT NULL, "
                 "`unsigned_profile_id` INT UNSIGNED NOT NULL, "
-                "`unsigned_big_profile_id` BIGINT UNSIGNED NOT NULL)"
+                "`unsigned_big_profile_id` BIGINT(32) UNSIGNED NOT NULL)"
             ],
         )
 

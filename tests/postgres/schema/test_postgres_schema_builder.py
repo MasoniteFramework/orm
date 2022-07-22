@@ -43,6 +43,18 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             ],
         )
 
+    def test_can_add_unsigned_decimal(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.unsigned_decimal("amount", 19, 4)
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(
+            blueprint.to_sql(),
+            [
+                'CREATE TABLE "users" ("amount" DECIMAL(19, 4) NOT NULL)'
+            ],
+        )
+
     def test_can_create_table_if_not_exists(self):
         with self.schema.create_table_if_not_exists("users") as blueprint:
             blueprint.string("name")

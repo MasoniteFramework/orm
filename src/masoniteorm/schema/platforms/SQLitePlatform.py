@@ -134,6 +134,7 @@ class SQLitePlatform(Platform):
                     data_type=self.type_map.get(column.column_type, ""),
                     column_constraint=column_constraint,
                     length=length,
+                    signed=" "+self.signed.get(column._signed) or "",
                     constraint=constraint,
                     nullable=self.premapped_nulls.get(column.is_null) or "",
                     default=default,
@@ -289,7 +290,7 @@ class SQLitePlatform(Platform):
         return "({length})"
 
     def columnize_string(self):
-        return "{name} {data_type}{length}{column_constraint} {nullable}{default} {constraint}"
+        return "{name} {data_type}{length}{column_constraint}{signed} {nullable}{default} {constraint}"
 
     def get_unique_constraint_string(self):
         return "UNIQUE({columns})"
