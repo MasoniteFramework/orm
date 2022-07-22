@@ -100,7 +100,7 @@ class MySQLPlatform(Platform):
                     constraint=constraint,
                     nullable=self.premapped_nulls.get(column.is_null) or "",
                     default=default,
-                    signed=" " + self.signed.get(column._signed, "") or "",
+                    signed=" " + self.signed.get(column._signed) if column._signed else "",
                     comment="COMMENT '" + column.comment + "'"
                     if column.comment
                     else "",
