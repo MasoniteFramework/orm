@@ -13,9 +13,7 @@ class SQLitePlatform(Platform):
         "medium_integer",
     ]
 
-    types_without_signs = [
-        "decimal",
-    ]
+    types_without_signs = ["decimal"]
 
     type_map = {
         "string": "VARCHAR",
@@ -138,7 +136,10 @@ class SQLitePlatform(Platform):
                     data_type=self.type_map.get(column.column_type, ""),
                     column_constraint=column_constraint,
                     length=length,
-                    signed=" " + self.signed.get(column._signed) if column.column_type not in self.types_without_signs and column._signed else "",
+                    signed=" " + self.signed.get(column._signed)
+                    if column.column_type not in self.types_without_signs
+                    and column._signed
+                    else "",
                     constraint=constraint,
                     nullable=self.premapped_nulls.get(column.is_null) or "",
                     default=default,
@@ -183,7 +184,10 @@ class SQLitePlatform(Platform):
                         data_type=self.type_map.get(column.column_type, ""),
                         nullable="NULL" if column.is_null else "NOT NULL",
                         default=default,
-                        signed=" " + self.signed.get(column._signed) if column.column_type not in self.types_without_signs and column._signed else "",
+                        signed=" " + self.signed.get(column._signed)
+                        if column.column_type not in self.types_without_signs
+                        and column._signed
+                        else "",
                         constraint=constraint,
                     ).strip()
                 )
