@@ -464,7 +464,12 @@ class QueryBuilder(ObservesEvents):
         model = None
         self.set_action("bulk_create")
 
-        self._creates = creates
+        sorted_creates = []
+        # sort the dicts by key so the values inserted align
+        # with the correct column
+        for unsorted_dict in creates:
+            sorted_creates.append(dict(sorted(unsorted_dict.items())))
+        self._creates = sorted_creates
 
         if self._model:
             model = self._model
