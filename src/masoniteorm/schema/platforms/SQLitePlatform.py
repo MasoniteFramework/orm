@@ -35,6 +35,7 @@ class SQLitePlatform(Platform):
         "double": "DOUBLE",
         "enum": "VARCHAR",
         "text": "TEXT",
+        "tiny_text": "TEXT",
         "float": "FLOAT",
         "geometry": "GEOMETRY",
         "json": "JSON",

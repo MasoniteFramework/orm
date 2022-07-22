@@ -483,6 +483,24 @@ class Blueprint:
         )
         return self
 
+    def tiny_text(self, column, length=None, nullable=False):
+        """Sets a column to be the text representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            length {int} -- The length of the column if any. (default: {False})
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(
+            column, "tiny_text", length=length, nullable=nullable
+        )
+        return self
+
     def long_text(self, column, length=None, nullable=False):
         """Sets a column to be the long_text representation for the table.
 

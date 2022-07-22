@@ -34,6 +34,7 @@ class MSSQLPlatform(Platform):
         "double": "DOUBLE",
         "enum": "VARCHAR",
         "text": "TEXT",
+        "tiny_text": "TINYTEXT",
         "float": "FLOAT",
         "geometry": "GEOMETRY",
         "json": "JSON",

@@ -29,6 +29,7 @@ class MySQLPlatform(Platform):
         "double": "DOUBLE",
         "enum": "ENUM",
         "text": "TEXT",
+        "tiny_text": "TINYTEXT",
         "float": "FLOAT",
         "geometry": "GEOMETRY",
         "json": "JSON",

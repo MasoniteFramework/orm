@@ -40,6 +40,7 @@ class PostgresPlatform(Platform):
         "double": "DOUBLE PRECISION",
         "enum": "VARCHAR",
         "text": "TEXT",
+        "tiny_text": "TEXT",
         "float": "FLOAT",
         "geometry": "GEOMETRY",
         "json": "JSON",
