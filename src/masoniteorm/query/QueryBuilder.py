@@ -2089,7 +2089,6 @@ class QueryBuilder(ObservesEvents):
         for name, scope in self._global_scopes.get(self._action, {}).items():
             scope(self)
 
-        grammar = self.get_grammar()
         sql = grammar.compile(self._action, qmark=True).to_sql()
 
         self._bindings = grammar._bindings
