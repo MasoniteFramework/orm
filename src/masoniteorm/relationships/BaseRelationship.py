@@ -1,4 +1,3 @@
-from distutils.command.build import build
 from ..collection import Collection
 
 
