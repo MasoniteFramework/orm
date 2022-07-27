@@ -206,14 +206,14 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
     def test_has_table(self):
         schema_sql = self.schema.has_table("users")
 
-        sql = "SELECT * from information_schema.tables where table_name='users'"
+        sql = "SELECT * from information_schema.tables where table_name='users' AND table_schema = 'public'"
 
         self.assertEqual(schema_sql, sql)
 
     def test_drop_table(self):
         schema_sql = self.schema.has_table("users")
 
-        sql = "SELECT * from information_schema.tables where table_name='users'"
+        sql = "SELECT * from information_schema.tables where table_name='users' AND table_schema = 'public'"
 
         self.assertEqual(schema_sql, sql)
 
@@ -232,6 +232,22 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         sql = [
             'ALTER TABLE "users" ADD COLUMN "name" VARCHAR(255) NOT NULL',
             'ALTER TABLE "users" ALTER COLUMN "age" TYPE INTEGER, ALTER COLUMN "age" SET NOT NULL',
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_change_string(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.string("name", 93).change()
+
+        self.assertEqual(len(blueprint.table.changed_columns), 1)
+        table = Table("users")
+        table.add_column("age", "string")
+
+        blueprint.table.from_table = table
+
+        sql = [
+            'ALTER TABLE "users" ALTER COLUMN "name" TYPE VARCHAR(93), ALTER COLUMN "name" SET NOT NULL'
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)

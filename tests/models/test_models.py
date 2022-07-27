@@ -1,3 +1,4 @@
+import json
 import unittest
 from src.masoniteorm.models import Model
 import pendulum
@@ -6,7 +7,13 @@ import datetime
 
 class ModelTest(Model):
     __dates__ = ["due_date"]
-    __casts__ = {"is_vip": "bool", "payload": "json", "x": "int", "f": "float"}
+    __casts__ = {
+        "is_vip": "bool",
+        "payload": "json",
+        "x": "int",
+        "f": "float",
+        "d": "decimal",
+    }
 
 
 class ModelTestForced(Model):
@@ -81,10 +88,17 @@ class TestModels(unittest.TestCase):
 
     def test_model_can_cast_attributes(self):
         model = ModelTest.hydrate(
-            {"is_vip": 1, "payload": '{"key": "value"}', "x": True, "f": "10.5"}
+            {
+                "is_vip": 1,
+                "payload": '["item1", "item2"]',
+                "x": True,
+                "f": "10.5",
+                "d": 3.14,
+            }
         )
 
-        self.assertEqual(type(model.payload), dict)
+        self.assertEqual(type(model.payload), str)
+        self.assertEqual(type(json.loads(model.payload)), list)
         self.assertEqual(type(model.x), int)
         self.assertEqual(type(model.f), float)
         self.assertEqual(type(model.is_vip), bool)
@@ -98,7 +112,8 @@ class TestModels(unittest.TestCase):
             {"is_vip": 1, "payload": dictcasttest, "x": True, "f": "10.5"}
         )
 
-        self.assertEqual(type(model.payload), dict)
+        self.assertEqual(type(model.payload), str)
+        self.assertEqual(type(json.loads(model.payload)), dict)
         self.assertEqual(type(model.x), int)
         self.assertEqual(type(model.f), float)
         self.assertEqual(type(model.is_vip), bool)

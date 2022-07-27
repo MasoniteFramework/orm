@@ -35,6 +35,10 @@ class ConnectionResolver:
     def get_connection_details(self):
         return self._connection_details
 
+    def set_connection_option(self, connection: str, options: dict):
+        self._connection_details.get(connection).update(options)
+        return self
+
     def get_global_connections(self):
         return self._connections
 
@@ -104,11 +108,13 @@ class ConnectionResolver:
             "full_details": details.get(name, {}),
         }
 
-    def get_schema_builder(self, connection="default"):
+    def get_schema_builder(self, connection="default", schema=None):
         from ..schema import Schema
 
         return Schema(
-            connection=connection, connection_details=self.get_connection_details()
+            connection=connection,
+            connection_details=self.get_connection_details(),
+            schema=schema,
         )
 
     def get_query_builder(self, connection="default"):

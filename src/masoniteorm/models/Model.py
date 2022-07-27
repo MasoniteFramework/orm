@@ -1,8 +1,9 @@
 import json
 from datetime import datetime, date as datetimedate, time as datetimetime
 import logging
+from decimal import Decimal
 
-from inflection import tableize
+from inflection import tableize, underscore
 import inspect
 
 import pendulum
@@ -57,12 +58,17 @@ class JsonCast:
     """Casts a value to JSON"""
 
     def get(self, value):
-        if isinstance(value, dict) or isinstance(value, list):
-            return value
+        if not isinstance(value, str):
+            return json.dumps(value)
 
-        return json.loads(value)
+        return value
 
     def set(self, value):
+        if isinstance(value, str):
+            # make sure the string is valid JSON
+            json.loads(value)
+            return value
+
         return json.dumps(value)
 
 
@@ -96,6 +102,25 @@ class DateCast:
         return pendulum.parse(value).to_date_string()
 
 
+class DecimalCast:
+    """Casts a value to Decimal for accuracy"""
+
+    def get(self, value):
+        """
+        Get the value
+        """
+        if isinstance(value, Decimal):
+            return str(value)
+
+        return Decimal(str(value))
+
+    def set(self, value):
+        """
+        Set the value
+        """
+        return Decimal(str(value))
+
+
 class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     """The ORM Model class
 
@@ -113,10 +138,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     __selects__ = []
 
     __observers__ = {}
+    __has_events__ = True
 
     _booted = False
     _scopes = {}
     __primary_key__ = "id"
+    __primary_key_type__ = "int"
     __casts__ = {}
     __dates__ = []
     __hidden__ = []
@@ -144,6 +171,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "count",
         "decrement",
         "delete",
+        "distinct",
+        "doesnt_exist",
+        "doesnt_have",
+        "exists",
         "find_or_404",
         "find_or_fail",
         "first_or_fail",
@@ -154,6 +185,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "from_",
         "from_raw",
         "get",
+        "get_table_schema",
         "group_by_raw",
         "group_by",
         "has",
@@ -177,6 +209,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "offset",
         "on",
         "or_where",
+        "or_where_null",
         "order_by_raw",
         "order_by",
         "paginate",
@@ -184,6 +217,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "select_raw",
         "select",
         "set_global_scope",
+        "set_schema",
         "shared_lock",
         "simple_paginate",
         "skip",
@@ -198,6 +232,13 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "when",
         "where_between",
         "where_column",
+        "where_date",
+        "or_where_doesnt_have",
+        "or_has",
+        "or_where_has",
+        "or_doesnt_have",
+        "or_where_not_exists",
+        "or_where_date",
         "where_exists",
         "where_from_builder",
         "where_has",
@@ -211,6 +252,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "where_raw",
         "without_global_scopes",
         "where",
+        "where_doesnt_have",
         "with_",
         "with_count",
     ]
@@ -223,6 +265,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "int": IntCast,
         "float": FloatCast,
         "date": DateCast,
+        "decimal": DecimalCast,
     }
 
     def __init__(self):
@@ -245,6 +288,14 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         return self.__primary_key__
 
+    def get_primary_key_type(self):
+        """Gets the primary key column type
+
+        Returns:
+            mixed
+        """
+        return self.__primary_key_type__
+
     def get_primary_key_value(self):
         """Gets the primary key value.
 
@@ -263,12 +314,24 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 f"class '{name}' has no attribute {self.get_primary_key()}. Did you set the primary key correctly on the model using the __primary_key__ attribute?"
             )
 
+    def get_foreign_key(self):
+        """Gets the foreign key based on this model name.
+
+        Args:
+            relationship (str): The relationship name.
+
+        Returns:
+            str
+        """
+        return underscore(self.__class__.__name__ + "_" + self.get_primary_key())
+
     def query(self):
         return self.get_builder()
 
     def get_builder(self):
         if hasattr(self, "builder"):
             return self.builder
+
         self.builder = QueryBuilder(
             connection=self.__connection__,
             table=self.get_table_name(),
@@ -436,6 +499,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
     def fill(self, attributes):
         self.__attributes__.update(attributes)
+        return self
+
+    def fill_original(self, attributes):
         self.__original_attributes__.update(attributes)
         return self
 
@@ -682,13 +748,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             mixed: Could be anything that a method can return.
         """
 
-        if attribute in self.__passthrough__:
-
-            def method(*args, **kwargs):
-                return getattr(self.get_builder(), attribute)(*args, **kwargs)
-
-            return method
-
         new_name_accessor = "get_" + attribute + "_attribute"
 
         if (new_name_accessor) in self.__class__.__dict__:
@@ -711,6 +770,13 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                     else None
                 )
             return self.get_value(attribute)
+
+        if attribute in self.__passthrough__:
+
+            def method(*args, **kwargs):
+                return getattr(self.get_builder(), attribute)(*args, **kwargs)
+
+            return method
 
         if attribute in self.__dict__.get("_relationships", {}):
             return self.__dict__["_relationships"][attribute]
@@ -783,6 +849,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 )
             self.observe_events(self, "saved")
             self.fill(result.__attributes__)
+            self.__dirty_attributes__ = {}
             return result
 
         if self.is_loaded():
@@ -953,7 +1020,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             else:
                 related_record.save()
 
-            related.detach_related(self, related_record)
+            related.detach(self, related_record)
 
     def related(self, relation):
         related = getattr(self.__class__, relation)
@@ -992,8 +1059,3 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             related_record.save()
 
         return related.attach_related(self, related_record)
-
-    @classmethod
-    def on(cls, connection):
-        cls.__connection__ = connection
-        return cls

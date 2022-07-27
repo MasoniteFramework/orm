@@ -8,6 +8,7 @@ class MigrateStatusCommand(Command):
 
     migrate:status
         {--c|connection=default : The connection you want to run migrations on}
+        {--schema=? : Sets the schema to be migrated}
         {--d|directory=databases/migrations : The location of the migration directory}
     """
 
@@ -17,6 +18,7 @@ class MigrateStatusCommand(Command):
             connection=self.option("connection"),
             migration_directory=self.option("directory"),
             config_path=self.option("config"),
+            schema=self.option("schema"),
         )
         migration.create_table_if_not_exists()
         table = self.table()

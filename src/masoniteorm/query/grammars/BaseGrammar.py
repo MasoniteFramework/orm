@@ -4,7 +4,6 @@ from ...expressions.expressions import (
     SubGroupExpression,
     SubSelectExpression,
     SelectExpression,
-    BetweenExpression,
     JoinClause,
     OnClause,
 )
@@ -33,6 +32,7 @@ class BaseGrammar:
         updates=None,
         aggregates=(),
         order_by=(),
+        distinct=False,
         group_by=(),
         joins=(),
         lock=False,
@@ -49,6 +49,7 @@ class BaseGrammar:
         self._aggregates = aggregates
         self._order_by = order_by
         self._group_by = group_by
+        self._distinct = distinct
         self._joins = joins
         self._having = having
         self.lock = lock
@@ -99,6 +100,7 @@ class BaseGrammar:
                 self.select_format()
                 .format(
                     columns=self.process_columns(separator=", ", qmark=qmark),
+                    keyword="DISTINCT" if self._distinct else "",
                     table=self.process_table(self.table),
                     joins=self.process_joins(qmark=qmark),
                     wheres=self.process_wheres(qmark=qmark),
@@ -610,6 +612,8 @@ class BaseGrammar:
                 )
             elif value_type == "NULL":
                 sql_string = self.where_null_string()
+            elif value_type == "DATE":
+                sql_string = self.where_date_string()
             elif value_type == "NOT NULL":
                 sql_string = self.where_not_null_string()
             elif equality == "EXISTS":
@@ -647,7 +651,7 @@ class BaseGrammar:
                 if qmark:
                     query_from_builder = value.builder.to_qmark()
                     if value.builder._bindings:
-                        self.add_binding(value.builder._bindings)
+                        self.add_binding(*value.builder._bindings)
                 else:
                     query_from_builder = value.builder.to_sql()
                 query_value = self.subquery_string().format(query=query_from_builder)
@@ -686,6 +690,8 @@ class BaseGrammar:
                 self.add_binding(value)
             elif value_type == "column":
                 query_value = self._table_column_string(column=value, separator="")
+            elif value_type == "DATE":
+                query_value = self.value_string().format(value=value, separator="")
             elif value_type == "having":
                 query_value = self._table_column_string(column=value, separator="")
             else:

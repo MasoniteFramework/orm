@@ -34,7 +34,7 @@ class SQLiteGrammar(BaseGrammar):
     locks = {"share": "", "update": ""}
 
     def select_format(self):
-        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by} {having} {order_by} {limit} {offset} {lock}"
+        return "SELECT {keyword} {columns} FROM {table} {joins} {wheres} {group_by} {having} {order_by} {limit} {offset} {lock}"
 
     def select_no_table(self):
         return "SELECT {columns} {lock}"
@@ -178,6 +178,9 @@ class SQLiteGrammar(BaseGrammar):
 
     def where_null_string(self):
         return " {keyword} {column} IS NULL"
+
+    def where_date_string(self):
+        return "{keyword} DATE({column}) {equality} {value}"
 
     def value_equal_string(self):
         return "{keyword} {value1} = {value2}"

@@ -1,5 +1,7 @@
+from ...schema import Schema
 from .Platform import Platform
 from ..Table import Table
+import re
 
 
 class MySQLPlatform(Platform):
@@ -376,7 +378,7 @@ class MySQLPlatform(Platform):
     def get_unique_constraint_string(self):
         return "CONSTRAINT {constraint_name} UNIQUE ({columns})"
 
-    def compile_table_exists(self, table, database):
+    def compile_table_exists(self, table, database=None, schema=None):
         return f"SELECT * from information_schema.tables where table_name='{table}' AND table_schema = '{database}'"
 
     def compile_truncate(self, table, foreign_keys=False):
@@ -401,8 +403,58 @@ class MySQLPlatform(Platform):
     def compile_column_exists(self, table, column):
         return f"SELECT column_name FROM information_schema.columns WHERE table_name='{table}' and column_name='{column}'"
 
-    def get_current_schema(self, connection, table_name):
-        return Table(table_name)
+    def get_current_schema(self, connection, table_name, schema=None):
+        table = Table(table_name)
+        sql = f"DESCRIBE {table_name}"
+        result = connection.query(sql, ())
+        reversed_type_map = {v: k for k, v in self.type_map.items()}
+
+        for column in result:
+            column_type = self.get_column_type(
+                reversed_type_map, column["Type"].upper()
+            )
+            length = self.get_column_length(column["Type"])
+            default = column.get("Default")
+
+            table.add_column(
+                column["Field"],
+                column_type,
+                column_python_type=Schema._type_hints_map.get(column_type, str),
+                default=default,
+                length=length,
+            )
+        return table
+
+    def get_column_type(self, reversed_type_map, column_type):
+        if "(" in column_type:
+            parenthesis_index = column_type.find("(")
+            column_type = column_type[:parenthesis_index]
+            length = self.get_column_length(column_type)
+            if column_type == "CHAR":
+                if length == "1":
+                    return "char"
+                elif length == "36":
+                    return "uuid"
+                else:
+                    return "char"
+            elif column_type == "VARCHAR":
+                if length == "4":
+                    return "year"
+                else:
+                    return "string"
+        return reversed_type_map.get(column_type)
+
+    def get_column_length(self, raw_column_type):
+        regex = re.compile(r"^\w+\((\d+)\)")
+        match = regex.match(raw_column_type)
+        if match:
+            return match.groups()[0]
+
+        if "(" in raw_column_type:
+            parenthesis_index = raw_column_type.find("(")
+            return raw_column_type[parenthesis_index + 1 : -1]
+        else:
+            return None
 
     def enable_foreign_key_constraints(self):
         return "SET FOREIGN_KEY_CHECKS=1"

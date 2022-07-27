@@ -67,7 +67,7 @@ class MorphToMany(BaseRelationship):
 
         return model.where(model.get_primary_key(), record).first()
 
-    def get_related(self, query, relation, eagers=None):
+    def get_related(self, query, relation, eagers=None, callback=None):
         """Gets the relation needed between the relation and the related builder. If the relation is a collection
         then will need to pluck out all the keys from the collection and fetch from the related builder. If
         relation is just a Model then we can just call the model based on the value of the related
@@ -117,4 +117,14 @@ class MorphToMany(BaseRelationship):
     def attach_related(self, current_model, related_record):
         raise NotImplementedError(
             "MorphToMany relationship does not implement the attach_related method"
+        )
+
+    def query_has(self, related_record, method="where_exists"):
+        raise NotImplementedError(
+            "MorphMany relationship does not implement the has method"
+        )
+
+    def query_where_exists(self, related_record, method="where_exists"):
+        raise NotImplementedError(
+            "MorphMany relationship does not implement the where_exists method"
         )

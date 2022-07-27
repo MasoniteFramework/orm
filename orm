@@ -16,6 +16,7 @@ from src.masoniteorm.commands import (
     MigrateStatusCommand,
     MigrateResetCommand,
     MakeSeedCommand,
+    MakeModelDocstringCommand,
     SeedRunCommand,
 )
 
@@ -26,10 +27,12 @@ application.add(MigrateRollbackCommand())
 application.add(MigrateRefreshCommand())
 application.add(MakeMigrationCommand())
 application.add(MakeModelCommand())
+application.add(MakeModelDocstringCommand())
 application.add(MakeObserverCommand())
 application.add(MigrateResetCommand())
 application.add(MigrateStatusCommand())
 application.add(MakeSeedCommand())
+
 application.add(SeedRunCommand())
 
 if __name__ == "__main__":

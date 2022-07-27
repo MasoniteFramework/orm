@@ -311,7 +311,7 @@ class MSSQLPlatform(Platform):
     def get_unique_constraint_string(self):
         return "CONSTRAINT {constraint_name} UNIQUE ({columns})"
 
-    def compile_table_exists(self, table, database):
+    def compile_table_exists(self, table, database=None, schema=None):
         return f"SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{table}'"
 
     def compile_truncate(self, table, foreign_keys=False):
@@ -336,7 +336,7 @@ class MSSQLPlatform(Platform):
     def compile_column_exists(self, table, column):
         return f"SELECT 1 FROM sys.columns WHERE Name = N'{column}' AND Object_ID = Object_ID(N'{table}')"
 
-    def get_current_schema(self, connection, table_name):
+    def get_current_schema(self, connection, table_name, schema=None):
         return Table(table_name)
 
     def enable_foreign_key_constraints(self):

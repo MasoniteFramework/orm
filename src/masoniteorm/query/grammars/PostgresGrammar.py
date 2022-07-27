@@ -37,7 +37,7 @@ class PostgresGrammar(BaseGrammar):
         return "SELECT {columns} {lock}"
 
     def select_format(self):
-        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by} {having} {order_by} {limit} {offset} {lock}"
+        return "SELECT {keyword} {columns} FROM {table} {joins} {wheres} {group_by} {having} {order_by} {limit} {offset} {lock}"
 
     def update_format(self):
         return "UPDATE {table} SET {key_equals} {wheres}"
@@ -177,6 +177,9 @@ class PostgresGrammar(BaseGrammar):
 
     def where_in_string(self):
         return "WHERE IN ({values})"
+
+    def where_date_string(self):
+        return "{keyword} DATE({column}) {equality} {value}"
 
     def value_equal_string(self):
         return "{keyword} {value1} = {value2}"

@@ -36,7 +36,7 @@ class MSSQLGrammar(BaseGrammar):
         return "SELECT {columns}"
 
     def select_format(self):
-        return "SELECT {limit} {columns} FROM {table} {lock} {joins} {wheres} {group_by} {having} {order_by} {offset}"
+        return "SELECT {keyword} {limit} {columns} FROM {table} {lock} {joins} {wheres} {group_by} {having} {order_by} {offset}"
 
     def update_format(self):
         return "UPDATE {table} SET {key_equals} {wheres}"
@@ -70,6 +70,9 @@ class MSSQLGrammar(BaseGrammar):
 
     def where_not_like_string(self):
         return "{keyword} {column} NOT LIKE {value}"
+
+    def where_date_string(self):
+        return "{keyword} DATE({column}) {equality} {value}"
 
     def where_regexp_string(self):
         return self.where_like_string()

@@ -27,6 +27,7 @@ class Table:
         default=None,
         default_is_raw=False,
         primary=False,
+        column_python_type=str,
     ):
         column = Column(
             name,
@@ -36,6 +37,7 @@ class Table:
             values=values or [],
             default=default,
             default_is_raw=default_is_raw,
+            column_python_type=column_python_type,
         )
         if primary:
             column.set_as_primary()

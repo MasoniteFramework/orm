@@ -13,6 +13,7 @@ class MigrateCommand(Command):
         {--c|connection=default : The connection you want to run migrations on}
         {--f|force : Force migrations without prompt in production}
         {--s|show : Shows the output of SQL for migrations that would be running}
+        {--schema=? : Sets the schema to be migrated}
         {--d|directory=databases/migrations : The location of the migration directory}
     """
 
@@ -32,6 +33,7 @@ class MigrateCommand(Command):
             connection=self.option("connection"),
             migration_directory=self.option("directory"),
             config_path=self.option("config"),
+            schema=self.option("schema"),
         )
         migration.create_table_if_not_exists()
         if not migration.get_unran_migrations():

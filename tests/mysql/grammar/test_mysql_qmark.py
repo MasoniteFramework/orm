@@ -91,7 +91,6 @@ class BaseQMarkTest:
             )
         )
 
-
         sql, bindings = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -163,4 +162,7 @@ class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):
         """
         self.builder.where("is_admin", True).to_qmark()
         """
-        return ("SELECT * FROM `users` WHERE (`users`.`challenger` = '?' OR `users`.`proposer` = '?' OR `users`.`referee` = '?')", [1,1,1])
+        return (
+            "SELECT * FROM `users` WHERE (`users`.`challenger` = '?' OR `users`.`proposer` = '?' OR `users`.`referee` = '?')",
+            [1, 1, 1],
+        )

@@ -305,8 +305,14 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         self.assertEqual(to_sql, "SELECT * FROM [users] WHERE [age] = '18'")
 
     def test_can_compile_having_raw(self):
-        to_sql = self.builder.select_raw("COUNT(*) as counts").having_raw("counts > 10").to_sql()
-        self.assertEqual(to_sql, "SELECT COUNT(*) as counts FROM [users] HAVING counts > 10")
+        to_sql = (
+            self.builder.select_raw("COUNT(*) as counts")
+            .having_raw("counts > 10")
+            .to_sql()
+        )
+        self.assertEqual(
+            to_sql, "SELECT COUNT(*) as counts FROM [users] HAVING counts > 10"
+        )
 
     def test_can_compile_having_raw_order(self):
         to_sql = self.builder.select_raw("COUNT(*) as counts").having_raw("counts > 10").order_by_raw(
@@ -463,3 +469,14 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
 
     def where_not_exists_with_lambda(self):
         return """SELECT * FROM [users] WHERE NOT EXISTS (SELECT * FROM [users] WHERE [users].[age] = '1')"""
+
+    def where_date(self):
+        return (
+            """SELECT * FROM [users] WHERE DATE([users].[created_at]) = '2022-06-01'"""
+        )
+
+    def or_where_null(self):
+        return """SELECT * FROM [users] WHERE [users].[column1] IS NULL OR [users].[column2] IS NULL"""
+
+    def select_distinct(self):
+        return """SELECT DISTINCT [users].[group] FROM [users]"""

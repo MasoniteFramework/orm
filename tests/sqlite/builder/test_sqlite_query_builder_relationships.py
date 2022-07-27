@@ -61,6 +61,28 @@ class BaseTestQueryRelationships(unittest.TestCase):
             """)""",
         )
 
+    def test_doesnt_have(self):
+        builder = self.get_builder()
+        sql = builder.doesnt_have("articles").to_sql()
+        self.assertEqual(
+            sql,
+            """SELECT * FROM "users" WHERE NOT EXISTS ("""
+            """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id\""""
+            """)""",
+        )
+
+    def test_where_doesnt_have(self):
+        builder = self.get_builder()
+        sql = builder.where_doesnt_have(
+            "articles", lambda q: q.where("title", "Eggs and Ham")
+        ).to_sql()
+        self.assertEqual(
+            sql,
+            """SELECT * FROM "users" WHERE NOT EXISTS ("""
+            """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id" AND "articles"."title" = 'Eggs and Ham'"""
+            """)""",
+        )
+
     def test_where_has_query(self):
         builder = self.get_builder()
         sql = builder.where_has("articles", lambda q: q.where("active", 1)).to_sql()

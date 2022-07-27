@@ -10,8 +10,10 @@ class Column:
         nullable=False,
         default=None,
         default_is_raw=False,
+        column_python_type=str,
     ):
         self.column_type = column_type
+        self.column_python_type = column_python_type
         self.name = name
         self.length = length
         self.values = values or []

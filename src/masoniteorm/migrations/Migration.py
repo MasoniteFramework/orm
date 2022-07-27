@@ -20,21 +20,29 @@ class Migration:
         command_class=None,
         migration_directory="databases/migrations",
         config_path=None,
+        schema=None,
     ):
         self.connection = connection
         self.migration_directory = migration_directory
         self.last_migrations_ran = []
         self.command_class = command_class
 
+        self.schema_name = schema
+
         DB = load_config(config_path).DB
 
         DATABASES = DB.get_connection_details()
 
         self.schema = Schema(
-            connection=connection, connection_details=DATABASES, dry=dry
+            connection=connection,
+            connection_details=DATABASES,
+            dry=dry,
+            schema=self.schema_name,
         )
 
         self.migration_model = MigrationModel.on(self.connection)
+        if self.schema_name:
+            self.migration_model.set_schema(self.schema_name)
 
     def create_table_if_not_exists(self):
         if not self.schema.has_table("migrations"):
@@ -132,7 +140,9 @@ class Migration:
                     f"<comment>Migrating:</comment> <question>{migration}</question>"
                 )
 
-            migration_class = migration_class(connection=self.connection)
+            migration_class = migration_class(
+                connection=self.connection, schema=self.schema_name
+            )
 
             if output:
                 migration_class.schema.dry()
@@ -182,7 +192,9 @@ class Migration:
                 self.command_class.line(f"<error>Not Found: {migration}</error>")
                 continue
 
-            migration_class = migration_class(connection=self.connection)
+            migration_class = migration_class(
+                connection=self.connection, schema=self.schema_name
+            )
 
             if output:
                 migration_class.schema.dry()
@@ -230,6 +242,12 @@ class Migration:
         default_migrations = self.get_all_migrations(reverse=True)
         migrations = default_migrations if migration == "all" else [migration]
 
+        if not len(migrations):
+            if self.command_class:
+                self.command_class.line("<info>Nothing to reset</info>")
+            else:
+                print("Nothing to reset")
+
         for migration in migrations:
             if self.command_class:
                 self.command_class.line(
@@ -237,7 +255,9 @@ class Migration:
                 )
 
             try:
-                self.locate(migration)(connection=self.connection).down()
+                self.locate(migration)(
+                    connection=self.connection, schema=self.schema_name
+                ).down()
             except TypeError:
                 self.command_class.line(f"<error>Not Found: {migration}</error>")
                 continue

@@ -8,6 +8,46 @@ from ..config import load_config
 class Schema:
 
     _default_string_length = "255"
+    _type_hints_map = {
+        "string": str,
+        "char": str,
+        "big_increments": int,
+        "integer": int,
+        "big_integer": int,
+        "tiny_integer": int,
+        "small_integer": int,
+        "medium_integer": int,
+        "integer_unsigned": int,
+        "big_integer_unsigned": int,
+        "tiny_integer_unsigned": int,
+        "small_integer_unsigned": int,
+        "medium_integer_unsigned": int,
+        "increments": int,
+        "uuid": str,
+        "binary": bytes,
+        "boolean": bool,
+        "decimal": float,
+        "double": float,
+        "enum": str,
+        "text": str,
+        "float": float,
+        "geometry": str,  # ?
+        "json": dict,
+        "jsonb": bytes,
+        "inet": str,
+        "cidr": str,
+        "macaddr": str,
+        "long_text": str,
+        "point": str,  # ?
+        "time": str,  # or pendulum.DateTime
+        "timestamp": str,  # or pendulum.DateTime
+        "date": str,  # or pendulum.DateTime
+        "year": str,
+        "datetime": str,  # or pendulum.DateTime
+        "tiny_increments": int,
+        "unsigned": int,
+        "unsigned_integer": int,
+    }
 
     def __init__(
         self,
@@ -17,7 +57,7 @@ class Schema:
         platform=None,
         grammar=None,
         connection_details=None,
-        connection_driver=None,
+        schema=None,
     ):
         self._dry = dry
         self.connection = connection
@@ -28,6 +68,7 @@ class Schema:
         self.connection_details = connection_details or {}
         self._blueprint = None
         self._sql = None
+        self.schema = schema
 
         if not self.connection_class:
             self.on(self.connection)
@@ -93,6 +134,7 @@ class Schema:
             table=Table(table),
             action="create",
             platform=self.platform,
+            schema=self.schema,
             default_string_length=self._default_string_length,
             dry=self._dry,
         )
@@ -108,6 +150,7 @@ class Schema:
             table=Table(table),
             action="create_table_if_not_exists",
             platform=self.platform,
+            schema=self.schema,
             default_string_length=self._default_string_length,
             dry=self._dry,
         )
@@ -133,6 +176,7 @@ class Schema:
             table=TableDiff(table),
             action="alter",
             platform=self.platform,
+            schema=self.schema,
             default_string_length=self._default_string_length,
             dry=self._dry,
         )
@@ -161,9 +205,11 @@ class Schema:
         if self._dry:
             return
 
-        self._connection = self.connection_class(
-            **self.get_connection_information()
-        ).make_connection()
+        self._connection = (
+            self.connection_class(**self.get_connection_information())
+            .set_schema(self.schema)
+            .make_connection()
+        )
 
         return self._connection
 
@@ -183,6 +229,18 @@ class Schema:
             return sql
 
         return bool(self.new_connection().query(sql, ()))
+
+    def get_columns(self, table, dict=True):
+        table = self.platform().get_current_schema(
+            self.new_connection(), table, schema=self.get_schema()
+        )
+        result = {}
+        if dict:
+            for column in table.get_added_columns().items():
+                result.update({column[0]: column[1]})
+            return result
+        else:
+            return table.get_added_columns().items()
 
     @classmethod
     def set_default_string_length(cls, length):
@@ -228,6 +286,13 @@ class Schema:
 
         return bool(self.new_connection().query(sql, ()))
 
+    def get_schema(self):
+        """Gets the schema set on the migration class
+        """
+        return self.schema or self.get_connection_information().get("full_details").get(
+            "schema"
+        )
+
     def has_table(self, table, query_only=False):
         """Checks if the a database has a specific table
         Arguments:
@@ -236,7 +301,9 @@ class Schema:
             masoniteorm.blueprint.Blueprint -- The Masonite ORM blueprint object.
         """
         sql = self.platform().compile_table_exists(
-            table, database=self.get_connection_information().get("database")
+            table,
+            database=self.get_connection_information().get("database"),
+            schema=self.get_schema(),
         )
 
         if self._dry:

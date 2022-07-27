@@ -1,3 +1,4 @@
+from ...schema import Schema
 from ..Table import Table
 from .Platform import Platform
 
@@ -338,7 +339,7 @@ class SQLitePlatform(Platform):
 
         return names
 
-    def get_current_schema(self, connection, table_name):
+    def get_current_schema(self, connection, table_name, schema=None):
         sql = f"PRAGMA table_info({table_name})"
 
         reversed_type_map = {v: k for k, v in self.type_map.items()}
@@ -346,19 +347,56 @@ class SQLitePlatform(Platform):
 
         result = connection.query(sql, ())
         for column in result:
+            column_type = self.get_column_type(
+                reversed_type_map, column["type"].upper()
+            )
+            length = self.get_column_length(column["type"])
+
+            # find default
             default = column.get("dflt_value")
             if default:
                 default = default.replace("'", "")
 
             table.add_column(
-                column["name"], reversed_type_map.get(column["type"]), default=default
+                column["name"],
+                column_type,
+                column_python_type=Schema._type_hints_map.get(column_type, str),
+                default=default,
+                length=length,
             )
             if column.get("pk") == 1:
                 table.set_primary_key(column["name"])
 
         return table
 
-    def compile_table_exists(self, table, database=None):
+    def get_column_length(self, column_type):
+        if "(" in column_type:
+            parenthesis_index = column_type.find("(")
+            return column_type[parenthesis_index + 1 : -1]
+        else:
+            return None
+
+    def get_column_type(self, reversed_type_map, column_type):
+        if "(" in column_type:
+            parenthesis_index = column_type.find("(")
+            db_type = column_type[:parenthesis_index]
+            length = self.get_column_length(column_type)
+            if db_type == "CHAR":
+                if length == "1":
+                    return "char"
+                elif length == "36":
+                    return "uuid"
+                else:
+                    return "char"
+            elif db_type == "VARCHAR":
+                if length == "4":
+                    return "year"
+                else:
+                    return "string"
+        else:
+            return reversed_type_map.get(column_type)
+
+    def compile_table_exists(self, table, database=None, schema=None):
         return f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}'"
 
     def compile_column_exists(self, table, column):

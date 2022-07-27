@@ -34,7 +34,7 @@ class HasOne(BaseRelationship):
             self.foreign_key, owner.__attributes__[self.local_key]
         ).first()
 
-    def get_related(self, query, relation, eagers=()):
+    def get_related(self, query, relation, eagers=(), callback=None):
         """Gets the relation needed between the relation and the related builder. If the relation is a collection
         then will need to pluck out all the keys from the collection and fetch from the related builder. If
         relation is just a Model then we can just call the model based on the value of the related
@@ -47,6 +47,10 @@ class HasOne(BaseRelationship):
             Model|Collection
         """
         builder = self.get_builder().with_(eagers)
+
+        if callback:
+            callback(builder)
+
         if isinstance(relation, Collection):
             return builder.where_in(
                 f"{builder.get_table_name()}.{self.foreign_key}",

@@ -161,7 +161,7 @@ class BelongsToMany(BaseRelationship):
 
         return builder
 
-    def make_query(self, query, relation, eagers=None):
+    def make_query(self, query, relation, eagers=None, callback=None):
         """Used during eager loading a relationship
 
         Args:
@@ -231,20 +231,23 @@ class BelongsToMany(BaseRelationship):
 
         result.without_global_scopes()
 
+        if callback:
+            callback(result)
+
         if isinstance(relation, Collection):
-            final_result = result.where_in(
+            return result.where_in(
                 self.local_owner_key,
                 relation.pluck(self.local_owner_key, keep_nulls=False),
             ).get()
         else:
-            final_result = result.where(
+            return result.where(
                 self.local_owner_key, getattr(relation, self.local_owner_key)
             ).get()
 
-        return final_result
-
-    def get_related(self, query, relation, eagers=None):
-        final_result = self.make_query(query, relation, eagers=eagers)
+    def get_related(self, query, relation, eagers=None, callback=None):
+        final_result = self.make_query(
+            query, relation, eagers=eagers, callback=callback
+        )
         builder = self.make_builder(eagers)
 
         for model in final_result:
@@ -354,18 +357,108 @@ class BelongsToMany(BaseRelationship):
             }
         )
 
-    def get_where_exists_query(self, builder, callback):
+    def joins(self, builder, clause=None):
+        if not self._table:
+            pivot_tables = [
+                singularize(self.get_builder().get_table_name()),
+                singularize(builder.get_table_name()),
+            ]
+            pivot_tables.sort()
+            pivot_table_1, pivot_table_2 = pivot_tables
+            self._table = "_".join(pivot_tables)
+            self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
+            self.local_key = self.local_key or f"{pivot_table_2}_id"
+        else:
+            pivot_table_1, pivot_table_2 = self._table.split("_", 1)
+            self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
+            self.local_key = self.local_key or f"{pivot_table_2}_id"
+
         query = self.get_builder()
-        self._table = self._table or self.get_pivot_table_name(query, builder)
-        return builder.where_exists(
+        table1 = query.get_table_name()
+        table2 = builder.get_table_name()
+        result = builder
+        if not builder._columns:
+            result = result.select(
+                f"{table2}.*",
+                f"{self._table}.{self.local_key} as {self._table}_id",
+                f"{self._table}.{self.foreign_key} as m_reserved2",
+            )
+
+            if self.pivot_id:
+                result.select(f"{self._table}.{self.pivot_id} as m_reserved3")
+
+            if self.with_timestamps:
+                result.select(
+                    f"{self._table}.updated_at as m_reserved4",
+                    f"{self._table}.created_at as m_reserved5",
+                )
+
+            if self.with_fields:
+                for field in self.with_fields:
+                    result.select(f"{self._table}.{field}")
+        # Join pivot table with an inner join
+        result.join(
+            f"{self._table}",
+            f"{self._table}.{self.local_key}",
+            "=",
+            f"{table2}.{self.local_owner_key}",
+            clause="inner",
+        )
+
+        result.join(
+            f"{table1}",
+            f"{self._table}.{self.local_owner_key}",
+            "=",
+            f"{table1}.{self.other_owner_key}",
+            clause=clause,
+        )
+
+        if self.with_fields:
+            for field in self.with_fields:
+                result.select(f"{self._table}.{field}")
+
+        return result
+
+    def query_where_exists(self, builder, callback, method="where_exists"):
+        query = self.get_builder()
+        pivot_table = self._table or self.get_pivot_table_name(query, builder)
+        table = self.get_builder().get_table_name()
+
+        getattr(builder, method)(
             query.new()
-            .select("*")
-            .table(self._table)
+            .table(table)
+            .join(
+                f"{pivot_table}",
+                f"{table}.{self.other_owner_key}",
+                "=",
+                f"{pivot_table}.{self.foreign_key}",
+            )
             .where_column(
-                f"{self._table}.{self.local_key}",
+                f"{pivot_table}.{self.local_key}",
                 f"{builder.get_table_name()}.{self.local_owner_key}",
             )
-            .where_in(self.foreign_key, callback(query.select(self.other_owner_key)))
+            .where_in(
+                self.other_owner_key, callback(query.select(self.other_owner_key))
+            )
+        )
+
+    def query_has(self, builder, method="where_exists"):
+        query = self.get_builder()
+        pivot_table = self._table or self.get_pivot_table_name(query, builder)
+        table = self.get_builder().get_table_name()
+        return getattr(builder, method)(
+            query.new()
+            .table(table)
+            .join(
+                f"{pivot_table}",
+                f"{table}.{self.other_owner_key}",
+                "=",
+                f"{pivot_table}.{self.foreign_key}",
+            )
+            .where_column(
+                f"{pivot_table}.{self.local_key}",
+                f"{builder.get_table_name()}.{self.local_owner_key}",
+            )
         )
 
     def get_pivot_table_name(self, query, builder):
@@ -448,7 +541,7 @@ class BelongsToMany(BaseRelationship):
             .table(self._table)
             .without_global_scopes()
             .where(data)
-            .delete()
+            .update({self.foreign_key: None, self.local_key: None})
         )
 
     def attach_related(self, current_model, related_record):
@@ -470,8 +563,8 @@ class BelongsToMany(BaseRelationship):
             )
 
         return (
-            Pivot.on(current_model.get_builder().connection)
-            .table(self._table)
+            Pivot.table(self._table)
+            .on(current_model.get_builder().connection)
             .without_global_scopes()
             .create(data)
         )

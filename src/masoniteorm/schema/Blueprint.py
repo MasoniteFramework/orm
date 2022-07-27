@@ -7,6 +7,7 @@ class Blueprint:
         table="",
         connection=None,
         platform=None,
+        schema=None,
         action=None,
         default_string_length=None,
         dry=False,
@@ -16,6 +17,7 @@ class Blueprint:
         self._last_column = None
         self._default_string_length = default_string_length
         self.platform = platform
+        self.schema = schema
         self._dry = dry
         self._action = action
         self.connection = connection
@@ -131,6 +133,21 @@ class Blueprint:
         )
         return self
 
+    def unsigned_big_integer(self, column, length=32, nullable=False):
+        """Sets a column to be the unsigned big_integer representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            length {int} -- The length of the column. (default: {32})
+            nullable {bool} -- Whether the column is nullable (default: {False})
+
+        Returns:
+            self
+        """
+        return self.big_integer(column, length=length, nullable=nullable).unsigned()
+
     def _compile_create(self):
         return self.grammar(creates=self._columns, table=self.table)._compile_create()
 
@@ -174,6 +191,17 @@ class Blueprint:
 
         self.primary(column)
         return self
+
+    def id(self, column="id"):
+        """Sets a column to be the auto-incrementing big integer (8-byte) primary key representation for the table.
+
+        Arguments:
+            column {string} -- The column name. Defaults to "id".
+
+        Returns:
+            self
+        """
+        return self.big_increments(column)
 
     def uuid(self, column, nullable=False, length=36):
         """Sets a column to be the UUID4 representation for the table.
@@ -689,7 +717,7 @@ class Blueprint:
             if not self._dry:
                 # get current table schema
                 table = self.platform().get_current_schema(
-                    self.connection, self.table.name
+                    self.connection, self.table.name, schema=self.schema
                 )
                 self.table.from_table = table
 
@@ -838,6 +866,43 @@ class Blueprint:
             column, name=name or f"{self.table.name}_{column}_foreign"
         )
         return self
+
+    def foreign_id(self, column):
+        """Sets a column to be a unsigned big integer (8-byte) representation for a foreign ID.
+
+        Arguments:
+            column {string} -- The name of the column to reference.
+
+        Returns:
+            self
+        """
+        return self.unsigned_big_integer(column).foreign(column)
+
+    def foreign_uuid(self, column):
+        """Sets a column to be a UUID representation for a foreign UUID.
+
+        Arguments:
+            column {string} -- The name of the column to reference.
+
+        Returns:
+            self
+        """
+        return self.uuid(column).foreign(column)
+
+    def foreign_id_for(self, model, column=None):
+        """Sets a column to be a unsigned big integer (8-byte) representation for a foreign ID.
+
+        Arguments:
+            model {Model} -- The model to reference.
+
+        Returns:
+            self
+        """
+        clm = column if column else model.get_foreign_key()
+
+        return self.foreign_id(clm)\
+            if model.get_primary_key_type() == 'int'\
+            else self.foreign_uuid(column)
 
     def references(self, column):
         """Sets the other column on the foreign table that the local column will use to reference.

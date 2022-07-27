@@ -1,10 +1,15 @@
 import os
 import unittest
 
+from masoniteorm import Model
 from tests.integrations.config.database import DATABASES
 from src.masoniteorm.connections import MySQLConnection
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import MySQLPlatform
+
+
+class Discussion(Model):
+    pass
 
 
 class TestMySQLSchemaBuilder(unittest.TestCase):
@@ -91,6 +96,8 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.integer("age")
             blueprint.integer("profile_id")
             blueprint.foreign("profile_id").references("id").on("profiles")
+            blueprint.foreign_id("post_id").references("id").on("posts")
+            blueprint.foreign_id_for(Discussion).references("id").on("discussions")
 
         self.assertEqual(len(blueprint.table.added_columns), 3)
         self.assertEqual(
@@ -99,8 +106,11 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
                 "CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL, "
                 "`age` INT(11) NOT NULL, "
                 "`profile_id` INT(11) NOT NULL, "
+                "`post_id` BIGINT UNSIGNED NOT NULL, "
                 "CONSTRAINT users_name_unique UNIQUE (name), "
-                "CONSTRAINT users_profile_id_foreign FOREIGN KEY (`profile_id`) REFERENCES `profiles`(`id`))"
+                "CONSTRAINT users_profile_id_foreign FOREIGN KEY (`profile_id`) REFERENCES `profiles`(`id`), "
+                "CONSTRAINT users_profile_id_foreign FOREIGN KEY (`post_id`) REFERENCES `posts`(`id`)), "
+                "CONSTRAINT users_discussions_id_foreign FOREIGN KEY (`discussion_id`) REFERENCES `posts`(`id`))"
             ],
         )
 
@@ -126,6 +136,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
     def test_can_advanced_table_creation(self):
         with self.schema.create("users") as blueprint:
             blueprint.increments("id")
+            blueprint.id("id2")
             blueprint.string("name")
             blueprint.tiny_integer("active")
             blueprint.string("email").unique()
@@ -138,15 +149,16 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.timestamp("verified_at").nullable()
             blueprint.timestamps()
 
-        self.assertEqual(len(blueprint.table.added_columns), 13)
+        self.assertEqual(len(blueprint.table.added_columns), 14)
         self.assertEqual(
             blueprint.to_sql(),
             [
                 "CREATE TABLE `users` (`id` INT UNSIGNED AUTO_INCREMENT NOT NULL, "
+                "`id2` BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, "
                 "`name` VARCHAR(255) NOT NULL, `active` TINYINT(1) NOT NULL, `email` VARCHAR(255) NOT NULL, `gender` ENUM('male', 'female') NOT NULL, "
                 "`password` VARCHAR(255) NOT NULL, `money` DECIMAL(17, 6) NOT NULL, "
                 "`admin` INT(11) NOT NULL DEFAULT 0, `option` VARCHAR(255) NOT NULL DEFAULT 'ADMIN', `remember_token` VARCHAR(255) NULL, `verified_at` TIMESTAMP NULL, "
-                "`created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, `updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_email_unique UNIQUE (email))"
+                "`created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, `updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_id2_primary PRIMARY KEY (id2), CONSTRAINT users_email_unique UNIQUE (email))"
             ],
         )
 
@@ -259,6 +271,8 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.tiny_integer("tiny_profile_id").unsigned()
             blueprint.small_integer("small_profile_id").unsigned()
             blueprint.medium_integer("medium_profile_id").unsigned()
+            blueprint.unsigned_integer("unsigned_profile_id")
+            blueprint.unsigned_big_integer("unsigned_big_profile_id")
 
         self.assertEqual(
             blueprint.to_sql(),
@@ -268,7 +282,9 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
                 "`big_profile_id` BIGINT UNSIGNED NOT NULL, "
                 "`tiny_profile_id` TINYINT UNSIGNED NOT NULL, "
                 "`small_profile_id` SMALLINT UNSIGNED NOT NULL, "
-                "`medium_profile_id` MEDIUMINT UNSIGNED NOT NULL)"
+                "`medium_profile_id` MEDIUMINT UNSIGNED NOT NULL, "
+                "`unsigned_profile_id` INT UNSIGNED NOT NULL, "
+                "`unsigned_big_profile_id` BIGINT UNSIGNED NOT NULL)"
             ],
         )
 

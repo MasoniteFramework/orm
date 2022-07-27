@@ -49,7 +49,7 @@ class MySQLGrammar(BaseGrammar):
     locks = {"share": "LOCK IN SHARE MODE", "update": "FOR UPDATE"}
 
     def select_format(self):
-        return "SELECT {columns} FROM {table} {joins} {wheres} {group_by} {having} {order_by} {limit} {offset} {lock}"
+        return "SELECT {keyword} {columns} FROM {table} {joins} {wheres} {group_by} {having} {order_by} {limit} {offset} {lock}"
 
     def select_no_table(self):
         return "SELECT {columns} {lock}"
@@ -89,6 +89,9 @@ class MySQLGrammar(BaseGrammar):
 
     def where_exists_string(self):
         return "{keyword} EXISTS {value}"
+
+    def where_date_string(self):
+        return "{keyword} DATE({column}) {equality} {value}"
 
     def where_not_exists_string(self):
         return "{keyword} NOT EXISTS {value}"

@@ -1,3 +1,4 @@
+from ...schema import Schema
 from .Platform import Platform
 from ..Table import Table
 
@@ -57,7 +58,11 @@ class PostgresPlatform(Platform):
         "unsigned": "INT",
     }
 
-    table_info_map = {"CHARACTER VARYING": "string"}
+    table_info_map = {
+        "CHARACTER VARYING": "string",
+        "TIMESTAMP WITH TIME ZONE": "datetime",
+        "TIMESTAMP WITHOUT TIME ZONE": "datetime",
+    }
 
     premapped_defaults = {
         "current": " DEFAULT CURRENT_TIMESTAMP",
@@ -263,6 +268,9 @@ class PostgresPlatform(Platform):
                         name=self.wrap_column(name),
                         data_type=self.type_map.get(column.column_type),
                         nullable="NULL" if column.is_null else "NOT NULL",
+                        length="(" + str(column.length) + ")"
+                        if column.column_type not in self.types_without_lengths
+                        else "",
                     )
                     .strip()
                 )
@@ -377,7 +385,7 @@ class PostgresPlatform(Platform):
         return "DROP COLUMN {name}"
 
     def modify_column_string(self):
-        return "ALTER COLUMN {name} TYPE {data_type}"
+        return "ALTER COLUMN {name} TYPE {data_type}{length}"
 
     def rename_column_string(self):
         return "RENAME COLUMN {old} TO {to}"
@@ -424,10 +432,10 @@ class PostgresPlatform(Platform):
         return '"{column}"'
 
     def table_information_string(self):
-        return "SELECT * FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '{table}'"
+        return "SELECT * FROM information_schema.columns WHERE table_schema = '{schema}' AND table_name = '{table}'"
 
-    def compile_table_exists(self, table, database=None):
-        return f"SELECT * from information_schema.tables where table_name='{table}'"
+    def compile_table_exists(self, table, database=None, schema=None):
+        return f"SELECT * from information_schema.tables where table_name='{table}' AND table_schema = '{schema or 'public'}'"
 
     def compile_truncate(self, table, foreign_keys=False):
         if not foreign_keys:
@@ -451,8 +459,10 @@ class PostgresPlatform(Platform):
     def compile_column_exists(self, table, column):
         return f"SELECT column_name FROM information_schema.columns WHERE table_name='{table}' and column_name='{column}'"
 
-    def get_current_schema(self, connection, table_name):
-        sql = self.table_information_string().format(table=table_name)
+    def get_current_schema(self, connection, table_name, schema=None):
+        sql = self.table_information_string().format(
+            table=table_name, schema=schema or "public"
+        )
 
         reversed_type_map = {v: k for k, v in self.type_map.items()}
         reversed_type_map.update(self.table_info_map)
@@ -460,14 +470,31 @@ class PostgresPlatform(Platform):
 
         result = connection.query(sql, ())
         for column in result:
+            column_type = reversed_type_map.get(column["data_type"].upper())
+
+            # find length
+            if column.get("character_maximum_length", None):
+                length = column.get("character_maximum_length")
+            elif column.get("numeric_precision", None):
+                length = column.get("numeric_precision")
+            elif column.get("datetime_precision", None):
+                length = column.get("datetime_precision")
+            else:
+                length = None
+
+            # find default
+            default = column.get("dflt_value", "") or column.get("column_default", "")
+            if default and default.startswith("nextval"):
+                table.set_primary_key(column["column_name"])
+                default = None
+
             table.add_column(
                 column["column_name"],
-                reversed_type_map.get(column["data_type"].upper()),
-                default=column.get("dflt_value"),
+                column_type,
+                default=default,
+                column_python_type=Schema._type_hints_map.get(column_type, str),
+                length=length,
             )
-            column_default = column.get("column_default", "")
-            if column_default and column_default.startswith("nextval"):
-                table.set_primary_key(column["column_name"])
 
         return table
 
