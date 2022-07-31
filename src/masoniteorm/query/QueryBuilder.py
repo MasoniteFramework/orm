@@ -464,7 +464,12 @@ class QueryBuilder(ObservesEvents):
         model = None
         self.set_action("bulk_create")
 
-        self._creates = creates
+        sorted_creates = []
+        # sort the dicts by key so the values inserted align
+        # with the correct column
+        for unsorted_dict in creates:
+            sorted_creates.append(dict(sorted(unsorted_dict.items())))
+        self._creates = sorted_creates
 
         if self._model:
             model = self._model
@@ -2084,7 +2089,6 @@ class QueryBuilder(ObservesEvents):
         for name, scope in self._global_scopes.get(self._action, {}).items():
             scope(self)
 
-        grammar = self.get_grammar()
         sql = grammar.compile(self._action, qmark=True).to_sql()
 
         self._bindings = grammar._bindings
