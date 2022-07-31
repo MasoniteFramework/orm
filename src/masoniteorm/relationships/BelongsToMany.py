@@ -541,7 +541,7 @@ class BelongsToMany(BaseRelationship):
             .table(self._table)
             .without_global_scopes()
             .where(data)
-            .update({self.foreign_key: None, self.local_key: None})
+            .delete()
         )
 
     def attach_related(self, current_model, related_record):
