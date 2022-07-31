@@ -11,7 +11,6 @@ class PostgresGrammar(BaseGrammar):
         "MIN": "MIN",
         "AVG": "AVG",
         "COUNT": "COUNT",
-        "AVG": "AVG",
     }
 
     join_keywords = {
@@ -38,7 +37,7 @@ class PostgresGrammar(BaseGrammar):
         return "SELECT {columns} {lock}"
 
     def select_format(self):
-        return "SELECT {keyword} {columns} FROM {table} {joins} {wheres} {group_by} {order_by} {limit} {offset} {having} {lock}"
+        return "SELECT {keyword} {columns} FROM {table} {joins} {wheres} {group_by} {having} {order_by} {limit} {offset} {lock}"
 
     def update_format(self):
         return "UPDATE {table} SET {key_equals} {wheres}"

@@ -10,7 +10,6 @@ class MSSQLGrammar(BaseGrammar):
         "MIN": "MIN",
         "AVG": "AVG",
         "COUNT": "COUNT",
-        "AVG": "AVG",
     }
 
     join_keywords = {
@@ -37,7 +36,7 @@ class MSSQLGrammar(BaseGrammar):
         return "SELECT {columns}"
 
     def select_format(self):
-        return "SELECT {keyword} {limit} {columns} FROM {table} {lock} {joins} {wheres} {group_by} {order_by} {offset} {having}"
+        return "SELECT {keyword} {limit} {columns} FROM {table} {lock} {joins} {wheres} {group_by} {having} {order_by} {offset}"
 
     def update_format(self):
         return "UPDATE {table} SET {key_equals} {wheres}"

@@ -247,6 +247,12 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         return """SELECT SUM("users"."age") AS age FROM "users" GROUP BY "users"."age" HAVING "users"."age\""""
 
+    def can_compile_having_order(self):
+        """
+        builder.sum('age').group_by('age').having('age').order_by('age', 'desc').to_sql()
+        """
+        return """SELECT SUM("users"."age") AS age FROM "users" GROUP BY "users"."age" HAVING "users"."age" ORDER "users"."age" DESC"""
+
     def can_compile_having_with_expression(self):
         """
         builder.sum('age').group_by('age').having('age', 10).to_sql()
@@ -308,6 +314,10 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         self.assertEqual(
             to_sql, """SELECT COUNT(*) as counts FROM "users" HAVING counts > 10"""
         )
+
+    def test_can_compile_having_raw_order(self):
+        to_sql = self.builder.select_raw("COUNT(*) as counts").having_raw("counts > 10").order_by_raw('counts DESC').to_sql()
+        self.assertEqual(to_sql, """SELECT COUNT(*) as counts FROM "users" HAVING counts > 10 ORDER BY counts DESC""")
 
     def test_can_compile_where_raw_and_where_with_multiple_bindings(self):
         query = self.builder.where_raw(
