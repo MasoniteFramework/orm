@@ -1,15 +1,8 @@
-import datetime
-import json
-import os
 import unittest
 
-import pendulum
-
-from src.masoniteorm.collection import Collection
 from src.masoniteorm.models import Model
 from src.masoniteorm.relationships import belongs_to, has_many, has_one
-from src.masoniteorm.query.grammars import MSSQLGrammar
-from tests.User import User
+
 
 class Backup(Model):
     __table__ = 'backups'
