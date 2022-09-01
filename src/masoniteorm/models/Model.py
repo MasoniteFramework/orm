@@ -337,7 +337,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             table=self.get_table_name(),
             connection_details=self.get_connection_details(),
             model=self,
-            scopes=self._scopes,
+            scopes=self._scopes.get(self.__class__),
             dry=self.__dry__,
         )
 
