@@ -780,7 +780,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         if attribute in self.__dict__.get("_relationships", {}):
             return self.__dict__["_relationships"][attribute]
-        
+
+        if attribute not in self.__dict__:
+            name = self.__class__.__name__
+
+            raise AttributeError(f"class model '{name}' has no attribute {attribute}")
+
         return None
 
     def __setattr__(self, attribute, value):
