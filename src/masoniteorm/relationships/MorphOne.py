@@ -1,6 +1,6 @@
 from ..collection import Collection
-from .BaseRelationship import BaseRelationship
 from ..config import load_config
+from .BaseRelationship import BaseRelationship
 
 
 class MorphOne(BaseRelationship):
@@ -67,8 +67,8 @@ class MorphOne(BaseRelationship):
         polymorphic_builder = self.polymorphic_builder
 
         return (
-            polymorphic_builder.where("record_type", polymorphic_key)
-            .where("record_id", instance.get_primary_key_value())
+            polymorphic_builder.where(self.morph_key, polymorphic_key)
+            .where(self.morph_id, instance.get_primary_key_value())
             .first()
         )
 
