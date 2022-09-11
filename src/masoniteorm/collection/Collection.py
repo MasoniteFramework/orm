@@ -280,7 +280,7 @@ class Collection:
         self._items.append(value)
 
     def put(self, key, value):
-        self[key] = value
+        self._items[key] = value
         return self
 
     def random(self, count=None):
