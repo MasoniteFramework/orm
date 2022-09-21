@@ -255,6 +255,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "where_doesnt_have",
         "with_",
         "with_count",
+        "latest",
+        "oldest"
     ]
 
     __cast_map__ = {}
