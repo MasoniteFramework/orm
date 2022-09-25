@@ -13,10 +13,10 @@ def load_config(config_path=None):
     """
 
     if not os.getenv("DB_CONFIG_PATH", None):
-        os.environ['DB_CONFIG_PATH'] = config_path or "config/database"
-    
-    selected_config_path = os.environ['DB_CONFIG_PATH']
-    
+        os.environ["DB_CONFIG_PATH"] = config_path or "config/database"
+
+    selected_config_path = os.environ["DB_CONFIG_PATH"]
+
     # format path as python module if needed
     selected_config_path = (
         selected_config_path.replace("/", ".").replace("\\", ".").rstrip(".py")
