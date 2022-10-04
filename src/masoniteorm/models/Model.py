@@ -160,7 +160,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     """Pass through will pass any method calls to the model directly through to the query builder.
     Anytime one of these methods are called on the model it will actually be called on the query builder class.
     """
-    __passthrough__ = [
+    __passthrough__ = set(
         "add_select",
         "aggregate",
         "all",
@@ -255,7 +255,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         "where_doesnt_have",
         "with_",
         "with_count",
-    ]
+    )
 
     __cast_map__ = {}
 
@@ -366,7 +366,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             self.append_passthrough(list(self.get_builder()._macros.keys()))
 
     def append_passthrough(self, passthrough):
-        self.__passthrough__ += passthrough
+        self.__passthrough__.update(passthrough)
         return self
 
     @classmethod
