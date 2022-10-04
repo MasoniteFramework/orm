@@ -5,11 +5,11 @@ import json
 
 
 def is_json(json_string):
-  try:
-    json.loads(json_string)
-  except ValueError as e:
-    return False
-  return True
+    try:
+        json.loads(json_string)
+    except ValueError as e:
+        return False
+    return True
 
 
 def deprecated(message):

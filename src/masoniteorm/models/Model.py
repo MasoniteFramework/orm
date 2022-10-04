@@ -8,6 +8,7 @@ import inspect
 
 import pendulum
 
+from ..helpers.misc import is_json
 from ..query import QueryBuilder
 from ..collection import Collection
 from ..observers import ObservesEvents
