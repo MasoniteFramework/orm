@@ -59,7 +59,9 @@ class JsonCast:
     """Casts a value to JSON"""
 
     def get(self, value):
-        if is_json(value):
+        if not isinstance(value, str):
+            return json.dumps(value)
+        elif is_json(value):
             return json.loads(value)
 
         return value
