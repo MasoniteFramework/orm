@@ -61,7 +61,7 @@ class JsonCast:
         if not isinstance(value, str):
             return json.dumps(value)
 
-        return value
+        return json.loads(value)
 
     def set(self, value):
         if isinstance(value, str):
