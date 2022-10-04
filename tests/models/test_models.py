@@ -97,8 +97,7 @@ class TestModels(unittest.TestCase):
             }
         )
 
-        self.assertEqual(type(model.payload), str)
-        self.assertEqual(type(json.loads(model.payload)), list)
+        self.assertEqual(type(model.payload), list)
         self.assertEqual(type(model.x), int)
         self.assertEqual(type(model.f), float)
         self.assertEqual(type(model.is_vip), bool)
