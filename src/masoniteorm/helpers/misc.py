@@ -7,7 +7,7 @@ import json
 def is_json(json_string):
     try:
         json.loads(json_string)
-    except ValueError as e:
+    except ValueError:
         return False
     return True
 
