@@ -135,6 +135,22 @@ class TestModels(unittest.TestCase):
 
         self.assertEqual(type(model.payload), dict)
 
+        model = ModelTest.hydrate({
+            "payload": '{"valid": "json", "int": 1}'
+        })
+
+        self.assertEqual(type(model.payload), dict)
+
+        model = ModelTest.hydrate({
+            "payload": "{'this': 'should', 'throw': 'error'}"
+        })
+
+        self.assertEqual(model.payload, None)
+
+        with self.assertRaises(ValueError):
+            model.payload = "{'this': 'should', 'throw': 'error'}"
+            model.save()
+
     def test_model_update_without_changes(self):
         model = ModelTest.hydrate(
             {"id": 1, "username": "joe", "name": "Joe", "admin": True}
