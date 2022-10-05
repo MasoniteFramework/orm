@@ -118,12 +118,23 @@ class TestModels(unittest.TestCase):
 
     def test_valid_json_cast(self):
         model = ModelTest.hydrate({
-            "valid_cast1": {"this": "dict", "is": "usable", "as": "json"},
+            "payload": {"this": "dict", "is": "usable", "as": "json"},
             "valid_cast2": {'this': 'dict', 'is': 'invalid', 'as': 'json'}
         })
 
-        self.assertEqual(type(model.valid_cast1), dict)
-        self.assertEqual(type(model.valid_cast2), dict)
+        self.assertEqual(type(model.payload), dict)
+
+        model = ModelTest.hydrate({
+            "payload": {'this': 'dict', 'is': 'invalid', 'as': 'json'}
+        })
+
+        self.assertEqual(type(model.payload), dict)
+
+        model = ModelTest.hydrate({
+            "payload": '{"this": "dict", "is": "usable", "as": "json"}'
+        })
+
+        self.assertEqual(type(model.payload), dict)
 
     def test_model_update_without_changes(self):
         model = ModelTest.hydrate(
