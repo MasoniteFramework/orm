@@ -119,7 +119,6 @@ class TestModels(unittest.TestCase):
     def test_valid_json_cast(self):
         model = ModelTest.hydrate({
             "payload": {"this": "dict", "is": "usable", "as": "json"},
-            "valid_cast2": {'this': 'dict', 'is': 'invalid', 'as': 'json'}
         })
 
         self.assertEqual(type(model.payload), dict)
