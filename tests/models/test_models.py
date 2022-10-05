@@ -30,7 +30,6 @@ class TestModels(unittest.TestCase):
         self.assertIsInstance(model.due_date, pendulum.now().__class__)
 
     def test_model_can_access_str_dates_as_pendulum_from_correct_datetimes(self):
-
         model = ModelTest()
 
         self.assertEqual(
@@ -111,12 +110,20 @@ class TestModels(unittest.TestCase):
             {"is_vip": 1, "payload": dictcasttest, "x": True, "f": "10.5"}
         )
 
-        self.assertEqual(type(model.payload), str)
-        self.assertEqual(type(json.loads(model.payload)), dict)
+        self.assertEqual(type(model.payload), dict)
         self.assertEqual(type(model.x), int)
         self.assertEqual(type(model.f), float)
         self.assertEqual(type(model.is_vip), bool)
         self.assertEqual(type(model.serialize()["is_vip"]), bool)
+
+    def test_valid_json_cast(self):
+        model = ModelTest.hydrate({
+            "valid_cast1": {"this": "dict", "is": "usable", "as": "json"},
+            "valid_cast2": {'this': 'dict', 'is': 'invalid', 'as': 'json'}
+        })
+
+        self.assertEqual(type(model.valid_cast1), dict)
+        self.assertEqual(type(model.valid_cast2), dict)
 
     def test_model_update_without_changes(self):
         model = ModelTest.hydrate(

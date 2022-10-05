@@ -5,6 +5,8 @@ import json
 
 
 def is_json(json_string):
+    if not isinstance(json_string, str):
+        return False
     try:
         json.loads(json_string)
     except ValueError:
