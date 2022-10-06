@@ -8,7 +8,6 @@ import inspect
 
 import pendulum
 
-from ..helpers.misc import is_json
 from ..query import QueryBuilder
 from ..collection import Collection
 from ..observers import ObservesEvents
@@ -59,11 +58,11 @@ class JsonCast:
     """Casts a value to JSON"""
 
     def get(self, value):
-        if is_json(value):
-            return json.loads(value)
-
         if isinstance(value, str):
-            return None
+            try:
+                return json.loads(value)
+            except ValueError:
+                return None
 
         return value
 
