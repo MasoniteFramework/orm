@@ -2277,11 +2277,7 @@ class QueryBuilder(ObservesEvents):
         if not fields:
             fields = ("created_at",)
 
-        table = self.get_table_name()
-        fields = map(lambda field: f"`{table}`.`{field}`", fields)
-        sql = " desc, ".join(fields) + " desc"
-
-        return self.order_by_raw(sql)
+        return self.order_by(column=",".join(fields), direction="DESC")
 
     def oldest(self, *fields):
         """Gets the oldest record.
@@ -2293,8 +2289,4 @@ class QueryBuilder(ObservesEvents):
         if not fields:
             fields = ("created_at",)
 
-        table = self.get_table_name()
-        fields = map(lambda field: f"`{table}`.`{field}`", fields)
-        sql = " asc, ".join(fields) + " asc"
-
-        return self.order_by_raw(sql)
+        return self.order_by(column=",".join(fields), direction="ASC")
