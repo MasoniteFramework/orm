@@ -411,3 +411,27 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
         builder = self.get_builder(dry=True)
         sql = builder.truncate(foreign_keys=True)
         self.assertEqual(sql, "TRUNCATE TABLE [users]")
+
+    def test_latest(self):
+        builder = self.get_builder()
+        builder.latest("email")
+        self.assertEqual(
+            builder.to_sql(), "SELECT * FROM [users] ORDER BY [email] DESC"
+        )
+
+    def test_latest_multiple(self):
+        builder = self.get_builder()
+        builder.latest("email", "created_at")
+        self.assertEqual(
+            builder.to_sql(), "SELECT * FROM [users] ORDER BY [email] DESC, [created_at] DESC"
+        )
+
+    def test_oldest(self):
+        builder = self.get_builder()
+        builder.oldest("email")
+        self.assertEqual(builder.to_sql(), "SELECT * FROM [users] ORDER BY [email] ASC")
+
+    def test_oldest_multiple(self):
+        builder = self.get_builder()
+        builder.oldest("email", "created_at")
+        self.assertEqual(builder.to_sql(), "SELECT * FROM [users] ORDER BY [email] ASC, [created_at] ASC")
