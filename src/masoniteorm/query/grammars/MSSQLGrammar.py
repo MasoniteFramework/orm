@@ -143,10 +143,10 @@ class MSSQLGrammar(BaseGrammar):
         return "OFFSET {offset} ROWS FETCH NEXT {limit} ROWS ONLY"
 
     def increment_string(self):
-        return "{column} = {column} + '{value}'"
+        return "{column} = {column} + '{value}'{separator}"
 
     def decrement_string(self):
-        return "{column} = {column} - '{value}'"
+        return "{column} = {column} - '{value}'{separator}"
 
     def aggregate_string_with_alias(self):
         return "{aggregate_function}({column}) AS {alias}"
