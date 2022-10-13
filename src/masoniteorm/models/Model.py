@@ -1053,6 +1053,23 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return related.detach(self, related_record)
 
+    def updated_quietly(self, updates: dict, dry=False, force=False):
+        """This method calls the update method on a model without firing the updated & updating observer events. Updated/Updating
+        are toggled back on once update_quietly has been ran.
+
+        Instead of calling:
+
+        User().update(...)
+
+        you can use this:
+
+        User.update_quietly(...)
+
+        Returns:
+            self
+        """
+        return self.without_events().update(updates=updates, dry=dry, force=force).with_events()
+
     def attach_related(self, relation, related_record):
         related = getattr(self.__class__, relation)
 
