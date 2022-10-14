@@ -44,7 +44,7 @@ class TestSoftDeleteScope(unittest.TestCase):
     def test_force_delete(self):
         sql = "DELETE FROM `users`"
         builder = self.get_builder().set_global_scope(SoftDeleteScope())
-        self.assertEqual(sql, builder.force_delete().to_sql())
+        self.assertEqual(sql, builder.force_delete(query=True).to_sql())
 
     def test_restore(self):
         sql = "UPDATE `users` SET `users`.`deleted_at` = 'None'"
@@ -54,7 +54,7 @@ class TestSoftDeleteScope(unittest.TestCase):
     def test_force_delete_with_wheres(self):
         sql = "DELETE FROM `user_softs` WHERE `user_softs`.`active` = '1'"
         builder = self.get_builder().set_global_scope(SoftDeleteScope())
-        self.assertEqual(sql, UserSoft.where("active", 1).force_delete().to_sql())
+        self.assertEqual(sql, UserSoft.where("active", 1).force_delete(query=True).to_sql())
 
     def test_that_trashed_users_are_not_returned_by_default(self):
         sql = "SELECT * FROM `users` WHERE `users`.`deleted_at` IS NULL"
