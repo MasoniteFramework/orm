@@ -36,7 +36,7 @@ class SoftDeleteScope(BaseScope):
 
     def _force_delete(self, model, builder, query=False):
         if query:
-            return builder.remove_global_scope(self).set_action("delete").to_sql()
+            return builder.remove_global_scope(self).set_action("delete")
         return builder.remove_global_scope(self).delete()
 
     def _restore(self, model, builder):
