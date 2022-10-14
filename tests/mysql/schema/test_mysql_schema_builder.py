@@ -1,12 +1,12 @@
 import os
 import unittest
 
-from masoniteorm import Model
-from tests.integrations.config.database import DATABASES
+from src.masoniteorm.models import Model
 from src.masoniteorm.connections import MySQLConnection
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import MySQLPlatform
 
+from tests.integrations.config.database import DATABASES
 
 class Discussion(Model):
     pass
