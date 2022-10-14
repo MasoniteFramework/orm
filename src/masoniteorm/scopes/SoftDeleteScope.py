@@ -35,7 +35,7 @@ class SoftDeleteScope(BaseScope):
         return builder.where_not_null(self.deleted_at_column)
 
     def _force_delete(self, model, builder):
-        return builder.remove_global_scope(self).delete(self)
+        return builder.remove_global_scope(self).delete()
 
     def _restore(self, model, builder):
         return builder.remove_global_scope(self).update({self.deleted_at_column: None})
