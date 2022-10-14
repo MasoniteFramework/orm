@@ -1065,7 +1065,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         User.save_quietly(...)
         """
-        return self.without_events().save().with_events()
+        self.without_events()
+        saved = self.save()
+        self.with_events()
+        return saved
 
     def delete_quietly(self):
         """This method calls the delete method on a model without firing the delete & deleting observer events.
