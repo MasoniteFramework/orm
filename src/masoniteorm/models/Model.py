@@ -1053,6 +1053,23 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return related.detach(self, related_record)
 
+    def save_quietly(self):
+        """This method calls the save method on a model without firing the saved & saving observer events. Saved/Saving
+        are toggled back on once save_quietly has been ran.
+
+        Instead of calling:
+
+        User().save(...)
+
+        you can use this:
+
+        User.save_quietly(...)
+        """
+        self.without_events()
+        saved = self.save()
+        self.with_events()
+        return saved
+
     def delete_quietly(self):
         """This method calls the delete method on a model without firing the delete & deleting observer events.
         Instead of calling:
