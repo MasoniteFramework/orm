@@ -1064,11 +1064,25 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         you can use this:
 
         User.save_quietly(...)
+        """
+        return self.without_events().save().with_events()
+
+    def delete_quietly(self):
+        """This method calls the delete method on a model without firing the delete & deleting observer events.
+        Instead of calling:
+
+        User().delete(...)
+
+        you can use this:
+
+        User.delete_quietly(...)
 
         Returns:
             self
         """
-        return self.without_events().save().with_events()
+        delete = self.without_events().where(self.get_primary_key(), self.get_primary_key_value()).delete()
+        self.with_events()
+        return delete
 
     def attach_related(self, relation, related_record):
         related = getattr(self.__class__, relation)
