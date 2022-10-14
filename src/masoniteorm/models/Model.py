@@ -1066,7 +1066,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Returns:
             self
         """
-        return self.without_events().delete()
+        delete = self.without_events().where(self.get_primary_key(), self.get_primary_key_value()).delete()
+        self.with_events()
+        return delete
 
     def attach_related(self, relation, related_record):
         related = getattr(self.__class__, relation)
