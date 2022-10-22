@@ -23,5 +23,5 @@ class ObservesEvents:
     @classmethod
     def with_events(cls):
         """Sets __has_events__ attribute on model to True."""
-        cls.__has_events__ = False
+        cls.__has_events__ = True
         return cls

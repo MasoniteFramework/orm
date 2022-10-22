@@ -163,104 +163,106 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     """Pass through will pass any method calls to the model directly through to the query builder.
     Anytime one of these methods are called on the model it will actually be called on the query builder class.
     """
-    __passthrough__ = set((
-        "add_select",
-        "aggregate",
-        "all",
-        "avg",
-        "between",
-        "bulk_create",
-        "chunk",
-        "count",
-        "decrement",
-        "delete",
-        "distinct",
-        "doesnt_exist",
-        "doesnt_have",
-        "exists",
-        "find_or_404",
-        "find_or_fail",
-        "first_or_fail",
-        "first",
-        "first_where",
-        "first_or_create",
-        "force_update",
-        "from_",
-        "from_raw",
-        "get",
-        "get_table_schema",
-        "group_by_raw",
-        "group_by",
-        "has",
-        "having",
-        "having_raw",
-        "increment",
-        "in_random_order",
-        "join_on",
-        "join",
-        "joins",
-        "last",
-        "left_join",
-        "limit",
-        "lock_for_update",
-        "make_lock",
-        "max",
-        "min",
-        "new_from_builder",
-        "new",
-        "not_between",
-        "offset",
-        "on",
-        "or_where",
-        "or_where_null",
-        "order_by_raw",
-        "order_by",
-        "paginate",
-        "right_join",
-        "select_raw",
-        "select",
-        "set_global_scope",
-        "set_schema",
-        "shared_lock",
-        "simple_paginate",
-        "skip",
-        "statement",
-        "sum",
-        "table_raw",
-        "take",
-        "to_qmark",
-        "to_sql",
-        "truncate",
-        "update",
-        "when",
-        "where_between",
-        "where_column",
-        "where_date",
-        "or_where_doesnt_have",
-        "or_has",
-        "or_where_has",
-        "or_doesnt_have",
-        "or_where_not_exists",
-        "or_where_date",
-        "where_exists",
-        "where_from_builder",
-        "where_has",
-        "where_in",
-        "where_like",
-        "where_not_between",
-        "where_not_in",
-        "where_not_like",
-        "where_not_null",
-        "where_null",
-        "where_raw",
-        "without_global_scopes",
-        "where",
-        "where_doesnt_have",
-        "with_",
-        "with_count",
-        "latest",
-        "oldest"
-    ))
+    __passthrough__ = set(
+        (
+            "add_select",
+            "aggregate",
+            "all",
+            "avg",
+            "between",
+            "bulk_create",
+            "chunk",
+            "count",
+            "decrement",
+            "delete",
+            "distinct",
+            "doesnt_exist",
+            "doesnt_have",
+            "exists",
+            "find_or_404",
+            "find_or_fail",
+            "first_or_fail",
+            "first",
+            "first_where",
+            "first_or_create",
+            "force_update",
+            "from_",
+            "from_raw",
+            "get",
+            "get_table_schema",
+            "group_by_raw",
+            "group_by",
+            "has",
+            "having",
+            "having_raw",
+            "increment",
+            "in_random_order",
+            "join_on",
+            "join",
+            "joins",
+            "last",
+            "left_join",
+            "limit",
+            "lock_for_update",
+            "make_lock",
+            "max",
+            "min",
+            "new_from_builder",
+            "new",
+            "not_between",
+            "offset",
+            "on",
+            "or_where",
+            "or_where_null",
+            "order_by_raw",
+            "order_by",
+            "paginate",
+            "right_join",
+            "select_raw",
+            "select",
+            "set_global_scope",
+            "set_schema",
+            "shared_lock",
+            "simple_paginate",
+            "skip",
+            "statement",
+            "sum",
+            "table_raw",
+            "take",
+            "to_qmark",
+            "to_sql",
+            "truncate",
+            "update",
+            "when",
+            "where_between",
+            "where_column",
+            "where_date",
+            "or_where_doesnt_have",
+            "or_has",
+            "or_where_has",
+            "or_doesnt_have",
+            "or_where_not_exists",
+            "or_where_date",
+            "where_exists",
+            "where_from_builder",
+            "where_has",
+            "where_in",
+            "where_like",
+            "where_not_between",
+            "where_not_in",
+            "where_not_like",
+            "where_not_null",
+            "where_null",
+            "where_raw",
+            "without_global_scopes",
+            "where",
+            "where_doesnt_have",
+            "with_",
+            "with_count",
+            "latest",
+            "oldest"
+        )
+    )
 
     __cast_map__ = {}
 
@@ -1054,6 +1056,44 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             related_record.save()
 
         return related.detach(self, related_record)
+
+    def save_quietly(self):
+        """This method calls the save method on a model without firing the saved & saving observer events. Saved/Saving
+        are toggled back on once save_quietly has been ran.
+
+        Instead of calling:
+
+        User().save(...)
+
+        you can use this:
+
+        User.save_quietly(...)
+        """
+        self.without_events()
+        saved = self.save()
+        self.with_events()
+        return saved
+
+    def delete_quietly(self):
+        """This method calls the delete method on a model without firing the delete & deleting observer events.
+        Instead of calling:
+
+        User().delete(...)
+
+        you can use this:
+
+        User.delete_quietly(...)
+
+        Returns:
+            self
+        """
+        delete = (
+            self.without_events()
+            .where(self.get_primary_key(), self.get_primary_key_value())
+            .delete()
+        )
+        self.with_events()
+        return delete
 
     def attach_related(self, relation, related_record):
         related = getattr(self.__class__, relation)
