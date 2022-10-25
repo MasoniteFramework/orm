@@ -2266,3 +2266,27 @@ class QueryBuilder(ObservesEvents):
         return Schema(
             connection=self.connection, connection_details=self._connection_details
         )
+
+    def latest(self, *fields):
+        """Gets the latest record.
+
+        Returns:
+            querybuilder
+        """
+
+        if not fields:
+            fields = ("created_at",)
+
+        return self.order_by(column=",".join(fields), direction="DESC")
+
+    def oldest(self, *fields):
+        """Gets the oldest record.
+
+        Returns:
+            querybuilder
+        """
+
+        if not fields:
+            fields = ("created_at",)
+
+        return self.order_by(column=",".join(fields), direction="ASC")
