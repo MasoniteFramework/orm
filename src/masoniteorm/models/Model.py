@@ -72,7 +72,7 @@ class JsonCast:
             json.loads(value)
             return value
 
-        return json.dumps(value)
+        return json.dumps(value, default=str)
 
 
 class IntCast:
