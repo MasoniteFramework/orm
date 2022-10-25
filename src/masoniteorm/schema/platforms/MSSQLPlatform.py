@@ -51,6 +51,7 @@ class MSSQLPlatform(Platform):
         "tiny_increments": "TINYINT IDENTITY",
         "unsigned": "INT",
         "unsigned_integer": "INT",
+        "ipaddr": "NVARCHAR",
     }
 
     premapped_nulls = {True: "NULL", False: "NOT NULL"}

@@ -45,6 +45,7 @@ class MySQLPlatform(Platform):
         "datetime": "DATETIME",
         "tiny_increments": "TINYINT AUTO_INCREMENT",
         "unsigned": "INT UNSIGNED",
+        "ipaddr": "VARCHAR",
     }
 
     premapped_nulls = {True: "NULL", False: "NOT NULL"}

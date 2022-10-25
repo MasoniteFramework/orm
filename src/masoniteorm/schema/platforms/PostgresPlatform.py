@@ -56,6 +56,7 @@ class PostgresPlatform(Platform):
         "datetime": "TIMESTAMPTZ",
         "tiny_increments": "TINYINT AUTO_INCREMENT",
         "unsigned": "INT",
+        "ipaddr": "INET",
     }
 
     table_info_map = {

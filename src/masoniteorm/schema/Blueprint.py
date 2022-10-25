@@ -1075,3 +1075,20 @@ class Blueprint:
         self.table.drop_foreign(index)
 
         return self
+
+    def ipaddr(self, column, length=45, nullable=False):
+        """Sets a column to be the IP address representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(
+            column, "ipaddr", length=length, nullable=nullable
+        )
+        return self

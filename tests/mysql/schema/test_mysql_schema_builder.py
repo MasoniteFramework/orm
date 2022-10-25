@@ -186,6 +186,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.inet("last_address").nullable()
             blueprint.cidr("route_origin").nullable()
             blueprint.macaddr("mac_address").nullable()
+            blueprint.ipaddr("ip_address").nullable()
             blueprint.datetime("published_at")
             blueprint.string("thumbnail").nullable()
             blueprint.integer("premium")
@@ -201,7 +202,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.to_sql(),
             [
                 "CREATE TABLE `users` (`id` BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, `name` VARCHAR(255) NOT NULL, "
-                "`duration` VARCHAR(255) NOT NULL, `url` VARCHAR(255) NOT NULL, `last_address` VARCHAR(255) NULL, `route_origin` VARCHAR(255) NULL, `mac_address` VARCHAR(255) NULL, "
+                "`duration` VARCHAR(255) NOT NULL, `url` VARCHAR(255) NOT NULL, `last_address` VARCHAR(255) NULL, `route_origin` VARCHAR(255) NULL, `mac_address` VARCHAR(255) NULL, `ip_address` VARCHAR(45) NULL, "
                 "`published_at` DATETIME NOT NULL, `thumbnail` VARCHAR(255) NULL, "
                 "`premium` INT(11) NOT NULL, `author_id` INT UNSIGNED NULL, `description` TEXT NOT NULL, `created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
                 "`updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_author_id_foreign FOREIGN KEY (`author_id`) REFERENCES `users`(`id`) ON DELETE CASCADE)"

@@ -51,6 +51,7 @@ class SQLitePlatform(Platform):
         "datetime": "DATETIME",
         "tiny_increments": "TINYINT AUTO_INCREMENT",
         "unsigned": "INT UNSIGNED",
+        "ipaddr": "VARCHAR",
     }
 
     premapped_defaults = {
