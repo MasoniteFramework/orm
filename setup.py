@@ -24,6 +24,9 @@ setup(
     # Use this option if your package needs to include files that are not python files
     # like html templates or css files
     include_package_data=True,
+    # including the necessary files when using it as a standalone.
+    package_data={"": ["*.stub", "*.html"]},
+
     # List run-time dependencies here.  These will be installed by pip when
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
