@@ -67,7 +67,7 @@ class BelongsToMany(BaseRelationship):
             self._table = "_".join(pivot_tables)
             self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
             self.local_key = self.local_key or f"{pivot_table_2}_id"
-        else:
+        elif self.local_key is None or self.foreign_key is None:
             pivot_table_1, pivot_table_2 = self._table.split("_", 1)
             self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
             self.local_key = self.local_key or f"{pivot_table_2}_id"
@@ -185,7 +185,7 @@ class BelongsToMany(BaseRelationship):
             self._table = "_".join(pivot_tables)
             self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
             self.local_key = self.local_key or f"{pivot_table_2}_id"
-        else:
+        elif self.local_key is None or self.foreign_key is None:
             pivot_table_1, pivot_table_2 = self._table.split("_", 1)
             self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
             self.local_key = self.local_key or f"{pivot_table_2}_id"
@@ -302,7 +302,7 @@ class BelongsToMany(BaseRelationship):
             self._table = "_".join(pivot_tables)
             self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
             self.local_key = self.local_key or f"{pivot_table_2}_id"
-        else:
+        elif self.local_key is None or self.foreign_key is None:
             pivot_table_1, pivot_table_2 = self._table.split("_", 1)
             self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
             self.local_key = self.local_key or f"{pivot_table_2}_id"
@@ -368,7 +368,7 @@ class BelongsToMany(BaseRelationship):
             self._table = "_".join(pivot_tables)
             self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
             self.local_key = self.local_key or f"{pivot_table_2}_id"
-        else:
+        elif self.local_key is None or self.foreign_key is None:
             pivot_table_1, pivot_table_2 = self._table.split("_", 1)
             self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
             self.local_key = self.local_key or f"{pivot_table_2}_id"
