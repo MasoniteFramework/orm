@@ -43,7 +43,7 @@ class SQLiteGrammar(BaseGrammar):
         return "UPDATE {table} SET {key_equals} {wheres}"
 
     def insert_format(self):
-        return "INSERT INTO {table} ({columns}) VALUES ({values})"
+        return "INSERT INTO {table} ({columns}) VALUES ({values}) RETURNING *"
 
     def bulk_insert_format(self):
         return "INSERT INTO {table} ({columns}) VALUES {values}"
