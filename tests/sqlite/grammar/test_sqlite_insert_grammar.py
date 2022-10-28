@@ -72,13 +72,13 @@ class TestSqliteUpdateGrammar(BaseInsertGrammarTest, unittest.TestCase):
             'name': 'Joe'
         }).to_sql()
         """
-        return """INSERT INTO "users" ("name") VALUES ('Joe')"""
+        return """INSERT INTO "users" ("name") VALUES ('Joe') RETURNING *"""
 
     def can_compile_insert_with_keywords(self):
         """
         self.builder.create(name="Joe").to_sql()
         """
-        return """INSERT INTO "users" ("name") VALUES ('Joe')"""
+        return """INSERT INTO "users" ("name") VALUES ('Joe') RETURNING *"""
 
     def can_compile_bulk_create(self):
         """
