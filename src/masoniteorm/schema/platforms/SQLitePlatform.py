@@ -144,7 +144,6 @@ class SQLitePlatform(Platform):
 
     def compile_alter_sql(self, diff):
         sql = []
-
         if diff.removed_indexes or diff.removed_unique_indexes:
             indexes = diff.removed_indexes
             indexes += diff.removed_unique_indexes
@@ -363,6 +362,7 @@ class SQLitePlatform(Platform):
                 column_python_type=Schema._type_hints_map.get(column_type, str),
                 default=default,
                 length=length,
+                nullable=int(column.get("notnull")) == 0,
             )
             if column.get("pk") == 1:
                 table.set_primary_key(column["name"])
