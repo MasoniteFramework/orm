@@ -109,6 +109,9 @@ class MSSQLGrammar(BaseGrammar):
     def subquery_string(self):
         return "({query})"
 
+    def subquery_alias_string(self):
+        return "AS {alias}"
+
     def where_group_string(self):
         return "{keyword} {value}"
 
