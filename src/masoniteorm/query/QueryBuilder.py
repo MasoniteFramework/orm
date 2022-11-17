@@ -1,11 +1,7 @@
 import inspect
 from copy import deepcopy
-from datetime import date as datetimedate
 from datetime import datetime
-from datetime import time as datetimetime
 from typing import Any, Dict, List, Optional
-
-import pendulum
 
 from ..collection.Collection import Collection
 from ..config import load_config
@@ -29,7 +25,6 @@ from ..expressions.expressions import (
     SubSelectExpression,
     UpdateQueryExpression,
 )
-from ..models import Model
 from ..observers import ObservesEvents
 from ..pagination import LengthAwarePaginator, SimplePaginator
 from ..schema import Schema
@@ -48,7 +43,7 @@ class QueryBuilder(ObservesEvents):
         table=None,
         connection_details=None,
         connection_driver="default",
-        model: Optional[Model] = None,
+        model=None,
         scopes=None,
         schema=None,
         dry=False,
