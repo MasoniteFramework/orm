@@ -1,19 +1,21 @@
-import json
-from datetime import datetime, date as datetimedate, time as datetimetime
-import logging
-from decimal import Decimal
-
-from inflection import tableize, underscore
 import inspect
+import json
+import logging
+from datetime import date as datetimedate
+from datetime import datetime
+from datetime import time as datetimetime
+from decimal import Decimal
+from typing import Any, Dict
 
 import pendulum
+from inflection import tableize, underscore
 
-from ..query import QueryBuilder
 from ..collection import Collection
-from ..observers import ObservesEvents
-from ..scopes import TimeStampsMixin
 from ..config import load_config
 from ..exceptions import ModelNotFound
+from ..observers import ObservesEvents
+from ..query import QueryBuilder
+from ..scopes import TimeStampsMixin
 
 """This is a magic class that will help using models like User.first() instead of having to instatiate a class like
 User().first()
@@ -133,7 +135,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     """
 
     __fillable__ = ["*"]
-    __guarded__ = ["*"]
+    __guarded__ = []
     __dry__ = False
     __table__ = None
     __connection__ = "default"
@@ -159,6 +161,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
     date_created_at = "created_at"
     date_updated_at = "updated_at"
+
+    builder: QueryBuilder
 
     """Pass through will pass any method calls to the model directly through to the query builder.
     Anytime one of these methods are called on the model it will actually be called on the query builder class.
@@ -260,7 +264,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             "with_",
             "with_count",
             "latest",
-            "oldest"
+            "oldest",
         )
     )
 
@@ -366,6 +370,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
                 if class_name.endswith("Mixin"):
                     getattr(self, "boot_" + class_name)(self.get_builder())
+                elif '__fillable__' in base_class.__dict__ and '__guarded__' in base_class.__dict__:
+                    raise AttributeError(f'{type(self).__name__} must specify either __fillable__ or __guarded__ properties, but not both.')
 
             self._booted = True
             self.observe_events(self, "booted")
@@ -526,45 +532,31 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return Collection(data)
 
     @classmethod
-    def create(cls, dictionary=None, query=False, cast=False, **kwargs):
+    def create(cls, dictionary: Dict[str, Any]=None, query: bool=False, cast: bool=False, **kwargs):
         """Creates new records based off of a dictionary as well as data set on the model
         such as fillable values.
 
         Args:
             dictionary (dict, optional): [description]. Defaults to {}.
             query (bool, optional): [description]. Defaults to False.
+            cast (bool, optional): [description]. Whether or not to cast passed values.
 
         Returns:
             self: A hydrated version of a model
         """
-
-        if not dictionary:
-            dictionary = kwargs
-
-        if cls.__fillable__ != ["*"]:
-            d = {}
-            for x in cls.__fillable__:
-                if x in dictionary:
-                    if cast == True:
-                        d.update({x: cls._set_casted_value(x, dictionary[x])})
-                    else:
-                        d.update({x: dictionary[x]})
-            dictionary = d
-
-        if cls.__guarded__ != ["*"]:
-            for x in cls.__guarded__:
-                if x in dictionary:
-                    dictionary.pop(x)
-
         if query:
             return cls.builder.create(
-                dictionary, query=True, id_key=cls.__primary_key__
+                dictionary, query=True, id_key=cls.__primary_key__, cast=cast, **kwargs
             ).to_sql()
 
-        return cls.builder.create(dictionary, id_key=cls.__primary_key__)
+        return cls.builder.create(dictionary, id_key=cls.__primary_key__, cast=cast, **kwargs)
 
     @classmethod
-    def _set_casted_value(cls, attribute, value):
+    def cast_value(cls, attribute: str, value: Any):
+        """
+        Given an attribute name and a value, casts the value using the model's registered caster.
+        If no registered caster exists, returns the unmodified value.
+        """
         cast_method = cls.__casts__.get(attribute)
         cast_map = cls.get_cast_map(cls)
 
@@ -577,6 +569,15 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         if cast_method:
             return cast_method(value)
         return value
+    
+    @classmethod
+    def cast_values(cls, dictionary: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Runs provided dictionary through all model casters and returns the result.
+        
+        Does not mutate the passed dictionary.
+        """
+        return {x: cls.cast_value(x, dictionary[x]) for x in dictionary}
 
     def fresh(self):
         return (
@@ -974,7 +975,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
     def get_new_datetime_string(self, _datetime=None):
         """
-        Get the attributes that should be converted to dates.
+        Given an optional datetime value, constructs and returns a new datetime string.
+        If no datetime is specified, returns the current time.
 
         :rtype: list
         """
@@ -1104,3 +1106,35 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             related_record.save()
 
         return related.attach_related(self, related_record)
+    
+    @classmethod
+    def filter_fillable(cls, dictionary: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Filters provided dictionary to only include fields specified in the model's __fillable__ property
+        
+        Passed dictionary is not mutated.
+        """
+        if cls.__fillable__ != ["*"]:
+            dictionary = {x: dictionary[x] for x in cls.__fillable__ if x in dictionary}
+        return dictionary
+    
+    @classmethod
+    def filter_mass_assignment(cls, dictionary: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Filters the provided dictionary in preparation for a mass-assignment operation
+
+        Wrapper around filter_fillable() & filter_guarded(). Passed dictionary is not mutated.
+        """
+        return cls.filter_guarded(cls.filter_fillable(dictionary))
+
+    @classmethod
+    def filter_guarded(cls, dictionary: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Filters provided dictionary to exclude fields specified in the model's __guarded__ property
+        
+        Passed dictionary is not mutated.
+        """
+        if cls.__guarded__ == ['*']:
+            # If all fields are guarded, all data should be filtered
+            return {}
+        return {f: dictionary[f] for f in dictionary if f not in cls.__guarded__}

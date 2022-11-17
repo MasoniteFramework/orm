@@ -1,8 +1,10 @@
+import datetime
 import json
 import unittest
-from src.masoniteorm.models import Model
+
 import pendulum
-import datetime
+
+from src.masoniteorm.models import Model
 
 
 class ModelTest(Model):
@@ -15,7 +17,15 @@ class ModelTest(Model):
         "d": "decimal",
     }
 
-
+class InvalidFillableGuardedModelTest(Model):
+    __fillable__ = [
+        'due_date',
+    ]
+    __guarded__ = [
+        'is_vip',
+        'payload',
+    ]
+    
 class ModelTestForced(Model):
     __table__ = "users"
     __force_update__ = True
@@ -210,3 +220,23 @@ class TestModels(unittest.TestCase):
             sql,
             """SELECT * FROM `model_tests` WHERE `model_tests`.`name` = 'joe' OR (`model_tests`.`username` = 'Joseph' OR `model_tests`.`age` >= '18'))""",
         )
+    
+    def test_both_fillable_and_guarded_attributes_raise(self):
+        # Both fillable and guarded props are populated on this class
+        with self.assertRaises(AttributeError):
+            InvalidFillableGuardedModelTest()
+        # Still shouldn't be allowed to define even if empty
+        InvalidFillableGuardedModelTest.__fillable__ = []
+        with self.assertRaises(AttributeError):
+            InvalidFillableGuardedModelTest()
+        # Or wildcard
+        InvalidFillableGuardedModelTest.__fillable__ = ['*']
+        with self.assertRaises(AttributeError):
+            InvalidFillableGuardedModelTest()
+        # Empty guarded attr still raises
+        InvalidFillableGuardedModelTest.__guarded__ = []
+        with self.assertRaises(AttributeError):
+            InvalidFillableGuardedModelTest()
+        # Removing one of the props allows us to instantiate
+        delattr(InvalidFillableGuardedModelTest, '__guarded__')
+        InvalidFillableGuardedModelTest()

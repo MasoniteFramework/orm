@@ -1,4 +1,5 @@
-from typing import Any
+from typing import Any, Dict
+
 from typing_extensions import Self
 
 from ..query.QueryBuilder import QueryBuilder
@@ -53,6 +54,19 @@ class Model:
         pass
     def bulk_create(creates: dict, query: bool = False):
         pass
+    def cast_value(attribute: str, value: Any):
+        """
+        Given an attribute name and a value, casts the value using the model's registered caster.
+        If no registered caster exists, returns the unmodified value.
+        """
+        pass
+    def cast_values(dictionary: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Runs provided dictionary through all model casters and returns the result.
+        
+        Does not mutate the passed dictionary.
+        """
+        pass
     def chunk(chunk_amount: str | int):
         pass
     def count(column: str = None):
@@ -63,6 +77,19 @@ class Model:
 
         Returns:
             self
+        """
+        pass
+    def create(dictionary: Dict[str, Any]=None, query: bool=False, cast: bool=False, **kwargs):
+        """Creates new records based off of a dictionary as well as data set on the model
+        such as fillable values.
+
+        Args:
+            dictionary (dict, optional): [description]. Defaults to {}.
+            query (bool, optional): [description]. Defaults to False.
+            cast (bool, optional): [description]. Whether or not to cast passed values.
+
+        Returns:
+            self: A hydrated version of a model
         """
         pass
     def decrement(column: str, value: int = 1):
@@ -112,6 +139,27 @@ class Model:
 
         Returns:
             Bool - True or False
+        """
+        pass
+    def filter_fillable(dictionary: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Filters provided dictionary to only include fields specified in the model's __fillable__ property
+        
+        Passed dictionary is not mutated.
+        """
+        pass
+    def filter_mass_assignment(dictionary: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Filters the provided dictionary in preparation for a mass-assignment operation
+
+        Wrapper around filter_fillable() & filter_guarded(). Passed dictionary is not mutated.
+        """
+        pass
+    def filter_guarded(dictionary: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Filters provided dictionary to exclude fields specified in the model's __guarded__ property
+        
+        Passed dictionary is not mutated.
         """
         pass
     def find_or_404(record_id: str | int):

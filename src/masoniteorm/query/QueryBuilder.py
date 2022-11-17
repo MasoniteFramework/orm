@@ -1,38 +1,29 @@
 import inspect
 from copy import deepcopy
+from datetime import date as datetimedate
+from datetime import datetime
+from datetime import time as datetimetime
+from typing import Any, Dict, List, Optional
 
-from ..config import load_config
-from ..collection.Collection import Collection
-from ..expressions.expressions import (
-    JoinClause,
-    SubGroupExpression,
-    SubSelectExpression,
-    SelectExpression,
-    BetweenExpression,
-    GroupByExpression,
-    AggregateExpression,
-    QueryExpression,
-    OrderByExpression,
-    UpdateQueryExpression,
-    HavingExpression,
-    FromTable,
-)
-
-from ..scopes import BaseScope
-from ..schema import Schema
-from ..observers import ObservesEvents
-from ..exceptions import (
-    ModelNotFound,
-    HTTP404,
-    ConnectionNotRegistered,
-    ModelNotFound,
-    MultipleRecordsFound,
-)
-from ..pagination import LengthAwarePaginator, SimplePaginator
-from .EagerRelation import EagerRelations
-from datetime import datetime, date as datetimedate, time as datetimetime
 import pendulum
+
+from ..collection.Collection import Collection
+from ..config import load_config
+from ..exceptions import (HTTP404, ConnectionNotRegistered, ModelNotFound,
+                          MultipleRecordsFound)
+from ..expressions.expressions import (AggregateExpression, BetweenExpression,
+                                       FromTable, GroupByExpression,
+                                       HavingExpression, JoinClause,
+                                       OrderByExpression, QueryExpression,
+                                       SelectExpression, SubGroupExpression,
+                                       SubSelectExpression,
+                                       UpdateQueryExpression)
+from ..models import Model
+from ..observers import ObservesEvents
+from ..pagination import LengthAwarePaginator, SimplePaginator
 from ..schema import Schema
+from ..scopes import BaseScope
+from .EagerRelation import EagerRelations
 
 
 class QueryBuilder(ObservesEvents):
@@ -46,7 +37,7 @@ class QueryBuilder(ObservesEvents):
         table=None,
         connection_details=None,
         connection_driver="default",
-        model=None,
+        model: Optional[Model]=None,
         scopes=None,
         schema=None,
         dry=False,
@@ -460,22 +451,24 @@ class QueryBuilder(ObservesEvents):
     def get_processor(self):
         return self.connection_class.get_default_post_processor()()
 
-    def bulk_create(self, creates, query=False):
-        model = None
+    def bulk_create(self, creates: List[Dict[str, Any]], query: bool=False, cast: bool = False):
         self.set_action("bulk_create")
-
-        sorted_creates = []
-        # sort the dicts by key so the values inserted align
-        # with the correct column
-        for unsorted_dict in creates:
-            sorted_creates.append(dict(sorted(unsorted_dict.items())))
-        self._creates = sorted_creates
-
+        model = None
+        
         if self._model:
             model = self._model
 
+        self._creates = []
+        for unsorted_create in creates:
+            if model:
+                unsorted_create = model.filter_mass_assignment(unsorted_create)
+            if cast:
+                unsorted_create = model.cast_values(unsorted_create)
+            # sort the dicts by key so the values inserted align with the correct column
+            self._creates.append(dict(sorted(unsorted_create.items())))
+
         if query:
-            return self
+            return self.to_sql()
 
         if model:
             model = model.hydrate(self._creates)
@@ -492,7 +485,7 @@ class QueryBuilder(ObservesEvents):
 
         return processed_results
 
-    def create(self, creates=None, query=False, id_key="id", **kwargs):
+    def create(self, creates: Optional[Dict[str, Any]]=None, query: bool=False, id_key: str="id", cast: bool=False, **kwargs):
         """Specifies a dictionary that should be used to create new values.
 
         Arguments:
@@ -501,21 +494,22 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._creates = {}
-
-        if not creates:
-            creates = kwargs
-
+        self.set_action("insert")
         model = None
+        self._creates = creates if creates else kwargs
 
         if self._model:
             model = self._model
-
-        self.set_action("insert")
-        self._creates.update(creates)
+            # Update values with related record's
+            self._creates.update(self._creates_related)
+            # Filter __fillable/__guarded__ fields
+            self._creates = model.filter_mass_assignment(self._creates)
+            # Cast values if necessary
+            if cast:
+                self._creates = model.cast_values(self._creates)
 
         if query:
-            return self
+            return self.to_sql()
 
         if model:
             model = model.hydrate(self._creates)
@@ -527,18 +521,6 @@ class QueryBuilder(ObservesEvents):
         if not self.dry:
             connection = self.new_connection()
 
-            if model:
-                d = {}
-                for x in self._creates:
-                    if x in self._creates:
-                        if kwargs.get("cast") == True:
-                            d.update(
-                                {x: self._model._set_casted_value(x, self._creates[x])}
-                            )
-                        else:
-                            d.update({x: self._creates[x]})
-                d.update(self._creates_related)
-                self._creates = d
             query_result = connection.query(self.to_qmark(), self._bindings, results=1)
 
             if model:
@@ -1385,11 +1367,14 @@ class QueryBuilder(ObservesEvents):
         """Alias for limit method"""
         return self.offset(*args, **kwargs)
 
-    def update(self, updates: dict, dry=False, force=False):
+    def update(self, updates: Dict[str, Any], dry: bool=False, force: bool=False, cast: bool=False):
         """Specifies columns and values to be updated.
 
         Arguments:
             updates {dictionary} -- A dictionary of columns and values to update.
+            dry {bool, optional}: Do everything except execute the query against the DB
+            force {bool, optional}: Force an update statement to be executed even if nothing was changed
+            cast {bool, optional}: Run all values through model's casters
 
         Keyword Arguments:
             dry {bool} -- Whether the query should be executed. (default: {False})
@@ -1403,6 +1388,9 @@ class QueryBuilder(ObservesEvents):
 
         if self._model:
             model = self._model
+            # Filter __fillable/__guarded__ fields
+            updates = model.filter_mass_assignment(updates)
+            
 
         if model and model.is_loaded():
             self.where(model.get_primary_key(), model.get_primary_key_value())
@@ -1410,25 +1398,29 @@ class QueryBuilder(ObservesEvents):
 
             self.observe_events(model, "updating")
 
-        # update only attributes with changes
         if model and not model.__force_update__ and not force:
-            changes = {}
-            for attribute, value in updates.items():
+            # Filter updates to only those with changes
+            updates = {
+                attr: value
+                for attr, value in updates.items()
                 if (
-                    model.__original_attributes__.get(attribute, None) != value
-                    or value is None
-                ):
-                    changes.update({attribute: value})
-            updates = changes
+                    value is None
+                    or model.__original_attributes__.get(attr, None) != value
+                )
+            }
+        
+        # do not perform update query if no changes
+        if not updates:
+            return model if model else self
 
         if model and updates:
+            date_fields = model.get_dates()
             for key, value in updates.items():
-                if key in model.get_dates():
-                    updates.update({key: model.get_new_datetime_string(value)})
-
-        # do not perform update query if no changes
-        if len(updates.keys()) == 0:
-            return model if model else self
+                if key in date_fields:
+                    updates[key] = model.get_new_datetime_string(value)
+                # Cast value if necessary
+                if cast:
+                    updates[key] = model.cast_value(value)
 
         self._updates = (UpdateQueryExpression(updates),)
         self.set_action("update")
@@ -1587,32 +1579,6 @@ class QueryBuilder(ObservesEvents):
             return prepared_result[0]
         else:
             return self
-
-    def cast_value(self, value):
-
-        if isinstance(value, datetime):
-            return str(pendulum.instance(value))
-        elif isinstance(value, datetimedate):
-            return str(pendulum.datetime(value.year, value.month, value.day))
-        elif isinstance(value, datetimetime):
-            return str(pendulum.parse(f"{value.hour}:{value.minute}:{value.second}"))
-
-        return value
-
-    def cast_dates(self, result):
-        if isinstance(result, dict):
-            new_dict = {}
-            for key, value in result.items():
-                new_dict.update({key: self.cast_value(value)})
-
-            return new_dict
-        elif isinstance(result, list):
-            new_list = []
-            for res in result:
-                new_list.append(self.cast_dates(res))
-            return new_list
-
-        return result
 
     def max(self, column):
         """Aggregates a columns values.
