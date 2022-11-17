@@ -1,0 +1,7 @@
+flake8==3.7.9
+black
+faker
+pytest
+pytest-cov
+pymysql
+isort

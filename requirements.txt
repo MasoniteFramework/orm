@@ -1,13 +1,5 @@
-flake8==3.7.9
-black==22.10.0
-faker
-pytest
-pytest-cov
-pymysql
-isort
 inflection==0.3.1
 psycopg2-binary
-python-dotenv==0.14.0
 pyodbc
 pendulum>=2.1,<2.2
 cleo>=0.8.0,<0.9
