@@ -9,15 +9,26 @@ import pendulum
 
 from ..collection.Collection import Collection
 from ..config import load_config
-from ..exceptions import (HTTP404, ConnectionNotRegistered, ModelNotFound,
-                          MultipleRecordsFound)
-from ..expressions.expressions import (AggregateExpression, BetweenExpression,
-                                       FromTable, GroupByExpression,
-                                       HavingExpression, JoinClause,
-                                       OrderByExpression, QueryExpression,
-                                       SelectExpression, SubGroupExpression,
-                                       SubSelectExpression,
-                                       UpdateQueryExpression)
+from ..exceptions import (
+    HTTP404,
+    ConnectionNotRegistered,
+    ModelNotFound,
+    MultipleRecordsFound,
+)
+from ..expressions.expressions import (
+    AggregateExpression,
+    BetweenExpression,
+    FromTable,
+    GroupByExpression,
+    HavingExpression,
+    JoinClause,
+    OrderByExpression,
+    QueryExpression,
+    SelectExpression,
+    SubGroupExpression,
+    SubSelectExpression,
+    UpdateQueryExpression,
+)
 from ..models import Model
 from ..observers import ObservesEvents
 from ..pagination import LengthAwarePaginator, SimplePaginator
@@ -37,7 +48,7 @@ class QueryBuilder(ObservesEvents):
         table=None,
         connection_details=None,
         connection_driver="default",
-        model: Optional[Model]=None,
+        model: Optional[Model] = None,
         scopes=None,
         schema=None,
         dry=False,
@@ -451,10 +462,12 @@ class QueryBuilder(ObservesEvents):
     def get_processor(self):
         return self.connection_class.get_default_post_processor()()
 
-    def bulk_create(self, creates: List[Dict[str, Any]], query: bool=False, cast: bool = False):
+    def bulk_create(
+        self, creates: List[Dict[str, Any]], query: bool = False, cast: bool = False
+    ):
         self.set_action("bulk_create")
         model = None
-        
+
         if self._model:
             model = self._model
 
@@ -485,7 +498,14 @@ class QueryBuilder(ObservesEvents):
 
         return processed_results
 
-    def create(self, creates: Optional[Dict[str, Any]]=None, query: bool=False, id_key: str="id", cast: bool=False, **kwargs):
+    def create(
+        self,
+        creates: Optional[Dict[str, Any]] = None,
+        query: bool = False,
+        id_key: str = "id",
+        cast: bool = False,
+        **kwargs,
+    ):
         """Specifies a dictionary that should be used to create new values.
 
         Arguments:
@@ -1367,7 +1387,13 @@ class QueryBuilder(ObservesEvents):
         """Alias for limit method"""
         return self.offset(*args, **kwargs)
 
-    def update(self, updates: Dict[str, Any], dry: bool=False, force: bool=False, cast: bool=False):
+    def update(
+        self,
+        updates: Dict[str, Any],
+        dry: bool = False,
+        force: bool = False,
+        cast: bool = False,
+    ):
         """Specifies columns and values to be updated.
 
         Arguments:
@@ -1390,7 +1416,6 @@ class QueryBuilder(ObservesEvents):
             model = self._model
             # Filter __fillable/__guarded__ fields
             updates = model.filter_mass_assignment(updates)
-            
 
         if model and model.is_loaded():
             self.where(model.get_primary_key(), model.get_primary_key_value())
@@ -1408,7 +1433,7 @@ class QueryBuilder(ObservesEvents):
                     or model.__original_attributes__.get(attr, None) != value
                 )
             }
-        
+
         # do not perform update query if no changes
         if not updates:
             return model if model else self

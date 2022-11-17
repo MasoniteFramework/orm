@@ -17,15 +17,17 @@ class ModelTest(Model):
         "d": "decimal",
     }
 
+
 class InvalidFillableGuardedModelTest(Model):
     __fillable__ = [
-        'due_date',
+        "due_date",
     ]
     __guarded__ = [
-        'is_vip',
-        'payload',
+        "is_vip",
+        "payload",
     ]
-    
+
+
 class ModelTestForced(Model):
     __table__ = "users"
     __force_update__ = True
@@ -127,33 +129,31 @@ class TestModels(unittest.TestCase):
         self.assertEqual(type(model.serialize()["is_vip"]), bool)
 
     def test_valid_json_cast(self):
-        model = ModelTest.hydrate({
-            "payload": {"this": "dict", "is": "usable", "as": "json"},
-        })
+        model = ModelTest.hydrate(
+            {
+                "payload": {"this": "dict", "is": "usable", "as": "json"},
+            }
+        )
 
         self.assertEqual(type(model.payload), dict)
 
-        model = ModelTest.hydrate({
-            "payload": {'this': 'dict', 'is': 'invalid', 'as': 'json'}
-        })
+        model = ModelTest.hydrate(
+            {"payload": {"this": "dict", "is": "invalid", "as": "json"}}
+        )
 
         self.assertEqual(type(model.payload), dict)
 
-        model = ModelTest.hydrate({
-            "payload": '{"this": "dict", "is": "usable", "as": "json"}'
-        })
+        model = ModelTest.hydrate(
+            {"payload": '{"this": "dict", "is": "usable", "as": "json"}'}
+        )
 
         self.assertEqual(type(model.payload), dict)
 
-        model = ModelTest.hydrate({
-            "payload": '{"valid": "json", "int": 1}'
-        })
+        model = ModelTest.hydrate({"payload": '{"valid": "json", "int": 1}'})
 
         self.assertEqual(type(model.payload), dict)
 
-        model = ModelTest.hydrate({
-            "payload": "{'this': 'should', 'throw': 'error'}"
-        })
+        model = ModelTest.hydrate({"payload": "{'this': 'should', 'throw': 'error'}"})
 
         self.assertEqual(model.payload, None)
 
@@ -220,7 +220,7 @@ class TestModels(unittest.TestCase):
             sql,
             """SELECT * FROM `model_tests` WHERE `model_tests`.`name` = 'joe' OR (`model_tests`.`username` = 'Joseph' OR `model_tests`.`age` >= '18'))""",
         )
-    
+
     def test_both_fillable_and_guarded_attributes_raise(self):
         # Both fillable and guarded props are populated on this class
         with self.assertRaises(AttributeError):
@@ -230,7 +230,7 @@ class TestModels(unittest.TestCase):
         with self.assertRaises(AttributeError):
             InvalidFillableGuardedModelTest()
         # Or wildcard
-        InvalidFillableGuardedModelTest.__fillable__ = ['*']
+        InvalidFillableGuardedModelTest.__fillable__ = ["*"]
         with self.assertRaises(AttributeError):
             InvalidFillableGuardedModelTest()
         # Empty guarded attr still raises
@@ -238,5 +238,5 @@ class TestModels(unittest.TestCase):
         with self.assertRaises(AttributeError):
             InvalidFillableGuardedModelTest()
         # Removing one of the props allows us to instantiate
-        delattr(InvalidFillableGuardedModelTest, '__guarded__')
+        delattr(InvalidFillableGuardedModelTest, "__guarded__")
         InvalidFillableGuardedModelTest()

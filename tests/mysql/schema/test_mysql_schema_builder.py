@@ -8,6 +8,7 @@ from src.masoniteorm.schema.platforms import MySQLPlatform
 
 from tests.integrations.config.database import DATABASES
 
+
 class Discussion(Model):
     pass
 

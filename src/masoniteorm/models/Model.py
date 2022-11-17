@@ -370,8 +370,13 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
                 if class_name.endswith("Mixin"):
                     getattr(self, "boot_" + class_name)(self.get_builder())
-                elif '__fillable__' in base_class.__dict__ and '__guarded__' in base_class.__dict__:
-                    raise AttributeError(f'{type(self).__name__} must specify either __fillable__ or __guarded__ properties, but not both.')
+                elif (
+                    "__fillable__" in base_class.__dict__
+                    and "__guarded__" in base_class.__dict__
+                ):
+                    raise AttributeError(
+                        f"{type(self).__name__} must specify either __fillable__ or __guarded__ properties, but not both."
+                    )
 
             self._booted = True
             self.observe_events(self, "booted")
@@ -532,7 +537,13 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return Collection(data)
 
     @classmethod
-    def create(cls, dictionary: Dict[str, Any]=None, query: bool=False, cast: bool=False, **kwargs):
+    def create(
+        cls,
+        dictionary: Dict[str, Any] = None,
+        query: bool = False,
+        cast: bool = False,
+        **kwargs,
+    ):
         """Creates new records based off of a dictionary as well as data set on the model
         such as fillable values.
 
@@ -549,7 +560,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 dictionary, query=True, id_key=cls.__primary_key__, cast=cast, **kwargs
             ).to_sql()
 
-        return cls.builder.create(dictionary, id_key=cls.__primary_key__, cast=cast, **kwargs)
+        return cls.builder.create(
+            dictionary, id_key=cls.__primary_key__, cast=cast, **kwargs
+        )
 
     @classmethod
     def cast_value(cls, attribute: str, value: Any):
@@ -569,12 +582,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         if cast_method:
             return cast_method(value)
         return value
-    
+
     @classmethod
     def cast_values(cls, dictionary: Dict[str, Any]) -> Dict[str, Any]:
         """
         Runs provided dictionary through all model casters and returns the result.
-        
+
         Does not mutate the passed dictionary.
         """
         return {x: cls.cast_value(x, dictionary[x]) for x in dictionary}
@@ -1106,18 +1119,18 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             related_record.save()
 
         return related.attach_related(self, related_record)
-    
+
     @classmethod
     def filter_fillable(cls, dictionary: Dict[str, Any]) -> Dict[str, Any]:
         """
         Filters provided dictionary to only include fields specified in the model's __fillable__ property
-        
+
         Passed dictionary is not mutated.
         """
         if cls.__fillable__ != ["*"]:
             dictionary = {x: dictionary[x] for x in cls.__fillable__ if x in dictionary}
         return dictionary
-    
+
     @classmethod
     def filter_mass_assignment(cls, dictionary: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -1131,10 +1144,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     def filter_guarded(cls, dictionary: Dict[str, Any]) -> Dict[str, Any]:
         """
         Filters provided dictionary to exclude fields specified in the model's __guarded__ property
-        
+
         Passed dictionary is not mutated.
         """
-        if cls.__guarded__ == ['*']:
+        if cls.__guarded__ == ["*"]:
             # If all fields are guarded, all data should be filtered
             return {}
         return {f: dictionary[f] for f in dictionary if f not in cls.__guarded__}

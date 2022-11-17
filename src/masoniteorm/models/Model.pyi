@@ -6,8 +6,7 @@ from ..query.QueryBuilder import QueryBuilder
 
 class Model:
     def add_select(alias: str, callable: Any):
-        """Specifies a select subquery.
-        """
+        """Specifies a select subquery."""
         pass
     def aggregate(aggregate: str, column: str, alias: str):
         """Helper function to aggregate.
@@ -63,7 +62,7 @@ class Model:
     def cast_values(dictionary: Dict[str, Any]) -> Dict[str, Any]:
         """
         Runs provided dictionary through all model casters and returns the result.
-        
+
         Does not mutate the passed dictionary.
         """
         pass
@@ -79,7 +78,12 @@ class Model:
             self
         """
         pass
-    def create(dictionary: Dict[str, Any]=None, query: bool=False, cast: bool=False, **kwargs):
+    def create(
+        dictionary: Dict[str, Any] = None,
+        query: bool = False,
+        cast: bool = False,
+        **kwargs
+    ):
         """Creates new records based off of a dictionary as well as data set on the model
         such as fillable values.
 
@@ -117,8 +121,7 @@ class Model:
         """
         pass
     def distinct(boolean: bool = True):
-        """Species that the select query should be a SELECT DISTINCT query.
-        """
+        """Species that the select query should be a SELECT DISTINCT query."""
         pass
     def doesnt_exist() -> bool:
         """Determines if any rows exist for the current query.
@@ -144,7 +147,7 @@ class Model:
     def filter_fillable(dictionary: Dict[str, Any]) -> Dict[str, Any]:
         """
         Filters provided dictionary to only include fields specified in the model's __fillable__ property
-        
+
         Passed dictionary is not mutated.
         """
         pass
@@ -158,7 +161,7 @@ class Model:
     def filter_guarded(dictionary: Dict[str, Any]) -> Dict[str, Any]:
         """
         Filters provided dictionary to exclude fields specified in the model's __guarded__ property
-        
+
         Passed dictionary is not mutated.
         """
         pass
@@ -506,8 +509,7 @@ class Model:
     def simple_paginate(per_page: int, page: int = 1):
         pass
     def skip(*args, **kwargs):
-        """Alias for limit method.
-        """
+        """Alias for limit method."""
         pass
     def statement(query: str, bindings: list = ()):
         pass
@@ -568,8 +570,7 @@ class Model:
     def when(conditional: bool, callback: callable):
         pass
     def where_between(*args, **kwargs):
-        """Alias for between
-        """
+        """Alias for between"""
         pass
     def where_column(column1: str, column2: str):
         """Specifies where two columns equal eachother.
@@ -667,8 +668,7 @@ class Model:
         """
         pass
     def where_not_between(*args: Any, **kwargs: Any):
-        """Alias for not_between
-        """
+        """Alias for not_between"""
         pass
     def where_not_in(column: str, wheres: list = []):
         """Specifies where a column does not contain a list of a values.

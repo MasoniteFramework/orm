@@ -315,9 +315,16 @@ class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         )
 
     def test_can_compile_having_raw_order(self):
-        to_sql = self.builder.select_raw("COUNT(*) as counts").having_raw("counts > 10").order_by_raw(
-            'counts DESC').to_sql()
-        self.assertEqual(to_sql, "SELECT COUNT(*) as counts FROM [users] HAVING counts > 10 ORDER BY counts DESC")
+        to_sql = (
+            self.builder.select_raw("COUNT(*) as counts")
+            .having_raw("counts > 10")
+            .order_by_raw("counts DESC")
+            .to_sql()
+        )
+        self.assertEqual(
+            to_sql,
+            "SELECT COUNT(*) as counts FROM [users] HAVING counts > 10 ORDER BY counts DESC",
+        )
 
     def test_can_compile_select_raw(self):
         to_sql = self.builder.select_raw("COUNT(*)").to_sql()
