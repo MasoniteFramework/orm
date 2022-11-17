@@ -370,13 +370,15 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
                 if class_name.endswith("Mixin"):
                     getattr(self, "boot_" + class_name)(self.get_builder())
-                elif (
-                    "__fillable__" in base_class.__dict__
-                    and "__guarded__" in base_class.__dict__
-                ):
-                    raise AttributeError(
-                        f"{type(self).__name__} must specify either __fillable__ or __guarded__ properties, but not both."
-                    )
+                else:
+                    base_attrs = base_class.__class__.__dict__
+                    if (
+                        "__fillable__" in base_attrs
+                        and "__guarded__" in base_attrs
+                    ):
+                        raise AttributeError(
+                            f"{type(self).__name__} must specify either __fillable__ or __guarded__ properties, but not both."
+                        )
 
             self._booted = True
             self.observe_events(self, "booted")
