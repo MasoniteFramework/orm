@@ -476,7 +476,7 @@ class QueryBuilder(ObservesEvents):
             self._creates.append(dict(sorted(unsorted_create.items())))
 
         if query:
-            return self.to_sql()
+            return self
 
         if model:
             model = model.hydrate(self._creates)
@@ -524,7 +524,7 @@ class QueryBuilder(ObservesEvents):
                 self._creates = model.cast_values(self._creates)
 
         if query:
-            return self.to_sql()
+            return self
 
         if model:
             model = model.hydrate(self._creates)
