@@ -1385,7 +1385,7 @@ class QueryBuilder(ObservesEvents):
         """Alias for limit method"""
         return self.offset(*args, **kwargs)
 
-    def update(self, updates: dict, dry=False, force=False):
+    def update(self, updates: dict, dry=False, force=False, cast=False):
         """Specifies columns and values to be updated.
 
         Arguments:
@@ -1393,6 +1393,7 @@ class QueryBuilder(ObservesEvents):
 
         Keyword Arguments:
             dry {bool} -- Whether the query should be executed. (default: {False})
+            cast {bool} -- Apply model casts to provided dictionary. (default: {False})
 
         Returns:
             self
@@ -1409,6 +1410,14 @@ class QueryBuilder(ObservesEvents):
             additional.update({model.get_primary_key(): model.get_primary_key_value()})
 
             self.observe_events(model, "updating")
+
+        # cast model values if needed
+        if model and updates and cast:
+            for key, value in updates.items():
+                if model.__casts__.get(key):
+                    caster_name = model.__casts__[key]
+                    caster = model.__cast_map__[caster_name]
+                    updates[key] = caster().set(value)
 
         # update only attributes with changes
         if model and not model.__force_update__ and not force:
