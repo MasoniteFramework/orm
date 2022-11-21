@@ -371,7 +371,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 if class_name.endswith("Mixin"):
                     getattr(self, "boot_" + class_name)(self.get_builder())
                 elif (
-                    issubclass(base_class, self.__class__)
+                    base_class != Model
+                    and issubclass(base_class, Model)
                     and "__fillable__" in base_class.__dict__
                     and "__guarded__" in base_class.__dict__
                 ):

@@ -27,6 +27,15 @@ class InvalidFillableGuardedModelTest(Model):
         "payload",
     ]
 
+class InvalidFillableGuardedChildModelTest(ModelTest):
+    __fillable__ = [
+        "due_date",
+    ]
+    __guarded__ = [
+        "is_vip",
+        "payload",
+    ]
+
 
 class ModelTestForced(Model):
     __table__ = "users"
@@ -225,6 +234,9 @@ class TestModels(unittest.TestCase):
         # Both fillable and guarded props are populated on this class
         with self.assertRaises(AttributeError):
             InvalidFillableGuardedModelTest()
+        # Child that inherits from an intermediary class also fails
+        with self.assertRaises(AttributeError):
+            InvalidFillableGuardedChildModelTest()
         # Still shouldn't be allowed to define even if empty
         InvalidFillableGuardedModelTest.__fillable__ = []
         with self.assertRaises(AttributeError):
