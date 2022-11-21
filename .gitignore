@@ -17,3 +17,4 @@ coverage.xml
 *.log
 build
 /orm.sqlite3
+/.bootstrapped-pip

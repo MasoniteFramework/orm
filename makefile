@@ -1,18 +1,24 @@
-init:
-	cp .env-example .env
+init: .env .bootstrapped-pip
+
+.bootstrapped-pip: requirements.txt requirements.dev
 	pip install -r requirements.txt -r requirements.dev
+	touch .bootstrapped-pip
+
+.env:
+	cp .env-example .env
+
 # 	Create MySQL Database
 # 	Create Postgres Database
 test: init
 	python -m pytest tests
 ci:
 	make test
-lint: format
+check: format lint
+lint:
 	python -m flake8 src/masoniteorm/ --ignore=E501,F401,E203,E128,E402,E731,F821,E712,W503,F811
 format: init
 	black src/masoniteorm
 	black tests/
-	make lint
 sort: init
 	isort tests
 	isort src/masoniteorm
