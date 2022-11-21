@@ -18,6 +18,13 @@ class ModelTest(Model):
     }
 
 
+class FillableModelTest(Model):
+    __fillable__ = [
+        "due_date",
+        "is_vip",
+    ]
+
+
 class InvalidFillableGuardedModelTest(Model):
     __fillable__ = [
         "due_date",
@@ -26,6 +33,7 @@ class InvalidFillableGuardedModelTest(Model):
         "is_vip",
         "payload",
     ]
+
 
 class InvalidFillableGuardedChildModelTest(ModelTest):
     __fillable__ = [

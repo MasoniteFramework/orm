@@ -552,16 +552,16 @@ class Model:
         pass
     def truncate(foreign_keys: bool = False):
         pass
-    def update(updates: dict, dry: bool = False, force: bool = False):
+    def update(
+        updates: dict, dry: bool = False, force: bool = False, cast: bool = False
+    ):
         """Specifies columns and values to be updated.
 
         Arguments:
             updates {dictionary} -- A dictionary of columns and values to update.
-            dry {bool} -- Whether a query should actually run
-            force {bool} -- Force the update even if there are no changes
-
-        Keyword Arguments:
-            dry {bool} -- Whether the query should be executed. (default: {False})
+            dry {bool, optional} -- Whether a query should actually run
+            force {bool, optional} -- Force the update even if there are no changes
+            cast {bool, optional} -- Run all values through model's casters
 
         Returns:
             self

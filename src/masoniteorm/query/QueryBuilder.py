@@ -1397,9 +1397,6 @@ class QueryBuilder(ObservesEvents):
             force {bool, optional}: Force an update statement to be executed even if nothing was changed
             cast {bool, optional}: Run all values through model's casters
 
-        Keyword Arguments:
-            dry {bool} -- Whether the query should be executed. (default: {False})
-
         Returns:
             self
         """
@@ -1418,22 +1415,23 @@ class QueryBuilder(ObservesEvents):
 
             self.observe_events(model, "updating")
 
-        if model and not model.__force_update__ and not force:
-            # Filter updates to only those with changes
-            updates = {
-                attr: value
-                for attr, value in updates.items()
-                if (
-                    value is None
-                    or model.__original_attributes__.get(attr, None) != value
-                )
-            }
+        if model:
+            if not model.__force_update__ and not force:
+                # Filter updates to only those with changes
+                updates = {
+                    attr: value
+                    for attr, value in updates.items()
+                    if (
+                        value is None
+                        or model.__original_attributes__.get(attr, None) != value
+                    )
+                }
 
-        # do not perform update query if no changes
-        if not updates:
-            return model if model else self
+            # Do not execute query if no changes
+            if not updates:
+                return self if dry or self.dry else model
 
-        if model and updates:
+            # Cast date fields
             date_fields = model.get_dates()
             for key, value in updates.items():
                 if key in date_fields:
@@ -1441,6 +1439,9 @@ class QueryBuilder(ObservesEvents):
                 # Cast value if necessary
                 if cast:
                     updates[key] = model.cast_value(value)
+        elif not updates:
+            # Do not perform query if there are no updates
+            return self
 
         self._updates = (UpdateQueryExpression(updates),)
         self.set_action("update")
