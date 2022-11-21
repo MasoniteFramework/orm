@@ -13,14 +13,13 @@ test: init
 	python -m pytest tests
 ci:
 	make test
-check: format lint
+check: format sort lint
 lint:
 	python -m flake8 src/masoniteorm/ --ignore=E501,F401,E203,E128,E402,E731,F821,E712,W503,F811
 format: init
 	black src/masoniteorm tests/
 sort: init
-	isort tests
-	isort src/masoniteorm
+	isort src/masoniteorm tests/
 coverage:
 	python -m pytest --cov-report term --cov-report xml --cov=src/masoniteorm tests/
 	python -m coveralls
