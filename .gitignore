@@ -16,3 +16,4 @@ coverage.xml
 .coverage
 *.log
 build
+/orm.sqlite3

@@ -3,5 +3,6 @@ black
 faker
 pytest
 pytest-cov
+pytest-env
 pymysql
 isort

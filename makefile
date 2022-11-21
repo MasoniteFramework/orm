@@ -3,17 +3,17 @@ init:
 	pip install -r requirements.txt -r requirements.dev
 # 	Create MySQL Database
 # 	Create Postgres Database
-test:
+test: init
 	python -m pytest tests
 ci:
 	make test
-lint:
+lint: format
 	python -m flake8 src/masoniteorm/ --ignore=E501,F401,E203,E128,E402,E731,F821,E712,W503,F811
-format:
+format: init
 	black src/masoniteorm
 	black tests/
 	make lint
-sort:
+sort: init
 	isort tests
 	isort src/masoniteorm
 coverage:

@@ -12,10 +12,14 @@ def load_config(config_path=None):
         2. else try to load from default config_path: config/database
     """
 
-    if not os.getenv("DB_CONFIG_PATH", None):
-        os.environ["DB_CONFIG_PATH"] = config_path or "config/database"
+    if env_path := os.getenv("DB_CONFIG_PATH", None):
+        selected_config_path = env_path
+    elif os.getenv("TESTING", '').lower() == 'true':
+        selected_config_path = "config/test-database"
+    else:
+        selected_config_path = config_path or "config/database"
 
-    selected_config_path = os.environ["DB_CONFIG_PATH"]
+    os.environ["DB_CONFIG_PATH"] = selected_config_path
 
     # format path as python module if needed
     selected_config_path = (
