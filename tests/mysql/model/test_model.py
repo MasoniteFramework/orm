@@ -218,16 +218,6 @@ class TestModel(unittest.TestCase):
             initial_sql,
         )
 
-    def test_can_touch(self):
-        profile = ProfileFillTimeStamped.hydrate({"name": "Joe", "id": 1})
-
-        sql = profile.touch("now", query=True)
-
-        self.assertEqual(
-            sql,
-            "UPDATE `profiles` SET `profiles`.`updated_at` = 'now' WHERE `profiles`.`id` = '1'",
-        )
-
     def test_table_name(self):
         table_name = Profile.get_table_name()
         self.assertEqual(table_name, "profiles")
@@ -345,8 +335,19 @@ class TestModel(unittest.TestCase):
 if os.getenv("RUN_MYSQL_DATABASE", None).lower() == "true":
 
     class MysqlTestModel(unittest.TestCase):
+        # TODO: these tests aren't getting run in CI... is that intentional?
         def test_can_find_first(self):
             profile = User.find(1)
+
+        def test_can_touch(self):
+            profile = ProfileFillTimeStamped.hydrate({"name": "Joe", "id": 1})
+
+            sql = profile.touch("now", query=True)
+
+            self.assertEqual(
+                sql,
+                "UPDATE `profiles` SET `profiles`.`updated_at` = 'now' WHERE `profiles`.`id` = '1'",
+            )
 
         def test_find_or_fail_raise_an_exception_if_not_exists(self):
             with self.assertRaises(ModelNotFound):
