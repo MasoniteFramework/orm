@@ -1,4 +1,5 @@
 venv
+.direnv
 .python-version
 .vscode
 .pytest_*
