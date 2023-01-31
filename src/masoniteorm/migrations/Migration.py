@@ -60,7 +60,7 @@ class Migration:
         all_migrations = [
             f.replace(".py", "")
             for f in listdir(directory_path)
-            if isfile(join(directory_path, f)) and f != "__init__.py"
+            if isfile(join(directory_path, f)) and f != "__init__.py" and not f.startswith('.')
         ]
         all_migrations.sort()
         unran_migrations = []
@@ -107,7 +107,7 @@ class Migration:
         all_migrations = [
             f.replace(".py", "")
             for f in listdir(directory_path)
-            if isfile(join(directory_path, f)) and f != "__init__.py"
+            if isfile(join(directory_path, f)) and f != "__init__.py" and not f.startswith('.')
         ]
         all_migrations.sort()
         ran = []
