@@ -1749,6 +1749,9 @@ class QueryBuilder(ObservesEvents):
 
         return result.first()
 
+    def sole_value(self, column: str, query=False):
+        return self.sole()[column]
+
     def first_where(self, column, *args):
         """Gets the first record with the given key / value pair"""
         if not args:
