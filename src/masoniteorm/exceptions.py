@@ -36,4 +36,3 @@ class MultipleRecordsFound(Exception):
 
 class InvalidArgument(Exception):
     pass
-
