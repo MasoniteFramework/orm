@@ -1,7 +1,7 @@
 import inspect
 from copy import deepcopy
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Callable
 
 from ..collection.Collection import Collection
 from ..config import load_config
@@ -9,7 +9,7 @@ from ..exceptions import (
     HTTP404,
     ConnectionNotRegistered,
     ModelNotFound,
-    MultipleRecordsFound,
+    MultipleRecordsFound, InvalidArgument,
 )
 from ..expressions.expressions import (
     AggregateExpression,
@@ -1788,6 +1788,27 @@ class QueryBuilder(ObservesEvents):
         """
 
         return self.where(self._model.get_primary_key(), record_id).first()
+
+    def find_or(self, record_id: int, callback: Callable):
+        """Finds a row by the primary key ID (Requires a model) or raise a ModelNotFound exception.
+
+        Arguments:
+            record_id {int} -- The ID of the primary key to fetch.
+            callback {Callable} -- The function to call if no record is found.
+
+        Returns:
+            Model|Callable
+        """
+
+        if not callable(callback):
+            raise InvalidArgument("A callback must be callable.")
+
+        result = self.find(record_id=record_id)
+
+        if not result:
+            return callback()
+
+        return result
 
     def find_or_fail(self, record_id):
         """Finds a row by the primary key ID (Requires a model) or raise a ModelNotFound exception.
