@@ -2,7 +2,8 @@ import os
 import pydoc
 import urllib.parse as urlparse
 
-from .exceptions import ConfigurationNotFound, InvalidUrlConfiguration
+from .exceptions import ConfigurationNotFound
+from .exceptions import InvalidUrlConfiguration
 
 
 def load_config(config_path=None):
@@ -11,11 +12,11 @@ def load_config(config_path=None):
         1. try to load from DB_CONFIG_PATH environment variable
         2. else try to load from default config_path: config/database
     """
+    selected_config_path = (
+        os.getenv("DB_CONFIG_PATH", None) or config_path or "config/database"
+    )
 
-    if not os.getenv("DB_CONFIG_PATH", None):
-        os.environ["DB_CONFIG_PATH"] = config_path or "config/database"
-
-    selected_config_path = os.environ["DB_CONFIG_PATH"]
+    os.environ["DB_CONFIG_PATH"] = selected_config_path
 
     # format path as python module if needed
     selected_config_path = (
