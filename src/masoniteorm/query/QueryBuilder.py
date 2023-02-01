@@ -1503,7 +1503,6 @@ class QueryBuilder(ObservesEvents):
 
         if self._model:
             model = self._model
-            id_value = self._model.get_primary_key_value()
 
         if model and model.is_loaded():
             self.where(model.get_primary_key(), model.get_primary_key_value())
