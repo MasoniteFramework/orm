@@ -1500,7 +1500,6 @@ class QueryBuilder(ObservesEvents):
             self
         """
         model = None
-        id_key = "id"
         id_value = None
 
         additional = {}
@@ -1516,7 +1515,6 @@ class QueryBuilder(ObservesEvents):
             self.observe_events(model, "updating")
 
         columns_count: int = len(columns)
-        processed_results: dict = {}
 
         for index, column in enumerate(columns, start=1):
             value = str(list(column.values())[0])
@@ -1536,11 +1534,6 @@ class QueryBuilder(ObservesEvents):
 
             if index == columns_count:
                 results = self.new_connection().query(self.to_qmark(), self._bindings)
-                for column in columns:
-                    column = str(list(column.keys())[0])
-                    #processed_results = {**processed_results, **self.get_processor().get_column_value(
-                    #    self, column, results, id_key, id_value
-                    #)}
         if model:
             return model.fresh()
         else:
