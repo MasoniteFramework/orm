@@ -293,6 +293,18 @@ class Model:
             self
         """
         pass
+
+    def increment_each(columns: list):
+        """Increments a column's value.
+
+        Arguments:
+            columns {list} -- List of dictionaries containing key column and increment value.
+
+        Returns:
+            self
+        """
+        pass
+
     def in_random_order():
         """Puts Query results in random order"""
         pass

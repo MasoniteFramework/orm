@@ -32,3 +32,8 @@ class InvalidUrlConfiguration(Exception):
 
 class MultipleRecordsFound(Exception):
     pass
+
+
+class InvalidArgument(Exception):
+    pass
+

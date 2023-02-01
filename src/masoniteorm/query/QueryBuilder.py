@@ -9,7 +9,7 @@ from ..exceptions import (
     HTTP404,
     ConnectionNotRegistered,
     ModelNotFound,
-    MultipleRecordsFound,
+    MultipleRecordsFound, InvalidArgument,
 )
 from ..expressions.expressions import (
     AggregateExpression,
@@ -36,17 +36,17 @@ class QueryBuilder(ObservesEvents):
     """A builder class to manage the building and creation of query expressions."""
 
     def __init__(
-        self,
-        grammar=None,
-        connection="default",
-        connection_class=None,
-        table=None,
-        connection_details=None,
-        connection_driver="default",
-        model=None,
-        scopes=None,
-        schema=None,
-        dry=False,
+            self,
+            grammar=None,
+            connection="default",
+            connection_class=None,
+            table=None,
+            connection_details=None,
+            connection_driver="default",
+            model=None,
+            scopes=None,
+            schema=None,
+            dry=False,
     ):
         """QueryBuilder initializer
 
@@ -364,14 +364,12 @@ class QueryBuilder(ObservesEvents):
             )
 
         if attribute in self._scopes:
-
             def method(*args, **kwargs):
                 return self._scopes[attribute](self._model, self, *args, **kwargs)
 
             return method
 
         if attribute in self._macros:
-
             def method(*args, **kwargs):
                 return self._macros[attribute](self._model, self, *args, **kwargs)
 
@@ -458,7 +456,7 @@ class QueryBuilder(ObservesEvents):
         return self.connection_class.get_default_post_processor()()
 
     def bulk_create(
-        self, creates: List[Dict[str, Any]], query: bool = False, cast: bool = False
+            self, creates: List[Dict[str, Any]], query: bool = False, cast: bool = False
     ):
         self.set_action("bulk_create")
         model = None
@@ -494,12 +492,12 @@ class QueryBuilder(ObservesEvents):
         return processed_results
 
     def create(
-        self,
-        creates: Optional[Dict[str, Any]] = None,
-        query: bool = False,
-        id_key: str = "id",
-        cast: bool = False,
-        **kwargs,
+            self,
+            creates: Optional[Dict[str, Any]] = None,
+            query: bool = False,
+            id_key: str = "id",
+            cast: bool = False,
+            **kwargs,
     ):
         """Specifies a dictionary that should be used to create new values.
 
@@ -615,7 +613,6 @@ class QueryBuilder(ObservesEvents):
             )
         elif isinstance(column, dict):
             for key, value in column.items():
-
                 self._wheres += ((QueryExpression(key, "=", value, "value")),)
         elif isinstance(value, QueryBuilder):
             self._wheres += (
@@ -896,7 +893,6 @@ class QueryBuilder(ObservesEvents):
     def chunk(self, chunk_amount):
         chunk_connection = self.new_connection()
         for result in chunk_connection.select_many(self.to_sql(), (), chunk_amount):
-
             yield self.prepare_result(result)
 
     def where_not_null(self, column: str):
@@ -1254,7 +1250,7 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def join(
-        self, table: str, column1=None, equality=None, column2=None, clause="inner"
+            self, table: str, column1=None, equality=None, column2=None, clause="inner"
     ):
         """Specifies a join expression.
 
@@ -1383,11 +1379,11 @@ class QueryBuilder(ObservesEvents):
         return self.offset(*args, **kwargs)
 
     def update(
-        self,
-        updates: Dict[str, Any],
-        dry: bool = False,
-        force: bool = False,
-        cast: bool = False,
+            self,
+            updates: Dict[str, Any],
+            dry: bool = False,
+            force: bool = False,
+            cast: bool = False,
     ):
         """Specifies columns and values to be updated.
 
@@ -1422,8 +1418,8 @@ class QueryBuilder(ObservesEvents):
                     attr: value
                     for attr, value in updates.items()
                     if (
-                        value is None
-                        or model.__original_attributes__.get(attr, None) != value
+                            value is None
+                            or model.__original_attributes__.get(attr, None) != value
                     )
                 }
 
@@ -1476,7 +1472,7 @@ class QueryBuilder(ObservesEvents):
         self._updates += (UpdateQueryExpression(updates),)
         return self
 
-    def increment(self, column, value=1):
+    def increment(self, column: str, value: int = 1):
         """Increments a column's value.
 
         Arguments:
@@ -1484,6 +1480,21 @@ class QueryBuilder(ObservesEvents):
 
         Keyword Arguments:
             value {int} -- The value to increment by. (default: {1})
+
+        Returns:
+            self
+        """
+        if not str(value).isnumeric():
+            raise InvalidArgument(f"Non-numeric value passed as increment amount for column: '{column}'.")
+        if not type(column) == str:
+            raise InvalidArgument(f"Column must be a string: '{column}'.")
+        return self.increment_each([{column: value}])
+
+    def increment_each(self, columns: list):
+        """Increments a column's value.
+
+        Arguments:
+            columns {list} -- List of dictionaries containing key column and increment value.
 
         Returns:
             self
@@ -1504,16 +1515,36 @@ class QueryBuilder(ObservesEvents):
 
             self.observe_events(model, "updating")
 
-        self._updates += (
-            UpdateQueryExpression(column, value, update_type="increment"),
-        )
+        columns_count: int = len(columns)
+        processed_results: dict = {}
 
-        self.set_action("update")
-        results = self.new_connection().query(self.to_qmark(), self._bindings)
-        processed_results = self.get_processor().get_column_value(
-            self, column, results, id_key, id_value
-        )
-        return processed_results
+        for index, column in enumerate(columns, start=1):
+            value = str(list(column.values())[0])
+            column = str(list(column.keys())[0])
+
+            if not str(value).isnumeric():
+                raise InvalidArgument(f"Non-numeric value passed as increment amount for column: '{column}'.")
+            if not type(column) == str:
+                print(f"Dictionary key must be a string: '{column}'.")
+                raise InvalidArgument(f"Dictionary key must be a string: '{column}'.")
+
+            self._updates += (
+                UpdateQueryExpression(column, value, update_type="increment"),
+            )
+
+            self.set_action("update")
+
+            if index == columns_count:
+                results = self.new_connection().query(self.to_qmark(), self._bindings)
+                for column in columns:
+                    column = str(list(column.keys())[0])
+                    #processed_results = {**processed_results, **self.get_processor().get_column_value(
+                    #    self, column, results, id_key, id_value
+                    #)}
+        if model:
+            return model.fresh()
+        else:
+            return self
 
     def decrement(self, column, value=1):
         """Decrements a column's value.
@@ -1846,9 +1877,9 @@ class QueryBuilder(ObservesEvents):
             # eager load here
             hydrated_model = self._model.hydrate(result)
             if (
-                self._eager_relation.eagers
-                or self._eager_relation.nested_eagers
-                or self._eager_relation.callback_eagers
+                    self._eager_relation.eagers
+                    or self._eager_relation.nested_eagers
+                    or self._eager_relation.callback_eagers
             ) and hydrated_model:
                 for eager_load in self._eager_relation.get_eagers():
                     if isinstance(eager_load, dict):
@@ -1898,7 +1929,7 @@ class QueryBuilder(ObservesEvents):
             return result or None
 
     def _register_relationships_to_model(
-        self, related, related_result, hydrated_model, relation_key
+            self, related, related_result, hydrated_model, relation_key
     ):
         """Takes a related result and a hydrated model and registers them to eachother using the relation key.
 
