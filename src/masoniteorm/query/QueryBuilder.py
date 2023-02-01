@@ -1417,10 +1417,7 @@ class QueryBuilder(ObservesEvents):
                 updates = {
                     attr: value
                     for attr, value in updates.items()
-                    if (
-                            value is None
-                            or model.__original_attributes__.get(attr, None) != value
-                    )
+                    if (value is None or model.__original_attributes__.get(attr, None) != value)
                 }
 
             # Do not execute query if no changes
@@ -1533,7 +1530,7 @@ class QueryBuilder(ObservesEvents):
             self.set_action("update")
 
             if index == columns_count:
-                results = self.new_connection().query(self.to_qmark(), self._bindings)
+                self.new_connection().query(self.to_qmark(), self._bindings)
         if model:
             return model.fresh()
         else:
