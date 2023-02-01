@@ -2277,3 +2277,6 @@ class QueryBuilder(ObservesEvents):
             fields = ("created_at",)
 
         return self.order_by(column=",".join(fields), direction="ASC")
+
+    def value(self, column: str):
+        return self.get().first()[column]
