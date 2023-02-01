@@ -1789,7 +1789,7 @@ class QueryBuilder(ObservesEvents):
 
         return self.where(self._model.get_primary_key(), record_id).first()
 
-    def find_or(self, record_id: int, callback: Callable):
+    def find_or(self, record_id: int, callback: Callable, args: tuple|None = None):
         """Finds a row by the primary key ID (Requires a model) or raise a ModelNotFound exception.
 
         Arguments:
@@ -1806,7 +1806,10 @@ class QueryBuilder(ObservesEvents):
         result = self.find(record_id=record_id)
 
         if not result:
-            return callback()
+            if not args:
+                return callback()
+            else:
+                return callback(*args)
 
         return result
 
