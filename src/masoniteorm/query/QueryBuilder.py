@@ -1497,7 +1497,6 @@ class QueryBuilder(ObservesEvents):
             self
         """
         model = None
-        id_value = None
 
         additional = {}
 
