@@ -1,8 +1,10 @@
+import datetime
 import json
 import unittest
-from src.masoniteorm.models import Model
+
 import pendulum
-import datetime
+
+from src.masoniteorm.models import Model
 
 
 class ModelTest(Model):
@@ -14,6 +16,33 @@ class ModelTest(Model):
         "f": "float",
         "d": "decimal",
     }
+
+
+class FillableModelTest(Model):
+    __fillable__ = [
+        "due_date",
+        "is_vip",
+    ]
+
+
+class InvalidFillableGuardedModelTest(Model):
+    __fillable__ = [
+        "due_date",
+    ]
+    __guarded__ = [
+        "is_vip",
+        "payload",
+    ]
+
+
+class InvalidFillableGuardedChildModelTest(ModelTest):
+    __fillable__ = [
+        "due_date",
+    ]
+    __guarded__ = [
+        "is_vip",
+        "payload",
+    ]
 
 
 class ModelTestForced(Model):
@@ -117,33 +146,31 @@ class TestModels(unittest.TestCase):
         self.assertEqual(type(model.serialize()["is_vip"]), bool)
 
     def test_valid_json_cast(self):
-        model = ModelTest.hydrate({
-            "payload": {"this": "dict", "is": "usable", "as": "json"},
-        })
+        model = ModelTest.hydrate(
+            {
+                "payload": {"this": "dict", "is": "usable", "as": "json"},
+            }
+        )
 
         self.assertEqual(type(model.payload), dict)
 
-        model = ModelTest.hydrate({
-            "payload": {'this': 'dict', 'is': 'invalid', 'as': 'json'}
-        })
+        model = ModelTest.hydrate(
+            {"payload": {"this": "dict", "is": "invalid", "as": "json"}}
+        )
 
         self.assertEqual(type(model.payload), dict)
 
-        model = ModelTest.hydrate({
-            "payload": '{"this": "dict", "is": "usable", "as": "json"}'
-        })
+        model = ModelTest.hydrate(
+            {"payload": '{"this": "dict", "is": "usable", "as": "json"}'}
+        )
 
         self.assertEqual(type(model.payload), dict)
 
-        model = ModelTest.hydrate({
-            "payload": '{"valid": "json", "int": 1}'
-        })
+        model = ModelTest.hydrate({"payload": '{"valid": "json", "int": 1}'})
 
         self.assertEqual(type(model.payload), dict)
 
-        model = ModelTest.hydrate({
-            "payload": "{'this': 'should', 'throw': 'error'}"
-        })
+        model = ModelTest.hydrate({"payload": "{'this': 'should', 'throw': 'error'}"})
 
         self.assertEqual(model.payload, None)
 
@@ -210,3 +237,26 @@ class TestModels(unittest.TestCase):
             sql,
             """SELECT * FROM `model_tests` WHERE `model_tests`.`name` = 'joe' OR (`model_tests`.`username` = 'Joseph' OR `model_tests`.`age` >= '18'))""",
         )
+
+    def test_both_fillable_and_guarded_attributes_raise(self):
+        # Both fillable and guarded props are populated on this class
+        with self.assertRaises(AttributeError):
+            InvalidFillableGuardedModelTest()
+        # Child that inherits from an intermediary class also fails
+        with self.assertRaises(AttributeError):
+            InvalidFillableGuardedChildModelTest()
+        # Still shouldn't be allowed to define even if empty
+        InvalidFillableGuardedModelTest.__fillable__ = []
+        with self.assertRaises(AttributeError):
+            InvalidFillableGuardedModelTest()
+        # Or wildcard
+        InvalidFillableGuardedModelTest.__fillable__ = ["*"]
+        with self.assertRaises(AttributeError):
+            InvalidFillableGuardedModelTest()
+        # Empty guarded attr still raises
+        InvalidFillableGuardedModelTest.__guarded__ = []
+        with self.assertRaises(AttributeError):
+            InvalidFillableGuardedModelTest()
+        # Removing one of the props allows us to instantiate
+        delattr(InvalidFillableGuardedModelTest, "__guarded__")
+        InvalidFillableGuardedModelTest()

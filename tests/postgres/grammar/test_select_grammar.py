@@ -316,8 +316,16 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         )
 
     def test_can_compile_having_raw_order(self):
-        to_sql = self.builder.select_raw("COUNT(*) as counts").having_raw("counts > 10").order_by_raw('counts DESC').to_sql()
-        self.assertEqual(to_sql, """SELECT COUNT(*) as counts FROM "users" HAVING counts > 10 ORDER BY counts DESC""")
+        to_sql = (
+            self.builder.select_raw("COUNT(*) as counts")
+            .having_raw("counts > 10")
+            .order_by_raw("counts DESC")
+            .to_sql()
+        )
+        self.assertEqual(
+            to_sql,
+            """SELECT COUNT(*) as counts FROM "users" HAVING counts > 10 ORDER BY counts DESC""",
+        )
 
     def test_can_compile_where_raw_and_where_with_multiple_bindings(self):
         query = self.builder.where_raw(

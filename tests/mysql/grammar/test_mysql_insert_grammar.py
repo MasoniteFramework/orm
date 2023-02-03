@@ -28,7 +28,12 @@ class BaseInsertGrammarTest:
     def test_can_compile_bulk_create(self):
         to_sql = self.builder.bulk_create(
             # These keys are intentionally out of order to show column to value alignment works
-            [{"name": "Joe", "age": 5}, {"age": 35, "name": "Bill"}, {"name": "John", "age": 10}], query=True
+            [
+                {"name": "Joe", "age": 5},
+                {"age": 35, "name": "Bill"},
+                {"name": "John", "age": 10},
+            ],
+            query=True,
         ).to_sql()
 
         sql = getattr(

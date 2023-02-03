@@ -775,7 +775,7 @@ class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
 
     def test_latest(self):
         builder = self.get_builder()
-        builder.latest('email')
+        builder.latest("email")
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -783,7 +783,7 @@ class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
 
     def test_oldest(self):
         builder = self.get_builder()
-        builder.oldest('email')
+        builder.oldest("email")
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
