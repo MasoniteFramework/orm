@@ -683,7 +683,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Returns:
             string
         """
-        return json.dumps(self.serialize())
+        return json.dumps(self.serialize(), default=str)
 
     @classmethod
     def first_or_create(cls, wheres, creates: dict = None):
