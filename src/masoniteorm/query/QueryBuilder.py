@@ -1390,7 +1390,7 @@ class QueryBuilder(ObservesEvents):
         dry: bool = False,
         force: bool = False,
         cast: bool = False,
-        ignore_mass_assignment: bool = False
+        ignore_mass_assignment: bool = False,
     ):
         """Specifies columns and values to be updated.
 
