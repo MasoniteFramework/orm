@@ -863,7 +863,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         if not query:
             if self.is_loaded():
-                result = builder.update(self.__dirty_attributes__)
+                result = builder.update(self.__dirty_attributes__, ignore_mass_assignment=True)
             else:
                 result = self.create(
                     self.__dirty_attributes__,
@@ -876,7 +876,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             return result
 
         if self.is_loaded():
-            result = builder.update(self.__dirty_attributes__, dry=query).to_sql()
+            result = builder.update(self.__dirty_attributes__, dry=query, ignore_mass_assignment=True).to_sql()
         else:
             result = self.create(self.__dirty_attributes__, query=query)
 
