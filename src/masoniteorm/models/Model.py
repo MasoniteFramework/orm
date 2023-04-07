@@ -557,13 +557,18 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Returns:
             self: A hydrated version of a model
         """
+        if not "id_key" in kwargs:
+            kwargs.update({
+                "id_key": cls.get_primary_key()
+            })
+
         if query:
             return cls.builder.create(
-                dictionary, query=True, id_key=cls.__primary_key__, cast=cast, **kwargs
+                dictionary, query=True, cast=cast, **kwargs
             ).to_sql()
 
         return cls.builder.create(
-            dictionary, id_key=cls.__primary_key__, cast=cast, **kwargs
+            dictionary, cast=cast, **kwargs
         )
 
     @classmethod
