@@ -1,9 +1,9 @@
-from ..exceptions import DriverNotFound
-from .BaseConnection import BaseConnection
-from ..query.grammars import MySQLGrammar
-from ..schema.platforms import MySQLPlatform
-from ..query.processors import MySQLPostProcessor
-from ..exceptions import QueryException
+from masoniteorm.exceptions import DriverNotFound
+from masoniteorm.connections.BaseConnection import BaseConnection
+from masoniteorm.query.grammars import MySQLGrammar
+from masoniteorm.schema.platforms import MySQLPlatform
+from masoniteorm.query.processors import MySQLPostProcessor
+from masoniteorm.exceptions import QueryException
 
 CONNECTION_POOL = []
 

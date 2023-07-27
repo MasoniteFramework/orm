@@ -1,7 +1,7 @@
 from unittest import mock
 
 from src.masoniteorm.connections.ConnectionFactory import ConnectionFactory
-from src.masoniteorm.connections.MySQLConnection import MySQLConnection
+from masoniteorm.connections.mysql.MySQLConnection import MySQLConnection
 from src.masoniteorm.connections.SQLiteConnection import SQLiteConnection
 from src.masoniteorm.schema.platforms import MySQLPlatform
 

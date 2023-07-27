@@ -24,6 +24,12 @@ class ConnectionResolver:
         self.register(MySQLConnection)
         self.register(MSSQLConnection)
 
+        try:
+            from ..connections import MySQLGeventConnectionPool
+            self.register(MySQLGeventConnectionPool)
+        except ImportError:
+            pass
+
     def morph_map(self, map):
         self._morph_map = map
         return self
