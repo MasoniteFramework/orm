@@ -562,8 +562,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 dictionary, query=True, id_key=cls.__primary_key__, cast=cast, **kwargs
             ).to_sql()
 
+        # when 'id_key' is already present in kwargs, the previous version raised
+        kwargs['id_key'] = cls.__primary_key__
         return cls.builder.create(
-            dictionary, id_key=cls.__primary_key__, cast=cast, **kwargs
+            dictionary, cast=cast, **kwargs
         )
 
     @classmethod
@@ -711,9 +713,19 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         total.update(updates)
         total.update(wheres)
         if not record:
-            return self.create(total, id_key=cls.get_primary_key())
+            # if we don't return fresh, we don't get the primary_key that has been used,
+            # and we can't call it from outside the function lest we get a QueryBuilder.
+            #
+            # Without this we are reduced to performing a DIY update_or_create, e.g.:
+            #     ebay_order = EbayOrder.where({'order_id': d['order_id']}).first()
+            #     if not ebay_order:
+            #         ebay_order = EbayOrder.create(d).fresh()
+            #     else:
+            #         ebay_order.save()
+            return self.create(total, id_key=cls.get_primary_key()).fresh()
 
-        return self.where(wheres).update(total)
+        rv = self.where(wheres).update(total)
+        return self.where(wheres).first()
 
     def relations_to_dict(self):
         """Converts a models relationships to a dictionary
