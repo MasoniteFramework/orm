@@ -563,7 +563,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             ).to_sql()
 
         return cls.builder.create(
-            dictionary, id_key=cls.__primary_key__, cast=cast, **kwargs
+            dictionary, cast=cast, **kwargs
         )
 
     @classmethod
