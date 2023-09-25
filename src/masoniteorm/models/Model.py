@@ -562,9 +562,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 dictionary, query=True, id_key=cls.__primary_key__, cast=cast, **kwargs
             ).to_sql()
 
-        return cls.builder.create(
-            dictionary, cast=cast, **kwargs
-        )
+        return cls.builder.create(dictionary, cast=cast, **kwargs)
 
     @classmethod
     def cast_value(cls, attribute: str, value: Any):
@@ -660,7 +658,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         remove_keys = []
         for key, value in serialized_dictionary.items():
-
             if key in self.__hidden__:
                 remove_keys.append(key)
             if hasattr(value, "serialize"):
@@ -1020,7 +1017,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return self
 
     def save_many(self, relation, relating_records):
-
         if isinstance(relating_records, Model):
             raise ValueError(
                 "Saving many records requires an iterable like a collection or a list of models and not a Model object. To attach a model, use the 'attach' method."
@@ -1036,7 +1032,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             related.attach_related(self, related_record)
 
     def detach_many(self, relation, relating_records):
-
         if isinstance(relating_records, Model):
             raise ValueError(
                 "Detaching many records requires an iterable like a collection or a list of models and not a Model object. To detach a model, use the 'detach' method."
