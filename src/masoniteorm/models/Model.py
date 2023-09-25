@@ -559,7 +559,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         if query:
             return cls.builder.create(
-                dictionary, query=True, id_key=cls.__primary_key__, cast=cast, **kwargs
+                dictionary, query=True, cast=cast, **kwargs
             ).to_sql()
 
         return cls.builder.create(dictionary, cast=cast, **kwargs)
