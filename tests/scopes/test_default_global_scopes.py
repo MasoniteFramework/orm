@@ -28,6 +28,12 @@ class UserWithTimeStamps(Model, TimeStampsMixin):
     __dry__ = True
 
 
+class UserWithCustomTimeStamps(Model, TimeStampsMixin):
+    __dry__ = True
+    date_updated_at = "updated_ts"
+    date_created_at = "created_ts"
+
+
 class UserSoft(Model, SoftDeletesMixin):
     __dry__ = True
 
@@ -112,3 +118,24 @@ class TestTimeStampsScope(unittest.TestCase):
         self.scope.set_timestamp_create(self.builder)
         self.assertNotIn("created_at", self.builder._creates)
         self.assertNotIn("updated_at", self.builder._creates)
+
+    def test_uses_custom_timestamp_columns_on_create(self):
+        self.builder = MockBuilder(UserWithCustomTimeStamps)
+        self.scope.set_timestamp_create(self.builder)
+        created_column = UserWithCustomTimeStamps.date_created_at
+        updated_column = UserWithCustomTimeStamps.date_updated_at
+        self.assertNotIn("created_at", self.builder._creates)
+        self.assertNotIn("updated_at", self.builder._creates)
+        self.assertIn(created_column, self.builder._creates)
+        self.assertIn(updated_column, self.builder._creates)
+        self.assertIsInstance(
+            pendulum.parse(self.builder._creates[created_column]), pendulum.DateTime
+        )
+        self.assertIsInstance(
+            pendulum.parse(self.builder._creates[updated_column]), pendulum.DateTime
+        )
+
+    def test_uses_custom_updated_column_on_update(self):
+        user = UserWithCustomTimeStamps.hydrate({"id": 1})
+        sql = user.update({"id": 2}).to_sql()
+        self.assertTrue(UserWithCustomTimeStamps.date_updated_at in sql)
