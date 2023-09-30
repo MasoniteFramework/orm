@@ -105,6 +105,9 @@ class MySQLConnection(BaseConnection):
         """Transaction"""
         self._connection.commit()
         self.transaction_level -= 1
+        if self.get_transaction_level() <= 0:
+            self.open = 0
+            self._connection.close()
 
     def dry(self):
         """Transaction"""
@@ -169,6 +172,7 @@ class MySQLConnection(BaseConnection):
         except Exception as e:
             raise QueryException(str(e)) from e
         finally:
+            self._cursor.close()
             if self.get_transaction_level() <= 0:
                 self.open = 0
                 self._connection.close()
