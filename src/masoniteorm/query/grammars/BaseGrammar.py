@@ -292,7 +292,6 @@ class BaseGrammar:
         """
         sql = ""
         for update in self._updates:
-
             if update.update_type == "increment":
                 sql_string = self.increment_string()
             elif update.update_type == "decrement":
@@ -304,7 +303,6 @@ class BaseGrammar:
             value = update.value
             if isinstance(column, dict):
                 for key, value in column.items():
-
                     if hasattr(value, "expression"):
                         sql += self.column_value_string().format(
                             column=self._table_column_string(key),
@@ -884,7 +882,6 @@ class BaseGrammar:
         """
         table = None
         if column and "." in column:
-
             table, column = column.split(".")
 
         if column == "*":

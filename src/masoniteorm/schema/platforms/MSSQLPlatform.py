@@ -3,7 +3,6 @@ from ..Table import Table
 
 
 class MSSQLPlatform(Platform):
-
     types_without_lengths = [
         "integer",
         "big_integer",
@@ -120,7 +119,6 @@ class MSSQLPlatform(Platform):
 
         if table.renamed_columns:
             for name, column in table.get_renamed_columns().items():
-
                 sql.append(
                     self.rename_column_string(table.name, name, column.name).strip()
                 )

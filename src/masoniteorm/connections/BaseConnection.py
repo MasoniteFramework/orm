@@ -4,7 +4,6 @@ from .ConnectionResolver import ConnectionResolver
 
 
 class BaseConnection:
-
     _connection = None
     _cursor = None
     _dry = False

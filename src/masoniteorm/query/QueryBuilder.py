@@ -617,7 +617,6 @@ class QueryBuilder(ObservesEvents):
             )
         elif isinstance(column, dict):
             for key, value in column.items():
-
                 self._wheres += ((QueryExpression(key, "=", value, "value")),)
         elif isinstance(value, QueryBuilder):
             self._wheres += (
@@ -898,7 +897,6 @@ class QueryBuilder(ObservesEvents):
     def chunk(self, chunk_amount):
         chunk_connection = self.new_connection()
         for result in chunk_connection.select_many(self.to_sql(), (), chunk_amount):
-
             yield self.prepare_result(result)
 
     def where_not_null(self, column: str):
@@ -2136,7 +2134,6 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def _extract_operator_value(self, *args):
-
         operators = [
             "=",
             ">",

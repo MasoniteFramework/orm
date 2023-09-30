@@ -73,7 +73,6 @@ class BaseTestCaseUpdateGrammar:
 
 
 class TestPostgresUpdateGrammar(BaseTestCaseUpdateGrammar, unittest.TestCase):
-
     grammar = "postgres"
 
     def can_compile_update(self):

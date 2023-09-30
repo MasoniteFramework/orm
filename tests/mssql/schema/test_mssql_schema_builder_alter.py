@@ -11,7 +11,6 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
     maxDiff = None
 
     def setUp(self):
-
         self.schema = Schema(
             connection_class=MSSQLConnection,
             connection="mssql",

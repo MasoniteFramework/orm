@@ -265,7 +265,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             "with_count",
             "latest",
             "oldest",
-            "value"
+            "value",
         )
     )
 

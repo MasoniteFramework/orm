@@ -4,7 +4,6 @@ from .Platform import Platform
 
 
 class SQLitePlatform(Platform):
-
     types_without_lengths = [
         "integer",
         "big_integer",

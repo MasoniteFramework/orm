@@ -41,7 +41,6 @@ class BaseDeleteGrammarTest:
 
 
 class TestMySQLDeleteGrammar(BaseDeleteGrammarTest, unittest.TestCase):
-
     grammar = "mysql"
 
     def can_compile_delete(self):
