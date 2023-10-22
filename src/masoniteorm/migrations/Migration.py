@@ -118,8 +118,10 @@ class Migration:
 
         database_migrations = self.migration_model.all()
         for migration in all_migrations:
-            if migration in database_migrations.pluck("migration"):
-                ran.append(migration)
+            if migration := database_migrations.where("migration", migration).first():
+                ran.append(
+                    {"migration_file": migration.migration, "batch": migration.batch}
+                )
         return ran
 
     def migrate(self, migration="all", output=False):
