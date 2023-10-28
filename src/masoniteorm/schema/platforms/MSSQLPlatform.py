@@ -334,6 +334,9 @@ class MSSQLPlatform(Platform):
     def compile_column_exists(self, table, column):
         return f"SELECT 1 FROM sys.columns WHERE Name = N'{column}' AND Object_ID = Object_ID(N'{table}')"
 
+    def compile_get_all_tables(self, database, schema=None):
+        return f"SELECT name FROM {database}.sys.tables"
+
     def get_current_schema(self, connection, table_name, schema=None):
         return Table(table_name)
 

@@ -280,3 +280,24 @@ class Migration:
     def refresh(self, migration="all"):
         self.reset(migration)
         self.migrate(migration)
+
+    def drop_all_tables(self):
+        if self.command_class:
+            self.command_class.line("<comment>Dropping all tables</comment>")
+
+        for table in self.schema.get_all_tables():
+            self.schema.drop(table)
+
+        if self.command_class:
+            self.command_class.line("<info>All tables dropped</info>")
+
+    def fresh(self, migration="all"):
+        self.drop_all_tables()
+        self.create_table_if_not_exists()
+
+        if not self.get_unran_migrations():
+            if self.command_class:
+                self.command_class.line("<comment>Nothing to migrate</comment>")
+            return
+
+        self.migrate(migration)
