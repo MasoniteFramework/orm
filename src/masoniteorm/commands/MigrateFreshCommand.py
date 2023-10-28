@@ -10,6 +10,7 @@ class MigrateFreshCommand(Command):
     migrate:fresh
         {--c|connection=default : The connection you want to run migrations on}
         {--d|directory=databases/migrations : The location of the migration directory}
+        {--f|ignore-fk=? : The connection you want to run migrations on}
         {--s|seed=? : Seed database after fresh. The seeder to be ran can be provided in argument}
         {--schema=? : Sets the schema to be migrated}
         {--D|seed-directory=databases/seeds : The location of the seed directory if seed option is used.}
@@ -24,7 +25,7 @@ class MigrateFreshCommand(Command):
             schema=self.option("schema"),
         )
 
-        migration.fresh()
+        migration.fresh(ignore_fk=self.option("ignore-fk"))
 
         self.line("")
 
