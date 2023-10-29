@@ -332,9 +332,6 @@ class Schema:
     def enable_foreign_key_constraints(self):
         sql = self.platform().enable_foreign_key_constraints()
 
-        if not sql:
-            return True
-
         if self._dry:
             self._sql = sql
             return sql
@@ -343,9 +340,6 @@ class Schema:
 
     def disable_foreign_key_constraints(self):
         sql = self.platform().disable_foreign_key_constraints()
-
-        if not sql:
-            return True
 
         if self._dry:
             self._sql = sql
