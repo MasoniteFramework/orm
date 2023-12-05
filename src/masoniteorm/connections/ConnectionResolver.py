@@ -14,6 +14,7 @@ class ConnectionResolver:
             MSSQLConnection,
         )
 
+        self.config_path = config_path
         from ..connections import ConnectionFactory
 
         self.connection_factory = ConnectionFactory(config_path=config_path)
