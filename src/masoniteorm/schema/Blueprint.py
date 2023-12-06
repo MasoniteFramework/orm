@@ -396,6 +396,7 @@ class Blueprint:
         Returns:
             self
         """
+
         self._last_column = self.table.add_column(
             column,
             "decimal",
@@ -481,6 +482,46 @@ class Blueprint:
         self._last_column = self.table.add_column(
             column, "text", length=length, nullable=nullable
         )
+        return self
+
+    def tiny_text(self, column, length=None, nullable=False):
+        """Sets a column to be the text representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            length {int} -- The length of the column if any. (default: {False})
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(
+            column, "tiny_text", length=length, nullable=nullable
+        )
+        return self
+
+    def unsigned_decimal(self, column, length=17, precision=6, nullable=False):
+        """Sets a column to be the text representation for the table.
+
+        Arguments:
+            column {string} -- The column name.
+
+        Keyword Arguments:
+            length {int} -- The length of the column if any. (default: {False})
+            nullable {bool} -- Whether the column is nullable. (default: {False})
+
+        Returns:
+            self
+        """
+        self._last_column = self.table.add_column(
+            column,
+            "decimal",
+            length="{length}, {precision}".format(length=length, precision=precision),
+            nullable=nullable,
+        ).unsigned()
+        return self
         return self
 
     def long_text(self, column, length=None, nullable=False):
@@ -643,13 +684,12 @@ class Blueprint:
             self
         """
         if not column:
-            self._last_column.column_type += "_unsigned"
-            self._last_column.length = None
+            self._last_column.unsigned()
             return self
 
         self._last_column = self.table.add_column(
             column, "unsigned", length=length, nullable=nullable
-        )
+        ).unsigned()
         return self
 
     def unsigned_integer(self, column, nullable=False):
@@ -665,8 +705,8 @@ class Blueprint:
             self
         """
         self._last_column = self.table.add_column(
-            column, "integer_unsigned", nullable=nullable
-        )
+            column, "integer", nullable=nullable
+        ).unsigned()
         return self
 
     def morphs(self, column, nullable=False, indexes=True):
@@ -684,8 +724,8 @@ class Blueprint:
         _columns = []
         _columns.append(
             self.table.add_column(
-                "{}_id".format(column), "integer_unsigned", nullable=nullable
-            )
+                "{}_id".format(column), "integer", nullable=nullable
+            ).unsigned()
         )
         _columns.append(
             self.table.add_column(

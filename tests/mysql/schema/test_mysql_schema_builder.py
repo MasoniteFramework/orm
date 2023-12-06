@@ -1,7 +1,8 @@
 import os
 import unittest
 
-from src.masoniteorm.models import Model
+from src.masoniteorm import Model
+from tests.integrations.config.database import DATABASES
 from src.masoniteorm.connections import MySQLConnection
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import MySQLPlatform
@@ -36,6 +37,26 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             [
                 "CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL, `age` INT(11) NOT NULL)"
             ],
+        )
+
+    def test_can_add_tiny_text(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.tiny_text("description")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(
+            blueprint.to_sql(),
+            ["CREATE TABLE `users` (`description` TINYTEXT NOT NULL)"],
+        )
+
+    def test_can_add_unsigned_decimal(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.unsigned_decimal("amount", 19, 4)
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(
+            blueprint.to_sql(),
+            ["CREATE TABLE `users` (`amount` DECIMAL(19, 4) UNSIGNED NOT NULL)"],
         )
 
     def test_can_create_table_if_not_exists(self):
@@ -204,7 +225,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
                 "CREATE TABLE `users` (`id` BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, `name` VARCHAR(255) NOT NULL, "
                 "`duration` VARCHAR(255) NOT NULL, `url` VARCHAR(255) NOT NULL, `last_address` VARCHAR(255) NULL, `route_origin` VARCHAR(255) NULL, `mac_address` VARCHAR(255) NULL, "
                 "`published_at` DATETIME NOT NULL, `thumbnail` VARCHAR(255) NULL, "
-                "`premium` INT(11) NOT NULL, `author_id` INT UNSIGNED NULL, `description` TEXT NOT NULL, `created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
+                "`premium` INT(11) NOT NULL, `author_id` INT(11) UNSIGNED NULL, `description` TEXT NOT NULL, `created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
                 "`updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_author_id_foreign FOREIGN KEY (`author_id`) REFERENCES `users`(`id`) ON DELETE CASCADE)"
             ],
         )
@@ -279,13 +300,13 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.to_sql(),
             [
                 "CREATE TABLE `users` ("
-                "`profile_id` INT UNSIGNED NOT NULL, "
-                "`big_profile_id` BIGINT UNSIGNED NOT NULL, "
-                "`tiny_profile_id` TINYINT UNSIGNED NOT NULL, "
-                "`small_profile_id` SMALLINT UNSIGNED NOT NULL, "
-                "`medium_profile_id` MEDIUMINT UNSIGNED NOT NULL, "
+                "`profile_id` INT(11) UNSIGNED NOT NULL, "
+                "`big_profile_id` BIGINT(32) UNSIGNED NOT NULL, "
+                "`tiny_profile_id` TINYINT(1) UNSIGNED NOT NULL, "
+                "`small_profile_id` SMALLINT(5) UNSIGNED NOT NULL, "
+                "`medium_profile_id` MEDIUMINT(7) UNSIGNED NOT NULL, "
                 "`unsigned_profile_id` INT UNSIGNED NOT NULL, "
-                "`unsigned_big_profile_id` BIGINT UNSIGNED NOT NULL)"
+                "`unsigned_big_profile_id` BIGINT(32) UNSIGNED NOT NULL)"
             ],
         )
 

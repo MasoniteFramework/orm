@@ -29,6 +29,7 @@ class MySQLPlatform(Platform):
         "double": "DOUBLE",
         "enum": "ENUM",
         "text": "TEXT",
+        "tiny_text": "TINYTEXT",
         "float": "FLOAT",
         "geometry": "GEOMETRY",
         "json": "JSON",
@@ -54,6 +55,8 @@ class MySQLPlatform(Platform):
         "now": " DEFAULT NOW()",
         "null": " DEFAULT NULL",
     }
+
+    signed = {"unsigned": "UNSIGNED", "signed": "SIGNED"}
 
     def columnize(self, columns):
         sql = []
@@ -87,7 +90,6 @@ class MySQLPlatform(Platform):
             if column.column_type == "enum":
                 values = ", ".join(f"'{x}'" for x in column.values)
                 column_constraint = f"({values})"
-
             sql.append(
                 self.columnize_string()
                 .format(
@@ -98,6 +100,9 @@ class MySQLPlatform(Platform):
                     constraint=constraint,
                     nullable=self.premapped_nulls.get(column.is_null) or "",
                     default=default,
+                    signed=" " + self.signed.get(column._signed)
+                    if column._signed
+                    else "",
                     comment="COMMENT '" + column.comment + "'"
                     if column.comment
                     else "",
@@ -180,6 +185,9 @@ class MySQLPlatform(Platform):
                         constraint="PRIMARY KEY" if column.primary else "",
                         nullable="NULL" if column.is_null else "NOT NULL",
                         default=default,
+                        signed=" " + self.signed.get(column._signed)
+                        if column._signed
+                        else "",
                         after=(" AFTER " + self.wrap_column(column._after))
                         if column._after
                         else "",
@@ -324,7 +332,9 @@ class MySQLPlatform(Platform):
         return sql
 
     def add_column_string(self):
-        return "ADD {name} {data_type}{length} {nullable}{default}{after}{comment}"
+        return (
+            "ADD {name} {data_type}{length}{signed} {nullable}{default}{after}{comment}"
+        )
 
     def drop_column_string(self):
         return "DROP COLUMN {name}"
@@ -336,7 +346,7 @@ class MySQLPlatform(Platform):
         return "CHANGE {old} {to}"
 
     def columnize_string(self):
-        return "{name} {data_type}{length}{column_constraint} {nullable}{default} {constraint}{comment}"
+        return "{name} {data_type}{length}{column_constraint}{signed} {nullable}{default} {constraint}{comment}"
 
     def constraintize(self, constraints, table):
         sql = []

@@ -29,6 +29,26 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
             ["CREATE TABLE [users] ([name] VARCHAR(255) NOT NULL, [age] INT NOT NULL)"],
         )
 
+    def test_can_add_tiny_text(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.tiny_text("description")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(
+            blueprint.to_sql(),
+            ["CREATE TABLE [users] ([description] TINYTEXT NOT NULL)"],
+        )
+
+    def test_can_add_unsigned_decimal(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.unsigned_decimal("amount", 19, 4)
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(
+            blueprint.to_sql(),
+            ["CREATE TABLE [users] ([amount] DECIMAL(19, 4) NOT NULL)"],
+        )
+
     def test_can_add_columns_with_constaint(self):
         with self.schema.create("users") as blueprint:
             blueprint.string("name")
