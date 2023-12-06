@@ -30,12 +30,20 @@ class MigrateStatusCommand(Command):
             batch = migration_data["batch"]
 
             migrations.append(
-                ["<info>Y</info>", f"<comment>{migration_file}</comment>", f"<info>{batch}</info>"]
+                [
+                    "<info>Y</info>",
+                    f"<comment>{migration_file}</comment>",
+                    f"<info>{batch}</info>",
+                ]
             )
 
         for migration_file in migration.get_unran_migrations():
             migrations.append(
-                ["<error>N</error>", f"<comment>{migration_file}</comment>", "<info>-</info>"]
+                [
+                    "<error>N</error>",
+                    f"<comment>{migration_file}</comment>",
+                    "<info>-</info>",
+                ]
             )
 
         table.set_rows(migrations)

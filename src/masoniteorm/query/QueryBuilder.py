@@ -9,7 +9,8 @@ from ..exceptions import (
     HTTP404,
     ConnectionNotRegistered,
     ModelNotFound,
-    MultipleRecordsFound, InvalidArgument,
+    MultipleRecordsFound,
+    InvalidArgument,
 )
 from ..expressions.expressions import (
     AggregateExpression,
@@ -47,7 +48,7 @@ class QueryBuilder(ObservesEvents):
         scopes=None,
         schema=None,
         dry=False,
-        config_path=None
+        config_path=None,
     ):
         """QueryBuilder initializer
 

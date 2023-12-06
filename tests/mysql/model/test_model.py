@@ -113,10 +113,7 @@ class TestModel(unittest.TestCase):
 
         # An asterisk guarded attribute excludes all fields from mass-assignment.
         # This would raise a DB error if there are any required fields.
-        self.assertEqual(
-            sql,
-            "INSERT INTO `profiles` (*) VALUES ()",
-        )
+        self.assertEqual(sql, "INSERT INTO `profiles` (*) VALUES ()")
 
     def test_bulk_create_can_use_fillable(self):
         query_builder = ProfileFillable.bulk_create(
@@ -173,8 +170,7 @@ class TestModel(unittest.TestCase):
         # This would obviously raise an invalid SQL syntax error.
         # TODO: Raise a clearer error?
         self.assertEqual(
-            query_builder.to_sql(),
-            "INSERT INTO `profiles` () VALUES (), ()",
+            query_builder.to_sql(), "INSERT INTO `profiles` () VALUES (), ()"
         )
 
     def test_update_can_use_fillable(self):
@@ -214,10 +210,7 @@ class TestModel(unittest.TestCase):
 
         # An asterisk guarded attribute excludes all fields from mass-assignment.
         # The query builder's sql should not have been altered in any way.
-        self.assertEqual(
-            query_builder.to_sql(),
-            initial_sql,
-        )
+        self.assertEqual(query_builder.to_sql(), initial_sql)
 
     def test_table_name(self):
         table_name = Profile.get_table_name()
@@ -250,12 +243,7 @@ class TestModel(unittest.TestCase):
 
     def test_serialize_with_visible(self):
         profile = ProfileSerializeWithVisible.hydrate(
-            {
-                "name": "Joe",
-                "id": 1,
-                "password": "secret",
-                "email": "joe@masonite.com",
-            }
+            {"name": "Joe", "id": 1, "password": "secret", "email": "joe@masonite.com"}
         )
         self.assertTrue(
             {"name": "Joe", "email": "joe@masonite.com"}, profile.serialize()
@@ -263,12 +251,7 @@ class TestModel(unittest.TestCase):
 
     def test_serialize_with_visible_and_hidden_raise_error(self):
         profile = ProfileSerializeWithVisibleAndHidden.hydrate(
-            {
-                "name": "Joe",
-                "id": 1,
-                "password": "secret",
-                "email": "joe@masonite.com",
-            }
+            {"name": "Joe", "id": 1, "password": "secret", "email": "joe@masonite.com"}
         )
         with self.assertRaises(AttributeError):
             profile.serialize()

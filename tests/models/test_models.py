@@ -19,30 +19,17 @@ class ModelTest(Model):
 
 
 class FillableModelTest(Model):
-    __fillable__ = [
-        "due_date",
-        "is_vip",
-    ]
+    __fillable__ = ["due_date", "is_vip"]
 
 
 class InvalidFillableGuardedModelTest(Model):
-    __fillable__ = [
-        "due_date",
-    ]
-    __guarded__ = [
-        "is_vip",
-        "payload",
-    ]
+    __fillable__ = ["due_date"]
+    __guarded__ = ["is_vip", "payload"]
 
 
 class InvalidFillableGuardedChildModelTest(ModelTest):
-    __fillable__ = [
-        "due_date",
-    ]
-    __guarded__ = [
-        "is_vip",
-        "payload",
-    ]
+    __fillable__ = ["due_date"]
+    __guarded__ = ["is_vip", "payload"]
 
 
 class ModelTestForced(Model):
@@ -147,9 +134,7 @@ class TestModels(unittest.TestCase):
 
     def test_valid_json_cast(self):
         model = ModelTest.hydrate(
-            {
-                "payload": {"this": "dict", "is": "usable", "as": "json"},
-            }
+            {"payload": {"this": "dict", "is": "usable", "as": "json"}}
         )
 
         self.assertEqual(type(model.payload), dict)

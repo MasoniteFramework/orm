@@ -57,7 +57,7 @@ class Schema:
         grammar=None,
         connection_details=None,
         schema=None,
-        config_path=None
+        config_path=None,
     ):
         self._dry = dry
         self.connection = connection
@@ -306,11 +306,7 @@ class Schema:
 
         result = self.new_connection().query(sql, ())
 
-        return (
-            list(map(lambda t: list(t.values())[0], result))
-            if result
-            else []
-        )
+        return list(map(lambda t: list(t.values())[0], result)) if result else []
 
     def has_table(self, table, query_only=False):
         """Checks if the a database has a specific table
