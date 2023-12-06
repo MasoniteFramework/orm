@@ -57,6 +57,7 @@ class Schema:
         grammar=None,
         connection_details=None,
         schema=None,
+        config_path=None
     ):
         self._dry = dry
         self.connection = connection
@@ -68,6 +69,7 @@ class Schema:
         self._blueprint = None
         self._sql = None
         self.schema = schema
+        self.config_path = config_path
 
         if not self.connection_class:
             self.on(self.connection)
@@ -85,7 +87,7 @@ class Schema:
         Returns:
             cls
         """
-        DB = load_config().DB
+        DB = load_config(config_path=self.config_path).DB
 
         if connection_key == "default":
             self.connection = self.connection_details.get("default")

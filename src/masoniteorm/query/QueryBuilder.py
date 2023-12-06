@@ -47,6 +47,7 @@ class QueryBuilder(ObservesEvents):
         scopes=None,
         schema=None,
         dry=False,
+        config_path=None
     ):
         """QueryBuilder initializer
 
@@ -57,6 +58,7 @@ class QueryBuilder(ObservesEvents):
             connection {masoniteorm.connection.Connection} -- A connection class (default: {None})
             table {str} -- the name of the table (default: {""})
         """
+        self.config_path = config_path
         self.grammar = grammar
         self.table(table)
         self.dry = dry
@@ -103,7 +105,7 @@ class QueryBuilder(ObservesEvents):
         self.set_action("select")
 
         if not self._connection_details:
-            DB = load_config().DB
+            DB = load_config(config_path=self.config_path).DB
             self._connection_details = DB.get_connection_details()
 
         self.on(connection)
@@ -382,7 +384,7 @@ class QueryBuilder(ObservesEvents):
         )
 
     def on(self, connection):
-        DB = load_config().DB
+        DB = load_config(self.config_path).DB
 
         if connection == "default":
             self.connection = self._connection_details.get("default")
