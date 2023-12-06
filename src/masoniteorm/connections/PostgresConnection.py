@@ -26,7 +26,6 @@ class PostgresConnection(BaseConnection):
         full_details=None,
         name=None,
     ):
-
         self.host = host
         if port:
             self.port = int(port)

@@ -351,7 +351,6 @@ class Collection:
         return json.dumps(self.serialize(), **kwargs)
 
     def group_by(self, key):
-
         from itertools import groupby
 
         self.sort(key)
@@ -410,7 +409,6 @@ class Collection:
         return self.__class__(attributes)
 
     def where_in(self, key, args: list) -> "Collection":
-
         attributes = []
 
         for item in self._items:

@@ -17,7 +17,6 @@ if os.getenv("RUN_POSTGRES_DATABASE") == "True":
         __timestamps__ = False
 
     class BaseTestQueryRelationships(unittest.TestCase):
-
         maxDiff = None
 
         def get_builder(self, table="users"):

@@ -55,7 +55,6 @@ class Group(Model):
 
 
 class BaseTestQueryRelationships(unittest.TestCase):
-
     maxDiff = None
 
     def test_update_specific_record(self):
@@ -163,7 +162,6 @@ class BaseTestQueryRelationships(unittest.TestCase):
         self.assertEqual(count, 0)
 
     def test_get_columns(self):
-
         columns = User.get_columns()
         self.assertEqual(
             columns,
@@ -192,7 +190,6 @@ class BaseTestQueryRelationships(unittest.TestCase):
         )
 
     def test_should_return_relation_applying_hidden_attributes(self):
-
         schema = Schema(
             connection_details=DATABASES, connection="dev", platform=SQLitePlatform
         ).on("dev")

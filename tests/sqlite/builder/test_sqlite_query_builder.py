@@ -392,7 +392,6 @@ class BaseTestQueryBuilder:
         self.assertEqual(builder.to_sql(), sql)
 
     def test_between_persisted(self):
-
         builder = QueryBuilder().table("users").on("dev")
         users = builder.between("age", 1, 2).count()
 
@@ -407,7 +406,6 @@ class BaseTestQueryBuilder:
         self.assertEqual(builder.to_sql(), sql)
 
     def test_not_between_persisted(self):
-
         builder = QueryBuilder().table("users").on("dev")
         users = builder.where_not_null("id").not_between("age", 1, 2).count()
 
@@ -583,7 +581,6 @@ class BaseTestQueryBuilder:
 
 
 class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
-
     grammar = SQLiteGrammar
 
     def sum(self):

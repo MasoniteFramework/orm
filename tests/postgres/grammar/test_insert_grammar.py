@@ -53,7 +53,6 @@ class BaseInsertGrammarTest:
 
 
 class TestPostgresUpdateGrammar(BaseInsertGrammarTest, unittest.TestCase):
-
     grammar = "postgres"
 
     def can_compile_insert(self):

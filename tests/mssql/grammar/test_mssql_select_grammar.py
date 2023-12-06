@@ -6,7 +6,6 @@ from src.masoniteorm.testing import BaseTestCaseSelectGrammar
 
 
 class TestMSSQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
-
     grammar = MSSQLGrammar
 
     def can_compile_select(self):

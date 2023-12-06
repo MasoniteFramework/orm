@@ -23,7 +23,6 @@ if os.getenv("RUN_POSTGRES_DATABASE", False) == "True":
         __connection__ = "postgres"
 
     class User(Model):
-
         __connection__ = "postgres"
 
         _eager_loads = ()

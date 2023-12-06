@@ -6,7 +6,6 @@ from src.masoniteorm.testing import BaseTestCaseSelectGrammar
 
 
 class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
-
     grammar = PostgresGrammar
 
     def can_compile_select(self):

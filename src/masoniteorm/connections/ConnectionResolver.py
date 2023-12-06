@@ -2,7 +2,6 @@ from contextlib import contextmanager
 
 
 class ConnectionResolver:
-
     _connection_details = {}
     _connections = {}
     _morph_map = {}

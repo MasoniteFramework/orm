@@ -6,7 +6,6 @@ from ..config import load_config
 
 
 class Schema:
-
     _default_string_length = "255"
     _type_hints_map = {
         "string": str,

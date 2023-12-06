@@ -9,7 +9,6 @@ from tests.utils import MockConnectionFactory
 
 
 class MockConnection:
-
     connection_details = {}
 
     def make_connection(self):

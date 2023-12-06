@@ -266,6 +266,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             "with_count",
             "latest",
             "oldest",
+            "value",
         )
     )
 
@@ -560,12 +561,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         if query:
             return cls.builder.create(
-                dictionary, query=True, id_key=cls.__primary_key__, cast=cast, **kwargs
+                dictionary, query=True, cast=cast, **kwargs
             ).to_sql()
 
-        return cls.builder.create(
-            dictionary, id_key=cls.__primary_key__, cast=cast, **kwargs
-        )
+        return cls.builder.create(dictionary, cast=cast, **kwargs)
 
     @classmethod
     def cast_value(cls, attribute: str, value: Any):
@@ -661,7 +660,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         remove_keys = []
         for key, value in serialized_dictionary.items():
-
             if key in self.__hidden__:
                 remove_keys.append(key)
             if hasattr(value, "serialize"):
@@ -684,7 +682,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Returns:
             string
         """
-        return json.dumps(self.serialize())
+        return json.dumps(self.serialize(), default=str)
 
     @classmethod
     def first_or_create(cls, wheres, creates: dict = None):
@@ -864,12 +862,15 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         if not query:
             if self.is_loaded():
-                result = builder.update(self.__dirty_attributes__)
+                result = builder.update(
+                    self.__dirty_attributes__, ignore_mass_assignment=True
+                )
             else:
                 result = self.create(
                     self.__dirty_attributes__,
                     query=query,
                     id_key=self.get_primary_key(),
+                    ignore_mass_assignment=True,
                 )
             self.observe_events(self, "saved")
             self.fill(result.__attributes__)
@@ -877,7 +878,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             return result
 
         if self.is_loaded():
-            result = builder.update(self.__dirty_attributes__, dry=query).to_sql()
+            result = builder.update(
+                self.__dirty_attributes__, dry=query, ignore_mass_assignment=True
+            ).to_sql()
         else:
             result = self.create(self.__dirty_attributes__, query=query)
 
@@ -1016,7 +1019,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return self
 
     def save_many(self, relation, relating_records):
-
         if isinstance(relating_records, Model):
             raise ValueError(
                 "Saving many records requires an iterable like a collection or a list of models and not a Model object. To attach a model, use the 'attach' method."
@@ -1032,7 +1034,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             related.attach_related(self, related_record)
 
     def detach_many(self, relation, relating_records):
-
         if isinstance(relating_records, Model):
             raise ValueError(
                 "Detaching many records requires an iterable like a collection or a list of models and not a Model object. To detach a model, use the 'detach' method."

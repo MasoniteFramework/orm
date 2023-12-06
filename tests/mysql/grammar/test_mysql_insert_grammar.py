@@ -68,7 +68,6 @@ class BaseInsertGrammarTest:
 
 
 class TestMySQLUpdateGrammar(BaseInsertGrammarTest, unittest.TestCase):
-
     grammar = "mysql"
 
     def can_compile_insert(self):

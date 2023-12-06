@@ -26,7 +26,6 @@ class MSSQLConnection(BaseConnection):
         full_details=None,
         name=None,
     ):
-
         self.host = host
         if port:
             self.port = int(port)
@@ -152,7 +151,7 @@ class MSSQLConnection(BaseConnection):
                         return {}
                     columnNames = [column[0] for column in cursor.description]
                     result = cursor.fetchone()
-                    return dict(zip(columnNames, result))
+                    return dict(zip(columnNames, result)) if result is not None else {}
                 else:
                     if not cursor.description:
                         return {}

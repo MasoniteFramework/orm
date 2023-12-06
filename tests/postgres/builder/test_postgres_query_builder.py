@@ -9,7 +9,6 @@ from tests.utils import MockConnectionFactory
 
 
 class MockConnection:
-
     connection_details = {}
 
     def make_connection(self):
@@ -462,7 +461,6 @@ class BaseTestQueryBuilder:
 
 
 class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
-
     grammar = PostgresGrammar
 
     def sum(self):

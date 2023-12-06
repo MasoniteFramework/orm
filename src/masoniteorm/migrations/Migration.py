@@ -60,7 +60,9 @@ class Migration:
         all_migrations = [
             f.replace(".py", "")
             for f in listdir(directory_path)
-            if isfile(join(directory_path, f)) and f != "__init__.py"
+            if isfile(join(directory_path, f))
+            and f != "__init__.py"
+            and not f.startswith(".")
         ]
         all_migrations.sort()
         unran_migrations = []
@@ -107,26 +109,34 @@ class Migration:
         all_migrations = [
             f.replace(".py", "")
             for f in listdir(directory_path)
-            if isfile(join(directory_path, f)) and f != "__init__.py"
+            if isfile(join(directory_path, f))
+            and f != "__init__.py"
+            and not f.startswith(".")
         ]
         all_migrations.sort()
         ran = []
 
         database_migrations = self.migration_model.all()
         for migration in all_migrations:
-            if migration in database_migrations.pluck("migration"):
-                ran.append(migration)
+            matched_migration = database_migrations.where(
+                "migration", migration
+            ).first()
+            if matched_migration:
+                ran.append(
+                    {
+                        "migration_file": matched_migration.migration,
+                        "batch": matched_migration.batch,
+                    }
+                )
         return ran
 
     def migrate(self, migration="all", output=False):
-
         default_migrations = self.get_unran_migrations()
         migrations = default_migrations if migration == "all" else [migration]
 
         batch = self.get_last_batch_number() + 1
 
         for migration in migrations:
-
             try:
                 migration_class = self.locate(migration)
 
@@ -173,7 +183,6 @@ class Migration:
             )
 
     def rollback(self, migration="all", output=False):
-
         default_migrations = self.get_rollback_migrations()
         migrations = default_migrations if migration == "all" else [migration]
 

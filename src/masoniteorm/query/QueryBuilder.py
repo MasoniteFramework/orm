@@ -498,6 +498,13 @@ class QueryBuilder(ObservesEvents):
             id_key: str = "id",
             cast: bool = False,
             **kwargs,
+        self,
+        creates: Optional[Dict[str, Any]] = None,
+        query: bool = False,
+        id_key: str = "id",
+        cast: bool = False,
+        ignore_mass_assignment: bool = False,
+        **kwargs,
     ):
         """Specifies a dictionary that should be used to create new values.
 
@@ -516,7 +523,8 @@ class QueryBuilder(ObservesEvents):
             # Update values with related record's
             self._creates.update(self._creates_related)
             # Filter __fillable/__guarded__ fields
-            self._creates = model.filter_mass_assignment(self._creates)
+            if not ignore_mass_assignment:
+                self._creates = model.filter_mass_assignment(self._creates)
             # Cast values if necessary
             if cast:
                 self._creates = model.cast_values(self._creates)
@@ -1384,6 +1392,12 @@ class QueryBuilder(ObservesEvents):
             dry: bool = False,
             force: bool = False,
             cast: bool = False,
+        self,
+        updates: Dict[str, Any],
+        dry: bool = False,
+        force: bool = False,
+        cast: bool = False,
+        ignore_mass_assignment: bool = False,
     ):
         """Specifies columns and values to be updated.
 
@@ -1392,6 +1406,7 @@ class QueryBuilder(ObservesEvents):
             dry {bool, optional}: Do everything except execute the query against the DB
             force {bool, optional}: Force an update statement to be executed even if nothing was changed
             cast {bool, optional}: Run all values through model's casters
+            ignore_mass_assignment {bool, optional}: Whether the update should ignore mass assignment on the model
 
         Returns:
             self
@@ -1403,7 +1418,8 @@ class QueryBuilder(ObservesEvents):
         if self._model:
             model = self._model
             # Filter __fillable/__guarded__ fields
-            updates = model.filter_mass_assignment(updates)
+            if not ignore_mass_assignment:
+                updates = model.filter_mass_assignment(updates)
 
         if model and model.is_loaded():
             self.where(model.get_primary_key(), model.get_primary_key_value())
@@ -1767,6 +1783,9 @@ class QueryBuilder(ObservesEvents):
             raise MultipleRecordsFound()
 
         return result.first()
+
+    def sole_value(self, column: str, query=False):
+        return self.sole()[column]
 
     def first_where(self, column, *args):
         """Gets the first record with the given key / value pair"""
@@ -2147,7 +2166,6 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def _extract_operator_value(self, *args):
-
         operators = [
             "=",
             ">",
@@ -2296,3 +2314,6 @@ class QueryBuilder(ObservesEvents):
             fields = ("created_at",)
 
         return self.order_by(column=",".join(fields), direction="ASC")
+
+    def value(self, column: str):
+        return self.get().first()[column]

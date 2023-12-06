@@ -6,7 +6,6 @@ from src.masoniteorm.testing import BaseTestCaseSelectGrammar
 
 
 class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
-
     grammar = SQLiteGrammar
     maxDiff = None
 

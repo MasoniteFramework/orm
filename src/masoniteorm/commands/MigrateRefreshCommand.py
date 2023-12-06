@@ -17,7 +17,6 @@ class MigrateRefreshCommand(Command):
     """
 
     def handle(self):
-
         migration = Migration(
             command_class=self,
             connection=self.option("connection"),
