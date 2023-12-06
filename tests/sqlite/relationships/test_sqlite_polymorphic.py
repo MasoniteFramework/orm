@@ -26,7 +26,6 @@ class Logo(Model):
 
 
 class Like(Model):
-
     __connection__ = "dev"
 
     @morph_to("record_type", "record_id")
@@ -35,7 +34,6 @@ class Like(Model):
 
 
 class User(Model):
-
     __connection__ = "dev"
 
     _eager_loads = ()

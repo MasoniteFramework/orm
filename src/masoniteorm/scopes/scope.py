@@ -3,7 +3,10 @@ class scope:
         self.fn = callback
 
     def __set_name__(self, cls, name):
-        cls._scopes.update({name: self.fn})
+        if cls not in cls._scopes:
+            cls._scopes[cls] = {name: self.fn}
+        else:
+            cls._scopes[cls].update({name: self.fn})
         self.cls = cls
 
     def __call__(self, *args, **kwargs):

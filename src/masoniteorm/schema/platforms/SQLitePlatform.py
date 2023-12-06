@@ -4,7 +4,6 @@ from .Platform import Platform
 
 
 class SQLitePlatform(Platform):
-
     types_without_lengths = [
         "integer",
         "big_integer",
@@ -151,7 +150,6 @@ class SQLitePlatform(Platform):
 
     def compile_alter_sql(self, diff):
         sql = []
-
         if diff.removed_indexes or diff.removed_unique_indexes:
             indexes = diff.removed_indexes
             indexes += diff.removed_unique_indexes
@@ -374,6 +372,7 @@ class SQLitePlatform(Platform):
                 column_python_type=Schema._type_hints_map.get(column_type, str),
                 default=default,
                 length=length,
+                nullable=int(column.get("notnull")) == 0,
             )
             if column.get("pk") == 1:
                 table.set_primary_key(column["name"])
@@ -412,6 +411,9 @@ class SQLitePlatform(Platform):
 
     def compile_column_exists(self, table, column):
         return f"SELECT column_name FROM information_schema.columns WHERE table_name='{table}' and column_name='{column}'"
+
+    def compile_get_all_tables(self, database, schema=None):
+        return "SELECT name FROM sqlite_master WHERE type='table'"
 
     def compile_truncate(self, table, foreign_keys=False):
         if not foreign_keys:

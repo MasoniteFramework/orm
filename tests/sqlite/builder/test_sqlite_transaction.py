@@ -18,7 +18,6 @@ class User(Model):
 
 
 class BaseTestQueryRelationships(unittest.TestCase):
-
     maxDiff = None
 
     def get_builder(self, table="users"):

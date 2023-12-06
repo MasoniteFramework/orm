@@ -7,7 +7,6 @@ from src.masoniteorm.schema.platforms.SQLitePlatform import SQLitePlatform
 
 
 class TestTable(unittest.TestCase):
-
     maxDiff = None
 
     def setUp(self):

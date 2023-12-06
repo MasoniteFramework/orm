@@ -15,7 +15,6 @@ class UserSoft(Model, SoftDeletesMixin):
 
 
 class User(Model):
-
     __dry__ = True
 
 

@@ -11,7 +11,6 @@ class SQLiteGrammar(BaseGrammar):
         "MIN": "MIN",
         "AVG": "AVG",
         "COUNT": "COUNT",
-        "AVG": "AVG",
     }
 
     join_keywords = {
@@ -35,7 +34,7 @@ class SQLiteGrammar(BaseGrammar):
     locks = {"share": "", "update": ""}
 
     def select_format(self):
-        return "SELECT {keyword} {columns} FROM {table} {joins} {wheres} {group_by} {order_by} {limit} {offset} {having} {lock}"
+        return "SELECT {keyword} {columns} FROM {table} {joins} {wheres} {group_by} {having} {order_by} {limit} {offset} {lock}"
 
     def select_no_table(self):
         return "SELECT {columns} {lock}"
@@ -98,10 +97,10 @@ class SQLiteGrammar(BaseGrammar):
         return "{column} = {value}{separator}"
 
     def increment_string(self):
-        return "{column} = {column} + '{value}'"
+        return "{column} = {column} + '{value}'{separator}"
 
     def decrement_string(self):
-        return "{column} = {column} - '{value}'"
+        return "{column} = {column} - '{value}'{separator}"
 
     def column_exists_string(self):
         return "SELECT column_name FROM information_schema.columns WHERE table_name='{clean_table}' and column_name={value}"

@@ -60,7 +60,9 @@ class Migration:
         all_migrations = [
             f.replace(".py", "")
             for f in listdir(directory_path)
-            if isfile(join(directory_path, f)) and f != "__init__.py"
+            if isfile(join(directory_path, f))
+            and f != "__init__.py"
+            and not f.startswith(".")
         ]
         all_migrations.sort()
         unran_migrations = []
@@ -107,26 +109,34 @@ class Migration:
         all_migrations = [
             f.replace(".py", "")
             for f in listdir(directory_path)
-            if isfile(join(directory_path, f)) and f != "__init__.py"
+            if isfile(join(directory_path, f))
+            and f != "__init__.py"
+            and not f.startswith(".")
         ]
         all_migrations.sort()
         ran = []
 
         database_migrations = self.migration_model.all()
         for migration in all_migrations:
-            if migration in database_migrations.pluck("migration"):
-                ran.append(migration)
+            matched_migration = database_migrations.where(
+                "migration", migration
+            ).first()
+            if matched_migration:
+                ran.append(
+                    {
+                        "migration_file": matched_migration.migration,
+                        "batch": matched_migration.batch,
+                    }
+                )
         return ran
 
     def migrate(self, migration="all", output=False):
-
         default_migrations = self.get_unran_migrations()
         migrations = default_migrations if migration == "all" else [migration]
 
         batch = self.get_last_batch_number() + 1
 
         for migration in migrations:
-
             try:
                 migration_class = self.locate(migration)
 
@@ -173,7 +183,6 @@ class Migration:
             )
 
     def rollback(self, migration="all", output=False):
-
         default_migrations = self.get_rollback_migrations()
         migrations = default_migrations if migration == "all" else [migration]
 
@@ -278,4 +287,31 @@ class Migration:
 
     def refresh(self, migration="all"):
         self.reset(migration)
+        self.migrate(migration)
+
+    def drop_all_tables(self, ignore_fk=False):
+        if self.command_class:
+            self.command_class.line("<comment>Dropping all tables</comment>")
+
+        if ignore_fk:
+            self.schema.disable_foreign_key_constraints()
+
+        for table in self.schema.get_all_tables():
+            self.schema.drop(table)
+
+        if ignore_fk:
+            self.schema.enable_foreign_key_constraints()
+
+        if self.command_class:
+            self.command_class.line("<info>All tables dropped</info>")
+
+    def fresh(self, ignore_fk=False, migration="all"):
+        self.drop_all_tables(ignore_fk=ignore_fk)
+        self.create_table_if_not_exists()
+
+        if not self.get_unran_migrations():
+            if self.command_class:
+                self.command_class.line("<comment>Nothing to migrate</comment>")
+            return
+
         self.migrate(migration)

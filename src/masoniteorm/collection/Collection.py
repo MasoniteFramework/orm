@@ -280,7 +280,7 @@ class Collection:
         self._items.append(value)
 
     def put(self, key, value):
-        self[key] = value
+        self._items[key] = value
         return self
 
     def random(self, count=None):
@@ -351,7 +351,6 @@ class Collection:
         return json.dumps(self.serialize(), **kwargs)
 
     def group_by(self, key):
-
         from itertools import groupby
 
         self.sort(key)
@@ -410,7 +409,6 @@ class Collection:
         return self.__class__(attributes)
 
     def where_in(self, key, args: list) -> "Collection":
-
         attributes = []
 
         for item in self._items:

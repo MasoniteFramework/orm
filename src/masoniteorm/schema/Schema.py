@@ -6,7 +6,6 @@ from ..config import load_config
 
 
 class Schema:
-
     _default_string_length = "255"
     _type_hints_map = {
         "string": str,
@@ -58,6 +57,7 @@ class Schema:
         grammar=None,
         connection_details=None,
         schema=None,
+        config_path=None
     ):
         self._dry = dry
         self.connection = connection
@@ -69,6 +69,7 @@ class Schema:
         self._blueprint = None
         self._sql = None
         self.schema = schema
+        self.config_path = config_path
 
         if not self.connection_class:
             self.on(self.connection)
@@ -86,7 +87,7 @@ class Schema:
         Returns:
             cls
         """
-        DB = load_config().DB
+        DB = load_config(config_path=self.config_path).DB
 
         if connection_key == "default":
             self.connection = self.connection_details.get("default")
@@ -287,10 +288,28 @@ class Schema:
         return bool(self.new_connection().query(sql, ()))
 
     def get_schema(self):
-        """Gets the schema set on the migration class
-        """
+        """Gets the schema set on the migration class"""
         return self.schema or self.get_connection_information().get("full_details").get(
             "schema"
+        )
+
+    def get_all_tables(self):
+        """Gets all tables in the database"""
+        sql = self.platform().compile_get_all_tables(
+            database=self.get_connection_information().get("database"),
+            schema=self.get_schema(),
+        )
+
+        if self._dry:
+            self._sql = sql
+            return sql
+
+        result = self.new_connection().query(sql, ())
+
+        return (
+            list(map(lambda t: list(t.values())[0], result))
+            if result
+            else []
         )
 
     def has_table(self, table, query_only=False):

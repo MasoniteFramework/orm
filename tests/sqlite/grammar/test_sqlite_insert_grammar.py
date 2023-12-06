@@ -27,7 +27,13 @@ class BaseInsertGrammarTest:
 
     def test_can_compile_bulk_create(self):
         to_sql = self.builder.bulk_create(
-            [{"name": "Joe"}, {"name": "Bill"}, {"name": "John"}], query=True
+            # These keys are intentionally out of order to show column to value alignment works
+            [
+                {"name": "Joe", "age": 5},
+                {"age": 35, "name": "Bill"},
+                {"name": "John", "age": 10},
+            ],
+            query=True,
         ).to_sql()
 
         sql = getattr(
@@ -62,7 +68,6 @@ class BaseInsertGrammarTest:
 
 
 class TestSqliteUpdateGrammar(BaseInsertGrammarTest, unittest.TestCase):
-
     grammar = "sqlite"
 
     def can_compile_insert(self):
@@ -83,13 +88,13 @@ class TestSqliteUpdateGrammar(BaseInsertGrammarTest, unittest.TestCase):
         """
         self.builder.create(name="Joe").to_sql()
         """
-        return """INSERT INTO "users" ("name") VALUES ('Joe'), ('Bill'), ('John')"""
+        return """INSERT INTO "users" ("age", "name") VALUES ('5', 'Joe'), ('35', 'Bill'), ('10', 'John')"""
 
     def can_compile_bulk_create_multiple(self):
         """
         self.builder.create(name="Joe").to_sql()
         """
-        return """INSERT INTO "users" ("name", "active") VALUES ('Joe', '1'), ('Bill', '1'), ('John', '1')"""
+        return """INSERT INTO "users" ("active", "name") VALUES ('1', 'Joe'), ('1', 'Bill'), ('1', 'John')"""
 
     def can_compile_bulk_create_qmark(self):
         """

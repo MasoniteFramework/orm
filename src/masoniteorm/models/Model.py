@@ -1,19 +1,21 @@
-import json
-from datetime import datetime, date as datetimedate, time as datetimetime
-import logging
-from decimal import Decimal
-
-from inflection import tableize, underscore
 import inspect
+import json
+import logging
+from datetime import date as datetimedate
+from datetime import datetime
+from datetime import time as datetimetime
+from decimal import Decimal
+from typing import Any, Dict
 
 import pendulum
+from inflection import tableize, underscore
 
-from ..query import QueryBuilder
 from ..collection import Collection
-from ..observers import ObservesEvents
-from ..scopes import TimeStampsMixin
 from ..config import load_config
 from ..exceptions import ModelNotFound
+from ..observers import ObservesEvents
+from ..query import QueryBuilder
+from ..scopes import TimeStampsMixin
 
 """This is a magic class that will help using models like User.first() instead of having to instatiate a class like
 User().first()
@@ -58,8 +60,11 @@ class JsonCast:
     """Casts a value to JSON"""
 
     def get(self, value):
-        if not isinstance(value, str):
-            return json.dumps(value)
+        if isinstance(value, str):
+            try:
+                return json.loads(value)
+            except ValueError:
+                return None
 
         return value
 
@@ -69,7 +74,7 @@ class JsonCast:
             json.loads(value)
             return value
 
-        return json.dumps(value)
+        return json.dumps(value, default=str)
 
 
 class IntCast:
@@ -130,7 +135,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     """
 
     __fillable__ = ["*"]
-    __guarded__ = ["*"]
+    __guarded__ = []
     __dry__ = False
     __table__ = None
     __connection__ = "default"
@@ -157,105 +162,113 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     date_created_at = "created_at"
     date_updated_at = "updated_at"
 
+    builder: QueryBuilder
+
     """Pass through will pass any method calls to the model directly through to the query builder.
     Anytime one of these methods are called on the model it will actually be called on the query builder class.
     """
-    __passthrough__ = [
-        "add_select",
-        "aggregate",
-        "all",
-        "avg",
-        "between",
-        "bulk_create",
-        "chunk",
-        "count",
-        "decrement",
-        "delete",
-        "distinct",
-        "doesnt_exist",
-        "doesnt_have",
-        "exists",
-        "find_or_404",
-        "find_or_fail",
-        "first_or_fail",
-        "first",
-        "first_where",
-        "first_or_create",
-        "force_update",
-        "from_",
-        "from_raw",
-        "get",
-        "get_table_schema",
-        "group_by_raw",
-        "group_by",
-        "has",
-        "having",
-        "having_raw",
-        "increment",
-        "in_random_order",
-        "join_on",
-        "join",
-        "joins",
-        "last",
-        "left_join",
-        "limit",
-        "lock_for_update",
-        "make_lock",
-        "max",
-        "min",
-        "new_from_builder",
-        "new",
-        "not_between",
-        "offset",
-        "on",
-        "or_where",
-        "or_where_null",
-        "order_by_raw",
-        "order_by",
-        "paginate",
-        "right_join",
-        "select_raw",
-        "select",
-        "set_global_scope",
-        "set_schema",
-        "shared_lock",
-        "simple_paginate",
-        "skip",
-        "statement",
-        "sum",
-        "table_raw",
-        "take",
-        "to_qmark",
-        "to_sql",
-        "truncate",
-        "update",
-        "when",
-        "where_between",
-        "where_column",
-        "where_date",
-        "or_where_doesnt_have",
-        "or_has",
-        "or_where_has",
-        "or_doesnt_have",
-        "or_where_not_exists",
-        "or_where_date",
-        "where_exists",
-        "where_from_builder",
-        "where_has",
-        "where_in",
-        "where_like",
-        "where_not_between",
-        "where_not_in",
-        "where_not_like",
-        "where_not_null",
-        "where_null",
-        "where_raw",
-        "without_global_scopes",
-        "where",
-        "where_doesnt_have",
-        "with_",
-        "with_count",
-    ]
+    __passthrough__ = set(
+        (
+            "add_select",
+            "aggregate",
+            "all",
+            "avg",
+            "between",
+            "bulk_create",
+            "chunk",
+            "count",
+            "decrement",
+            "delete",
+            "distinct",
+            "doesnt_exist",
+            "doesnt_have",
+            "exists",
+            "find_or",
+            "find_or_404",
+            "find_or_fail",
+            "first_or_fail",
+            "first",
+            "first_where",
+            "first_or_create",
+            "force_update",
+            "from_",
+            "from_raw",
+            "get",
+            "get_table_schema",
+            "group_by_raw",
+            "group_by",
+            "has",
+            "having",
+            "having_raw",
+            "increment",
+            "in_random_order",
+            "join_on",
+            "join",
+            "joins",
+            "last",
+            "left_join",
+            "limit",
+            "lock_for_update",
+            "make_lock",
+            "max",
+            "min",
+            "new_from_builder",
+            "new",
+            "not_between",
+            "offset",
+            "on",
+            "or_where",
+            "or_where_null",
+            "order_by_raw",
+            "order_by",
+            "paginate",
+            "right_join",
+            "select_raw",
+            "select",
+            "set_global_scope",
+            "set_schema",
+            "shared_lock",
+            "simple_paginate",
+            "skip",
+            "statement",
+            "sum",
+            "table_raw",
+            "take",
+            "to_qmark",
+            "to_sql",
+            "truncate",
+            "update",
+            "when",
+            "where_between",
+            "where_column",
+            "where_date",
+            "or_where_doesnt_have",
+            "or_has",
+            "or_where_has",
+            "or_doesnt_have",
+            "or_where_not_exists",
+            "or_where_date",
+            "where_exists",
+            "where_from_builder",
+            "where_has",
+            "where_in",
+            "where_like",
+            "where_not_between",
+            "where_not_in",
+            "where_not_like",
+            "where_not_null",
+            "where_null",
+            "where_raw",
+            "without_global_scopes",
+            "where",
+            "where_doesnt_have",
+            "with_",
+            "with_count",
+            "latest",
+            "oldest",
+            "value",
+        )
+    )
 
     __cast_map__ = {}
 
@@ -337,7 +350,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             table=self.get_table_name(),
             connection_details=self.get_connection_details(),
             model=self,
-            scopes=self._scopes,
+            scopes=self._scopes.get(self.__class__),
             dry=self.__dry__,
         )
 
@@ -359,6 +372,15 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
                 if class_name.endswith("Mixin"):
                     getattr(self, "boot_" + class_name)(self.get_builder())
+                elif (
+                    base_class != Model
+                    and issubclass(base_class, Model)
+                    and "__fillable__" in base_class.__dict__
+                    and "__guarded__" in base_class.__dict__
+                ):
+                    raise AttributeError(
+                        f"{type(self).__name__} must specify either __fillable__ or __guarded__ properties, but not both."
+                    )
 
             self._booted = True
             self.observe_events(self, "booted")
@@ -366,7 +388,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             self.append_passthrough(list(self.get_builder()._macros.keys()))
 
     def append_passthrough(self, passthrough):
-        self.__passthrough__ += passthrough
+        self.__passthrough__.update(passthrough)
         return self
 
     @classmethod
@@ -519,45 +541,37 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return Collection(data)
 
     @classmethod
-    def create(cls, dictionary=None, query=False, cast=False, **kwargs):
+    def create(
+        cls,
+        dictionary: Dict[str, Any] = None,
+        query: bool = False,
+        cast: bool = False,
+        **kwargs,
+    ):
         """Creates new records based off of a dictionary as well as data set on the model
         such as fillable values.
 
         Args:
             dictionary (dict, optional): [description]. Defaults to {}.
             query (bool, optional): [description]. Defaults to False.
+            cast (bool, optional): [description]. Whether or not to cast passed values.
 
         Returns:
             self: A hydrated version of a model
         """
-
-        if not dictionary:
-            dictionary = kwargs
-
-        if cls.__fillable__ != ["*"]:
-            d = {}
-            for x in cls.__fillable__:
-                if x in dictionary:
-                    if cast == True:
-                        d.update({x: cls._set_casted_value(x, dictionary[x])})
-                    else:
-                        d.update({x: dictionary[x]})
-            dictionary = d
-
-        if cls.__guarded__ != ["*"]:
-            for x in cls.__guarded__:
-                if x in dictionary:
-                    dictionary.pop(x)
-
         if query:
             return cls.builder.create(
-                dictionary, query=True, id_key=cls.__primary_key__
+                dictionary, query=True, cast=cast, **kwargs
             ).to_sql()
 
-        return cls.builder.create(dictionary, id_key=cls.__primary_key__)
+        return cls.builder.create(dictionary, cast=cast, **kwargs)
 
     @classmethod
-    def _set_casted_value(cls, attribute, value):
+    def cast_value(cls, attribute: str, value: Any):
+        """
+        Given an attribute name and a value, casts the value using the model's registered caster.
+        If no registered caster exists, returns the unmodified value.
+        """
         cast_method = cls.__casts__.get(attribute)
         cast_map = cls.get_cast_map(cls)
 
@@ -570,6 +584,15 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         if cast_method:
             return cast_method(value)
         return value
+
+    @classmethod
+    def cast_values(cls, dictionary: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Runs provided dictionary through all model casters and returns the result.
+
+        Does not mutate the passed dictionary.
+        """
+        return {x: cls.cast_value(x, dictionary[x]) for x in dictionary}
 
     def fresh(self):
         return (
@@ -637,7 +660,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         remove_keys = []
         for key, value in serialized_dictionary.items():
-
             if key in self.__hidden__:
                 remove_keys.append(key)
             if hasattr(value, "serialize"):
@@ -660,7 +682,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Returns:
             string
         """
-        return json.dumps(self.serialize())
+        return json.dumps(self.serialize(), default=str)
 
     @classmethod
     def first_or_create(cls, wheres, creates: dict = None):
@@ -688,9 +710,19 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         total.update(updates)
         total.update(wheres)
         if not record:
-            return self.create(total, id_key=cls.get_primary_key())
+            # if we don't return fresh, we don't get the primary_key that has been used,
+            # and we can't call it from outside the function lest we get a QueryBuilder.
+            #
+            # Without this we are reduced to performing a DIY update_or_create, e.g.:
+            #     ebay_order = EbayOrder.where({'order_id': d['order_id']}).first()
+            #     if not ebay_order:
+            #         ebay_order = EbayOrder.create(d).fresh()
+            #     else:
+            #         ebay_order.save()
+            return self.create(total, id_key=cls.get_primary_key()).fresh()
 
-        return self.where(wheres).update(total)
+        rv = self.where(wheres).update(total)
+        return self.where(wheres).first()
 
     def relations_to_dict(self):
         """Converts a models relationships to a dictionary
@@ -840,12 +872,15 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         if not query:
             if self.is_loaded():
-                result = builder.update(self.__dirty_attributes__)
+                result = builder.update(
+                    self.__dirty_attributes__, ignore_mass_assignment=True
+                )
             else:
                 result = self.create(
                     self.__dirty_attributes__,
                     query=query,
                     id_key=self.get_primary_key(),
+                    ignore_mass_assignment=True,
                 )
             self.observe_events(self, "saved")
             self.fill(result.__attributes__)
@@ -853,7 +888,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             return result
 
         if self.is_loaded():
-            result = builder.update(self.__dirty_attributes__, dry=query).to_sql()
+            result = builder.update(
+                self.__dirty_attributes__, dry=query, ignore_mass_assignment=True
+            ).to_sql()
         else:
             result = self.create(self.__dirty_attributes__, query=query)
 
@@ -967,7 +1004,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
     def get_new_datetime_string(self, _datetime=None):
         """
-        Get the attributes that should be converted to dates.
+        Given an optional datetime value, constructs and returns a new datetime string.
+        If no datetime is specified, returns the current time.
 
         :rtype: list
         """
@@ -991,7 +1029,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return self
 
     def save_many(self, relation, relating_records):
-
         if isinstance(relating_records, Model):
             raise ValueError(
                 "Saving many records requires an iterable like a collection or a list of models and not a Model object. To attach a model, use the 'attach' method."
@@ -1007,7 +1044,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             related.attach_related(self, related_record)
 
     def detach_many(self, relation, relating_records):
-
         if isinstance(relating_records, Model):
             raise ValueError(
                 "Detaching many records requires an iterable like a collection or a list of models and not a Model object. To detach a model, use the 'detach' method."
@@ -1050,6 +1086,44 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return related.detach(self, related_record)
 
+    def save_quietly(self):
+        """This method calls the save method on a model without firing the saved & saving observer events. Saved/Saving
+        are toggled back on once save_quietly has been ran.
+
+        Instead of calling:
+
+        User().save(...)
+
+        you can use this:
+
+        User.save_quietly(...)
+        """
+        self.without_events()
+        saved = self.save()
+        self.with_events()
+        return saved
+
+    def delete_quietly(self):
+        """This method calls the delete method on a model without firing the delete & deleting observer events.
+        Instead of calling:
+
+        User().delete(...)
+
+        you can use this:
+
+        User.delete_quietly(...)
+
+        Returns:
+            self
+        """
+        delete = (
+            self.without_events()
+            .where(self.get_primary_key(), self.get_primary_key_value())
+            .delete()
+        )
+        self.with_events()
+        return delete
+
     def attach_related(self, relation, related_record):
         related = getattr(self.__class__, relation)
 
@@ -1059,3 +1133,35 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             related_record.save()
 
         return related.attach_related(self, related_record)
+
+    @classmethod
+    def filter_fillable(cls, dictionary: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Filters provided dictionary to only include fields specified in the model's __fillable__ property
+
+        Passed dictionary is not mutated.
+        """
+        if cls.__fillable__ != ["*"]:
+            dictionary = {x: dictionary[x] for x in cls.__fillable__ if x in dictionary}
+        return dictionary
+
+    @classmethod
+    def filter_mass_assignment(cls, dictionary: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Filters the provided dictionary in preparation for a mass-assignment operation
+
+        Wrapper around filter_fillable() & filter_guarded(). Passed dictionary is not mutated.
+        """
+        return cls.filter_guarded(cls.filter_fillable(dictionary))
+
+    @classmethod
+    def filter_guarded(cls, dictionary: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Filters provided dictionary to exclude fields specified in the model's __guarded__ property
+
+        Passed dictionary is not mutated.
+        """
+        if cls.__guarded__ == ["*"]:
+            # If all fields are guarded, all data should be filtered
+            return {}
+        return {f: dictionary[f] for f in dictionary if f not in cls.__guarded__}

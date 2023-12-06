@@ -67,7 +67,7 @@ class BelongsToMany(BaseRelationship):
             self._table = "_".join(pivot_tables)
             self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
             self.local_key = self.local_key or f"{pivot_table_2}_id"
-        else:
+        elif self.local_key is None or self.foreign_key is None:
             pivot_table_1, pivot_table_2 = self._table.split("_", 1)
             self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
             self.local_key = self.local_key or f"{pivot_table_2}_id"
@@ -185,7 +185,7 @@ class BelongsToMany(BaseRelationship):
             self._table = "_".join(pivot_tables)
             self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
             self.local_key = self.local_key or f"{pivot_table_2}_id"
-        else:
+        elif self.local_key is None or self.foreign_key is None:
             pivot_table_1, pivot_table_2 = self._table.split("_", 1)
             self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
             self.local_key = self.local_key or f"{pivot_table_2}_id"
@@ -237,7 +237,7 @@ class BelongsToMany(BaseRelationship):
         if isinstance(relation, Collection):
             return result.where_in(
                 self.local_owner_key,
-                relation.pluck(self.local_owner_key, keep_nulls=False),
+                Collection(relation._get_value(self.local_owner_key)).unique(),
             ).get()
         else:
             return result.where(
@@ -302,7 +302,7 @@ class BelongsToMany(BaseRelationship):
             self._table = "_".join(pivot_tables)
             self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
             self.local_key = self.local_key or f"{pivot_table_2}_id"
-        else:
+        elif self.local_key is None or self.foreign_key is None:
             pivot_table_1, pivot_table_2 = self._table.split("_", 1)
             self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
             self.local_key = self.local_key or f"{pivot_table_2}_id"
@@ -368,7 +368,7 @@ class BelongsToMany(BaseRelationship):
             self._table = "_".join(pivot_tables)
             self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
             self.local_key = self.local_key or f"{pivot_table_2}_id"
-        else:
+        elif self.local_key is None or self.foreign_key is None:
             pivot_table_1, pivot_table_2 = self._table.split("_", 1)
             self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
             self.local_key = self.local_key or f"{pivot_table_2}_id"
@@ -541,7 +541,7 @@ class BelongsToMany(BaseRelationship):
             .table(self._table)
             .without_global_scopes()
             .where(data)
-            .update({self.foreign_key: None, self.local_key: None})
+            .delete()
         )
 
     def attach_related(self, current_model, related_record):

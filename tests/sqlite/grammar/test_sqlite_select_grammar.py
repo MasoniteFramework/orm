@@ -6,7 +6,6 @@ from src.masoniteorm.testing import BaseTestCaseSelectGrammar
 
 
 class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
-
     grammar = SQLiteGrammar
     maxDiff = None
 
@@ -238,6 +237,12 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder.sum('age').group_by('age').having('age').to_sql()
         """
         return """SELECT SUM("users"."age") AS age FROM "users" GROUP BY "users"."age" HAVING "users"."age\""""
+
+    def can_compile_having_order(self):
+        """
+        builder.sum('age').group_by('age').having('age').order_by('age', 'desc').to_sql()
+        """
+        return """SELECT SUM("users"."age") AS age FROM "users" GROUP BY "users"."age" HAVING "users"."age\" ORDER "users"."age" DESC"""
 
     def can_compile_having_raw(self):
         """

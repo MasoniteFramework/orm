@@ -11,7 +11,6 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
     maxDiff = None
 
     def setUp(self):
-
         self.schema = Schema(
             connection_class=PostgresConnection,
             connection="postgres",

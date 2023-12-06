@@ -1,4 +1,3 @@
-from distutils.command.build import build
 from ..collection import Collection
 
 
@@ -153,7 +152,7 @@ class BaseRelationship:
         if isinstance(relation, Collection):
             return builder.where_in(
                 f"{builder.get_table_name()}.{self.foreign_key}",
-                relation.pluck(self.local_key, keep_nulls=False).unique(),
+                Collection(relation._get_value(self.local_key)).unique(),
             ).get()
         else:
             return builder.where(

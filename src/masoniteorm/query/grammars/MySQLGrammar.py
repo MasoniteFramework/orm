@@ -10,7 +10,6 @@ class MySQLGrammar(BaseGrammar):
         "MIN": "MIN",
         "AVG": "AVG",
         "COUNT": "COUNT",
-        "AVG": "AVG",
     }
 
     join_keywords = {
@@ -50,7 +49,7 @@ class MySQLGrammar(BaseGrammar):
     locks = {"share": "LOCK IN SHARE MODE", "update": "FOR UPDATE"}
 
     def select_format(self):
-        return "SELECT {keyword} {columns} FROM {table} {joins} {wheres} {group_by} {order_by} {limit} {offset} {having} {lock}"
+        return "SELECT {keyword} {columns} FROM {table} {joins} {wheres} {group_by} {having} {order_by} {limit} {offset} {lock}"
 
     def select_no_table(self):
         return "SELECT {columns} {lock}"
@@ -140,10 +139,10 @@ class MySQLGrammar(BaseGrammar):
         return "{column} = {value}{separator}"
 
     def increment_string(self):
-        return "{column} = {column} + '{value}'"
+        return "{column} = {column} + '{value}'{separator}"
 
     def decrement_string(self):
-        return "{column} = {column} - '{value}'"
+        return "{column} = {column} - '{value}'{separator}"
 
     def create_column_string(self):
         return "{column} {data_type}{length}{nullable}{default_value}, "

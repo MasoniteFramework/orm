@@ -6,6 +6,7 @@ sys.path.append(os.getcwd())
 from .MigrateCommand import MigrateCommand
 from .MigrateRollbackCommand import MigrateRollbackCommand
 from .MigrateRefreshCommand import MigrateRefreshCommand
+from .MigrateFreshCommand import MigrateFreshCommand
 from .MigrateResetCommand import MigrateResetCommand
 from .MakeModelCommand import MakeModelCommand
 from .MakeModelDocstringCommand import MakeModelDocstringCommand

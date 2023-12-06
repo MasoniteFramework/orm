@@ -9,7 +9,6 @@ from tests.utils import MockConnectionFactory
 
 
 class MockConnection:
-
     connection_details = {}
 
     def make_connection(self):
@@ -462,7 +461,6 @@ class BaseTestQueryBuilder:
 
 
 class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
-
     grammar = PostgresGrammar
 
     def sum(self):
@@ -772,3 +770,31 @@ class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.truncate()
         """
         return """SELECT * FROM "users" WHERE "users"."votes" >= '100' FOR SHARE"""
+
+    def test_latest(self):
+        builder = self.get_builder()
+        builder.latest("email")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_oldest(self):
+        builder = self.get_builder()
+        builder.oldest("email")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def oldest(self):
+        """
+        builder.order_by('email', 'asc')
+        """
+        return """SELECT * FROM "users" ORDER BY "email" ASC"""
+
+    def latest(self):
+        """
+        builder.order_by('email', 'des')
+        """
+        return """SELECT * FROM "users" ORDER BY "email" DESC"""

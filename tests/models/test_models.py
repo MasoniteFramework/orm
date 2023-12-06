@@ -1,8 +1,10 @@
+import datetime
 import json
 import unittest
-from src.masoniteorm.models import Model
+
 import pendulum
-import datetime
+
+from src.masoniteorm.models import Model
 
 
 class ModelTest(Model):
@@ -14,6 +16,33 @@ class ModelTest(Model):
         "f": "float",
         "d": "decimal",
     }
+
+
+class FillableModelTest(Model):
+    __fillable__ = [
+        "due_date",
+        "is_vip",
+    ]
+
+
+class InvalidFillableGuardedModelTest(Model):
+    __fillable__ = [
+        "due_date",
+    ]
+    __guarded__ = [
+        "is_vip",
+        "payload",
+    ]
+
+
+class InvalidFillableGuardedChildModelTest(ModelTest):
+    __fillable__ = [
+        "due_date",
+    ]
+    __guarded__ = [
+        "is_vip",
+        "payload",
+    ]
 
 
 class ModelTestForced(Model):
@@ -30,7 +59,6 @@ class TestModels(unittest.TestCase):
         self.assertIsInstance(model.due_date, pendulum.now().__class__)
 
     def test_model_can_access_str_dates_as_pendulum_from_correct_datetimes(self):
-
         model = ModelTest()
 
         self.assertEqual(
@@ -97,8 +125,7 @@ class TestModels(unittest.TestCase):
             }
         )
 
-        self.assertEqual(type(model.payload), str)
-        self.assertEqual(type(json.loads(model.payload)), list)
+        self.assertEqual(type(model.payload), list)
         self.assertEqual(type(model.x), int)
         self.assertEqual(type(model.f), float)
         self.assertEqual(type(model.is_vip), bool)
@@ -112,12 +139,44 @@ class TestModels(unittest.TestCase):
             {"is_vip": 1, "payload": dictcasttest, "x": True, "f": "10.5"}
         )
 
-        self.assertEqual(type(model.payload), str)
-        self.assertEqual(type(json.loads(model.payload)), dict)
+        self.assertEqual(type(model.payload), dict)
         self.assertEqual(type(model.x), int)
         self.assertEqual(type(model.f), float)
         self.assertEqual(type(model.is_vip), bool)
         self.assertEqual(type(model.serialize()["is_vip"]), bool)
+
+    def test_valid_json_cast(self):
+        model = ModelTest.hydrate(
+            {
+                "payload": {"this": "dict", "is": "usable", "as": "json"},
+            }
+        )
+
+        self.assertEqual(type(model.payload), dict)
+
+        model = ModelTest.hydrate(
+            {"payload": {"this": "dict", "is": "invalid", "as": "json"}}
+        )
+
+        self.assertEqual(type(model.payload), dict)
+
+        model = ModelTest.hydrate(
+            {"payload": '{"this": "dict", "is": "usable", "as": "json"}'}
+        )
+
+        self.assertEqual(type(model.payload), dict)
+
+        model = ModelTest.hydrate({"payload": '{"valid": "json", "int": 1}'})
+
+        self.assertEqual(type(model.payload), dict)
+
+        model = ModelTest.hydrate({"payload": "{'this': 'should', 'throw': 'error'}"})
+
+        self.assertEqual(model.payload, None)
+
+        with self.assertRaises(ValueError):
+            model.payload = "{'this': 'should', 'throw': 'error'}"
+            model.save()
 
     def test_model_update_without_changes(self):
         model = ModelTest.hydrate(
@@ -178,3 +237,26 @@ class TestModels(unittest.TestCase):
             sql,
             """SELECT * FROM `model_tests` WHERE `model_tests`.`name` = 'joe' OR (`model_tests`.`username` = 'Joseph' OR `model_tests`.`age` >= '18'))""",
         )
+
+    def test_both_fillable_and_guarded_attributes_raise(self):
+        # Both fillable and guarded props are populated on this class
+        with self.assertRaises(AttributeError):
+            InvalidFillableGuardedModelTest()
+        # Child that inherits from an intermediary class also fails
+        with self.assertRaises(AttributeError):
+            InvalidFillableGuardedChildModelTest()
+        # Still shouldn't be allowed to define even if empty
+        InvalidFillableGuardedModelTest.__fillable__ = []
+        with self.assertRaises(AttributeError):
+            InvalidFillableGuardedModelTest()
+        # Or wildcard
+        InvalidFillableGuardedModelTest.__fillable__ = ["*"]
+        with self.assertRaises(AttributeError):
+            InvalidFillableGuardedModelTest()
+        # Empty guarded attr still raises
+        InvalidFillableGuardedModelTest.__guarded__ = []
+        with self.assertRaises(AttributeError):
+            InvalidFillableGuardedModelTest()
+        # Removing one of the props allows us to instantiate
+        delattr(InvalidFillableGuardedModelTest, "__guarded__")
+        InvalidFillableGuardedModelTest()
