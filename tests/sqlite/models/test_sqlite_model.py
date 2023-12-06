@@ -83,6 +83,23 @@ class BaseTestQueryRelationships(unittest.TestCase):
             sql, """SELECT * FROM "users" WHERE "users"."id" IN ('1','2','3')"""
         )
 
+    def test_find_or_if_record_not_found(self):
+        # Insane record number so record cannot be found
+        record_id = 1_000_000_000_000_000
+
+        result = User.find_or(record_id, lambda: "Record not found.")
+        self.assertEqual(
+            result, "Record not found."
+        )
+
+    def test_find_or_if_record_found(self):
+        record_id = 1
+        result_id = User.find_or(record_id, lambda: "Record not found.").id
+
+        self.assertEqual(
+            result_id, record_id
+        )
+
     def test_can_set_and_retreive_attribute(self):
         user = User.hydrate({"id": 1, "name": "joe", "customer_id": 1})
         user.customer_id = "CUST1"
