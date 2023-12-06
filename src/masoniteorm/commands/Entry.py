@@ -10,6 +10,7 @@ from . import (
     MigrateCommand,
     MigrateRollbackCommand,
     MigrateRefreshCommand,
+    MigrateFreshCommand,
     MakeMigrationCommand,
     MakeModelCommand,
     MakeModelDocstringCommand,
@@ -26,6 +27,7 @@ application = Application("ORM Version:", 0.1)
 application.add(MigrateCommand())
 application.add(MigrateRollbackCommand())
 application.add(MigrateRefreshCommand())
+application.add(MigrateFreshCommand())
 application.add(MakeMigrationCommand())
 application.add(MakeModelCommand())
 application.add(MakeModelDocstringCommand())

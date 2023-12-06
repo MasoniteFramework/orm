@@ -293,6 +293,25 @@ class Schema:
             "schema"
         )
 
+    def get_all_tables(self):
+        """Gets all tables in the database"""
+        sql = self.platform().compile_get_all_tables(
+            database=self.get_connection_information().get("database"),
+            schema=self.get_schema(),
+        )
+
+        if self._dry:
+            self._sql = sql
+            return sql
+
+        result = self.new_connection().query(sql, ())
+
+        return (
+            list(map(lambda t: list(t.values())[0], result))
+            if result
+            else []
+        )
+
     def has_table(self, table, query_only=False):
         """Checks if the a database has a specific table
         Arguments:

@@ -403,6 +403,9 @@ class MySQLPlatform(Platform):
     def compile_column_exists(self, table, column):
         return f"SELECT column_name FROM information_schema.columns WHERE table_name='{table}' and column_name='{column}'"
 
+    def compile_get_all_tables(self, database, schema=None):
+        return f"SELECT table_name FROM information_schema.tables WHERE table_schema = '{database}'"
+
     def get_current_schema(self, connection, table_name, schema=None):
         table = Table(table_name)
         sql = f"DESCRIBE {table_name}"

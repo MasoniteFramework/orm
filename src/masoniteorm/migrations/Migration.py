@@ -288,3 +288,30 @@ class Migration:
     def refresh(self, migration="all"):
         self.reset(migration)
         self.migrate(migration)
+
+    def drop_all_tables(self, ignore_fk=False):
+        if self.command_class:
+            self.command_class.line("<comment>Dropping all tables</comment>")
+
+        if ignore_fk:
+            self.schema.disable_foreign_key_constraints()
+
+        for table in self.schema.get_all_tables():
+            self.schema.drop(table)
+
+        if ignore_fk:
+            self.schema.enable_foreign_key_constraints()
+
+        if self.command_class:
+            self.command_class.line("<info>All tables dropped</info>")
+
+    def fresh(self, ignore_fk=False, migration="all"):
+        self.drop_all_tables(ignore_fk=ignore_fk)
+        self.create_table_if_not_exists()
+
+        if not self.get_unran_migrations():
+            if self.command_class:
+                self.command_class.line("<comment>Nothing to migrate</comment>")
+            return
+
+        self.migrate(migration)
