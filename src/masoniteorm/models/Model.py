@@ -710,19 +710,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         total.update(updates)
         total.update(wheres)
         if not record:
-            # if we don't return fresh, we don't get the primary_key that has been used,
-            # and we can't call it from outside the function lest we get a QueryBuilder.
-            #
-            # Without this we are reduced to performing a DIY update_or_create, e.g.:
-            #     ebay_order = EbayOrder.where({'order_id': d['order_id']}).first()
-            #     if not ebay_order:
-            #         ebay_order = EbayOrder.create(d).fresh()
-            #     else:
-            #         ebay_order.save()
             return self.create(total, id_key=cls.get_primary_key()).fresh()
 
-        rv = self.where(wheres).update(total)
-        return self.where(wheres).first()
+        return self.where(wheres).update(total)
 
     def relations_to_dict(self):
         """Converts a models relationships to a dictionary
