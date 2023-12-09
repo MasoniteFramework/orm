@@ -810,6 +810,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return None
 
+    def only(self, attributes: list[str]):
+        results: dict[str, Any] = {}
+        for attribute in attributes:
+            results[attribute] = self.get_raw_attribute(attribute)
+        return results
+
     def __setattr__(self, attribute, value):
         if hasattr(self, "set_" + attribute + "_attribute"):
             method = getattr(self, "set_" + attribute + "_attribute")
