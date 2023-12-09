@@ -12,7 +12,7 @@ from inflection import tableize, underscore
 
 from ..collection import Collection
 from ..config import load_config
-from ..exceptions import ModelNotFound
+from ..exceptions import ModelNotFound, QueryException
 from ..observers import ObservesEvents
 from ..query import QueryBuilder
 from ..scopes import TimeStampsMixin
@@ -684,9 +684,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         return json.dumps(self.serialize(), default=str)
 
-    @classmethod
+classmethod
     def first_or_create(cls, wheres, creates: dict = None):
-        """Get the first record matching the attributes or create it.
+        """Attempts to find the first record matching the attributes or create it.
 
         Returns:
             Model
@@ -695,12 +695,31 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             creates = {}
         self = cls()
         record = self.where(wheres).first()
+        if not record:
+            return self.create_or_first(wheres, creates)
+        return record
+
+    @classmethod
+    def create_or_first(cls, wheres, creates: dict = None):
+        """First attempts to create a record. If the record already exists then find the first record matching the
+        where clause.
+
+        Returns:
+            Model
+        """
+        if creates is None:
+            creates = {}
+        self = cls()
         total = {}
         total.update(creates)
         total.update(wheres)
-        if not record:
+
+        try:
             return self.create(total, id_key=cls.get_primary_key())
-        return record
+        except QueryException as e:
+            if "UNIQUE constraint failed" not in e.__str__():
+                raise e
+            return self.where(wheres).first()
 
     @classmethod
     def update_or_create(cls, wheres, updates):
