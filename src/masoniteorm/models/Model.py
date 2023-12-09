@@ -5,7 +5,7 @@ from datetime import date as datetimedate
 from datetime import datetime
 from datetime import time as datetimetime
 from decimal import Decimal
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 import pendulum
 from inflection import tableize, underscore
@@ -810,7 +810,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return None
 
-    def only(self, attributes: List[str]) -> dict:
+    def only(self, attributes) -> dict:
         results: dict[str, Any] = {}
         for attribute in attributes:
             if " as " in attribute:
