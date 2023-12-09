@@ -684,7 +684,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         return json.dumps(self.serialize(), default=str)
 
-classmethod
+    @classmethod
     def first_or_create(cls, wheres, creates: dict = None):
         """Attempts to find the first record matching the attributes or create it.
 
