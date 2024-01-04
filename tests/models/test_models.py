@@ -186,6 +186,15 @@ class TestModels(unittest.TestCase):
         self.assertIn("username", sql)
         self.assertIn("name", sql)
 
+    def test_only_method(self):
+        model = ModelTestForced.hydrate(
+            {"id": 1, "username": "joe", "name": "Joe", "admin": True}
+        )
+
+        
+        self.assertEquals({"username": "joe"}, model.only("username"))
+        self.assertEquals({"username": "joe"}, model.only(["username"]))
+
     def test_model_update_without_changes_at_all(self):
         model = ModelTest.hydrate(
             {"id": 1, "username": "joe", "name": "Joe", "admin": True}
