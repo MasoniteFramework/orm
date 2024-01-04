@@ -1441,10 +1441,16 @@ class QueryBuilder(ObservesEvents):
             date_fields = model.get_dates()
             for key, value in updates.items():
                 if key in date_fields:
-                    updates[key] = model.get_new_datetime_string(value)
+                    if value:
+                        updates[key] = model.get_new_datetime_string(value)
+                    else:
+                        updates[key] = value
                 # Cast value if necessary
                 if cast:
-                    updates[key] = model.cast_value(value)
+                    if value:
+                        updates[key] = model.cast_value(value)
+                    else:
+                        updates[key] = value
         elif not updates:
             # Do not perform query if there are no updates
             return self
