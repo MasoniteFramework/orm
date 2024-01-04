@@ -75,7 +75,7 @@ class BaseTestCaseUpdateGrammar:
         to_sql = self.builder.update({"name": None}, dry=True).to_sql()
         print(to_sql)
 
-        sql = ""
+        sql = """UPDATE "users" SET "name" = \'None\'"""
 
         self.assertEqual(to_sql, sql)
 
