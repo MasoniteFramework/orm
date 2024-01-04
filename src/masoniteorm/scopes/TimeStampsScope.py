@@ -34,7 +34,13 @@ class TimeStampsScope(BaseScope):
     def set_timestamp_update(self, builder):
         if not builder._model.__timestamps__:
             return builder
-
+        
+        print(builder._updates[0])
+        for update in builder._updates:
+            if builder._model.date_updated_at in update.column:
+                print("not updating this is right")
+                return
+        print("still updating. this is wrong")
         builder._updates += (
             UpdateQueryExpression(
                 {

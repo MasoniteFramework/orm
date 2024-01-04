@@ -1441,13 +1441,21 @@ class QueryBuilder(ObservesEvents):
             date_fields = model.get_dates()
             for key, value in updates.items():
                 if key in date_fields:
-                    updates[key] = model.get_new_datetime_string(value)
+                    if value:
+                        updates[key] = model.get_new_datetime_string(value)
+                    else:
+                        updates[key] = value
                 # Cast value if necessary
                 if cast:
-                    updates[key] = model.cast_value(value)
+                    if value:
+                        updates[key] = model.cast_value(value)
+                    else:
+                        updates[key] = value
         elif not updates:
             # Do not perform query if there are no updates
             return self
+    
+        print('ooo', updates)
 
         self._updates = (UpdateQueryExpression(updates),)
         self.set_action("update")
@@ -2110,6 +2118,8 @@ class QueryBuilder(ObservesEvents):
         grammar = self.get_grammar()
 
         sql = grammar.compile(self._action, qmark=True).to_sql()
+
+
 
         self._bindings = grammar._bindings
 
