@@ -810,7 +810,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return None
 
-    def only(self, attributes) -> dict:
+    def only(self, attributes: list) -> dict:
+        if isinstance(attributes, str):
+            attributes = [attributes]
         results: dict[str, Any] = {}
         for attribute in attributes:
             if " as " in attribute:
