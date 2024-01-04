@@ -1454,8 +1454,6 @@ class QueryBuilder(ObservesEvents):
         elif not updates:
             # Do not perform query if there are no updates
             return self
-    
-        print('ooo', updates)
 
         self._updates = (UpdateQueryExpression(updates),)
         self.set_action("update")

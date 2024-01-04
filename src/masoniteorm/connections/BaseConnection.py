@@ -39,7 +39,6 @@ class BaseConnection:
             raise AttributeError(
                 f"Must set the _cursor attribute on the {self.__class__.__name__} class before calling the 'statement' method."
             )
-        print('qq', query, bindings)
         self._cursor.execute(query, bindings)
         end = "{:.2f}".format(timer() - start)
 
