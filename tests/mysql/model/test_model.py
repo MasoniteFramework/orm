@@ -316,7 +316,7 @@ class TestModel(unittest.TestCase):
         self.assertFalse(hasattr(Profile(), "__password__"))
 
 
-if os.getenv("RUN_MYSQL_DATABASE", None).lower() == "true":
+if os.getenv("RUN_MYSQL_DATABASE", "false").lower() == "true":
 
     class MysqlTestModel(unittest.TestCase):
         # TODO: these tests aren't getting run in CI... is that intentional?

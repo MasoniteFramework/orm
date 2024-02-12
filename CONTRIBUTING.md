@@ -12,7 +12,7 @@ If you are interested in the project then it would be a great idea to read the "
 
 ## Issues
 
-Everything really should start with opening an issue or finding an issue. If you feel you have an idea for how the project can be improved, no matter how small, you should open an issue so we can have an open dicussion with the maintainers of the project.
+Everything really should start with opening an issue or finding an issue. If you feel you have an idea for how the project can be improved, no matter how small, you should open an issue so we can have an open discussion with the maintainers of the project.
 
 We can discuss in that issue the solution to the problem or feature you have. If we do not feel it fits within the project then we will close the issue. Feel free to open a new issue if new information comes up.
 
