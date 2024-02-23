@@ -124,6 +124,9 @@ class MySQLConnection(BaseConnection):
         """Transaction"""
         self._connection.rollback()
         self.transaction_level -= 1
+        if self.get_transaction_level() <= 0:
+            self.open = 0
+            self._connection.close()
 
     def get_transaction_level(self):
         """Transaction"""
