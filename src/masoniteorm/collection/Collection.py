@@ -109,6 +109,26 @@ class Collection:
         except (TypeError, ValueError):
             pass
         return result
+    
+    def min(self, key=None):
+        """Returns the min of the items.
+
+        If a key is given it will return the min of all the values of the key.
+
+        Keyword Arguments:
+            key {string} -- The key to use to find the min of all the values of that key. (default: {None})
+
+        Returns:
+            int -- Returns the min.
+        """
+        result = 0
+        items = self._get_value(key) or self._items
+
+        try:
+            return min(items)
+        except (TypeError, ValueError):
+            pass
+        return result
 
     def chunk(self, size: int):
         """Chunks the items.
