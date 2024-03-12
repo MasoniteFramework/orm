@@ -191,7 +191,6 @@ class TestModels(unittest.TestCase):
             {"id": 1, "username": "joe", "name": "Joe", "admin": True}
         )
 
-        
         self.assertEquals({"username": "joe"}, model.only("username"))
         self.assertEquals({"username": "joe"}, model.only(["username"]))
 

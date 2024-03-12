@@ -109,7 +109,7 @@ class Collection:
         except (TypeError, ValueError):
             pass
         return result
-    
+
     def min(self, key=None):
         """Returns the min of the items.
 
