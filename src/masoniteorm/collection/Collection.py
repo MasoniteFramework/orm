@@ -91,15 +91,15 @@ class Collection:
         return result
 
     def max(self, key=None):
-        """Returns the average of the items.
+        """Returns the max of the items.
 
-        If a key is given it will return the average of all the values of the key.
+        If a key is given it will return the max of all the values of the key.
 
         Keyword Arguments:
-            key {string} -- The key to use to find the average of all the values of that key. (default: {None})
+            key {string} -- The key to use to find the max of all the values of that key. (default: {None})
 
         Returns:
-            int -- Returns the average.
+            int -- Returns the max.
         """
         result = 0
         items = self._get_value(key) or self._items
