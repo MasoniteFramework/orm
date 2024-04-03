@@ -40,6 +40,8 @@ class Collection:
         if callback:
             filtered = self.filter(callback)
         response = None
+
+        # print(filtered._items)
         if filtered:
             response = filtered[0]
         return response
@@ -343,7 +345,7 @@ class Collection:
 
     def add_relation(self, result=None):
         for model in self._items:
-            model.add_relations(result or {})
+            model.add_relation(result or {})
 
         return self
 
@@ -532,8 +534,13 @@ class Collection:
     def __getitem__(self, item):
         if isinstance(item, slice):
             return self.__class__(self._items[item])
+        if isinstance(item, dict):
+            return self._items.get(item, None)
 
-        return self._items[item]
+        try:
+            return self._items[item]
+        except KeyError:
+            return None
 
     def __setitem__(self, key, value):
         self._items[key] = value
