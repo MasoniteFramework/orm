@@ -5,7 +5,7 @@ from datetime import date as datetimedate
 from datetime import datetime
 from datetime import time as datetimetime
 from decimal import Decimal
-from typing import Any, Dict, Set
+from typing import Any, Dict, Set, Self
 
 import pendulum
 from inflection import tableize, underscore
@@ -1110,7 +1110,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         self.with_events()
         return saved
 
-    def delete_quietly(self) -> Self | QueryBulder:
+    def delete_quietly(self) -> Self | QueryBuilder:
         """This method calls the delete method on a model without firing the delete & deleting observer events.
         Instead of calling:
 
