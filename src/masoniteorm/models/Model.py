@@ -5,7 +5,7 @@ from datetime import date as datetimedate
 from datetime import datetime
 from datetime import time as datetimetime
 from decimal import Decimal
-from typing import Any, Dict
+from typing import Any, Dict, Set
 
 import pendulum
 from inflection import tableize, underscore
@@ -167,7 +167,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     """Pass through will pass any method calls to the model directly through to the query builder.
     Anytime one of these methods are called on the model it will actually be called on the query builder class.
     """
-    __passthrough__ = set(
+    __passthrough__: Set[str] = set(
         (
             "add_select",
             "aggregate",
@@ -272,7 +272,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
     __cast_map__ = {}
 
-    __internal_cast_map__ = {
+    __internal_cast_map__: list[str, Any] = {
         "bool": BoolCast,
         "json": JsonCast,
         "int": IntCast,
@@ -293,7 +293,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         self.boot()
 
     @classmethod
-    def get_primary_key(self):
+    def get_primary_key(self) -> str:
         """Gets the primary key column
 
         Returns:
@@ -301,7 +301,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         return self.__primary_key__
 
-    def get_primary_key_type(self):
+    def get_primary_key_type(self) -> str:
         """Gets the primary key column type
 
         Returns:
@@ -309,7 +309,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         return self.__primary_key_type__
 
-    def get_primary_key_value(self):
+    def get_primary_key_value(self) -> Any:
         """Gets the primary key value.
 
         Raises:
@@ -327,7 +327,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 f"class '{name}' has no attribute {self.get_primary_key()}. Did you set the primary key correctly on the model using the __primary_key__ attribute?"
             )
 
-    def get_foreign_key(self):
+    def get_foreign_key(self) -> str:
         """Gets the foreign key based on this model name.
 
         Args:
@@ -338,10 +338,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         return underscore(self.__class__.__name__ + "_" + self.get_primary_key())
 
-    def query(self):
+    def query(self) -> QueryBuilder:
         return self.get_builder()
 
-    def get_builder(self):
+    def get_builder(self) -> QueryBuilder:
         if hasattr(self, "builder"):
             return self.builder
 
@@ -357,14 +357,14 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return self.builder.select(*self.__selects__)
 
     @classmethod
-    def get_columns(cls):
+    def get_columns(cls) -> list[str]:
         return list(cls.first().__attributes__.keys())
 
-    def get_connection_details(self):
+    def get_connection_details(self) -> dict[str, Any]:
         DB = load_config().DB
         return DB.get_connection_details()
 
-    def boot(self):
+    def boot(self) -> None:
         if not self._booted:
             self.observe_events(self, "booting")
             for base_class in inspect.getmro(self.__class__):
@@ -392,7 +392,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return self
 
     @classmethod
-    def get_table_name(cls):
+    def get_table_name(cls) -> str:
         """Gets the table name.
 
         Returns:
@@ -401,7 +401,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return cls.__table__ or tableize(cls.__name__)
 
     @classmethod
-    def table(cls, table):
+    def table(cls, table) -> str:
         """Gets the table name.
 
         Returns:
@@ -450,10 +450,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return result
 
-    def is_loaded(self):
+    def is_loaded(self) -> bool:
         return bool(self.__attributes__)
 
-    def is_created(self):
+    def is_created(self) -> bool:
         return self.get_primary_key() in self.__attributes__
 
     def add_relation(self, relations):
@@ -528,7 +528,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return self
 
     @classmethod
-    def new_collection(cls, data):
+    def new_collection(cls, data) -> Collection:
         """Takes a result and puts it into a new collection.
         This is designed to be able to be overidden by the user.
 
@@ -547,7 +547,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         query: bool = False,
         cast: bool = False,
         **kwargs,
-    ):
+    ) -> QueryBuilder | Self | Any:
         """Creates new records based off of a dictionary as well as data set on the model
         such as fillable values.
 
@@ -594,14 +594,14 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         return {x: cls.cast_value(x, dictionary[x]) for x in dictionary}
 
-    def fresh(self):
+    def fresh(self) -> QueryBuilder | Self | Collection | None:
         return (
             self.get_builder()
             .where(self.get_primary_key(), self.get_primary_key_value())
             .first()
         )
 
-    def serialize(self, exclude=None, include=None):
+    def serialize(self, exclude=None, include=None) -> dict[str, Any]:
         """Takes the data as a model and converts it into a dictionary.
 
         Returns:
@@ -676,7 +676,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return serialized_dictionary
 
-    def to_json(self):
+    def to_json(self) -> str:
         """Converts a model to JSON
 
         Returns:
@@ -685,7 +685,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return json.dumps(self.serialize(), default=str)
 
     @classmethod
-    def first_or_create(cls, wheres, creates: dict = None):
+    def first_or_create(cls, wheres, creates: dict = None) -> Self | QueryBuilder:
         """Get the first record matching the attributes or create it.
 
         Returns:
@@ -703,7 +703,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return record
 
     @classmethod
-    def update_or_create(cls, wheres, updates):
+    def update_or_create(cls, wheres, updates) -> Self | QueryBuilder | None | dict:
         self = cls()
         record = self.where(wheres).first()
         total = {}
@@ -714,7 +714,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return self.where(wheres).update(total)
 
-    def relations_to_dict(self):
+    def relations_to_dict(self) -> dict[str, Any]:
         """Converts a models relationships to a dictionary
 
         Returns:
@@ -739,7 +739,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return new_dic
 
-    def touch(self, date=None, query=True):
+    def touch(self, date=None, query=True) -> Self | QueryBuilder:
         """Updates the current timestamps on the model"""
 
         if not self.__timestamps__:
@@ -749,7 +749,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return self.save(query=query)
 
-    def _update_timestamps(self, date=None):
+    def _update_timestamps(self, date=None) -> None:
         """Sets the updated at date to the current time or a specified date
 
         Args:
@@ -757,7 +757,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         self.updated_at = date or self._current_timestamp()
 
-    def _current_timestamp(self):
+    def _current_timestamp(self) -> datetime:
         return datetime.now()
 
     def __getattr__(self, attribute):
@@ -857,7 +857,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         """
         return self.__attributes__.get(attribute)
 
-    def is_dirty(self):
+    def is_dirty(self) -> bool:
         return bool(self.__dirty_attributes__)
 
     def get_original(self, key):
@@ -869,7 +869,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     def get_dirty_keys(self):
         return list(self.get_dirty_attributes().keys())
 
-    def save(self, query=False):
+    def save(self, query=False) -> Self | QueryBuilder:
         builder = self.get_builder()
 
         if "builder" in self.__dirty_attributes__:
@@ -973,7 +973,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     def __getitem__(self, attribute):
         return getattr(self, attribute)
 
-    def get_dates(self):
+    def get_dates(self) -> list:
         """
         Get the attributes that should be converted to dates.
 
@@ -1009,7 +1009,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return pendulum.instance(_datetime, tz=self.__timezone__)
 
-    def get_new_datetime_string(self, _datetime=None):
+    def get_new_datetime_string(self, _datetime=None) -> str:
         """
         Given an optional datetime value, constructs and returns a new datetime string.
         If no datetime is specified, returns the current time.
@@ -1093,7 +1093,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return related.detach(self, related_record)
 
-    def save_quietly(self):
+    def save_quietly(self) -> Self | QueryBuilder:
         """This method calls the save method on a model without firing the saved & saving observer events. Saved/Saving
         are toggled back on once save_quietly has been ran.
 
@@ -1110,7 +1110,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         self.with_events()
         return saved
 
-    def delete_quietly(self):
+    def delete_quietly(self) -> Self | QueryBulder:
         """This method calls the delete method on a model without firing the delete & deleting observer events.
         Instead of calling:
 
