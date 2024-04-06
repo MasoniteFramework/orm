@@ -1966,7 +1966,7 @@ class QueryBuilder(ObservesEvents):
         if related.__class__.__name__ == 'MorphTo':
             return related_result
 
-        return related_result.group_by(related.get_foreign_key())
+        return related_result.group_by(related.foreign_key)
 
     def all(self, selects=[], query=False):
         """Returns all records from the table.
