@@ -28,5 +28,5 @@ class HasMany(BaseRelationship):
 
     def register_related(self, key, model, collection):
         model.add_relation(
-            {key: collection.where(self.foreign_key, getattr(model, self.local_key))}
+            {key: collection.get(getattr(model, self.local_key)) or Collection()}
         )
