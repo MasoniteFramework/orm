@@ -96,5 +96,4 @@ class BaseTestQueryRelationships(unittest.TestCase):
         builder = self.get_builder()
         result = User.with_("articles", "articles.logo").where("id", 1).first()
         self.assertTrue(result.serialize()["articles"])
-        print("pppppp", result.serialize()["articles"][0])
         self.assertTrue(result.serialize()["articles"][0]["logo"])
