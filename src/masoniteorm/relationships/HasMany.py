@@ -27,7 +27,6 @@ class HasMany(BaseRelationship):
         return self
 
     def register_related(self, key, model, collection):
-        print("zzzzzz", getattr(model, self.local_key), collection._items)
         model.add_relation(
-            {key: collection.get(getattr(model, self.local_key))}
+            {key: collection.get(getattr(model, self.local_key)) or Collection()}
         )

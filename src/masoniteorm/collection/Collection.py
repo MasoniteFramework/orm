@@ -41,7 +41,6 @@ class Collection:
             filtered = self.filter(callback)
         response = None
 
-        # print(filtered._items)
         if filtered:
             response = filtered[0]
         return response

@@ -63,7 +63,6 @@ class BelongsTo(BaseRelationship):
             ).first()
 
     def register_related(self, key, model, collection):
-        print('ooooo', collection._items, "tttt", model.serialize(), model, getattr(model, self.local_key))
         related = collection.get(getattr(model, self.local_key), None)
 
         model.add_relation({key: related[0] if related else None})

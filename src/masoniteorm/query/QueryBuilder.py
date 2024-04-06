@@ -1952,17 +1952,21 @@ class QueryBuilder(ObservesEvents):
             self
         """
         if related_result and isinstance(hydrated_model, Collection):
-            map_related = related_result.group_by(related.foreign_key)
+            map_related = self._map_related(related_result, related)
             for model in hydrated_model:
                 if isinstance(related_result, Collection):
-                    print("aa", related)
                     related.register_related(relation_key, model, map_related)
                 else:
                     model.add_relation({relation_key: related_result or None})
         else:
-            print("heeee", related_result)
             hydrated_model.add_relation({relation_key: related_result or None})
         return self
+
+    def _map_related(self, related_result, related):
+        if related.__class__.__name__ == 'MorphTo':
+            return related_result
+
+        return related_result.group_by(related.get_foreign_key())
 
     def all(self, selects=[], query=False):
         """Returns all records from the table.
