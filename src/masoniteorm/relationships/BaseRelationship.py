@@ -52,7 +52,7 @@ class BaseRelationship:
             object -- Either returns a builder or a hydrated model.
         """
         attribute = self.fn.__name__
-        relationship = self.fn(self)()
+        relationship = self.fn(instance)()
         self.set_keys(instance, attribute)
         self._related_builder = relationship.builder
 
