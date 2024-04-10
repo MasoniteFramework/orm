@@ -461,3 +461,13 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
 
     def select_distinct(self):
         return """SELECT DISTINCT "users"."group" FROM "users\""""
+
+    def test_can_compile_json_where(self):
+        to_sql = self.builder.where("options->age", 18).to_sql()
+        self.assertEqual(to_sql, "SELECT * FROM \"users\" WHERE \"users\".`options`->'$.age' = '18'")
+
+        to_sql = self.builder.where("options->age", 18).to_sql()
+
+    def test_can_compile_json_select(self):
+        to_sql = self.builder.select("options->age", 'options').to_sql()
+        self.assertEqual(to_sql, "SELECT \"users\".`options`->'$.age', \"users\".`options` FROM \"users\"")
