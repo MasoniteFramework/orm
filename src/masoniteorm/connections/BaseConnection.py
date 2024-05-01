@@ -76,3 +76,13 @@ class BaseConnection:
             yield result
 
             result = self.format_cursor_results(self._cursor.fetchmany(amount))
+
+    def enable_disable_foreign_keys(self):
+        foreign_keys = self.full_details.get("foreign_keys")
+        platform = self.get_default_platform()()
+
+        if foreign_keys:
+            self._connection.execute(platform.enable_foreign_key_constraints())
+        elif foreign_keys is not None:
+            self._connection.execute(platform.disable_foreign_key_constraints())
+

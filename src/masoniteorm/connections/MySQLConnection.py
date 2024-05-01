@@ -78,6 +78,9 @@ class MySQLConnection(BaseConnection):
             db=self.database,
             **self.options
         )
+
+        self.enable_disable_foreign_keys()
+
         self.open = 1
 
         return self

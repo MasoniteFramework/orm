@@ -69,6 +69,8 @@ class PostgresConnection(BaseConnection):
 
         self._connection.autocommit = True
 
+        self.enable_disable_foreign_keys()
+
         self.open = 1
 
         return self
