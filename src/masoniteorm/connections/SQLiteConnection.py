@@ -63,6 +63,9 @@ class SQLiteConnection(BaseConnection):
         self._connection.create_function("REGEXP", 2, regexp)
 
         self._connection.row_factory = sqlite3.Row
+
+        self.enable_disable_foreign_keys()
+
         self.open = 1
 
         return self
