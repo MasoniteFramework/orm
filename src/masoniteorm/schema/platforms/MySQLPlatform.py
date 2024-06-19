@@ -176,11 +176,16 @@ class MySQLPlatform(Platform):
                 else:
                     default = ""
 
+                column_constraint = ""
+                if column.column_type == "enum":
+                    values = ", ".join(f"'{x}'" for x in column.values)
+                    column_constraint = f"({values})"
                 add_columns.append(
                     self.add_column_string()
                     .format(
                         name=self.get_column_string().format(column=column.name),
                         data_type=self.type_map.get(column.column_type, ""),
+                        column_constraint=column_constraint,
                         length=length,
                         constraint="PRIMARY KEY" if column.primary else "",
                         nullable="NULL" if column.is_null else "NOT NULL",
@@ -333,14 +338,14 @@ class MySQLPlatform(Platform):
 
     def add_column_string(self):
         return (
-            "ADD {name} {data_type}{length}{signed} {nullable}{default}{after}{comment}"
+            "ADD {name} {data_type}{length}{column_constraint}{signed} {nullable}{default}{after}{comment}"
         )
 
     def drop_column_string(self):
         return "DROP COLUMN {name}"
 
     def change_column_string(self):
-        return "MODIFY {name}{data_type}{length} {nullable}{default} {constraint}"
+        return "MODIFY {name}{data_type}{length}{column_constraint} {nullable}{default} {constraint}"
 
     def rename_column_string(self):
         return "CHANGE {old} {to}"
