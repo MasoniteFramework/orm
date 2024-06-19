@@ -384,3 +384,15 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
                 "SET FOREIGN_KEY_CHECKS=1",
             ],
         )
+
+    def test_can_add_enum(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.enum("status", ["active", "inactive"]).default("active")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(
+            blueprint.to_sql(),
+            [
+                "CREATE TABLE `users` (`status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active')"
+            ],
+        )
