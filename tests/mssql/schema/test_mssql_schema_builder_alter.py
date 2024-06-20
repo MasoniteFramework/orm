@@ -268,3 +268,15 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
         sql = ["ALTER TABLE [users] ADD [due_date] DATETIME NULL"]
 
         self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_can_add_column_enum(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.enum("status", ["active", "inactive"]).default("active")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+
+        sql = [
+            "ALTER TABLE [users] ADD [status] VARCHAR(255) NOT NULL DEFAULT 'active' CHECK([status] IN ('active', 'inactive'))"
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)

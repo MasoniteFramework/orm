@@ -353,3 +353,15 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
                 "PRAGMA foreign_keys = ON",
             ],
         )
+
+    def test_can_add_enum(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.enum("status", ["active", "inactive"]).default("active")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(
+            blueprint.to_sql(),
+            [
+                'CREATE TABLE "users" ("status" VARCHAR(255) CHECK(status IN (\'active\', \'inactive\')) NOT NULL DEFAULT \'active\')'
+            ],
+        )
