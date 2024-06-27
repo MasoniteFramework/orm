@@ -1955,7 +1955,7 @@ class QueryBuilder(ObservesEvents):
             map_related = self._map_related(related_result, related)
             for model in hydrated_model:
                 if isinstance(related_result, Collection):
-                    related.register_related(relation_key, model, map_related)
+                    related.register_related(relation_key, model, related_result)
                 else:
                     model.add_relation({relation_key: related_result or None})
         else:
