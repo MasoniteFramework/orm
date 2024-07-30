@@ -300,3 +300,27 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
                 "ALTER TABLE [users] WITH CHECK CHECK CONSTRAINT ALL",
             ],
         )
+
+    def test_can_add_enum(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.enum("status", ["active", "inactive"]).default("active")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(
+            blueprint.to_sql(),
+            [
+                "CREATE TABLE [users] ([status] VARCHAR(255) NOT NULL DEFAULT 'active' CHECK([status] IN ('active', 'inactive')))"
+            ],
+        )
+
+    def test_can_change_column_enum(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.enum("status", ["active", "inactive"]).default("active").change()
+
+        self.assertEqual(len(blueprint.table.changed_columns), 1)
+        self.assertEqual(
+            blueprint.to_sql(),
+            [
+                "ALTER TABLE [users] ALTER COLUMN [status] VARCHAR(255) NOT NULL DEFAULT 'active' CHECK([status] IN ('active', 'inactive'))"
+            ],
+        )

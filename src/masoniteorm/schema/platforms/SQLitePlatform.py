@@ -171,15 +171,21 @@ class SQLitePlatform(Platform):
                 else:
                     default = ""
                 constraint = ""
+                column_constraint = ""
                 if column.name in diff.added_foreign_keys:
                     foreign_key = diff.added_foreign_keys[column.name]
                     constraint = f" REFERENCES {self.wrap_table(foreign_key.foreign_table)}({self.wrap_column(foreign_key.foreign_column)})"
+                if column.column_type == "enum":
+                    values = ", ".join(f"'{x}'" for x in column.values)
+                    column_constraint = f" CHECK('{column.name}' IN({values}))"
 
                 sql.append(
-                    "ALTER TABLE {table} ADD COLUMN {name} {data_type}{signed} {nullable}{default}{constraint}".format(
+                    self.add_column_string()
+                    .format(
                         table=self.wrap_table(diff.name),
                         name=self.wrap_column(column.name),
                         data_type=self.type_map.get(column.column_type, ""),
+                        column_constraint=column_constraint,
                         nullable="NULL" if column.is_null else "NOT NULL",
                         default=default,
                         signed=" " + self.signed.get(column._signed)
@@ -290,6 +296,11 @@ class SQLitePlatform(Platform):
 
     def get_column_string(self):
         return '"{column}"'
+
+    def add_column_string(self):
+        return (
+            "ALTER TABLE {table} ADD COLUMN {name} {data_type}{column_constraint}{signed} {nullable}{default}{constraint}"
+        )
 
     def create_column_length(self, column_type):
         if column_type in self.types_without_lengths:

@@ -85,4 +85,3 @@ class BaseConnection:
             self._connection.execute(platform.enable_foreign_key_constraints())
         elif foreign_keys is not None:
             self._connection.execute(platform.disable_foreign_key_constraints())
-

@@ -294,3 +294,27 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
                 "ALTER TABLE `users` ADD FULLTEXT description_fulltext(description)",
             ],
         )
+
+    def test_can_add_column_enum(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.enum("status", ["active", "inactive"]).default("active")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+
+        sql = [
+            "ALTER TABLE `users` ADD `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active'"
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
+
+    def test_can_change_column_enum(self):
+        with self.schema.table("users") as blueprint:
+            blueprint.enum("status", ["active", "inactive"]).default("active").change()
+
+        self.assertEqual(len(blueprint.table.changed_columns), 1)
+
+        sql = [
+            "ALTER TABLE `users` MODIFY `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active'"
+        ]
+
+        self.assertEqual(blueprint.to_sql(), sql)
