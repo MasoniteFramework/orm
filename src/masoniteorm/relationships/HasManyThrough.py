@@ -81,7 +81,7 @@ class HasManyThrough(BaseRelationship):
             f"{self.intermediary_builder.get_table_name()}.{self.foreign_key}",
             "=",
             f"{distant_builder.get_table_name()}.{self.other_owner_key}",
-        ).get()
+        ).where(f"{self.intermediary_builder.get_table_name()}.{self.local_owner_key}", getattr(owner, self.other_owner_key)).get()
 
         return result
 
