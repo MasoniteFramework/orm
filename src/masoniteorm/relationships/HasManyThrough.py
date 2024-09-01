@@ -76,14 +76,14 @@ class HasManyThrough(BaseRelationship):
             dict -- A dictionary of data which will be hydrated.
         """
         # select * from `countries` inner join `ports` on `ports`.`country_id` = `countries`.`country_id` where `ports`.`port_id` is null and `countries`.`deleted_at` is null and `ports`.`deleted_at` is null
-        distant_builder.join(
+        result = distant_builder.join(
             f"{self.intermediary_builder.get_table_name()}",
             f"{self.intermediary_builder.get_table_name()}.{self.foreign_key}",
             "=",
             f"{distant_builder.get_table_name()}.{self.other_owner_key}",
-        )
+        ).get()
 
-        return self
+        return result
 
     def relate(self, related_model):
         return self.distant_builder.join(
