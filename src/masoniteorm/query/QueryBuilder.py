@@ -1959,7 +1959,7 @@ class QueryBuilder(ObservesEvents):
                 else:
                     model.add_relation({relation_key: map_related or None})
         else:
-            hydrated_model.add_relation({relation_key: map_related or None})
+            hydrated_model.add_relation({relation_key: related_result or None})
         return self
 
     def _map_related(self, related_result, related):
