@@ -703,6 +703,23 @@ class BaseGrammar:
 
         return sql
 
+    def _transform_json_column(self, column):
+        """Transforms a json column into the correct syntax.
+
+        Arguments:
+            column {string} -- The column to transform.
+
+        Returns:
+            string
+        """
+        json_split = column.split("->")
+        col_name = json_split[0]
+        json_path = json_split[1]
+
+        if "$." not in json_path:
+            json_path = f"$.{json_path}"
+        return col_name, f"->'{json_path}'"
+
     def get_true_column_string(self):
         return "{keyword} {column} = '1'"
 
@@ -881,12 +898,18 @@ class BaseGrammar:
             self
         """
         table = None
+        json_path = ""
+
+        if column and "->" in column:
+            column, json_path = self._transform_json_column(column)
+
         if column and "." in column:
             table, column = column.split(".")
 
         if column == "*":
             return self.column_strings.get("select_all").format(
                 column=column,
+                json_path=json_path,
                 separator=separator,
                 table=self.process_table(table or self.table),
             )
@@ -895,6 +918,7 @@ class BaseGrammar:
             alias_string = self.subquery_alias_string().format(alias=alias)
         return self.column_strings.get(self._action).format(
             column=column,
+            json_path=json_path,
             separator=separator,
             alias=" " + alias_string if alias else "",
             table=self.process_table(table or self.table),

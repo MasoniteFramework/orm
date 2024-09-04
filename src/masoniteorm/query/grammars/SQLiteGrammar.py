@@ -24,7 +24,7 @@ class SQLiteGrammar(BaseGrammar):
     }
 
     column_strings = {
-        "select": '{table}."{column}"{alias}{separator}',
+        "select": "{table}.`{column}`{json_path}{alias}{separator}",
         "select_all": "{table}.*{separator}",
         "insert": '"{column}"{separator}',
         "update": '"{column}"{separator}',

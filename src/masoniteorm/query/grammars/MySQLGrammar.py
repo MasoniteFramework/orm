@@ -39,7 +39,7 @@ class MySQLGrammar(BaseGrammar):
     """
 
     column_strings = {
-        "select": "{table}.`{column}`{alias}{separator}",
+        "select": "{table}.`{column}`{json_path}{alias}{separator}",
         "select_all": "{table}.*{separator}",
         "insert": "{table}.`{column}`{separator}",
         "update": "{table}.`{column}`{separator}",
