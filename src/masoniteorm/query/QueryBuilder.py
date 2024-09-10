@@ -1710,14 +1710,13 @@ class QueryBuilder(ObservesEvents):
         if not fields:
             fields = []
 
-        if fields:
-            self.select(fields)
+        self.select(fields).limit(1)
 
         if query:
-            return self.limit(1)
+            return self
 
         result = self.new_connection().query(
-            self.limit(1).to_qmark(), self._bindings, results=1
+            self.to_qmark(), self._bindings, results=1
         )
 
         return self.prepare_result(result)
@@ -1778,11 +1777,13 @@ class QueryBuilder(ObservesEvents):
             dictionary -- Returns a dictionary of results.
         """
         _column = column if column else self._model.get_primary_key()
+        self.limit(1).order_by(_column, direction="DESC")
+
         if query:
-            return self.limit(1).order_by(_column, direction="DESC")
+            return self
 
         result = self.new_connection().query(
-            self.limit(1).order_by(_column, direction="DESC").to_qmark(),
+            self.to_qmark(),
             self._bindings,
             results=1,
         )
@@ -1868,7 +1869,7 @@ class QueryBuilder(ObservesEvents):
         """
 
         if query:
-            return self.limit(1)
+            return self.first(query=True)
 
         result = self.first()
 
@@ -1974,9 +1975,11 @@ class QueryBuilder(ObservesEvents):
         Returns:
             dictionary -- Returns a dictionary of results.
         """
+
         self.select(*selects)
+
         if query:
-            return self.to_sql()
+            return self
 
         result = self.new_connection().query(self.to_qmark(), self._bindings) or []
 

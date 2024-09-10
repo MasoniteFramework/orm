@@ -81,7 +81,7 @@ class TestModel(unittest.TestCase):
     def test_create_can_use_fillable(self):
         sql = ProfileFillable.create(
             {"name": "Joe", "email": "user@example.com"}, query=True
-        )
+        ).to_sql()
 
         self.assertEqual(
             sql, "INSERT INTO `profiles` (`profiles`.`name`) VALUES ('Joe')"
@@ -90,7 +90,7 @@ class TestModel(unittest.TestCase):
     def test_create_can_use_fillable_asterisk(self):
         sql = ProfileFillAsterisk.create(
             {"name": "Joe", "email": "user@example.com"}, query=True
-        )
+        ).to_sql()
 
         self.assertEqual(
             sql,
@@ -100,7 +100,7 @@ class TestModel(unittest.TestCase):
     def test_create_can_use_guarded(self):
         sql = ProfileGuarded.create(
             {"name": "Joe", "email": "user@example.com"}, query=True
-        )
+        ).to_sql()
 
         self.assertEqual(
             sql, "INSERT INTO `profiles` (`profiles`.`name`) VALUES ('Joe')"
@@ -109,7 +109,7 @@ class TestModel(unittest.TestCase):
     def test_create_can_use_guarded_asterisk(self):
         sql = ProfileGuardedAsterisk.create(
             {"name": "Joe", "email": "user@example.com"}, query=True
-        )
+        ).to_sql()
 
         # An asterisk guarded attribute excludes all fields from mass-assignment.
         # This would raise a DB error if there are any required fields.
@@ -326,7 +326,7 @@ if os.getenv("RUN_MYSQL_DATABASE", "false").lower() == "true":
         def test_can_touch(self):
             profile = ProfileFillTimeStamped.hydrate({"name": "Joe", "id": 1})
 
-            sql = profile.touch("now", query=True)
+            sql = profile.touch("now", query=True).to_sql()
 
             self.assertEqual(
                 sql,

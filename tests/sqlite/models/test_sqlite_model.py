@@ -72,11 +72,11 @@ class BaseTestQueryRelationships(unittest.TestCase):
         self.assertEqual(sql, """UPDATE "users" SET "name" = 'joe'""")
 
     def test_can_find_list(self):
-        sql = User.find(1, query=True)
+        sql = User.find(1, query=True).to_sql()
 
         self.assertEqual(sql, """SELECT * FROM "users" WHERE "users"."id" = '1'""")
 
-        sql = User.find([1, 2, 3], query=True)
+        sql = User.find([1, 2, 3], query=True).to_sql()
 
         self.assertEqual(
             sql, """SELECT * FROM "users" WHERE "users"."id" IN ('1','2','3')"""
@@ -108,7 +108,7 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
     def test_model_can_use_selects_from_methods(self):
         self.assertEqual(
-            SelectPass.all(["username"], query=True),
+            SelectPass.all(["username"], query=True).to_sql(),
             'SELECT "select_passes"."username" FROM "select_passes"',
         )
 
