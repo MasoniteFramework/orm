@@ -1975,9 +1975,11 @@ class QueryBuilder(ObservesEvents):
         Returns:
             dictionary -- Returns a dictionary of results.
         """
+
         self.select(*selects)
+
         if query:
-            return self.to_sql()
+            return self
 
         result = self.new_connection().query(self.to_qmark(), self._bindings) or []
 

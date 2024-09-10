@@ -108,7 +108,7 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
     def test_model_can_use_selects_from_methods(self):
         self.assertEqual(
-            SelectPass.all(["username"], query=True),
+            SelectPass.all(["username"], query=True).to_sql(),
             'SELECT "select_passes"."username" FROM "select_passes"',
         )
 
