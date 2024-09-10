@@ -2088,9 +2088,8 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        for name, scope in self._global_scopes.get(self._action, {}).items():
-            scope(self)
 
+        self.run_scopes()
         grammar = self.get_grammar()
         sql = grammar.compile(self._action, qmark=False).to_sql()
         return sql
@@ -2117,11 +2116,9 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        for name, scope in self._global_scopes.get(self._action, {}).items():
-            scope(self)
 
+        self.run_scopes()
         grammar = self.get_grammar()
-
         sql = grammar.compile(self._action, qmark=True).to_sql()
 
         self._bindings = grammar._bindings
