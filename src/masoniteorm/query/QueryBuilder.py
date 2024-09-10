@@ -1804,7 +1804,7 @@ class QueryBuilder(ObservesEvents):
         self.where(self._model.get_primary_key(), record_id)
 
         if query:
-            return self.to_sql()
+            return self
 
         return self.first()
 
