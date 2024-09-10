@@ -92,13 +92,13 @@ class TestModels(unittest.TestCase):
         model = ModelTest.hydrate({"id": 1, "username": "joe", "admin": True})
 
         model.name = "Bill"
-        sql = model.save(query=True)
+        sql = model.save(query=True).to_sql()
         self.assertTrue(sql.startswith("UPDATE"))
 
         model = ModelTest()
 
         model.name = "Bill"
-        sql = model.save(query=True)
+        sql = model.save(query=True).to_sql()
         self.assertTrue(sql.startswith("INSERT"))
 
     def test_model_can_cast_attributes(self):
@@ -170,7 +170,7 @@ class TestModels(unittest.TestCase):
 
         model.username = "joe"
         model.name = "Bill"
-        sql = model.save(query=True)
+        sql = model.save(query=True).to_sql()
         self.assertTrue(sql.startswith("UPDATE"))
         self.assertNotIn("username", sql)
 
@@ -181,7 +181,7 @@ class TestModels(unittest.TestCase):
 
         model.username = "joe"
         model.name = "Bill"
-        sql = model.save(query=True)
+        sql = model.save(query=True).to_sql()
         self.assertTrue(sql.startswith("UPDATE"))
         self.assertIn("username", sql)
         self.assertIn("name", sql)
@@ -201,7 +201,7 @@ class TestModels(unittest.TestCase):
 
         model.username = "joe"
         model.name = "Joe"
-        sql = model.save(query=True)
+        sql = model.save(query=True).to_sql()
         self.assertFalse(sql.startswith("UPDATE"))
 
     def test_model_using_or_where(self):
