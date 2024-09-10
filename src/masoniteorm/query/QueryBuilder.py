@@ -1792,7 +1792,7 @@ class QueryBuilder(ObservesEvents):
     def _get_eager_load_result(self, related, collection):
         return related.eager_load_from_collection(collection)
 
-    def find(self, record_id):
+    def find(self, record_id, query=False):
         """Finds a row by the primary key ID. Requires a model
 
         Arguments:
@@ -1801,8 +1801,12 @@ class QueryBuilder(ObservesEvents):
         Returns:
             Model|None
         """
+        self.where(self._model.get_primary_key(), record_id)
 
-        return self.where(self._model.get_primary_key(), record_id).first()
+        if query:
+            return self.to_sql()
+
+        return self.first()
 
     def find_or(self, record_id: int, callback: Callable, args=None):
         """Finds a row by the primary key ID (Requires a model) or raise a ModelNotFound exception.
