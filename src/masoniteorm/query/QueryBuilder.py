@@ -1792,7 +1792,7 @@ class QueryBuilder(ObservesEvents):
     def _get_eager_load_result(self, related, collection):
         return related.eager_load_from_collection(collection)
 
-    def find(self, record_id):
+    def find(self, record_id, query=False):
         """Finds a row by the primary key ID. Requires a model
 
         Arguments:
@@ -1801,8 +1801,12 @@ class QueryBuilder(ObservesEvents):
         Returns:
             Model|None
         """
+        self.where(self._model.get_primary_key(), record_id)
 
-        return self.where(self._model.get_primary_key(), record_id).first()
+        if query:
+            return self
+
+        return self.first()
 
     def find_or(self, record_id: int, callback: Callable, args=None):
         """Finds a row by the primary key ID (Requires a model) or raise a ModelNotFound exception.
@@ -2088,9 +2092,8 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        for name, scope in self._global_scopes.get(self._action, {}).items():
-            scope(self)
 
+        self.run_scopes()
         grammar = self.get_grammar()
         sql = grammar.compile(self._action, qmark=False).to_sql()
         return sql
@@ -2117,11 +2120,9 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        for name, scope in self._global_scopes.get(self._action, {}).items():
-            scope(self)
 
+        self.run_scopes()
         grammar = self.get_grammar()
-
         sql = grammar.compile(self._action, qmark=True).to_sql()
 
         self._bindings = grammar._bindings

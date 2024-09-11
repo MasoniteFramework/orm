@@ -72,12 +72,10 @@ class BaseTestQueryRelationships(unittest.TestCase):
         self.assertEqual(sql, """UPDATE "users" SET "name" = 'joe'""")
 
     def test_can_find_list(self):
-        sql = User.find(1, query=True)
-
+        sql = User.find(1, query=True).to_sql()
         self.assertEqual(sql, """SELECT * FROM "users" WHERE "users"."id" = '1'""")
 
-        sql = User.find([1, 2, 3], query=True)
-
+        sql = User.find([1, 2, 3], query=True).to_sql()
         self.assertEqual(
             sql, """SELECT * FROM "users" WHERE "users"."id" IN ('1','2','3')"""
         )

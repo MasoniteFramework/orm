@@ -426,12 +426,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             builder = cls().where(cls.get_primary_key(), record_id)
 
         if query:
-            return builder.to_sql()
-        else:
-            if isinstance(record_id, (list, tuple)):
-                return builder.get()
+            return builder
 
-            return builder.first()
+        if isinstance(record_id, (list, tuple)):
+            return builder.get()
+
+        return builder.first()
 
     @classmethod
     def find_or_fail(cls, record_id, query=False):
