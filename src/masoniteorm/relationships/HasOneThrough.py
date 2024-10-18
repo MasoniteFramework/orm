@@ -61,13 +61,13 @@ class HasOneThrough(BaseRelationship):
             if attribute in instance._relationships:
                 return instance._relationships[attribute]
 
-            return self.apply_query(
+            return self.apply_relation_query(
                 self.distant_builder, self.intermediary_builder, instance
             )
         else:
             return self
 
-    def apply_query(self, distant_builder, intermediary_builder, owner):
+    def apply_relation_query(self, distant_builder, intermediary_builder, owner):
         """
         Apply the query and return a dict of data for the distant model to be hydrated with.
 
@@ -114,7 +114,7 @@ class HasOneThrough(BaseRelationship):
             f"{dist_table}.{self.other_owner_key}",
         ).where_column(
             f"{int_table}.{self.local_owner_key}",
-            f"{query.get_table_name()}.{self.local_key}",
+            getattr(related_model, self.local_key),
         )
 
     def get_builder(self):
@@ -160,7 +160,7 @@ class HasOneThrough(BaseRelationship):
         int_table = self.intermediary_builder.get_table_name()
 
         if callback:
-            callback(builder)
+            callback(query)
 
         return (
             self.distant_builder.select(
@@ -179,34 +179,60 @@ class HasOneThrough(BaseRelationship):
             .get()
         )
 
-    def query_where_exists(
-        self, current_query_builder, callback, method="where_exists"
-    ):
-        query = self.distant_builder
+    def attach(self, current_model, related_record):
+        raise NotImplementedError(
+            "HasOneThrough relationship does not implement the attach method"
+        )
+
+    def attach_related(self, current_model, related_record):
+        raise NotImplementedError(
+            "HasOneThrough relationship does not implement the attach_related method"
+        )
+
+    def query_has(self, current_builder, method="where_exists"):
         dist_table = self.distant_builder.get_table_name()
         int_table = self.intermediary_builder.get_table_name()
 
-        getattr(current_query_builder, method)(
-            query.join(
+        getattr(current_builder, method)(
+            self.distant_builder.join(
                 f"{int_table}",
                 f"{int_table}.{self.foreign_key}",
                 "=",
                 f"{dist_table}.{self.other_owner_key}",
             ).where_column(
                 f"{int_table}.{self.local_owner_key}",
-                f"{query.get_table_name()}.{self.local_key}",
+                f"{current_builder.get_table_name()}.{self.local_key}",
             )
-        ).when(callback, lambda q: (callback(q)))
+        )
 
-    def get_with_count_query(self, builder, callback):
-        query = self.distant_builder
+        return self.distant_builder
+
+    def query_where_exists(self, current_builder, callback, method="where_exists"):
         dist_table = self.distant_builder.get_table_name()
         int_table = self.intermediary_builder.get_table_name()
 
-        if not builder._columns:
-            builder = builder.select("*")
+        getattr(current_builder, method)(
+            self.distant_builder.join(
+                f"{int_table}",
+                f"{int_table}.{self.foreign_key}",
+                "=",
+                f"{dist_table}.{self.other_owner_key}",
+            )
+            .where_column(
+                f"{int_table}.{self.local_owner_key}",
+                f"{current_builder.get_table_name()}.{self.local_key}",
+            )
+            .when(callback, lambda q: (callback(q)))
+        )
 
-        return_query = builder.add_select(
+    def get_with_count_query(self, current_builder, callback):
+        dist_table = self.distant_builder.get_table_name()
+        int_table = self.intermediary_builder.get_table_name()
+
+        if not current_builder._columns:
+            current_builder.select("*")
+
+        return_query = current_builder.add_select(
             f"{self.attribute}_count",
             lambda q: (
                 (
@@ -219,7 +245,7 @@ class HasOneThrough(BaseRelationship):
                     )
                     .where_column(
                         f"{int_table}.{self.local_owner_key}",
-                        f"{query.get_table_name()}.{self.local_key}",
+                        f"{current_builder.get_table_name()}.{self.local_key}",
                     )
                     .table(dist_table)
                     .when(
@@ -227,7 +253,9 @@ class HasOneThrough(BaseRelationship):
                         lambda q: (
                             q.where_in(
                                 self.foreign_key,
-                                callback(query.select(self.other_owner_key)),
+                                callback(
+                                    self.distant_builder.select(self.other_owner_key)
+                                ),
                             )
                         ),
                     )
@@ -236,31 +264,3 @@ class HasOneThrough(BaseRelationship):
         )
 
         return return_query
-
-    def attach(self, current_model, related_record):
-        raise NotImplementedError(
-            "HasOneThrough relationship does not implement the attach method"
-        )
-
-    def attach_related(self, current_model, related_record):
-        raise NotImplementedError(
-            "HasOneThrough relationship does not implement the attach_related method"
-        )
-
-    def query_has(self, current_query_builder, method="where_exists"):
-        dist_table = self.distant_builder.get_table_name()
-        int_table = self.intermediary_builder.get_table_name()
-
-        getattr(current_query_builder, method)(
-            self.distant_builder.join(
-                f"{int_table}",
-                f"{int_table}.{self.foreign_key}",
-                "=",
-                f"{dist_table}.{self.other_owner_key}",
-            ).where_column(
-                f"{current_query_builder.get_table_name()}.{self.local_key}",
-                f"{int_table}.{self.local_owner_key}",
-            )
-        )
-
-        return self.distant_builder
