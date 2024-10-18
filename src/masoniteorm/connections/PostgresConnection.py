@@ -64,7 +64,11 @@ class PostgresConnection(BaseConnection):
             password=self.password,
             host=self.host,
             port=self.port,
-            options=f"-c search_path={schema}" if schema else "",
+            options=f"-c search_path={schema}" if schema else None,
+            sslmode=self.options.get("sslmode", "prefer"),
+            sslcert=self.options.get("sslcert"),
+            sslkey=self.options.get("sslkey"),
+            sslrootcert=self.options.get("sslrootcert"),
         )
 
         self._connection.autocommit = True
