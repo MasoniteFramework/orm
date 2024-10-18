@@ -191,8 +191,8 @@ class TestModels(unittest.TestCase):
             {"id": 1, "username": "joe", "name": "Joe", "admin": True}
         )
 
-        self.assertEquals({"username": "joe"}, model.only("username"))
-        self.assertEquals({"username": "joe"}, model.only(["username"]))
+        self.assertEqual({"username": "joe"}, model.only("username"))
+        self.assertEqual({"username": "joe"}, model.only(["username"]))
 
     def test_model_update_without_changes_at_all(self):
         model = ModelTest.hydrate(
