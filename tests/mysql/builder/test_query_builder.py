@@ -552,11 +552,11 @@ class BaseTestQueryBuilder:
     def test_cast_values(self):
         builder = self.get_builder(dry=True)
         result = builder.cast_dates({"created_at": datetime.datetime(2021, 1, 1)})
-        self.assertEqual(result, {"created_at": "2021-01-01T00:00:00+00:00"})
+        self.assertEqual(result, {"created_at": "2021-01-01 00:00:00+00:00"})
         result = builder.cast_dates({"created_at": datetime.date(2021, 1, 1)})
-        self.assertEqual(result, {"created_at": "2021-01-01T00:00:00+00:00"})
+        self.assertEqual(result, {"created_at": "2021-01-01 00:00:00+00:00"})
         result = builder.cast_dates([{"created_at": datetime.date(2021, 1, 1)}])
-        self.assertEqual(result, [{"created_at": "2021-01-01T00:00:00+00:00"}])
+        self.assertEqual(result, [{"created_at": "2021-01-01 00:00:00+00:00"}])
 
 
 class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):

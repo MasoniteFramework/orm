@@ -10,6 +10,7 @@ dist
 *.db
 *.sqlite3
 .idea
+venv311
 **/*.egg-info
 htmlcov/*
 coverage.xml
