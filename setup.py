@@ -30,7 +30,7 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         "inflection>=0.3,<0.6",
-        "ppendulum>=2.1,<=3.1",
+        "ppendulum>=2.1,<3.1",
         "faker>=4.1.0,<14.0",
         "cleo>=0.8.0,<0.9",
     ],
