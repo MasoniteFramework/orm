@@ -65,7 +65,7 @@ class PostgresConnection(BaseConnection):
             host=self.host,
             port=self.port,
             options=f"-c search_path={schema}" if schema else None,
-            sslmode=self.options.get("sslmode", "prefer"),
+            sslmode=self.options.get("sslmode"),
             sslcert=self.options.get("sslcert"),
             sslkey=self.options.get("sslkey"),
             sslrootcert=self.options.get("sslrootcert"),
