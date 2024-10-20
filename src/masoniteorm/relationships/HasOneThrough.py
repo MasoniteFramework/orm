@@ -1,4 +1,6 @@
+from build.lib.masoniteorm.query import QueryBuilder
 from .BaseRelationship import BaseRelationship
+from ..collection import Collection
 
 
 class HasOneThrough(BaseRelationship):
@@ -75,8 +77,8 @@ class HasOneThrough(BaseRelationship):
         already eager loaded
 
         Arguments
-            distant_builder (QueryBuilder): QueryVuilder attached to the distant table
-            intermediate_builder (QueryBuilder): QueryVuilder attached to the intermesiate (linking) table
+            distant_builder (QueryBuilder): QueryBuilder attached to the distant table
+            intermediate_builder (QueryBuilder): QueryBuilder attached to the intermediate (linking) table
             owner (Any): the model this relationship is starting from
 
         Returns
@@ -143,7 +145,7 @@ class HasOneThrough(BaseRelationship):
 
     def get_related(self, query, relation, eagers=None, callback=None):
         """
-        Get the data to htdrate the model for the distant table with
+        Get the data to hydrate the model for the distant table with
         Used when eager loading the model attribute
 
         Arguments
