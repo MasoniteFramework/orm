@@ -1,10 +1,7 @@
 import unittest
 
-from build.lib.masoniteorm.collection import Collection
-from build.lib.masoniteorm.scopes import scope
 from src.masoniteorm.models import Model
 from src.masoniteorm.relationships import has_one_through
-from tests.integrations.config.database import DB
 from tests.integrations.config.database import DATABASES
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import SQLitePlatform
