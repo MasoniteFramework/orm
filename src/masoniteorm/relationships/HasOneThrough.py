@@ -1,4 +1,3 @@
-from build.lib.masoniteorm.query import QueryBuilder
 from .BaseRelationship import BaseRelationship
 from ..collection import Collection
 
