@@ -140,10 +140,13 @@ class HasOneThrough(BaseRelationship):
             None
         """
 
-        related = collection.get(getattr(model, self.local_key), None)
-        model.add_relation({key: related[0] if related else None})
+        related_id = getattr(model, self.local_key)
+        for id, item in collection.items():
+            if id == related_id:
+                model.add_relation({key: item[0]})
+                break
 
-    def get_related(self, query, relation, eagers=None, callback=None):
+    def get_related(self, current_builder, relation, eagers=None, callback=None):
         """
         Get the data to hydrate the model for the distant table with
         Used when eager loading the model attribute
@@ -162,24 +165,28 @@ class HasOneThrough(BaseRelationship):
         int_table = self.intermediary_builder.get_table_name()
 
         if callback:
-            callback(query)
+            callback(current_builder)
 
-        return (
-            self.distant_builder.select(
-                f"{dist_table}.*, {int_table}.{self.local_owner_key} as {self.local_key}"
-            )
-            .join(
-                f"{int_table}",
-                f"{int_table}.{self.foreign_key}",
-                "=",
-                f"{dist_table}.{self.other_owner_key}",
-            )
-            .where(
+        (self.distant_builder.select(f"{dist_table}.*, {int_table}.{self.local_owner_key} as {self.local_key}")
+        .join(
+            f"{int_table}",
+            f"{int_table}.{self.foreign_key}",
+            "=",
+            f"{dist_table}.{self.other_owner_key}",
+        ))
+
+        if isinstance(relation, Collection):
+            self.distant_builder.where_in(
                 f"{int_table}.{self.local_owner_key}",
-                relation._get_value(self.local_key),
+                Collection(relation._get_value(self.local_key)).unique(),
             )
-            .get()
-        )
+        else:
+            self.distant_builder.where(
+                f"{int_table}.{self.local_owner_key}",
+                getattr(relation, self.local_key),
+            )
+
+        return self.distant_builder.get()
 
     def attach(self, current_model, related_record):
         raise NotImplementedError(
