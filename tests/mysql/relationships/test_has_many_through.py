@@ -2,10 +2,7 @@ import unittest
 
 from src.masoniteorm.models import Model
 from src.masoniteorm.relationships import (
-    has_one,
-    belongs_to_many,
     has_many_through,
-    has_many,
 )
 from dotenv import load_dotenv
 
@@ -87,12 +84,4 @@ class MySQLRelationships(unittest.TestCase):
         self.assertEqual(
             sql,
             """SELECT * FROM `inbound_shipments` WHERE `inbound_shipments`.`name` = 'Joe' OR NOT EXISTS (SELECT * FROM `countries` INNER JOIN `ports` ON `ports`.`country_id` = `countries`.`country_id` WHERE `inbound_shipments`.`from_port_id` = `ports`.`port_id`) AND `inbound_shipments`.`name` = 'USA'""",
-        )
-
-    def test_has_one_through_with_count(self):
-        sql = InboundShipment.with_count("from_country").to_sql()
-
-        self.assertEqual(
-            sql,
-            """SELECT `inbound_shipments`.*, (SELECT COUNT(*) AS m_count_reserved FROM `countries` INNER JOIN `ports` ON `ports`.`country_id` = `countries`.`country_id` WHERE `inbound_shipments`.`from_port_id` = `ports`.`port_id`) AS from_country_count FROM `inbound_shipments`""",
         )

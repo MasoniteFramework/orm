@@ -2,10 +2,7 @@ import unittest
 
 from src.masoniteorm.models import Model
 from src.masoniteorm.relationships import (
-    has_one,
-    belongs_to_many,
     has_one_through,
-    has_many,
 )
 from dotenv import load_dotenv
 
@@ -26,7 +23,7 @@ class Port(Model):
     pass
 
 
-class MySQLRelationships(unittest.TestCase):
+class MySQLHasOneThroughRelationship(unittest.TestCase):
     maxDiff = None
 
     def test_has_query(self):
