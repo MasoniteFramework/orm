@@ -139,11 +139,8 @@ class HasOneThrough(BaseRelationship):
             None
         """
 
-        related_id = getattr(model, self.local_key)
-        for id, item in collection.items():
-            if id == related_id:
-                model.add_relation({key: item[0]})
-                break
+        related = collection.get(getattr(model, self.local_key), None)
+        model.add_relation({key: related[0] if related else None})
 
     def get_related(self, current_builder, relation, eagers=None, callback=None):
         """
@@ -175,17 +172,15 @@ class HasOneThrough(BaseRelationship):
         ))
 
         if isinstance(relation, Collection):
-            self.distant_builder.where_in(
+            return self.distant_builder.where_in(
                 f"{int_table}.{self.local_owner_key}",
                 Collection(relation._get_value(self.local_key)).unique(),
-            )
+            ).get()
         else:
-            self.distant_builder.where(
+            return self.distant_builder.where(
                 f"{int_table}.{self.local_owner_key}",
                 getattr(relation, self.local_key),
-            )
-
-        return self.distant_builder.get()
+            ).first()
 
     def attach(self, current_model, related_record):
         raise NotImplementedError(

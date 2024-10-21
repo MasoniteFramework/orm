@@ -100,17 +100,39 @@ class TestRelationships(unittest.TestCase):
         self.assertIsInstance(shipment2.from_country, Country)
         self.assertEqual(shipment2.from_country.country_id, 40)
 
+        # check .first() and .get() produce the same result
+        single = (
+            IncomingShipment.where("name", "Tractor Parts")
+            .with_("from_country")
+            .first()
+        )
+        single_get = (
+            IncomingShipment.where("name", "Tractor Parts").with_("from_country").get()
+        )
+        self.assertEqual(single.from_country.country_id, 10)
+        self.assertEqual(single_get.count(), 1)
+        self.assertEqual(
+            single.from_country.country_id, single_get.first().from_country.country_id
+        )
+
     def test_has_one_through_eager_load_can_be_empty(self):
         shipments = (
             IncomingShipment.where("name", "Bread")
+            .where_has("from_country", lambda query: query.where("name", "Ueaguay"))
             .with_(
                 "from_country",
             )
             .get()
         )
-        self.assertEqual(shipments.count(), 2)
+        self.assertEqual(shipments.count(), 0)
 
     def test_has_one_through_can_get_related(self):
         shipment = IncomingShipment.where("name", "Milk").first()
         self.assertIsInstance(shipment.from_country, Country)
         self.assertEqual(shipment.from_country.country_id, 10)
+
+    def test_has_one_through_has_query(self):
+        shipments = IncomingShipment.where_has(
+            "from_country", lambda query: query.where("name", "USA")
+        )
+        self.assertEqual(shipments.count(), 2)
