@@ -44,3 +44,11 @@ class PlaygroundTest(unittest.TestCase):
         related_company = user.company
         # self.assertEqual(related_company.company_name, "ROTHCO ACCOUNT")
         self.assertEqual(user.company().to_sql(), "SELECT * FROM `tbl_companies` WHERE `tbl_companies`.`company_id` = '373849'")
+
+    def test_has_one_can_append_query_builder(self):
+        user = User.find(667)
+
+        # Access the related company instance as a property
+        related_company = user.company
+        # self.assertEqual(related_company.company_name, "ROTHCO ACCOUNT")
+        self.assertEqual(user.company().limit(1).to_sql(), "SELECT * FROM `tbl_companies` WHERE `tbl_companies`.`company_id` = '373849' LIMIT 1")
