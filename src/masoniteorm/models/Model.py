@@ -16,12 +16,11 @@ from ..exceptions import ModelNotFound
 from ..observers import ObservesEvents
 from ..query import QueryBuilder
 from ..scopes import TimeStampsMixin
+from .relationships.new import HasOne, HasMany
 
 """This is a magic class that will help using models like User.first() instead of having to instatiate a class like
 User().first()
 """
-
-
 class ModelMeta(type):
     def __getattr__(self, attribute, *args, **kwargs):
         """This method is called between a Model and accessing a property. This is a quick and easy
@@ -1175,3 +1174,37 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             # If all fields are guarded, all data should be filtered
             return {}
         return {f: dictionary[f] for f in dictionary if f not in cls.__guarded__}
+
+
+    # move to relationships class
+    def has_one(self, related_model, foreign_key=None, local_key="id"):
+        return RelationshipProperty(HasOne(self, related_model, foreign_key, local_key))
+
+    def has_many(self, related_model, foreign_key=None, local_key="id"):
+        print("setting up has many")
+        return RelationshipProperty(HasMany(self, related_model, foreign_key, local_key))
+class RelationshipProperty:
+    """
+    A wrapper for dual behavior: as a property and as a callable returning the relationship instance.
+    """
+    def __init__(self, relationship):
+        self.relationship = relationship
+
+    def __getattr__(self, name):
+        """
+        Delegate attribute access to the related model instance.
+        """
+        related_instance = self.relationship.get()
+        if related_instance:
+            return getattr(related_instance, name)
+        raise AttributeError(f"{self.__class__.__name__} has no attribute from relation '{name}'")
+
+    def __call__(self):
+        """
+        Make the relationship callable to return the relationship instance.
+        """
+        print("Calling relationship")
+        return self.relationship.apply_query()
+
+    # def __repr__(self):
+    #     return repr(self.relationship)
