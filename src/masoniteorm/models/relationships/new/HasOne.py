@@ -39,3 +39,28 @@ class HasOne:
         """
 
         return self.related_model.where(self.foreign_key, getattr(self.parent, self.foreign_key))
+
+    def __getattr__(self, name, *args, **kwargs):
+        """
+        this is called when accesssing query builder methods on the relationship class
+
+        this is returned when you do model.relationship().where(...)
+        """
+        
+
+        try:
+            return getattr(self.related_model, name)
+        except AttributeError:
+            pass
+
+
+        try:
+            related_instance = self.apply_query().first()
+            return getattr(related_instance, name)
+        except AttributeError:
+            pass
+
+        raise AttributeError(f"{self.__class__.__name__} has no attribute '{name}'")
+        
+
+        
