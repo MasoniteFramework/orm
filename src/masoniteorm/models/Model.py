@@ -1193,6 +1193,8 @@ class RelationshipProperty:
     def __getattr__(self, name):
         """
         Delegate attribute access to the related model instance.
+
+        this is returned when you do model.relationship.name
         """
         related_instance = self.relationship.get()
         if related_instance:
@@ -1202,9 +1204,10 @@ class RelationshipProperty:
     def __call__(self):
         """
         Make the relationship callable to return the relationship instance.
+        this is returned when you do model.relationship()
         """
         print("Calling relationship")
-        return self.relationship.apply_query()
+        return self.relationship
 
     # def __repr__(self):
     #     return repr(self.relationship)

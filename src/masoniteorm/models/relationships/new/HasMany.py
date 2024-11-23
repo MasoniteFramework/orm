@@ -23,8 +23,8 @@ class HasMany:
         print("calling")
         return self.relationship.apply_query().get()
     
-    def where(self, key):
-        return self.related_model.where(key, value)
+    # def where(self, key):
+    #     return self.related_model.where(key, value)
 
     def apply_query(self):
         """Apply the query and return a dictionary to be hydrated
@@ -38,3 +38,14 @@ class HasMany:
         """
         print("applying query has many")
         return self.related_model.where(self.foreign_key, getattr(self.parent, self.foreign_key))
+
+    def __getattr__(self, name, *args, **kwargs):
+        """
+        this is called when accesssing query builder methods on the relationship class
+
+        this is returned when you do model.relationship().where(...)
+        """
+        related_instance = self.apply_query()
+        if related_instance:
+            return getattr(related_instance, name)
+        raise AttributeError(f"{self.__class__.__name__} has no attribute '{name}'")
