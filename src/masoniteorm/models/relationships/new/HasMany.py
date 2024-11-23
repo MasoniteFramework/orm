@@ -23,8 +23,6 @@ class HasMany:
         print("calling")
         return self.relationship.apply_query().get()
     
-    # def where(self, key):
-    #     return self.related_model.where(key, value)
 
     def apply_query(self):
         """Apply the query and return a dictionary to be hydrated
@@ -45,7 +43,22 @@ class HasMany:
 
         this is returned when you do model.relationship().where(...)
         """
+        
+
+        try:
+            return getattr(self.related_model, name)
+        except AttributeError:
+            pass
+
         related_instance = self.apply_query()
+
         if related_instance:
             return getattr(related_instance, name)
         raise AttributeError(f"{self.__class__.__name__} has no attribute '{name}'")
+
+    def __iter__(self):
+        """
+        This is called when iterating over the relationship class
+        """
+        print("iterating")
+        return iter(self.apply_query().get())  # Use the iterator of the list

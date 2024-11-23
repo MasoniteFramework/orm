@@ -10,6 +10,7 @@ class CreditCard(Model):
 
 class Company(Model):
     __table__ = "tbl_companies"
+    __primary_key__ = "company_id"
 
     @property
     def cards(self):
@@ -41,7 +42,12 @@ user = User.find(667)
 
 # # Call the relationship instance to get the related company
 # related_company_callable = user.company().get()
-company = user.company
-print(company.cards().to_sql())
+# cards = user.company.cards
+company = Company.find(373849)
+
+print(company.cards)
+for card in company.cards:
+    print(card)
+# print(company.cards().where("is_default", 1).get())
 # print("callable", isinstance(user.company(), HasOne))  # Output: True
 

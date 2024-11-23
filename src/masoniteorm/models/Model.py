@@ -1188,6 +1188,7 @@ class RelationshipProperty:
     A wrapper for dual behavior: as a property and as a callable returning the relationship instance.
     """
     def __init__(self, relationship):
+        print("init relationship property", relationship)
         self.relationship = relationship
 
     def __getattr__(self, name):
@@ -1196,7 +1197,15 @@ class RelationshipProperty:
 
         this is returned when you do model.relationship.name
         """
-        related_instance = self.relationship.get()
+        
+        try:
+            return getattr(self.relationship, name)
+        except AttributeError:
+            pass
+
+        related_instance = self.relationship.get() 
+
+        print("Delegating attribute access to the related model instance", name)
         if related_instance:
             return getattr(related_instance, name)
         raise AttributeError(f"{self.__class__.__name__} has no attribute from relation '{name}'")
@@ -1211,3 +1220,7 @@ class RelationshipProperty:
 
     # def __repr__(self):
     #     return repr(self.relationship)
+
+    def __iter__(self):
+        print("iterating relationship propery")
+        return iter(self.relationship)  # Use the iterator of the list
