@@ -1216,11 +1216,11 @@ class RelationshipProperty:
         this is returned when you do model.relationship()
         """
         print("Calling relationship")
-        return self.relationship
+        return self.relationship.apply_query()
 
     # def __repr__(self):
     #     return repr(self.relationship)
 
     def __iter__(self):
         print("iterating relationship propery")
-        return iter(self.relationship)  # Use the iterator of the list
+        return iter(self.relationship)  
