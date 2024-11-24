@@ -1925,6 +1925,10 @@ class QueryBuilder(ObservesEvents):
                             else:
                                 related = self._model.get_related(eager)
 
+                            # print(getattr(self._model, eager))
+                            # print(hydrated_model.__dict__['related'])
+                            related = getattr(self._model, eager)
+
                             result_set = related.get_related(self, hydrated_model)
 
                             self._register_relationships_to_model(
@@ -1941,6 +1945,7 @@ class QueryBuilder(ObservesEvents):
         else:
             return result or None
 
+# TODO: move this out of query builder
     def _register_relationships_to_model(
         self, related, related_result, hydrated_model, relation_key
     ):
@@ -1956,6 +1961,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
+        
         if related_result and isinstance(hydrated_model, Collection):
             map_related = self._map_related(related_result, related)
             for model in hydrated_model:
@@ -1964,6 +1970,8 @@ class QueryBuilder(ObservesEvents):
                 else:
                     model.add_relation({relation_key: map_related or None})
         else:
+            hydrated_model.__relationships__.update({relation_key: related_result or None})
+            # print("register related", relation_key, hydrated_model.__relationships__)
             hydrated_model.add_relation({relation_key: related_result or None})
         return self
 

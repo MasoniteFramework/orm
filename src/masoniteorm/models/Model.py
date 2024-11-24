@@ -143,6 +143,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     __resolved_connection__ = None
     __selects__ = []
 
+    __relationships__ = {}
+
     __observers__ = {}
     __has_events__ = True
 
