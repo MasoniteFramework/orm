@@ -16,6 +16,7 @@ from ..exceptions import ModelNotFound
 from ..observers import ObservesEvents
 from ..query import QueryBuilder
 from ..scopes import TimeStampsMixin
+from .relationships.new import HasOne, HasMany
 
 """This is a magic class that will help using models like User.first() instead of having to instatiate a class like
 User().first()
@@ -1175,3 +1176,23 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             # If all fields are guarded, all data should be filtered
             return {}
         return {f: dictionary[f] for f in dictionary if f not in cls.__guarded__}
+
+    def __call__(self):
+        return self.__dict__['related'].apply_query(self.builder)
+
+
+# Move this to a relayion class
+    def has_one(self, related_model_class, foreign_key=None, local_key=None):
+        if not local_key:
+            local_key = f"{related_model_class.get_table_name()}{related_model_class.get_primary_key()}"
+        if not foreign_key:
+            foreign_key = related_model_class.get_primary_key()
+        return HasOne(related_model_class, foreign_key, local_key)(self)
+
+    def has_many(self, related_model_class, foreign_key=None, local_key=None):
+        if not local_key:
+            local_key = f"{related_model_class.get_table_name()}{related_model_class.get_primary_key()}"
+        if not foreign_key:
+            foreign_key = related_model_class.get_primary_key()
+        return HasMany(related_model_class, foreign_key, local_key)(self)
+
