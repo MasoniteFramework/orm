@@ -31,11 +31,15 @@ class HasOne(BaseRelationship):
             return self
 
         self.owner = owner
-        if self.method and self.method in owner.__relationships__:
-            return owner.__relationships__[self.method]
+        if self.method and self.method in owner._relationships:
+            return owner._relationships[self.method]
         builder = self.apply_query(related_model.builder)
         result = builder.first()
         self.owner = owner
         result.__dict__['related'] = self
         return result
 
+
+    def add_relation(self, model_instance, result, relation_key=None):
+        # if result is a collection, do a where
+       return model_instance.add_relation({relation_key: result or None})
