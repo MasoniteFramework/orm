@@ -9,14 +9,14 @@ class HasOne(BaseRelationship):
         self.method = method
         self.owner = None
 
-    def apply_query(self, builder, foreign_key_value=None):
+    def apply_query(self, builder, foreign_key_value=None, eager=None):
         owner = self.owner
         if not foreign_key_value:
             foreign_key_value = owner.__attributes__.get(self.local_key)
-        builder = builder.where(self.foreign_key, foreign_key_value)
+        builder = builder.where(self.foreign_key, foreign_key_value).with_(eager or [])
         return builder
 
-    def get_related(self, foreign, result):
+    def get_related(self, foreign, result, eager=None):
         return self.apply_query(self.model_class, getattr(result, self.local_key)).first()
 
 
@@ -31,6 +31,7 @@ class HasOne(BaseRelationship):
             return self
 
         self.owner = owner
+        # print("relationships", owner, owner._relationships)
         if self.method and self.method in owner._relationships:
             return owner._relationships[self.method]
         builder = self.apply_query(related_model.builder)

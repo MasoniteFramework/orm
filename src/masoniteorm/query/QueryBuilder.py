@@ -1887,7 +1887,6 @@ class QueryBuilder(ObservesEvents):
 
     def prepare_result(self, result, collection=False):
         if self._model and result:
-            # eager load here
             hydrated_model = self._model.hydrate(result)
             if (
                 self._eager_relation.eagers
@@ -1899,34 +1898,22 @@ class QueryBuilder(ObservesEvents):
                         # Nested
                         for relation, eagers in eager_load.items():
                             callback = None
-                            if inspect.isclass(self._model):
-                                related = getattr(self._model, relation)
-                            elif callable(eagers):
-                                related = getattr(self._model, relation)
-                                callback = eagers
-                            else:
-                                related = self._model.get_related(relation)
-
-                            result_set = related.get_related(
-                                self, hydrated_model, eagers=eagers, callback=callback
-                            )
-
+                            print(relation, eagers)
+                            related = getattr(self._model, relation)
+                            # Has one from User -> Profile
+                            result_set = related.get_related(self, hydrated_model)
                             self._register_relationships_to_model(
-                                related,
-                                result_set,
-                                hydrated_model,
-                                relation_key=relation,
+                                related, result_set, hydrated_model, relation_key=relation
                             )
+                            for eager in eagers:
+                                inner_related = getattr(result_set, eager).__dict__["related"]
+                                inner_result = inner_related.get_related(self, result_set)
+                                self._register_relationships_to_model(
+                                    inner_related, inner_result, result_set, relation_key=eager
+                                )
                     else:
                         # Not Nested
                         for eager in eager_load:
-                            if inspect.isclass(self._model):
-                                related = getattr(self._model, eager)
-                            else:
-                                related = self._model.get_related(eager)
-
-                            # print(getattr(self._model, eager))
-                            # print(hydrated_model.__dict__['related'])
                             related = getattr(self._model, eager)
 
                             result_set = related.get_related(self, hydrated_model)
