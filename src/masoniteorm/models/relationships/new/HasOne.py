@@ -13,7 +13,7 @@ class HasOne(BaseRelationship):
         owner = self.owner
         if not foreign_key_value:
             foreign_key_value = owner.__attributes__.get(self.local_key)
-        builder = builder.where(self.foreign_key, foreign_key_value).with_(eager or [])
+        builder = builder.where(self.foreign_key, foreign_key_value).with_(eager or []).limit(1)
         return builder
 
     def get_related(self, foreign, result, eager=None):
