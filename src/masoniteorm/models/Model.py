@@ -1189,7 +1189,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             local_key = f"{related_model_class.get_table_name()}{related_model_class.get_primary_key()}"
         if not foreign_key:
             foreign_key = related_model_class.get_primary_key()
-        return HasOne(related_model_class, foreign_key, local_key)(self)
+        
+        return HasOne(related_model_class, foreign_key, local_key, self._get_calling_property_name())(self)
 
     def has_many(self, related_model_class, foreign_key=None, local_key=None):
         if not local_key:
@@ -1198,3 +1199,13 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             foreign_key = related_model_class.get_primary_key()
         return HasMany(related_model_class, foreign_key, local_key)(self)
 
+    def _get_calling_property_name(self):
+        """Retrieve the name of the property or method that called this."""
+        stack = inspect.stack()
+        for frame in stack:
+            if 'self' in frame.frame.f_locals and isinstance(frame.frame.f_locals['self'], self.__class__):
+                # Look for the attribute name that matches
+                for attr_name, attr_value in self.__class__.__dict__.items():
+                    if isinstance(attr_value, property) and attr_value.fget.__code__ == frame.frame.f_code:
+                        return attr_name
+        return None
