@@ -36,8 +36,8 @@ class User(Model):
 user = User.find(667)
 
 # Access the related company instance as a property
-# related_company = user.company
-# print("property name", related_company.company_name)  # Output: Acme Corp
+related_company = user.company
+print("property name", related_company.company_name)  # Output: Acme Corp
 # print("property 2", related_company.company_name, related_company.company_name=="Acme Corp")  # Output: Acme Corp
 
 # # Call the relationship instance to get the related company
@@ -46,8 +46,8 @@ user = User.find(667)
 company = Company.find(373849)
 
 print(company.cards)
-for card in company.cards:
-    print(card)
+# for card in company.cards:
+#     print(card)
 # print(company.cards().where("is_default", 1).get())
 # print("callable", isinstance(user.company(), HasOne))  # Output: True
 
