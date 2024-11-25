@@ -1197,7 +1197,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             local_key = f"{related_model_class.get_table_name()}{related_model_class.get_primary_key()}"
         if not foreign_key:
             foreign_key = related_model_class.get_primary_key()
-        return HasMany(related_model_class, foreign_key, local_key)(self)
+        return HasMany(related_model_class, foreign_key, local_key, self._get_calling_property_name())(self)
 
     def _get_calling_property_name(self):
         """Retrieve the name of the property or method that called this."""

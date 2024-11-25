@@ -1900,7 +1900,6 @@ class QueryBuilder(ObservesEvents):
                             callback = None
                             print(relation, eagers)
                             related = getattr(self._model, relation)
-                            # Has one from User -> Profile
                             result_set = related.get_related(self, hydrated_model)
                             self._register_relationships_to_model(
                                 related, result_set, hydrated_model, relation_key=relation
@@ -1917,6 +1916,7 @@ class QueryBuilder(ObservesEvents):
                             related = getattr(self._model, eager)
 
                             result_set = related.get_related(self, hydrated_model)
+                            print('rrr', result_set)
 
                             self._register_relationships_to_model(
                                 related, result_set, hydrated_model, relation_key=eager

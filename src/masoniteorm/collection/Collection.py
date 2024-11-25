@@ -10,6 +10,7 @@ class Collection:
     def __init__(self, items=None):
         self._items = items or []
         self.__appends__ = []
+        self._builder = None
 
     def take(self, number: int):
         """Takes a specific number of results from the items.
@@ -578,5 +579,12 @@ class Collection:
         return items
 
     def __call__(self, *args):
+        model = self.first()
+        print('callin collectin. has builder?', self._builder)
+        if not model and self._builder:
+            return self._builder
+
+        if not model:
+            return self
         related = self._items[0].__dict__['related']
         return related.apply_query(self._items[0].builder)

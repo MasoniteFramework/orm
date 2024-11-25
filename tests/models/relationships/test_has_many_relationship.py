@@ -21,13 +21,13 @@ class TestHasManyRelatinship(unittest.TestCase):
         user = User.find(1)
         self.assertEqual(user.name, "bill")
 
-    def test_can_get_has_one_related_value(self):
+    def test_can_get_has_many_related_value(self):
         user = User.find(1)
         for article in user.articles:
             self.assertEqual(article.title, "masonite")
             self.assertEqual(user.articles.first().title, "masonite")
 
-    def test_can_get_has_one_query_builder(self):
+    def test_can_get_has_many_query_builder(self):
         user = User.find(1)
         self.assertEqual(user.name, "bill")
         self.assertEqual(user.articles().to_sql(), 'SELECT * FROM "articles" WHERE "articles"."user_id" = \'1\'')
