@@ -592,12 +592,14 @@ class QueryBuilder(ObservesEvents):
             self.where(model.get_primary_key(), model.get_primary_key_value())
             self.observe_events(model, "deleting")
 
-        result = self.new_connection().query(self.to_qmark(), self._bindings)
+        connection = self.new_connection()
+
+        connection.query(self.to_qmark(), self._bindings)
 
         if model:
             self.observe_events(model, "deleted")
 
-        return result
+        return connection.get_row_count()
 
     def where(self, column, *args):
         """Specifies a where expression.
@@ -1420,40 +1422,25 @@ class QueryBuilder(ObservesEvents):
             additional.update({model.get_primary_key(): model.get_primary_key_value()})
 
             self.observe_events(model, "updating")
+        # update only attributes with changes
+        if model and not model.__force_update__ and not force:
+            changes = {}
+            for attribute, value in updates.items():
+                if (
+                    model.__original_attributes__.get(attribute, None) != value
+                    or value is None
+                ):
+                    changes.update({attribute: value})
+            updates = changes
 
-        if model:
-            if not model.__force_update__ and not force:
-                # Filter updates to only those with changes
-                updates = {
-                    attr: value
-                    for attr, value in updates.items()
-                    if (
-                        value is None
-                        or model.__original_attributes__.get(attr, None) != value
-                    )
-                }
+        if model and updates:
+            updates = model.transform_dict(updates)
 
-            # Do not execute query if no changes
-            if not updates:
-                return self if dry or self.dry else model
-
-            # Cast date fields
-            date_fields = model.get_dates()
-            for key, value in updates.items():
-                if key in date_fields:
-                    if value:
-                        updates[key] = model.get_new_datetime_string(value)
-                    else:
-                        updates[key] = value
-                # Cast value if necessary
-                if cast:
-                    if value:
-                        updates[key] = model.cast_value(value)
-                    else:
-                        updates[key] = value
-        elif not updates:
-            # Do not perform query if there are no updates
-            return self
+        # do not perform update query if no changes
+        if len(updates.keys()) == 0:
+            if dry or self.dry:
+                return self
+            return 0
 
         self._updates = (UpdateQueryExpression(updates),)
         self.set_action("update")
@@ -1461,13 +1448,14 @@ class QueryBuilder(ObservesEvents):
             return self
 
         additional.update(updates)
+        connection = self.new_connection()
 
-        self.new_connection().query(self.to_qmark(), self._bindings)
+        connection.query(self.to_qmark(), self._bindings)
         if model:
             model.fill(updates)
             self.observe_events(model, "updated")
             model.fill_original(updates)
-            return model
+            return connection.get_row_count()
         return additional
 
     def force_update(self, updates: dict, dry=False):
@@ -1488,7 +1476,7 @@ class QueryBuilder(ObservesEvents):
         self._updates += (UpdateQueryExpression(updates),)
         return self
 
-    def increment(self, column, value=1):
+    def increment(self, column, value=1, dry=False):
         """Increments a column's value.
 
         Arguments:
@@ -1521,13 +1509,16 @@ class QueryBuilder(ObservesEvents):
         )
 
         self.set_action("update")
+        if dry:
+            return self
+
         results = self.new_connection().query(self.to_qmark(), self._bindings)
         processed_results = self.get_processor().get_column_value(
             self, column, results, id_key, id_value
         )
         return processed_results
 
-    def decrement(self, column, value=1):
+    def decrement(self, column, value=1, dry=False):
         """Decrements a column's value.
 
         Arguments:
@@ -1560,6 +1551,8 @@ class QueryBuilder(ObservesEvents):
         )
 
         self.set_action("update")
+        if dry:
+            return self
         result = self.new_connection().query(self.to_qmark(), self._bindings)
         processed_results = self.get_processor().get_column_value(
             self, column, result, id_key, id_value

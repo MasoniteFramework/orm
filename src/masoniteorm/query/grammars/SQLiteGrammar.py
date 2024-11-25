@@ -91,7 +91,7 @@ class SQLiteGrammar(BaseGrammar):
         return "AS {alias}"
 
     def key_value_string(self):
-        return "{column} = '{value}'{separator}"
+        return "{column} = {value}{separator}"
 
     def column_value_string(self):
         return "{column} = {value}{separator}"
@@ -101,6 +101,7 @@ class SQLiteGrammar(BaseGrammar):
 
     def decrement_string(self):
         return "{column} = {column} - '{value}'{separator}"
+
 
     def column_exists_string(self):
         return "SELECT column_name FROM information_schema.columns WHERE table_name='{clean_table}' and column_name={value}"

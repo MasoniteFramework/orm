@@ -179,7 +179,7 @@ class BaseGrammar:
                     if qmark:
                         self.add_binding(y)
                     inner += (
-                        "'?', "
+                        "?, "
                         if qmark
                         else self.value_string().format(value=y, separator=", ")
                     )
@@ -190,7 +190,7 @@ class BaseGrammar:
                 if qmark:
                     self.add_binding(x)
                 sql += (
-                    "'?', "
+                    "?, "
                     if qmark
                     else self.process_value_string().format(
                         value="?" if qmark else x, separator=", "
@@ -264,7 +264,7 @@ class BaseGrammar:
                             )
                         else:
                             if qmark:
-                                value = "'?'"
+                                value = "?"
                                 self.add_binding(clause.value)
                             else:
                                 value = self._compile_value(clause.value)
@@ -312,7 +312,7 @@ class BaseGrammar:
                     else:
                         sql += sql_string.format(
                             column=self._table_column_string(key),
-                            value=value if not qmark else "?",
+                            value=self.value_string().format(value=value, separator="") if not qmark else "?",
                             separator=", ",
                         )
 
@@ -321,7 +321,7 @@ class BaseGrammar:
             else:
                 sql += sql_string.format(
                     column=self._table_column_string(column),
-                    value=value if not qmark else "?",
+                    value=self.value_string().format(value=value, separator=", ") if not qmark else "?",
                     separator=", ",
                 )
                 if qmark:
@@ -588,19 +588,23 @@ class BaseGrammar:
                 if qmark:
                     self.add_binding(low)
                     self.add_binding(high)
-                    low = "?"
-                    high = "?"
 
                 sql_string = self.between_string().format(
-                    low=self._compile_value(low),
-                    high=self._compile_value(high),
+                    low=self._compile_value(low) if not qmark else "?",
+                    high=self._compile_value(high) if not qmark else "?",
                     column=self._table_column_string(where.column),
                     keyword=keyword,
                 )
             elif equality == "NOT BETWEEN":
+                low = where.low
+                high = where.high
+                if qmark:
+                    self.add_binding(low)
+                    self.add_binding(high)
+
                 sql_string = self.not_between_string().format(
-                    low=self._compile_value(where.low),
-                    high=self._compile_value(where.high),
+                    low=self._compile_value(low) if not qmark else "?",
+                    high=self._compile_value(high) if not qmark else "?",
                     column=self._table_column_string(where.column),
                     keyword=keyword,
                 )
@@ -657,7 +661,7 @@ class BaseGrammar:
                 query_value = "("
                 for val in value:
                     if qmark:
-                        query_value += "'?', "
+                        query_value += "?, "
                         self.add_binding(val)
                     else:
                         query_value += self.value_string().format(
@@ -671,7 +675,7 @@ class BaseGrammar:
                 sql_string = self.get_false_column_string()
                 query_value = 0
             elif qmark and value_type != "column":
-                query_value = "'?'"
+                query_value = "?"
                 if (
                     value is not True
                     and value_type != "value_equals"
@@ -681,7 +685,7 @@ class BaseGrammar:
                     self.add_binding(value)
             elif value_type == "value":
                 if qmark:
-                    query_value = "'?'"
+                    query_value = "?"
                 else:
                     query_value = self.value_string().format(value=value, separator="")
 
@@ -833,14 +837,14 @@ class BaseGrammar:
                 for column, value in dict(c).items():
                     if qmark:
                         self.add_binding(value)
-                        sql += f"'?'{separator}".strip()
+                        sql += f"?{separator}".strip()
                     else:
                         sql += self._compile_value(value, separator=separator)
         else:
             for column, value in dict(self._columns).items():
                 if qmark:
                     self.add_binding(value)
-                    sql += f"'?'{separator}".strip()
+                    sql += f"?{separator}".strip()
                 else:
                     sql += self._compile_value(value, separator=separator)
 

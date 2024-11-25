@@ -146,7 +146,6 @@ class MSSQLConnection(BaseConnection):
                     for q in query:
                         self.statement(q, ())
                     return
-                query = query.replace("'?'", "?")
                 self.statement(query, bindings)
                 if results == 1:
                     if not cursor.description:

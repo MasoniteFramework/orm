@@ -100,4 +100,4 @@ class TestSqliteUpdateGrammar(BaseInsertGrammarTest, unittest.TestCase):
         """
         self.builder.create(name="Joe").to_sql()
         """
-        return """INSERT INTO "users" ("name") VALUES ('?'), ('?'), ('?')"""
+        return """INSERT INTO "users" ("name") VALUES (?), (?), (?)"""

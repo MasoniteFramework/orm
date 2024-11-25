@@ -348,7 +348,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         self.builder = QueryBuilder(
             connection=self.__connection__,
             table=self.get_table_name(),
-            connection_details=self.get_connection_details(),
+            # connection_details=self.get_connection_details(),
             model=self,
             scopes=self._scopes.get(self.__class__),
             dry=self.__dry__,
@@ -544,13 +544,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return Collection(data)
 
     @classmethod
-    def create(
-        cls,
-        dictionary: Dict[str, Any] = None,
-        query: bool = False,
-        cast: bool = False,
-        **kwargs,
-    ):
+
+    
+    def create(cls, dictionary=None, query=False, cast=True, **kwargs)>>>> 3.x
         """Creates new records based off of a dictionary as well as data set on the model
         such as fillable values.
 
@@ -882,9 +878,13 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         if not query:
             if self.is_loaded():
+
                 result = builder.update(
                     self.__dirty_attributes__, ignore_mass_assignment=True
                 )
+
+                builder.update(self.__dirty_attributes__)
+
             else:
                 result = self.create(
                     self.__dirty_attributes__,
@@ -893,8 +893,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                     ignore_mass_assignment=True,
                 )
             self.observe_events(self, "saved")
-            self.fill(result.__attributes__)
             self.__dirty_attributes__ = {}
+            if self.is_loaded():
+                return self
             return result
 
         if self.is_loaded():
@@ -966,6 +967,18 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             return cast_map[cast_method]().set(value)
 
         return cast_method(value)
+
+    def transform_dict(self, attributes: dict):
+        new_dict = {}
+        for key, value in attributes.items():
+            if key in self.get_dates():
+                new_dict.update({key: self.get_new_datetime_string(value)})
+            elif key in self.__casts__:
+                new_dict.update({key: self._cast_attribute(key, value)})
+            else:
+                new_dict.update({key: value})
+
+        return new_dict
 
     @classmethod
     def load(cls, *loads):
