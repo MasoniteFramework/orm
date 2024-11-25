@@ -576,3 +576,7 @@ class Collection:
             items = items.all()
 
         return items
+
+    def __call__(self, *args):
+        related = self._items[0].__dict__['related']
+        return related.apply_query(self._items[0].builder)
