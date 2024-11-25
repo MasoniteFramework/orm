@@ -251,13 +251,13 @@ class BaseGrammar:
                         on_string += f"{keyword} {self._table_column_string(clause.column1)} {clause.equality} {self._table_column_string(clause.column2)} "
                     else:
                         if clause.value_type == "NULL":
-                            sql_string = self.where_null_string()
+                            sql_string = f"{self.where_null_string()} "
                             on_string += sql_string.format(
                                 keyword=keyword,
                                 column=self.process_column(clause.column),
                             )
                         elif clause.value_type == "NOT NULL":
-                            sql_string = self.where_not_null_string()
+                            sql_string = f"{self.where_not_null_string()} "
                             on_string += sql_string.format(
                                 keyword=keyword,
                                 column=self.process_column(clause.column),
@@ -292,7 +292,6 @@ class BaseGrammar:
         """
         sql = ""
         for update in self._updates:
-
             if update.update_type == "increment":
                 sql_string = self.increment_string()
             elif update.update_type == "decrement":
@@ -304,7 +303,6 @@ class BaseGrammar:
             value = update.value
             if isinstance(column, dict):
                 for key, value in column.items():
-
                     if hasattr(value, "expression"):
                         sql += self.column_value_string().format(
                             column=self._table_column_string(key),
@@ -888,7 +886,6 @@ class BaseGrammar:
         """
         table = None
         if column and "." in column:
-
             table, column = column.split(".")
 
         if column == "*":

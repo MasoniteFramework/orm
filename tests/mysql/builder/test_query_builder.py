@@ -1,14 +1,14 @@
+import datetime
 import inspect
 import unittest
 
-from tests.integrations.config.database import DATABASES
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import MySQLGrammar
 from src.masoniteorm.relationships import has_many
 from src.masoniteorm.scopes import SoftDeleteScope
+from tests.integrations.config.database import DATABASES
 from tests.utils import MockConnectionFactory
-import datetime
 
 
 class Articles(Model):
@@ -549,15 +549,6 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(sql, sql_ref)
 
-    def test_cast_values(self):
-        builder = self.get_builder(dry=True)
-        result = builder.cast_dates({"created_at": datetime.datetime(2021, 1, 1)})
-        self.assertEqual(result, {"created_at": "2021-01-01T00:00:00+00:00"})
-        result = builder.cast_dates({"created_at": datetime.date(2021, 1, 1)})
-        self.assertEqual(result, {"created_at": "2021-01-01T00:00:00+00:00"})
-        result = builder.cast_dates([{"created_at": datetime.date(2021, 1, 1)}])
-        self.assertEqual(result, [{"created_at": "2021-01-01T00:00:00+00:00"}])
-
 
 class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
     grammar = MySQLGrammar
@@ -917,3 +908,31 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.truncate()
         """
         return "SELECT * FROM `users` WHERE `users`.`votes` >= '100' FOR UPDATE"
+
+    def test_latest(self):
+        builder = self.get_builder()
+        builder.latest("email")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_oldest(self):
+        builder = self.get_builder()
+        builder.oldest("email")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def latest(self):
+        """
+        builder.order_by('email', 'des')
+        """
+        return "SELECT * FROM `users` ORDER BY `email` DESC"
+
+    def oldest(self):
+        """
+        builder.order_by('email', 'asc')
+        """
+        return "SELECT * FROM `users` ORDER BY `email` ASC"

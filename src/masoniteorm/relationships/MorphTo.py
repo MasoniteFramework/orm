@@ -50,7 +50,7 @@ class MorphTo(BaseRelationship):
 
     def __getattr__(self, attribute):
         relationship = self.fn(self)()
-        return getattr(relationship.builder, attribute)
+        return getattr(relationship._related_builder, attribute)
 
     def apply_query(self, builder, instance):
         """Apply the query and return a dictionary to be hydrated

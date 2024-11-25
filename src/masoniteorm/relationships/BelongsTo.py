@@ -53,7 +53,7 @@ class BelongsTo(BaseRelationship):
         if isinstance(relation, Collection):
             return builder.where_in(
                 f"{builder.get_table_name()}.{self.foreign_key}",
-                relation.pluck(self.local_key, keep_nulls=False).unique(),
+                Collection(relation._get_value(self.local_key)).unique(),
             ).get()
 
         else:
@@ -63,8 +63,6 @@ class BelongsTo(BaseRelationship):
             ).first()
 
     def register_related(self, key, model, collection):
-        related = collection.where(
-            self.foreign_key, getattr(model, self.local_key)
-        ).first()
+        related = collection.get(getattr(model, self.local_key), None)
 
-        model.add_relation({key: related or None})
+        model.add_relation({key: related[0] if related else None})

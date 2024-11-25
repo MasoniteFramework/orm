@@ -40,6 +40,7 @@ class Collection:
         if callback:
             filtered = self.filter(callback)
         response = None
+
         if filtered:
             response = filtered[0]
         return response
@@ -91,21 +92,41 @@ class Collection:
         return result
 
     def max(self, key=None):
-        """Returns the average of the items.
+        """Returns the max of the items.
 
-        If a key is given it will return the average of all the values of the key.
+        If a key is given it will return the max of all the values of the key.
 
         Keyword Arguments:
-            key {string} -- The key to use to find the average of all the values of that key. (default: {None})
+            key {string} -- The key to use to find the max of all the values of that key. (default: {None})
 
         Returns:
-            int -- Returns the average.
+            int -- Returns the max.
         """
         result = 0
         items = self._get_value(key) or self._items
 
         try:
             return max(items)
+        except (TypeError, ValueError):
+            pass
+        return result
+
+    def min(self, key=None):
+        """Returns the min of the items.
+
+        If a key is given it will return the min of all the values of the key.
+
+        Keyword Arguments:
+            key {string} -- The key to use to find the min of all the values of that key. (default: {None})
+
+        Returns:
+            int -- Returns the min.
+        """
+        result = 0
+        items = self._get_value(key) or self._items
+
+        try:
+            return min(items)
         except (TypeError, ValueError):
             pass
         return result
@@ -280,7 +301,7 @@ class Collection:
         self._items.append(value)
 
     def put(self, key, value):
-        self[key] = value
+        self._items[key] = value
         return self
 
     def random(self, count=None):
@@ -323,7 +344,7 @@ class Collection:
 
     def add_relation(self, result=None):
         for model in self._items:
-            model.add_relations(result or {})
+            model.add_relation(result or {})
 
         return self
 
@@ -351,7 +372,6 @@ class Collection:
         return json.dumps(self.serialize(), **kwargs)
 
     def group_by(self, key):
-
         from itertools import groupby
 
         self.sort(key)
@@ -410,7 +430,6 @@ class Collection:
         return self.__class__(attributes)
 
     def where_in(self, key, args: list) -> "Collection":
-
         attributes = []
 
         for item in self._items:
@@ -514,8 +533,13 @@ class Collection:
     def __getitem__(self, item):
         if isinstance(item, slice):
             return self.__class__(self._items[item])
+        if isinstance(item, dict):
+            return self._items.get(item, None)
 
-        return self._items[item]
+        try:
+            return self._items[item]
+        except KeyError:
+            return None
 
     def __setitem__(self, key, value):
         self._items[key] = value

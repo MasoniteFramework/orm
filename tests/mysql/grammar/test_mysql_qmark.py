@@ -82,7 +82,6 @@ class BaseQMarkTest:
         self.assertEqual(mark._bindings, bindings)
 
     def test_can_compile_sub_group_bindings(self):
-
         mark = self.builder.where(
             lambda query: (
                 query.where("challenger", 1)

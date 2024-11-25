@@ -71,9 +71,16 @@ class BaseTestCaseUpdateGrammar:
 
         self.assertEqual(to_sql, sql)
 
+    def test_update_null(self):
+        to_sql = self.builder.update({"name": None}, dry=True).to_sql()
+        print(to_sql)
+
+        sql = """UPDATE "users" SET "name" = \'None\'"""
+
+        self.assertEqual(to_sql, sql)
+
 
 class TestPostgresUpdateGrammar(BaseTestCaseUpdateGrammar, unittest.TestCase):
-
     grammar = "postgres"
 
     def can_compile_update(self):

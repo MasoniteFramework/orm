@@ -1,5 +1,4 @@
 class Platform:
-
     foreign_key_actions = {
         "cascade": "CASCADE",
         "set null": "SET NULL",
@@ -8,6 +7,8 @@ class Platform:
         "no action": "NO ACTION",
         "default": "SET DEFAULT",
     }
+
+    signed = {"signed": "SIGNED", "unsigned": "UNSIGNED"}
 
     def columnize(self, columns):
         sql = []

@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     services:
       postgres:
@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -58,12 +58,12 @@ jobs:
           python orm migrate --connection mysql
           make test
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     name: Lint
     steps:
       - uses: actions/checkout@v1
       - name: Set up Python 3.6
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: 3.6
       - name: Install Flake8
