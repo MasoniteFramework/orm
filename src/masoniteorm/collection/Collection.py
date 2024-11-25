@@ -580,11 +580,11 @@ class Collection:
 
     def __call__(self, *args):
         model = self.first()
-        print('callin collectin. has builder?', self._builder)
         if not model and self._builder:
             return self._builder
 
         if not model:
             return self
+
         related = self._items[0].__dict__['related']
         return related.apply_query(self._items[0].builder)
