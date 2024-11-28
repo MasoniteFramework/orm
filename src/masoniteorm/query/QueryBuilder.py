@@ -31,6 +31,7 @@ from ..pagination import LengthAwarePaginator, SimplePaginator
 from ..schema import Schema
 from ..scopes import BaseScope
 from .EagerRelation import EagerRelations
+from ..collection import Collection
 
 
 class QueryBuilder(ObservesEvents):
@@ -1905,11 +1906,22 @@ class QueryBuilder(ObservesEvents):
                                 related, result_set, hydrated_model, relation_key=relation
                             )
                             for eager in eagers:
-                                inner_related = getattr(result_set, eager).__dict__["related"]
-                                inner_result = inner_related.get_related(self, result_set)
-                                self._register_relationships_to_model(
-                                    inner_related, inner_result, result_set, relation_key=eager
-                                )
+                                if isinstance(result_set, Collection):
+
+                                    # Collection class
+                                    inner_related = result_set.get_related()
+                                    inner_result = inner_related.get_related(self, result_set)
+                                    # print("inner result", inner_result.serialize())
+                                    inner_related.relate_collection(eager, result_set, inner_result)
+                                    # self._register_relationships_to_model(
+                                    #     inner_related, inner_result, result_set, relation_key=eager
+                                    # )
+                                else:
+                                    inner_related = getattr(result_set, eager).__dict__["related"]
+                                    inner_result = inner_related.get_related(self, result_set)
+                                    self._register_relationships_to_model(
+                                        inner_related, inner_result, result_set, relation_key=eager
+                                    )
                     else:
                         # Not Nested
                         for eager in eager_load:
@@ -1950,6 +1962,7 @@ class QueryBuilder(ObservesEvents):
         """
         
         if related_result and isinstance(hydrated_model, Collection):
+            print('register to model', related_result)
             map_related = self._map_related(related_result, related)
             for model in hydrated_model:
                 if isinstance(related_result, Collection):

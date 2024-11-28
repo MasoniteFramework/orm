@@ -11,7 +11,9 @@ class User(Model):
 class Article(Model):
     __connection__ = "t"
 
-
+    @property
+    def user(self):
+        return self.has_one(User, "id", "user_id")
 
 
 
@@ -37,7 +39,12 @@ class TestHasManyRelatinship(unittest.TestCase):
         self.assertEqual(user.name, "bill")
         self.assertEqual(user.articles.first().title, 'masonite')
 
-    # def test_can_get_nested_eager_load_from_builder(self):
-    #     user = User.with_("articles.user").find(1)
-    #     self.assertEqual(user.profile.user.name, "bill")
-    #     self.assertEqual(user.profile.user.name, "bill")
+    def test_can_get_nested_eager_load_from_builder(self):
+        user = User.with_("articles.user").find(1)
+        self.assertEqual(user.articles.first().user.name, "bill")
+        self.assertEqual(user.articles.first().user.name, "bill")
+        self.assertEqual(user.articles.first().user.name, "bill")
+        self.assertEqual(user.articles.first().user.name, "bill")
+        self.assertEqual(user.articles.first().user.name, "bill")
+        self.assertEqual(user.articles.first().user.name, "bill")
+        self.assertEqual(user.articles.first().user.name, "bill")

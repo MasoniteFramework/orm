@@ -590,4 +590,5 @@ class Collection:
         return related.apply_query(self._items[0].builder)
 
     def get_related(self):
+        print("getting related", self._builder)
         return self._related
