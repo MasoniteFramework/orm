@@ -588,3 +588,6 @@ class Collection:
 
         related = self._items[0].__dict__['related']
         return related.apply_query(self._items[0].builder)
+
+    def get_related(self):
+        return self._related
