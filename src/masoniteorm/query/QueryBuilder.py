@@ -1229,6 +1229,7 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def with_count(self, relationship, callback=None):
+        self.select(*self._model.get_selects())
         return getattr(self._model, relationship).get_with_count_query(
             self, callback=callback
         )
@@ -2067,6 +2068,9 @@ class QueryBuilder(ObservesEvents):
 
         # Either _creates when creating, otherwise use columns
         columns = self._creates or self._columns
+        if not columns and not self._aggregates and self._model:
+            self.select(*self._model.get_selects())
+            columns = self._columns
 
         return self.grammar(
             columns=columns,
