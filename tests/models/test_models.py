@@ -37,6 +37,7 @@ class ModelTestForced(Model):
     __force_update__ = True
 
 class BaseModel(Model):
+    __dry__ = True
     def get_selects(self):
         return [f"{self.get_table_name()}.*"]
 
@@ -267,9 +268,26 @@ class TestModels(unittest.TestCase):
             """SELECT `users`.* FROM `users`""",
         )
 
-    def test_model_can_add_to_default_select(self):
+    def test_model_can_override_to_default_select(self):
         sql = ModelWithBaseModel.select(["products.name", "products.id", "store.name"]).to_sql()
         self.assertEqual(
             sql,
-            """SELECT `users`.*, `products`.`name`, `products`.`id`, `store`.`name` FROM `users`""",
+            """SELECT `products`.`name`, `products`.`id`, `store`.`name` FROM `users`""",
+        )
+
+    def test_model_can_use_aggregate_funcs_with_default_selects(self):
+        sql = ModelWithBaseModel.count().to_sql()
+        self.assertEqual(
+            sql,
+            """SELECT COUNT(*) AS m_count_reserved FROM `users`""",
+        )
+        sql = ModelWithBaseModel.max("id").to_sql()
+        self.assertEqual(
+            sql,
+            """SELECT MAX(`users`.`id`) AS id FROM `users`""",
+        )
+        sql = ModelWithBaseModel.min("id").to_sql()
+        self.assertEqual(
+            sql,
+            """SELECT MIN(`users`.`id`) AS id FROM `users`""",
         )

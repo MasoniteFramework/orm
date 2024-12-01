@@ -59,7 +59,7 @@ class BaseTestQueryRelationships(unittest.TestCase):
             connection_class=connection,
             connection="mssql",
             table=table,
-            model=User,
+            model=User(),
         )
 
     def test_has(self):
