@@ -1,11 +1,11 @@
 import re
 
 from ...expressions.expressions import (
-    SubGroupExpression,
-    SubSelectExpression,
-    SelectExpression,
     JoinClause,
     OnClause,
+    SelectExpression,
+    SubGroupExpression,
+    SubSelectExpression,
 )
 
 

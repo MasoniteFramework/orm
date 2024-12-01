@@ -1,4 +1,3 @@
-import inspect
 import unittest
 
 from tests.integrations.config.database import DATABASES
@@ -6,8 +5,6 @@ from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
-from src.masoniteorm.relationships import belongs_to
-from tests.utils import MockConnectionFactory
 from tests.integrations.config.database import DB
 from src.masoniteorm.collection import Collection
 

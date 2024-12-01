@@ -25,7 +25,6 @@ if os.getenv("RUN_POSTGRES_DATABASE") == "True":
                 grammar=PostgresGrammar,
                 connection=connection,
                 table=table,
-                # model=User,
                 connection_details=DATABASES,
             ).on("postgres")
 

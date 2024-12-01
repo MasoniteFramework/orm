@@ -6,8 +6,6 @@ from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
-from src.masoniteorm.relationships import belongs_to
-from tests.utils import MockConnectionFactory
 
 
 class User(Model):
@@ -26,7 +24,6 @@ class BaseTestQueryRelationships(unittest.TestCase):
             connection_class=connection,
             connection="dev",
             table=table,
-            # model=User,
             connection_details=DATABASES,
         ).on("dev")
 

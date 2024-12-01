@@ -1,16 +1,16 @@
 import inspect
 from copy import deepcopy
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Callable
+from typing import Any, Callable, Dict, List, Optional
 
 from ..collection.Collection import Collection
 from ..config import load_config
 from ..exceptions import (
     HTTP404,
     ConnectionNotRegistered,
+    InvalidArgument,
     ModelNotFound,
     MultipleRecordsFound,
-    InvalidArgument,
 )
 from ..expressions.expressions import (
     AggregateExpression,
