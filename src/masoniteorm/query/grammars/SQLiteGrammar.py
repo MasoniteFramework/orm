@@ -1,5 +1,6 @@
-from .BaseGrammar import BaseGrammar
 import re
+
+from .BaseGrammar import BaseGrammar
 
 
 class SQLiteGrammar(BaseGrammar):

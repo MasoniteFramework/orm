@@ -354,7 +354,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             dry=self.__dry__,
         )
 
-        return self.builder.select(*self.get_selects())
+        return self.builder
 
     def get_selects(self):
         return self.__selects__
