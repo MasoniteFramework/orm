@@ -61,6 +61,7 @@ class QueryBuilder(ObservesEvents):
         """
         self.config_path = config_path
         self.grammar = grammar
+        self._table = table
         self.dry = dry
         self._creates_related = {}
         self.connection = connection
