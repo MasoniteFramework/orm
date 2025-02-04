@@ -61,7 +61,6 @@ class QueryBuilder(ObservesEvents):
         """
         self.config_path = config_path
         self.grammar = grammar
-        self.table(table)
         self.dry = dry
         self._creates_related = {}
         self.connection = connection
@@ -75,10 +74,14 @@ class QueryBuilder(ObservesEvents):
         self._eager_relation = EagerRelations()
         if model:
             self._global_scopes = model._global_scopes
+            self.table(model.get_table_name())
             if model.__with__:
                 self.with_(model.__with__)
         else:
             self._global_scopes = {}
+
+        if table is not None:
+            self.table(table)
 
         self.builder = self
 

@@ -38,6 +38,13 @@ class BaseTestQueryBuilder:
             connection_details=DATABASES,
         )
 
+    def test_query_builder_table_name(self):
+        table = QueryBuilder(model=User).table('users').get_table_name()
+        self.assertEqual(table, 'users')
+
+        table = QueryBuilder(model=User).get_table_name()
+        self.assertEqual(table, 'users')
+
     def test_sum(self):
         builder = self.get_builder()
         builder.sum("age")
