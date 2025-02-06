@@ -120,3 +120,52 @@ class BaseTestQueryRelationships(unittest.TestCase):
         self.assertEqual(TestM.observed_hydrating, 1)
         self.assertEqual(TestM.observed_hydrated, 1)
         DB.rollback("dev")
+
+    def test_model_can_observe_callback(self):
+        events = {
+            "creating": False,
+            "created": False,
+            "deleting": False,
+            "deleted": False,
+            "hydrating": False,
+            "hydrated": False,
+            "saving": False,
+            "saved": False,
+            "updating": False,
+            "updated": False,
+        }
+        class ModelWithCallbacksObserver(Model):
+            def booted(cls):
+                cls.creating(lambda m: events.update({"creating": True}))
+                cls.created(lambda m: events.update({"created": True}))
+                cls.deleting(lambda m: events.update({"deleting": True}))
+                cls.deleted(lambda m: events.update({"deleted": True}))
+                cls.hydrating(lambda m: events.update({"hydrating": True}))
+                cls.hydrated(lambda m: events.update({"hydrated": True}))
+                cls.saving(lambda m: events.update({"saving": True}))
+                cls.saved(lambda m: events.update({"saved": True}))
+                cls.updating(lambda m: events.update({"updating": True}))
+                cls.updated(lambda m: events.update({"updated": True}))
+
+        model = ModelWithCallbacksObserver()
+        for event in events:
+            model.observe_events(model, event)
+
+        for event, is_called in events.items():
+            self.assertTrue(is_called)
+
+    def test_model_can_observe_two_callbacks_on_same_event(self):
+        creating_called_num  = 0
+        def callback(_):
+            nonlocal creating_called_num
+            creating_called_num += 1
+
+        class ModelWithCallbacksObserver(Model):
+            def booted(cls):
+                cls.creating(callback)
+                cls.creating(callback)
+
+        model = ModelWithCallbacksObserver()
+        model.observe_events(model, 'creating')
+
+        self.assertEqual(2, creating_called_num)
