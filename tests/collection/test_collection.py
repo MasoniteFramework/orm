@@ -64,6 +64,24 @@ class TestCollection(unittest.TestCase):
         self.assertEqual(len(collection.where_in("id", ["3"])), 1)
         self.assertEqual(len(collection.where_in("id", ["4"])), 0)
 
+    def test_where_not_in(self):
+        collection = Collection(
+            [
+                {"id": 1, "name": "Joe"},
+                {"id": 2, "name": "Joe"},
+                {"id": 3, "name": "Bob"},
+            ]
+        )
+        self.assertEqual(len(collection.where_not_in("id", [1, 2])), 1)
+        self.assertEqual(len(collection.where_not_in("id", [3])), 2)
+        self.assertEqual(len(collection.where_not_in("id", [4])), 3)
+
+        self.assertEqual(len(collection.where_not_in("id", ["1", "2"])), 1)
+        self.assertEqual(len(collection.where_not_in("id", ["3"])), 2)
+        self.assertEqual(len(collection.where_not_in("id", ["4"])), 3)
+
+        self.assertEqual(len(collection.where_not_in("name", ["Joe"])), 1)
+
     def test_where_in_bool(self):
         nested_collection = Collection(
             [
