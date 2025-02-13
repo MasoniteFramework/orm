@@ -64,6 +64,8 @@ class TestCollection(unittest.TestCase):
         self.assertEqual(len(collection.where_in("id", ["3"])), 1)
         self.assertEqual(len(collection.where_in("id", ["4"])), 0)
 
+        self.assertEqual(len(collection.where_in("name", ["Joe"])), 2)
+
     def test_where_not_in(self):
         collection = Collection(
             [
