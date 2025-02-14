@@ -139,8 +139,13 @@ class BaseRelationship:
         return return_query
 
     def attach(self, current_model, related_record):
+        local_key_value = getattr(current_model, self.local_key)
+        if not current_model.is_created():
+            current_model.fill({self.foreign_key: local_key_value})
+            return related_record.create(current_model.all_attributes(), cast=True).fresh()
+
         return related_record.update(
-            {self.foreign_key: getattr(current_model, self.local_key)}
+            {self.foreign_key: local_key_value}
         )
 
     def get_related(self, query, relation, eagers=None, callback=None):
@@ -173,9 +178,7 @@ class BaseRelationship:
         return related_record.update({self.foreign_key: None})
 
     def attach_related(self, current_model, related_record):
-        return related_record.update(
-            {self.foreign_key: getattr(current_model, self.local_key)}
-        )
+        self.attach(current_model, related_record)
 
     def detach_related(self, current_model, related_record):
         return related_record.where(

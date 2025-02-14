@@ -1042,14 +1042,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 "Saving many records requires an iterable like a collection or a list of models and not a Model object. To attach a model, use the 'attach' method."
             )
 
-        related = getattr(self.__class__, relation)
         for related_record in relating_records:
-            if not related_record.is_created():
-                related_record.create(related_record.all_attributes())
-            else:
-                related_record.save()
-
-            related.attach_related(self, related_record)
+            self.attach(relation, related_record)
 
     def detach_many(self, relation, relating_records):
         if isinstance(relating_records, Model):
@@ -1076,12 +1070,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
     def attach(self, relation, related_record):
         related = getattr(self.__class__, relation)
-
-        if not related_record.is_created():
-            related_record = related_record.create(related_record.all_attributes())
-        else:
-            related_record.save()
-
         return related.attach(self, related_record)
 
     def detach(self, relation, related_record):
@@ -1133,14 +1121,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return delete
 
     def attach_related(self, relation, related_record):
-        related = getattr(self.__class__, relation)
-
-        if not related_record.is_created():
-            related_record = related_record.create(related_record.all_attributes())
-        else:
-            related_record.save()
-
-        return related.attach_related(self, related_record)
+        return self.attach(relation, related_record)
 
     @classmethod
     def filter_fillable(cls, dictionary: Dict[str, Any]) -> Dict[str, Any]:
