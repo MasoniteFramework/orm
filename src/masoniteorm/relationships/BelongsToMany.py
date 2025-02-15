@@ -594,3 +594,13 @@ class BelongsToMany(BaseRelationship):
             .where(data)
             .delete()
         )
+
+    def attach(self, current_model, related_record):
+        foreign_key_value = getattr(related_record, self.foreign_key)
+        if not current_model.is_created():
+            current_model.fill({self.local_key: foreign_key_value})
+            return current_model.create(related_record.all_attributes(), cast=True).fresh()
+
+        return current_model.update(
+            {self.local_key: foreign_key_value}
+        )
