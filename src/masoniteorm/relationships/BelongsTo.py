@@ -98,7 +98,7 @@ class BelongsTo(BaseRelationship):
         foreign_key_value = getattr(related_record, self.foreign_key)
         if not current_model.is_created():
             current_model.fill({self.local_key: foreign_key_value})
-            return current_model.create(related_record.all_attributes(), cast=True)
+            return current_model.create(current_model.all_attributes(), cast=True)
 
         return current_model.update({self.local_key: foreign_key_value})
 
