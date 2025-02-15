@@ -69,14 +69,12 @@ class BaseRelationship:
         relationship = self.fn(self)()
         return getattr(relationship.builder, attribute)
 
-    def apply_query(self, foreign, owner, foreign_key, local_key):
+    def apply_query(self, foreign, owner):
         """Apply the query and return a dictionary to be hydrated
 
         Arguments:
             foreign {oject} -- The relationship object
             owner {object} -- The current model oject.
-            foreign_key {string} -- The column to access on the relationship model.
-            local_key {string} -- The column to access on the current model.
 
         Returns:
             dict -- A dictionary of data which will be hydrated.
