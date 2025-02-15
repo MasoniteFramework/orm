@@ -1,5 +1,5 @@
-from .BaseRelationship import BaseRelationship
 from ..collection import Collection
+from .BaseRelationship import BaseRelationship
 
 
 class HasOne(BaseRelationship):
@@ -100,11 +100,9 @@ class HasOne(BaseRelationship):
         local_key_value = getattr(current_model, self.local_key)
         if not related_record.is_created():
             related_record.fill({self.foreign_key: local_key_value})
-            return related_record.create(related_record.all_attributes(), cast=True).fresh()
+            return related_record.create(related_record.all_attributes(), cast=True)
 
-        return related_record.update(
-            {self.foreign_key: local_key_value}
-        )
+        return related_record.update({self.foreign_key: local_key_value})
 
     def detach(self, current_model, related_record):
         return related_record.update({self.foreign_key: None})

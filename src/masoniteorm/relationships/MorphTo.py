@@ -1,6 +1,6 @@
 from ..collection import Collection
-from .BaseRelationship import BaseRelationship
 from ..config import load_config
+from .BaseRelationship import BaseRelationship
 
 
 class MorphTo(BaseRelationship):

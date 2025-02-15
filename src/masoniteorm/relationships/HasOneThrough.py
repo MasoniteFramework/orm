@@ -1,5 +1,5 @@
-from .BaseRelationship import BaseRelationship
 from ..collection import Collection
+from .BaseRelationship import BaseRelationship
 
 
 class HasOneThrough(BaseRelationship):
