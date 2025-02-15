@@ -185,16 +185,6 @@ class HasOneThrough(BaseRelationship):
                 getattr(relation, self.local_key),
             ).first()
 
-    def attach(self, current_model, related_record):
-        raise NotImplementedError(
-            "HasOneThrough relationship does not implement the attach method"
-        )
-
-    def attach_related(self, current_model, related_record):
-        raise NotImplementedError(
-            "HasOneThrough relationship does not implement the attach_related method"
-        )
-
     def query_has(self, current_builder, method="where_exists"):
         dist_table = self.distant_builder.get_table_name()
         int_table = self.intermediary_builder.get_table_name()

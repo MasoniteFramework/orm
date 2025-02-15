@@ -108,23 +108,3 @@ class MorphToMany(BaseRelationship):
 
     def morph_map(self):
         return load_config().DB._morph_map
-
-    def attach(self, current_model, related_record):
-        raise NotImplementedError(
-            "MorphToMany relationship does not implement the attach method"
-        )
-
-    def attach_related(self, current_model, related_record):
-        raise NotImplementedError(
-            "MorphToMany relationship does not implement the attach_related method"
-        )
-
-    def query_has(self, related_record, method="where_exists"):
-        raise NotImplementedError(
-            "MorphMany relationship does not implement the has method"
-        )
-
-    def query_where_exists(self, related_record, method="where_exists"):
-        raise NotImplementedError(
-            "MorphMany relationship does not implement the where_exists method"
-        )

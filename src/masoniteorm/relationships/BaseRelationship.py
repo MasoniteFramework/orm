@@ -84,16 +84,10 @@ class BaseRelationship:
         return foreign.where(foreign_key, owner().__attributes__[local_key]).first()
 
     def query_where_exists(self, builder, callback, method="where_exists"):
-        query = self.get_builder()
-        getattr(builder, method)(
-            callback(
-                query.where_column(
-                    f"{query.get_table_name()}.{self.foreign_key}",
-                    f"{builder.get_table_name()}.{self.local_key}",
-                )
-            )
+        klass = self.__class__.__name__
+        raise NotImplementedError(
+            f"{klass} relationship does not implement the 'query_where_exists' method"
         )
-        return query
 
     def joins(self, builder, clause=None):
         other_table = self.get_builder().get_table_name()
@@ -139,13 +133,9 @@ class BaseRelationship:
         return return_query
 
     def attach(self, current_model, related_record):
-        local_key_value = getattr(current_model, self.local_key)
-        if not current_model.is_created():
-            current_model.fill({self.foreign_key: local_key_value})
-            return related_record.create(current_model.all_attributes(), cast=True).fresh()
-
-        return related_record.update(
-            {self.foreign_key: local_key_value}
+        klass = self.__class__.__name__
+        raise NotImplementedError(
+            f"{klass} relationship does not implement the 'attach' method"
         )
 
     def get_related(self, query, relation, eagers=None, callback=None):
@@ -166,36 +156,34 @@ class BaseRelationship:
             ).get()
 
     def relate(self, related_record):
-        return (
-            self.get_builder()
-            .where(self.foreign_key, related_record.__attributes__[self.local_key])
-            ._set_creates_related(
-                {self.foreign_key: related_record.__attributes__[self.local_key]}
-            )
+        klass = self.__class__.__name__
+        raise NotImplementedError(
+            f"{klass} relationship does not implement the 'relate' method"
         )
 
     def detach(self, current_model, related_record):
-        return related_record.update({self.foreign_key: None})
-
-    def attach_related(self, current_model, related_record):
-        self.attach(current_model, related_record)
-
-    def detach_related(self, current_model, related_record):
-        return related_record.where(
-            {self.foreign_key: getattr(current_model, self.local_key)}
-        ).delete()
-
-    def query_has(self, current_query_builder, method="where_exists"):
-        related_builder = self.get_builder()
-
-        getattr(current_query_builder, method)(
-            related_builder.where_column(
-                f"{related_builder.get_table_name()}.{self.foreign_key}",
-                f"{current_query_builder.get_table_name()}.{self.local_key}",
-            )
+        klass = self.__class__.__name__
+        raise NotImplementedError(
+            f"{klass} relationship does not implement the 'detach' method"
         )
 
-        return related_builder
+    def attach_related(self, current_model, related_record):
+        klass = self.__class__.__name__
+        raise NotImplementedError(
+            f"{klass} relationship does not implement the 'attach_related' method"
+        )
+
+    def detach_related(self, current_model, related_record):
+        klass = self.__class__.__name__
+        raise NotImplementedError(
+            f"{klass} relationship does not implement the 'detach_related' method"
+        )
+
+    def query_has(self, current_query_builder, method="where_exists"):
+        klass = self.__class__.__name__
+        raise NotImplementedError(
+            f"{klass} relationship does not implement the 'query_has' method"
+        )
 
     def map_related(self, related_result):
         return related_result
