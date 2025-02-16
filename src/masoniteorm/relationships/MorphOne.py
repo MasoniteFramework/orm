@@ -39,15 +39,13 @@ class MorphOne(BaseRelationship):
         self.polymorphic_builder = self.fn(self)()
         self.set_keys(owner, self.fn)
 
-        if instance.is_loaded():
-            if attribute in instance._relationships:
-                return instance._relationships[attribute]
-
-            result = self.apply_query(self._related_builder, instance)
-
-            return result
-        else:
+        if not instance.is_loaded():
             return self
+
+        if attribute in instance._relationships:
+            return instance._relationships[attribute]
+
+        return self.apply_query(self._related_builder, instance)
 
     def __getattr__(self, attribute):
         relationship = self.fn(self)()

@@ -57,14 +57,13 @@ class BaseRelationship:
         self.set_keys(instance, attribute)
         self._related_builder = relationship.builder
 
-        if instance.is_loaded():
-            if attribute in instance._relationships:
-                return instance._relationships[attribute]
-
-            result = self.apply_query(self._related_builder, instance)
-            return result
-        else:
+        if not instance.is_loaded():
             return self
+
+        if attribute in instance._relationships:
+            return instance._relationships[attribute]
+
+        return self.apply_query(self._related_builder, instance)
 
     def __getattr__(self, attribute):
         relationship = self.fn(self)()

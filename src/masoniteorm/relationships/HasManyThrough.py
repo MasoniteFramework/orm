@@ -53,16 +53,15 @@ class HasManyThrough(BaseRelationship):
         self.intermediary_builder = relationship2.builder
         self.set_keys(self.distant_builder, self.intermediary_builder, attribute)
 
-        if instance.is_loaded():
-            if attribute in instance._relationships:
-                return instance._relationships[attribute]
-
-            result = self.apply_related_query(
-                self.distant_builder, self.intermediary_builder, instance
-            )
-            return result
-        else:
+        if not instance.is_loaded():
             return self
+
+        if attribute in instance._relationships:
+            return instance._relationships[attribute]
+
+        return self.apply_related_query(
+            self.distant_builder, self.intermediary_builder, instance
+        )
 
     def apply_related_query(self, distant_builder, intermediary_builder, owner):
         """
