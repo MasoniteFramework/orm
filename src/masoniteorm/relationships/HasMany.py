@@ -41,3 +41,20 @@ class HasMany(BaseRelationship):
             return related_record.create(related_record.all_attributes(), cast=True)
 
         return related_record.update({self.foreign_key: local_key_value})
+
+    def get_related(self, query, relation, eagers=None, callback=None):
+        eagers = eagers or []
+        builder = self.get_builder().with_(eagers)
+
+        if callback:
+            callback(builder)
+        if isinstance(relation, Collection):
+            return builder.where_in(
+                f"{builder.get_table_name()}.{self.foreign_key}",
+                Collection(relation._get_value(self.local_key)).unique(),
+            ).get()
+
+        return builder.where(
+            f"{builder.get_table_name()}.{self.foreign_key}",
+            getattr(relation, self.local_key),
+        ).get()

@@ -80,7 +80,10 @@ class BaseRelationship:
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-        return foreign.where(foreign_key, owner().__attributes__[local_key]).first()
+        klass = self.__class__.__name__
+        raise NotImplementedError(
+            f"{klass} relationship does not implement the 'apply_query' method"
+        )
 
     def query_where_exists(self, builder, callback, method="where_exists"):
         """Adds a criteria clause to the query filter for existing related records"""
@@ -102,36 +105,11 @@ class BaseRelationship:
         )
 
     def get_with_count_query(self, builder, callback):
-        query = self.get_builder()
-        if not builder._columns:
-            builder = builder.select("*")
-
-        return_query = builder.add_select(
-            f"{query.get_table_name()}_count",
-            lambda q: (
-                (
-                    q.count("*")
-                    .where_column(
-                        f"{builder.get_table_name()}.{self.local_key}",
-                        f"{query.get_table_name()}.{self.foreign_key}",
-                    )
-                    .table(query.get_table_name())
-                    .when(
-                        callback,
-                        lambda q: (
-                            q.where_in(
-                                builder._model.get_primary_key(),
-                                callback(
-                                    query.select(builder._model.get_primary_key())
-                                ),
-                            )
-                        ),
-                    )
-                )
-            ),
+        """Adds a clause to the query to get the record count of the relationship"""
+        klass = self.__class__.__name__
+        raise NotImplementedError(
+            f"{klass} relationship does not implement the 'get_with_count_query' method"
         )
-
-        return return_query
 
     def attach(self, current_model, related_record):
         """Link a related model to the current model"""
@@ -141,21 +119,10 @@ class BaseRelationship:
         )
 
     def get_related(self, query, relation, eagers=None, callback=None):
-        eagers = eagers or []
-        builder = self.get_builder().with_(eagers)
-
-        if callback:
-            callback(builder)
-        if isinstance(relation, Collection):
-            return builder.where_in(
-                f"{builder.get_table_name()}.{self.foreign_key}",
-                Collection(relation._get_value(self.local_key)).unique(),
-            ).get()
-        else:
-            return builder.where(
-                f"{builder.get_table_name()}.{self.foreign_key}",
-                getattr(relation, self.local_key),
-            ).get()
+        klass = self.__class__.__name__
+        raise NotImplementedError(
+            f"{klass} relationship does not implement the 'get_related' method"
+        )
 
     def relate(self, related_record):
         klass = self.__class__.__name__
@@ -192,4 +159,7 @@ class BaseRelationship:
         )
 
     def map_related(self, related_result):
-        return related_result
+        klass = self.__class__.__name__
+        raise NotImplementedError(
+            f"{klass} relationship does not implement the 'related_result' method"
+        )
