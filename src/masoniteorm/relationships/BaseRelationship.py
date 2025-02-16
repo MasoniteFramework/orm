@@ -40,7 +40,8 @@ class BaseRelationship:
         return self._related_builder
 
     def __get__(self, instance, owner):
-        """This method is called when the decorated method is accessed.
+        """
+        This method is called when the decorated method is accessed.
 
         Arguments:
             instance {object|None} -- The instance we called.
@@ -70,7 +71,7 @@ class BaseRelationship:
         return getattr(relationship.builder, attribute)
 
     def apply_query(self, foreign, owner):
-        """Apply the query and return a dictionary to be hydrated
+        """Return a dictionary to hydrate the model with
 
         Arguments:
             foreign {oject} -- The relationship object
@@ -82,12 +83,14 @@ class BaseRelationship:
         return foreign.where(foreign_key, owner().__attributes__[local_key]).first()
 
     def query_where_exists(self, builder, callback, method="where_exists"):
+        """Adds a criteria clause to the query filter for existing related records"""
         klass = self.__class__.__name__
         raise NotImplementedError(
             f"{klass} relationship does not implement the 'query_where_exists' method"
         )
 
     def joins(self, builder, clause=None):
+        """Helper method for adding join clauses to a relationship"""
         other_table = self.get_builder().get_table_name()
         local_table = builder.get_table_name()
         return builder.join(
@@ -131,6 +134,7 @@ class BaseRelationship:
         return return_query
 
     def attach(self, current_model, related_record):
+        """Link a related model to the current model"""
         klass = self.__class__.__name__
         raise NotImplementedError(
             f"{klass} relationship does not implement the 'attach' method"
@@ -160,24 +164,28 @@ class BaseRelationship:
         )
 
     def detach(self, current_model, related_record):
+        """Unlink a related model from the current model"""
         klass = self.__class__.__name__
         raise NotImplementedError(
             f"{klass} relationship does not implement the 'detach' method"
         )
 
     def attach_related(self, current_model, related_record):
+        """Unlink a related model from the current model"""
         klass = self.__class__.__name__
         raise NotImplementedError(
             f"{klass} relationship does not implement the 'attach_related' method"
         )
 
     def detach_related(self, current_model, related_record):
+        """Unlink a related model from the current model"""
         klass = self.__class__.__name__
         raise NotImplementedError(
             f"{klass} relationship does not implement the 'detach_related' method"
         )
 
     def query_has(self, current_query_builder, method="where_exists"):
+        """Adds a clause to the query to chek if a rwlarion exists"""
         klass = self.__class__.__name__
         raise NotImplementedError(
             f"{klass} relationship does not implement the 'query_has' method"
