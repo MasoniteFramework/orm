@@ -3,9 +3,9 @@ import unittest
 from src.masoniteorm.collection import Collection
 from src.masoniteorm.models import Model
 from src.masoniteorm.relationships import has_many_through
-from tests.integrations.config.database import DATABASES
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import SQLitePlatform
+from tests.integrations.config.database import DATABASES
 
 
 class Enrolment(Model):
@@ -26,66 +26,66 @@ class Course(Model):
     __fillable__ = ["course_id", "name"]
 
     @has_many_through(
-        None,
-        "in_course_id",
-        "active_student_id",
-        "course_id",
-        "student_id"
+        None, "in_course_id", "active_student_id", "course_id", "student_id"
     )
     def students(self):
         return [Student, Enrolment]
 
 
 class TestHasManyThroughRelationship(unittest.TestCase):
-    def setUp(self):
-        self.schema = Schema(
+    @classmethod
+    def setUpClass(cls):
+        cls.schema = Schema(
             connection="dev",
             connection_details=DATABASES,
             platform=SQLitePlatform,
         ).on("dev")
 
-        with self.schema.create_table_if_not_exists("student") as table:
+        with cls.schema.create("student") as table:
             table.integer("student_id").primary()
             table.string("name")
 
-        with self.schema.create_table_if_not_exists("course") as table:
+        with cls.schema.create("course") as table:
             table.integer("course_id").primary()
             table.string("name")
 
-        with self.schema.create_table_if_not_exists("enrolment") as table:
+        with cls.schema.create("enrolment") as table:
             table.integer("enrolment_id").primary()
             table.integer("active_student_id")
             table.integer("in_course_id")
 
-        if not Course.count():
-            Course.builder.new().bulk_create(
-                [
-                    {"course_id": 10, "name": "Math 101"},
-                    {"course_id": 20, "name": "History 101"},
-                    {"course_id": 30, "name": "Math 302"},
-                    {"course_id": 40, "name": "Biology 302"},
-                ]
-            )
+        Course.builder.new().bulk_create(
+            [
+                {"course_id": 10, "name": "Math 101"},
+                {"course_id": 20, "name": "History 101"},
+                {"course_id": 30, "name": "Math 302"},
+                {"course_id": 40, "name": "Biology 302"},
+            ]
+        )
 
-        if not Student.count():
-            Student.builder.new().bulk_create(
-                [
-                    {"student_id": 100, "name": "Bob"},
-                    {"student_id": 200, "name": "Alice"},
-                    {"student_id": 300, "name": "Steve"},
-                    {"student_id": 400, "name": "Megan"},
-                ]
-            )
+        Student.builder.new().bulk_create(
+            [
+                {"student_id": 100, "name": "Bob"},
+                {"student_id": 200, "name": "Alice"},
+                {"student_id": 300, "name": "Steve"},
+                {"student_id": 400, "name": "Megan"},
+            ]
+        )
 
-        if not Enrolment.count():
-            Enrolment.builder.new().bulk_create(
-                [
-                    {"active_student_id": 100, "in_course_id": 30},
-                    {"active_student_id": 200, "in_course_id": 10},
-                    {"active_student_id": 100, "in_course_id": 10},
-                    {"active_student_id": 400, "in_course_id": 20},
-                ]
-            )
+        Enrolment.builder.new().bulk_create(
+            [
+                {"active_student_id": 100, "in_course_id": 30},
+                {"active_student_id": 200, "in_course_id": 10},
+                {"active_student_id": 100, "in_course_id": 10},
+                {"active_student_id": 400, "in_course_id": 20},
+            ]
+        )
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.schema.drop_table_if_exists("enrolment")
+        cls.schema.drop_table_if_exists("course")
+        cls.schema.drop_table_if_exists("student")
 
     def test_has_many_through_can_eager_load(self):
         courses = Course.where("name", "Math 101").with_("students").get()
@@ -103,16 +103,10 @@ class TestHasManyThroughRelationship(unittest.TestCase):
         self.assertEqual(student2.name, "Bob")
 
         # check .first() and .get() produce the same result
-        single = (
-            Course.where("name", "History 101")
-            .with_("students")
-            .first()
-        )
+        single = Course.where("name", "History 101").with_("students").first()
         self.assertIsInstance(single.students, Collection)
 
-        single_get = (
-            Course.where("name", "History 101").with_("students").get()
-        )
+        single_get = Course.where("name", "History 101").with_("students").get()
 
         print(single.students)
         print(single_get.first().students)
@@ -124,11 +118,7 @@ class TestHasManyThroughRelationship(unittest.TestCase):
         self.assertEqual(single_name, single_get_name)
 
     def test_has_many_through_eager_load_can_be_empty(self):
-        courses = (
-            Course.where("name", "Biology 302")
-            .with_("students")
-            .get()
-        )
+        courses = Course.where("name", "Biology 302").with_("students").get()
         self.assertIsNone(courses.first().students)
 
     def test_has_many_through_can_get_related(self):
@@ -138,7 +128,5 @@ class TestHasManyThroughRelationship(unittest.TestCase):
         self.assertEqual(course.students.count(), 2)
 
     def test_has_many_through_has_query(self):
-        courses = Course.where_has(
-            "students", lambda query: query.where("name", "Bob")
-        )
+        courses = Course.where_has("students", lambda query: query.where("name", "Bob"))
         self.assertEqual(courses.count(), 2)

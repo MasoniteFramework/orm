@@ -1,28 +1,54 @@
-import inspect
 import unittest
 
-from tests.integrations.config.database import DATABASES
 from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
+from src.masoniteorm.schema import Schema
+from src.masoniteorm.schema.platforms import SQLitePlatform
+from tests.integrations.config.database import DATABASES
 
 
 class User(Model):
     __connection__ = "dev"
 
 
-class BaseTestQueryRelationships(unittest.TestCase):
+class SqliteTestBuilderPagination(unittest.TestCase):
     maxDiff = None
 
-    def get_builder(self, table="users", model=User()):
-        connection = ConnectionFactory().make("sqlite")
+    @classmethod
+    def setUpClass(cls):
+        cls.connection = ConnectionFactory().make("sqlite")
+        cls.schema = Schema(
+            connection="dev",
+            connection_details=DATABASES,
+            platform=SQLitePlatform,
+        ).on("dev")
+
+        with cls.schema.create("users") as table:
+            table.integer("id").primary()
+            table.string("name")
+
+        User.builder.new().bulk_create(
+            [
+                {"name": "Steve"},
+                {"name": "Joe"},
+                {"name": "Bob"},
+            ]
+        )
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.schema.drop_table_if_exists("users")
+
+    def get_builder(self, table="users", model=User):
+
         return QueryBuilder(
             grammar=SQLiteGrammar,
-            connection_class=connection,
+            connection_class=self.connection,
             connection="dev",
             table=table,
-            model=model,
+            model=model(),
             connection_details=DATABASES,
         ).on("dev")
 

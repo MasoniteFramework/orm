@@ -1,21 +1,24 @@
 import unittest
 
-from tests.integrations.config.database import DATABASES
-from src.masoniteorm.connections import SQLiteConnection
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import SQLitePlatform
+from tests.integrations.config.database import DATABASES
 
 
 class TestSQLiteSchemaBuilder(unittest.TestCase):
     maxDiff = None
 
-    def setUp(self):
-        self.schema = Schema(
+    @classmethod
+    def setUpClass(cls):
+        cls.schema = Schema(
             connection="dev",
             connection_details=DATABASES,
             platform=SQLitePlatform,
             dry=True,
         ).on("dev")
+
+    def tearDown(self):
+        self.schema.drop_table_if_exists("users")
 
     def test_can_add_columns(self):
         with self.schema.create("users") as blueprint:
@@ -362,6 +365,6 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             [
-                'CREATE TABLE "users" ("status" VARCHAR(255) CHECK(status IN (\'active\', \'inactive\')) NOT NULL DEFAULT \'active\')'
+                "CREATE TABLE \"users\" (\"status\" VARCHAR(255) CHECK(status IN ('active', 'inactive')) NOT NULL DEFAULT 'active')"
             ],
         )

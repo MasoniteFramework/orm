@@ -1,9 +1,10 @@
-import os
 import unittest
 
 from src.masoniteorm.models import Model
-from src.masoniteorm.relationships import belongs_to, has_many, morph_to
-from tests.integrations.config.database import DB
+from src.masoniteorm.relationships import belongs_to, morph_to
+from src.masoniteorm.schema import Schema
+from src.masoniteorm.schema.platforms import SQLitePlatform
+from tests.integrations.config.database import DATABASES, DB
 
 
 class Profile(Model):
@@ -35,7 +36,6 @@ class Like(Model):
 
 class User(Model):
     __connection__ = "dev"
-
     _eager_loads = ()
 
 
@@ -44,6 +44,51 @@ DB.morph_map({"user": User, "article": Articles})
 
 class TestRelationships(unittest.TestCase):
     maxDiff = None
+
+    @classmethod
+    def setUpClass(cls):
+        cls.schema = Schema(
+            connection="dev",
+            connection_details=DATABASES,
+            platform=SQLitePlatform,
+        ).on("dev")
+
+        cls.schema.drop_table_if_exists("users")
+        with cls.schema.create("users") as table:
+            table.integer("id").primary()
+            table.boolean("is_admin").default(False)
+            table.string("name")
+
+        cls.schema.drop_table_if_exists("profiles")
+        with cls.schema.create("profiles") as table:
+            table.integer("id").primary()
+            table.integer("user_id")
+            table.string("occupation")
+
+        cls.schema.drop_table_if_exists("articles")
+        with cls.schema.create("articles") as table:
+            table.integer("id").primary()
+            table.integer("user_id")
+            table.integer("logo_id")
+            table.string("name")
+
+        cls.schema.drop_table_if_exists("logos")
+        with cls.schema.create("logos") as table:
+            table.integer("id").primary()
+
+        cls.schema.drop_table_if_exists("likes")
+        with cls.schema.create("likes") as table:
+            table.integer("id").primary()
+            table.string("record_type")
+            table.integer("record_id")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.schema.drop_table_if_exists("users")
+        cls.schema.drop_table_if_exists("profiles")
+        cls.schema.drop_table_if_exists("articles")
+        cls.schema.drop_table_if_exists("logos")
+        cls.schema.drop_table_if_exists("likes")
 
     def test_can_get_polymorphic_relation(self):
         likes = Like.get()

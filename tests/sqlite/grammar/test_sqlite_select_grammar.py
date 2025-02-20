@@ -1,4 +1,3 @@
-import inspect
 import unittest
 
 from src.masoniteorm.query.grammars import SQLiteGrammar

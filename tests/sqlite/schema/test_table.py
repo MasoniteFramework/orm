@@ -1,13 +1,31 @@
 import unittest
 
-from tests.integrations.config.database import DATABASES
 from src.masoniteorm.connections import SQLiteConnection
-from src.masoniteorm.schema import Column, Table
+from src.masoniteorm.schema import Column, Schema, Table
 from src.masoniteorm.schema.platforms.SQLitePlatform import SQLitePlatform
+from tests.integrations.config.database import DATABASES
 
 
 class TestTable(unittest.TestCase):
     maxDiff = None
+
+    @classmethod
+    def setUpClass(cls):
+        cls.schema = Schema(
+            connection="dev",
+            connection_details=DATABASES,
+            platform=SQLitePlatform,
+        ).on("dev")
+
+        with cls.schema.create("table_schema") as table:
+            table.integer("id").primary()
+            table.string("name")
+            table.boolean("flag")
+            table.string("password")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.schema.drop_table_if_exists("table_schema")
 
     def setUp(self):
         self.platform = SQLitePlatform()

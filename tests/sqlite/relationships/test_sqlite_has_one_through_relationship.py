@@ -2,9 +2,9 @@ import unittest
 
 from src.masoniteorm.models import Model
 from src.masoniteorm.relationships import has_one_through
-from tests.integrations.config.database import DATABASES
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import SQLitePlatform
+from tests.integrations.config.database import DATABASES
 
 
 class Port(Model):
@@ -29,65 +29,68 @@ class IncomingShipment(Model):
         return [Country, Port]
 
 
-
 class TestHasOneThroughRelationship(unittest.TestCase):
-    def setUp(self):
-        self.schema = Schema(
+    @classmethod
+    def setUpClass(cls):
+        cls.schema = Schema(
             connection="dev",
             connection_details=DATABASES,
             platform=SQLitePlatform,
         ).on("dev")
 
-        with self.schema.create_table_if_not_exists("incoming_shipments") as table:
+        with cls.schema.create("incoming_shipments") as table:
             table.integer("shipment_id").primary()
             table.string("name")
             table.integer("from_port_id")
 
-        with self.schema.create_table_if_not_exists("ports") as table:
+        with cls.schema.create("ports") as table:
             table.integer("port_id").primary()
             table.string("name")
             table.integer("port_country_id")
 
-        with self.schema.create_table_if_not_exists("countries") as table:
+        with cls.schema.create("countries") as table:
             table.integer("country_id").primary()
             table.string("name")
 
-        if not Country.count():
-            Country.builder.new().bulk_create(
-                [
-                    {"country_id": 10, "name": "Australia"},
-                    {"country_id": 20, "name": "USA"},
-                    {"country_id": 30, "name": "Canada"},
-                    {"country_id": 40, "name": "United Kingdom"},
-                ]
-            )
+        Country.builder.new().bulk_create(
+            [
+                {"country_id": 10, "name": "Australia"},
+                {"country_id": 20, "name": "USA"},
+                {"country_id": 30, "name": "Canada"},
+                {"country_id": 40, "name": "United Kingdom"},
+            ]
+        )
 
-        if not Port.count():
-            Port.builder.new().bulk_create(
-                [
-                    {"port_id": 100, "name": "Melbourne", "port_country_id": 10},
-                    {"port_id": 200, "name": "Darwin", "port_country_id": 10},
-                    {"port_id": 300, "name": "South Louisiana", "port_country_id": 20},
-                    {"port_id": 400, "name": "Houston", "port_country_id": 20},
-                    {"port_id": 500, "name": "Montreal", "port_country_id": 30},
-                    {"port_id": 600, "name": "Vancouver", "port_country_id": 30},
-                    {"port_id": 700, "name": "Southampton", "port_country_id": 40},
-                    {"port_id": 800, "name": "London Gateway", "port_country_id": 40},
-                ]
-            )
+        Port.builder.new().bulk_create(
+            [
+                {"port_id": 100, "name": "Melbourne", "port_country_id": 10},
+                {"port_id": 200, "name": "Darwin", "port_country_id": 10},
+                {"port_id": 300, "name": "South Louisiana", "port_country_id": 20},
+                {"port_id": 400, "name": "Houston", "port_country_id": 20},
+                {"port_id": 500, "name": "Montreal", "port_country_id": 30},
+                {"port_id": 600, "name": "Vancouver", "port_country_id": 30},
+                {"port_id": 700, "name": "Southampton", "port_country_id": 40},
+                {"port_id": 800, "name": "London Gateway", "port_country_id": 40},
+            ]
+        )
 
-        if not IncomingShipment.count():
-            IncomingShipment.builder.new().bulk_create(
-                [
-                    {"name": "Bread", "from_port_id": 300},
-                    {"name": "Milk", "from_port_id": 100},
-                    {"name": "Tractor Parts", "from_port_id": 100},
-                    {"name": "Fridges", "from_port_id": 700},
-                    {"name": "Wheat", "from_port_id": 600},
-                    {"name": "Kettles", "from_port_id": 400},
-                    {"name": "Bread", "from_port_id": 700},
-                ]
-            )
+        IncomingShipment.builder.new().bulk_create(
+            [
+                {"name": "Bread", "from_port_id": 300},
+                {"name": "Milk", "from_port_id": 100},
+                {"name": "Tractor Parts", "from_port_id": 100},
+                {"name": "Fridges", "from_port_id": 700},
+                {"name": "Wheat", "from_port_id": 600},
+                {"name": "Kettles", "from_port_id": 400},
+                {"name": "Bread", "from_port_id": 700},
+            ]
+        )
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.schema.drop_table_if_exists("countries")
+        cls.schema.drop_table_if_exists("ports")
+        cls.schema.drop_table_if_exists("incoming_shipments")
 
     def test_has_one_through_can_eager_load(self):
         shipments = IncomingShipment.where("name", "Bread").with_("from_country").get()
