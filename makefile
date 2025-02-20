@@ -10,6 +10,8 @@ init: .env .bootstrapped-pip
 # 	Create MySQL Database
 # 	Create Postgres Database
 test: init
+	rm -f orm.sqlite3
+	touch orm.sqlite3
 	python -m pytest tests
 ci:
 	make test
