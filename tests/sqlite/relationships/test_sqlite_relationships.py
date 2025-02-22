@@ -1,6 +1,6 @@
 import unittest
 
-from build.lib.masoniteorm.query import QueryBuilder
+from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.models import Model
 from src.masoniteorm.relationships import belongs_to, belongs_to_many, has_many, has_one
 from src.masoniteorm.schema import Schema
