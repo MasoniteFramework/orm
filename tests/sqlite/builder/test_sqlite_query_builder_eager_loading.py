@@ -58,6 +58,7 @@ class SqliteTestBuilderEagerLoading(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        cls.dev_builder = QueryBuilder().on("dev")
         cls.connection = ConnectionFactory().make("sqlite")
         cls.schema = Schema(
             connection="dev",
@@ -88,28 +89,28 @@ class SqliteTestBuilderEagerLoading(unittest.TestCase):
             table.integer("id").primary()
             table.string("name")
 
-        User.builder.new().bulk_create(
+        cls.dev_builder.table("users").bulk_create(
             [
                 {"name": "Steve"},
                 {"name": "Joe"},
                 {"name": "Bob"},
             ]
         )
-        Profile.builder.new().bulk_create(
+        cls.dev_builder.table("profiles").bulk_create(
             [
                 {"user_id": 1, "occupation": "occupation"},
                 {"user_id": 2, "occupation": "occupation"},
                 {"user_id": 3, "occupation": "occupation"},
             ]
         )
-        Logo.builder.new().bulk_create(
+        cls.dev_builder.table("logos").bulk_create(
             [
                 {"name": "Bing"},
                 {"name": "Zap"},
                 {"name": "Swoosh"},
             ]
         )
-        Article.builder.new().bulk_create(
+        cls.dev_builder.table("articles").bulk_create(
             [
                 {"name": "Article 1", "user_id": 2, "logo_id": 3},
                 {"name": "Article 2", "user_id": 2, "logo_id": 1},
@@ -126,14 +127,12 @@ class SqliteTestBuilderEagerLoading(unittest.TestCase):
         cls.schema.drop_table_if_exists("profiles")
         cls.schema.drop_table_if_exists("logos")
 
-    def get_builder(self, table="users", model=User):
+    def get_builder(self, table="users"):
         return QueryBuilder(
             grammar=SQLiteGrammar,
             connection="dev",
-            connection_class=self.connection,
             table=table,
-            model=model(),
-            connection_details=DATABASES,
+            model=User(),
         ).on("dev")
 
     def test_with(self):

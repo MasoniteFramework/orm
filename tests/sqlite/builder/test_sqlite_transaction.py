@@ -46,7 +46,6 @@ class SqliteTestTransaction(unittest.TestCase):
             connection_class=self.connection,
             connection="dev",
             table=table,
-            model=User(),
             connection_details=DATABASES,
         ).on("dev")
 

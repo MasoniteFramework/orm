@@ -60,6 +60,7 @@ class SqliteTestModel(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        cls.dev_builder = QueryBuilder().on("dev")
         cls.connection = ConnectionFactory().make("sqlite")
         cls.schema = Schema(
             # grammar=SQLiteGrammar,
@@ -113,14 +114,14 @@ class SqliteTestModel(unittest.TestCase):
             blueprint.foreign("user_id").references("id").on("users_hidden")
             blueprint.timestamps()
 
-        User.builder.new().bulk_create(
+        cls.dev_builder.table("users").bulk_create(
             [
                 {"name": "Steve", "email": "steve@masonite.com", "age": 3},
                 {"name": "Joe", "email": "joe@masonite.com", "age": 2},
                 {"name": "Bob", "email": "bob@masonite.com", "age": 1},
             ]
         )
-        UserForced.builder.new().bulk_create(
+        cls.dev_builder.table("forced_users").bulk_create(
             [
                 {"name": "Steve", "email": "steve@masonite.com", "age": 3},
                 {"name": "Joe", "email": "joe@masonite.com", "age": 2},
@@ -131,6 +132,7 @@ class SqliteTestModel(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.schema.drop_table_if_exists("users")
+        cls.schema.drop_table_if_exists("forced_users")
         cls.schema.drop_table_if_exists("users_hidden")
         cls.schema.drop_table_if_exists("groups")
         cls.schema.drop_table_if_exists("group_user")

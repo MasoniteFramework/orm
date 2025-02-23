@@ -18,7 +18,6 @@ class SqliteTestQueryBuilder(unittest.TestCase):
         cls.connection = ConnectionFactory().make("sqlite")
         cls.schema = Schema(
             connection="dev",
-            connection_class=cls.connection,
             connection_details=DATABASES,
             platform=SQLitePlatform,
         ).on("dev")
@@ -148,7 +147,6 @@ class SqliteTestQueryBuilder(unittest.TestCase):
     def test_first_with_columns(self):
         builder = self.get_builder()
         builder.order_by("name").first(["name", "id"], query=True)
-        # pytest.exit(builder.to_sql())
         sql = """SELECT "users_query"."name", "users_query"."id" FROM "users_query" ORDER BY "name" ASC LIMIT 1"""
         self.assertEqual(builder.to_sql(), sql)
 

@@ -18,6 +18,7 @@ class SqliteTestBuilderPagination(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        cls.dev_builder = QueryBuilder().on("dev")
         cls.connection = ConnectionFactory().make("sqlite")
         cls.schema = Schema(
             connection="dev",
@@ -25,11 +26,12 @@ class SqliteTestBuilderPagination(unittest.TestCase):
             platform=SQLitePlatform,
         ).on("dev")
 
+        cls.schema.drop_table_if_exists("users")
         with cls.schema.create("users") as table:
             table.integer("id").primary()
             table.string("name")
 
-        User.builder.new().bulk_create(
+        cls.dev_builder.table("users").bulk_create(
             [
                 {"name": "Steve"},
                 {"name": "Joe"},

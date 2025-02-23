@@ -1,6 +1,7 @@
 import unittest
 
 from src.masoniteorm.models import Model
+from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.relationships import has_one_through
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import SQLitePlatform
@@ -32,27 +33,31 @@ class IncomingShipment(Model):
 class TestHasOneThroughRelationship(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        cls.dev_builder = QueryBuilder().on("dev")
         cls.schema = Schema(
             connection="dev",
             connection_details=DATABASES,
             platform=SQLitePlatform,
         ).on("dev")
 
+        cls.schema.drop_table_if_exists("incoming_shipments")
         with cls.schema.create("incoming_shipments") as table:
             table.integer("shipment_id").primary()
             table.string("name")
             table.integer("from_port_id")
 
+        cls.schema.drop_table_if_exists("ports")
         with cls.schema.create("ports") as table:
             table.integer("port_id").primary()
             table.string("name")
             table.integer("port_country_id")
 
+        cls.schema.drop_table_if_exists("countries")
         with cls.schema.create("countries") as table:
             table.integer("country_id").primary()
             table.string("name")
 
-        Country.builder.new().bulk_create(
+        cls.dev_builder.table("countries").bulk_create(
             [
                 {"country_id": 10, "name": "Australia"},
                 {"country_id": 20, "name": "USA"},
@@ -61,7 +66,7 @@ class TestHasOneThroughRelationship(unittest.TestCase):
             ]
         )
 
-        Port.builder.new().bulk_create(
+        cls.dev_builder.table("ports").bulk_create(
             [
                 {"port_id": 100, "name": "Melbourne", "port_country_id": 10},
                 {"port_id": 200, "name": "Darwin", "port_country_id": 10},
@@ -74,7 +79,7 @@ class TestHasOneThroughRelationship(unittest.TestCase):
             ]
         )
 
-        IncomingShipment.builder.new().bulk_create(
+        cls.dev_builder.table("incoming_shipments").bulk_create(
             [
                 {"name": "Bread", "from_port_id": 300},
                 {"name": "Milk", "from_port_id": 100},

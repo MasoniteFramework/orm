@@ -2,6 +2,7 @@ import unittest
 
 from src.masoniteorm.collection import Collection
 from src.masoniteorm.models import Model
+from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.relationships import has_many_through
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import SQLitePlatform
@@ -35,26 +36,30 @@ class Course(Model):
 class TestHasManyThroughRelationship(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        cls.dev_builder = QueryBuilder().on("dev")
         cls.schema = Schema(
             connection="dev",
             connection_details=DATABASES,
             platform=SQLitePlatform,
         ).on("dev")
 
+        cls.schema.drop_table_if_exists("student")
         with cls.schema.create("student") as table:
             table.integer("student_id").primary()
             table.string("name")
 
+        cls.schema.drop_table_if_exists("course")
         with cls.schema.create("course") as table:
             table.integer("course_id").primary()
             table.string("name")
 
+        cls.schema.drop_table_if_exists("enrolment")
         with cls.schema.create("enrolment") as table:
             table.integer("enrolment_id").primary()
             table.integer("active_student_id")
             table.integer("in_course_id")
 
-        Course.builder.new().bulk_create(
+        cls.dev_builder.table("courses").bulk_create(
             [
                 {"course_id": 10, "name": "Math 101"},
                 {"course_id": 20, "name": "History 101"},
@@ -63,7 +68,7 @@ class TestHasManyThroughRelationship(unittest.TestCase):
             ]
         )
 
-        Student.builder.new().bulk_create(
+        cls.dev_builder.table("student").bulk_create(
             [
                 {"student_id": 100, "name": "Bob"},
                 {"student_id": 200, "name": "Alice"},
@@ -72,7 +77,7 @@ class TestHasManyThroughRelationship(unittest.TestCase):
             ]
         )
 
-        Enrolment.builder.new().bulk_create(
+        cls.dev_builder.table("enrolment").bulk_create(
             [
                 {"active_student_id": 100, "in_course_id": 30},
                 {"active_student_id": 200, "in_course_id": 10},
