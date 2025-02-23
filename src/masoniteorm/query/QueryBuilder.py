@@ -1792,7 +1792,7 @@ class QueryBuilder(ObservesEvents):
     def _get_eager_load_result(self, related, collection):
         return related.eager_load_from_collection(collection)
 
-    def find(self, record_id, query=False):
+    def find(self, record_id, column=None, query=False):
         """Finds a row by the primary key ID. Requires a model
 
         Arguments:
@@ -1801,14 +1801,23 @@ class QueryBuilder(ObservesEvents):
         Returns:
             Model|None
         """
-        self.where(self._model.get_primary_key(), record_id)
+        if not column:
+            if not self._model:
+                raise InvalidArgument("A colum to search is required")
+
+            column = self._model.get_primary_key()
+
+        if isinstance(record_id, (list, tuple)):
+            self.where_in(column, record_id)
+        else:
+            self.where(column, record_id)
 
         if query:
             return self
 
         return self.first()
 
-    def find_or(self, record_id: int, callback: Callable, args=None):
+    def find_or(self, record_id: int, callback: Callable, args=None, column=None):
         """Finds a row by the primary key ID (Requires a model) or raise a ModelNotFound exception.
 
         Arguments:
@@ -1822,7 +1831,7 @@ class QueryBuilder(ObservesEvents):
         if not callable(callback):
             raise InvalidArgument("A callback must be callable.")
 
-        result = self.find(record_id=record_id)
+        result = self.find(record_id=record_id, column=column)
 
         if not result:
             if not args:
@@ -1832,7 +1841,7 @@ class QueryBuilder(ObservesEvents):
 
         return result
 
-    def find_or_fail(self, record_id):
+    def find_or_fail(self, record_id, column=None):
         """Finds a row by the primary key ID (Requires a model) or raise a ModelNotFound exception.
 
         Arguments:
@@ -1842,14 +1851,14 @@ class QueryBuilder(ObservesEvents):
             Model|ModelNotFound
         """
 
-        result = self.find(record_id=record_id)
+        result = self.find(record_id=record_id, column=column)
 
         if not result:
             raise ModelNotFound()
 
         return result
 
-    def find_or_404(self, record_id):
+    def find_or_404(self, record_id, column=None):
         """Finds a row by the primary key ID (Requires a model) or raise an 404 exception.
 
         Arguments:
@@ -1860,7 +1869,7 @@ class QueryBuilder(ObservesEvents):
         """
 
         try:
-            return self.find_or_fail(record_id)
+            return self.find_or_fail(record_id=record_id, column=column)
         except ModelNotFound:
             raise HTTP404()
 
