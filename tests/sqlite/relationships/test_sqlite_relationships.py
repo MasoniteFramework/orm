@@ -2,7 +2,8 @@ import unittest
 
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
-from src.masoniteorm.relationships import belongs_to, belongs_to_many, has_many, has_one
+from src.masoniteorm.relationships import (belongs_to, belongs_to_many,
+                                           has_many, has_one)
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import SQLitePlatform
 from tests.integrations.config.database import DATABASES

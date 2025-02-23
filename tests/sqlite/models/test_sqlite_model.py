@@ -2,6 +2,7 @@ import unittest
 
 from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.models import Model
+from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.relationships import belongs_to_many
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms.SQLitePlatform import SQLitePlatform

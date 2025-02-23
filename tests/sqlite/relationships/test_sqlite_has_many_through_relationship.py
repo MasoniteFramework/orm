@@ -59,7 +59,7 @@ class TestHasManyThroughRelationship(unittest.TestCase):
             table.integer("active_student_id")
             table.integer("in_course_id")
 
-        cls.dev_builder.table("courses").bulk_create(
+        cls.dev_builder.table("course").bulk_create(
             [
                 {"course_id": 10, "name": "Math 101"},
                 {"course_id": 20, "name": "History 101"},
