@@ -3,6 +3,7 @@ import unittest
 from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
+from src.masoniteorm.query.grammars import SQLiteGrammar
 from src.masoniteorm.relationships import belongs_to_many
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms.SQLitePlatform import SQLitePlatform
@@ -24,7 +25,6 @@ class UserForced(Model):
     __connection__ = "dev"
     __table__ = "forced_users"
     __timestamps__ = False
-    __dry__ = True
     __force_update__ = True
 
 
@@ -48,11 +48,11 @@ class UserHydrateHidden(Model):
 class Group(Model):
     __connection__ = "dev"
     __table__ = "groups"
-    __fillable = ["name"]
-    __with__ = ["team"]
+    __fillable__ = ["name"]
+    __with__ = ["users"]
 
     @belongs_to_many("group_id", "user_id", "id", "id", table="group_user")
-    def team(self):
+    def users(self):
         return UserHydrateHidden
 
 
@@ -64,12 +64,12 @@ class SqliteTestModel(unittest.TestCase):
         cls.dev_builder = QueryBuilder().on("dev")
         cls.connection = ConnectionFactory().make("sqlite")
         cls.schema = Schema(
-            # grammar=SQLiteGrammar,
+            grammar=SQLiteGrammar,
             connection="dev",
             connection_class=cls.connection,
             connection_details=DATABASES,
             platform=SQLitePlatform,
-        ).on("dev")
+        )
 
         cls.schema.drop_table_if_exists("users")
         with cls.schema.create("users") as table:
@@ -117,9 +117,9 @@ class SqliteTestModel(unittest.TestCase):
 
         cls.dev_builder.table("users").bulk_create(
             [
-                {"name": "Steve", "email": "steve@masonite.com", "age": 3},
-                {"name": "Joe", "email": "joe@masonite.com", "age": 2},
-                {"name": "Bob", "email": "bob@masonite.com", "age": 1},
+                {"name": "Steve", "email": "steve@masonite.com", "age": 33},
+                {"name": "Joe", "email": "joe@masonite.com", "age": 22},
+                {"name": "Bob", "email": "bob@masonite.com", "age": 11},
             ]
         )
         cls.dev_builder.table("forced_users").bulk_create(
@@ -159,6 +159,8 @@ class SqliteTestModel(unittest.TestCase):
         self.assertEqual(
             sql, """SELECT * FROM "users" WHERE "users"."id" IN ('1','2','3')"""
         )
+        users = User.find([1, 3])
+        self.assertEqual(users.count(), 2)
 
     def test_find_or_if_record_not_found(self):
         # Insane record number so record cannot be found
@@ -183,7 +185,6 @@ class SqliteTestModel(unittest.TestCase):
         )
 
     def test_model_can_use_selects_from_methods(self):
-
         self.assertEqual(
             SelectPass.all(["username"], query=True).to_sql(),
             'SELECT "select_passes"."username" FROM "select_passes"',
@@ -194,43 +195,23 @@ class SqliteTestModel(unittest.TestCase):
         sql = user.update(
             {"name": user.name, "email": "different@domain.com"}, dry=True
         ).to_sql()
-        # TODO: fix dry .update returns select query
         # unchanged name attribute is not updated
-        # self.assertEqual(
-        #     sql,
-        #     """UPDATE "users" SET "email" = 'different@domain.com' WHERE "id" = '{}'""".format(
-        #         user.id
-        #     ),
-        # )
-
-    def test_can_force_update_on_method(self):
-        user = User.first()
-        # Todo: fix Model not passing keyword args to querybuilder for update()
-        # sql = user.update({"name": user.name, "email": "new@domain.com"}, force=True).to_sql()
-        # self.assertEqual(
-        #     sql,
-        #     """UPDATE "users" SET "name" = 'bill', "username" = 'new' WHERE "id" = '{}'""".format(
-        #         user.id
-        #     ),
-        # )
-
-    def test_can_force_update_on_model(self):
-        user = UserForced.first()
-        sql = user.update({"name": user.name, "email": "new@domain.com"}).to_sql()
-
         self.assertEqual(
             sql,
-            """UPDATE "forced_users" SET "name" = 'Steve', "email" = 'new@domain.com' WHERE "id" = '{}'""".format(
+            """UPDATE "users" SET "email" = 'different@domain.com' WHERE "id" = '{}'""".format(
                 user.id
             ),
         )
 
-    def test_force_update(self):
-        user = User.first()
-        sql = user.force_update(
-            {"name": user.name, "email": "new@domain.com"}, dry=True
-        ).to_sql()
+        # test the update was persisted
+        user.update({"name": user.name, "email": "different@domain.com"})
+        check_user = User.first()
+        self.assertEqual(check_user.id, user.id)
+        self.assertEqual(check_user.email, "different@domain.com")
 
+    def test_can_force_update_on_method(self):
+        user = User.first()
+        sql = user.update({"name": user.name, "email": "new@domain.com"}, force=True, dry=True).to_sql()
         self.assertEqual(
             sql,
             """UPDATE "users" SET "name" = 'Steve', "email" = 'new@domain.com' WHERE "id" = '{}'""".format(
@@ -238,17 +219,57 @@ class SqliteTestModel(unittest.TestCase):
             ),
         )
 
+        # test the update was persisted
+        user.update({"name": user.name, "email": "new@domain.com"})
+        check_user = User.first()
+        self.assertEqual(check_user.id, user.id)
+        self.assertEqual(check_user.email, "new@domain.com")
+
+    def test_can_force_update_on_model(self):
+        user = UserForced.first()
+        sql = user.update({"name": user.name, "email": "new@domain.com"}, dry=True).to_sql()
+        self.assertEqual(
+            sql,
+            """UPDATE "forced_users" SET "name" = 'Steve', "email" = 'new@domain.com' WHERE "id" = '{}'""".format(
+                user.id
+            ),
+        )
+
+        # check it was persisted
+        user.update({"name": user.name, "email": "new@domain.com"})
+        check_user = User.first()
+        self.assertEqual(check_user.id, user.id)
+        self.assertEqual(check_user.email, "new@domain.com")
+
+    def test_force_update(self):
+        user = User.first()
+        sql = user.force_update(
+            {"name": user.name, "email": "new@domain.com"}, dry=True
+        ).to_sql()
+        self.assertEqual(
+            sql,
+            """UPDATE "users" SET "name" = 'Steve', "email" = 'new@domain.com' WHERE "id" = '{}'""".format(
+                user.id
+            ),
+        )
+
+        # check it was persisted
+        user.force_update({"name": user.name, "email": "new@domain.com"})
+        check_user = User.first()
+        self.assertEqual(check_user.id, user.id)
+        self.assertEqual(check_user.email, "new@domain.com")
+
     def test_update_is_not_done_when_no_changes(self):
-        user = User().first()
-        sql = user.update({"name": user.name}).to_sql()
+        user = User.first()
+        sql = user.update({"name": user.name}, dry=True).to_sql()
         self.assertNotIn("UPDATE", sql)
 
     def test_should_collect_correct_amount_data_using_between(self):
-        count = User.between("age", 1, 2).get().count()
+        count = User.between("age", 15, 35).get().count()
         self.assertEqual(count, 2)
 
     def test_should_collect_correct_amount_data_using_not_between(self):
-        count = User.where_not_null("id").not_between("age", 1, 2).get().count()
+        count = User.not_between("age", 12, 50).get().count()
         self.assertEqual(count, 1)
 
     def test_get_columns(self):
@@ -267,6 +288,7 @@ class SqliteTestModel(unittest.TestCase):
             setup.timestamps()
 
         # add a single record so we can hydrate the model
+        # to be able to get the columns
         AltUser.create(
             {
                 "name": "Steve",
@@ -298,20 +320,16 @@ class SqliteTestModel(unittest.TestCase):
         UserHydrateHidden.create(
             name="Name", password="pass_value", token="token_value"
         )
-
         Group.create(name="Group")
 
         user = UserHydrateHidden.first()
         group = Group.first()
+        group.attach_related("users", user)
 
-        group.attach_related("team", user)
-
-        serialized = Group.first().serialize()
-
-        self.assertIn("team", serialized)
-        self.assertTrue("team", serialized)
-
-        relation_serialized = serialized.get("team")
-
-        self.assertNotIn("password", relation_serialized)
-        self.assertNotIn("token", relation_serialized)
+        group_data = Group.first().serialize()
+        relation_serialized = group_data.get("users")
+        self.assertIsInstance(relation_serialized, list)
+        # check the hidden fields are not in the serialized data
+        group_user = relation_serialized[0]
+        self.assertNotIn("password", group_user)
+        self.assertNotIn("token", group_user)
