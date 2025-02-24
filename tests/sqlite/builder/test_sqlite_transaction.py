@@ -36,6 +36,9 @@ class SqliteTestTransaction(unittest.TestCase):
             table.string("email")
             table.string("password")
 
+    def setUp(self):
+        self.schema.truncate("users")
+
     @classmethod
     def tearDownClass(cls):
         cls.schema.drop_table_if_exists("users")
@@ -49,22 +52,71 @@ class SqliteTestTransaction(unittest.TestCase):
             connection_details=DATABASES,
         ).on("dev")
 
-    # def test_transaction(self):
-    #     builder = self.get_builder()
-    #     builder.begin()
-    #     builder.create({"name": "phillip3", "email": "phillip3"})
-    #     user = builder.where("name", "phillip3").first()
-    #     self.assertEqual(user["name"], "phillip3")
-    #     builder.rollback()
-    #     user = builder.where("name", "phillip3").first()
-    #     self.assertEqual(user, None)
+    def test_transaction_commit(self):
+        builder = self.get_builder()
+        builder.begin()
+        try:
+            builder.create(
+                {"name": "phillip3", "email": "phillip3", "password": "secret"}
+            )
+            builder.commit()
+        except Exception as e:
+            builder.rollback()
+            self.assertEqual(str(e), "")
 
-    def test_transaction_globally(self):
-        connection = DB.begin_transaction("dev")
-        self.assertEqual(connection, self.get_builder().new_connection())
-        DB.commit("dev")
-        DB.begin_transaction("dev")
-        DB.rollback("dev")
+        user = builder.where("name", "phillip3").first()
+        self.assertEqual(user["name"], "phillip3")
+
+    def test_transaction_rollback(self):
+        builder = self.get_builder()
+        builder.begin()
+        try:
+            builder.create(
+                {"name": "phillip3", "email": "phillip3", "password": "secret"}
+            )
+            user = builder.where("name", "phillip3").first()
+            self.assertEqual(user["name"], "phillip3")
+        except Exception as e:
+            builder.rollback()
+            self.assertEqual(str(e), "")
+
+        builder.rollback()
+        user = builder.where("name", "phillip3").first()
+        self.assertEqual(user, None)
+
+    def test_transaction_globally_coimmit(self):
+        builder = self.get_builder()
+        connection = DB.begin_transaction(builder.connection)
+        self.assertEqual(connection, builder.new_connection())
+        try:
+            builder.create(
+                {"name": "phillip3", "email": "phillip3", "password": "secret"}
+            )
+            DB.commit(builder.connection)
+        except Exception as e:
+            DB.rollback(builder.connection)
+            self.assertEqual(str(e), "")
+
+        user = builder.where("name", "phillip3").first()
+        self.assertEqual(user["name"], "phillip3")
+
+    def test_transaction_globally_rollback(self):
+        builder = self.get_builder()
+        connection = DB.begin_transaction(builder.connection)
+        self.assertEqual(connection, builder.new_connection())
+        try:
+            builder.create(
+                {"name": "phillip3", "email": "phillip3", "password": "secret"}
+            )
+            user = builder.where("name", "phillip3").first()
+            self.assertEqual(user["name"], "phillip3")
+        except Exception as e:
+            DB.rollback(builder.connection)
+            self.assertEqual(str(e), "")
+
+        DB.rollback(builder.connection)
+        user = builder.where("name", "phillip3").first()
+        self.assertEqual(user, None)
 
     def test_chunking(self):
         for users in self.get_builder().chunk(10):
