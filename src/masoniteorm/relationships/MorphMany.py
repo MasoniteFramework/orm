@@ -1,6 +1,6 @@
 from ..collection import Collection
-from .BaseRelationship import BaseRelationship
 from ..config import load_config
+from .BaseRelationship import BaseRelationship
 
 
 class MorphMany(BaseRelationship):
@@ -39,15 +39,13 @@ class MorphMany(BaseRelationship):
         self.polymorphic_builder = self.fn(self)()
         self.set_keys(owner, self.fn)
 
-        if instance.is_loaded():
-            if attribute in instance._relationships:
-                return instance._relationships[attribute]
-
-            result = self.apply_query(self._related_builder, instance)
-
-            return result
-        else:
+        if not instance.is_loaded():
             return self
+
+        if attribute in instance._relationships:
+            return instance._relationships[attribute]
+
+        return self.apply_query(self._related_builder, instance)
 
     def __getattr__(self, attribute):
         relationship = self.fn(self)()
@@ -151,18 +149,3 @@ class MorphMany(BaseRelationship):
             )
 
         return record_type
-
-    def attach(self, current_model, related_record):
-        raise NotImplementedError(
-            "HasOneThrough relationship does not implement the attach method"
-        )
-
-    def attach_related(self, current_model, related_record):
-        raise NotImplementedError(
-            "HasOneThrough relationship does not implement the attach_related method"
-        )
-
-    def relate(self, related_record):
-        raise NotImplementedError(
-            "MorphMany relationship does not implement the relate method"
-        )

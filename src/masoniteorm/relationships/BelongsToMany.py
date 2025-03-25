@@ -1,8 +1,9 @@
-from .BaseRelationship import BaseRelationship
-from ..collection import Collection
-from inflection import singularize
-from ..models.Pivot import Pivot
 import pendulum
+from inflection import singularize
+
+from ..collection import Collection
+from ..models.Pivot import Pivot
+from .BaseRelationship import BaseRelationship
 
 
 class BelongsToMany(BaseRelationship):
