@@ -287,8 +287,7 @@ class Schema:
         return bool(self.new_connection().query(sql, ()))
 
     def get_schema(self):
-        """Gets the schema set on the migration class
-        """
+        """Gets the schema set on the migration class"""
         return self.schema or self.get_connection_information().get("full_details").get(
             "schema"
         )

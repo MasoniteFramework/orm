@@ -72,16 +72,21 @@ class SQLitePlatform(Platform):
             table_create_format.format(
                 table=self.get_table_string().format(table=table.name).strip(),
                 columns=", ".join(self.columnize(table.get_added_columns())).strip(),
-                constraints=", "
-                + ", ".join(self.constraintize(table.get_added_constraints()))
-                if table.get_added_constraints()
-                else "",
-                foreign_keys=", "
-                + ", ".join(
-                    self.foreign_key_constraintize(table.name, table.added_foreign_keys)
-                )
-                if table.added_foreign_keys
-                else "",
+                constraints=(
+                    ", " + ", ".join(self.constraintize(table.get_added_constraints()))
+                    if table.get_added_constraints()
+                    else ""
+                ),
+                foreign_keys=(
+                    ", "
+                    + ", ".join(
+                        self.foreign_key_constraintize(
+                            table.name, table.added_foreign_keys
+                        )
+                    )
+                    if table.added_foreign_keys
+                    else ""
+                ),
             )
         )
 
@@ -212,18 +217,22 @@ class SQLitePlatform(Platform):
                 self.create_format().format(
                     table=self.get_table_string().format(table=diff.name).strip(),
                     columns=", ".join(self.columnize(columns)).strip(),
-                    constraints=", "
-                    + ", ".join(self.constraintize(diff.get_added_constraints()))
-                    if diff.get_added_constraints()
-                    else "",
-                    foreign_keys=", "
-                    + ", ".join(
-                        self.foreign_key_constraintize(
-                            diff.name, diff.added_foreign_keys
+                    constraints=(
+                        ", "
+                        + ", ".join(self.constraintize(diff.get_added_constraints()))
+                        if diff.get_added_constraints()
+                        else ""
+                    ),
+                    foreign_keys=(
+                        ", "
+                        + ", ".join(
+                            self.foreign_key_constraintize(
+                                diff.name, diff.added_foreign_keys
+                            )
                         )
-                    )
-                    if diff.added_foreign_keys
-                    else "",
+                        if diff.added_foreign_keys
+                        else ""
+                    ),
                 )
             )
 

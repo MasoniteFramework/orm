@@ -83,16 +83,24 @@ class PostgresPlatform(Platform):
             table_create_format.format(
                 table=self.wrap_table(table.name),
                 columns=", ".join(self.columnize(table.get_added_columns())).strip(),
-                constraints=", "
-                + ", ".join(self.constraintize(table.get_added_constraints(), table))
-                if table.get_added_constraints()
-                else "",
-                foreign_keys=", "
-                + ", ".join(
-                    self.foreign_key_constraintize(table.name, table.added_foreign_keys)
-                )
-                if table.added_foreign_keys
-                else "",
+                constraints=(
+                    ", "
+                    + ", ".join(
+                        self.constraintize(table.get_added_constraints(), table)
+                    )
+                    if table.get_added_constraints()
+                    else ""
+                ),
+                foreign_keys=(
+                    ", "
+                    + ", ".join(
+                        self.foreign_key_constraintize(
+                            table.name, table.added_foreign_keys
+                        )
+                    )
+                    if table.added_foreign_keys
+                    else ""
+                ),
             )
         )
 
@@ -202,9 +210,11 @@ class PostgresPlatform(Platform):
                         constraint="PRIMARY KEY" if column.primary else "",
                         nullable="NULL" if column.is_null else "NOT NULL",
                         default=default,
-                        after=(" AFTER " + self.wrap_column(column._after))
-                        if column._after
-                        else "",
+                        after=(
+                            (" AFTER " + self.wrap_column(column._after))
+                            if column._after
+                            else ""
+                        ),
                     )
                     .strip()
                 )
@@ -268,9 +278,11 @@ class PostgresPlatform(Platform):
                         name=self.wrap_column(name),
                         data_type=self.type_map.get(column.column_type),
                         nullable="NULL" if column.is_null else "NOT NULL",
-                        length="(" + str(column.length) + ")"
-                        if column.column_type not in self.types_without_lengths
-                        else "",
+                        length=(
+                            "(" + str(column.length) + ")"
+                            if column.column_type not in self.types_without_lengths
+                            else ""
+                        ),
                     )
                     .strip()
                 )
