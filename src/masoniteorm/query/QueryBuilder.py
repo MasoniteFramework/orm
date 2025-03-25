@@ -1489,7 +1489,7 @@ class QueryBuilder(ObservesEvents):
         self._updates += (UpdateQueryExpression(updates),)
         return self
 
-    def increment(self, column, value=1):
+    def increment(self, column, value=1, dry=False):
         """Increments a column's value.
 
         Arguments:
@@ -1521,6 +1521,9 @@ class QueryBuilder(ObservesEvents):
             UpdateQueryExpression(column, value, update_type="increment"),
         )
 
+        if dry or self.dry:
+            return self.get_grammar().compile("update").to_sql()
+
         self.set_action("update")
         results = self.new_connection().query(self.to_qmark(), self._bindings)
         processed_results = self.get_processor().get_column_value(
@@ -1528,7 +1531,7 @@ class QueryBuilder(ObservesEvents):
         )
         return processed_results
 
-    def decrement(self, column, value=1):
+    def decrement(self, column, value=1, dry=False):
         """Decrements a column's value.
 
         Arguments:
@@ -1560,6 +1563,9 @@ class QueryBuilder(ObservesEvents):
             UpdateQueryExpression(column, value, update_type="decrement"),
         )
 
+        if dry or self.dry:
+            return self.get_grammar().compile("update").to_sql()
+
         self.set_action("update")
         result = self.new_connection().query(self.to_qmark(), self._bindings)
         processed_results = self.get_processor().get_column_value(
@@ -1579,7 +1585,7 @@ class QueryBuilder(ObservesEvents):
         self.aggregate("SUM", "{column}".format(column=column))
         return self
 
-    def count(self, column=None):
+    def count(self, column=None, dry=False):
         """Aggregates a columns values.
 
         Arguments:
@@ -1596,7 +1602,7 @@ class QueryBuilder(ObservesEvents):
         else:
             self.aggregate("COUNT", f"{column}")
 
-        if self.dry:
+        if dry or self.dry:
             return self
 
         if not column:
@@ -2235,9 +2241,10 @@ class QueryBuilder(ObservesEvents):
             callback(self)
         return self
 
-    def truncate(self, foreign_keys=False):
+    def truncate(self, foreign_keys=False, dry=False):
         sql = self.get_grammar().truncate_table(self.get_table_name(), foreign_keys)
-        if self.dry:
+
+        if dry or self.dry:
             return sql
 
         return self.new_connection().query(sql, ())
