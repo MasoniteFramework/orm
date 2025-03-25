@@ -1,4 +1,5 @@
 """ Database Settings """
+
 import os
 import logging
 

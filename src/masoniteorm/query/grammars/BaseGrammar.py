@@ -10,7 +10,6 @@ from ...expressions.expressions import (
 
 
 class BaseGrammar:
-
     """The keys in this dictionary is how the ORM will reference these aggregates
 
     The values on the right are the matching functions for the grammar
@@ -314,7 +313,11 @@ class BaseGrammar:
                     else:
                         sql += sql_string.format(
                             column=self._table_column_string(key),
-                            value=self.value_string().format(value=value, separator="") if not qmark else "?",
+                            value=(
+                                self.value_string().format(value=value, separator="")
+                                if not qmark
+                                else "?"
+                            ),
                             separator=", ",
                         )
 
@@ -323,7 +326,11 @@ class BaseGrammar:
             else:
                 sql += sql_string.format(
                     column=self._table_column_string(column),
-                    value=self.value_string().format(value=value, separator=", ") if not qmark else "?",
+                    value=(
+                        self.value_string().format(value=value, separator=", ")
+                        if not qmark
+                        else "?"
+                    ),
                     separator=", ",
                 )
                 if qmark:

@@ -72,16 +72,24 @@ class MSSQLPlatform(Platform):
             table_create_format.format(
                 table=self.wrap_table(table.name),
                 columns=", ".join(self.columnize(table.get_added_columns())).strip(),
-                constraints=", "
-                + ", ".join(self.constraintize(table.get_added_constraints(), table))
-                if table.get_added_constraints()
-                else "",
-                foreign_keys=", "
-                + ", ".join(
-                    self.foreign_key_constraintize(table.name, table.added_foreign_keys)
-                )
-                if table.added_foreign_keys
-                else "",
+                constraints=(
+                    ", "
+                    + ", ".join(
+                        self.constraintize(table.get_added_constraints(), table)
+                    )
+                    if table.get_added_constraints()
+                    else ""
+                ),
+                foreign_keys=(
+                    ", "
+                    + ", ".join(
+                        self.foreign_key_constraintize(
+                            table.name, table.added_foreign_keys
+                        )
+                    )
+                    if table.added_foreign_keys
+                    else ""
+                ),
             )
         )
 
