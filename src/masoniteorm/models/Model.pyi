@@ -5,9 +5,9 @@ from ..query.QueryBuilder import QueryBuilder
 
 class Model:
     def add_select(alias: str, callable: Any):
-        """Specifies a select subquery.
-        """
+        """Specifies a select subquery."""
         pass
+
     def aggregate(aggregate: str, column: str, alias: str):
         """Helper function to aggregate.
 
@@ -15,6 +15,7 @@ class Model:
             aggregate {string} -- The name of the aggregation.
             column {string} -- The name of the column to aggregate.
         """
+
     def all(selects: list = [], query: bool = False):
         """Returns all records from the table.
 
@@ -22,6 +23,7 @@ class Model:
             dictionary -- Returns a dictionary of results.
         """
         pass
+
     def get(selects: list = []):
         """Runs the select query built from the query builder.
 
@@ -29,6 +31,7 @@ class Model:
             self
         """
         pass
+
     def avg(column: str):
         """Aggregates a columns values.
 
@@ -39,6 +42,7 @@ class Model:
             self
         """
         pass
+
     def between(column: str, low: str | int, high: str | int):
         """Specifies a where between expression.
 
@@ -51,10 +55,13 @@ class Model:
             self
         """
         pass
+
     def bulk_create(creates: dict, query: bool = False):
         pass
+
     def chunk(chunk_amount: str | int):
         pass
+
     def count(column: str = None):
         """Aggregates a columns values.
 
@@ -65,6 +72,7 @@ class Model:
             self
         """
         pass
+
     def decrement(column: str, value: int = 1):
         """Decrements a column's value.
 
@@ -77,6 +85,7 @@ class Model:
         Returns:
             self
         """
+
     def delete(column: str = None, value: str = None, query: bool = False):
         """Specify the column and value to delete
         or deletes everything based on a previously used where expression.
@@ -89,10 +98,11 @@ class Model:
             self
         """
         pass
+
     def distinct(boolean: bool = True):
-        """Species that the select query should be a SELECT DISTINCT query.
-        """
+        """Species that the select query should be a SELECT DISTINCT query."""
         pass
+
     def doesnt_exist() -> bool:
         """Determines if any rows exist for the current query.
 
@@ -100,6 +110,7 @@ class Model:
             Bool - True or False
         """
         pass
+
     def doesnt_have() -> bool:
         """Determine if any related rows exist for the current query.
 
@@ -107,6 +118,7 @@ class Model:
             Bool - True or False
         """
         pass
+
     def exists() -> bool:
         """Determine if rows exist for the current query.
 
@@ -114,6 +126,7 @@ class Model:
             Bool - True or False
         """
         pass
+
     def find_or_404(record_id: str | int):
         """Finds a row by the primary key ID (Requires a model) or raise an 404 exception.
 
@@ -124,6 +137,7 @@ class Model:
             Model|HTTP404
         """
         pass
+
     def find(record_id: str | list) -> Self:
         """Finds a row by the primary key ID (Requires a model) or raise an 404 exception.
 
@@ -134,6 +148,7 @@ class Model:
             Model|Collection
         """
         pass
+
     def find_or_fail(record_id: str | int):
         """Finds a row by the primary key ID (Requires a model) or raise a ModelNotFound exception.
 
@@ -144,12 +159,14 @@ class Model:
             Model|ModelNotFound
         """
         pass
+
     def first_or_fail(query: bool = False):
         """Returns the first row from database. If no result found a ModelNotFound exception.
 
         Returns:
             dictionary|ModelNotFound
         """
+
     def first(fields: list = None, query: bool = False):
         """Gets the first record.
 
@@ -157,9 +174,11 @@ class Model:
             dictionary -- Returns a dictionary of results.
         """
         pass
+
     def first_where(column: str, *args):
         """Gets the first record with the given key / value pair"""
         pass
+
     def first_or_create(wheres: dict, creates: dict = None):
         """Get the first record matching the attributes or create it.
 
@@ -167,8 +186,10 @@ class Model:
             Model
         """
         pass
+
     def force_update(updates: dict, dry: bool = False):
         pass
+
     def from_(table: str):
         """Alias for the table method
 
@@ -179,6 +200,7 @@ class Model:
             self
         """
         pass
+
     def from_raw(table: str):
         """Alias for the table method
 
@@ -189,6 +211,7 @@ class Model:
             self
         """
         pass
+
     def last(column: str = None, query: bool = False):
         """Gets the last record, ordered by column in descendant order or primary
         key if no column is given.
@@ -197,6 +220,7 @@ class Model:
             dictionary -- Returns a dictionary of results.
         """
         pass
+
     def group_by_raw(query: str, bindings: list = []):
         """Specifies a column to group by.
 
@@ -207,6 +231,7 @@ class Model:
             self
         """
         pass
+
     def group_by(column: str):
         """Specifies a column to group by.
 
@@ -217,8 +242,10 @@ class Model:
             self
         """
         pass
+
     def has(*relationships: str):
         pass
+
     def having_raw(string: str):
         """Specifies raw SQL that should be injected into the having expression.
 
@@ -229,6 +256,7 @@ class Model:
             self
         """
         pass
+
     def increment(column: str, value: int = 1):
         """Increments a column's value.
 
@@ -242,11 +270,14 @@ class Model:
             self
         """
         pass
+
     def in_random_order():
         """Puts Query results in random order"""
         pass
+
     def join_on(relationship: str, callback: callable = None, clause: str = ["inner"]):
         pass
+
     def join(
         self,
         table: str,
@@ -270,8 +301,10 @@ class Model:
             self
         """
         pass
+
     def joins(*relationships: list[str], clause: str = "inner"):
         pass
+
     def left_join(
         table: str, column1: str = None, equality: str = None, column2: str = None
     ):
@@ -287,6 +320,7 @@ class Model:
             self
         """
         pass
+
     def limit(amount: int):
         """Specifies a limit expression.
 
@@ -297,10 +331,13 @@ class Model:
             self
         """
         pass
+
     def lock_for_update():
         pass
+
     def make_lock(lock: bool):
         pass
+
     def max(column: str):
         """Aggregates a columns values.
 
@@ -311,6 +348,7 @@ class Model:
             self
         """
         pass
+
     def min(column: str):
         """Aggregates a columns values.
 
@@ -321,6 +359,7 @@ class Model:
             self
         """
         pass
+
     def new_from_builder(from_builder: QueryBuilder = None):
         """Creates a new QueryBuilder class.
 
@@ -328,6 +367,7 @@ class Model:
             QueryBuilder -- The ORM QueryBuilder class.
         """
         pass
+
     def new():
         """Creates a new QueryBuilder class.
 
@@ -335,6 +375,7 @@ class Model:
             QueryBuilder -- The ORM QueryBuilder class.
         """
         pass
+
     def not_between(column: str, low: str | int, high: str | int):
         """Specifies a where not between expression.
 
@@ -347,6 +388,7 @@ class Model:
             self
         """
         pass
+
     def offset(amount: int):
         """Specifies an offset expression.
 
@@ -357,8 +399,10 @@ class Model:
             self
         """
         pass
+
     def on(connection: str):
         pass
+
     def or_where(column: str | int, *args) -> QueryBuilder:
         """Specifies an or where query expression.
 
@@ -370,6 +414,7 @@ class Model:
             [type] -- [description]
         """
         pass
+
     def or_where_null(column: str):
         """Specifies a where expression where the column is NULL.
 
@@ -380,6 +425,7 @@ class Model:
             self
         """
         pass
+
     def order_by_raw(query: str, bindings: list = []):
         """Specifies a column to order by.
 
@@ -393,6 +439,7 @@ class Model:
             self
         """
         pass
+
     def order_by(column: str, direction: str = "ASC|DESC"):
         """Specifies a column to order by.
 
@@ -406,8 +453,10 @@ class Model:
             self
         """
         pass
+
     def paginate(per_page: int, page: int = 1):
         pass
+
     def right_join(
         table: str, column1: str = None, equality: str = None, column2: str = None
     ):
@@ -423,6 +472,7 @@ class Model:
             self
         """
         pass
+
     def select_raw(query: str):
         """Specifies raw SQL that should be injected into the select expression.
 
@@ -430,6 +480,7 @@ class Model:
             self
         """
         pass
+
     def select(*args: str):
         """Specifies columns that should be selected
 
@@ -437,6 +488,7 @@ class Model:
             self
         """
         pass
+
     def set_global_scope(
         self,
         name: str = "",
@@ -453,16 +505,20 @@ class Model:
             self
         """
         pass
+
     def shared_lock():
         pass
+
     def simple_paginate(per_page: int, page: int = 1):
         pass
+
     def skip(*args, **kwargs):
-        """Alias for limit method.
-        """
+        """Alias for limit method."""
         pass
+
     def statement(query: str, bindings: list = ()):
         pass
+
     def sum(column: str):
         """Aggregates a columns values.
 
@@ -473,6 +529,7 @@ class Model:
             self
         """
         pass
+
     def table_raw(query: str):
         """Sets a query as the table
 
@@ -483,9 +540,11 @@ class Model:
             self
         """
         pass
+
     def take(*args, **kwargs):
         """Alias for limit method"""
         pass
+
     def to_qmark() -> str:
         """Compiles the QueryBuilder class into a Qmark SQL statement.
 
@@ -493,6 +552,7 @@ class Model:
             self
         """
         pass
+
     def to_sql() -> str:
         """Compiles the QueryBuilder class into a SQL statement.
 
@@ -500,8 +560,10 @@ class Model:
             self
         """
         pass
+
     def truncate(foreign_keys: bool = False):
         pass
+
     def update(updates: dict, dry: bool = False, force: bool = False):
         """Specifies columns and values to be updated.
 
@@ -517,12 +579,14 @@ class Model:
             self
         """
         pass
+
     def when(conditional: bool, callback: callable):
         pass
+
     def where_between(*args, **kwargs):
-        """Alias for between
-        """
+        """Alias for between"""
         pass
+
     def where_column(column1: str, column2: str):
         """Specifies where two columns equal eachother.
 
@@ -534,9 +598,11 @@ class Model:
             self
         """
         pass
+
     def take(*args: Any, **kwargs: Any):
         """Alias for limit method"""
         pass
+
     def where_column(column1: str, column2: str):
         """Specifies where two columns equal eachother.
 
@@ -548,6 +614,7 @@ class Model:
             self
         """
         pass
+
     def where_date(column: str, date: Any):
         """Specifies a where DATE expression
 
@@ -558,6 +625,7 @@ class Model:
             self
         """
         pass
+
     def or_where_date(column: str, date: Any):
         """Specifies a where DATE expression
 
@@ -569,6 +637,7 @@ class Model:
             self
         """
         pass
+
     def where_exists(value: Any):
         """Specifies a where exists expression.
 
@@ -579,6 +648,7 @@ class Model:
             self
         """
         pass
+
     def where_from_builder(builder: QueryBuilder):
         """Specifies a where expression.
 
@@ -592,8 +662,10 @@ class Model:
             self
         """
         pass
+
     def where_has(relationship: str, callback: Any):
         pass
+
     def where_in(column: str, wheres: list = []):
         """Specifies where a column contains a list of a values.
 
@@ -607,6 +679,7 @@ class Model:
             self
         """
         pass
+
     def where_like(column: str, value: str):
         """Specifies a where LIKE expression.
 
@@ -618,10 +691,11 @@ class Model:
             self
         """
         pass
+
     def where_not_between(*args: Any, **kwargs: Any):
-        """Alias for not_between
-        """
+        """Alias for not_between"""
         pass
+
     def where_not_in(column: str, wheres: list = []):
         """Specifies where a column does not contain a list of a values.
 
@@ -635,6 +709,7 @@ class Model:
             self
         """
         pass
+
     def where_not_like(column: str, value: str):
         """Specifies a where expression.
 
@@ -646,6 +721,7 @@ class Model:
             self
         """
         pass
+
     def where_not_null(column: str):
         """Specifies a where expression where the column is not NULL.
 
@@ -656,6 +732,7 @@ class Model:
             self
         """
         pass
+
     def where_null(column: str):
         """Specifies a where expression where the column is NULL.
 
@@ -666,6 +743,7 @@ class Model:
             self
         """
         pass
+
     def where_raw(query: str, bindings: list = []):
         """Specifies raw SQL that should be injected into the where expression.
 
@@ -679,8 +757,10 @@ class Model:
             self
         """
         pass
+
     def without_global_scopes():
         pass
+
     def where(column: str, *args: Any):
         """Specifies a where expression.
 
@@ -694,7 +774,9 @@ class Model:
             self
         """
         pass
+
     def with_(*eagers: str):
         pass
+
     def with_count(relationship: str, callback: Any = None):
         pass

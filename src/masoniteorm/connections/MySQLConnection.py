@@ -59,9 +59,9 @@ class MySQLConnection(BaseConnection):
             import pendulum
             import pymysql.converters
 
-            pymysql.converters.conversions[
-                pendulum.DateTime
-            ] = pymysql.converters.escape_datetime
+            pymysql.converters.conversions[pendulum.DateTime] = (
+                pymysql.converters.escape_datetime
+            )
         except ImportError:
             pass
 
