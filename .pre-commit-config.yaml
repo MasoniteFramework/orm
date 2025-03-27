@@ -5,9 +5,11 @@ repos:
       - id: black
         exclude: |
             (?x)^(
-                "/..*"|
-                "/.yml$"|
-                build|.*
+                /.git/.*|
+                /.venv/.*|
+                /venv/.*|
+                /.yml$|
+                build/.*|
                 conda/.*
             )$
 
@@ -15,23 +17,9 @@ repos:
     rev: 6.0.1
     hooks:
       - id: isort
-        exclude: |
-            (?x)^(
-                "/..*"|
-                "/.yml$"|
-                build|.*
-                conda/.*
-            )$
 
   - repo: https://github.com/pycqa/flake8
     rev: 7.1.2
     hooks:
       - id: flake8
-        additional_dependencies: [Flake8-pyproject]
-        exclude: |
-            (?x)^(
-                "/..*"|
-                "/.yml$"|
-                build|.*
-                conda/.*
-            )$
+        additional_dependencies: [flake8-pyproject]
