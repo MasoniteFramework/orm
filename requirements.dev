@@ -1,4 +1,5 @@
-flake8==3.7.9
+pre-commit
+flake8
 black
 faker
 pytest
