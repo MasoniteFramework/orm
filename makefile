@@ -2,6 +2,7 @@ init: .env .bootstrapped-pip
 
 .bootstrapped-pip: requirements.txt requirements.dev
 	pip install -r requirements.txt -r requirements.dev
+	pre-commit install
 	touch .bootstrapped-pip
 
 .env:
