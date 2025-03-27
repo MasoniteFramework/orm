@@ -3,12 +3,35 @@ repos:
     rev: 25.1.0
     hooks:
       - id: black
+        exclude: |
+            (?x)^(
+                "/..*"|
+                "/.yml$"|
+                build|.*
+                conda/.*
+            )$
+
   - repo: https://github.com/pycqa/isort
     rev: 6.0.1
     hooks:
       - id: isort
+        exclude: |
+            (?x)^(
+                "/..*"|
+                "/.yml$"|
+                build|.*
+                conda/.*
+            )$
+
   - repo: https://github.com/pycqa/flake8
     rev: 7.1.2
     hooks:
       - id: flake8
         additional_dependencies: [Flake8-pyproject]
+        exclude: |
+            (?x)^(
+                "/..*"|
+                "/.yml$"|
+                build|.*
+                conda/.*
+            )$

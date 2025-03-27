@@ -1,20 +1,6 @@
 [tool.black]
 target-version = ['py38']
 include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | \.yml
-  | \.json
-  | _build
-  | build
-  | conda
-)/
-'''
 
 [tool.isort]
 profile = "black"
