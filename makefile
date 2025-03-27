@@ -1,7 +1,7 @@
 init:
 	cp .env-example .env
 	pip install -r requirements.txt
-	pip install .
+	pre-commit install
 	# Create MySQL Database
 	# Create Postgres Database
 test:
