@@ -1,6 +1,8 @@
 [tool.black]
 target-version = ['py38']
 include = '\.pyi?$'
+line-length = 79
+
 
 [tool.isort]
 profile = "black"
@@ -12,6 +14,8 @@ ensure_newline_before_comments = true
 
 [tool.flake8]
 ignore = ['E501', 'E203', 'E128', 'E402', 'E731', 'F821', 'E712', 'W503', 'F811']
+max-line-length = 79
+max-complexity = 18
 per-file-ignores = [
     '__init__.py:F401',
 ]
