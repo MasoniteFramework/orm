@@ -100,7 +100,8 @@ class BelongsTo(BaseRelationship):
             current_model.fill({self.local_key: foreign_key_value})
             return current_model.create(current_model.all_attributes(), cast=True)
 
-        return current_model.update({self.local_key: foreign_key_value})
+        current_model.update({self.local_key: foreign_key_value})
+        return current_model
 
     def detach(self, current_model, related_record):
         return current_model.update({self.local_key: None})

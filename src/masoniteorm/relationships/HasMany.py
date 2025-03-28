@@ -40,7 +40,8 @@ class HasMany(BaseRelationship):
             related_record.fill({self.foreign_key: local_key_value})
             return related_record.create(related_record.all_attributes(), cast=True)
 
-        return related_record.update({self.foreign_key: local_key_value})
+        related_record.update({self.foreign_key: local_key_value})
+        return related_record
 
     def get_related(self, query, relation, eagers=None, callback=None):
         eagers = eagers or []
