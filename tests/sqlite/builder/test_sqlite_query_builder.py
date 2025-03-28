@@ -20,9 +20,8 @@ class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("sqlite")
         return QueryBuilder(
-            self.grammar,
+            grammar=SQLiteGrammar,
             connection_class=connection,
-            connection="mysql",
             table=table,
             dry=True,
         )
@@ -312,20 +311,18 @@ class BaseTestQueryBuilder:
         self.assertEqual(builder.to_sql(), sql)
 
     def test_increment(self):
-        builder = self.get_builder()
-        builder_sql = builder.increment("age", 1)
+        builder = self.get_builder().increment("age", 1, dry=True)
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
-        self.assertEqual(builder_sql, sql)
+        self.assertEqual(builder.to_sql(), sql)
 
     def test_decrement(self):
-        builder = self.get_builder()
-        builder_sql = builder.decrement("age", 1)
+        builder = self.get_builder().decrement("age", 1, dry=True)
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
-        self.assertEqual(builder_sql, sql)
+        self.assertEqual(builder.to_sql(), sql)
 
     def test_count(self):
         builder = self.get_builder()

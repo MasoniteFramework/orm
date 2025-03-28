@@ -1528,11 +1528,8 @@ class QueryBuilder(ObservesEvents):
             UpdateQueryExpression(column, value, update_type="increment"),
         )
 
-        if dry or self.dry:
-            return self.get_grammar().compile("update")
-
         self.set_action("update")
-        if dry:
+        if dry or self.dry:
             return self
 
         results = self.new_connection().query(self.to_qmark(), self._bindings)
@@ -1573,12 +1570,10 @@ class QueryBuilder(ObservesEvents):
             UpdateQueryExpression(column, value, update_type="decrement"),
         )
 
-        if dry or self.dry:
-            return self.get_grammar().compile("update")
-
         self.set_action("update")
-        if dry:
+        if dry or self.dry:
             return self
+
         result = self.new_connection().query(self.to_qmark(), self._bindings)
         processed_results = self.get_processor().get_column_value(
             self, column, result, id_key, id_value
