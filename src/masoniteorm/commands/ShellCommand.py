@@ -54,7 +54,7 @@ class ShellCommand(Command):
             )
             exit(-1)
         except subprocess.CalledProcessError:
-            self.line(f"<error>An error happened calling the command.</error>")
+            self.line("<error>An error happened calling the command.</error>")
             exit(-1)
 
     def get_shell_program(self, connection):

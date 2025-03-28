@@ -1,4 +1,3 @@
-from ..collection import Collection
 
 
 class BaseRelationship:
