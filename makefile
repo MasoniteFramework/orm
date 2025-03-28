@@ -1,9 +1,12 @@
 init: .env .bootstrapped-pip
 
-.bootstrapped-pip: requirements.txt requirements.dev
+.bootstrapped-pip: requirements.txt requirements.dev .git/hooks/pre-commit
 	pip install -r requirements.txt -r requirements.dev
-	pre-commit install
 	touch .bootstrapped-pip
+
+.git/hooks/pre-commit:
+	pre-commit install
+	pre-commit install-hooks
 
 .env:
 	cp .env-example .env

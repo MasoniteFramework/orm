@@ -1,5 +1,5 @@
 pre-commit
-flake8
+flake8-pyproject
 black
 faker
 pytest
