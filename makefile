@@ -5,6 +5,7 @@ init: .env .bootstrapped-pip
 	touch .bootstrapped-pip
 
 .git/hooks/pre-commit:
+	pip install pre-commit
 	pre-commit install
 	pre-commit install-hooks
 
