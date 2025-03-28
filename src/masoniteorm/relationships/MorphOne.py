@@ -1,6 +1,6 @@
 from ..collection import Collection
-from .BaseRelationship import BaseRelationship
 from ..config import load_config
+from .BaseRelationship import BaseRelationship
 
 
 class MorphOne(BaseRelationship):
@@ -39,15 +39,13 @@ class MorphOne(BaseRelationship):
         self.polymorphic_builder = self.fn(self)()
         self.set_keys(owner, self.fn)
 
-        if instance.is_loaded():
-            if attribute in instance._relationships:
-                return instance._relationships[attribute]
-
-            result = self.apply_query(self._related_builder, instance)
-
-            return result
-        else:
+        if not instance.is_loaded():
             return self
+
+        if attribute in instance._relationships:
+            return instance._relationships[attribute]
+
+        return self.apply_query(self._related_builder, instance)
 
     def __getattr__(self, attribute):
         relationship = self.fn(self)()
@@ -67,8 +65,8 @@ class MorphOne(BaseRelationship):
         polymorphic_builder = self.polymorphic_builder
 
         return (
-            polymorphic_builder.where("record_type", polymorphic_key)
-            .where("record_id", instance.get_primary_key_value())
+            polymorphic_builder.where(self.morph_key, polymorphic_key)
+            .where(self.morph_id, instance.get_primary_key_value())
             .first()
         )
 
@@ -155,28 +153,3 @@ class MorphOne(BaseRelationship):
             )
 
         return record_type
-
-    def attach(self, current_model, related_record):
-        raise NotImplementedError(
-            "HasOneThrough relationship does not implement the attach method"
-        )
-
-    def attach_related(self, current_model, related_record):
-        raise NotImplementedError(
-            "HasOneThrough relationship does not implement the attach_related method"
-        )
-
-    def relate(self, related_record):
-        raise NotImplementedError(
-            "MorphOne relationship does not implement the relate method"
-        )
-
-    def query_has(self, related_record, method="where_exists"):
-        raise NotImplementedError(
-            "MorphOne relationship does not implement the has method"
-        )
-
-    def query_where_exists(self, related_record, method="where_exists"):
-        raise NotImplementedError(
-            "MorphOne relationship does not implement the where_exists method"
-        )

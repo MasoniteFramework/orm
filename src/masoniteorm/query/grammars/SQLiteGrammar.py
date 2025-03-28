@@ -1,5 +1,6 @@
-from .BaseGrammar import BaseGrammar
 import re
+
+from .BaseGrammar import BaseGrammar
 
 
 class SQLiteGrammar(BaseGrammar):
@@ -11,7 +12,6 @@ class SQLiteGrammar(BaseGrammar):
         "MIN": "MIN",
         "AVG": "AVG",
         "COUNT": "COUNT",
-        "AVG": "AVG",
     }
 
     join_keywords = {
@@ -151,10 +151,12 @@ class SQLiteGrammar(BaseGrammar):
         return "{keyword} {foreign_table}{alias} {on}"
 
     def limit_string(self, offset=False):
+        if offset:
+            return ""
         return "LIMIT {limit}"
 
     def offset_string(self):
-        return "OFFSET {offset}"
+        return "LIMIT {limit} OFFSET {offset}"
 
     def first_where_string(self):
         return "WHERE"
@@ -215,3 +217,14 @@ class SQLiteGrammar(BaseGrammar):
 
     def compile_random(self):
         return "random()"
+
+    def process_offset(self):
+        """Compiles the offset expression.
+
+        Returns:
+            self
+        """
+        if not self._limit:
+            self._limit = int(-1)
+
+        return super().process_offset()

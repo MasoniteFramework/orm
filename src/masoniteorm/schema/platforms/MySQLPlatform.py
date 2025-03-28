@@ -29,6 +29,7 @@ class MySQLPlatform(Platform):
         "double": "DOUBLE",
         "enum": "ENUM",
         "text": "TEXT",
+        "tiny_text": "TINYTEXT",
         "float": "FLOAT",
         "geometry": "GEOMETRY",
         "json": "JSON",
@@ -54,6 +55,8 @@ class MySQLPlatform(Platform):
         "now": " DEFAULT NOW()",
         "null": " DEFAULT NULL",
     }
+
+    signed = {"unsigned": "UNSIGNED", "signed": "SIGNED"}
 
     def columnize(self, columns):
         sql = []
@@ -87,7 +90,6 @@ class MySQLPlatform(Platform):
             if column.column_type == "enum":
                 values = ", ".join(f"'{x}'" for x in column.values)
                 column_constraint = f"({values})"
-
             sql.append(
                 self.columnize_string()
                 .format(
@@ -98,6 +100,9 @@ class MySQLPlatform(Platform):
                     constraint=constraint,
                     nullable=self.premapped_nulls.get(column.is_null) or "",
                     default=default,
+                    signed=(
+                        " " + self.signed.get(column._signed) if column._signed else ""
+                    ),
                     comment=(
                         "COMMENT '" + column.comment + "'" if column.comment else ""
                     ),
@@ -179,15 +184,25 @@ class MySQLPlatform(Platform):
                 else:
                     default = ""
 
+                column_constraint = ""
+                if column.column_type == "enum":
+                    values = ", ".join(f"'{x}'" for x in column.values)
+                    column_constraint = f"({values})"
                 add_columns.append(
                     self.add_column_string()
                     .format(
                         name=self.get_column_string().format(column=column.name),
                         data_type=self.type_map.get(column.column_type, ""),
+                        column_constraint=column_constraint,
                         length=length,
                         constraint="PRIMARY KEY" if column.primary else "",
                         nullable="NULL" if column.is_null else "NOT NULL",
                         default=default,
+                        signed=(
+                            " " + self.signed.get(column._signed)
+                            if column._signed
+                            else ""
+                        ),
                         after=(
                             (" AFTER " + self.wrap_column(column._after))
                             if column._after
@@ -336,19 +351,19 @@ class MySQLPlatform(Platform):
         return sql
 
     def add_column_string(self):
-        return "ADD {name} {data_type}{length} {nullable}{default}{after}{comment}"
+        return "ADD {name} {data_type}{length}{column_constraint}{signed} {nullable}{default}{after}{comment}"
 
     def drop_column_string(self):
         return "DROP COLUMN {name}"
 
     def change_column_string(self):
-        return "MODIFY {name}{data_type}{length} {nullable}{default} {constraint}"
+        return "MODIFY {name}{data_type}{length}{column_constraint} {nullable}{default} {constraint}"
 
     def rename_column_string(self):
         return "CHANGE {old} {to}"
 
     def columnize_string(self):
-        return "{name} {data_type}{length}{column_constraint} {nullable}{default} {constraint}{comment}"
+        return "{name} {data_type}{length}{column_constraint}{signed} {nullable}{default} {constraint}{comment}"
 
     def constraintize(self, constraints, table):
         sql = []
@@ -414,6 +429,9 @@ class MySQLPlatform(Platform):
 
     def compile_column_exists(self, table, column):
         return f"SELECT column_name FROM information_schema.columns WHERE table_name='{table}' and column_name='{column}'"
+
+    def compile_get_all_tables(self, database, schema=None):
+        return f"SELECT table_name FROM information_schema.tables WHERE table_schema = '{database}'"
 
     def get_current_schema(self, connection, table_name, schema=None):
         table = Table(table_name)

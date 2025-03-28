@@ -17,7 +17,6 @@ if os.getenv("RUN_POSTGRES_DATABASE") == "True":
         __timestamps__ = False
 
     class BaseTestQueryRelationships(unittest.TestCase):
-
         maxDiff = None
 
         def get_builder(self, table="users"):
@@ -26,7 +25,6 @@ if os.getenv("RUN_POSTGRES_DATABASE") == "True":
                 grammar=PostgresGrammar,
                 connection=connection,
                 table=table,
-                # model=User,
                 connection_details=DATABASES,
             ).on("postgres")
 

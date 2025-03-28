@@ -1,14 +1,15 @@
+import datetime
 import inspect
 import unittest
 
-from tests.integrations.config.database import DATABASES
+from src.masoniteorm.exceptions import InvalidArgument
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import MySQLGrammar
 from src.masoniteorm.relationships import has_many
 from src.masoniteorm.scopes import SoftDeleteScope
+from tests.integrations.config.database import DATABASES
 from tests.utils import MockConnectionFactory
-import datetime
 
 
 class Articles(Model):
@@ -131,6 +132,44 @@ class BaseTestQueryBuilder:
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
         self.assertEqual(builder.to_sql(), sql)
+
+    def test_find_with_model(self):
+        builder = self.get_builder()
+        builder.find(1000, query=True)
+        sql = '''SELECT * FROM `users` WHERE `users`.`id` = '1000\''''
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_find_with_model_and_list(self):
+        builder = self.get_builder()
+        builder.find([1000, 2000, 3000], query=True)
+        sql = '''SELECT * FROM `users` WHERE `users`.`id` IN ('1000','2000','3000')'''
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_find_with_model_custom_column(self):
+        builder = self.get_builder()
+        builder.find(10, column="age", query=True)
+        sql = '''SELECT * FROM `users` WHERE `users`.`age` = '10\''''
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_find_with_builder(self):
+        builder = self.get_builder()
+        builder._model = None
+        builder.find(10, column="age", query=True)
+        sql = '''SELECT * FROM `users` WHERE `users`.`age` = '10\''''
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_find_with_builder_and_list(self):
+        builder = self.get_builder()
+        builder._model = None
+        builder.find([10, 20, 30], column="age", query=True)
+        sql = '''SELECT * FROM `users` WHERE `users`.`age` IN ('10','20','30')'''
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_find_with_builder_without_column(self):
+        builder = self.get_builder()
+        builder._model = None
+        with self.assertRaises(InvalidArgument):
+            builder.find(10, query=True)
 
     def test_select(self):
         builder = self.get_builder()
@@ -917,3 +956,31 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.truncate()
         """
         return "SELECT * FROM `users` WHERE `users`.`votes` >= '100' FOR UPDATE"
+
+    def test_latest(self):
+        builder = self.get_builder()
+        builder.latest("email")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_oldest(self):
+        builder = self.get_builder()
+        builder.oldest("email")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def latest(self):
+        """
+        builder.order_by('email', 'des')
+        """
+        return "SELECT * FROM `users` ORDER BY `email` DESC"
+
+    def oldest(self):
+        """
+        builder.order_by('email', 'asc')
+        """
+        return "SELECT * FROM `users` ORDER BY `email` ASC"

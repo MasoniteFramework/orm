@@ -1,5 +1,6 @@
-from .BaseGrammar import BaseGrammar
 import re
+
+from .BaseGrammar import BaseGrammar
 
 
 class PostgresGrammar(BaseGrammar):
@@ -11,7 +12,6 @@ class PostgresGrammar(BaseGrammar):
         "MIN": "MIN",
         "AVG": "AVG",
         "COUNT": "COUNT",
-        "AVG": "AVG",
     }
 
     join_keywords = {

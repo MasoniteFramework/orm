@@ -10,7 +10,6 @@ class MySQLGrammar(BaseGrammar):
         "MIN": "MIN",
         "AVG": "AVG",
         "COUNT": "COUNT",
-        "AVG": "AVG",
     }
 
     join_keywords = {
@@ -140,7 +139,7 @@ class MySQLGrammar(BaseGrammar):
         return "{column} = {value}{separator}"
 
     def increment_string(self):
-        return "{column} = {column} + {value}"
+        return "{column} = {column} + '{value}'"
 
     def decrement_string(self):
         return "{column} = {column} - {value}"

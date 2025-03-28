@@ -40,6 +40,7 @@ class PostgresPlatform(Platform):
         "double": "DOUBLE PRECISION",
         "enum": "VARCHAR",
         "text": "TEXT",
+        "tiny_text": "TEXT",
         "float": "FLOAT",
         "geometry": "GEOMETRY",
         "json": "JSON",
@@ -201,6 +202,11 @@ class PostgresPlatform(Platform):
                 else:
                     default = ""
 
+                column_constraint = ""
+                if column.column_type == "enum":
+                    values = ", ".join(f"'{x}'" for x in column.values)
+                    column_constraint = f" CHECK({column.name} IN ({values}))"
+
                 add_columns.append(
                     self.add_column_string()
                     .format(
@@ -208,6 +214,7 @@ class PostgresPlatform(Platform):
                         data_type=self.type_map.get(column.column_type, ""),
                         length=length,
                         constraint="PRIMARY KEY" if column.primary else "",
+                        column_constraint=column_constraint,
                         nullable="NULL" if column.is_null else "NOT NULL",
                         default=default,
                         after=(
@@ -272,6 +279,11 @@ class PostgresPlatform(Platform):
             changed_sql = []
 
             for name, column in table.changed_columns.items():
+
+                column_constraint = ""
+                if column.column_type == "enum":
+                    values = ", ".join(f"'{x}'" for x in column.values)
+                    column_constraint = f" CHECK({column.name} IN ({values}))"
                 changed_sql.append(
                     self.modify_column_string()
                     .format(
@@ -283,6 +295,8 @@ class PostgresPlatform(Platform):
                             if column.column_type not in self.types_without_lengths
                             else ""
                         ),
+                        column_constraint=column_constraint,
+                        constraint="PRIMARY KEY" if column.primary else "",
                     )
                     .strip()
                 )
@@ -391,13 +405,13 @@ class PostgresPlatform(Platform):
         return "ALTER TABLE {table} {columns}"
 
     def add_column_string(self):
-        return "ADD COLUMN {name} {data_type}{length} {nullable}{default} {constraint}"
+        return "ADD COLUMN {name} {data_type}{length}{column_constraint} {nullable}{default} {constraint}"
 
     def drop_column_string(self):
         return "DROP COLUMN {name}"
 
     def modify_column_string(self):
-        return "ALTER COLUMN {name} TYPE {data_type}{length}"
+        return "ALTER COLUMN {name} TYPE {data_type}{length}{column_constraint} {constraint}"
 
     def rename_column_string(self):
         return "RENAME COLUMN {old} TO {to}"
@@ -470,6 +484,9 @@ class PostgresPlatform(Platform):
 
     def compile_column_exists(self, table, column):
         return f"SELECT column_name FROM information_schema.columns WHERE table_name='{table}' and column_name='{column}'"
+
+    def compile_get_all_tables(self, database=None, schema=None):
+        return f"SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_catalog = '{database}'"
 
     def get_current_schema(self, connection, table_name, schema=None):
         sql = self.table_information_string().format(

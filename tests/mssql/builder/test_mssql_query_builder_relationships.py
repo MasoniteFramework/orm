@@ -40,9 +40,16 @@ class User(Model):
     def profile(self):
         return Profile
 
+    @belongs_to("id", "parent_dynamic_id")
+    def parent_dynamic(self):
+        return self.__class__
+
+    @belongs_to("id", "parent_specified_id")
+    def parent_specified(self):
+        return User
+
 
 class BaseTestQueryRelationships(unittest.TestCase):
-
     maxDiff = None
 
     def get_builder(self, table="users"):
@@ -52,7 +59,7 @@ class BaseTestQueryRelationships(unittest.TestCase):
             connection_class=connection,
             connection="mssql",
             table=table,
-            model=User,
+            model=User(),
         )
 
     def test_has(self):
@@ -62,6 +69,26 @@ class BaseTestQueryRelationships(unittest.TestCase):
             sql,
             """SELECT * FROM [users] WHERE EXISTS ("""
             """SELECT * FROM [articles] WHERE [articles].[user_id] = [users].[id]"""
+            """)""",
+        )
+
+    def test_has_reference_to_self(self):
+        builder = self.get_builder()
+        sql = builder.has("parent_dynamic").to_sql()
+        self.assertEqual(
+            sql,
+            """SELECT * FROM [users] WHERE EXISTS ("""
+            """SELECT * FROM [users] WHERE [users].[parent_dynamic_id] = [users].[id]"""
+            """)""",
+        )
+
+    def test_has_reference_to_self_using_class(self):
+        builder = self.get_builder()
+        sql = builder.has("parent_specified").to_sql()
+        self.assertEqual(
+            sql,
+            """SELECT * FROM [users] WHERE EXISTS ("""
+            """SELECT * FROM [users] WHERE [users].[parent_specified_id] = [users].[id]"""
             """)""",
         )
 

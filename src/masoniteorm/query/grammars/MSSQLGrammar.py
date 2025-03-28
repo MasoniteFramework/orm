@@ -10,7 +10,6 @@ class MSSQLGrammar(BaseGrammar):
         "MIN": "MIN",
         "AVG": "AVG",
         "COUNT": "COUNT",
-        "AVG": "AVG",
     }
 
     join_keywords = {
@@ -109,6 +108,9 @@ class MSSQLGrammar(BaseGrammar):
 
     def subquery_string(self):
         return "({query})"
+
+    def subquery_alias_string(self):
+        return "AS {alias}"
 
     def where_group_string(self):
         return "{keyword} {value}"

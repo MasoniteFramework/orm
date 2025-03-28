@@ -1,7 +1,5 @@
-import inspect
 import unittest
 
-from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
@@ -42,13 +40,12 @@ class User(Model):
 
 
 class BaseTestQueryRelationships(unittest.TestCase):
-
     maxDiff = None
 
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("sqlite")
         return QueryBuilder(
-            grammar=SQLiteGrammar, connection_class=connection, table=table, model=User
+            grammar=SQLiteGrammar, connection_class=connection, table=table, model=User()
         )
 
     def test_has(self):

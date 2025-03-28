@@ -8,7 +8,7 @@ class User(Model):
 
     __fillable__ = ["name", "email", "password"]
 
-    __connection__ = "mysql"
+    __connection__ = "t"
 
     __auth__ = "email"
 

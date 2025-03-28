@@ -4,7 +4,6 @@ from .ConnectionResolver import ConnectionResolver
 
 
 class BaseConnection:
-
     _connection = None
     _cursor = None
     _dry = False
@@ -80,3 +79,12 @@ class BaseConnection:
 
     def get_row_count(self):
         return self._cursor.rowcount
+
+    def enable_disable_foreign_keys(self):
+        foreign_keys = self.full_details.get("foreign_keys")
+        platform = self.get_default_platform()()
+
+        if foreign_keys:
+            self._connection.execute(platform.enable_foreign_key_constraints())
+        elif foreign_keys is not None:
+            self._connection.execute(platform.disable_foreign_key_constraints())

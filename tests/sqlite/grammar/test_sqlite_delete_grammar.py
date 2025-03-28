@@ -40,7 +40,6 @@ class BaseDeleteGrammarTest:
 
 
 class TestSqliteDeleteGrammar(BaseDeleteGrammarTest, unittest.TestCase):
-
     grammar = "sqlite"
 
     def can_compile_delete(self):

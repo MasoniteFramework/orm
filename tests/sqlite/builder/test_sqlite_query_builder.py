@@ -270,6 +270,14 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_offset_with_limit(self):
+        builder = self.get_builder()
+        builder.limit(2).offset(5)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
     def test_join(self):
         builder = self.get_builder()
         builder.join("profiles", "users.id", "=", "profiles.user_id")
@@ -303,21 +311,21 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
-    # def test_increment(self):
-    #     builder = self.get_builder()
-    #     builder.increment("age", 1)
-    #     sql = getattr(
-    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
-    #     )()
-    #     self.assertEqual(builder.to_sql(), sql)
+    def test_increment(self):
+        builder = self.get_builder()
+        builder_sql = builder.increment("age", 1)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder_sql, sql)
 
-    # def test_decrement(self):
-    #     builder = self.get_builder()
-    #     builder.decrement("age", 1)
-    #     sql = getattr(
-    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
-    #     )()
-    #     self.assertEqual(builder.to_sql(), sql)
+    def test_decrement(self):
+        builder = self.get_builder()
+        builder_sql = builder.decrement("age", 1)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder_sql, sql)
 
     def test_count(self):
         builder = self.get_builder()
@@ -392,7 +400,6 @@ class BaseTestQueryBuilder:
         self.assertEqual(builder.to_sql(), sql)
 
     def test_between_persisted(self):
-
         builder = QueryBuilder().table("users").on("dev")
         users = builder.between("age", 1, 2).count()
 
@@ -407,7 +414,6 @@ class BaseTestQueryBuilder:
         self.assertEqual(builder.to_sql(), sql)
 
     def test_not_between_persisted(self):
-
         builder = QueryBuilder().table("users").on("dev")
         users = builder.where_not_null("id").not_between("age", 1, 2).count()
 
@@ -567,7 +573,7 @@ class BaseTestQueryBuilder:
 
     def test_truncate(self):
         builder = self.get_builder()
-        sql = builder.truncate()
+        sql = builder.truncate(dry=True)
         sql_ref = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -583,7 +589,6 @@ class BaseTestQueryBuilder:
 
 
 class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
-
     grammar = SQLiteGrammar
 
     def sum(self):
@@ -745,7 +750,14 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = get_builder()
         builder.offset(5)
         """
-        return """SELECT * FROM "users" OFFSET 5"""
+        return """SELECT * FROM "users" LIMIT -1 OFFSET 5"""
+
+    def offset_with_limit(self):
+        """
+        builder = get_builder()
+        builder.limit(2).offset(5)
+        """
+        return """SELECT * FROM "users" LIMIT 2 OFFSET 5"""
 
     def join(self):
         """
@@ -971,3 +983,31 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
             'DELETE FROM "users"',
             "PRAGMA foreign_keys = ON",
         ]
+
+    def test_latest(self):
+        builder = self.get_builder()
+        builder.latest("email")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_oldest(self):
+        builder = self.get_builder()
+        builder.oldest("email")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def oldest(self):
+        """
+        builder.order_by('email', 'asc')
+        """
+        return """SELECT * FROM "users" ORDER BY "email" ASC"""
+
+    def latest(self):
+        """
+        builder.order_by('email', 'des')
+        """
+        return """SELECT * FROM "users" ORDER BY "email" DESC"""

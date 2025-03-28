@@ -68,7 +68,6 @@ class BaseTestCaseUpdateGrammar:
 
 
 class TestSqliteUpdateGrammar(BaseTestCaseUpdateGrammar, unittest.TestCase):
-
     grammar = "sqlite"
 
     def can_compile_update(self):
