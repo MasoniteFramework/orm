@@ -1,6 +1,9 @@
 SHELL := /bin/bash
 
 init: .env .bootstrapped-pip .git/hooks/pre-commit
+init-ci:
+	touch .ignore-pre-commit
+	make init
 
 .bootstrapped-pip: requirements.txt requirements.dev
 	pip install -r requirements.txt -r requirements.dev
@@ -20,8 +23,7 @@ init: .env .bootstrapped-pip .git/hooks/pre-commit
 test: init
 	python -m pytest tests
 ci:
-	touch .ignore-pre-commit
-# 	make test
+	make test
 check: format sort lint
 lint:
 	flake8 src/masoniteorm/
