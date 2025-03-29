@@ -1,13 +1,19 @@
-init: .env .bootstrapped-pip
+SHELL := /bin/bash
 
-.bootstrapped-pip: requirements.txt .git/hooks/pre-commit
-	pip install -r requirements.txt
+init: .env .bootstrapped-pip .git/hooks/pre-commit
+init-ci:
+	touch .ignore-pre-commit
+	make init
+
+.bootstrapped-pip: requirements.txt requirements.dev
+	pip install -r requirements.txt -r requirements.dev
 	touch .bootstrapped-pip
 
 .git/hooks/pre-commit:
-	pip install pre-commit
-	pre-commit install
-	pre-commit install-hooks
+	@if ! test -e ".ignore-pre-commit"; then \
+  		pip install pre-commit; \
+  		pre-commit install --install-hooks; \
+	fi
 
 .env:
 	cp .env-example .env
