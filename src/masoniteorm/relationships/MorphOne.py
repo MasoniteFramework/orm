@@ -93,7 +93,8 @@ class MorphOne(BaseRelationship):
                     ).where_in(
                         self.morph_id,
                         relation.pluck(
-                            relation.first().get_primary_key(), keep_nulls=False
+                            relation.first().get_primary_key(),
+                            keep_nulls=False,
                         ).unique(),
                     )
                 ).get()
@@ -116,9 +117,9 @@ class MorphOne(BaseRelationship):
             record_type = self.get_record_key_lookup(relation)
             if callback:
                 return callback(
-                    self.polymorphic_builder.where(self.morph_key, record_type).where(
-                        self.morph_id, relation.get_primary_key_value()
-                    )
+                    self.polymorphic_builder.where(
+                        self.morph_key, record_type
+                    ).where(self.morph_id, relation.get_primary_key_value())
                 ).first()
 
             return (

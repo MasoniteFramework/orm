@@ -8,10 +8,10 @@ class ConnectionResolver:
 
     def __init__(self, config_path=None):
         from ..connections import (
-            SQLiteConnection,
-            PostgresConnection,
-            MySQLConnection,
             MSSQLConnection,
+            MySQLConnection,
+            PostgresConnection,
+            SQLiteConnection,
         )
 
         self.config_path = config_path
@@ -120,8 +120,11 @@ class ConnectionResolver:
         from ..query import QueryBuilder
 
         return QueryBuilder(
-            connection=connection, connection_details=self.get_connection_details()
+            connection=connection,
+            connection_details=self.get_connection_details(),
         )
 
     def statement(self, query, bindings=(), connection="default"):
-        return self.get_query_builder().on(connection).statement(query, bindings)
+        return (
+            self.get_query_builder().on(connection).statement(query, bindings)
+        )

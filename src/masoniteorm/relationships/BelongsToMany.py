@@ -105,7 +105,8 @@ class BelongsToMany(BaseRelationship):
 
         if hasattr(owner, self.local_owner_key):
             result.where(
-                f"{table1}.{self.local_owner_key}", getattr(owner, self.local_owner_key)
+                f"{table1}.{self.local_owner_key}",
+                getattr(owner, self.local_owner_key),
             )
 
         if self.with_fields:
@@ -132,7 +133,9 @@ class BelongsToMany(BaseRelationship):
             model.delete_attribute("m_reserved2")
 
             if self.pivot_id:
-                pivot_data.update({self.pivot_id: getattr(model, "m_reserved3")})
+                pivot_data.update(
+                    {self.pivot_id: getattr(model, "m_reserved3")}
+                )
                 model.delete_attribute("m_reserved3")
 
             if self.with_fields:
@@ -268,7 +271,9 @@ class BelongsToMany(BaseRelationship):
                 )
 
             if self.pivot_id:
-                pivot_data.update({self.pivot_id: getattr(model, "m_reserved3")})
+                pivot_data.update(
+                    {self.pivot_id: getattr(model, "m_reserved3")}
+                )
                 model.delete_attribute("m_reserved3")
 
             if self.with_fields:
@@ -340,7 +345,8 @@ class BelongsToMany(BaseRelationship):
 
         if hasattr(owner, self.local_owner_key):
             result.where(
-                f"{table1}.{self.local_owner_key}", getattr(owner, self.local_owner_key)
+                f"{table1}.{self.local_owner_key}",
+                getattr(owner, self.local_owner_key),
             )
 
         if self.with_fields:
@@ -439,7 +445,8 @@ class BelongsToMany(BaseRelationship):
                 f"{builder.get_table_name()}.{self.local_owner_key}",
             )
             .where_in(
-                self.other_owner_key, callback(query.select(self.other_owner_key))
+                self.other_owner_key,
+                callback(query.select(self.other_owner_key)),
             )
         )
 

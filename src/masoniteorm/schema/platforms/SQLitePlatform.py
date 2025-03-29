@@ -73,9 +73,14 @@ class SQLitePlatform(Platform):
         sql.append(
             table_create_format.format(
                 table=self.get_table_string().format(table=table.name).strip(),
-                columns=", ".join(self.columnize(table.get_added_columns())).strip(),
+                columns=", ".join(
+                    self.columnize(table.get_added_columns())
+                ).strip(),
                 constraints=(
-                    ", " + ", ".join(self.constraintize(table.get_added_constraints()))
+                    ", "
+                    + ", ".join(
+                        self.constraintize(table.get_added_constraints())
+                    )
                     if table.get_added_constraints()
                     else ""
                 ),
@@ -117,7 +122,10 @@ class SQLitePlatform(Platform):
             elif column.default in self.premapped_defaults.keys():
                 default = self.premapped_defaults.get(column.default)
             elif column.default:
-                if isinstance(column.default, (str,)) and not column.default_is_raw:
+                if (
+                    isinstance(column.default, (str,))
+                    and not column.default_is_raw
+                ):
                     default = f" DEFAULT '{column.default}'"
                 else:
                     default = f" DEFAULT {column.default}"
@@ -197,7 +205,8 @@ class SQLitePlatform(Platform):
                         default=default,
                         signed=(
                             " " + self.signed.get(column._signed)
-                            if column.column_type not in self.types_without_signs
+                            if column.column_type
+                            not in self.types_without_signs
                             and column._signed
                             else ""
                         ),
@@ -225,7 +234,9 @@ class SQLitePlatform(Platform):
                 )
             )
 
-            sql.append("DROP TABLE {table}".format(table=self.wrap_table(diff.name)))
+            sql.append(
+                "DROP TABLE {table}".format(table=self.wrap_table(diff.name))
+            )
 
             columns = diff.from_table.added_columns
 
@@ -235,11 +246,15 @@ class SQLitePlatform(Platform):
 
             sql.append(
                 self.create_format().format(
-                    table=self.get_table_string().format(table=diff.name).strip(),
+                    table=self.get_table_string()
+                    .format(table=diff.name)
+                    .strip(),
                     columns=", ".join(self.columnize(columns)).strip(),
                     constraints=(
                         ", "
-                        + ", ".join(self.constraintize(diff.get_added_constraints()))
+                        + ", ".join(
+                            self.constraintize(diff.get_added_constraints())
+                        )
                         if diff.get_added_constraints()
                         else ""
                     ),
@@ -301,9 +316,7 @@ class SQLitePlatform(Platform):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
 
     def create_if_not_exists_format(self):
-        return (
-            "CREATE TABLE IF NOT EXISTS {table} ({columns}{constraints}{foreign_keys})"
-        )
+        return "CREATE TABLE IF NOT EXISTS {table} ({columns}{constraints}{foreign_keys})"
 
     def get_table_string(self):
         return '"{table}"'
@@ -358,7 +371,9 @@ class SQLitePlatform(Platform):
                     constraint_name=foreign_key.constraint_name,
                     table=self.wrap_table(table),
                     foreign_table=self.wrap_table(foreign_key.foreign_table),
-                    foreign_column=self.wrap_column(foreign_key.foreign_column),
+                    foreign_column=self.wrap_column(
+                        foreign_key.foreign_column
+                    ),
                     cascade=cascade,
                 )
             )
@@ -392,7 +407,9 @@ class SQLitePlatform(Platform):
             table.add_column(
                 column["name"],
                 column_type,
-                column_python_type=Schema._type_hints_map.get(column_type, str),
+                column_python_type=Schema._type_hints_map.get(
+                    column_type, str
+                ),
                 default=default,
                 length=length,
                 nullable=int(column.get("notnull")) == 0,

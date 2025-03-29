@@ -23,7 +23,9 @@ class MySQLPostProcessor:
         """
 
         if id_key not in results:
-            results.update({id_key: builder._connection.get_cursor().lastrowid})
+            results.update(
+                {id_key: builder._connection.get_cursor().lastrowid}
+            )
         return results
 
     def get_column_value(self, builder, column, results, id_key, id_value):

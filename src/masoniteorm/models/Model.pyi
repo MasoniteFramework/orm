@@ -93,7 +93,7 @@ class Model:
         dictionary: Dict[str, Any] = None,
         query: bool = False,
         cast: bool = False,
-        **kwargs
+        **kwargs,
     ):
         """Creates new records based off of a dictionary as well as data set on the model
         such as fillable values.
@@ -334,7 +334,9 @@ class Model:
         """Puts Query results in random order"""
         pass
 
-    def join_on(relationship: str, callback: callable = None, clause: str = ["inner"]):
+    def join_on(
+        relationship: str, callback: callable = None, clause: str = ["inner"]
+    ):
         pass
 
     def join(
@@ -365,7 +367,10 @@ class Model:
         pass
 
     def left_join(
-        table: str, column1: str = None, equality: str = None, column2: str = None
+        table: str,
+        column1: str = None,
+        equality: str = None,
+        column2: str = None,
     ):
         """A helper method to add a left join expression.
 
@@ -517,7 +522,10 @@ class Model:
         pass
 
     def right_join(
-        table: str, column1: str = None, equality: str = None, column2: str = None
+        table: str,
+        column1: str = None,
+        equality: str = None,
+        column2: str = None,
     ):
         """A helper method to add a right join expression.
 
@@ -624,7 +632,10 @@ class Model:
         pass
 
     def update(
-        updates: dict, dry: bool = False, force: bool = False, cast: bool = False
+        updates: dict,
+        dry: bool = False,
+        force: bool = False,
+        cast: bool = False,
     ):
         """Specifies columns and values to be updated.
 

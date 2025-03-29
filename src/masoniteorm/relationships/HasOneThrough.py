@@ -56,7 +56,9 @@ class HasOneThrough(BaseRelationship):
         relationship2 = self.fn(self)[1]()
         self.distant_builder = relationship1.builder
         self.intermediary_builder = relationship2.builder
-        self.set_keys(self.distant_builder, self.intermediary_builder, attribute)
+        self.set_keys(
+            self.distant_builder, self.intermediary_builder, attribute
+        )
 
         if instance.is_loaded():
             if attribute in instance._relationships:
@@ -68,7 +70,9 @@ class HasOneThrough(BaseRelationship):
         else:
             return self
 
-    def apply_relation_query(self, distant_builder, intermediary_builder, owner):
+    def apply_relation_query(
+        self, distant_builder, intermediary_builder, owner
+    ):
         """
         Apply the query and return a dict of data for the distant model to be hydrated with.
 
@@ -142,7 +146,9 @@ class HasOneThrough(BaseRelationship):
         related = collection.get(getattr(model, self.local_key), None)
         model.add_relation({key: related[0] if related else None})
 
-    def get_related(self, current_builder, relation, eagers=None, callback=None):
+    def get_related(
+        self, current_builder, relation, eagers=None, callback=None
+    ):
         """
         Get the data to hydrate the model for the distant table with
         Used when eager loading the model attribute
@@ -203,7 +209,9 @@ class HasOneThrough(BaseRelationship):
 
         return self.distant_builder
 
-    def query_where_exists(self, current_builder, callback, method="where_exists"):
+    def query_where_exists(
+        self, current_builder, callback, method="where_exists"
+    ):
         dist_table = self.distant_builder.get_table_name()
         int_table = self.intermediary_builder.get_table_name()
 
@@ -250,7 +258,9 @@ class HasOneThrough(BaseRelationship):
                             q.where_in(
                                 self.foreign_key,
                                 callback(
-                                    self.distant_builder.select(self.other_owner_key)
+                                    self.distant_builder.select(
+                                        self.other_owner_key
+                                    )
                                 ),
                             )
                         ),

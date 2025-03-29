@@ -21,4 +21,6 @@ class MigrateRollbackCommand(Command):
             migration_directory=self.option("directory"),
             config_path=self.option("config"),
             schema=self.option("schema"),
-        ).rollback(migration=self.option("migration"), output=self.option("show"))
+        ).rollback(
+            migration=self.option("migration"), output=self.option("show")
+        )

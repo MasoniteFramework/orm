@@ -2,14 +2,13 @@ import os
 from os import listdir
 from os.path import isfile, join
 from pydoc import locate
+from timeit import default_timer as timer
 
 from inflection import camelize
 
+from ..config import load_config
 from ..models.MigrationModel import MigrationModel
 from ..schema import Schema
-from ..config import load_config
-
-from timeit import default_timer as timer
 
 
 class Migration:
@@ -74,7 +73,9 @@ class Migration:
 
     def get_rollback_migrations(self):
         return (
-            self.migration_model.where("batch", self.migration_model.all().max("batch"))
+            self.migration_model.where(
+                "batch", self.migration_model.all().max("batch")
+            )
             .order_by("migration_id", "desc")
             .get()
             .pluck("migration")
@@ -97,11 +98,13 @@ class Migration:
         return self.migration_model.where("migration", file_path).delete()
 
     def locate(self, file_name):
-        migration_name = camelize("_".join(file_name.split("_")[4:]).replace(".py", ""))
-        file_name = file_name.replace(".py", "")
-        migration_directory = self.migration_directory.replace("/", ".").replace(
-            "\\", "."
+        migration_name = camelize(
+            "_".join(file_name.split("_")[4:]).replace(".py", "")
         )
+        file_name = file_name.replace(".py", "")
+        migration_directory = self.migration_directory.replace(
+            "/", "."
+        ).replace("\\", ".")
         return locate(f"{migration_directory}.{file_name}.{migration_name}")
 
     def get_ran_migrations(self):
@@ -141,7 +144,9 @@ class Migration:
                 migration_class = self.locate(migration)
 
             except TypeError:
-                self.command_class.line(f"<error>Not Found: {migration}</error>")
+                self.command_class.line(
+                    f"<error>Not Found: {migration}</error>"
+                )
                 continue
 
             self.last_migrations_ran.append(migration)
@@ -198,7 +203,9 @@ class Migration:
             try:
                 migration_class = self.locate(migration)
             except TypeError:
-                self.command_class.line(f"<error>Not Found: {migration}</error>")
+                self.command_class.line(
+                    f"<error>Not Found: {migration}</error>"
+                )
                 continue
 
             migration_class = migration_class(
@@ -240,7 +247,9 @@ class Migration:
                 )
 
     def delete_migrations(self, migrations=None):
-        return self.migration_model.where_in("migration", migrations or []).delete()
+        return self.migration_model.where_in(
+            "migration", migrations or []
+        ).delete()
 
     def delete_last_batch(self):
         return self.migration_model.where(
@@ -268,7 +277,9 @@ class Migration:
                     connection=self.connection, schema=self.schema_name
                 ).down()
             except TypeError:
-                self.command_class.line(f"<error>Not Found: {migration}</error>")
+                self.command_class.line(
+                    f"<error>Not Found: {migration}</error>"
+                )
                 continue
 
                 # raise MigrationNotFound(f"Could not find {migration}")
@@ -311,7 +322,9 @@ class Migration:
 
         if not self.get_unran_migrations():
             if self.command_class:
-                self.command_class.line("<comment>Nothing to migrate</comment>")
+                self.command_class.line(
+                    "<comment>Nothing to migrate</comment>"
+                )
             return
 
         self.migrate(migration)

@@ -1,5 +1,6 @@
 import logging
 from timeit import default_timer as timer
+
 from .ConnectionResolver import ConnectionResolver
 
 
@@ -17,14 +18,22 @@ class BaseConnection:
         return self
 
     def log(
-        self, query, bindings, query_time=0, logger="masoniteorm.connections.queries"
+        self,
+        query,
+        bindings,
+        query_time=0,
+        logger="masoniteorm.connections.queries",
     ):
         logger = logging.getLogger("masoniteorm.connection.queries")
         logger.propagate = self.full_details.get("propagate", True)
 
         logger.debug(
             f"Running query {query}, {bindings}. Executed in {query_time}ms",
-            extra={"query": query, "bindings": bindings, "query_time": query_time},
+            extra={
+                "query": query,
+                "bindings": bindings,
+                "query_time": query_time,
+            },
         )
 
     def statement(self, query, bindings=()):
@@ -87,4 +96,6 @@ class BaseConnection:
         if foreign_keys:
             self._connection.execute(platform.enable_foreign_key_constraints())
         elif foreign_keys is not None:
-            self._connection.execute(platform.disable_foreign_key_constraints())
+            self._connection.execute(
+                platform.disable_foreign_key_constraints()
+            )

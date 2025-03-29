@@ -1,11 +1,10 @@
-import subprocess
 import os
 import re
 import shlex
+import subprocess
 from collections import OrderedDict
 
 from ..config import load_config
-
 from .Command import Command
 
 
@@ -107,7 +106,9 @@ class ShellCommand(Command):
                 "--port": config.get("port"),
                 "--user": config.get("user"),
                 "--password": config.get("password"),
-                "--default-character-set": config.get("options", {}).get("charset"),
+                "--default-character-set": config.get("options", {}).get(
+                    "charset"
+                ),
             }
         )
         return args, options
@@ -136,7 +137,9 @@ class ShellCommand(Command):
         if config.get("port"):
             server += f",{config.get('port')}"
 
-        trusted_connection = config.get("options").get("trusted_connection") == "Yes"
+        trusted_connection = (
+            config.get("options").get("trusted_connection") == "Yes"
+        )
         options = OrderedDict(
             {
                 "-d": config.get("database"),
@@ -172,7 +175,9 @@ class ShellCommand(Command):
     def get_sensitive_options(self, config):
         driver = config.get("full_details").get("driver")
         try:
-            sensitive_options = getattr(self, f"get_{driver}_sensitive_options")()
+            sensitive_options = getattr(
+                self, f"get_{driver}_sensitive_options"
+            )()
         except AttributeError:
             sensitive_options = []
         return sensitive_options
@@ -194,5 +199,7 @@ class ShellCommand(Command):
             if option in command:
                 match = re.search(rf"{option} (\w+)", command)
                 if match.groups():
-                    cleaned_command = cleaned_command.replace(match.groups()[0], "***")
+                    cleaned_command = cleaned_command.replace(
+                        match.groups()[0], "***"
+                    )
         return cleaned_command

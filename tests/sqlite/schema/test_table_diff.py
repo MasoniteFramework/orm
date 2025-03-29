@@ -1,6 +1,6 @@
 import unittest
 
-from src.masoniteorm.schema import Column, Table
+from src.masoniteorm.schema import Table
 from src.masoniteorm.schema.platforms.SQLitePlatform import SQLitePlatform
 from src.masoniteorm.schema.TableDiff import TableDiff
 
@@ -42,7 +42,10 @@ class TestTableDiff(unittest.TestCase):
         diff.new_name = "clients"
         diff.remove_index("name_unique")
 
-        sql = ["DROP INDEX name_unique", 'ALTER TABLE "users" RENAME TO "clients"']
+        sql = [
+            "DROP INDEX name_unique",
+            'ALTER TABLE "users" RENAME TO "clients"',
+        ]
 
         self.assertEqual(sql, self.platform.compile_alter_sql(diff))
 

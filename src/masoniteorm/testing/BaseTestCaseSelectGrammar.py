@@ -1,8 +1,8 @@
 import inspect
 
-from ..query import QueryBuilder
 from ..expressions import JoinClause
 from ..models import Model
+from ..query import QueryBuilder
 
 
 class MockConnection:
@@ -46,7 +46,9 @@ class BaseTestCaseSelectGrammar:
         self.assertEqual(to_sql, sql)
 
     def test_can_compile_with_where(self):
-        to_sql = self.builder.select("username", "password").where("id", 1).to_sql()
+        to_sql = (
+            self.builder.select("username", "password").where("id", 1).to_sql()
+        )
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -122,7 +124,9 @@ class BaseTestCaseSelectGrammar:
         self.assertEqual(to_sql, sql)
 
     def test_can_compile_with_order_by(self):
-        to_sql = self.builder.select("username").order_by("age", "desc").to_sql()
+        to_sql = (
+            self.builder.select("username").order_by("age", "desc").to_sql()
+        )
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -148,7 +152,9 @@ class BaseTestCaseSelectGrammar:
         self.assertEqual(to_sql, sql)
 
     def test_can_compile_where_in(self):
-        to_sql = self.builder.select("username").where_in("age", [1, 2, 3]).to_sql()
+        to_sql = (
+            self.builder.select("username").where_in("age", [1, 2, 3]).to_sql()
+        )
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -162,7 +168,11 @@ class BaseTestCaseSelectGrammar:
         self.assertEqual(to_sql, sql)
 
     def test_can_compile_where_not_in(self):
-        to_sql = self.builder.select("username").where_not_in("age", [1, 2, 3]).to_sql()
+        to_sql = (
+            self.builder.select("username")
+            .where_not_in("age", [1, 2, 3])
+            .to_sql()
+        )
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -228,7 +238,11 @@ class BaseTestCaseSelectGrammar:
 
     def test_can_compile_sub_select_where(self):
         to_sql = self.builder.where_in(
-            "age", self.builder.new().select("age").where("age", 2).where("name", "Joe")
+            "age",
+            self.builder.new()
+            .select("age")
+            .where("age", 2)
+            .where("name", "Joe"),
         ).to_sql()
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -239,7 +253,10 @@ class BaseTestCaseSelectGrammar:
         to_sql = (
             self.builder.new()
             .where_in(
-                "age", lambda q: (q.select("age").where("age", 2).where("name", "Joe"))
+                "age",
+                lambda q: (
+                    q.select("age").where("age", 2).where("name", "Joe")
+                ),
             )
             .to_sql()
         )
@@ -247,7 +264,9 @@ class BaseTestCaseSelectGrammar:
         self.assertEqual(to_sql, sql)
 
     def test_can_compile_sub_select_value(self):
-        to_sql = self.builder.where("name", self.builder.new().sum("age")).to_sql()
+        to_sql = self.builder.where(
+            "name", self.builder.new().sum("age")
+        ).to_sql()
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -256,7 +275,9 @@ class BaseTestCaseSelectGrammar:
     def test_can_compile_exists(self):
         to_sql = (
             self.builder.select("age")
-            .where_exists(self.builder.new().select("username").where("age", 12))
+            .where_exists(
+                self.builder.new().select("username").where("age", 12)
+            )
             .to_sql()
         )
         sql = getattr(
@@ -267,7 +288,9 @@ class BaseTestCaseSelectGrammar:
     def test_can_compile_not_exists(self):
         to_sql = (
             self.builder.select("age")
-            .where_not_exists(self.builder.new().select("username").where("age", 12))
+            .where_not_exists(
+                self.builder.new().select("username").where("age", 12)
+            )
             .to_sql()
         )
         sql = getattr(
@@ -283,14 +306,21 @@ class BaseTestCaseSelectGrammar:
         self.assertEqual(to_sql, sql)
 
     def test_can_compile_having_with_expression(self):
-        to_sql = self.builder.sum("age").group_by("age").having("age", 10).to_sql()
+        to_sql = (
+            self.builder.sum("age").group_by("age").having("age", 10).to_sql()
+        )
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
         self.assertEqual(to_sql, sql)
 
     def test_can_compile_having_with_greater_than_expression(self):
-        to_sql = self.builder.sum("age").group_by("age").having("age", ">", 10).to_sql()
+        to_sql = (
+            self.builder.sum("age")
+            .group_by("age")
+            .having("age", ">", 10)
+            .to_sql()
+        )
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -364,7 +394,9 @@ class BaseTestCaseSelectGrammar:
     def test_can_compile_join_clause_with_lambda(self):
         to_sql = self.builder.join(
             "report_groups as rg",
-            lambda clause: (clause.on("bgt.fund", "=", "rg.fund").on_null("bgt")),
+            lambda clause: (
+                clause.on("bgt.fund", "=", "rg.fund").on_null("bgt")
+            ),
         ).to_sql()
 
         sql = getattr(
@@ -375,7 +407,9 @@ class BaseTestCaseSelectGrammar:
     def test_can_compile_left_join_clause_with_lambda(self):
         to_sql = self.builder.left_join(
             "report_groups as rg",
-            lambda clause: (clause.on("bgt.fund", "=", "rg.fund").or_on_null("bgt")),
+            lambda clause: (
+                clause.on("bgt.fund", "=", "rg.fund").or_on_null("bgt")
+            ),
         ).to_sql()
 
         sql = getattr(
@@ -386,7 +420,9 @@ class BaseTestCaseSelectGrammar:
     def test_can_compile_right_join_clause_with_lambda(self):
         to_sql = self.builder.right_join(
             "report_groups as rg",
-            lambda clause: (clause.on("bgt.fund", "=", "rg.fund").or_on_null("bgt")),
+            lambda clause: (
+                clause.on("bgt.fund", "=", "rg.fund").or_on_null("bgt")
+            ),
         ).to_sql()
 
         sql = getattr(
@@ -437,7 +473,9 @@ class BaseTestCaseSelectGrammar:
 
     def test_can_user_where_raw_and_where(self):
         to_sql = (
-            self.builder.where_raw("age = '18'").where("name", "=", "James").to_sql()
+            self.builder.where_raw("age = '18'")
+            .where("name", "=", "James")
+            .to_sql()
         )
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -456,7 +494,9 @@ class BaseTestCaseSelectGrammar:
 
     def test_can_compile_first_or_fail(self):
         to_sql = (
-            self.builder.where("is_admin", "=", True).first_or_fail(query=True).to_sql()
+            self.builder.where("is_admin", "=", True)
+            .first_or_fail(query=True)
+            .to_sql()
         )
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -478,7 +518,9 @@ class BaseTestCaseSelectGrammar:
         self.assertEqual(to_sql, sql)
 
     def test_where_exists_with_lambda(self):
-        to_sql = self.builder.where_exists(lambda q: q.where("age", 1)).to_sql()
+        to_sql = self.builder.where_exists(
+            lambda q: q.where("age", 1)
+        ).to_sql()
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -486,7 +528,9 @@ class BaseTestCaseSelectGrammar:
         self.assertEqual(to_sql, sql)
 
     def test_where_not_exists_with_lambda(self):
-        to_sql = self.builder.where_not_exists(lambda q: q.where("age", 1)).to_sql()
+        to_sql = self.builder.where_not_exists(
+            lambda q: q.where("age", 1)
+        ).to_sql()
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -515,7 +559,9 @@ class BaseTestCaseSelectGrammar:
         self.assertEqual(to_sql, sql)
 
     def test_update_lock(self):
-        to_sql = self.builder.where("votes", ">=", 100).lock_for_update().to_sql()
+        to_sql = (
+            self.builder.where("votes", ">=", 100).lock_for_update().to_sql()
+        )
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -529,7 +575,11 @@ class BaseTestCaseSelectGrammar:
         self.assertEqual(to_sql, sql)
 
     def test_or_where_null(self):
-        to_sql = self.builder.where_null("column1").or_where_null("column2").to_sql()
+        to_sql = (
+            self.builder.where_null("column1")
+            .or_where_null("column2")
+            .to_sql()
+        )
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()

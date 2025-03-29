@@ -28,7 +28,10 @@ class HasMany(BaseRelationship):
 
     def register_related(self, key, model, collection):
         model.add_relation(
-            {key: collection.get(getattr(model, self.local_key)) or Collection()}
+            {
+                key: collection.get(getattr(model, self.local_key))
+                or Collection()
+            }
         )
 
     def map_related(self, related_result):
@@ -38,7 +41,9 @@ class HasMany(BaseRelationship):
         local_key_value = getattr(current_model, self.local_key)
         if not related_record.is_created():
             related_record.fill({self.foreign_key: local_key_value})
-            return related_record.create(related_record.all_attributes(), cast=True)
+            return related_record.create(
+                related_record.all_attributes(), cast=True
+            )
 
         related_record.update({self.foreign_key: local_key_value})
         return related_record

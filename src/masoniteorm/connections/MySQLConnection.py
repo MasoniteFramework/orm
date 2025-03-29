@@ -1,9 +1,8 @@
-from ..exceptions import DriverNotFound
-from .BaseConnection import BaseConnection
+from ..exceptions import DriverNotFound, QueryException
 from ..query.grammars import MySQLGrammar
-from ..schema.platforms import MySQLPlatform
 from ..query.processors import MySQLPostProcessor
-from ..exceptions import QueryException
+from ..schema.platforms import MySQLPlatform
+from .BaseConnection import BaseConnection
 
 CONNECTION_POOL = []
 
@@ -36,7 +35,9 @@ class MySQLConnection(BaseConnection):
         self.password = password
         self.prefix = prefix
         self.full_details = full_details or {}
-        self.connection_pool_size = full_details.get("connection_pooling_max_size", 100)
+        self.connection_pool_size = full_details.get(
+            "connection_pooling_max_size", 100
+        )
         self.options = options or {}
         self._cursor = None
         self.open = 0
@@ -97,7 +98,7 @@ class MySQLConnection(BaseConnection):
                     password=self.password,
                     port=self.port,
                     database=self.database,
-                    **self.options
+                    **self.options,
                 )
                 CONNECTION_POOL.append(connection)
 
@@ -116,7 +117,7 @@ class MySQLConnection(BaseConnection):
                 password=self.password,
                 port=self.port,
                 database=self.database,
-                **self.options
+                **self.options,
             )
 
         connection.close = self.close_connection

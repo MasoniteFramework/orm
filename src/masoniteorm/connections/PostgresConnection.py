@@ -1,10 +1,8 @@
-from ..exceptions import DriverNotFound
-from .BaseConnection import BaseConnection
+from ..exceptions import DriverNotFound, QueryException
 from ..query.grammars import PostgresGrammar
-from ..schema.platforms import PostgresPlatform
 from ..query.processors import PostgresPostProcessor
-from ..exceptions import QueryException
-
+from ..schema.platforms import PostgresPlatform
+from .BaseConnection import BaseConnection
 
 CONNECTION_POOL = []
 
@@ -37,7 +35,9 @@ class PostgresConnection(BaseConnection):
 
         self.prefix = prefix
         self.full_details = full_details or {}
-        self.connection_pool_size = full_details.get("connection_pooling_max_size", 100)
+        self.connection_pool_size = full_details.get(
+            "connection_pooling_max_size", 100
+        )
         self.options = options or {}
         self._cursor = None
         self.transaction_level = 0

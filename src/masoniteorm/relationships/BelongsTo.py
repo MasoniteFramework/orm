@@ -98,7 +98,9 @@ class BelongsTo(BaseRelationship):
         foreign_key_value = getattr(related_record, self.foreign_key)
         if not current_model.is_created():
             current_model.fill({self.local_key: foreign_key_value})
-            return current_model.create(current_model.all_attributes(), cast=True)
+            return current_model.create(
+                current_model.all_attributes(), cast=True
+            )
 
         current_model.update({self.local_key: foreign_key_value})
         return current_model
@@ -109,8 +111,14 @@ class BelongsTo(BaseRelationship):
     def relate(self, related_record):
         return (
             self.get_builder()
-            .where(self.foreign_key, related_record.__attributes__[self.local_key])
+            .where(
+                self.foreign_key, related_record.__attributes__[self.local_key]
+            )
             ._set_creates_related(
-                {self.foreign_key: related_record.__attributes__[self.local_key]}
+                {
+                    self.foreign_key: related_record.__attributes__[
+                        self.local_key
+                    ]
+                }
             )
         )

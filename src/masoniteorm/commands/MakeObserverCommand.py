@@ -46,7 +46,9 @@ class MakeObserverCommand(Command):
 
         os.makedirs(os.path.join(full_directory_path), exist_ok=True)
 
-        with open(os.path.join(os.getcwd(), observer_directory, file_name), "w+") as fp:
+        with open(
+            os.path.join(os.getcwd(), observer_directory, file_name), "w+"
+        ) as fp:
             fp.write(output)
 
         self.info(f"Observer created: {file_name}")

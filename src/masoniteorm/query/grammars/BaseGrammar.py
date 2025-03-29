@@ -142,7 +142,9 @@ class BaseGrammar:
         self._sql = self.insert_format().format(
             key_equals=self._compile_key_value_equals(qmark=qmark),
             table=self.process_table(self.table),
-            columns=self.process_columns(separator=", ", action="insert", qmark=qmark),
+            columns=self.process_columns(
+                separator=", ", action="insert", qmark=qmark
+            ),
             values=self.process_values(separator=", ", qmark=qmark),
         )
 
@@ -166,7 +168,8 @@ class BaseGrammar:
 
     def columnize_bulk_columns(self, columns=[]):
         return ", ".join(
-            self.column_string().format(column=x, separator="") for x in columns
+            self.column_string().format(column=x, separator="")
+            for x in columns
         ).rstrip(",")
 
     def columnize_bulk_values(self, columns=[], qmark=False):
@@ -180,11 +183,15 @@ class BaseGrammar:
                     inner += (
                         "?, "
                         if qmark
-                        else self.value_string().format(value=y, separator=", ")
+                        else self.value_string().format(
+                            value=y, separator=", "
+                        )
                     )
 
                 inner = inner.rstrip(", ")
-                sql += self.process_value_string().format(value=inner, separator=", ")
+                sql += self.process_value_string().format(
+                    value=inner, separator=", "
+                )
             else:
                 if qmark:
                     self.add_binding(x)
@@ -271,7 +278,11 @@ class BaseGrammar:
 
                 sql += self.join_string().format(
                     foreign_table=self.process_table(join.table),
-                    alias=f" AS {self.process_table(join.alias)}" if join.alias else "",
+                    alias=(
+                        f" AS {self.process_table(join.alias)}"
+                        if join.alias
+                        else ""
+                    ),
                     on=on_string,
                     keyword=self.join_keywords[join.clause],
                 )
@@ -312,7 +323,9 @@ class BaseGrammar:
                         sql += sql_string.format(
                             column=self._table_column_string(key),
                             value=(
-                                self.value_string().format(value=value, separator="")
+                                self.value_string().format(
+                                    value=value, separator=""
+                                )
                                 if not qmark
                                 else "?"
                             ),
@@ -356,7 +369,11 @@ class BaseGrammar:
             sql += (
                 aggregate_string.format(
                     aggregate_function=aggregate_function,
-                    column="*" if column == "*" else self._table_column_string(column),
+                    column=(
+                        "*"
+                        if column == "*"
+                        else self._table_column_string(column)
+                    ),
                     alias=self.process_alias(aggregates.alias or column),
                 )
                 + ", "
@@ -492,7 +509,9 @@ class BaseGrammar:
         if not self._offset:
             return ""
 
-        return self.offset_string().format(offset=self._offset, limit=self._limit or 1)
+        return self.offset_string().format(
+            offset=self._offset, limit=self._limit or 1
+        )
 
     def process_locks(self):
         return self.locks.get(self.lock, "")
@@ -519,7 +538,11 @@ class BaseGrammar:
                 sql_string = self.having_equality_string()
 
             sql += sql_string.format(
-                column=self._table_column_string(column) if raw is False else column,
+                column=(
+                    self._table_column_string(column)
+                    if raw is False
+                    else column
+                ),
                 equality=equality,
                 value=self._compile_value(value),
             )
@@ -663,7 +686,9 @@ class BaseGrammar:
                         self.add_binding(*value.builder._bindings)
                 else:
                     query_from_builder = value.builder.to_sql()
-                query_value = self.subquery_string().format(query=query_from_builder)
+                query_value = self.subquery_string().format(
+                    query=query_from_builder
+                )
             elif isinstance(value, list):
                 query_value = "("
                 for val in value:
@@ -694,20 +719,31 @@ class BaseGrammar:
                 if qmark:
                     query_value = "?"
                 else:
-                    query_value = self.value_string().format(value=value, separator="")
+                    query_value = self.value_string().format(
+                        value=value, separator=""
+                    )
 
                 self.add_binding(value)
             elif value_type == "column":
-                query_value = self._table_column_string(column=value, separator="")
+                query_value = self._table_column_string(
+                    column=value, separator=""
+                )
             elif value_type == "DATE":
-                query_value = self.value_string().format(value=value, separator="")
+                query_value = self.value_string().format(
+                    value=value, separator=""
+                )
             elif value_type == "having":
-                query_value = self._table_column_string(column=value, separator="")
+                query_value = self._table_column_string(
+                    column=value, separator=""
+                )
             else:
                 query_value = ""
 
             sql += sql_string.format(
-                keyword=keyword, column=column, equality=equality, value=query_value
+                keyword=keyword,
+                column=column,
+                equality=equality,
+                value=query_value,
             )
 
             loop_count += 1
@@ -816,7 +852,9 @@ class BaseGrammar:
                 sql += f"({builder_sql}) AS {column.alias}, "
                 continue
 
-            sql += self._table_column_string(column, alias=alias, separator=separator)
+            sql += self._table_column_string(
+                column, alias=alias, separator=separator
+            )
 
         if self._aggregates:
             sql += self.process_aggregates()
@@ -934,7 +972,9 @@ class BaseGrammar:
         Returns:
             self
         """
-        self._sql = self.drop_table_string().format(table=self.process_column(table))
+        self._sql = self.drop_table_string().format(
+            table=self.process_column(table)
+        )
         return self
 
     def drop_table_if_exists(self, table):

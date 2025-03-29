@@ -1,6 +1,6 @@
 import json
-import random
 import operator
+import random
 from functools import reduce
 
 
@@ -310,7 +310,9 @@ class Collection:
         if collection_count == 0:
             return None
         elif count and count > collection_count:
-            raise ValueError("count argument must be inferior to collection length.")
+            raise ValueError(
+                "count argument must be inferior to collection length."
+            )
         elif count:
             self._items = random.sample(self._items, k=count)
             return self
@@ -424,7 +426,9 @@ class Collection:
             if isinstance(item, dict):
                 comparison = item.get(key)
             else:
-                comparison = getattr(item, key) if hasattr(item, key) else False
+                comparison = (
+                    getattr(item, key) if hasattr(item, key) else False
+                )
             if self._make_comparison(comparison, value, op):
                 attributes.append(item)
         return self.__class__(attributes)
@@ -432,9 +436,7 @@ class Collection:
     def where_in(self, key, args: list) -> "Collection":
         # Compatibility patch - allow numeric strings to match integers
         # (if all args are numeric strings)
-        if all(
-                [isinstance(arg, str) and arg.isnumeric() for arg in args]
-        ):
+        if all([isinstance(arg, str) and arg.isnumeric() for arg in args]):
             return self.where_in(key, [int(arg) for arg in args])
 
         attributes = []
@@ -457,9 +459,7 @@ class Collection:
     def where_not_in(self, key, args: list) -> "Collection":
         # Compatibility patch - allow numeric strings to match integers
         # (if all args are numeric strings)
-        if all(
-                [isinstance(arg, str) and arg.isnumeric() for arg in args]
-        ):
+        if all([isinstance(arg, str) and arg.isnumeric() for arg in args]):
             return self.where_not_in(key, [int(arg) for arg in args])
 
         attributes = []
@@ -482,7 +482,9 @@ class Collection:
     def zip(self, items):
         items = self.__get_items(items)
         if not isinstance(items, list):
-            raise ValueError("The 'items' parameter must be a list or a Collection")
+            raise ValueError(
+                "The 'items' parameter must be a list or a Collection"
+            )
 
         _items = []
         for x, y in zip(self, items):

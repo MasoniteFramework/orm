@@ -1,5 +1,5 @@
-from .Platform import Platform
 from ..Table import Table
+from .Platform import Platform
 
 
 class MSSQLPlatform(Platform):
@@ -71,11 +71,15 @@ class MSSQLPlatform(Platform):
         sql.append(
             table_create_format.format(
                 table=self.wrap_table(table.name),
-                columns=", ".join(self.columnize(table.get_added_columns())).strip(),
+                columns=", ".join(
+                    self.columnize(table.get_added_columns())
+                ).strip(),
                 constraints=(
                     ", "
                     + ", ".join(
-                        self.constraintize(table.get_added_constraints(), table)
+                        self.constraintize(
+                            table.get_added_constraints(), table
+                        )
                     )
                     if table.get_added_constraints()
                     else ""
@@ -129,14 +133,18 @@ class MSSQLPlatform(Platform):
         if table.renamed_columns:
             for name, column in table.get_renamed_columns().items():
                 sql.append(
-                    self.rename_column_string(table.name, name, column.name).strip()
+                    self.rename_column_string(
+                        table.name, name, column.name
+                    ).strip()
                 )
 
         if table.dropped_columns:
             dropped_sql = []
 
             for name in table.get_dropped_columns():
-                dropped_sql.append(self.drop_column_string().format(name=name).strip())
+                dropped_sql.append(
+                    self.drop_column_string().format(name=name).strip()
+                )
 
             sql.append(
                 self.alter_format().format(
@@ -241,7 +249,10 @@ class MSSQLPlatform(Platform):
             elif column.default in self.premapped_defaults.keys():
                 default = self.premapped_defaults.get(column.default)
             elif column.default:
-                if isinstance(column.default, (str,)) and not column.default_is_raw:
+                if (
+                    isinstance(column.default, (str,))
+                    and not column.default_is_raw
+                ):
                     default = f" DEFAULT '{column.default}'"
                 else:
                     default = f" DEFAULT {column.default}"
@@ -302,9 +313,7 @@ class MSSQLPlatform(Platform):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
 
     def create_if_not_exists_format(self):
-        return (
-            "CREATE TABLE IF NOT EXISTS {table} ({columns}{constraints}{foreign_keys})"
-        )
+        return "CREATE TABLE IF NOT EXISTS {table} ({columns}{constraints}{foreign_keys})"
 
     def alter_format(self):
         return "ALTER TABLE {table} {columns}"

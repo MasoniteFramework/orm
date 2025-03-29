@@ -37,7 +37,8 @@ class MakeMigrationCommand(Command):
 
         with open(
             os.path.join(
-                pathlib.Path(__file__).parent.absolute(), f"stubs/{stub_file}.stub"
+                pathlib.Path(__file__).parent.absolute(),
+                f"stubs/{stub_file}.stub",
             )
         ) as fp:
             output = fp.read()
@@ -46,7 +47,9 @@ class MakeMigrationCommand(Command):
 
         file_name = f"{now.strftime('%Y_%m_%d_%H%M%S')}_{name}.py"
 
-        with open(os.path.join(os.getcwd(), migration_directory, file_name), "w") as fp:
+        with open(
+            os.path.join(os.getcwd(), migration_directory, file_name), "w"
+        ) as fp:
             fp.write(output)
 
         self.info(

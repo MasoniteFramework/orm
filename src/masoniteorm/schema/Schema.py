@@ -1,8 +1,8 @@
+from ..config import load_config
+from ..exceptions import ConnectionNotRegistered
 from .Blueprint import Blueprint
 from .Table import Table
 from .TableDiff import TableDiff
-from ..exceptions import ConnectionNotRegistered
-from ..config import load_config
 
 
 class Schema:
@@ -92,8 +92,8 @@ class Schema:
         if connection_key == "default":
             self.connection = self.connection_details.get("default")
 
-        connection_detail = self._connection_driver = self.connection_details.get(
-            self.connection
+        connection_detail = self._connection_driver = (
+            self.connection_details.get(self.connection)
         )
 
         if connection_detail:
@@ -103,7 +103,9 @@ class Schema:
                 f"Could not find the '{connection_key}' connection details"
             )
 
-        self.connection_class = DB.connection_factory.make(self._connection_driver)
+        self.connection_class = DB.connection_factory.make(
+            self._connection_driver
+        )
 
         return self
 
@@ -186,16 +188,24 @@ class Schema:
 
     def get_connection_information(self):
         return {
-            "host": self.connection_details.get(self.connection, {}).get("host"),
+            "host": self.connection_details.get(self.connection, {}).get(
+                "host"
+            ),
             "database": self.connection_details.get(self.connection, {}).get(
                 "database"
             ),
-            "user": self.connection_details.get(self.connection, {}).get("user"),
-            "port": self.connection_details.get(self.connection, {}).get("port"),
+            "user": self.connection_details.get(self.connection, {}).get(
+                "user"
+            ),
+            "port": self.connection_details.get(self.connection, {}).get(
+                "port"
+            ),
             "password": self.connection_details.get(self.connection, {}).get(
                 "password"
             ),
-            "prefix": self.connection_details.get(self.connection, {}).get("prefix"),
+            "prefix": self.connection_details.get(self.connection, {}).get(
+                "prefix"
+            ),
             "options": self.connection_details.get(self.connection, {}).get(
                 "options", {}
             ),
@@ -279,7 +289,9 @@ class Schema:
         return bool(self.new_connection().query(sql, ()))
 
     def truncate(self, table, foreign_keys=False):
-        sql = self.platform().compile_truncate(table, foreign_keys=foreign_keys)
+        sql = self.platform().compile_truncate(
+            table, foreign_keys=foreign_keys
+        )
 
         if self._dry:
             self._sql = sql
@@ -289,9 +301,9 @@ class Schema:
 
     def get_schema(self):
         """Gets the schema set on the migration class"""
-        return self.schema or self.get_connection_information().get("full_details").get(
-            "schema"
-        )
+        return self.schema or self.get_connection_information().get(
+            "full_details"
+        ).get("schema")
 
     def get_all_tables(self):
         """Gets all tables in the database"""
@@ -306,7 +318,9 @@ class Schema:
 
         result = self.new_connection().query(sql, ())
 
-        return list(map(lambda t: list(t.values())[0], result)) if result else []
+        return (
+            list(map(lambda t: list(t.values())[0], result)) if result else []
+        )
 
     def has_table(self, table, query_only=False):
         """Checks if the a database has a specific table

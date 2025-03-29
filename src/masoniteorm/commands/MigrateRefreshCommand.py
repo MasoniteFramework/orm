@@ -1,5 +1,4 @@
 from ..migrations import Migration
-
 from .Command import Command
 
 

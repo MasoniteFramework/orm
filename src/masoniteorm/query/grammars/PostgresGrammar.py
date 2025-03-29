@@ -113,9 +113,7 @@ class PostgresGrammar(BaseGrammar):
         return "SELECT column_name FROM information_schema.columns WHERE table_name='{clean_table}' and column_name={value}"
 
     def table_exists_string(self):
-        return (
-            "SELECT * from information_schema.tables where table_name='{clean_table}'"
-        )
+        return "SELECT * from information_schema.tables where table_name='{clean_table}'"
 
     def create_column_length(self, column_type):
         if column_type in self.types_without_lengths:

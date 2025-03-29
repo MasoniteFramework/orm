@@ -107,9 +107,7 @@ class SQLiteGrammar(BaseGrammar):
         return "SELECT column_name FROM information_schema.columns WHERE table_name='{clean_table}' and column_name={value}"
 
     def table_exists_string(self):
-        return (
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='{clean_table}'"
-        )
+        return "SELECT name FROM sqlite_master WHERE type='table' AND name='{clean_table}'"
 
     def to_sql(self):
         """Cleans up the SQL string and returns the SQL

@@ -11,7 +11,9 @@ class UUIDPrimaryKeyScope(BaseScope):
             "_UUID_primary_key", self.set_uuid_create, action="insert"
         )
         builder.set_global_scope(
-            "_UUID_primary_key", self.set_bulk_uuid_create, action="bulk_create"
+            "_UUID_primary_key",
+            self.set_bulk_uuid_create,
+            action="bulk_create",
         )
 
     def on_remove(self, builder):
@@ -22,7 +24,10 @@ class UUIDPrimaryKeyScope(BaseScope):
         uuid_func = getattr(uuid, f"uuid{uuid_version}")
         args = []
         if uuid_version in [3, 5]:
-            args = [builder._model.__uuid_namespace__, builder._model.__uuid_name__]
+            args = [
+                builder._model.__uuid_namespace__,
+                builder._model.__uuid_name__,
+            ]
 
         return uuid_func(*args).bytes if bytes else str(uuid_func(*args))
 

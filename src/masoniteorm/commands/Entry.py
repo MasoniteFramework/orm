@@ -6,18 +6,19 @@ successfully import commands for you.
 """
 
 from cleo import Application
+
 from . import (
-    MigrateCommand,
-    MigrateRollbackCommand,
-    MigrateRefreshCommand,
-    MigrateFreshCommand,
     MakeMigrationCommand,
     MakeModelCommand,
     MakeModelDocstringCommand,
     MakeObserverCommand,
-    MigrateStatusCommand,
-    MigrateResetCommand,
     MakeSeedCommand,
+    MigrateCommand,
+    MigrateFreshCommand,
+    MigrateRefreshCommand,
+    MigrateResetCommand,
+    MigrateRollbackCommand,
+    MigrateStatusCommand,
     SeedRunCommand,
     ShellCommand,
 )

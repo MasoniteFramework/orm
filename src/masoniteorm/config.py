@@ -2,8 +2,7 @@ import os
 import pydoc
 import urllib.parse as urlparse
 
-from .exceptions import ConfigurationNotFound
-from .exceptions import InvalidUrlConfiguration
+from .exceptions import ConfigurationNotFound, InvalidUrlConfiguration
 
 
 def load_config(config_path=None):
@@ -98,7 +97,9 @@ def db_url(database_url=None, prefix="", options={}, log_queries=False):
         # lookup specified driver
         driver = DRIVERS_MAP[url.scheme]
         port = (
-            str(url.port) if url.port and driver in [DRIVERS_MAP["mssql"]] else url.port
+            str(url.port)
+            if url.port and driver in [DRIVERS_MAP["mssql"]]
+            else url.port
         )
 
     # build final configuration
