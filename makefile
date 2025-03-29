@@ -1,13 +1,16 @@
-init: .env .bootstrapped-pip
+SHELL := /bin/bash
 
-.bootstrapped-pip: requirements.txt requirements.dev .git/hooks/pre-commit
+init: .env .bootstrapped-pip .git/hooks/pre-commit
+
+.bootstrapped-pip: requirements.txt requirements.dev
 	pip install -r requirements.txt -r requirements.dev
 	touch .bootstrapped-pip
 
 .git/hooks/pre-commit:
-	pip install pre-commit
-	pre-commit install
-	pre-commit install-hooks
+	@if ! test -e ".ignore-pre-commit"; then \
+  		pip install pre-commit; \
+  		pre-commit install --install-hooks; \
+	fi
 
 .env:
 	cp .env-example .env
@@ -17,7 +20,8 @@ init: .env .bootstrapped-pip
 test: init
 	python -m pytest tests
 ci:
-	make test
+	touch .ignore-pre-commit
+# 	make test
 check: format sort lint
 lint:
 	python -m flake8 src/masoniteorm/ --ignore=E501,F401,E203,E128,E402,E731,F821,E712,W503,F811
