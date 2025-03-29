@@ -1,15 +1,10 @@
-import inspect
 import unittest
 
-from tests.integrations.config.database import DATABASES
-from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.models import Model
-from src.masoniteorm.query import QueryBuilder
-from src.masoniteorm.query.grammars import SQLiteGrammar
-from src.masoniteorm.relationships import belongs_to, belongs_to_many
+from src.masoniteorm.relationships import belongs_to_many
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms.SQLitePlatform import SQLitePlatform
-from tests.utils import MockConnectionFactory
+from tests.integrations.config.database import DATABASES
 
 
 class User(Model):
@@ -63,7 +58,9 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
         self.assertEqual(
             sql,
-            """UPDATE "users" SET "name" = 'joe' WHERE "id" = '{}'""".format(user.id),
+            """UPDATE "users" SET "name" = 'joe' WHERE "id" = '{}'""".format(
+                user.id
+            ),
         )
 
     def test_update_all_records(self):
@@ -74,12 +71,15 @@ class BaseTestQueryRelationships(unittest.TestCase):
     def test_can_find_list(self):
         sql = User.find(1, query=True).to_sql()
 
-        self.assertEqual(sql, """SELECT * FROM "users" WHERE "users"."id" = '1'""")
+        self.assertEqual(
+            sql, """SELECT * FROM "users" WHERE "users"."id" = '1'"""
+        )
 
         sql = User.find([1, 2, 3], query=True).to_sql()
 
         self.assertEqual(
-            sql, """SELECT * FROM "users" WHERE "users"."id" IN ('1','2','3')"""
+            sql,
+            """SELECT * FROM "users" WHERE "users"."id" IN ('1','2','3')""",
         )
 
     def test_find_or_if_record_not_found(self):
@@ -125,7 +125,9 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
     def test_can_force_update_on_method(self):
         user = User.first()
-        sql = user.update({"name": user.name, "username": "new"}, force=True).to_sql()
+        sql = user.update(
+            {"name": user.name, "username": "new"}, force=True
+        ).to_sql()
         self.assertEqual(
             sql,
             """UPDATE "users" SET "name" = 'bill', "username" = 'new' WHERE "id" = '{}'""".format(
@@ -145,7 +147,9 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
     def test_force_update(self):
         user = User.first()
-        sql = user.force_update({"name": user.name, "username": "new"}).to_sql()
+        sql = user.force_update(
+            {"name": user.name, "username": "new"}
+        ).to_sql()
         self.assertEqual(
             sql,
             """UPDATE "users" SET "name" = 'bill', "username" = 'new' WHERE "id" = '{}'""".format(
@@ -171,7 +175,9 @@ class BaseTestQueryRelationships(unittest.TestCase):
             __connection__ = "dev"
             __table__ = "users"
 
-        count = User.where_not_null("id").not_between("age", 1, 2).get().count()
+        count = (
+            User.where_not_null("id").not_between("age", 1, 2).get().count()
+        )
         self.assertEqual(count, 0)
 
     def test_get_columns(self):
@@ -204,7 +210,9 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
     def test_should_return_relation_applying_hidden_attributes(self):
         schema = Schema(
-            connection_details=DATABASES, connection="dev", platform=SQLitePlatform
+            connection_details=DATABASES,
+            connection="dev",
+            platform=SQLitePlatform,
         ).on("dev")
 
         tables = ["users_hidden", "group_user", "groups"]

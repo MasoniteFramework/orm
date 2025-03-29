@@ -1,20 +1,17 @@
 import unittest
 
-import pendulum
-
-from tests.integrations.config.database import DATABASES
+from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import MySQLGrammar
-from src.masoniteorm.scopes import SoftDeleteScope
+from src.masoniteorm.scopes import SoftDeleteScope, SoftDeletesMixin
+from tests.integrations.config.database import DATABASES
 from tests.utils import MockConnectionFactory
-
-from src.masoniteorm.models import Model
-from src.masoniteorm.scopes import SoftDeletesMixin
 
 
 class UserSoft(Model, SoftDeletesMixin):
     __dry__ = True
     __table__ = "users"
+
 
 class UserSoftArchived(Model, SoftDeletesMixin):
     __dry__ = True
@@ -51,7 +48,6 @@ class TestSoftDeleteScope(unittest.TestCase):
 
     def test_force_delete_with_wheres(self):
         sql = "DELETE FROM `users` WHERE `users`.`active` = '1'"
-        builder = self.get_builder().set_global_scope(SoftDeleteScope())
         self.assertEqual(
             sql, UserSoft.where("active", 1).force_delete(query=True).to_sql()
         )

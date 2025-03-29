@@ -1,11 +1,10 @@
-import inspect
 import unittest
 
-from tests.integrations.config.database import DATABASES
 from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
+from tests.integrations.config.database import DATABASES
 
 
 class User(Model):
@@ -30,7 +29,11 @@ class BaseTestQueryRelationships(unittest.TestCase):
     def test_insert(self):
         builder = self.get_builder()
         result = builder.create(
-            {"name": "Joe", "email": "joe@masoniteproject.com", "password": "secret"}
+            {
+                "name": "Joe",
+                "email": "joe@masoniteproject.com",
+                "password": "secret",
+            }
         )
 
         self.assertIsInstance(result["id"], int)

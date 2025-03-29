@@ -1,5 +1,4 @@
 import datetime
-import json
 import unittest
 
 import pendulum
@@ -36,23 +35,31 @@ class ModelTestForced(Model):
     __table__ = "users"
     __force_update__ = True
 
+
 class BaseModel(Model):
     __dry__ = True
+
     def get_selects(self):
         return [f"{self.get_table_name()}.*"]
+
 
 class ModelWithBaseModel(BaseModel):
     __table__ = "users"
 
+
 class TestModels(unittest.TestCase):
     def test_model_can_access_str_dates_as_pendulum(self):
-        model = ModelTest.hydrate({"user": "joe", "due_date": "2020-11-28 11:42:07"})
+        model = ModelTest.hydrate(
+            {"user": "joe", "due_date": "2020-11-28 11:42:07"}
+        )
 
         self.assertTrue(model.user)
         self.assertTrue(model.due_date)
         self.assertIsInstance(model.due_date, pendulum.now().__class__)
 
-    def test_model_can_access_str_dates_as_pendulum_from_correct_datetimes(self):
+    def test_model_can_access_str_dates_as_pendulum_from_correct_datetimes(
+        self,
+    ):
         model = ModelTest()
 
         self.assertEqual(
@@ -63,7 +70,9 @@ class TestModels(unittest.TestCase):
         self.assertEqual(model.get_new_date("2020-11-28 11:42:07").hour, 11)
 
     def test_model_can_access_str_dates_on_relationships(self):
-        model = ModelTest.hydrate({"user": "joe", "due_date": "2020-11-28 11:42:07"})
+        model = ModelTest.hydrate(
+            {"user": "joe", "due_date": "2020-11-28 11:42:07"}
+        )
         model.add_relation(
             {
                 "profile": ModelTest.hydrate(
@@ -179,7 +188,9 @@ class TestModels(unittest.TestCase):
 
         self.assertEqual(type(model.payload), dict)
 
-        model = ModelTest.hydrate({"payload": "{'this': 'should', 'throw': 'error'}"})
+        model = ModelTest.hydrate(
+            {"payload": "{'this': 'should', 'throw': 'error'}"}
+        )
 
         self.assertEqual(model.payload, None)
 
@@ -286,7 +297,9 @@ class TestModels(unittest.TestCase):
         )
 
     def test_model_can_override_to_default_select(self):
-        sql = ModelWithBaseModel.select(["products.name", "products.id", "store.name"]).to_sql()
+        sql = ModelWithBaseModel.select(
+            ["products.name", "products.id", "store.name"]
+        ).to_sql()
         self.assertEqual(
             sql,
             """SELECT `products`.`name`, `products`.`id`, `store`.`name` FROM `users`""",

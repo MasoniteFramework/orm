@@ -1,12 +1,10 @@
-import inspect
 import unittest
 
-from tests.integrations.config.database import DATABASES
-from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
 from src.masoniteorm.relationships import belongs_to, has_many
+from tests.integrations.config.database import DATABASES
 
 
 class Logo(Model):
@@ -58,7 +56,6 @@ class BaseTestQueryRelationships(unittest.TestCase):
     maxDiff = None
 
     def get_builder(self, table="users", model=User()):
-        connection = ConnectionFactory().make("sqlite")
         return QueryBuilder(
             grammar=SQLiteGrammar,
             connection="dev",
@@ -92,7 +89,6 @@ class BaseTestQueryRelationships(unittest.TestCase):
         result.serialize()
 
     def test_with_multiple_per_same_relation(self):
-        builder = self.get_builder()
         result = User.with_("articles", "articles.logo").where("id", 1).first()
         self.assertTrue(result.serialize()["articles"])
         self.assertTrue(result.serialize()["articles"][0]["logo"])

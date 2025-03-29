@@ -2,15 +2,16 @@
 
 import unittest
 import uuid
+
 import pendulum
 
 from src.masoniteorm.models import Model
 from src.masoniteorm.scopes import (
     SoftDeletesMixin,
-    TimeStampsScope,
     TimeStampsMixin,
-    UUIDPrimaryKeyScope,
+    TimeStampsScope,
     UUIDPrimaryKeyMixin,
+    UUIDPrimaryKeyScope,
 )
 
 
@@ -102,7 +103,7 @@ class TestTimeStampsScope(unittest.TestCase):
         self.scope = TimeStampsScope()
         try:
             del UserWithTimeStamps.__timestamps__
-        except:
+        except Exception:
             pass
 
     def test_updated_and_created_dates_are_set_when_create(self):
@@ -130,10 +131,12 @@ class TestTimeStampsScope(unittest.TestCase):
         self.assertIn(created_column, self.builder._creates)
         self.assertIn(updated_column, self.builder._creates)
         self.assertIsInstance(
-            pendulum.parse(self.builder._creates[created_column]), pendulum.DateTime
+            pendulum.parse(self.builder._creates[created_column]),
+            pendulum.DateTime,
         )
         self.assertIsInstance(
-            pendulum.parse(self.builder._creates[updated_column]), pendulum.DateTime
+            pendulum.parse(self.builder._creates[updated_column]),
+            pendulum.DateTime,
         )
 
     def test_uses_custom_updated_column_on_update(self):

@@ -1,12 +1,11 @@
-""" Database Settings """
+"""Database Settings"""
 
-import os
 import logging
+import os
 
 from dotenv import load_dotenv
 
 from src.masoniteorm.connections import ConnectionResolver
-from src.masoniteorm.config import db_url
 
 """
 |--------------------------------------------------------------------------
@@ -43,7 +42,12 @@ DATABASES = {
         "connection_pooling_max_size": 10,
         "connection_pooling_min_size": None,
     },
-    "t": {"driver": "sqlite", "database": "orm.sqlite3", "log_queries": True, "foreign_keys": True},
+    "t": {
+        "driver": "sqlite",
+        "database": "orm.sqlite3",
+        "log_queries": True,
+        "foreign_keys": True,
+    },
     "devprod": {
         "driver": "mysql",
         "host": os.getenv("MYSQL_DATABASE_HOST"),

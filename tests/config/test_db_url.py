@@ -1,9 +1,7 @@
 import os
-import pytest
 import unittest
 
-from src.masoniteorm.config import db_url, load_config
-from src.masoniteorm.exceptions import InvalidUrlConfiguration
+from src.masoniteorm.config import db_url
 from src.masoniteorm.connections import ConnectionResolver
 
 

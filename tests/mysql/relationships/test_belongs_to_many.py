@@ -1,14 +1,12 @@
 import unittest
 
-# from src.masoniteorm import query
+from dotenv import load_dotenv
+
 from src.masoniteorm.models import Model
 from src.masoniteorm.relationships import (
-    has_one,
     belongs_to_many,
-    has_one_through,
-    has_many,
+    has_one,
 )
-from dotenv import load_dotenv
 
 load_dotenv(".env")
 
@@ -87,7 +85,11 @@ class MySQLRelationships(unittest.TestCase):
         )
 
     def test_belongs_to_many_or_doesnt_have(self):
-        sql = Role.where("name", "role_name").or_doesnt_have("permissions").to_sql()
+        sql = (
+            Role.where("name", "role_name")
+            .or_doesnt_have("permissions")
+            .to_sql()
+        )
 
         self.assertEqual(
             sql,

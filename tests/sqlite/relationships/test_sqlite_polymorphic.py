@@ -1,8 +1,7 @@
-import os
 import unittest
 
 from src.masoniteorm.models import Model
-from src.masoniteorm.relationships import belongs_to, has_many, morph_to
+from src.masoniteorm.relationships import belongs_to, morph_to
 from tests.integrations.config.database import DB
 
 

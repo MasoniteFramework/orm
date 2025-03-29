@@ -1,10 +1,7 @@
-import inspect
 import unittest
 
-from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
-from src.masoniteorm.query.grammars import PostgresGrammar
 from tests.utils import MockConnectionFactory
 
 
@@ -50,7 +47,8 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
         builder.where("age", "like", "%name%")
 
         self.assertEqual(
-            builder.to_sql(), "SELECT * FROM [users] WHERE [users].[age] LIKE '%name%'"
+            builder.to_sql(),
+            "SELECT * FROM [users] WHERE [users].[age] LIKE '%name%'",
         )
 
     def test_where_not_like(self):
@@ -108,14 +106,18 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
         builder.select("name", "email")
 
         self.assertEqual(
-            builder.to_sql(), "SELECT [users].[name], [users].[email] FROM [users]"
+            builder.to_sql(),
+            "SELECT [users].[name], [users].[email] FROM [users]",
         )
 
     def test_add_select_no_table(self):
         builder = self.get_builder(table=None)
         builder.add_select(
-            "other_test", lambda q: q.max("updated_at").table("different_table")
-        ).add_select("some_alias", lambda q: q.max("updated_at").table("another_table"))
+            "other_test",
+            lambda q: q.max("updated_at").table("different_table"),
+        ).add_select(
+            "some_alias", lambda q: q.max("updated_at").table("another_table")
+        )
 
         self.assertEqual(
             builder.to_sql(),
@@ -137,7 +139,8 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
     def test_create(self):
         builder = self.get_builder().without_global_scopes()
         builder.create(
-            {"name": "Corentin All", "email": "corentin@yopmail.com"}, query=True
+            {"name": "Corentin All", "email": "corentin@yopmail.com"},
+            query=True,
         )
 
         self.assertEqual(
@@ -149,7 +152,8 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
         builder = self.get_builder()
         builder.delete("name", "Joe", query=True)
         self.assertEqual(
-            builder.to_sql(), "DELETE FROM [users] WHERE [users].[name] = 'Joe'"
+            builder.to_sql(),
+            "DELETE FROM [users] WHERE [users].[name] = 'Joe'",
         )
 
     def test_where(self):
@@ -157,13 +161,16 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
         builder.where("name", "Joe")
 
         self.assertEqual(
-            builder.to_sql(), "SELECT * FROM [users] WHERE [users].[name] = 'Joe'"
+            builder.to_sql(),
+            "SELECT * FROM [users] WHERE [users].[name] = 'Joe'",
         )
 
     def test_where_exists(self):
         builder = self.get_builder()
         builder.where_exists("name")
-        self.assertEqual(builder.to_sql(), "SELECT * FROM [users] WHERE EXISTS 'name'")
+        self.assertEqual(
+            builder.to_sql(), "SELECT * FROM [users] WHERE EXISTS 'name'"
+        )
 
     def test_limit(self):
         builder = self.get_builder()
@@ -238,7 +245,9 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
     def test_order_by_asc(self):
         builder = self.get_builder()
         builder.order_by("email", "asc")
-        self.assertEqual(builder.to_sql(), "SELECT * FROM [users] ORDER BY [email] ASC")
+        self.assertEqual(
+            builder.to_sql(), "SELECT * FROM [users] ORDER BY [email] ASC"
+        )
 
     def test_order_by_desc(self):
         builder = self.get_builder()
@@ -293,7 +302,8 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
         builder.where_null("name")
 
         self.assertEqual(
-            builder.to_sql(), "SELECT * FROM [users] WHERE [users].[name] IS NULL"
+            builder.to_sql(),
+            "SELECT * FROM [users] WHERE [users].[name] IS NULL",
         )
 
     def test_where_not_null(self):
@@ -301,7 +311,8 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
         builder.where_not_null("name")
 
         self.assertEqual(
-            builder.to_sql(), "SELECT * FROM [users] WHERE [users].[name] IS NOT NULL"
+            builder.to_sql(),
+            "SELECT * FROM [users] WHERE [users].[name] IS NOT NULL",
         )
 
     def test_having(self):
@@ -349,35 +360,40 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
         builder = self.get_builder()
         builder.where("age", "<", "20")
         self.assertEqual(
-            builder.to_sql(), "SELECT * FROM [users] WHERE [users].[age] < '20'"
+            builder.to_sql(),
+            "SELECT * FROM [users] WHERE [users].[age] < '20'",
         )
 
     def test_where_lte(self):
         builder = self.get_builder()
         builder.where("age", "<=", "20")
         self.assertEqual(
-            builder.to_sql(), "SELECT * FROM [users] WHERE [users].[age] <= '20'"
+            builder.to_sql(),
+            "SELECT * FROM [users] WHERE [users].[age] <= '20'",
         )
 
     def test_where_gt(self):
         builder = self.get_builder()
         builder.where("age", ">", "20")
         self.assertEqual(
-            builder.to_sql(), "SELECT * FROM [users] WHERE [users].[age] > '20'"
+            builder.to_sql(),
+            "SELECT * FROM [users] WHERE [users].[age] > '20'",
         )
 
     def test_where_gte(self):
         builder = self.get_builder()
         builder.where("age", ">=", "20")
         self.assertEqual(
-            builder.to_sql(), "SELECT * FROM [users] WHERE [users].[age] >= '20'"
+            builder.to_sql(),
+            "SELECT * FROM [users] WHERE [users].[age] >= '20'",
         )
 
     def test_where_ne(self):
         builder = self.get_builder()
         builder.where("age", "!=", "20")
         self.assertEqual(
-            builder.to_sql(), "SELECT * FROM [users] WHERE [users].[age] != '20'"
+            builder.to_sql(),
+            "SELECT * FROM [users] WHERE [users].[age] != '20'",
         )
 
     def test_or_where(self):
@@ -429,7 +445,9 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
     def test_oldest(self):
         builder = self.get_builder()
         builder.oldest("email")
-        self.assertEqual(builder.to_sql(), "SELECT * FROM [users] ORDER BY [email] ASC")
+        self.assertEqual(
+            builder.to_sql(), "SELECT * FROM [users] ORDER BY [email] ASC"
+        )
 
     def test_oldest_multiple(self):
         builder = self.get_builder()

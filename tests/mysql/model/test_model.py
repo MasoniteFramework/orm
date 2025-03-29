@@ -179,7 +179,8 @@ class TestModel(unittest.TestCase):
         )
 
         self.assertEqual(
-            query_builder.to_sql(), "UPDATE `profiles` SET `profiles`.`name` = 'Joe'"
+            query_builder.to_sql(),
+            "UPDATE `profiles` SET `profiles`.`name` = 'Joe'",
         )
 
     def test_update_can_use_fillable_asterisk(self):
@@ -198,7 +199,8 @@ class TestModel(unittest.TestCase):
         )
 
         self.assertEqual(
-            query_builder.to_sql(), "UPDATE `profiles` SET `profiles`.`name` = 'Joe'"
+            query_builder.to_sql(),
+            "UPDATE `profiles` SET `profiles`.`name` = 'Joe'",
         )
 
     def test_update_can_use_guarded_asterisk(self):
@@ -243,7 +245,12 @@ class TestModel(unittest.TestCase):
 
     def test_serialize_with_visible(self):
         profile = ProfileSerializeWithVisible.hydrate(
-            {"name": "Joe", "id": 1, "password": "secret", "email": "joe@masonite.com"}
+            {
+                "name": "Joe",
+                "id": 1,
+                "password": "secret",
+                "email": "joe@masonite.com",
+            }
         )
         self.assertTrue(
             {"name": "Joe", "email": "joe@masonite.com"}, profile.serialize()
@@ -251,7 +258,12 @@ class TestModel(unittest.TestCase):
 
     def test_serialize_with_visible_and_hidden_raise_error(self):
         profile = ProfileSerializeWithVisibleAndHidden.hydrate(
-            {"name": "Joe", "id": 1, "password": "secret", "email": "joe@masonite.com"}
+            {
+                "name": "Joe",
+                "id": 1,
+                "password": "secret",
+                "email": "joe@masonite.com",
+            }
         )
         with self.assertRaises(AttributeError):
             profile.serialize()
@@ -294,7 +306,8 @@ class TestModel(unittest.TestCase):
         user = User.hydrate(
             {
                 "name": "Joe",
-                "created_at": datetime.datetime.now() + datetime.timedelta(days=1),
+                "created_at": datetime.datetime.now()
+                + datetime.timedelta(days=1),
             }
         )
 
@@ -310,7 +323,9 @@ class TestModel(unittest.TestCase):
         profile = ProfileFillAsterisk.hydrate({"name": "Joe", "id": 1})
 
         profile.age = 18
-        self.assertEqual(profile.serialize(), {"age": 18, "name": "Joe", "id": 1})
+        self.assertEqual(
+            profile.serialize(), {"age": 18, "name": "Joe", "id": 1}
+        )
 
     def test_attribute_check_with_hasattr(self):
         self.assertFalse(hasattr(Profile(), "__password__"))
@@ -321,7 +336,8 @@ if os.getenv("RUN_MYSQL_DATABASE", "false").lower() == "true":
     class MysqlTestModel(unittest.TestCase):
         # TODO: these tests aren't getting run in CI... is that intentional?
         def test_can_find_first(self):
-            profile = User.find(1)
+            user = User.find(1)
+            self.assertIsInstance(user, User)
 
         def test_can_touch(self):
             profile = ProfileFillTimeStamped.hydrate({"name": "Joe", "id": 1})

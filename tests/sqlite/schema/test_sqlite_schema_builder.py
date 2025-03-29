@@ -1,9 +1,8 @@
 import unittest
 
-from tests.integrations.config.database import DATABASES
-from src.masoniteorm.connections import SQLiteConnection
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import SQLitePlatform
+from tests.integrations.config.database import DATABASES
 
 
 class TestSQLiteSchemaBuilder(unittest.TestCase):
@@ -36,7 +35,8 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 1)
         self.assertEqual(
-            blueprint.to_sql(), ['CREATE TABLE "users" ("description" TEXT NOT NULL)']
+            blueprint.to_sql(),
+            ['CREATE TABLE "users" ("description" TEXT NOT NULL)'],
         )
 
     def test_can_add_unsigned_decimal(self):
@@ -82,7 +82,10 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(
             blueprint.to_sql(),
-            ["""CREATE TABLE "users" (""" """\"amount" FLOAT(19, 4) NOT NULL)"""],
+            [
+                """CREATE TABLE "users" ("""
+                """\"amount" FLOAT(19, 4) NOT NULL)"""
+            ],
         )
 
     def test_can_add_columns_with_foreign_key_constraint(self):
@@ -110,9 +113,9 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.string("name").unique()
             blueprint.integer("age")
             blueprint.integer("profile_id")
-            blueprint.foreign("profile_id", name="profile_foreign").references("id").on(
-                "profiles"
-            )
+            blueprint.foreign("profile_id", name="profile_foreign").references(
+                "id"
+            ).on("profiles")
 
         self.assertEqual(len(blueprint.table.added_columns), 3)
         self.assertEqual(
@@ -256,9 +259,9 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.string("thumbnail").nullable()
             blueprint.integer("premium")
             blueprint.integer("author_id").unsigned().nullable()
-            blueprint.foreign("author_id").references("id").on("users").on_delete(
-                "set null"
-            )
+            blueprint.foreign("author_id").references("id").on(
+                "users"
+            ).on_delete("set null")
             blueprint.text("description")
             blueprint.timestamps()
 
@@ -362,6 +365,6 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             [
-                'CREATE TABLE "users" ("status" VARCHAR(255) CHECK(status IN (\'active\', \'inactive\')) NOT NULL DEFAULT \'active\')'
+                "CREATE TABLE \"users\" (\"status\" VARCHAR(255) CHECK(status IN ('active', 'inactive')) NOT NULL DEFAULT 'active')"
             ],
         )

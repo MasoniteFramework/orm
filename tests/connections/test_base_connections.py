@@ -1,6 +1,5 @@
 import unittest
 
-from src.masoniteorm.connections import ConnectionResolver
 from tests.integrations.config.database import DB
 
 
