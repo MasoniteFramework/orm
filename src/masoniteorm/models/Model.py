@@ -336,7 +336,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Returns:
             str
         """
-        return underscore(self.__class__.__name__ + "_" + self.get_primary_key())
+        return underscore(
+            self.__class__.__name__ + "_" + self.get_primary_key()
+        )
 
     def query(self):
         return self.get_builder()
@@ -348,7 +350,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         self.builder = QueryBuilder(
             connection=self.__connection__,
             table=self.get_table_name(),
-            # connection_details=self.get_connection_details(),
+            connection_details=self.get_connection_details(),
             model=self,
             scopes=self._scopes.get(self.__class__),
             dry=self.__dry__,
@@ -499,7 +501,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             logger.propagate = False
             logger.info(
                 f"Hydrating Model {cls.__name__}",
-                extra={"class_name": cls.__name__, "class_module": cls.__module__},
+                extra={
+                    "class_name": cls.__name__,
+                    "class_module": cls.__module__,
+                },
             )
 
             model.observe_events(model, "hydrating")
@@ -557,7 +562,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             self: A hydrated version of a model
         """
         if query:
-            return cls.builder.create(dictionary, query=True, cast=cast, **kwargs)
+            return cls.builder.create(
+                dictionary, query=True, cast=cast, **kwargs
+            )
 
         return cls.builder.create(dictionary, cast=cast, **kwargs)
 
@@ -606,7 +613,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         # prevent using both exclude and include at the same time
         if exclude is not None and include is not None:
-            raise AttributeError("Can not define both includes and exclude values.")
+            raise AttributeError(
+                "Can not define both includes and exclude values."
+            )
 
         if exclude is not None:
             self.__hidden__ = exclude
@@ -637,8 +646,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 date_column in serialized_dictionary
                 and serialized_dictionary[date_column]
             ):
-                serialized_dictionary[date_column] = self.get_new_serialized_date(
-                    serialized_dictionary[date_column]
+                serialized_dictionary[date_column] = (
+                    self.get_new_serialized_date(
+                        serialized_dictionary[date_column]
+                    )
                 )
 
         serialized_dictionary.update(self.__dirty_attributes__)
@@ -658,7 +669,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             if key in self.__hidden__:
                 remove_keys.append(key)
             if hasattr(value, "serialize"):
-                value = value.serialize(self.__relationship_hidden__.get(key, []))
+                value = value.serialize(
+                    self.__relationship_hidden__.get(key, [])
+                )
             if isinstance(value, datetime):
                 value = self.get_new_serialized_date(value)
             if key in self.__casts__:
@@ -801,7 +814,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         if attribute not in self.__dict__:
             name = self.__class__.__name__
 
-            raise AttributeError(f"class model '{name}' has no attribute {attribute}")
+            raise AttributeError(
+                f"class model '{name}' has no attribute {attribute}"
+            )
 
         return None
 
@@ -835,7 +850,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         try:
             if not attribute.startswith("_"):
-                self.__dict__["__dirty_attributes__"].update({attribute: value})
+                self.__dict__["__dirty_attributes__"].update(
+                    {attribute: value}
+                )
             else:
                 self.__dict__[attribute] = value
         except KeyError:
@@ -892,7 +909,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         if self.is_loaded():
             result = builder.update(
-                self.__dirty_attributes__, dry=query, ignore_mass_assignment=True
+                self.__dirty_attributes__,
+                dry=query,
+                ignore_mass_assignment=True,
             )
         else:
             result = self.create(self.__dirty_attributes__, query=query)
@@ -1007,7 +1026,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             return pendulum.instance(_datetime, tz=self.__timezone__)
         elif isinstance(_datetime, datetimedate):
             return pendulum.datetime(
-                _datetime.year, _datetime.month, _datetime.day, tz=self.__timezone__
+                _datetime.year,
+                _datetime.month,
+                _datetime.day,
+                tz=self.__timezone__,
             )
         elif isinstance(_datetime, datetimetime):
             return pendulum.parse(
@@ -1083,7 +1105,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         related = getattr(self.__class__, relation)
 
         if not related_record.is_created():
-            related_record = related_record.create(related_record.all_attributes())
+            related_record = related_record.create(
+                related_record.all_attributes()
+            )
         else:
             related_record.save()
 
@@ -1138,11 +1162,15 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Passed dictionary is not mutated.
         """
         if cls.__fillable__ != ["*"]:
-            dictionary = {x: dictionary[x] for x in cls.__fillable__ if x in dictionary}
+            dictionary = {
+                x: dictionary[x] for x in cls.__fillable__ if x in dictionary
+            }
         return dictionary
 
     @classmethod
-    def filter_mass_assignment(cls, dictionary: Dict[str, Any]) -> Dict[str, Any]:
+    def filter_mass_assignment(
+        cls, dictionary: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Filters the provided dictionary in preparation for a mass-assignment operation
 
@@ -1160,4 +1188,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         if cls.__guarded__ == ["*"]:
             # If all fields are guarded, all data should be filtered
             return {}
-        return {f: dictionary[f] for f in dictionary if f not in cls.__guarded__}
+        return {
+            f: dictionary[f] for f in dictionary if f not in cls.__guarded__
+        }
