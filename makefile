@@ -5,8 +5,8 @@ init-ci:
 	touch .ignore-pre-commit
 	make init
 
-.bootstrapped-pip: requirements.txt requirements.dev
-	pip install -r requirements.txt -r requirements.dev
+.bootstrapped-pip: requirements.txt
+	pip install -r requirements.txt
 	touch .bootstrapped-pip
 
 .git/hooks/pre-commit:
