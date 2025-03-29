@@ -26,7 +26,7 @@ ci:
 	make test
 check: format sort lint
 lint:
-	flake8 src/masoniteorm/
+	flake8 src/masoniteorm tests
 format: init
 	black src/masoniteorm tests/
 sort: init
