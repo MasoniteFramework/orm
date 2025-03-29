@@ -25,7 +25,7 @@ class MSSQLPostProcessor:
         """
 
         last_id = builder.new_connection().query(
-            f"SELECT @@Identity as [id]", results=1
+            "SELECT @@Identity as [id]", results=1
         )
 
         id = last_id["id"]
