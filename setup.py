@@ -31,7 +31,6 @@ setup(
     install_requires=[
         "inflection>=0.3,<0.6",
         "pendulum>=3.0,<4.0",
-        "faker>=4.1.0,<14.0",
         "cleo>=0.8.0,<2.0",
     ],
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -85,7 +84,6 @@ setup(
         "masoniteorm.schema.platforms",
         "masoniteorm.scopes",
         "masoniteorm.seeds",
-        "masoniteorm.testing",
     ],
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,

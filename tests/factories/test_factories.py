@@ -1,6 +1,6 @@
 import unittest
 
-from src.masoniteorm import Factory as factory
+from src.masoniteorm.factories import Factory as factory
 from src.masoniteorm.models import Model
 
 

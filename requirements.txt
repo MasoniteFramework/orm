@@ -1,4 +1,3 @@
-pre-commit
 flake8-pyproject
 black
 isort
@@ -6,9 +5,9 @@ faker
 pytest
 pytest-cov
 pymysql
-inflection==0.3.1
+inflection>=0.3
 psycopg2-binary
-python-dotenv==0.14.0
+python-dotenv>=0.14
 pyodbc
 pendulum>=3.0,<4.0
 cleo>=0.8.0,<2.0
