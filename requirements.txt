@@ -11,4 +11,4 @@ psycopg2-binary
 python-dotenv==0.14.0
 pyodbc
 pendulum>=3.0,<4.0
-cleo>=0.8.0,<0.9
+cleo>=0.8.0,<2.0

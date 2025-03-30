@@ -17,4 +17,5 @@ ignore = ['E501', 'E203', 'E128', 'E402', 'E731', 'F821', 'E712', 'W503', 'F811'
 #max-complexity = 18
 per-file-ignores = [
     '__init__.py:F401',
+    'setup.py:E266',
 ]

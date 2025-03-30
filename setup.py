@@ -32,7 +32,7 @@ setup(
         "inflection>=0.3,<0.6",
         "pendulum>=3.0,<4.0",
         "faker>=4.1.0,<14.0",
-        "cleo>=0.8.0,<0.9",
+        "cleo>=0.8.0,<2.0",
     ],
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
