@@ -48,13 +48,6 @@ class PostgresConnection(BaseConnection):
 
     def make_connection(self):
         """This sets the connection on the connection class"""
-        try:
-            import psycopg2  # noqa F401
-        except ModuleNotFoundError:
-            raise DriverNotFound(
-                "You must have the 'psycopg2' package installed to make a connection to Postgres. Please install it using 'pip install psycopg2-binary'"
-            )
-
         if self.has_global_connection():
             return self.get_global_connection()
 
@@ -69,7 +62,12 @@ class PostgresConnection(BaseConnection):
         return self
 
     def create_connection(self):
-        import psycopg2
+        try:
+            import psycopg2
+        except ModuleNotFoundError:
+            raise DriverNotFound(
+                "You must have the 'psycopg2' package installed to make a connection to Postgres. Please install it using 'pip install psycopg2-binary'"
+            )
 
         # Initialize the connection pool if the option is set
         initialize_size = self.full_details.get("connection_pooling_min_size")
