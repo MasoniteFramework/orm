@@ -476,12 +476,10 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Returns:
             [type]: [description]
         """
-
-        relations = relations or {}
-
         if result is None:
             return None
 
+        relations = relations or {}
         if isinstance(result, (list, tuple)):
             response = []
             for element in result:
@@ -568,33 +566,43 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         return cls.builder.create(dictionary, cast=cast, **kwargs)
 
-    @classmethod
-    def cast_value(cls, attribute: str, value: Any):
+    def cast_value(self, attribute: str, value: Any):
         """
         Given an attribute name and a value, casts the value using the model's registered caster.
         If no registered caster exists, returns the unmodified value.
         """
-        cast_method = cls.__casts__.get(attribute)
-        cast_map = cls.get_cast_map(cls)
-
         if value is None:
             return None
 
+        cast_method = self.__casts__.get(attribute)
+
         if isinstance(cast_method, str):
+            cast_map = self.get_cast_map()
             return cast_map[cast_method]().set(value)
 
         if cast_method:
             return cast_method(value)
+
         return value
 
-    @classmethod
-    def cast_values(cls, dictionary: Dict[str, Any]) -> Dict[str, Any]:
+    def cast_values(self, attributes: Dict[str, Any]) -> Dict[str, Any]:
         """
         Runs provided dictionary through all model casters and returns the result.
 
         Does not mutate the passed dictionary.
         """
-        return {x: cls.cast_value(x, dictionary[x]) for x in dictionary}
+        updated_attribs = {}
+        for key, value in attributes.items():
+            if key in self.get_dates():
+                updated_attribs.update(
+                    {key: self.get_new_datetime_string(value)}
+                )
+            elif key in self.__casts__:
+                updated_attribs.update({key: self.cast_value(key, value)})
+            else:
+                updated_attribs.update({key: value})
+
+        return updated_attribs
 
     def fresh(self):
         return (
@@ -675,7 +683,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             if isinstance(value, datetime):
                 value = self.get_new_serialized_date(value)
             if key in self.__casts__:
-                value = self._cast_attribute(key, value)
+                value = self._uncast_value(key, value)
 
             serialized_dictionary.update({key: value})
 
@@ -843,7 +851,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             value = method(value)
 
         if attribute in self.__casts__:
-            value = self._set_cast_attribute(attribute, value)
+            value = self.cast_value(attribute, value)
 
         if attribute in self.get_dates():
             value = self.get_new_datetime_string(value)
@@ -921,14 +929,14 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
     def get_value(self, attribute):
         value = self.__attributes__[attribute]
         if attribute in self.__casts__:
-            return self._cast_attribute(attribute, value)
+            return self._uncast_value(attribute, value)
 
         return value
 
     def get_dirty_value(self, attribute):
         value = self.__dirty_attributes__[attribute]
         if attribute in self.__casts__:
-            return self._cast_attribute(attribute, value)
+            return self._uncast_value(attribute, value)
 
         return value
 
@@ -937,7 +945,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         attributes.update(self.get_dirty_attributes())
         for key, value in attributes.items():
             if key in self.__casts__:
-                attributes.update({key: self._cast_attribute(key, value)})
+                attributes.update({key: self._uncast_value(key, value)})
 
         return attributes
 
@@ -958,38 +966,20 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         cast_map.update(self.__cast_map__)
         return cast_map
 
-    def _cast_attribute(self, attribute, value):
-        cast_method = self.__casts__[attribute]
-        cast_map = self.get_cast_map()
-
+    def _uncast_value(self, attribute, value):
         if value is None:
             return None
 
+        cast_method = self.__casts__[attribute]
+
         if isinstance(cast_method, str):
+            cast_map = self.get_cast_map()
             return cast_map[cast_method]().get(value)
 
-        return cast_method(value)
+        if cast_method:
+            return cast_method(value)
 
-    def _set_cast_attribute(self, attribute, value):
-        cast_method = self.__casts__[attribute]
-        cast_map = self.get_cast_map()
-
-        if isinstance(cast_method, str):
-            return cast_map[cast_method]().set(value)
-
-        return cast_method(value)
-
-    def transform_dict(self, attributes: dict):
-        new_dict = {}
-        for key, value in attributes.items():
-            if key in self.get_dates():
-                new_dict.update({key: self.get_new_datetime_string(value)})
-            elif key in self.__casts__:
-                new_dict.update({key: self._cast_attribute(key, value)})
-            else:
-                new_dict.update({key: value})
-
-        return new_dict
+        return value
 
     @classmethod
     def load(cls, *loads):

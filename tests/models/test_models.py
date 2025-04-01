@@ -1,5 +1,6 @@
 import datetime
 import unittest
+from decimal import Decimal
 
 import pendulum
 
@@ -134,10 +135,10 @@ class TestModels(unittest.TestCase):
         self.assertEqual(type(model.is_vip), bool)
         self.assertEqual(type(model.serialize()["is_vip"]), bool)
 
-    def test_model_can_transform_dict(self):
+    def test_model_can_cast_values(self):
         model = ModelTest.hydrate({})
 
-        transformed = model.transform_dict(
+        transformed = model.cast_values(
             {
                 "is_vip": 1,
                 "payload": '["item1", "item2"]',
@@ -150,11 +151,14 @@ class TestModels(unittest.TestCase):
 
         self.assertEqual(type(transformed.get("x")), int)
         self.assertEqual(type(transformed.get("is_vip")), bool)
+        self.assertEqual(type(transformed.get("f")), float)
+        self.assertEqual(type(transformed.get("d")), Decimal)
+        self.assertEqual(type(transformed.get("payload")), str)
+        self.assertEqual(type(transformed.get("due_date")), str)
 
     def test_model_can_cast_dict_attributes(self):
         """test cast with dict object to json field"""
-        dictcasttest = {}
-        dictcasttest["key"] = "value"
+        dictcasttest = {"key": "value"}
         model = ModelTest.hydrate(
             {"is_vip": 1, "payload": dictcasttest, "x": True, "f": "10.5"}
         )
@@ -163,7 +167,6 @@ class TestModels(unittest.TestCase):
         self.assertEqual(type(model.x), int)
         self.assertEqual(type(model.f), float)
         self.assertEqual(type(model.is_vip), bool)
-        self.assertEqual(type(model.serialize()["is_vip"]), bool)
 
     def test_valid_json_cast(self):
         model = ModelTest.hydrate(

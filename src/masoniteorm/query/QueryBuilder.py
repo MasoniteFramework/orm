@@ -26,6 +26,7 @@ from ..expressions.expressions import (
     SubSelectExpression,
     UpdateQueryExpression,
 )
+from ..models import Model
 from ..observers import ObservesEvents
 from ..pagination import LengthAwarePaginator, SimplePaginator
 from ..schema import Schema
@@ -481,7 +482,7 @@ class QueryBuilder(ObservesEvents):
         cast: bool = False,
     ):
         self.set_action("bulk_create")
-        model = None
+        model: Model = None
 
         if self._model:
             model = self._model
@@ -1523,7 +1524,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        model = None
+        model: Model = None
 
         additional = {}
 
@@ -1558,24 +1559,12 @@ class QueryBuilder(ObservesEvents):
             if not updates:
                 return self if dry or self.dry else model
 
-            # Cast date fields
-            date_fields = model.get_dates()
-            for key, value in updates.items():
-                if key in date_fields:
-                    if value:
-                        updates[key] = model.get_new_datetime_string(value)
-                    else:
-                        updates[key] = value
-            # cast updated attributes
-            updates = model.transform_dict(updates)
+            if cast:
+                updates = model.cast_values(updates)
 
-        elif not updates:
+        if not updates:
             # Do not perform query if there are no updates
             return self
-
-        # do not perform update query if no changes
-        if len(updates.keys()) == 0:
-            return model if model else self
 
         self._updates = (UpdateQueryExpression(updates),)
         self.set_action("update")
