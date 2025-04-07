@@ -479,7 +479,7 @@ class QueryBuilder(ObservesEvents):
         self,
         creates: List[Dict[str, Any]],
         query: bool = False,
-        cast: bool = False,
+        cast: bool = True,
     ):
         self.set_action("bulk_create")
         model: Model = None
