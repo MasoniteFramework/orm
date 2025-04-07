@@ -145,7 +145,7 @@ class Model:
     def load(cls, *loads):
         pass
 
-    def add_select(self, alias, callable):
+    def add_select(self, alias: str, callable: Any):
         """Specifies columns that should be selected
 
         Returns:
@@ -412,11 +412,6 @@ class Model:
 
     def attach_related(self, relation, related_record):
         pass
-    # =====================================================
-
-    def add_select(self, alias: str, callable: Any):
-        """Specifies a select subquery."""
-        pass
 
     def aggregate(self, aggregate: str, column: str, alias: str):
         """Helper function to aggregate.
@@ -425,6 +420,7 @@ class Model:
             aggregate {string} -- The name of the aggregation.
             column {string} -- The name of the column to aggregate.
         """
+        pass
 
     def all(self, selects: list = [], query: bool = False):
         """Returns all records from the table.
