@@ -185,7 +185,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             "exists",
             "find_or",
             "find_or_404",
-            "find_or_fail",
             "first_or_fail",
             "first",
             "first_where",
