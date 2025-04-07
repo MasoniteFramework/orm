@@ -491,8 +491,8 @@ class QueryBuilder(ObservesEvents):
         for unsorted_create in creates:
             if model:
                 unsorted_create = model.filter_mass_assignment(unsorted_create)
-            if cast:
-                unsorted_create = model.cast_values(unsorted_create)
+                if cast:
+                    unsorted_create = model.cast_values(unsorted_create)
             # sort the dicts by key so the values inserted align with the correct column
             self._creates.append(dict(sorted(unsorted_create.items())))
 
