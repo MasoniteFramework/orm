@@ -3,84 +3,41 @@ from typing import Any, Callable, Dict
 from ..query.QueryBuilder import QueryBuilder
 
 class Model:
-    @classmethod
-    def get_primary_key(cls):
-        """Gets the primary key column
 
-        Returns:
-            mixed
+    # ==============================
+    # Model Methods
+    # ==============================
+
+    def add_relation(self, relations):
+        pass
+
+    def append_passthrough(self, passthrough):
+        pass
+
+    def attach(self, relation, related_record):
+        pass
+
+    def all_attributes(self):
+        pass
+
+    def attach_related(self, relation, related_record):
+        pass
+
+    def boot(self):
+        pass
+
+    def cast_value(self, attribute: str, value: Any):
+        """
+        Given an attribute name and a value, casts the value using the model's registered caster.
+        If no registered caster exists, returns the unmodified value.
         """
         pass
 
-    @classmethod
-    def get_columns(cls):
-        pass
-
-    @classmethod
-    def get_table_name(cls):
-        """Gets the table name.
-
-        Returns:
-            str
+    def cast_values(self, attributes: Dict[str, Any]) -> Dict[str, Any]:
         """
-        pass
+        Runs provided dictionary through all model casters and returns the result.
 
-    @classmethod
-    def table(cls, table):
-        """Gets the table name.
-
-        Returns:
-            str
-        """
-        pass
-
-    @classmethod
-    def find(cls, record_id, query=False):
-        """Finds a row by the primary key ID.
-
-        Arguments:
-            record_id {int} -- The ID of the primary key to fetch.
-
-        Returns:
-            Model
-        """
-        pass
-
-    @classmethod
-    def find_or_fail(cls, record_id, query=False):
-        """Finds a row by the primary key ID or raise a ModelNotFound exception.
-
-        Arguments:
-            record_id {int} -- The ID of the primary key to fetch.
-
-        Returns:
-            Model
-        """
-        pass
-
-    @classmethod
-    def hydrate(cls, result, relations=None):
-        """Takes a result and loads it into a model
-
-        Args:
-            result ([type]): [description]
-            relations (dict, optional): [description]. Defaults to {}.
-
-        Returns:
-            [type]: [description]
-        """
-        pass
-
-    @classmethod
-    def new_collection(cls, data):
-        """Takes a result and puts it into a new collection.
-        This is designed to be able to be overidden by the user.
-
-        Args:
-            data (list|dict): Could be any data type but will be loaded directly into a collection.
-
-        Returns:
-            Collection
+        Does not mutate the passed dictionary.
         """
         pass
 
@@ -92,11 +49,41 @@ class Model:
         Args:
             dictionary (dict, optional): [description]. Defaults to {}.
             query (bool, optional): [description]. Defaults to False.
-            cast (bool, optional): [description]. Whether or not to cast passed values.
+            cast (bool, optional): [description]. Whether to cast passed values.
 
         Returns:
             self: A hydrated version of a model
         """
+        pass
+
+    def delete_attribute(self, key):
+        pass
+
+    def delete_quietly(self):
+        """This method calls the delete method on a model without firing the delete & deleting observer events.
+        Instead of calling:
+
+        User().delete(...)
+
+        you can use this:
+
+        User.delete_quietly(...)
+
+        Returns:
+            self
+        """
+        pass
+
+    def detach(self, relation, related_record):
+        pass
+
+    def detach_many(self, relation, relating_records):
+        pass
+
+    def fill(self, attributes):
+        pass
+
+    def fill_original(self, attributes):
         pass
 
     @classmethod
@@ -129,6 +116,30 @@ class Model:
         pass
 
     @classmethod
+    def find(cls, record_id, query=False):
+        """Finds a row by the primary key ID.
+
+        Arguments:
+            record_id {int} -- The ID of the primary key to fetch.
+
+        Returns:
+            Model
+        """
+        pass
+
+    @classmethod
+    def find_or_fail(cls, record_id, query=False):
+        """Finds a row by the primary key ID or raise a ModelNotFound exception.
+
+        Arguments:
+            record_id {int} -- The ID of the primary key to fetch.
+
+        Returns:
+            Model
+        """
+        pass
+
+    @classmethod
     def first_or_create(cls, wheres, creates: dict = None):
         """Get the first record matching the attributes or create it.
 
@@ -137,54 +148,37 @@ class Model:
         """
         pass
 
-    @classmethod
-    def update_or_create(cls, wheres, updates):
+    def fresh(self):
+        pass
+
+    def get_builder(self):
         pass
 
     @classmethod
-    def load(cls, *loads):
+    def get_columns(cls):
         pass
 
-    def add_select(self, alias: str, callable: Any):
-        """Specifies columns that should be selected
+    def get_connection_details(self):
+        pass
 
-        Returns:
-            self
+    def get_dates(self):
+        """
+        Get the attributes that should be converted to dates.
+
+        :rtype: list
         """
         pass
 
-    def find_or(
-        self, record_id: int, callback: Callable, args=None, column=None
-    ):
-        """Finds a row by the primary key ID (Requires a model) or raise a ModelNotFound exception.
-
-        Arguments:
-            record_id {int} -- The ID of the primary key to fetch.
-            callback {Callable} -- The function to call if no record is found.
-
-        Returns:
-            Model|Callable
-        """
+    def get_dirty(self, key):
         pass
 
-    def get_primary_key_type(self):
-        """Gets the primary key column type
-
-        Returns:
-            mixed
-        """
+    def get_dirty_attributes(self):
         pass
 
-    def get_primary_key_value(self):
-        """Gets the primary key value.
+    def get_dirty_keys(self):
+        pass
 
-        Raises:
-            AttributeError: Raises attribute error if the model does not have an
-                attribute with the primary key.
-
-        Returns:
-            str|int
-        """
+    def get_dirty_value(self, attribute):
         pass
 
     def get_foreign_key(self):
@@ -195,138 +189,6 @@ class Model:
 
         Returns:
             str
-        """
-        pass
-
-    def query(self):
-        pass
-
-    def get_builder(self):
-        pass
-
-    def get_selects(self):
-        pass
-
-    def get_connection_details(self):
-        pass
-
-    def boot(self):
-        pass
-
-    def append_passthrough(self, passthrough):
-        pass
-
-    def is_loaded(self):
-        pass
-
-    def is_created(self):
-        pass
-
-    def add_relation(self, relations):
-        pass
-
-    def fill(self, attributes):
-        pass
-
-    def fill_original(self, attributes):
-        pass
-
-    def cast_value(self, attribute: str, value: Any):
-        """
-        Given an attribute name and a value, casts the value using the model's registered caster.
-        If no registered caster exists, returns the unmodified value.
-        """
-        pass
-
-    def cast_values(self, attributes: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Runs provided dictionary through all model casters and returns the result.
-
-        Does not mutate the passed dictionary.
-        """
-        pass
-
-    def fresh(self):
-        pass
-
-    def serialize(self, exclude=None, include=None):
-        """Takes the data as a model and converts it into a dictionary.
-
-        Returns:
-            dict
-        """
-        pass
-
-    def to_json(self):
-        """Converts a model to JSON
-
-        Returns:
-            string
-        """
-        pass
-
-    def relations_to_dict(self):
-        """Converts a models relationships to a dictionary
-
-        Returns:
-            [type]: [description]
-        """
-        pass
-
-    def touch(self, date=None, query=True):
-        """Updates the current timestamps on the model"""
-
-        pass
-
-    def only(self, attributes: list) -> dict:
-        pass
-
-    def get_raw_attribute(self, attribute):
-        """Gets an attribute without having to call the models magic methods. Gets around infinite recursion loops.
-
-        Args:
-            attribute (string): The attribute to fetch
-
-        Returns:
-            mixed: Any value an attribute can be.
-        """
-        pass
-
-    def is_dirty(self):
-        pass
-
-    def get_original(self, key):
-        pass
-
-    def get_dirty(self, key):
-        pass
-
-    def get_dirty_keys(self):
-        pass
-
-    def save(self, query=False):
-        pass
-
-    def get_value(self, attribute):
-        pass
-
-    def get_dirty_value(self, attribute):
-        pass
-
-    def all_attributes(self):
-        pass
-
-    def delete_attribute(self, key):
-        pass
-
-    def get_dirty_attributes(self):
-        pass
-
-    def get_dates(self):
-        """
-        Get the attributes that should be converted to dates.
-
-        :rtype: list
         """
         pass
 
@@ -355,35 +217,132 @@ class Model:
         """
         pass
 
-    def set_appends(self, appends):
+    def get_original(self, key):
+        pass
+
+    @classmethod
+    def get_primary_key(cls):
+        """Gets the primary key column
+
+        Returns:
+            mixed
         """
-        Get the attributes that should be converted to dates.
+        pass
 
-        :rtype: list
+    def get_primary_key_type(self):
+        """Gets the primary key column type
+
+        Returns:
+            mixed
         """
         pass
 
-    def save_many(self, relation, relating_records):
+    def get_primary_key_value(self):
+        """Gets the primary key value.
+
+        Raises:
+            AttributeError: Raises attribute error if the model does not have an
+                attribute with the primary key.
+
+        Returns:
+            str|int
+        """
         pass
 
-    def detach_many(self, relation, relating_records):
+    def get_selects(self):
         pass
 
-    def related(self, relation):
+    def get_raw_attribute(self, attribute):
+        """Gets an attribute without having to call the models magic methods. Gets around infinite recursion loops.
+
+        Args:
+            attribute (string): The attribute to fetch
+
+        Returns:
+            mixed: Any value an attribute can be.
+        """
         pass
 
     def get_related(self, relation):
         pass
 
-    def attach(self, relation, related_record):
+    @classmethod
+    def get_table_name(cls):
+        """Gets the table name.
+
+        Returns:
+            str
+        """
         pass
 
-    def detach(self, relation, related_record):
+    def get_value(self, attribute):
+        pass
+
+    @classmethod
+    def hydrate(cls, result, relations=None):
+        """Takes a result and loads it into a model
+
+        Args:
+            result ([type]): [description]
+            relations (dict, optional): [description]. Defaults to {}.
+
+        Returns:
+            [type]: [description]
+        """
+        pass
+
+    def is_created(self):
+        pass
+
+    def is_dirty(self):
+        pass
+
+    def is_loaded(self):
+        pass
+
+    @classmethod
+    def load(cls, *loads):
+        pass
+
+    @classmethod
+    def new_collection(cls, data):
+        """Takes a result and puts it into a new collection.
+        This is designed to be able to be overridden by the user.
+
+        Args:
+            data (list|dict): Could be any data type but will be loaded directly into a collection.
+
+        Returns:
+            Collection
+        """
+        pass
+
+    def only(self, attributes: list) -> dict:
+        pass
+
+    def query(self):
+        pass
+
+    def related(self, relation):
+        pass
+
+    def relations_to_dict(self):
+        """Converts a models relationships to a dictionary
+
+        Returns:
+            [type]: [description]
+        """
+        pass
+
+    def save(self, query=False):
+        pass
+
+    def save_many(self, relation, relating_records):
         pass
 
     def save_quietly(self):
         """This method calls the save method on a model without firing the saved & saving observer events. Saved/Saving
-        are toggled back on once save_quietly has been ran.
+        are toggled back on once save_quietly has been run.
 
         Instead of calling:
 
@@ -395,25 +354,66 @@ class Model:
         """
         pass
 
-    def delete_quietly(self):
-        """This method calls the delete method on a model without firing the delete & deleting observer events.
-        Instead of calling:
+    def serialize(self, exclude=None, include=None):
+        """Takes the data as a model and converts it into a dictionary.
 
-        User().delete(...)
+        Returns:
+            dict
+        """
+        pass
 
-        you can use this:
+    def set_appends(self, appends):
+        """
+        Get the attributes that should be converted to dates.
 
-        User.delete_quietly(...)
+        :rtype: list
+        """
+        pass
+
+    @classmethod
+    def table(cls, table):
+        """Gets the table name.
+
+        Returns:
+            str
+        """
+        pass
+
+    def to_json(self):
+        """Converts a model to JSON
+
+        Returns:
+            string
+        """
+        pass
+
+    def touch(self, date=None, query=True):
+        """Updates the current timestamps on the model"""
+
+        pass
+
+    @classmethod
+    def update_or_create(cls, wheres, updates):
+        pass
+    # ==============================
+    # QueryBuilder passthrough methods
+    # all marked as @classmethod for IDE
+    # autocomplete to work correctly
+    # ==============================
+
+    @classmethod
+    def add_select(cls, alias: str, callable: Any) -> QueryBuilder:
+        """Specifies columns that should be selected
 
         Returns:
             self
         """
         pass
 
-    def attach_related(self, relation, related_record):
-        pass
-
-    def aggregate(self, aggregate: str, column: str, alias: str):
+    @classmethod
+    def aggregate(
+        cls, aggregate: str, column: str, alias: str
+    ) -> QueryBuilder:
         """Helper function to aggregate.
 
         Arguments:
@@ -422,7 +422,8 @@ class Model:
         """
         pass
 
-    def all(self, selects: list = [], query: bool = False):
+    @classmethod
+    def all(cls, selects: list = [], query: bool = False):
         """Returns all records from the table.
 
         Returns:
@@ -430,15 +431,8 @@ class Model:
         """
         pass
 
-    def get(self, selects: list = []):
-        """Runs the select query built from the query builder.
-
-        Returns:
-            self
-        """
-        pass
-
-    def avg(self, column: str):
+    @classmethod
+    def avg(cls, column: str) -> QueryBuilder:
         """Aggregates a columns values.
 
         Arguments:
@@ -449,7 +443,10 @@ class Model:
         """
         pass
 
-    def between(self, column: str, low: str | int, high: str | int):
+    @classmethod
+    def between(
+        cls, column: str, low: str | int, high: str | int
+    ) -> QueryBuilder:
         """Specifies a where between expression.
 
         Arguments:
@@ -462,13 +459,16 @@ class Model:
         """
         pass
 
-    def bulk_create(self, creates: list[dict], query: bool = False, cast=True):
+    @classmethod
+    def bulk_create(cls, creates: list[dict], query: bool = False, cast=True):
         pass
 
-    def chunk(self, chunk_amount: str | int):
+    @classmethod
+    def chunk(cls, chunk_amount: str | int):
         pass
 
-    def count(self, column: str = None):
+    @classmethod
+    def count(cls, column: str = None):
         """Aggregates a columns values.
 
         Arguments:
@@ -479,7 +479,8 @@ class Model:
         """
         pass
 
-    def decrement(self, column: str, value: int = 1):
+    @classmethod
+    def decrement(cls, column: str, value: int = 1):
         """Decrements a column's value.
 
         Arguments:
@@ -508,11 +509,13 @@ class Model:
         """
         pass
 
-    def distinct(self, boolean: bool = True):
+    @classmethod
+    def distinct(cls, boolean: bool = True) -> QueryBuilder:
         """Species that the select query should be a SELECT DISTINCT query."""
         pass
 
-    def doesnt_exist(self) -> bool:
+    @classmethod
+    def doesnt_exist(cls) -> bool:
         """Determines if any rows exist for the current query.
 
         Returns:
@@ -520,7 +523,8 @@ class Model:
         """
         pass
 
-    def doesnt_have(self) -> bool:
+    @classmethod
+    def doesnt_have(cls) -> bool:
         """Determine if any related rows exist for the current query.
 
         Returns:
@@ -528,13 +532,8 @@ class Model:
         """
         pass
 
-    def where_doesnt_have(self, relationship, callback):
-        pass
-
-    def or_doesnt_have(self, *relationships):
-        pass
-
-    def exists(self) -> bool:
+    @classmethod
+    def exists(cls) -> bool:
         """Determine if rows exist for the current query.
 
         Returns:
@@ -542,7 +541,22 @@ class Model:
         """
         pass
 
-    def find_or_404(self, record_id: str | int):
+    def find_or(
+        self, record_id: int, callback: Callable, args=None, column=None
+    ):
+        """Finds a row by the primary key ID (Requires a model) or raise a ModelNotFound exception.
+
+        Arguments:
+            record_id {int} -- The ID of the primary key to fetch.
+            callback {Callable} -- The function to call if no record is found.
+
+        Returns:
+            Model|Callable
+        """
+        pass
+
+    @classmethod
+    def find_or_404(cls, record_id: str | int):
         """Finds a row by the primary key ID (Requires a model) or raise an 404 exception.
 
         Arguments:
@@ -553,15 +567,8 @@ class Model:
         """
         pass
 
-    def first_or_fail(self, query: bool = False):
-        """Returns the first row from database. If no result found a ModelNotFound exception.
-
-        Returns:
-            dictionary|ModelNotFound
-        """
-        pass
-
-    def first(self, fields: list = None, query: bool = False):
+    @classmethod
+    def first(cls, fields: list = None, query: bool = False):
         """Gets the first record.
 
         Returns:
@@ -569,14 +576,26 @@ class Model:
         """
         pass
 
-    def first_where(self, column: str, *args):
+    @classmethod
+    def first_or_fail(cls, query: bool = False):
+        """Returns the first row from database. If no result found a ModelNotFound exception.
+
+        Returns:
+            dictionary|ModelNotFound
+        """
+        pass
+
+    @classmethod
+    def first_where(cls, column: str, *args):
         """Gets the first record with the given key / value pair"""
         pass
 
-    def force_update(self, updates: dict, dry: bool = False):
+    @classmethod
+    def force_update(cls, updates: dict, dry: bool = False):
         pass
 
-    def from_(self, table: str):
+    @classmethod
+    def from_(cls, table: str) -> QueryBuilder:
         """Alias for the table method
 
         Arguments:
@@ -587,7 +606,8 @@ class Model:
         """
         pass
 
-    def from_raw(self, table: str):
+    @classmethod
+    def from_raw(cls, table: str) -> QueryBuilder:
         """Alias for the table method
 
         Arguments:
@@ -598,16 +618,17 @@ class Model:
         """
         pass
 
-    def last(self, column: str = None, query: bool = False):
-        """Gets the last record, ordered by column in descendant order or primary
-        key if no column is given.
+    @classmethod
+    def get(cls, selects: list = []):
+        """Runs the select query built from the query builder.
 
         Returns:
-            dictionary -- Returns a dictionary of results.
+            self
         """
         pass
 
-    def group_by_raw(self, query: str, bindings: list = None):
+    @classmethod
+    def group_by_raw(cls, query: str, bindings: list = None) -> QueryBuilder:
         """Specifies a column to group by.
 
         Arguments:
@@ -618,7 +639,8 @@ class Model:
         """
         pass
 
-    def group_by(self, column: str):
+    @classmethod
+    def group_by(cls, column: str) -> QueryBuilder:
         """Specifies a column to group by.
 
         Arguments:
@@ -629,13 +651,12 @@ class Model:
         """
         pass
 
-    def has(self, *relationships: str):
+    @classmethod
+    def has(cls, *relationships: str) -> QueryBuilder:
         pass
 
-    def or_has(self, *relationships):
-        pass
-
-    def having(self, column, equality="", value=""):
+    @classmethod
+    def having(cls, column, equality="", value="") -> QueryBuilder:
         """Specifying a having expression.
 
         Arguments:
@@ -650,7 +671,8 @@ class Model:
         """
         pass
 
-    def having_raw(self, string: str):
+    @classmethod
+    def having_raw(cls, string: str) -> QueryBuilder:
         """Specifies raw SQL that should be injected into the having expression.
 
         Arguments:
@@ -661,7 +683,8 @@ class Model:
         """
         pass
 
-    def increment(self, column: str, value: int = 1):
+    @classmethod
+    def increment(cls, column: str, value: int = 1):
         """Increments a column's value.
 
         Arguments:
@@ -675,7 +698,8 @@ class Model:
         """
         pass
 
-    def in_random_order(self):
+    @classmethod
+    def in_random_order(cls) -> QueryBuilder:
         """Puts Query results in random order"""
         pass
 
@@ -684,7 +708,7 @@ class Model:
         relationship: str,
         callback: callable = None,
         clause: str = "inner",
-    ):
+    ) -> QueryBuilder:
         pass
 
     def join(
@@ -694,7 +718,7 @@ class Model:
         equality: str = None,
         column2: str = None,
         clause: str = "inner",
-    ):
+    ) -> QueryBuilder:
         """Specifies a join expression.
 
         Arguments:
@@ -711,7 +735,29 @@ class Model:
         """
         pass
 
-    def joins(self, *relationships: list[str], clause: str = "inner"):
+    @classmethod
+    def joins(
+        cls, *relationships: list[str], clause: str = "inner"
+    ) -> QueryBuilder:
+        pass
+
+    @classmethod
+    def last(cls, column: str = None, query: bool = False) -> QueryBuilder:
+        """Gets the last record, ordered by column in descendant order or primary
+        key if no column is given.
+
+        Returns:
+            dictionary -- Returns a dictionary of results.
+        """
+        pass
+
+    @classmethod
+    def latest(cls, *fields):
+        """Gets the latest record.
+
+        Returns:
+            querybuilder
+        """
         pass
 
     def left_join(
@@ -720,7 +766,7 @@ class Model:
         column1: str = None,
         equality: str = None,
         column2: str = None,
-    ):
+    ) -> QueryBuilder:
         """A helper method to add a left join expression.
 
         Arguments:
@@ -734,7 +780,8 @@ class Model:
         """
         pass
 
-    def limit(self, amount: int):
+    @classmethod
+    def limit(cls, amount: int) -> QueryBuilder:
         """Specifies a limit expression.
 
         Arguments:
@@ -745,13 +792,24 @@ class Model:
         """
         pass
 
-    def lock_for_update(self):
+    @classmethod
+    def lock_for_update(cls) -> QueryBuilder:
         pass
 
-    def make_lock(self, lock: bool):
+    @classmethod
+    def or_doesnt_have(cls, *relationships) -> QueryBuilder:
         pass
 
-    def max(self, column: str):
+    @classmethod
+    def or_has(cls, *relationships) -> QueryBuilder:
+        pass
+
+    @classmethod
+    def make_lock(cls, lock: bool):
+        pass
+
+    @classmethod
+    def max(cls, column: str) -> QueryBuilder:
         """Aggregates a columns values.
 
         Arguments:
@@ -762,7 +820,8 @@ class Model:
         """
         pass
 
-    def min(self, column: str):
+    @classmethod
+    def min(cls, column: str) -> QueryBuilder:
         """Aggregates a columns values.
 
         Arguments:
@@ -773,7 +832,8 @@ class Model:
         """
         pass
 
-    def new_from_builder(self, from_builder: QueryBuilder = None):
+    @classmethod
+    def new(cls) -> QueryBuilder:
         """Creates a new QueryBuilder class.
 
         Returns:
@@ -781,7 +841,10 @@ class Model:
         """
         pass
 
-    def new(self):
+    @classmethod
+    def new_from_builder(
+        cls, from_builder: QueryBuilder = None
+    ) -> QueryBuilder:
         """Creates a new QueryBuilder class.
 
         Returns:
@@ -789,7 +852,10 @@ class Model:
         """
         pass
 
-    def not_between(self, column: str, low: str | int, high: str | int):
+    @classmethod
+    def not_between(
+        cls, column: str, low: str | int, high: str | int
+    ) -> QueryBuilder:
         """Specifies a where not between expression.
 
         Arguments:
@@ -802,7 +868,8 @@ class Model:
         """
         pass
 
-    def offset(self, amount: int):
+    @classmethod
+    def offset(cls, amount: int) -> QueryBuilder:
         """Specifies an offset expression.
 
         Arguments:
@@ -813,10 +880,21 @@ class Model:
         """
         pass
 
-    def on(self, connection: str):
+    @classmethod
+    def oldest(cls, *fields) -> QueryBuilder:
+        """Gets the oldest record.
+
+        Returns:
+            querybuilder
+        """
         pass
 
-    def or_where(self, column: str | int, *args) -> QueryBuilder:
+    @classmethod
+    def on(cls, connection: str) -> QueryBuilder:
+        pass
+
+    @classmethod
+    def or_where(cls, column: str | int, *args) -> QueryBuilder:
         """Specifies an or where query expression.
 
         Arguments:
@@ -828,7 +906,8 @@ class Model:
         """
         pass
 
-    def or_where_null(self, column: str):
+    @classmethod
+    def or_where_null(cls, column: str) -> QueryBuilder:
         """Specifies a where expression where the column is NULL.
 
         Arguments:
@@ -839,7 +918,8 @@ class Model:
         """
         pass
 
-    def or_where_exists(self, value: "str|int|QueryBuilder"):
+    @classmethod
+    def or_where_exists(cls, value: "str|int|QueryBuilder") -> QueryBuilder:
         """Specifies a where exists expression.
 
         Arguments:
@@ -850,7 +930,10 @@ class Model:
         """
         pass
 
-    def or_where_not_exists(self, value: "str|int|QueryBuilder"):
+    @classmethod
+    def or_where_not_exists(
+        cls, value: "str|int|QueryBuilder"
+    ) -> QueryBuilder:
         """Specifies a where exists expression.
 
         Arguments:
@@ -861,13 +944,31 @@ class Model:
         """
         pass
 
-    def or_where_has(self, relationship, callback):
+    @classmethod
+    def or_where_date(cls, column: str, date: Any) -> QueryBuilder:
+        """Specifies a where DATE expression
+
+        Arguments:
+            column {string} -- The name of the column.
+            date {string|datetime|pendulum} -- The name of the column.
+
+        Returns:
+            self
+        """
         pass
 
-    def or_where_doesnt_have(self, relationship, callback):
+    @classmethod
+    def or_where_doesnt_have(cls, relationship, callback) -> QueryBuilder:
         pass
 
-    def order_by_raw(self, query: str, bindings: list = None):
+    @classmethod
+    def or_where_has(cls, relationship, callback) -> QueryBuilder:
+        pass
+
+    @classmethod
+    def order_by(
+        cls, column: str, direction: str = "ASC|DESC"
+    ) -> QueryBuilder:
         """Specifies a column to order by.
 
         Arguments:
@@ -881,7 +982,8 @@ class Model:
         """
         pass
 
-    def order_by(self, column: str, direction: str = "ASC|DESC"):
+    @classmethod
+    def order_by_raw(cls, query: str, bindings: list = None) -> QueryBuilder:
         """Specifies a column to order by.
 
         Arguments:
@@ -895,7 +997,8 @@ class Model:
         """
         pass
 
-    def paginate(self, per_page: int, page: int = 1):
+    @classmethod
+    def paginate(cls, per_page: int, page: int = 1):
         pass
 
     def right_join(
@@ -904,7 +1007,7 @@ class Model:
         column1: str = None,
         equality: str = None,
         column2: str = None,
-    ):
+    ) -> QueryBuilder:
         """A helper method to add a right join expression.
 
         Arguments:
@@ -918,16 +1021,18 @@ class Model:
         """
         pass
 
-    def select_raw(self, query: str):
-        """Specifies raw SQL that should be injected into the select expression.
+    @classmethod
+    def select(cls, *args: str) -> QueryBuilder:
+        """Specifies columns that should be selected
 
         Returns:
             self
         """
         pass
 
-    def select(self, *args: str):
-        """Specifies columns that should be selected
+    @classmethod
+    def select_raw(cls, query: str) -> QueryBuilder:
+        """Specifies raw SQL that should be injected into the select expression.
 
         Returns:
             self
@@ -951,23 +1056,29 @@ class Model:
         """
         pass
 
-    def set_schema(self, schema):
+    @classmethod
+    def set_schema(cls, schema):
         pass
 
-    def shared_lock(self):
+    @classmethod
+    def shared_lock(cls):
         pass
 
-    def simple_paginate(self, per_page: int, page: int = 1):
+    @classmethod
+    def simple_paginate(cls, per_page: int, page: int = 1) -> QueryBuilder:
         pass
 
-    def skip(self, *args, **kwargs):
+    @classmethod
+    def skip(cls, *args, **kwargs) -> QueryBuilder:
         """Alias for limit method."""
         pass
 
-    def statement(self, query: str, bindings: list = ()):
+    @classmethod
+    def statement(cls, query: str, bindings: list = ()) -> QueryBuilder:
         pass
 
-    def sum(self, column: str):
+    @classmethod
+    def sum(cls, column: str) -> QueryBuilder:
         """Aggregates a columns values.
 
         Arguments:
@@ -978,7 +1089,8 @@ class Model:
         """
         pass
 
-    def table_raw(self, query: str):
+    @classmethod
+    def table_raw(cls, query: str) -> QueryBuilder:
         """Sets a query as the table
 
         Arguments:
@@ -989,11 +1101,13 @@ class Model:
         """
         pass
 
-    def take(self, *args, **kwargs):
+    @classmethod
+    def take(cls, *args, **kwargs) -> QueryBuilder:
         """Alias for limit method"""
         pass
 
-    def to_qmark(self) -> str:
+    @classmethod
+    def to_qmark(cls) -> str:
         """Compiles the QueryBuilder class into a Qmark SQL statement.
 
         Returns:
@@ -1001,7 +1115,8 @@ class Model:
         """
         pass
 
-    def to_sql(self) -> str:
+    @classmethod
+    def to_sql(cls) -> str:
         """Compiles the QueryBuilder class into a SQL statement.
 
         Returns:
@@ -1009,7 +1124,8 @@ class Model:
         """
         pass
 
-    def truncate(self, foreign_keys: bool = False):
+    @classmethod
+    def truncate(cls, foreign_keys: bool = False) -> QueryBuilder:
         pass
 
     def update(
@@ -1032,60 +1148,16 @@ class Model:
         """
         pass
 
-    def when(self, conditional: bool, callback: callable):
+    @classmethod
+    def value(cls, column: str):
         pass
 
-    def where_between(self, *args, **kwargs):
-        """Alias for between"""
+    @classmethod
+    def when(cls, conditional: bool, callback: callable) -> QueryBuilder:
         pass
 
-    def where_column(self, column1: str, column2: str):
-        """Specifies where two columns equal each other.
-
-        Arguments:
-            column1 {string} -- The name of the column.
-            column2 {string} -- The name of the column.
-
-        Returns:
-            self
-        """
-        pass
-
-    def where_date(self, column: str, date: Any):
-        """Specifies a where DATE expression
-
-        Arguments:
-            column {string} -- The name of the column.
-
-        Returns:
-            self
-        """
-        pass
-
-    def or_where_date(self, column: str, date: Any):
-        """Specifies a where DATE expression
-
-        Arguments:
-            column {string} -- The name of the column.
-            date {string|datetime|pendulum} -- The name of the column.
-
-        Returns:
-            self
-        """
-        pass
-
-    def where_exists(self, value: Any):
-        """Specifies a where exists expression.
-
-        Arguments:
-            value {string|int|QueryBuilder} -- A value to check for the existence of a query expression.
-
-        Returns:
-            self
-        """
-        pass
-
-    def where_from_builder(self, builder: QueryBuilder):
+    @classmethod
+    def where(cls, column: str, *args: Any) -> QueryBuilder:
         """Specifies a where expression.
 
         Arguments:
@@ -1099,10 +1171,73 @@ class Model:
         """
         pass
 
-    def where_has(self, relationship: str, callback: Any):
+    @classmethod
+    def where_between(cls, *args, **kwargs) -> QueryBuilder:
+        """Alias for between"""
         pass
 
-    def where_in(self, column: str, wheres: list = None):
+    @classmethod
+    def where_column(cls, column1: str, column2: str) -> QueryBuilder:
+        """Specifies where two columns equal each other.
+
+        Arguments:
+            column1 {string} -- The name of the column.
+            column2 {string} -- The name of the column.
+
+        Returns:
+            self
+        """
+        pass
+
+    @classmethod
+    def where_date(cls, column: str, date: Any) -> QueryBuilder:
+        """Specifies a where DATE expression
+
+        Arguments:
+            column {string} -- The name of the column.
+
+        Returns:
+            self
+        """
+        pass
+
+    @classmethod
+    def where_doesnt_have(cls, relationship, callback) -> QueryBuilder:
+        pass
+
+    @classmethod
+    def where_exists(cls, value: Any) -> QueryBuilder:
+        """Specifies a where exists expression.
+
+        Arguments:
+            value {string|int|QueryBuilder} -- A value to check for the existence of a query expression.
+
+        Returns:
+            self
+        """
+        pass
+
+    @classmethod
+    def where_from_builder(cls, builder: QueryBuilder) -> QueryBuilder:
+        """Specifies a where expression.
+
+        Arguments:
+            column {string} -- The name of the column to search
+
+        Keyword Arguments:
+            args {List} -- The operator and the value of the column to search. (default: {None})
+
+        Returns:
+            self
+        """
+        pass
+
+    @classmethod
+    def where_has(cls, relationship: str, callback: Any) -> QueryBuilder:
+        pass
+
+    @classmethod
+    def where_in(cls, column: str, wheres: list = None) -> QueryBuilder:
         """Specifies where a column contains a list of a values.
 
         Arguments:
@@ -1116,7 +1251,7 @@ class Model:
         """
         pass
 
-    def where_like(self, column: str, value: str):
+    def where_like(self, column: str, value: str) -> QueryBuilder:
         """Specifies a where LIKE expression.
 
         Arguments:
@@ -1128,11 +1263,11 @@ class Model:
         """
         pass
 
-    def where_not_between(self, *args: Any, **kwargs: Any):
+    def where_not_between(self, *args: Any, **kwargs: Any) -> QueryBuilder:
         """Alias for not_between"""
         pass
 
-    def where_not_in(self, column: str, wheres: list = None):
+    def where_not_in(self, column: str, wheres: list = None) -> QueryBuilder:
         """Specifies where a column does not contain a list of a values.
 
         Arguments:
@@ -1146,7 +1281,7 @@ class Model:
         """
         pass
 
-    def where_not_like(self, column: str, value: str):
+    def where_not_like(self, column: str, value: str) -> QueryBuilder:
         """Specifies a where expression.
 
         Arguments:
@@ -1158,7 +1293,7 @@ class Model:
         """
         pass
 
-    def where_not_null(self, column: str):
+    def where_not_null(self, column: str) -> QueryBuilder:
         """Specifies a where expression where the column is not NULL.
 
         Arguments:
@@ -1169,7 +1304,7 @@ class Model:
         """
         pass
 
-    def where_null(self, column: str):
+    def where_null(self, column: str) -> QueryBuilder:
         """Specifies a where expression where the column is NULL.
 
         Arguments:
@@ -1180,7 +1315,7 @@ class Model:
         """
         pass
 
-    def where_raw(self, query: str, bindings: tuple = ()):
+    def where_raw(self, query: str, bindings: tuple = ()) -> QueryBuilder:
         """Specifies raw SQL that should be injected into the where expression.
 
         Arguments:
@@ -1194,44 +1329,13 @@ class Model:
         """
         pass
 
+    def with_(self, *eagers: str) -> QueryBuilder:
+        pass
+
+    def with_count(
+        self, relationship: str, callback: Any = None
+    ) -> QueryBuilder:
+        pass
+
     def without_global_scopes(self):
-        pass
-
-    def where(self, column: str, *args: Any):
-        """Specifies a where expression.
-
-        Arguments:
-            column {string} -- The name of the column to search
-
-        Keyword Arguments:
-            args {List} -- The operator and the value of the column to search. (default: {None})
-
-        Returns:
-            self
-        """
-        pass
-
-    def with_(self, *eagers: str):
-        pass
-
-    def with_count(self, relationship: str, callback: Any = None):
-        pass
-
-    def latest(self, *fields):
-        """Gets the latest record.
-
-        Returns:
-            querybuilder
-        """
-        pass
-
-    def oldest(self, *fields):
-        """Gets the oldest record.
-
-        Returns:
-            querybuilder
-        """
-        pass
-
-    def value(self, column: str):
         pass
