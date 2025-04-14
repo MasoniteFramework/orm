@@ -26,7 +26,7 @@ class MakeObserverCommand(Command):
 
         with open(
             os.path.join(
-                pathlib.Path(__file__).parent.absolute(), f"stubs/observer.stub"
+                pathlib.Path(__file__).parent.absolute(), "stubs/observer.stub"
             )
         ) as fp:
             output = fp.read()

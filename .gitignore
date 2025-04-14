@@ -19,3 +19,4 @@ coverage.xml
 build
 /orm.sqlite3
 /.bootstrapped-pip
+/.ignore-pre-commit

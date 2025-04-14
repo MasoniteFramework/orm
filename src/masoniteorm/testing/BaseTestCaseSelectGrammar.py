@@ -1,11 +1,8 @@
 import inspect
 
-import pendulum
-
 from ..query import QueryBuilder
 from ..expressions import JoinClause
 from ..models import Model
-import pendulum
 
 
 class MockConnection:

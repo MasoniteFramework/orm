@@ -1,0 +1,32 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+        exclude: |
+            (?x)(
+                ^build|
+                ^conda
+            )
+
+  - repo: https://github.com/pycqa/isort
+    rev: 6.0.1
+    hooks:
+      - id: isort
+        exclude: |
+            (?x)(
+                ^build|
+                ^conda
+            )
+
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.1.2
+    hooks:
+      - id: flake8
+        additional_dependencies: [flake8-pyproject]
+        exclude: |
+            (?x)(
+                ^build|
+                ^conda
+            )

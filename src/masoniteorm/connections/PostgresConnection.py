@@ -49,7 +49,7 @@ class PostgresConnection(BaseConnection):
     def make_connection(self):
         """This sets the connection on the connection class"""
         try:
-            import psycopg2
+            import psycopg2 # noqa F401
         except ModuleNotFoundError:
             raise DriverNotFound(
                 "You must have the 'psycopg2' package installed to make a connection to Postgres. Please install it using 'pip install psycopg2-binary'"

@@ -28,7 +28,7 @@ class MakeModelCommand(Command):
         model_directory = self.option("directory")
 
         with open(
-            os.path.join(pathlib.Path(__file__).parent.absolute(), f"stubs/model.stub")
+            os.path.join(pathlib.Path(__file__).parent.absolute(), "stubs/model.stub")
         ) as fp:
             output = fp.read()
             output = output.replace("__CLASS__", camelize(name))
