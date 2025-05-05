@@ -317,9 +317,6 @@ class Model:
         """
         pass
 
-    def only(self, attributes: list) -> dict:
-        pass
-
     def query(self):
         pass
 
@@ -494,8 +491,9 @@ class Model:
         """
         pass
 
+    @classmethod
     def delete(
-        self, column: str = None, value: str = None, query: bool = False
+        cls, column: str = None, value: str = None, query: bool = False
     ):
         """Specify the column and value to delete
         or deletes everything based on a previously used where expression.
@@ -703,14 +701,16 @@ class Model:
         """Puts Query results in random order"""
         pass
 
+    @classmethod
     def join_on(
-        self,
+        cls,
         relationship: str,
         callback: callable = None,
         clause: str = "inner",
     ) -> QueryBuilder:
         pass
 
+    @classmethod
     def join(
         self,
         table: str,
@@ -760,8 +760,9 @@ class Model:
         """
         pass
 
+    @classmethod
     def left_join(
-        self,
+        cls,
         table: str,
         column1: str = None,
         equality: str = None,
@@ -894,6 +895,10 @@ class Model:
         pass
 
     @classmethod
+    def only(cls, attributes: list) -> dict:
+        pass
+
+    @classmethod
     def or_where(cls, column: str | int, *args) -> QueryBuilder:
         """Specifies an or where query expression.
 
@@ -1001,8 +1006,9 @@ class Model:
     def paginate(cls, per_page: int, page: int = 1):
         pass
 
+    @classmethod
     def right_join(
-        self,
+        cls,
         table: str,
         column1: str = None,
         equality: str = None,
@@ -1039,8 +1045,9 @@ class Model:
         """
         pass
 
+    @classmethod
     def set_global_scope(
-        self,
+        cls,
         name: str = "",
         callable: callable = None,
         action: str = "select",
@@ -1251,7 +1258,8 @@ class Model:
         """
         pass
 
-    def where_like(self, column: str, value: str) -> QueryBuilder:
+    @classmethod
+    def where_like(cls, column: str, value: str) -> QueryBuilder:
         """Specifies a where LIKE expression.
 
         Arguments:
@@ -1263,11 +1271,13 @@ class Model:
         """
         pass
 
-    def where_not_between(self, *args: Any, **kwargs: Any) -> QueryBuilder:
+    @classmethod
+    def where_not_between(cls, *args: Any, **kwargs: Any) -> QueryBuilder:
         """Alias for not_between"""
         pass
 
-    def where_not_in(self, column: str, wheres: list = None) -> QueryBuilder:
+    @classmethod
+    def where_not_in(cls, column: str, wheres: list = None) -> QueryBuilder:
         """Specifies where a column does not contain a list of a values.
 
         Arguments:
@@ -1281,7 +1291,8 @@ class Model:
         """
         pass
 
-    def where_not_like(self, column: str, value: str) -> QueryBuilder:
+    @classmethod
+    def where_not_like(cls, column: str, value: str) -> QueryBuilder:
         """Specifies a where expression.
 
         Arguments:
@@ -1293,7 +1304,8 @@ class Model:
         """
         pass
 
-    def where_not_null(self, column: str) -> QueryBuilder:
+    @classmethod
+    def where_not_null(cls, column: str) -> QueryBuilder:
         """Specifies a where expression where the column is not NULL.
 
         Arguments:
@@ -1304,7 +1316,8 @@ class Model:
         """
         pass
 
-    def where_null(self, column: str) -> QueryBuilder:
+    @classmethod
+    def where_null(cls, column: str) -> QueryBuilder:
         """Specifies a where expression where the column is NULL.
 
         Arguments:
@@ -1315,7 +1328,8 @@ class Model:
         """
         pass
 
-    def where_raw(self, query: str, bindings: tuple = ()) -> QueryBuilder:
+    @classmethod
+    def where_raw(cls, query: str, bindings: tuple = ()) -> QueryBuilder:
         """Specifies raw SQL that should be injected into the where expression.
 
         Arguments:
@@ -1329,13 +1343,16 @@ class Model:
         """
         pass
 
-    def with_(self, *eagers: str) -> QueryBuilder:
+    @classmethod
+    def with_(cls, *eagers: str | list | dict) -> QueryBuilder:
         pass
 
+    @classmethod
     def with_count(
-        self, relationship: str, callback: Any = None
+        cls, relationship: str, callback: Any = None
     ) -> QueryBuilder:
         pass
 
-    def without_global_scopes(self):
+    @classmethod
+    def without_global_scopes(cls):
         pass
