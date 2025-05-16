@@ -1,4 +1,5 @@
 """Test the default global scopes available in ORM."""
+
 import unittest
 import uuid
 import pendulum

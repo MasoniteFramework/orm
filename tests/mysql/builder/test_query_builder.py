@@ -31,7 +31,7 @@ class BaseTestQueryBuilder:
         return QueryBuilder(
             grammar=self.grammar,
             connection_class=connection,
-            connection="mysql",
+            connection="t",
             table=table,
             model=User(),
             dry=dry,

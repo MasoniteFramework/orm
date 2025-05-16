@@ -125,6 +125,26 @@ class MySQLConnection(BaseConnection):
 
         connection.close = self.close_connection
 
+        try:
+            pymysql.converters.conversions[pendulum.DateTime] = (
+                pymysql.converters.escape_datetime
+            )
+        except ImportError:
+            pass
+
+        if self.has_global_connection():
+            return self.get_global_connection()
+
+        self._connection = pymysql.connect(
+            cursorclass=pymysql.cursors.DictCursor,
+            autocommit=True,
+            host=self.host,
+            user=self.user,
+            password=self.password,
+            port=self.port,
+            db=self.database,
+            **self.options
+        )
         self.open = 1
 
         return connection
@@ -216,11 +236,11 @@ class MySQLConnection(BaseConnection):
             with self._cursor as cursor:
                 if isinstance(query, list):
                     for q in query:
-                        q = q.replace("'?'", "%s")
+                        q = q.replace("?", "%s")
                         self.statement(q, ())
                     return
 
-                query = query.replace("'?'", "%s")
+                query = query.replace("?", "%s")
                 self.statement(query, bindings)
                 if results == 1:
                     return self.format_cursor_results(cursor.fetchone())

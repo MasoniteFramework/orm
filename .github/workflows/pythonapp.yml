@@ -30,10 +30,10 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
     name: Python ${{ matrix.python-version }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -61,11 +61,11 @@ jobs:
     runs-on: ubuntu-20.04
     name: Lint
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
       - name: Set up Python 3.6
         uses: actions/setup-python@v4
         with:
-          python-version: 3.6
+          python-version: 3.12
       - name: Install Flake8
         run: |
           pip install flake8==3.7.9

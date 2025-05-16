@@ -593,12 +593,14 @@ class QueryBuilder(ObservesEvents):
             self.where(model.get_primary_key(), model.get_primary_key_value())
             self.observe_events(model, "deleting")
 
-        result = self.new_connection().query(self.to_qmark(), self._bindings)
+        connection = self.new_connection()
+
+        connection.query(self.to_qmark(), self._bindings)
 
         if model:
             self.observe_events(model, "deleted")
 
-        return result
+        return connection.get_row_count()
 
     def where(self, column, *args):
         """Specifies a where expression.
@@ -1462,13 +1464,14 @@ class QueryBuilder(ObservesEvents):
             return self
 
         additional.update(updates)
+        connection = self.new_connection()
 
-        self.new_connection().query(self.to_qmark(), self._bindings)
+        connection.query(self.to_qmark(), self._bindings)
         if model:
             model.fill(updates)
             self.observe_events(model, "updated")
             model.fill_original(updates)
-            return model
+            return connection.get_row_count()
         return additional
 
     def force_update(self, updates: dict, dry=False):
@@ -1489,7 +1492,7 @@ class QueryBuilder(ObservesEvents):
         self._updates += (UpdateQueryExpression(updates),)
         return self
 
-    def increment(self, column, value=1):
+    def increment(self, column, value=1, dry=False):
         """Increments a column's value.
 
         Arguments:
@@ -1522,13 +1525,16 @@ class QueryBuilder(ObservesEvents):
         )
 
         self.set_action("update")
+        if dry:
+            return self
+
         results = self.new_connection().query(self.to_qmark(), self._bindings)
         processed_results = self.get_processor().get_column_value(
             self, column, results, id_key, id_value
         )
         return processed_results
 
-    def decrement(self, column, value=1):
+    def decrement(self, column, value=1, dry=False):
         """Decrements a column's value.
 
         Arguments:
@@ -1561,6 +1567,8 @@ class QueryBuilder(ObservesEvents):
         )
 
         self.set_action("update")
+        if dry:
+            return self
         result = self.new_connection().query(self.to_qmark(), self._bindings)
         processed_results = self.get_processor().get_column_value(
             self, column, result, id_key, id_value
