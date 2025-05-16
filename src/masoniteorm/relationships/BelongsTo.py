@@ -97,6 +97,14 @@ class BelongsTo(BaseRelationship):
         # Get the foreign key value from the model
         foreign_key_value = getattr(model, self.local_key)
         
+        # If foreign key is None, register None as the relationship
+        if foreign_key_value is None:
+            model.add_relation({key: None})
+            return
+            
+        # Convert foreign key to string for consistent lookup
+        foreign_key_value = str(foreign_key_value)
+        
         # If collection is a dict (mapped), use it directly
         if isinstance(collection, dict):
             related = collection.get(foreign_key_value)
@@ -104,11 +112,11 @@ class BelongsTo(BaseRelationship):
             # Otherwise find the related model in the collection
             related = None
             for item in collection:
-                if getattr(item, self.foreign_key) == foreign_key_value:
+                if str(getattr(item, self.foreign_key)) == foreign_key_value:
                     related = item
                     break
                 
-        # Register the relationship
+        # Register the relationship with the model instance
         model.add_relation({key: related})
 
     def map_related(self, related_result):
@@ -122,7 +130,9 @@ class BelongsTo(BaseRelationship):
         """
         mapped = {}
         for item in related_result:
-            mapped[getattr(item, self.foreign_key)] = item
+            # Convert foreign key to string to ensure consistent key types
+            key = str(getattr(item, self.foreign_key))
+            mapped[key] = item
         return mapped
 
     def attach(self, current_model, related_record):
