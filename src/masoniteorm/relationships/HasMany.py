@@ -27,9 +27,24 @@ class HasMany(BaseRelationship):
         return self
 
     def register_related(self, key, model, collection):
-        model.add_relation(
-            {key: collection.get(getattr(model, self.local_key)) or Collection()}
-        )
+        """Register the related models to the parent model.
+
+        Args:
+            key (str): The key to register the relationship under
+            model (Model): The model to register the relationship on
+            collection (Collection): The collection of related models
+        """
+        # Get the local key value from the model
+        local_key_value = getattr(model, self.local_key)
+        
+        # Filter the collection to get only related models
+        related = []
+        for item in collection:
+            if getattr(item, self.foreign_key) == local_key_value:
+                related.append(item)
+                
+        # Register the relationship
+        model.add_relation({key: Collection(related)})
 
     def map_related(self, related_result):
         return related_result.group_by(self.foreign_key)
@@ -53,8 +68,8 @@ class HasMany(BaseRelationship):
                 f"{builder.get_table_name()}.{self.foreign_key}",
                 Collection(relation._get_value(self.local_key)).unique(),
             ).get()
-
-        return builder.where(
-            f"{builder.get_table_name()}.{self.foreign_key}",
-            getattr(relation, self.local_key),
-        ).get()
+        else:
+            return builder.where(
+                f"{builder.get_table_name()}.{self.foreign_key}",
+                getattr(relation, self.local_key),
+            ).get()

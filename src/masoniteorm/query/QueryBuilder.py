@@ -31,6 +31,7 @@ from ..pagination import LengthAwarePaginator, SimplePaginator
 from ..schema import Schema
 from ..scopes import BaseScope
 from .EagerRelation import EagerRelations
+from .EagerLoader import EagerLoader
 
 
 class QueryBuilder(ObservesEvents):
@@ -1901,29 +1902,19 @@ class QueryBuilder(ObservesEvents):
 
     def prepare_result(self, result, collection=False):
         if self._model and result:
-            # eager load here
+            # Hydrate the model first
             hydrated_model = self._model.hydrate(result)
+            
+            # Only proceed with eager loading if we have eager relations and a hydrated model
             if (
                 self._eager_relation.eagers
                 or self._eager_relation.nested_eagers
                 or self._eager_relation.callback_eagers
             ) and hydrated_model:
-                for eager_load in self._eager_relation.get_eagers():
-                    if isinstance(eager_load, dict):
-                        # Handle nested relationships
-                        self._load_nested_relationships(hydrated_model, eager_load)
-                    else:
-                        # Handle simple relationships
-                        for eager in eager_load:
-                            if inspect.isclass(self._model):
-                                related = getattr(self._model, eager)
-                            else:
-                                related = self._model.get_related(eager)
-
-                            result_set = related.get_related(self, hydrated_model)
-                            self._register_relationships_to_model(
-                                related, result_set, hydrated_model, relation_key=eager
-                            )
+                # Create eager loader and load relationships
+                eager_loader = EagerLoader(self._model)
+                eager_loader.register(*self._eager_relation.get_eagers())
+                hydrated_model = eager_loader.load(hydrated_model)
 
             if collection:
                 return hydrated_model if result else Collection([])
