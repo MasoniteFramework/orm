@@ -101,8 +101,10 @@ class MorphToMany(BaseRelationship):
         related = collection.where(
             morphed_model.get_primary_key(), getattr(model, self.morph_id)
         )
-
-        model.add_relation({key: related})
+        if related:
+            model.add_relation({key: related})
+        else:
+            model.add_relation({key: None})
 
     def morph_map(self):
         return load_config().DB._morph_map

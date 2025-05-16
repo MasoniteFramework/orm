@@ -138,9 +138,16 @@ class HasOneThrough(BaseRelationship):
         Returns
             None
         """
-
-        related = collection.get(getattr(model, self.local_key), None)
-        model.add_relation({key: related[0] if related else None})
+        # Filter the collection for the current parent
+        related = None
+        parent_key = getattr(model, self.local_key, None)
+        if collection:
+            for item in collection:
+                # The related model should have the other_owner_key matching the parent's local_key
+                if getattr(item, self.other_owner_key, None) == parent_key:
+                    related = item
+                    break
+        model.add_relation({key: related})
 
     def get_related(self, current_builder, relation, eagers=None, callback=None):
         """

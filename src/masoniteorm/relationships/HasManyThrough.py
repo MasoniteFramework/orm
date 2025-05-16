@@ -130,11 +130,28 @@ class HasManyThrough(BaseRelationship):
         Returns
             None
         """
-        related = collection.get(getattr(model, self.local_owner_key), None)
-        if related and not isinstance(related, Collection):
-            related = Collection(related)
+        print(f"[HasManyThrough] register_related called with collection: {collection}, type: {type(collection)}")
+        if collection is None:
+            print(f"[HasManyThrough] Attaching None to {key}")
+            model.add_relation({key: None})
+            return
 
-        model.add_relation({key: related if related else None})
+        # Group the related models by the local key
+        grouped = self.map_related(collection)
+        parent_key = getattr(model, self.local_owner_key, None)
+        print(f"[HasManyThrough] Parent model: {model.__dict__}")
+        print(f"[HasManyThrough] Parent key ({self.local_owner_key}): {parent_key}")
+        print(f"[HasManyThrough] Grouped dictionary: {grouped}")
+        
+        # Get the related models for this parent
+        related = grouped.get(parent_key, [])
+        print(f"[HasManyThrough] Related for parent {parent_key}: {related}")
+        if related and len(related) > 0:
+            print(f"[HasManyThrough] Attaching Collection({related}) to {key}")
+            model.add_relation({key: Collection(related)})
+        else:
+            print(f"[HasManyThrough] Attaching None to {key} (no related)")
+            model.add_relation({key: None})
 
     def get_related(self, current_builder, relation, eagers=None, callback=None):
         """
@@ -169,15 +186,21 @@ class HasManyThrough(BaseRelationship):
         )
 
         if isinstance(relation, Collection):
-            return self.distant_builder.where_in(
+            result = self.distant_builder.where_in(
                 f"{intermediate_table}.{self.local_key}",
                 Collection(relation._get_value(self.local_owner_key)).unique(),
             ).get()
+            if result is None or (hasattr(result, 'count') and result.count() == 0):
+                return None
+            return result
         else:
-            return self.distant_builder.where(
+            result = self.distant_builder.where(
                 f"{intermediate_table}.{self.local_key}",
                 getattr(relation, self.local_owner_key),
             ).get()
+            if result is None or (hasattr(result, 'count') and result.count() == 0):
+                return None
+            return result
 
     def query_has(self, current_builder, method="where_exists"):
         distant_table = self.distant_builder.get_table_name()
@@ -256,4 +279,13 @@ class HasManyThrough(BaseRelationship):
         return return_query
 
     def map_related(self, related_result):
-        return related_result.group_by(self.local_key)
+        # Debug print to show the first model's attributes
+        if related_result and related_result.count() > 0:
+            first_model = related_result.first()
+            print(f"[HasManyThrough] First model attributes: {first_model.__dict__}")
+            print(f"[HasManyThrough] local_key: {self.local_key}, value: {getattr(first_model, self.local_key, None)}")
+        
+        # Group by the attribute on the related model that links it to the parent (e.g., in_course_id)
+        grouped = related_result.group_by(self.local_key).all()
+        print(f"[HasManyThrough] Grouped result keys: {list(grouped.keys()) if grouped else 'None'}")
+        return grouped

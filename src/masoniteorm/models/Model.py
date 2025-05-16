@@ -727,7 +727,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                 new_dic.update({key: {}})
             else:
                 if value is None:
-                    new_dic.update({key: {}})
+                    new_dic.update({key: None})
                     continue
                 elif isinstance(value, list):
                     value = Collection(value).serialize()
@@ -802,7 +802,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             return method
 
         if attribute in self.__dict__.get("_relationships", {}):
-            return self.__dict__["_relationships"][attribute]
+            value = self.__dict__["_relationships"][attribute]
+            print(f"[Model.__getattr__] Accessed relationship '{attribute}', value: {value} (type: {type(value)})")
+            return value
 
         if attribute not in self.__dict__:
             name = self.__class__.__name__

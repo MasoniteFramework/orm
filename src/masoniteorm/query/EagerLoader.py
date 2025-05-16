@@ -3,6 +3,9 @@ from ..collection import Collection
 from ..exceptions import ModelNotFound
 from ..models import Model
 from ..relationships import BelongsTo, BelongsToMany, HasMany, HasOne, MorphMany, MorphOne, MorphTo
+from ..relationships.BaseRelationship import BaseRelationship
+from src.masoniteorm.relationships.HasManyThrough import HasManyThrough
+from src.masoniteorm.relationships.HasMany import HasMany
 
 if TYPE_CHECKING:
     from ..models.Model import Model
@@ -247,25 +250,43 @@ class EagerLoader:
             relation_name: The name of the relationship
             related_models: The related models to register
         """
-        print(f"[EagerLoader] Registering relationship {relation_name} with {len(related_models)} related models")
+        if related_models is None:
+            print(f"[EagerLoader] Registering relationship {relation_name} with 0 related models (None)")
+        else:
+            print(f"[EagerLoader] Registering relationship {relation_name} with {len(related_models)} related models")
 
         for model in models:
-            relationship = getattr(model, relation_name, None)
-            
-            # If it's a relationship instance, use register_related
-            if hasattr(relationship, 'register_related'):
-                relationship.register_related(relation_name, model, related_models)
+            rel_descriptor = getattr(model.__class__, relation_name, None)
+            if hasattr(rel_descriptor, 'register_related'):
+                rel_type = rel_descriptor.__class__.__name__
+                print(f"[EagerLoader] rel_type: {rel_type}, related_models: {type(related_models)}, count: {getattr(related_models, 'count', lambda: 'N/A')() if related_models is not None else 'N/A'}")
+                is_empty = False
+                if related_models is None:
+                    is_empty = True
+                elif hasattr(related_models, 'count') and related_models.count() == 0:
+                    is_empty = True
+                elif isinstance(related_models, (list, tuple, set, dict)) and len(related_models) == 0:
+                    is_empty = True
+                if rel_type in ("HasMany", "HasManyThrough") and is_empty:
+                    print(f"[EagerLoader] Calling register_related with None for {relation_name}")
+                    rel_descriptor.register_related(relation_name, model, None)
+                else:
+                    rel_descriptor.register_related(relation_name, model, related_models)
             else:
                 # For has-one and belongs-to relationships, we should get a single model
                 if hasattr(model.__class__, relation_name):
                     rel = getattr(model.__class__, relation_name)
-                    if isinstance(rel, (HasOne, BelongsTo)):
+                    # Use class name to check for HasOne/BelongsTo
+                    rel_type = rel.__class__.__name__
+                    if rel_type in ("HasOne", "BelongsTo"):
                         if related_models:
                             model.add_relation({relation_name: related_models.first()})
                         else:
                             model.add_relation({relation_name: None})
                     else:
+                        print(f"[EagerLoader] Fallback: Attaching related_models directly for {relation_name}, type: {rel_type}")
                         model.add_relation({relation_name: related_models})
                 else:
+                    print(f"[EagerLoader] Fallback: Attaching related_models directly for {relation_name}, no rel_type")
                     model.add_relation({relation_name: related_models})
         return models 

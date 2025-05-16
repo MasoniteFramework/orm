@@ -134,8 +134,7 @@ class MorphOne(BaseRelationship):
             .where(self.morph_id, model.get_primary_key_value())
             .first()
         )
-
-        model.add_relation({key: related})
+        model.add_relation({key: related or None})
 
     def morph_map(self):
         return load_config().DB._morph_map

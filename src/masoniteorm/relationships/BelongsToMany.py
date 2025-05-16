@@ -323,14 +323,15 @@ class BelongsToMany(BaseRelationship):
             collection: The collection of related models
         """
         if not collection:
-            model.add_relation({key: Collection([])})
+            model.add_relation({key: None})
             return
 
         # Filter the collection to only include models related to this model
-        related = collection.where(
-            f"{self._table}_id", getattr(model, self.local_owner_key)
-        )
-        model.add_relation({key: related})
+        related = collection.where(f"{self._table}_id", getattr(model, self.local_owner_key))
+        if related:
+            model.add_relation({key: related})
+        else:
+            model.add_relation({key: None})
 
     def joins(self, builder, clause=None):
         if not self._table:

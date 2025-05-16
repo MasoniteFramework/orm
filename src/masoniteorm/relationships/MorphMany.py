@@ -130,8 +130,10 @@ class MorphMany(BaseRelationship):
         related = collection.where(self.morph_key, record_type).where(
             self.morph_id, model.get_primary_key_value()
         )
-
-        model.add_relation({key: related})
+        if related:
+            model.add_relation({key: related})
+        else:
+            model.add_relation({key: None})
 
     def morph_map(self):
         return load_config().DB._morph_map
