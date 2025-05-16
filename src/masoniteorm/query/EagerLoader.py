@@ -1,6 +1,8 @@
 from typing import Any, Dict, List, Optional, Union, Callable, TYPE_CHECKING
 from ..collection import Collection
 from ..exceptions import ModelNotFound
+from ..models import Model
+from ..relationships import BelongsTo, BelongsToMany, HasMany, HasOne, MorphMany, MorphOne, MorphTo
 
 if TYPE_CHECKING:
     from ..models.Model import Model
@@ -137,7 +139,10 @@ class EagerLoader:
                 print(f"[EagerLoader] Loading relation: {relation.name}")
                 # Get the relationship definition from the model class
                 related = getattr(self.model.__class__, relation.name)
-                
+                # If it's a property, call it on the model instance to get the relationship instance
+                if isinstance(related, property):
+                    related = getattr(self.model, relation.name)
+
                 if relation.name in self.callback_relations and callable(self.callback_relations[relation.name]):
                     # Handle callback relationships
                     callback = self.callback_relations[relation.name]
@@ -243,13 +248,24 @@ class EagerLoader:
             related_models: The related models to register
         """
         print(f"[EagerLoader] Registering relationship {relation_name} with {len(related_models)} related models")
-        
-        # Get the relationship definition
-        relationship = getattr(self.model.__class__, relation_name)
-        
-        # Register the relationship on each model
+
         for model in models:
-            # Use the relationship's register_related method
-            relationship.register_related(relation_name, model, related_models)
+            relationship = getattr(model, relation_name, None)
             
+            # If it's a relationship instance, use register_related
+            if hasattr(relationship, 'register_related'):
+                relationship.register_related(relation_name, model, related_models)
+            else:
+                # For has-one and belongs-to relationships, we should get a single model
+                if hasattr(model.__class__, relation_name):
+                    rel = getattr(model.__class__, relation_name)
+                    if isinstance(rel, (HasOne, BelongsTo)):
+                        if related_models:
+                            model.add_relation({relation_name: related_models.first()})
+                        else:
+                            model.add_relation({relation_name: None})
+                    else:
+                        model.add_relation({relation_name: related_models})
+                else:
+                    model.add_relation({relation_name: related_models})
         return models 

@@ -2,8 +2,8 @@ import pendulum
 from inflection import singularize
 
 from ..collection import Collection
-from ..models.Pivot import Pivot
 from .BaseRelationship import BaseRelationship
+from src.masoniteorm.models.Pivot import Pivot
 
 
 class BelongsToMany(BaseRelationship):
@@ -12,8 +12,8 @@ class BelongsToMany(BaseRelationship):
     def __init__(
         self,
         fn=None,
-        local_foreign_key=None,
-        other_foreign_key=None,
+        local_key=None,
+        foreign_key=None,
         local_owner_key=None,
         other_owner_key=None,
         table=None,
@@ -22,136 +22,53 @@ class BelongsToMany(BaseRelationship):
         attribute="pivot",
         with_fields=[],
     ):
-        if isinstance(fn, str):
-            self.fn = None
-            self.local_key = fn
-            self.foreign_key = local_foreign_key
-            self.local_owner_key = other_foreign_key or "id"
-            self.other_owner_key = local_owner_key or "id"
-        else:
-            self.fn = fn
-            self.local_key = local_foreign_key
-            self.foreign_key = other_foreign_key
-            self.local_owner_key = local_owner_key or "id"
-            self.other_owner_key = other_owner_key or "id"
-
+        self.fn = fn if not isinstance(fn, str) else None
+        self.local_key = local_key
+        self.foreign_key = foreign_key
+        self.local_owner_key = local_owner_key or "id"
+        self.other_owner_key = other_owner_key or "id"
         self._table = table
         self.with_timestamps = with_timestamps
         self._as = attribute
         self.pivot_id = pivot_id
         self.with_fields = with_fields
 
-    def set_keys(self, owner, attribute):
-        self.local_key = self.local_key or "id"
-        self.foreign_key = self.foreign_key or f"{attribute}_id"
-        return self
-
     def apply_query(self, query, owner):
-        """Apply the query and return a dictionary to be hydrated.
-            Used during accessing a relationship on a model
+        """Apply the query to the builder instance.
 
-        Arguments:
-            query {oject} -- The relationship object
-            owner {object} -- The current model oject.
+        Args:
+            query (QueryBuilder): The query builder instance
+            owner (Model): The model instance
 
         Returns:
-            dict -- A dictionary of data which will be hydrated.
+            QueryBuilder
         """
+        if isinstance(owner, Collection):
+            owner = owner.first()
 
-        if not self._table:
-            pivot_tables = [
-                singularize(owner.builder.get_table_name()),
-                singularize(query.get_table_name()),
-            ]
-            pivot_tables.sort()
-            pivot_table_1, pivot_table_2 = pivot_tables
-            self._table = "_".join(pivot_tables)
-            self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
-            self.local_key = self.local_key or f"{pivot_table_2}_id"
-        elif self.local_key is None or self.foreign_key is None:
-            pivot_table_1, pivot_table_2 = self._table.split("_", 1)
-            self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
-            self.local_key = self.local_key or f"{pivot_table_2}_id"
+        if not owner:
+            return query.where("0", "=", "1")
 
-        table1 = owner.get_table_name()
-        table2 = query.get_table_name()
-        result = query.select(
-            f"{query.get_table_name()}.*",
-            f"{self._table}.{self.local_key} as {self._table}_id",
-            f"{self._table}.{self.foreign_key} as m_reserved2",
-        ).table(f"{table1}")
-
-        if self.pivot_id:
-            result.select(f"{self._table}.{self.pivot_id} as m_reserved3")
-
-        if self.with_timestamps:
-            result.select(
-                f"{self._table}.updated_at as m_reserved4",
-                f"{self._table}.created_at as m_reserved5",
+        return (
+            query.select(
+                f"{self.get_related_table()}.*",
+                f"{self._table}.{self.local_key} as {self._table}_{self.local_key}",
+                f"{self._table}.{self.foreign_key} as {self._table}_{self.foreign_key}",
             )
-
-        result.join(
-            f"{self._table}",
-            f"{self._table}.{self.local_key}",
-            "=",
-            f"{table1}.{self.local_owner_key}",
+            .join(
+                self._table,
+                f"{self._table}.{self.local_key}",
+                "=",
+                f"{owner.get_table_name()}.{self.local_owner_key}",
+            )
+            .join(
+                self.get_related_table(),
+                f"{self._table}.{self.foreign_key}",
+                "=",
+                f"{self.get_related_table()}.{self.other_owner_key}",
+            )
+            .where(f"{owner.get_table_name()}.{self.local_owner_key}", "in", [getattr(owner, self.local_owner_key)])
         )
-        result.join(
-            f"{table2}",
-            f"{self._table}.{self.foreign_key}",
-            "=",
-            f"{table2}.{self.other_owner_key}",
-        )
-
-        if hasattr(owner, self.local_owner_key):
-            result.where(
-                f"{table1}.{self.local_owner_key}", getattr(owner, self.local_owner_key)
-            )
-
-        if self.with_fields:
-            for field in self.with_fields:
-                result.select(f"{self._table}.{field}")
-
-        result = result.get()
-
-        for model in result:
-            pivot_data = {
-                self.local_key: getattr(model, f"{self._table}_id"),
-                self.foreign_key: getattr(model, "m_reserved2"),
-            }
-
-            if self.with_timestamps:
-                pivot_data = {
-                    "created_at": getattr(model, "m_reserved5"),
-                    "updated_at": getattr(model, "m_reserved4"),
-                }
-
-                model.delete_attribute("m_reserved4")
-                model.delete_attribute("m_reserved5")
-
-            model.delete_attribute("m_reserved2")
-
-            if self.pivot_id:
-                pivot_data.update({self.pivot_id: getattr(model, "m_reserved3")})
-                model.delete_attribute("m_reserved3")
-
-            if self.with_fields:
-                for field in self.with_fields:
-                    pivot_data.update({field: getattr(model, field)})
-                    model.delete_attribute(field)
-
-            model.__original_attributes__.update(
-                {
-                    self._as: (
-                        Pivot.on(query.connection)
-                        .table(self._table)
-                        .hydrate(pivot_data)
-                        .activate_timestamps(self.with_timestamps)
-                    )
-                }
-            )
-
-        return result
 
     def table(self, table):
         self._table = table
@@ -237,57 +154,105 @@ class BelongsToMany(BaseRelationship):
 
         if isinstance(relation, Collection):
             return result.where_in(
-                self.local_owner_key,
+                f"{table1}.{self.local_owner_key}",
                 Collection(relation._get_value(self.local_owner_key)).unique(),
             ).get()
         else:
             return result.where(
-                self.local_owner_key, getattr(relation, self.local_owner_key)
+                f"{table1}.{self.local_owner_key}",
+                getattr(relation, self.local_owner_key),
             ).get()
 
     def get_related(self, query, relation, eagers=None, callback=None):
-        final_result = self.make_query(
-            query, relation, eagers=eagers, callback=callback
+        """Gets the relation needed between the relation and the related builder. If the relation is a collection
+        then will need to pluck out all the keys from the collection and fetch from the related builder. If
+        relation is just a Model then we can just call the model based on the value of the related
+        builders primary key.
+
+        Args:
+            relation (Model|Collection):
+
+        Returns:
+            Model|Collection
+        """
+        eagers = eagers or []
+        builder = self.get_builder().with_(eagers)
+
+        if callback:
+            callback(builder)
+
+        if not self._table:
+            # Get table name from builder instead of query when query is a Collection
+            table_name = builder.get_table_name()
+            pivot_tables = [
+                singularize(table_name),
+                singularize(relation[0].get_table_name() if isinstance(relation, Collection) else relation.get_table_name()),
+            ]
+            pivot_tables.sort()
+            pivot_table_1, pivot_table_2 = pivot_tables
+            self._table = "_".join(pivot_tables)
+            self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
+            self.local_key = self.local_key or f"{pivot_table_2}_id"
+        elif self.local_key is None or self.foreign_key is None:
+            pivot_table_1, pivot_table_2 = self._table.split("_", 1)
+            self.foreign_key = self.foreign_key or f"{pivot_table_1}_id"
+            self.local_key = self.local_key or f"{pivot_table_2}_id"
+
+        table2 = builder.get_table_name()
+        table1 = relation[0].get_table_name() if isinstance(relation, Collection) else relation.get_table_name()
+
+        result = (
+            builder.select(
+                f"{table2}.*",
+                f"{self._table}.{self.local_key} as {self._table}_id",
+                f"{self._table}.{self.foreign_key} as m_reserved2",
+            )
+            .run_scopes()
+            .table(f"{table1}")
         )
-        builder = self.make_builder(eagers)
 
-        for model in final_result:
-            pivot_data = {
-                self.local_key: getattr(model, f"{self._table}_id"),
-                self.foreign_key: getattr(model, "m_reserved2"),
-            }
+        if self.with_fields:
+            for field in self.with_fields:
+                result.select(f"{self._table}.{field}")
 
-            model.delete_attribute("m_reserved2")
+        result.join(
+            f"{self._table}",
+            f"{self._table}.{self.local_key}",
+            "=",
+            f"{table1}.{self.local_owner_key}",
+        )
 
-            if self.with_timestamps:
-                pivot_data.update(
-                    {
-                        "updated_at": getattr(model, "m_reserved4"),
-                        "created_at": getattr(model, "m_reserved5"),
-                    }
-                )
+        result.join(
+            f"{table2}",
+            f"{self._table}.{self.foreign_key}",
+            "=",
+            f"{table2}.{self.other_owner_key}",
+        )
 
-            if self.pivot_id:
-                pivot_data.update({self.pivot_id: getattr(model, "m_reserved3")})
-                model.delete_attribute("m_reserved3")
-
-            if self.with_fields:
-                for field in self.with_fields:
-                    pivot_data.update({field: getattr(model, field)})
-                    model.delete_attribute(field)
-
-            model.__original_attributes__.update(
-                {
-                    self._as: (
-                        Pivot.on(builder.connection)
-                        .table(self._table)
-                        .hydrate(pivot_data)
-                        .activate_timestamps(self.with_timestamps)
-                    )
-                }
+        if self.with_timestamps:
+            result.select(
+                f"{self._table}.updated_at as m_reserved4",
+                f"{self._table}.created_at as m_reserved5",
             )
 
-        return final_result
+        if self.pivot_id:
+            result.select(f"{self._table}.{self.pivot_id} as m_reserved3")
+
+        result.without_global_scopes()
+
+        if callback:
+            callback(result)
+
+        if isinstance(relation, Collection):
+            return result.where_in(
+                f"{table1}.{self.local_owner_key}",
+                Collection(relation._get_value(self.local_owner_key)).unique(),
+            ).get()
+        else:
+            return result.where(
+                f"{table1}.{self.local_owner_key}",
+                getattr(relation, self.local_owner_key),
+            ).get()
 
     def relate(self, related_record):
         owner = related_record.get_builder()
@@ -350,13 +315,22 @@ class BelongsToMany(BaseRelationship):
         return result
 
     def register_related(self, key, model, collection):
-        model.add_relation(
-            {
-                key: collection.where(
-                    f"{self._table}_id", getattr(model, self.local_owner_key)
-                )
-            }
+        """Register the related models on the model.
+
+        Args:
+            key: The name of the relationship
+            model: The model to register the relationship on
+            collection: The collection of related models
+        """
+        if not collection:
+            model.add_relation({key: Collection([])})
+            return
+
+        # Filter the collection to only include models related to this model
+        related = collection.where(
+            f"{self._table}_id", getattr(model, self.local_owner_key)
         )
+        model.add_relation({key: related})
 
     def joins(self, builder, clause=None):
         if not self._table:
@@ -503,23 +477,21 @@ class BelongsToMany(BaseRelationship):
         return return_query
 
     def attach(self, current_model, related_record):
+        """Attach a related record to the current model.
+
+        Args:
+            current_model (Model): The current model instance
+            related_record (Model): The related model instance
+
+        Returns:
+            Model
+        """
+        print(f"[DEBUG] local_key: {self.local_key}, foreign_key: {self.foreign_key}, local_owner_key: {self.local_owner_key}, other_owner_key: {self.other_owner_key}")
         data = {
             self.local_key: getattr(current_model, self.local_owner_key),
             self.foreign_key: getattr(related_record, self.other_owner_key),
         }
-
-        self._table = self._table or self.get_pivot_table_name(
-            current_model, related_record
-        )
-
-        if self.with_timestamps:
-            data.update(
-                {
-                    "created_at": pendulum.now().to_datetime_string(),
-                    "updated_at": pendulum.now().to_datetime_string(),
-                }
-            )
-
+        print("BelongsToMany.attach data:", data)
         return (
             Pivot.on(current_model.get_builder().connection)
             .table(self._table)
@@ -595,3 +567,9 @@ class BelongsToMany(BaseRelationship):
             .where(data)
             .delete()
         )
+
+    def get_builder(self):
+        related_model_class = self.fn(self)
+        if not hasattr(self, '_related_builder') or self._related_builder is None:
+            self._related_builder = related_model_class().get_builder()
+        return self._related_builder

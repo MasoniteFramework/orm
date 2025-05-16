@@ -1061,7 +1061,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             related.detach(self, related_record)
 
     def related(self, relation):
-        related = getattr(self.__class__, relation)
+        related = getattr(self, relation)
         return related.relate(self)
 
     def get_related(self, relation):
@@ -1069,18 +1069,46 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return related
 
     def attach(self, relation, related_record):
-        related = getattr(self.__class__, relation)
-        return related.attach(self, related_record)
+        """Attach a related record to the model.
+
+        Args:
+            relation: The name of the relationship
+            related_record: The related record to attach
+
+        Returns:
+            The attached record
+        """
+        relationship = getattr(self.__class__, relation)
+        if hasattr(relationship, 'attach'):
+            return relationship.attach(self, related_record)
+        return related_record
+
+    def attach_related(self, relation, related_record):
+        """Attach a related record to the model.
+
+        Args:
+            relation: The name of the relationship
+            related_record: The related record to attach
+
+        Returns:
+            The attached record
+        """
+        return self.attach(relation, related_record)
 
     def detach(self, relation, related_record):
-        related = getattr(self.__class__, relation)
+        """Detach a related record from the model.
 
-        if not related_record.is_created():
-            related_record = related_record.create(related_record.all_attributes())
-        else:
-            related_record.save()
+        Args:
+            relation: The name of the relationship
+            related_record: The related record to detach
 
-        return related.detach(self, related_record)
+        Returns:
+            The detached record
+        """
+        relationship = getattr(self.__class__, relation)
+        if hasattr(relationship, 'detach'):
+            return relationship.detach(self, related_record)
+        return related_record
 
     def save_quietly(self):
         """This method calls the save method on a model without firing the saved & saving observer events. Saved/Saving
@@ -1119,9 +1147,6 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         )
         self.with_events()
         return delete
-
-    def attach_related(self, relation, related_record):
-        return self.attach(relation, related_record)
 
     @classmethod
     def filter_fillable(cls, dictionary: Dict[str, Any]) -> Dict[str, Any]:
