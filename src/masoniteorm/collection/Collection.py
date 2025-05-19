@@ -586,8 +586,15 @@ class Collection:
         if not model:
             return self
 
-        related = self._items[0].__dict__['related']
-        return related.apply_query(self._items[0].builder)
+        if hasattr(self._items[0], 'related'):
+            related = self._items[0].__dict__['related']
+            return related.apply_query(self._items[0].builder)
+        else:
+            return self
+
+    def to_qmark(self):
+        print("to qmark", self._items)
+        return self
 
     def get_related(self):
         print("getting related", self._builder)

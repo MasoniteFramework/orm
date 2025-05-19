@@ -124,7 +124,7 @@ class TestRelationships(unittest.TestCase):
             user
 
     def test_setting(self):
-        users = User.with_("articles").where("is_admin", True).get()
+        users = User.where("is_admin", True).get()
         for user in users:
             user.name = "Joe"
             user.is_admin = 1

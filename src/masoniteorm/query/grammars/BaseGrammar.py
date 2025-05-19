@@ -658,8 +658,11 @@ class BaseGrammar:
                 sql_string = self.where_group_string()
             elif isinstance(value, SubSelectExpression):
                 if qmark:
+                    print(value)
                     query_from_builder = value.builder.to_qmark()
-                    if value.builder._bindings:
+                    if hasattr(value.builder, '_items'):
+                        self.add_binding(*value.builder._items)
+                    else:
                         self.add_binding(*value.builder._bindings)
                 else:
                     query_from_builder = value.builder.to_sql()

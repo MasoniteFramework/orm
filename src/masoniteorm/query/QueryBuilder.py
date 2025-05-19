@@ -2345,3 +2345,20 @@ class QueryBuilder(ObservesEvents):
 
     def value(self, column: str):
         return self.get().first()[column]
+
+    def add_relation(self, model_instance, result, relation_key=None):
+        """Add a relationship to a model instance.
+        
+        Arguments:
+            model_instance {Model} -- The model instance to add the relationship to
+            result {Model|Collection} -- The related model or collection
+            relation_key {string} -- The name of the relationship
+            
+        Returns:
+            Model -- The model instance with the relationship added
+        """
+        if not hasattr(model_instance, '_relationships'):
+            model_instance._relationships = {}
+            
+        model_instance._relationships[relation_key] = result
+        return model_instance

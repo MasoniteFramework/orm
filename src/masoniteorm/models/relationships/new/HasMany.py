@@ -31,23 +31,17 @@ class HasMany(BaseRelationship):
         return self.apply_query(self.model_class, getattr(result, self.foreign_key)).get()
 
     def __call__(self, owner):
-        """Fetch the related record when invoked."""
+        """Return a query builder for the relationship."""
         related_model = self.model_class
-        # print("related model", related_model)
-        related_model.owner = self
         self.owner = owner
-        foreign_key_value = owner.__attributes__.get(self.foreign_key)
+        
+        # Get the foreign key value
+        foreign_key_value = owner.__attributes__.get(self.local_key)
         if not foreign_key_value:
-            return self
-
-        if self.method and self.method in owner._relationships:
-            return owner._relationships[self.method]
-        result = self.apply_query(related_model.builder).get()
-        result._builder = self.apply_query(self.model_class.builder, foreign_key_value)
-        result._related = self
-        for item in result:
-            item.__dict__['related'] = self
-        return result
+            return related_model.builder.where_raw("1 = 0")  # Return empty query if no foreign key
+            
+        # Return the query builder directly
+        return self.apply_query(related_model.builder, foreign_key_value)
 
     def add_relation(self, model_instance, result, relation_key=None):
         # if result is a collection, do a where

@@ -19,28 +19,18 @@ class BelongsTo(BaseRelationship):
     def get_related(self, foreign, result, eager=None):
         return self.apply_query(self.model_class, getattr(result, self.local_key)).first()
 
-
     def __call__(self, owner):
-        """Fetch the related record when invoked."""
+        """Return a query builder for the relationship."""
         related_model = self.model_class
-        related_model.owner = self
         self.owner = owner
+        
+        # Get the foreign key value
         foreign_key_value = owner.__attributes__.get(self.local_key)
         if not foreign_key_value:
-            print("No foreign key value")
-            return self
-
-        self.owner = owner
-        # print("relationships", owner, owner._relationships)
-        if self.method and self.method in owner._relationships:
-            return owner._relationships[self.method]
-        builder = self.apply_query(related_model.builder)
-        result = builder.first()
-        self.owner = owner
-        result.__dict__['related'] = self
-        return result
-
+            return related_model.builder.where_raw("1 = 0")  # Return empty query if no foreign key
+            
+        # Return the query builder directly
+        return self.apply_query(related_model.builder, foreign_key_value)
 
     def add_relation(self, model_instance, result, relation_key=None):
-        # if result is a collection, do a where
-       return model_instance.add_relation({relation_key: result or None})
+        return model_instance.add_relation({relation_key: result or None})
