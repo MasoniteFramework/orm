@@ -1,0 +1,66 @@
+name: Radon Analysis
+
+on:
+  pull_request:
+    paths:
+      - '**/*.py' # Only trigger for Python files
+
+jobs:
+  radon_analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0 # Ensure full history is fetched for git diff to work properly
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install Radon
+      run: pip install radon
+
+    - name: Get list of changed files
+      id: get_changed_files
+      run: |
+        CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep '.py$' || true)
+        echo "Changed files: $CHANGED_FILES"
+        echo "CHANGED_FILES<<EOF" >> $GITHUB_ENV
+        echo "$CHANGED_FILES" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+
+    - name: Debug changed files
+      run: |
+        echo "Changed files from env: ${{ env.CHANGED_FILES }}"
+      shell: bash
+
+    - name: Run Radon analysis
+      id: radon_analysis 
+      run: |
+        if [ -z "${{ env.CHANGED_FILES }}" ]; then
+          echo "No Python files changed."
+          echo "RESULTS=None" >> $GITHUB_ENV
+        else
+          RESULTS=$(echo "${{ env.CHANGED_FILES }}" | xargs radon cc -s -n A || true)
+          echo "RESULTS<<EOF" >> $GITHUB_ENV
+          echo "$RESULTS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+        fi
+
+    - name: Comment on PR
+      if: env.RESULTS != 'None'
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        header: Radon Complexity Analysis
+        message: |
+          **Radon Analysis Results:**
+          ```
+          ${{ env.RESULTS }}
+          ```
+
+    - name: Log if no Python files found
+      if: env.RESULTS == 'None'
+      run: echo "No Python files changed in this PR."

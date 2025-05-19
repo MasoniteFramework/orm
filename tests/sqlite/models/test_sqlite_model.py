@@ -55,7 +55,6 @@ class Group(Model):
 
 
 class BaseTestQueryRelationships(unittest.TestCase):
-
     maxDiff = None
 
     def test_update_specific_record(self):
@@ -73,15 +72,28 @@ class BaseTestQueryRelationships(unittest.TestCase):
         self.assertEqual(sql, """UPDATE "users" SET "name" = 'joe'""")
 
     def test_can_find_list(self):
-        sql = User.find(1, query=True)
+        sql = User.find(1, query=True).to_sql()
 
         self.assertEqual(sql, """SELECT * FROM "users" WHERE "users"."id" = '1'""")
 
-        sql = User.find([1, 2, 3], query=True)
+        sql = User.find([1, 2, 3], query=True).to_sql()
 
         self.assertEqual(
             sql, """SELECT * FROM "users" WHERE "users"."id" IN ('1','2','3')"""
         )
+
+    def test_find_or_if_record_not_found(self):
+        # Insane record number so record cannot be found
+        record_id = 1_000_000_000_000_000
+
+        result = User.find_or(record_id, lambda: "Record not found.")
+        self.assertEqual(result, "Record not found.")
+
+    def test_find_or_if_record_found(self):
+        record_id = 1
+        result_id = User.find_or(record_id, lambda: "Record not found.").id
+
+        self.assertEqual(result_id, record_id)
 
     def test_can_set_and_retreive_attribute(self):
         user = User.hydrate({"id": 1, "name": "joe", "customer_id": 1})
@@ -96,7 +108,7 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
     def test_model_can_use_selects_from_methods(self):
         self.assertEqual(
-            SelectPass.all(["username"], query=True),
+            SelectPass.all(["username"], query=True).to_sql(),
             'SELECT "select_passes"."username" FROM "select_passes"',
         )
 
@@ -163,7 +175,6 @@ class BaseTestQueryRelationships(unittest.TestCase):
         self.assertEqual(count, 0)
 
     def test_get_columns(self):
-
         columns = User.get_columns()
         self.assertEqual(
             columns,
@@ -192,7 +203,6 @@ class BaseTestQueryRelationships(unittest.TestCase):
         )
 
     def test_should_return_relation_applying_hidden_attributes(self):
-
         schema = Schema(
             connection_details=DATABASES, connection="dev", platform=SQLitePlatform
         ).on("dev")

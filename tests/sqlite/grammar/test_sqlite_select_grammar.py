@@ -6,7 +6,6 @@ from src.masoniteorm.testing import BaseTestCaseSelectGrammar
 
 
 class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
-
     grammar = SQLiteGrammar
     maxDiff = None
 
@@ -239,6 +238,12 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         return """SELECT SUM("users"."age") AS age FROM "users" GROUP BY "users"."age" HAVING "users"."age\""""
 
+    def can_compile_having_order(self):
+        """
+        builder.sum('age').group_by('age').having('age').order_by('age', 'desc').to_sql()
+        """
+        return """SELECT SUM("users"."age") AS age FROM "users" GROUP BY "users"."age" HAVING "users"."age\" ORDER "users"."age" DESC"""
+
     def can_compile_having_raw(self):
         """
         builder.select_raw("COUNT(*) as counts").having_raw("counts > 18").to_sql()
@@ -375,11 +380,25 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         clause = (
             JoinClause("report_groups as rg")
             .on_null("bgt.acct")
-            .or_on_not_null("bgt.dept")
+            .or_on_null("bgt.dept")
+            .on_value("rg.abc", 10)
         )
         builder.join(clause).to_sql()
         """
-        return """SELECT * FROM "users" INNER JOIN "report_groups" AS "rg" ON "acct" IS NULL OR "dept" IS NOT NULL"""
+        return """SELECT * FROM "users" INNER JOIN "report_groups" AS "rg" ON "acct" IS NULL OR "dept" IS NULL AND "rg"."abc" = '10'"""
+
+    def can_compile_join_clause_with_not_null(self):
+        """
+        builder = self.get_builder()
+        clause = (
+            JoinClause("report_groups as rg")
+            .on_not_null("bgt.acct")
+            .or_on_not_null("bgt.dept")
+            .on_value("rg.abc", 10)
+        )
+        builder.join(clause).to_sql()
+        """
+        return """SELECT * FROM "users" INNER JOIN "report_groups" AS "rg" ON "acct" IS NOT NULL OR "dept" IS NOT NULL AND "rg"."abc" = '10'"""
 
     def can_compile_join_clause_with_lambda(self):
         """

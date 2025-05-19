@@ -3,7 +3,6 @@ import random
 
 
 class Factory:
-
     _factories = {}
     _after_creates = {}
     _faker = None

@@ -7,7 +7,6 @@ from src.masoniteorm.query.grammars import MySQLGrammar
 
 
 class MockUser(Model):
-
     __table__ = "users"
 
 

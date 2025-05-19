@@ -185,6 +185,24 @@ class TestCollection(unittest.TestCase):
         collection = Collection([{"batch": 1}, {"batch": 1}])
         self.assertEqual(collection.max("batch"), 1)
 
+    def test_min(self):
+        collection = Collection([1, 1, 2, 4])
+        self.assertEqual(collection.min(), 1)
+
+        collection = Collection(
+            [
+                {"name": "Corentin All", "age": 1},
+                {"name": "Corentin All", "age": 2},
+                {"name": "Corentin All", "age": 3},
+                {"name": "Corentin All", "age": 4},
+            ]
+        )
+        self.assertEqual(collection.min("age"), 1)
+        self.assertEqual(collection.min(), 0)
+
+        collection = Collection([{"batch": 1}, {"batch": 1}])
+        self.assertEqual(collection.min("batch"), 1)
+
     def test_count(self):
         collection = Collection([1, 1, 2, 4])
         self.assertEqual(collection.count(), 4)

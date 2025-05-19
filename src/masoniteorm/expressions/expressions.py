@@ -76,6 +76,10 @@ class SubSelectExpression:
 
     def __init__(self, builder):
         self.builder = builder
+        if hasattr(builder, 'to_qmark'):
+            self._bindings = builder._items
+        else:
+            self._bindings = []
 
 
 class SubGroupExpression:

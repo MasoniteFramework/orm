@@ -4,9 +4,10 @@ from ..config import load_config
 class ConnectionFactory:
     """Class for controlling the registration and creation of connection types."""
 
-    _connections = {
-        #
-    }
+    _connections = {}
+
+    def __init__(self, config_path=None):
+        self.config_path = config_path
 
     @classmethod
     def register(cls, key, connection):
@@ -35,7 +36,7 @@ class ConnectionFactory:
             masoniteorm.connection.BaseConnection -- Returns an instance of a BaseConnection class.
         """
 
-        DB = load_config().DB
+        DB = load_config(config_path=self.config_path).DB
 
         connections = DB.get_connection_details()
 

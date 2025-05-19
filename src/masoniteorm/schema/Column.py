@@ -9,6 +9,7 @@ class Column:
         values=None,
         nullable=False,
         default=None,
+        signed=None,
         default_is_raw=False,
         column_python_type=str,
     ):
@@ -21,6 +22,7 @@ class Column:
         self._after = None
         self.old_column = ""
         self.default = default
+        self._signed = signed
         self.default_is_raw = default_is_raw
         self.primary = False
         self.comment = None
@@ -32,6 +34,24 @@ class Column:
             self
         """
         self.is_null = True
+        return self
+
+    def signed(self):
+        """Sets this column to be nullable
+
+        Returns:
+            self
+        """
+        self._signed = "signed"
+        return self
+
+    def unsigned(self):
+        """Sets this column to be nullable
+
+        Returns:
+            self
+        """
+        self._signed = "unsigned"
         return self
 
     def not_nullable(self):

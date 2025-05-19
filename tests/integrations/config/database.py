@@ -25,6 +25,7 @@ The connections here don't determine the database but determine the "connection"
 They can be named whatever you want.
 """
 
+
 DATABASES = {
     "default": "mysql",
     "mysql": {
@@ -38,8 +39,11 @@ DATABASES = {
         "options": {"charset": "utf8mb4"},
         "log_queries": True,
         "propagate": False,
+        "connection_pooling_enabled": True,
+        "connection_pooling_max_size": 10,
+        "connection_pooling_min_size": None,
     },
-    "t": {"driver": "sqlite", "database": "ormtestreg.sqlite3", "log_queries": True},
+    "t": {"driver": "sqlite", "database": "orm.sqlite3", "log_queries": True, "foreign_keys": True},
     "devprod": {
         "driver": "mysql",
         "host": os.getenv("MYSQL_DATABASE_HOST"),
@@ -70,6 +74,9 @@ DATABASES = {
         "password": os.getenv("POSTGRES_DATABASE_PASSWORD"),
         "database": os.getenv("POSTGRES_DATABASE_DATABASE"),
         "port": os.getenv("POSTGRES_DATABASE_PORT"),
+        "connection_pooling_enabled": True,
+        "connection_pooling_max_size": 10,
+        "connection_pooling_min_size": 2,
         "prefix": "",
         "log_queries": True,
         "propagate": False,
@@ -102,6 +109,8 @@ DATABASES = {
             "authentication": "ActiveDirectoryPassword",
             "driver": "ODBC Driver 17 for SQL Server",
             "connection_timeout": 15,
+            "connection_pooling": False,
+            "connection_pooling_size": 100,
         },
     },
 }

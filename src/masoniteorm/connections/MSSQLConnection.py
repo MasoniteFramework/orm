@@ -26,7 +26,6 @@ class MSSQLConnection(BaseConnection):
         full_details=None,
         name=None,
     ):
-
         self.host = host
         if port:
             self.port = int(port)
@@ -70,6 +69,8 @@ class MSSQLConnection(BaseConnection):
             f"DRIVER={driver};SERVER={self.host}{instance if instance else ''},{self.port};Connection Timeout={connection_timeout};DATABASE={self.database}{f';Integrated Security={integrated_security}' if integrated_security else ''};UID={self.user};PWD={self.password}{f';Trusted_Connection={trusted_connection}' if trusted_connection else ''}{f';Authentication={authentication}' if authentication else ''}",
             autocommit=True,
         )
+
+        self.enable_disable_foreign_keys()
 
         self.open = 1
         return self
@@ -151,7 +152,7 @@ class MSSQLConnection(BaseConnection):
                         return {}
                     columnNames = [column[0] for column in cursor.description]
                     result = cursor.fetchone()
-                    return dict(zip(columnNames, result))
+                    return dict(zip(columnNames, result)) if result is not None else {}
                 else:
                     if not cursor.description:
                         return {}

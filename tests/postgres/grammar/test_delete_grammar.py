@@ -41,7 +41,6 @@ class BaseDeleteGrammarTest:
 
 
 class TestPostgresDeleteGrammar(BaseDeleteGrammarTest, unittest.TestCase):
-
     grammar = "postgres"
 
     def can_compile_delete(self):

@@ -12,7 +12,6 @@ from tests.User import User
 
 
 class User(Model):
-
     __casts__ = {"is_admin": "bool"}
 
     def get_name_attribute(self):
@@ -23,7 +22,6 @@ class User(Model):
 
 
 class SetUser(Model):
-
     __casts__ = {"is_admin": "bool"}
 
     def set_name_attribute(self, attribute):
