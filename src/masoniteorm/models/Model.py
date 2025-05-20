@@ -142,18 +142,15 @@ class DecimalCast:
 
     def get(self, value):
         """
-        Get the value
+        Cast the value to assign to the model attribute
         """
-        if isinstance(value, Decimal):
-            return str(value)
-
         return Decimal(str(value))
 
     def set(self, value):
         """
-        Set the value
+        Cast the value for use in insert/update queries
         """
-        return Decimal(str(value))
+        return str(value)
 
 
 class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
