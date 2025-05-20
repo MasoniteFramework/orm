@@ -50,9 +50,15 @@ class BoolCast:
     """Casts a value to a boolean"""
 
     def get(self, value):
+        """
+        Cast the value to assign to the model attribute
+        """
         return bool(value)
 
     def set(self, value):
+        """
+        Cast the value for use in insert/update queries
+        """
         return bool(value)
 
 
@@ -60,6 +66,9 @@ class JsonCast:
     """Casts a value to JSON"""
 
     def get(self, value):
+        """
+        Cast the value to assign to the model attribute
+        """
         if isinstance(value, str):
             try:
                 return json.loads(value)
@@ -69,6 +78,9 @@ class JsonCast:
         return value
 
     def set(self, value):
+        """
+        Cast the value for use in insert/update queries
+        """
         if isinstance(value, str):
             # make sure the string is valid JSON
             json.loads(value)
@@ -81,9 +93,15 @@ class IntCast:
     """Casts a value to a int"""
 
     def get(self, value):
+        """
+        Cast the value to assign to the model attribute
+        """
         return int(value)
 
     def set(self, value):
+        """
+        Cast the value for use in insert/update queries
+        """
         return int(value)
 
 
@@ -91,9 +109,15 @@ class FloatCast:
     """Casts a value to a float"""
 
     def get(self, value):
+        """
+        Cast the value to assign to the model attribute
+        """
         return float(value)
 
     def set(self, value):
+        """
+        Cast the value for use in insert/update queries
+        """
         return float(value)
 
 
@@ -101,9 +125,15 @@ class DateCast:
     """Casts a value to a float"""
 
     def get(self, value):
+        """
+        Cast the value to assign to the model attribute
+        """
         return pendulum.parse(value).to_date_string()
 
     def set(self, value):
+        """
+        Cast the value for use in insert/update queries
+        """
         return pendulum.parse(value).to_date_string()
 
 
