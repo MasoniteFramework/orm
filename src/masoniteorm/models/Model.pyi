@@ -42,7 +42,14 @@ class Model:
         pass
 
     @classmethod
-    def create(cls, dictionary=None, query=False, cast=True, **kwargs):
+    def create(
+        cls,
+        dictionary=None,
+        query=False,
+        cast=True,
+        ignore_mass_assignment: bool = False,
+        **kwargs,
+    ):
         """Creates new records based off of a dictionary as well as data set on the model
         such as fillable values.
 
@@ -1141,6 +1148,7 @@ class Model:
         dry: bool = False,
         force: bool = False,
         cast: bool = True,
+        ignore_mass_assignment: bool = False,
     ):
         """Specifies columns and values to be updated.
 
