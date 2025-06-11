@@ -14,7 +14,9 @@ class EagerRelations:
                 self.is_nested = True
                 relation_key = relation.split(".")[0]
                 if relation_key not in self.nested_eagers:
-                    self.nested_eagers = {relation_key: relation.split(".")[1:]}
+                    self.nested_eagers = {
+                        relation_key: relation.split(".")[1:]
+                    }
                 else:
                     self.nested_eagers[relation_key] += relation.split(".")[1:]
             elif isinstance(relation, (tuple, list)):

@@ -1,13 +1,8 @@
-import inspect
 import os
 import unittest
 
-from src.masoniteorm.connections.ConnectionFactory import ConnectionFactory
 from src.masoniteorm.models import Model
-from src.masoniteorm.query import QueryBuilder
-from src.masoniteorm.query.grammars import MySQLGrammar
 from src.masoniteorm.relationships import has_many
-from tests.utils import MockConnectionFactory
 
 
 class Articles(Model):
@@ -26,7 +21,7 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
         pass
         # def get_builder(self, table="users"):
         #     connection = ConnectionFactory().make("default")
-        #     return QueryBuilder(MySQLGrammar, connection, table=table, model=User)
+        #     return QueryBuilder(MySQLGrammar, connection, table=table, model=User())
 
         # def test_can_start_transaction(self, table="users"):
         #     builder = self.get_builder()

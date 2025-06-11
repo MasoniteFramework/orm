@@ -1,9 +1,8 @@
 import unittest
 
-from tests.integrations.config.database import DATABASES
-from src.masoniteorm.connections import SQLiteConnection
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import SQLitePlatform
+from tests.integrations.config.database import DATABASES
 
 
 class TestSQLiteSchemaBuilder(unittest.TestCase):
@@ -28,6 +27,26 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             [
                 'CREATE TABLE "users" ("name" VARCHAR(255) NOT NULL, "age" INTEGER NOT NULL)'
             ],
+        )
+
+    def test_can_add_tiny_text(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.tiny_text("description")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(
+            blueprint.to_sql(),
+            ['CREATE TABLE "users" ("description" TEXT NOT NULL)'],
+        )
+
+    def test_can_add_unsigned_decimal(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.unsigned_decimal("amount", 19, 4)
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(
+            blueprint.to_sql(),
+            ['CREATE TABLE "users" ("amount" DECIMAL(19, 4) NOT NULL)'],
         )
 
     def test_can_create_table_if_not_exists(self):
@@ -63,7 +82,10 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(
             blueprint.to_sql(),
-            ["""CREATE TABLE "users" (""" """\"amount" FLOAT(19, 4) NOT NULL)"""],
+            [
+                """CREATE TABLE "users" ("""
+                """\"amount" FLOAT(19, 4) NOT NULL)"""
+            ],
         )
 
     def test_can_add_columns_with_foreign_key_constraint(self):
@@ -91,9 +113,9 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.string("name").unique()
             blueprint.integer("age")
             blueprint.integer("profile_id")
-            blueprint.foreign("profile_id", name="profile_foreign").references("id").on(
-                "profiles"
-            )
+            blueprint.foreign("profile_id", name="profile_foreign").references(
+                "id"
+            ).on("profiles")
 
         self.assertEqual(len(blueprint.table.added_columns), 3)
         self.assertEqual(
@@ -114,7 +136,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 2)
         sql = [
-            'CREATE TABLE "likes" ("record_id" INT UNSIGNED NOT NULL, "record_type" VARCHAR(255) NOT NULL)',
+            'CREATE TABLE "likes" ("record_id" INTEGER UNSIGNED NOT NULL, "record_type" VARCHAR(255) NOT NULL)',
             'CREATE INDEX likes_record_id_index ON "likes"(record_id)',
             'CREATE INDEX likes_record_type_index ON "likes"(record_type)',
         ]
@@ -237,9 +259,9 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.string("thumbnail").nullable()
             blueprint.integer("premium")
             blueprint.integer("author_id").unsigned().nullable()
-            blueprint.foreign("author_id").references("id").on("users").on_delete(
-                "set null"
-            )
+            blueprint.foreign("author_id").references("id").on(
+                "users"
+            ).on_delete("set null")
             blueprint.text("description")
             blueprint.timestamps()
 
@@ -251,7 +273,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
                 [
                     'CREATE TABLE "users" ("id" BIGINT NOT NULL, "name" VARCHAR(255) NOT NULL, "duration" VARCHAR(255) NOT NULL, '
                     '"url" VARCHAR(255) NOT NULL, "payload" JSON NOT NULL, "birth" VARCHAR(4) NOT NULL, "last_address" VARCHAR(255) NULL, "route_origin" VARCHAR(255) NULL, "mac_address" VARCHAR(255) NULL, '
-                    '"published_at" DATETIME NOT NULL, "wakeup_at" TIME NOT NULL, "thumbnail" VARCHAR(255) NULL, "premium" INTEGER NOT NULL, "author_id" INT UNSIGNED NULL, "description" TEXT NOT NULL, '
+                    '"published_at" DATETIME NOT NULL, "wakeup_at" TIME NOT NULL, "thumbnail" VARCHAR(255) NULL, "premium" INTEGER NOT NULL, "author_id" INTEGER UNSIGNED NULL, "description" TEXT NOT NULL, '
                     '"created_at" DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "updated_at" DATETIME NULL DEFAULT CURRENT_TIMESTAMP, '
                     'CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_author_id_foreign FOREIGN KEY ("author_id") REFERENCES "users"("id") ON DELETE SET NULL)'
                 ]
@@ -301,13 +323,11 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.small_integer("small_profile_id").unsigned()
             blueprint.medium_integer("medium_profile_id").unsigned()
 
-        print(blueprint.to_sql())
-
         self.assertEqual(
             blueprint.to_sql(),
             [
                 """CREATE TABLE "users" ("""
-                """"profile_id" INT UNSIGNED NOT NULL, """
+                """"profile_id" INTEGER UNSIGNED NOT NULL, """
                 """"big_profile_id" BIGINT UNSIGNED NOT NULL, """
                 """"tiny_profile_id" TINYINT UNSIGNED NOT NULL, """
                 """"small_profile_id" SMALLINT UNSIGNED NOT NULL, """
@@ -334,5 +354,17 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
                 "PRAGMA foreign_keys = OFF",
                 'DELETE FROM "users"',
                 "PRAGMA foreign_keys = ON",
+            ],
+        )
+
+    def test_can_add_enum(self):
+        with self.schema.create("users") as blueprint:
+            blueprint.enum("status", ["active", "inactive"]).default("active")
+
+        self.assertEqual(len(blueprint.table.added_columns), 1)
+        self.assertEqual(
+            blueprint.to_sql(),
+            [
+                "CREATE TABLE \"users\" (\"status\" VARCHAR(255) CHECK(status IN ('active', 'inactive')) NOT NULL DEFAULT 'active')"
             ],
         )

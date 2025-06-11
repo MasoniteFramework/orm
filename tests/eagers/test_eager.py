@@ -1,4 +1,3 @@
-import os
 import unittest
 
 from src.masoniteorm.query.EagerRelation import EagerRelations
@@ -6,7 +5,6 @@ from src.masoniteorm.query.EagerRelation import EagerRelations
 
 class TestEagerRelation(unittest.TestCase):
     def test_can_register_string_eager_load(self):
-
         self.assertEqual(
             EagerRelations().register("profile").get_eagers(), [["profile"]]
         )
@@ -16,7 +14,9 @@ class TestEagerRelation(unittest.TestCase):
             [{"profile": ["user"]}],
         )
         self.assertEqual(
-            EagerRelations().register("profile.user", "profile.logo").get_eagers(),
+            EagerRelations()
+            .register("profile.user", "profile.logo")
+            .get_eagers(),
             [{"profile": ["user", "logo"]}],
         )
         self.assertEqual(
@@ -31,7 +31,6 @@ class TestEagerRelation(unittest.TestCase):
         )
 
     def test_can_register_tuple_eager_load(self):
-
         self.assertEqual(
             EagerRelations().register(("profile",)).get_eagers(), [["profile"]]
         )
@@ -40,12 +39,13 @@ class TestEagerRelation(unittest.TestCase):
             [["profile", "user"]],
         )
         self.assertEqual(
-            EagerRelations().register(("profile.name", "profile.user")).get_eagers(),
+            EagerRelations()
+            .register(("profile.name", "profile.user"))
+            .get_eagers(),
             [{"profile": ["name", "user"]}],
         )
 
     def test_can_register_list_eager_load(self):
-
         self.assertEqual(
             EagerRelations().register(["profile"]).get_eagers(), [["profile"]]
         )
@@ -54,7 +54,9 @@ class TestEagerRelation(unittest.TestCase):
             [["profile", "user"]],
         )
         self.assertEqual(
-            EagerRelations().register(["profile.name", "profile.user"]).get_eagers(),
+            EagerRelations()
+            .register(["profile.name", "profile.user"])
+            .get_eagers(),
             [{"profile": ["name", "user"]}],
         )
         self.assertEqual(

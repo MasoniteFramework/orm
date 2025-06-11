@@ -1,15 +1,15 @@
 from masonite.providers import Provider
 
 from masoniteorm.commands import (
-    MigrateCommand,
-    MigrateRollbackCommand,
-    MigrateRefreshCommand,
-    MigrateResetCommand,
+    MakeMigrationCommand,
     MakeModelCommand,
     MakeObserverCommand,
-    MigrateStatusCommand,
-    MakeMigrationCommand,
     MakeSeedCommand,
+    MigrateCommand,
+    MigrateRefreshCommand,
+    MigrateResetCommand,
+    MigrateRollbackCommand,
+    MigrateStatusCommand,
     SeedRunCommand,
 )
 

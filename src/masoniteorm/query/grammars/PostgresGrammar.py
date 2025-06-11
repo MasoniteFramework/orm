@@ -1,5 +1,6 @@
-from .BaseGrammar import BaseGrammar
 import re
+
+from .BaseGrammar import BaseGrammar
 
 
 class PostgresGrammar(BaseGrammar):
@@ -11,7 +12,6 @@ class PostgresGrammar(BaseGrammar):
         "MIN": "MIN",
         "AVG": "AVG",
         "COUNT": "COUNT",
-        "AVG": "AVG",
     }
 
     join_keywords = {
@@ -38,7 +38,7 @@ class PostgresGrammar(BaseGrammar):
         return "SELECT {columns} {lock}"
 
     def select_format(self):
-        return "SELECT {keyword} {columns} FROM {table} {joins} {wheres} {group_by} {order_by} {limit} {offset} {having} {lock}"
+        return "SELECT {keyword} {columns} FROM {table} {joins} {wheres} {group_by} {having} {order_by} {limit} {offset} {lock}"
 
     def update_format(self):
         return "UPDATE {table} SET {key_equals} {wheres}"
@@ -113,9 +113,7 @@ class PostgresGrammar(BaseGrammar):
         return "SELECT column_name FROM information_schema.columns WHERE table_name='{clean_table}' and column_name={value}"
 
     def table_exists_string(self):
-        return (
-            "SELECT * from information_schema.tables where table_name='{clean_table}'"
-        )
+        return "SELECT * from information_schema.tables where table_name='{clean_table}'"
 
     def create_column_length(self, column_type):
         if column_type in self.types_without_lengths:

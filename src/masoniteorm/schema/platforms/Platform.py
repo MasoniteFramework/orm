@@ -1,5 +1,4 @@
 class Platform:
-
     foreign_key_actions = {
         "cascade": "CASCADE",
         "set null": "SET NULL",
@@ -8,6 +7,8 @@ class Platform:
         "no action": "NO ACTION",
         "default": "SET DEFAULT",
     }
+
+    signed = {"signed": "SIGNED", "unsigned": "UNSIGNED"}
 
     def columnize(self, columns):
         sql = []
@@ -24,7 +25,10 @@ class Platform:
             elif column.default in self.premapped_defaults.keys():
                 default = self.premapped_defaults.get(column.default)
             elif column.default:
-                if isinstance(column.default, (str,)) and not column.default_is_raw:
+                if (
+                    isinstance(column.default, (str,))
+                    and not column.default_is_raw
+                ):
                     default = f" DEFAULT '{column.default}'"
                 else:
                     default = f" DEFAULT {column.default}"
@@ -68,7 +72,9 @@ class Platform:
                     constraint_name=foreign_key.constraint_name,
                     table=self.wrap_table(table),
                     foreign_table=self.wrap_table(foreign_key.foreign_table),
-                    foreign_column=self.wrap_column(foreign_key.foreign_column),
+                    foreign_column=self.wrap_column(
+                        foreign_key.foreign_column
+                    ),
                     cascade=cascade,
                 )
             )

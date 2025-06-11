@@ -1,5 +1,6 @@
-from .BaseGrammar import BaseGrammar
 import re
+
+from .BaseGrammar import BaseGrammar
 
 
 class SQLiteGrammar(BaseGrammar):
@@ -11,7 +12,6 @@ class SQLiteGrammar(BaseGrammar):
         "MIN": "MIN",
         "AVG": "AVG",
         "COUNT": "COUNT",
-        "AVG": "AVG",
     }
 
     join_keywords = {
@@ -35,7 +35,7 @@ class SQLiteGrammar(BaseGrammar):
     locks = {"share": "", "update": ""}
 
     def select_format(self):
-        return "SELECT {keyword} {columns} FROM {table} {joins} {wheres} {group_by} {order_by} {limit} {offset} {having} {lock}"
+        return "SELECT {keyword} {columns} FROM {table} {joins} {wheres} {group_by} {having} {order_by} {limit} {offset} {lock}"
 
     def select_no_table(self):
         return "SELECT {columns} {lock}"
@@ -107,9 +107,7 @@ class SQLiteGrammar(BaseGrammar):
         return "SELECT column_name FROM information_schema.columns WHERE table_name='{clean_table}' and column_name={value}"
 
     def table_exists_string(self):
-        return (
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='{clean_table}'"
-        )
+        return "SELECT name FROM sqlite_master WHERE type='table' AND name='{clean_table}'"
 
     def to_sql(self):
         """Cleans up the SQL string and returns the SQL
@@ -151,10 +149,12 @@ class SQLiteGrammar(BaseGrammar):
         return "{keyword} {foreign_table}{alias} {on}"
 
     def limit_string(self, offset=False):
+        if offset:
+            return ""
         return "LIMIT {limit}"
 
     def offset_string(self):
-        return "OFFSET {offset}"
+        return "LIMIT {limit} OFFSET {offset}"
 
     def first_where_string(self):
         return "WHERE"
@@ -215,3 +215,14 @@ class SQLiteGrammar(BaseGrammar):
 
     def compile_random(self):
         return "random()"
+
+    def process_offset(self):
+        """Compiles the offset expression.
+
+        Returns:
+            self
+        """
+        if not self._limit:
+            self._limit = int(-1)
+
+        return super().process_offset()

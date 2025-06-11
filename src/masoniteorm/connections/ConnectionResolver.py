@@ -2,23 +2,22 @@ from contextlib import contextmanager
 
 
 class ConnectionResolver:
-
     _connection_details = {}
     _connections = {}
     _morph_map = {}
 
-    def __init__(self):
+    def __init__(self, config_path=None):
         from ..connections import (
-            SQLiteConnection,
-            PostgresConnection,
-            MySQLConnection,
             MSSQLConnection,
+            MySQLConnection,
+            PostgresConnection,
+            SQLiteConnection,
         )
 
+        self.config_path = config_path
         from ..connections import ConnectionFactory
 
-        self.connection_factory = ConnectionFactory()
-
+        self.connection_factory = ConnectionFactory(config_path=config_path)
         self.register(SQLiteConnection)
         self.register(PostgresConnection)
         self.register(MySQLConnection)
@@ -121,8 +120,11 @@ class ConnectionResolver:
         from ..query import QueryBuilder
 
         return QueryBuilder(
-            connection=connection, connection_details=self.get_connection_details()
+            connection=connection,
+            connection_details=self.get_connection_details(),
         )
 
     def statement(self, query, bindings=(), connection="default"):
-        return self.get_query_builder().on(connection).statement(query, bindings)
+        return (
+            self.get_query_builder().on(connection).statement(query, bindings)
+        )

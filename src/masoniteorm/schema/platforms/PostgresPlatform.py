@@ -1,6 +1,6 @@
 from ...schema import Schema
-from .Platform import Platform
 from ..Table import Table
+from .Platform import Platform
 
 
 class PostgresPlatform(Platform):
@@ -40,6 +40,7 @@ class PostgresPlatform(Platform):
         "double": "DOUBLE PRECISION",
         "enum": "VARCHAR",
         "text": "TEXT",
+        "tiny_text": "TEXT",
         "float": "FLOAT",
         "geometry": "GEOMETRY",
         "json": "JSON",
@@ -82,11 +83,15 @@ class PostgresPlatform(Platform):
         sql.append(
             table_create_format.format(
                 table=self.wrap_table(table.name),
-                columns=", ".join(self.columnize(table.get_added_columns())).strip(),
+                columns=", ".join(
+                    self.columnize(table.get_added_columns())
+                ).strip(),
                 constraints=(
                     ", "
                     + ", ".join(
-                        self.constraintize(table.get_added_constraints(), table)
+                        self.constraintize(
+                            table.get_added_constraints(), table
+                        )
                     )
                     if table.get_added_constraints()
                     else ""
@@ -121,7 +126,9 @@ class PostgresPlatform(Platform):
                 )
 
         if table.comment:
-            sql.append(f"""COMMENT ON TABLE "{table.name}" is '{table.comment}'""")
+            sql.append(
+                f"""COMMENT ON TABLE "{table.name}" is '{table.comment}'"""
+            )
 
         return sql
 
@@ -142,7 +149,10 @@ class PostgresPlatform(Platform):
             elif column.default in self.premapped_defaults.keys():
                 default = self.premapped_defaults.get(column.default)
             elif column.default:
-                if isinstance(column.default, (str,)) and not column.default_is_raw:
+                if (
+                    isinstance(column.default, (str,))
+                    and not column.default_is_raw
+                ):
                     default = f" DEFAULT '{column.default}'"
                 else:
                     default = f" DEFAULT {column.default}"
@@ -182,9 +192,9 @@ class PostgresPlatform(Platform):
 
             for name, column in table.get_added_columns().items():
                 if column.length:
-                    length = self.create_column_length(column.column_type).format(
-                        length=column.length
-                    )
+                    length = self.create_column_length(
+                        column.column_type
+                    ).format(length=column.length)
                 else:
                     length = ""
 
@@ -201,6 +211,11 @@ class PostgresPlatform(Platform):
                 else:
                     default = ""
 
+                column_constraint = ""
+                if column.column_type == "enum":
+                    values = ", ".join(f"'{x}'" for x in column.values)
+                    column_constraint = f" CHECK({column.name} IN ({values}))"
+
                 add_columns.append(
                     self.add_column_string()
                     .format(
@@ -208,6 +223,7 @@ class PostgresPlatform(Platform):
                         data_type=self.type_map.get(column.column_type, ""),
                         length=length,
                         constraint="PRIMARY KEY" if column.primary else "",
+                        column_constraint=column_constraint,
                         nullable="NULL" if column.is_null else "NOT NULL",
                         default=default,
                         after=(
@@ -231,16 +247,17 @@ class PostgresPlatform(Platform):
 
             for name, column in table.get_renamed_columns().items():
                 if column.length:
-                    length = self.create_column_length(column.column_type).format(
-                        length=column.length
-                    )
+                    length = self.create_column_length(
+                        column.column_type
+                    ).format(length=column.length)
                 else:
                     length = ""
 
                 renamed_sql.append(
                     self.rename_column_string()
                     .format(
-                        to=self.wrap_column(column.name), old=self.wrap_column(name)
+                        to=self.wrap_column(column.name),
+                        old=self.wrap_column(name),
                     )
                     .strip()
                 )
@@ -264,7 +281,8 @@ class PostgresPlatform(Platform):
 
             sql.append(
                 self.alter_format().format(
-                    table=self.wrap_table(table.name), columns=", ".join(dropped_sql)
+                    table=self.wrap_table(table.name),
+                    columns=", ".join(dropped_sql),
                 )
             )
 
@@ -272,6 +290,11 @@ class PostgresPlatform(Platform):
             changed_sql = []
 
             for name, column in table.changed_columns.items():
+
+                column_constraint = ""
+                if column.column_type == "enum":
+                    values = ", ".join(f"'{x}'" for x in column.values)
+                    column_constraint = f" CHECK({column.name} IN ({values}))"
                 changed_sql.append(
                     self.modify_column_string()
                     .format(
@@ -280,9 +303,12 @@ class PostgresPlatform(Platform):
                         nullable="NULL" if column.is_null else "NOT NULL",
                         length=(
                             "(" + str(column.length) + ")"
-                            if column.column_type not in self.types_without_lengths
+                            if column.column_type
+                            not in self.types_without_lengths
                             else ""
                         ),
+                        column_constraint=column_constraint,
+                        constraint="PRIMARY KEY" if column.primary else "",
                     )
                     .strip()
                 )
@@ -303,7 +329,8 @@ class PostgresPlatform(Platform):
 
             sql.append(
                 self.alter_format().format(
-                    table=self.wrap_table(table.name), columns=", ".join(changed_sql)
+                    table=self.wrap_table(table.name),
+                    columns=", ".join(changed_sql),
                 )
             )
         if table.added_foreign_keys:
@@ -391,13 +418,13 @@ class PostgresPlatform(Platform):
         return "ALTER TABLE {table} {columns}"
 
     def add_column_string(self):
-        return "ADD COLUMN {name} {data_type}{length} {nullable}{default} {constraint}"
+        return "ADD COLUMN {name} {data_type}{length}{column_constraint} {nullable}{default} {constraint}"
 
     def drop_column_string(self):
         return "DROP COLUMN {name}"
 
     def modify_column_string(self):
-        return "ALTER COLUMN {name} TYPE {data_type}{length}"
+        return "ALTER COLUMN {name} TYPE {data_type}{length}{column_constraint} {constraint}"
 
     def rename_column_string(self):
         return "RENAME COLUMN {old} TO {to}"
@@ -424,9 +451,7 @@ class PostgresPlatform(Platform):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
 
     def create_if_not_exists_format(self):
-        return (
-            "CREATE TABLE IF NOT EXISTS {table} ({columns}{constraints}{foreign_keys})"
-        )
+        return "CREATE TABLE IF NOT EXISTS {table} ({columns}{constraints}{foreign_keys})"
 
     def get_foreign_key_constraint_string(self):
         return "CONSTRAINT {constraint_name} FOREIGN KEY ({column}) REFERENCES {foreign_table}({foreign_column}){cascade}"
@@ -471,6 +496,9 @@ class PostgresPlatform(Platform):
     def compile_column_exists(self, table, column):
         return f"SELECT column_name FROM information_schema.columns WHERE table_name='{table}' and column_name='{column}'"
 
+    def compile_get_all_tables(self, database=None, schema=None):
+        return f"SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_catalog = '{database}'"
+
     def get_current_schema(self, connection, table_name, schema=None):
         sql = self.table_information_string().format(
             table=table_name, schema=schema or "public"
@@ -495,7 +523,9 @@ class PostgresPlatform(Platform):
                 length = None
 
             # find default
-            default = column.get("dflt_value", "") or column.get("column_default", "")
+            default = column.get("dflt_value", "") or column.get(
+                "column_default", ""
+            )
             if default and default.startswith("nextval"):
                 table.set_primary_key(column["column_name"])
                 default = None
@@ -504,7 +534,9 @@ class PostgresPlatform(Platform):
                 column["column_name"],
                 column_type,
                 default=default,
-                column_python_type=Schema._type_hints_map.get(column_type, str),
+                column_python_type=Schema._type_hints_map.get(
+                    column_type, str
+                ),
                 length=length,
             )
 

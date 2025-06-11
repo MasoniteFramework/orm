@@ -1,15 +1,20 @@
-from faker import Faker
 import random
 
 
 class Factory:
-
     _factories = {}
     _after_creates = {}
     _faker = None
 
     @property
     def faker(self):
+        try:
+            from faker import Faker
+        except ImportError:
+            raise ImportError(
+                "Could not find the 'faker' library. Run 'pip install faker' to fix this."
+            )
+
         if not Factory._faker:
             Factory._faker = Faker()
             random.seed()

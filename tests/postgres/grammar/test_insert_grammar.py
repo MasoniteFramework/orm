@@ -27,7 +27,13 @@ class BaseInsertGrammarTest:
 
     def test_can_compile_bulk_create(self):
         to_sql = self.builder.bulk_create(
-            [{"name": "Joe"}, {"name": "Bill"}, {"name": "John"}], query=True
+            # These keys are intentionally out of order to show column to value alignment works
+            [
+                {"name": "Joe", "age": 5},
+                {"age": 35, "name": "Bill"},
+                {"name": "John", "age": 10},
+            ],
+            query=True,
         ).to_sql()
 
         sql = getattr(
@@ -47,7 +53,6 @@ class BaseInsertGrammarTest:
 
 
 class TestPostgresUpdateGrammar(BaseInsertGrammarTest, unittest.TestCase):
-
     grammar = "postgres"
 
     def can_compile_insert(self):
@@ -68,7 +73,7 @@ class TestPostgresUpdateGrammar(BaseInsertGrammarTest, unittest.TestCase):
         """
         self.builder.create(name="Joe").to_sql()
         """
-        return """INSERT INTO "users" ("name") VALUES ('Joe'), ('Bill'), ('John') RETURNING *"""
+        return """INSERT INTO "users" ("age", "name") VALUES ('5', 'Joe'), ('35', 'Bill'), ('10', 'John') RETURNING *"""
 
     def can_compile_bulk_create_qmark(self):
         """

@@ -4,7 +4,6 @@ from .Platform import Platform
 
 
 class SQLitePlatform(Platform):
-
     types_without_lengths = [
         "integer",
         "big_integer",
@@ -12,6 +11,8 @@ class SQLitePlatform(Platform):
         "small_integer",
         "medium_integer",
     ]
+
+    types_without_signs = ["decimal"]
 
     type_map = {
         "string": "VARCHAR",
@@ -35,6 +36,7 @@ class SQLitePlatform(Platform):
         "double": "DOUBLE",
         "enum": "VARCHAR",
         "text": "TEXT",
+        "tiny_text": "TEXT",
         "float": "FLOAT",
         "geometry": "GEOMETRY",
         "json": "JSON",
@@ -71,9 +73,14 @@ class SQLitePlatform(Platform):
         sql.append(
             table_create_format.format(
                 table=self.get_table_string().format(table=table.name).strip(),
-                columns=", ".join(self.columnize(table.get_added_columns())).strip(),
+                columns=", ".join(
+                    self.columnize(table.get_added_columns())
+                ).strip(),
                 constraints=(
-                    ", " + ", ".join(self.constraintize(table.get_added_constraints()))
+                    ", "
+                    + ", ".join(
+                        self.constraintize(table.get_added_constraints())
+                    )
                     if table.get_added_constraints()
                     else ""
                 ),
@@ -115,7 +122,10 @@ class SQLitePlatform(Platform):
             elif column.default in self.premapped_defaults.keys():
                 default = self.premapped_defaults.get(column.default)
             elif column.default:
-                if isinstance(column.default, (str,)) and not column.default_is_raw:
+                if (
+                    isinstance(column.default, (str,))
+                    and not column.default_is_raw
+                ):
                     default = f" DEFAULT '{column.default}'"
                 else:
                     default = f" DEFAULT {column.default}"
@@ -138,6 +148,12 @@ class SQLitePlatform(Platform):
                     data_type=self.type_map.get(column.column_type, ""),
                     column_constraint=column_constraint,
                     length=length,
+                    signed=(
+                        " " + self.signed.get(column._signed)
+                        if column.column_type not in self.types_without_signs
+                        and column._signed
+                        else ""
+                    ),
                     constraint=constraint,
                     nullable=self.premapped_nulls.get(column.is_null) or "",
                     default=default,
@@ -149,7 +165,6 @@ class SQLitePlatform(Platform):
 
     def compile_alter_sql(self, diff):
         sql = []
-
         if diff.removed_indexes or diff.removed_unique_indexes:
             indexes = diff.removed_indexes
             indexes += diff.removed_unique_indexes
@@ -171,19 +186,33 @@ class SQLitePlatform(Platform):
                 else:
                     default = ""
                 constraint = ""
+                column_constraint = ""
                 if column.name in diff.added_foreign_keys:
                     foreign_key = diff.added_foreign_keys[column.name]
                     constraint = f" REFERENCES {self.wrap_table(foreign_key.foreign_table)}({self.wrap_column(foreign_key.foreign_column)})"
+                if column.column_type == "enum":
+                    values = ", ".join(f"'{x}'" for x in column.values)
+                    column_constraint = f" CHECK('{column.name}' IN({values}))"
 
                 sql.append(
-                    "ALTER TABLE {table} ADD COLUMN {name} {data_type} {nullable}{default}{constraint}".format(
+                    self.add_column_string()
+                    .format(
                         table=self.wrap_table(diff.name),
                         name=self.wrap_column(column.name),
                         data_type=self.type_map.get(column.column_type, ""),
+                        column_constraint=column_constraint,
                         nullable="NULL" if column.is_null else "NOT NULL",
                         default=default,
+                        signed=(
+                            " " + self.signed.get(column._signed)
+                            if column.column_type
+                            not in self.types_without_signs
+                            and column._signed
+                            else ""
+                        ),
                         constraint=constraint,
-                    ).strip()
+                    )
+                    .strip()
                 )
         if (
             diff.renamed_columns
@@ -205,7 +234,9 @@ class SQLitePlatform(Platform):
                 )
             )
 
-            sql.append("DROP TABLE {table}".format(table=self.wrap_table(diff.name)))
+            sql.append(
+                "DROP TABLE {table}".format(table=self.wrap_table(diff.name))
+            )
 
             columns = diff.from_table.added_columns
 
@@ -215,11 +246,15 @@ class SQLitePlatform(Platform):
 
             sql.append(
                 self.create_format().format(
-                    table=self.get_table_string().format(table=diff.name).strip(),
+                    table=self.get_table_string()
+                    .format(table=diff.name)
+                    .strip(),
                     columns=", ".join(self.columnize(columns)).strip(),
                     constraints=(
                         ", "
-                        + ", ".join(self.constraintize(diff.get_added_constraints()))
+                        + ", ".join(
+                            self.constraintize(diff.get_added_constraints())
+                        )
                         if diff.get_added_constraints()
                         else ""
                     ),
@@ -281,9 +316,7 @@ class SQLitePlatform(Platform):
         return "CREATE TABLE {table} ({columns}{constraints}{foreign_keys})"
 
     def create_if_not_exists_format(self):
-        return (
-            "CREATE TABLE IF NOT EXISTS {table} ({columns}{constraints}{foreign_keys})"
-        )
+        return "CREATE TABLE IF NOT EXISTS {table} ({columns}{constraints}{foreign_keys})"
 
     def get_table_string(self):
         return '"{table}"'
@@ -291,13 +324,16 @@ class SQLitePlatform(Platform):
     def get_column_string(self):
         return '"{column}"'
 
+    def add_column_string(self):
+        return "ALTER TABLE {table} ADD COLUMN {name} {data_type}{column_constraint}{signed} {nullable}{default}{constraint}"
+
     def create_column_length(self, column_type):
         if column_type in self.types_without_lengths:
             return ""
         return "({length})"
 
     def columnize_string(self):
-        return "{name} {data_type}{length}{column_constraint} {nullable}{default} {constraint}"
+        return "{name} {data_type}{length}{column_constraint}{signed} {nullable}{default} {constraint}"
 
     def get_unique_constraint_string(self):
         return "UNIQUE({columns})"
@@ -335,7 +371,9 @@ class SQLitePlatform(Platform):
                     constraint_name=foreign_key.constraint_name,
                     table=self.wrap_table(table),
                     foreign_table=self.wrap_table(foreign_key.foreign_table),
-                    foreign_column=self.wrap_column(foreign_key.foreign_column),
+                    foreign_column=self.wrap_column(
+                        foreign_key.foreign_column
+                    ),
                     cascade=cascade,
                 )
             )
@@ -369,9 +407,12 @@ class SQLitePlatform(Platform):
             table.add_column(
                 column["name"],
                 column_type,
-                column_python_type=Schema._type_hints_map.get(column_type, str),
+                column_python_type=Schema._type_hints_map.get(
+                    column_type, str
+                ),
                 default=default,
                 length=length,
+                nullable=int(column.get("notnull")) == 0,
             )
             if column.get("pk") == 1:
                 table.set_primary_key(column["name"])
@@ -410,6 +451,9 @@ class SQLitePlatform(Platform):
 
     def compile_column_exists(self, table, column):
         return f"SELECT column_name FROM information_schema.columns WHERE table_name='{table}' and column_name='{column}'"
+
+    def compile_get_all_tables(self, database, schema=None):
+        return "SELECT name FROM sqlite_master WHERE type='table'"
 
     def compile_truncate(self, table, foreign_keys=False):
         if not foreign_keys:

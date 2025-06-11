@@ -1,9 +1,7 @@
-import os
 import unittest
 
-from src.masoniteorm import Factory as factory
+from src.masoniteorm.factories import Factory as factory
 from src.masoniteorm.models import Model
-from src.masoniteorm.query import QueryBuilder
 
 
 class User(Model):
@@ -38,7 +36,9 @@ class TestFactories(unittest.TestCase):
         self.assertIsInstance(user, User)
 
     def test_can_make_several(self):
-        users = factory(User).make([{"id": 1, "name": "Joe"}, {"id": 2, "name": "Bob"}])
+        users = factory(User).make(
+            [{"id": 1, "name": "Joe"}, {"id": 2, "name": "Bob"}]
+        )
 
         self.assertEqual(users.count(), 2)
 

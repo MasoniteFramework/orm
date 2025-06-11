@@ -1,5 +1,5 @@
-from .BaseRelationship import BaseRelationship
 from ..collection import Collection
+from .BaseRelationship import BaseRelationship
 
 
 class BelongsTo(BaseRelationship):
@@ -34,6 +34,30 @@ class BelongsTo(BaseRelationship):
             self.foreign_key, owner.__attributes__[self.local_key]
         ).first()
 
+    def query_has(self, current_query_builder, method="where_exists"):
+        related_builder = self.get_builder()
+
+        getattr(current_query_builder, method)(
+            related_builder.where_column(
+                f"{related_builder.get_table_name()}.{self.foreign_key}",
+                f"{current_query_builder.get_table_name()}.{self.local_key}",
+            )
+        )
+
+        return related_builder
+
+    def query_where_exists(self, builder, callback, method="where_exists"):
+        query = self.get_builder()
+        getattr(builder, method)(
+            callback(
+                query.where_column(
+                    f"{query.get_table_name()}.{self.foreign_key}",
+                    f"{builder.get_table_name()}.{self.local_key}",
+                )
+            )
+        )
+        return query
+
     def get_related(self, query, relation, eagers=(), callback=None):
         """Gets the relation needed between the relation and the related builder. If the relation is a collection
         then will need to pluck out all the keys from the collection and fetch from the related builder. If
@@ -53,7 +77,7 @@ class BelongsTo(BaseRelationship):
         if isinstance(relation, Collection):
             return builder.where_in(
                 f"{builder.get_table_name()}.{self.foreign_key}",
-                relation.pluck(self.local_key, keep_nulls=False).unique(),
+                Collection(relation._get_value(self.local_key)).unique(),
             ).get()
 
         else:
@@ -63,8 +87,38 @@ class BelongsTo(BaseRelationship):
             ).first()
 
     def register_related(self, key, model, collection):
-        related = collection.where(
-            self.foreign_key, getattr(model, self.local_key)
-        ).first()
+        related = collection.get(getattr(model, self.local_key), None)
 
-        model.add_relation({key: related or None})
+        model.add_relation({key: related[0] if related else None})
+
+    def map_related(self, related_result):
+        return related_result.group_by(self.foreign_key)
+
+    def attach(self, current_model, related_record):
+        foreign_key_value = getattr(related_record, self.foreign_key)
+        if not current_model.is_created():
+            current_model.fill({self.local_key: foreign_key_value})
+            return current_model.create(
+                current_model.all_attributes(), cast=True
+            )
+
+        current_model.update({self.local_key: foreign_key_value})
+        return current_model
+
+    def detach(self, current_model, related_record):
+        return current_model.update({self.local_key: None})
+
+    def relate(self, related_record):
+        return (
+            self.get_builder()
+            .where(
+                self.foreign_key, related_record.__attributes__[self.local_key]
+            )
+            ._set_creates_related(
+                {
+                    self.foreign_key: related_record.__attributes__[
+                        self.local_key
+                    ]
+                }
+            )
+        )

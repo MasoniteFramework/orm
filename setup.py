@@ -31,8 +31,7 @@ setup(
     install_requires=[
         "inflection>=0.3,<0.6",
         "pendulum>=3.0,<4.0",
-        "faker>=4.1.0,<14.0",
-        "cleo>=0.8.0,<0.9",
+        "cleo>=0.8.0,<2.0",
     ],
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -50,10 +49,12 @@ setup(
         "Operating System :: OS Independent",
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Framework :: Masonite",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Framework :: Masonite",
@@ -83,7 +84,6 @@ setup(
         "masoniteorm.schema.platforms",
         "masoniteorm.scopes",
         "masoniteorm.seeds",
-        "masoniteorm.testing",
     ],
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
@@ -91,7 +91,8 @@ setup(
     # $ pip install -e .[dev,test]
     # $ pip install your-package[dev,test]
     extras_require={
-        "test": ["coverage", "pytest"],
+        "test": ["coverage", "pytest", "faker"],
+        "seeder": ["faker"],
     },
     # If there are data files included in your packages that need to be
     # installed, specify them here.  If using Python 2.6 or less, then these

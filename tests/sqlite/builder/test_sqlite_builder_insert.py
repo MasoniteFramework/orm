@@ -1,13 +1,10 @@
-import inspect
 import unittest
 
-from tests.integrations.config.database import DATABASES
 from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
-from src.masoniteorm.relationships import belongs_to
-from tests.utils import MockConnectionFactory
+from tests.integrations.config.database import DATABASES
 
 
 class User(Model):
@@ -17,7 +14,6 @@ class User(Model):
 
 
 class BaseTestQueryRelationships(unittest.TestCase):
-
     maxDiff = None
 
     def get_builder(self, table="users"):
@@ -27,14 +23,17 @@ class BaseTestQueryRelationships(unittest.TestCase):
             connection_class=connection,
             connection="dev",
             table=table,
-            # model=User,
             connection_details=DATABASES,
         ).on("dev")
 
     def test_insert(self):
         builder = self.get_builder()
         result = builder.create(
-            {"name": "Joe", "email": "joe@masoniteproject.com", "password": "secret"}
+            {
+                "name": "Joe",
+                "email": "joe@masoniteproject.com",
+                "password": "secret",
+            }
         )
 
         self.assertIsInstance(result["id"], int)
