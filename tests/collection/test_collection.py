@@ -64,6 +64,26 @@ class TestCollection(unittest.TestCase):
         self.assertEqual(len(collection.where_in("id", ["3"])), 1)
         self.assertEqual(len(collection.where_in("id", ["4"])), 0)
 
+        self.assertEqual(len(collection.where_in("name", ["Joe"])), 2)
+
+    def test_where_not_in(self):
+        collection = Collection(
+            [
+                {"id": 1, "name": "Joe"},
+                {"id": 2, "name": "Joe"},
+                {"id": 3, "name": "Bob"},
+            ]
+        )
+        self.assertEqual(len(collection.where_not_in("id", [1, 2])), 1)
+        self.assertEqual(len(collection.where_not_in("id", [3])), 2)
+        self.assertEqual(len(collection.where_not_in("id", [4])), 3)
+
+        self.assertEqual(len(collection.where_not_in("id", ["1", "2"])), 1)
+        self.assertEqual(len(collection.where_not_in("id", ["3"])), 2)
+        self.assertEqual(len(collection.where_not_in("id", ["4"])), 3)
+
+        self.assertEqual(len(collection.where_not_in("name", ["Joe"])), 1)
+
     def test_where_in_bool(self):
         nested_collection = Collection(
             [
@@ -184,6 +204,24 @@ class TestCollection(unittest.TestCase):
 
         collection = Collection([{"batch": 1}, {"batch": 1}])
         self.assertEqual(collection.max("batch"), 1)
+
+    def test_min(self):
+        collection = Collection([1, 1, 2, 4])
+        self.assertEqual(collection.min(), 1)
+
+        collection = Collection(
+            [
+                {"name": "Corentin All", "age": 1},
+                {"name": "Corentin All", "age": 2},
+                {"name": "Corentin All", "age": 3},
+                {"name": "Corentin All", "age": 4},
+            ]
+        )
+        self.assertEqual(collection.min("age"), 1)
+        self.assertEqual(collection.min(), 0)
+
+        collection = Collection([{"batch": 1}, {"batch": 1}])
+        self.assertEqual(collection.min("batch"), 1)
 
     def test_count(self):
         collection = Collection([1, 1, 2, 4])

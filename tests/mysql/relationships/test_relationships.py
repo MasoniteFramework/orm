@@ -1,13 +1,11 @@
 import unittest
 
+from dotenv import load_dotenv
+
 from src.masoniteorm.models import Model
 from src.masoniteorm.relationships import (
     has_one,
-    belongs_to_many,
-    has_one_through,
-    has_many,
 )
-from dotenv import load_dotenv
 
 load_dotenv(".env")
 
@@ -54,7 +52,9 @@ class MySQLRelationships(unittest.TestCase):
         )
 
     def test_or_has_nested(self):
-        sql = User.where("name", "Joe").or_has("profile.identification").to_sql()
+        sql = (
+            User.where("name", "Joe").or_has("profile.identification").to_sql()
+        )
 
         self.assertEqual(
             sql,
@@ -77,7 +77,8 @@ class MySQLRelationships(unittest.TestCase):
         sql = (
             User.where("name", "Joe")
             .where_has(
-                "profile.identification", lambda q: q.where("identification_id", 1)
+                "profile.identification",
+                lambda q: q.where("identification_id", 1),
             )
             .to_sql()
         )
@@ -103,7 +104,8 @@ class MySQLRelationships(unittest.TestCase):
         sql = (
             User.where("name", "Joe")
             .or_where_has(
-                "profile.identification", lambda q: q.where("identification_id", 1)
+                "profile.identification",
+                lambda q: q.where("identification_id", 1),
             )
             .to_sql()
         )
@@ -177,7 +179,9 @@ class MySQLRelationships(unittest.TestCase):
         )
 
     def test_join_on(self):
-        sql = User.join_on("profile", lambda q: (q.where("active", 1))).to_sql()
+        sql = User.join_on(
+            "profile", lambda q: (q.where("active", 1))
+        ).to_sql()
 
         self.assertEqual(
             sql,

@@ -1,9 +1,10 @@
-from ..query.grammars import SQLiteGrammar
-from .BaseConnection import BaseConnection
-from ..schema.platforms import SQLitePlatform
-from ..query.processors import SQLitePostProcessor
-from ..exceptions import DriverNotFound, QueryException
 import re
+
+from ..exceptions import DriverNotFound, QueryException
+from ..query.grammars import SQLiteGrammar
+from ..query.processors import SQLitePostProcessor
+from ..schema.platforms import SQLitePlatform
+from .BaseConnection import BaseConnection
 
 
 def regexp(expr, item):
@@ -63,6 +64,9 @@ class SQLiteConnection(BaseConnection):
         self._connection.create_function("REGEXP", 2, regexp)
 
         self._connection.row_factory = sqlite3.Row
+
+        self.enable_disable_foreign_keys()
+
         self.open = 1
 
         return self

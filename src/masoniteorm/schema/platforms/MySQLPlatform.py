@@ -1,7 +1,8 @@
-from ...schema import Schema
-from .Platform import Platform
-from ..Table import Table
 import re
+
+from ...schema import Schema
+from ..Table import Table
+from .Platform import Platform
 
 
 class MySQLPlatform(Platform):
@@ -29,6 +30,7 @@ class MySQLPlatform(Platform):
         "double": "DOUBLE",
         "enum": "ENUM",
         "text": "TEXT",
+        "tiny_text": "TINYTEXT",
         "float": "FLOAT",
         "geometry": "GEOMETRY",
         "json": "JSON",
@@ -55,6 +57,8 @@ class MySQLPlatform(Platform):
         "null": " DEFAULT NULL",
     }
 
+    signed = {"unsigned": "UNSIGNED", "signed": "SIGNED"}
+
     def columnize(self, columns):
         sql = []
         for name, column in columns.items():
@@ -72,7 +76,10 @@ class MySQLPlatform(Platform):
             elif column.default in self.premapped_defaults.keys():
                 default = self.premapped_defaults.get(column.default)
             elif column.default:
-                if isinstance(column.default, (str,)) and not column.default_is_raw:
+                if (
+                    isinstance(column.default, (str,))
+                    and not column.default_is_raw
+                ):
                     default = f" DEFAULT '{column.default}'"
                 else:
                     default = f" DEFAULT {column.default}"
@@ -87,7 +94,6 @@ class MySQLPlatform(Platform):
             if column.column_type == "enum":
                 values = ", ".join(f"'{x}'" for x in column.values)
                 column_constraint = f"({values})"
-
             sql.append(
                 self.columnize_string()
                 .format(
@@ -98,8 +104,15 @@ class MySQLPlatform(Platform):
                     constraint=constraint,
                     nullable=self.premapped_nulls.get(column.is_null) or "",
                     default=default,
+                    signed=(
+                        " " + self.signed.get(column._signed)
+                        if column._signed
+                        else ""
+                    ),
                     comment=(
-                        "COMMENT '" + column.comment + "'" if column.comment else ""
+                        "COMMENT '" + column.comment + "'"
+                        if column.comment
+                        else ""
                     ),
                 )
                 .strip()
@@ -117,11 +130,15 @@ class MySQLPlatform(Platform):
         sql.append(
             table_create_format.format(
                 table=self.get_table_string().format(table=table.name),
-                columns=", ".join(self.columnize(table.get_added_columns())).strip(),
+                columns=", ".join(
+                    self.columnize(table.get_added_columns())
+                ).strip(),
                 constraints=(
                     ", "
                     + ", ".join(
-                        self.constraintize(table.get_added_constraints(), table)
+                        self.constraintize(
+                            table.get_added_constraints(), table
+                        )
                     )
                     if table.get_added_constraints()
                     else ""
@@ -160,9 +177,9 @@ class MySQLPlatform(Platform):
 
             for name, column in table.get_added_columns().items():
                 if column.length:
-                    length = self.create_column_length(column.column_type).format(
-                        length=column.length
-                    )
+                    length = self.create_column_length(
+                        column.column_type
+                    ).format(length=column.length)
                 else:
                     length = ""
 
@@ -179,15 +196,27 @@ class MySQLPlatform(Platform):
                 else:
                     default = ""
 
+                column_constraint = ""
+                if column.column_type == "enum":
+                    values = ", ".join(f"'{x}'" for x in column.values)
+                    column_constraint = f"({values})"
                 add_columns.append(
                     self.add_column_string()
                     .format(
-                        name=self.get_column_string().format(column=column.name),
+                        name=self.get_column_string().format(
+                            column=column.name
+                        ),
                         data_type=self.type_map.get(column.column_type, ""),
+                        column_constraint=column_constraint,
                         length=length,
                         constraint="PRIMARY KEY" if column.primary else "",
                         nullable="NULL" if column.is_null else "NOT NULL",
                         default=default,
+                        signed=(
+                            " " + self.signed.get(column._signed)
+                            if column._signed
+                            else ""
+                        ),
                         after=(
                             (" AFTER " + self.wrap_column(column._after))
                             if column._after
@@ -206,7 +235,9 @@ class MySQLPlatform(Platform):
                 self.alter_format().format(
                     table=self.wrap_table(table.name),
                     columns=", ".join(add_columns).strip(),
-                    comment=f" COMMENT '{table.comment}'" if table.comment else "",
+                    comment=(
+                        f" COMMENT '{table.comment}'" if table.comment else ""
+                    ),
                 )
             )
 
@@ -215,9 +246,9 @@ class MySQLPlatform(Platform):
 
             for name, column in table.get_renamed_columns().items():
                 if column.length:
-                    length = self.create_column_length(column.column_type).format(
-                        length=column.length
-                    )
+                    length = self.create_column_length(
+                        column.column_type
+                    ).format(length=column.length)
                 else:
                     length = ""
 
@@ -242,7 +273,8 @@ class MySQLPlatform(Platform):
                 self.alter_format().format(
                     table=self.wrap_table(table.name),
                     columns=", ".join(
-                        f"MODIFY {x}" for x in self.columnize(table.changed_columns)
+                        f"MODIFY {x}"
+                        for x in self.columnize(table.changed_columns)
                     ),
                 )
             )
@@ -259,7 +291,8 @@ class MySQLPlatform(Platform):
 
             sql.append(
                 self.alter_format().format(
-                    table=self.wrap_table(table.name), columns=", ".join(dropped_sql)
+                    table=self.wrap_table(table.name),
+                    columns=", ".join(dropped_sql),
                 )
             )
 
@@ -336,19 +369,19 @@ class MySQLPlatform(Platform):
         return sql
 
     def add_column_string(self):
-        return "ADD {name} {data_type}{length} {nullable}{default}{after}{comment}"
+        return "ADD {name} {data_type}{length}{column_constraint}{signed} {nullable}{default}{after}{comment}"
 
     def drop_column_string(self):
         return "DROP COLUMN {name}"
 
     def change_column_string(self):
-        return "MODIFY {name}{data_type}{length} {nullable}{default} {constraint}"
+        return "MODIFY {name}{data_type}{length}{column_constraint} {nullable}{default} {constraint}"
 
     def rename_column_string(self):
         return "CHANGE {old} {to}"
 
     def columnize_string(self):
-        return "{name} {data_type}{length}{column_constraint} {nullable}{default} {constraint}{comment}"
+        return "{name} {data_type}{length}{column_constraint}{signed} {nullable}{default} {constraint}{comment}"
 
     def constraintize(self, constraints, table):
         sql = []
@@ -415,6 +448,9 @@ class MySQLPlatform(Platform):
     def compile_column_exists(self, table, column):
         return f"SELECT column_name FROM information_schema.columns WHERE table_name='{table}' and column_name='{column}'"
 
+    def compile_get_all_tables(self, database, schema=None):
+        return f"SELECT table_name FROM information_schema.tables WHERE table_schema = '{database}'"
+
     def get_current_schema(self, connection, table_name, schema=None):
         table = Table(table_name)
         sql = f"DESCRIBE {table_name}"
@@ -431,7 +467,9 @@ class MySQLPlatform(Platform):
             table.add_column(
                 column["Field"],
                 column_type,
-                column_python_type=Schema._type_hints_map.get(column_type, str),
+                column_python_type=Schema._type_hints_map.get(
+                    column_type, str
+                ),
                 default=default,
                 length=length,
             )

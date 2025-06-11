@@ -1,18 +1,9 @@
-import datetime
-import json
-import os
 import unittest
 
-import pendulum
-
-from src.masoniteorm.collection import Collection
 from src.masoniteorm.models import Model
-from src.masoniteorm.query.grammars import MSSQLGrammar
-from tests.User import User
 
 
 class User(Model):
-
     __casts__ = {"is_admin": "bool"}
 
     def get_name_attribute(self):
@@ -23,7 +14,6 @@ class User(Model):
 
 
 class SetUser(Model):
-
     __casts__ = {"is_admin": "bool"}
 
     def set_name_attribute(self, attribute):
@@ -40,7 +30,9 @@ class TestAccessor(unittest.TestCase):
         self.assertTrue(user.is_admin is True, f"{user.is_admin} is not True")
 
     def test_mutator(self):
-        user = SetUser.hydrate({"email": "joe@masoniteproject.com", "is_admin": 1})
+        user = SetUser.hydrate(
+            {"email": "joe@masoniteproject.com", "is_admin": 1}
+        )
 
         user.name = "joe"
 

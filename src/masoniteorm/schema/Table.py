@@ -1,7 +1,7 @@
 from .Column import Column
 from .Constraint import Constraint
-from .Index import Index
 from .ForeignKeyConstraint import ForeignKeyConstraint
+from .Index import Index
 
 
 class Table:
@@ -25,6 +25,7 @@ class Table:
         values=None,
         nullable=False,
         default=None,
+        signed=None,
         default_is_raw=False,
         primary=False,
         column_python_type=str,
@@ -36,6 +37,7 @@ class Table:
             nullable=nullable,
             values=values or [],
             default=default,
+            signed=signed,
             default_is_raw=default_is_raw,
             column_python_type=column_python_type,
         )
@@ -49,9 +51,14 @@ class Table:
             {name: Constraint(name, constraint_type, columns=columns or [])}
         )
 
-    def add_foreign_key(self, column, table=None, foreign_column=None, name=None):
+    def add_foreign_key(
+        self, column, table=None, foreign_column=None, name=None
+    ):
         foreign_key = ForeignKeyConstraint(
-            column, table, foreign_column, name=name or f"{self.name}_{column}_foreign"
+            column,
+            table,
+            foreign_column,
+            name=name or f"{self.name}_{column}_foreign",
         )
         self.added_foreign_keys.update({column: foreign_key})
 

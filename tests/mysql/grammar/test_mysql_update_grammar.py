@@ -70,7 +70,6 @@ class BaseTestCaseUpdateGrammar:
 
 
 class TestMySQLUpdateGrammar(BaseTestCaseUpdateGrammar, unittest.TestCase):
-
     grammar = MySQLGrammar
 
     def can_compile_update(self):

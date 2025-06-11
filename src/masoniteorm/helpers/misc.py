@@ -9,7 +9,9 @@ def deprecated(message):
     def deprecated_decorator(func):
         def deprecated_func(*args, **kwargs):
             warnings.warn(
-                "{} is a deprecated function. {}".format(func.__name__, message),
+                "{} is a deprecated function. {}".format(
+                    func.__name__, message
+                ),
                 category=DeprecationWarning,
                 stacklevel=2,
             )

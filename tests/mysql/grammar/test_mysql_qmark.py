@@ -82,7 +82,6 @@ class BaseQMarkTest:
         self.assertEqual(mark._bindings, bindings)
 
     def test_can_compile_sub_group_bindings(self):
-
         mark = self.builder.where(
             lambda query: (
                 query.where("challenger", 1)
@@ -98,24 +97,22 @@ class BaseQMarkTest:
         self.assertEqual(mark._bindings, bindings)
 
     def test_can_increment(self):
-
-        mark = self.builder.increment("age", dry=True)
-
+        builder = self.builder.increment("age", dry=True)
         sql, bindings = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
-        self.assertEqual(mark.to_qmark(), sql)
-        self.assertEqual(mark._bindings, bindings)
+
+        self.assertEqual(builder.to_qmark(), sql)
+        self.assertEqual(builder._bindings, bindings)
 
     def test_can_decrement(self):
-
-        mark = self.builder.decrement("age", dry=True)
-
+        builder = self.builder.decrement("age", dry=True)
         sql, bindings = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
-        self.assertEqual(mark.to_qmark(), sql)
-        self.assertEqual(mark._bindings, bindings)
+
+        self.assertEqual(builder.to_qmark(), sql)
+        self.assertEqual(builder._bindings, bindings)
 
 
 class TestMySQLQmark(BaseQMarkTest, unittest.TestCase):

@@ -1,14 +1,13 @@
 import inspect
 import unittest
 
-from tests.integrations.config.database import DATABASES
+from src.masoniteorm.exceptions import InvalidArgument
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import MySQLGrammar
 from src.masoniteorm.relationships import has_many
-from src.masoniteorm.scopes import SoftDeleteScope
+from tests.integrations.config.database import DATABASES
 from tests.utils import MockConnectionFactory
-import datetime
 
 
 class Articles(Model):
@@ -132,6 +131,46 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_find_with_model(self):
+        builder = self.get_builder()
+        builder.find(1000, query=True)
+        sql = """SELECT * FROM `users` WHERE `users`.`id` = '1000\'"""
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_find_with_model_and_list(self):
+        builder = self.get_builder()
+        builder.find([1000, 2000, 3000], query=True)
+        sql = """SELECT * FROM `users` WHERE `users`.`id` IN ('1000','2000','3000')"""
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_find_with_model_custom_column(self):
+        builder = self.get_builder()
+        builder.find(10, column="age", query=True)
+        sql = """SELECT * FROM `users` WHERE `users`.`age` = '10\'"""
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_find_with_builder(self):
+        builder = self.get_builder()
+        builder._model = None
+        builder.find(10, column="age", query=True)
+        sql = """SELECT * FROM `users` WHERE `users`.`age` = '10\'"""
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_find_with_builder_and_list(self):
+        builder = self.get_builder()
+        builder._model = None
+        builder.find([10, 20, 30], column="age", query=True)
+        sql = (
+            """SELECT * FROM `users` WHERE `users`.`age` IN ('10','20','30')"""
+        )
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_find_with_builder_without_column(self):
+        builder = self.get_builder()
+        builder._model = None
+        with self.assertRaises(InvalidArgument):
+            builder.find(10, query=True)
+
     def test_select(self):
         builder = self.get_builder()
         builder.select("name", "email")
@@ -189,10 +228,12 @@ class BaseTestQueryBuilder:
         builder = self.get_builder(table=None)
         sql = (
             builder.add_select(
-                "other_test", lambda q: q.max("updated_at").table("different_table")
+                "other_test",
+                lambda q: q.max("updated_at").table("different_table"),
             )
             .add_select(
-                "some_alias", lambda q: q.max("updated_at").table("another_table")
+                "some_alias",
+                lambda q: q.max("updated_at").table("another_table"),
             )
             .to_sql()
         )
@@ -204,7 +245,8 @@ class BaseTestQueryBuilder:
     def test_create(self):
         builder = self.get_builder().without_global_scopes()
         builder.create(
-            {"name": "Corentin All", "email": "corentin@yopmail.com"}, query=True
+            {"name": "Corentin All", "email": "corentin@yopmail.com"},
+            query=True,
         )
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -549,15 +591,6 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(sql, sql_ref)
 
-    def test_cast_values(self):
-        builder = self.get_builder(dry=True)
-        result = builder.cast_dates({"created_at": datetime.datetime(2021, 1, 1)})
-        self.assertEqual(result, {"created_at": "2021-01-01 00:00:00+00:00"})
-        result = builder.cast_dates({"created_at": datetime.date(2021, 1, 1)})
-        self.assertEqual(result, {"created_at": "2021-01-01 00:00:00+00:00"})
-        result = builder.cast_dates([{"created_at": datetime.date(2021, 1, 1)}])
-        self.assertEqual(result, [{"created_at": "2021-01-01 00:00:00+00:00"}])
-
 
 class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
     grammar = MySQLGrammar
@@ -778,7 +811,9 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         builder.where_column('name', 'username')
         """
-        return "SELECT * FROM `users` WHERE `users`.`name` = `users`.`username`"
+        return (
+            "SELECT * FROM `users` WHERE `users`.`name` = `users`.`username`"
+        )
 
     def where_null(self):
         """
@@ -814,7 +849,9 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         builder.not_between('id', 2, 5)
         """
-        return "SELECT * FROM `users` WHERE `users`.`id` NOT BETWEEN '2' AND '5'"
+        return (
+            "SELECT * FROM `users` WHERE `users`.`id` NOT BETWEEN '2' AND '5'"
+        )
 
     def having(self):
         """
@@ -868,9 +905,7 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = self.get_builder()
         builder.where('age', '20').or_where('age','<', 20)
         """
-        return (
-            "SELECT * FROM `users` WHERE `users`.`age` = '20' OR `users`.`age` < '20'"
-        )
+        return "SELECT * FROM `users` WHERE `users`.`age` = '20' OR `users`.`age` < '20'"
 
     def where_like(self):
         """
@@ -916,4 +951,34 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = self.get_builder()
         builder.truncate()
         """
-        return "SELECT * FROM `users` WHERE `users`.`votes` >= '100' FOR UPDATE"
+        return (
+            "SELECT * FROM `users` WHERE `users`.`votes` >= '100' FOR UPDATE"
+        )
+
+    def test_latest(self):
+        builder = self.get_builder()
+        builder.latest("email")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_oldest(self):
+        builder = self.get_builder()
+        builder.oldest("email")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def latest(self):
+        """
+        builder.order_by('email', 'des')
+        """
+        return "SELECT * FROM `users` ORDER BY `email` DESC"
+
+    def oldest(self):
+        """
+        builder.order_by('email', 'asc')
+        """
+        return "SELECT * FROM `users` ORDER BY `email` ASC"

@@ -10,7 +10,6 @@ class TestMSSQLUpdateGrammar(unittest.TestCase):
         self.builder = QueryBuilder(MSSQLGrammar, table="users")
 
     def test_can_compile_update(self):
-
         to_sql = (
             self.builder.where("name", "bob").update({"name": "Joe"}, dry=True).to_sql()
         )

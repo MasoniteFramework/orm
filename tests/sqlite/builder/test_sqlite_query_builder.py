@@ -1,12 +1,11 @@
 import inspect
 import unittest
 
-from src.masoniteorm.connections import ConnectionFactory
+from src.masoniteorm.exceptions import HTTP404, ModelNotFound
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
 from tests.utils import MockConnectionFactory
-from src.masoniteorm.exceptions import ModelNotFound, HTTP404
 
 
 class UserMock(Model):
@@ -20,9 +19,8 @@ class BaseTestQueryBuilder:
     def get_builder(self, table="users"):
         connection = MockConnectionFactory().make("sqlite")
         return QueryBuilder(
-            self.grammar,
+            grammar=SQLiteGrammar,
             connection_class=connection,
-            connection="mysql",
             table=table,
             dry=True,
         )
@@ -134,15 +132,15 @@ class BaseTestQueryBuilder:
 
     def test_first_or_fail_exception(self):
         with self.assertRaises(ModelNotFound):
-            user = self.get_builder().where("name", "=", "Marlysson").first_or_fail()
+            self.get_builder().where("name", "=", "Marlysson").first_or_fail()
 
     def test_find_or_fail_exception(self):
         with self.assertRaises(ModelNotFound):
-            user = UserMock.find_or_fail(1000)
+            UserMock.find_or_fail(1000)
 
     def test_find_or_404_exception(self):
         with self.assertRaises(HTTP404):
-            user = UserMock.find_or_404(10000)
+            UserMock.find_or_404(10000)
 
     def test_select(self):
         builder = self.get_builder()
@@ -175,10 +173,12 @@ class BaseTestQueryBuilder:
         builder = self.get_builder(table=None)
         sql = (
             builder.add_select(
-                "other_test", lambda q: q.max("updated_at").table("different_table")
+                "other_test",
+                lambda q: q.max("updated_at").table("different_table"),
             )
             .add_select(
-                "some_alias", lambda q: q.max("updated_at").table("another_table")
+                "some_alias",
+                lambda q: q.max("updated_at").table("another_table"),
             )
             .to_sql()
         )
@@ -217,7 +217,8 @@ class BaseTestQueryBuilder:
     def test_create(self):
         builder = self.get_builder()
         builder.create(
-            {"name": "Corentin All", "email": "corentin@yopmail.com"}, query=True
+            {"name": "Corentin All", "email": "corentin@yopmail.com"},
+            query=True,
         )
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -270,6 +271,14 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
+    def test_offset_with_limit(self):
+        builder = self.get_builder()
+        builder.limit(2).offset(5)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
     def test_join(self):
         builder = self.get_builder()
         builder.join("profiles", "users.id", "=", "profiles.user_id")
@@ -303,21 +312,19 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
-    # def test_increment(self):
-    #     builder = self.get_builder()
-    #     builder.increment("age", 1)
-    #     sql = getattr(
-    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
-    #     )()
-    #     self.assertEqual(builder.to_sql(), sql)
+    def test_increment(self):
+        builder = self.get_builder().increment("age", 1, dry=True)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
 
-    # def test_decrement(self):
-    #     builder = self.get_builder()
-    #     builder.decrement("age", 1)
-    #     sql = getattr(
-    #         self, inspect.currentframe().f_code.co_name.replace("test_", "")
-    #     )()
-    #     self.assertEqual(builder.to_sql(), sql)
+    def test_decrement(self):
+        builder = self.get_builder().decrement("age", 1, dry=True)
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
 
     def test_count(self):
         builder = self.get_builder()
@@ -392,7 +399,6 @@ class BaseTestQueryBuilder:
         self.assertEqual(builder.to_sql(), sql)
 
     def test_between_persisted(self):
-
         builder = QueryBuilder().table("users").on("dev")
         users = builder.between("age", 1, 2).count()
 
@@ -407,7 +413,6 @@ class BaseTestQueryBuilder:
         self.assertEqual(builder.to_sql(), sql)
 
     def test_not_between_persisted(self):
-
         builder = QueryBuilder().table("users").on("dev")
         users = builder.where_not_null("id").not_between("age", 1, 2).count()
 
@@ -471,7 +476,9 @@ class BaseTestQueryBuilder:
 
     def test_group_by_multiple(self):
         builder = self.get_builder(table="payments")
-        builder.select("user_id").min("salary").group_by("user_id").group_by("salary")
+        builder.select("user_id").min("salary").group_by("user_id").group_by(
+            "salary"
+        )
 
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -567,7 +574,7 @@ class BaseTestQueryBuilder:
 
     def test_truncate(self):
         builder = self.get_builder()
-        sql = builder.truncate()
+        sql = builder.truncate(dry=True)
         sql_ref = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
         )()
@@ -583,7 +590,6 @@ class BaseTestQueryBuilder:
 
 
 class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
-
     grammar = SQLiteGrammar
 
     def sum(self):
@@ -745,7 +751,14 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = get_builder()
         builder.offset(5)
         """
-        return """SELECT * FROM "users" OFFSET 5"""
+        return """SELECT * FROM "users" LIMIT -1 OFFSET 5"""
+
+    def offset_with_limit(self):
+        """
+        builder = get_builder()
+        builder.limit(2).offset(5)
+        """
+        return """SELECT * FROM "users" LIMIT 2 OFFSET 5"""
 
     def join(self):
         """
@@ -799,9 +812,7 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         builder.order_by('email', 'asc')
         """
-        return (
-            """SELECT * FROM "users" ORDER BY "email" ASC, "name" ASC, "active" ASC"""
-        )
+        return """SELECT * FROM "users" ORDER BY "email" ASC, "name" ASC, "active" ASC"""
 
     def order_by_raw(self):
         """
@@ -843,7 +854,9 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         builder.where_not_in('id', [1, 2, 3])
         """
-        return """SELECT * FROM "users" WHERE "users"."id" NOT IN ('1','2','3')"""
+        return (
+            """SELECT * FROM "users" WHERE "users"."id" NOT IN ('1','2','3')"""
+        )
 
     def where_in(self):
         """
@@ -855,7 +868,9 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         builder.between('id', 2, 5)
         """
-        return """SELECT * FROM "users" WHERE "users"."id" BETWEEN '2' AND '5'"""
+        return (
+            """SELECT * FROM "users" WHERE "users"."id" BETWEEN '2' AND '5'"""
+        )
 
     def not_between(self):
         """
@@ -941,17 +956,24 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = self.get_builder()
         builder.where("age", "like", "%name%")
         """
-        return """SELECT * FROM "users" WHERE "users"."age" NOT LIKE '%name%'"""
+        return (
+            """SELECT * FROM "users" WHERE "users"."age" NOT LIKE '%name%'"""
+        )
 
     def test_when(self):
         builder = self.get_builder()
-        sql = builder.when(19 > 18, lambda q: q.where("age_restricted", 1)).to_sql()
+        sql = builder.when(
+            19 > 18, lambda q: q.where("age_restricted", 1)
+        ).to_sql()
         return self.assertEqual(
-            sql, """SELECT * FROM "users" WHERE "users"."age_restricted" = '1'"""
+            sql,
+            """SELECT * FROM "users" WHERE "users"."age_restricted" = '1'""",
         )
 
         builder = self.get_builder()
-        sql = builder.when(17 > 18, lambda q: q.where("age_restricted", 1)).to_sql()
+        sql = builder.when(
+            17 > 18, lambda q: q.where("age_restricted", 1)
+        ).to_sql()
         return self.assertEqual(sql, """SELECT * FROM "users\"""")
 
     def truncate(self):
@@ -971,3 +993,31 @@ class SQLiteQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
             'DELETE FROM "users"',
             "PRAGMA foreign_keys = ON",
         ]
+
+    def test_latest(self):
+        builder = self.get_builder()
+        builder.latest("email")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_oldest(self):
+        builder = self.get_builder()
+        builder.oldest("email")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def oldest(self):
+        """
+        builder.order_by('email', 'asc')
+        """
+        return """SELECT * FROM "users" ORDER BY "email" ASC"""
+
+    def latest(self):
+        """
+        builder.order_by('email', 'des')
+        """
+        return """SELECT * FROM "users" ORDER BY "email" DESC"""

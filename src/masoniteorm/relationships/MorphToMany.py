@@ -1,6 +1,6 @@
 from ..collection import Collection
-from .BaseRelationship import BaseRelationship
 from ..config import load_config
+from .BaseRelationship import BaseRelationship
 
 
 class MorphToMany(BaseRelationship):
@@ -38,15 +38,13 @@ class MorphToMany(BaseRelationship):
         self._related_builder = instance.builder
         self.set_keys(owner, self.fn)
 
-        if instance.is_loaded():
-            if attribute in instance._relationships:
-                return instance._relationships[attribute]
-
-            result = self.apply_query(self._related_builder, instance)
-
-            return result
-        else:
+        if not instance.is_loaded():
             return self
+
+        if attribute in instance._relationships:
+            return instance._relationships[attribute]
+
+        return self.apply_query(self._related_builder, instance)
 
     def __getattr__(self, attribute):
         relationship = self.fn(self)()
@@ -108,23 +106,3 @@ class MorphToMany(BaseRelationship):
 
     def morph_map(self):
         return load_config().DB._morph_map
-
-    def attach(self, current_model, related_record):
-        raise NotImplementedError(
-            "MorphToMany relationship does not implement the attach method"
-        )
-
-    def attach_related(self, current_model, related_record):
-        raise NotImplementedError(
-            "MorphToMany relationship does not implement the attach_related method"
-        )
-
-    def query_has(self, related_record, method="where_exists"):
-        raise NotImplementedError(
-            "MorphMany relationship does not implement the has method"
-        )
-
-    def query_where_exists(self, related_record, method="where_exists"):
-        raise NotImplementedError(
-            "MorphMany relationship does not implement the where_exists method"
-        )

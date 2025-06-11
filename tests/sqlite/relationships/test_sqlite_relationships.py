@@ -1,6 +1,4 @@
-import os
 import unittest
-
 from src.masoniteorm.models import Model
 from src.masoniteorm.relationships import belongs_to, has_many, has_one, belongs_to_many
 from tests.integrations.config.database import DB
@@ -30,7 +28,6 @@ class Logo(Model):
 
 
 class User(Model):
-
     __connection__ = "dev"
 
     _eager_loads = ()
@@ -50,7 +47,6 @@ class User(Model):
 
 
 class Store(Model):
-
     __connection__ = "dev"
 
     @belongs_to_many("store_id", "product_id", "id", "id", with_timestamps=True)
@@ -67,12 +63,10 @@ class Store(Model):
 
 
 class Product(Model):
-
     __connection__ = "dev"
 
 
 class UserHasOne(Model):
-
     __table__ = "users"
 
     __connection__ = "dev"

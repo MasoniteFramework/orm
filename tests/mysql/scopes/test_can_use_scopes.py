@@ -1,4 +1,3 @@
-import inspect
 import unittest
 
 from src.masoniteorm.models import Model
@@ -37,4 +36,6 @@ class TestMySQLScopes(unittest.TestCase):
 
     def test_can_chain_scopes(self):
         sql = "SELECT * FROM `users` WHERE `users`.`active` = '2' AND `users`.`gender` = 'W' AND `users`.`name` = 'joe'"
-        self.assertEqual(sql, User.active(2).gender("W").where("name", "joe").to_sql())
+        self.assertEqual(
+            sql, User.active(2).gender("W").where("name", "joe").to_sql()
+        )

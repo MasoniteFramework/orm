@@ -1,4 +1,3 @@
-import inspect
 import unittest
 
 from src.masoniteorm.query.grammars import MySQLGrammar
@@ -6,7 +5,6 @@ from src.masoniteorm.testing import BaseTestCaseSelectGrammar
 
 
 class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
-
     grammar = MySQLGrammar
 
     def can_compile_select(self):
@@ -61,13 +59,17 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         self.builder.select('username').max('age').to_sql()
         """
-        return "SELECT `users`.`username`, MAX(`users`.`age`) AS age FROM `users`"
+        return (
+            "SELECT `users`.`username`, MAX(`users`.`age`) AS age FROM `users`"
+        )
 
     def can_compile_with_max_and_columns_different_order(self):
         """
         self.builder.max('age').select('username').to_sql()
         """
-        return "SELECT `users`.`username`, MAX(`users`.`age`) AS age FROM `users`"
+        return (
+            "SELECT `users`.`username`, MAX(`users`.`age`) AS age FROM `users`"
+        )
 
     def can_compile_with_order_by(self):
         """
@@ -178,9 +180,7 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         self.builder.where('name', 2).or_where('name', 3).to_sql()
         """
-        return (
-            "SELECT * FROM `users` WHERE `users`.`name` = '2' OR `users`.`name` = '3'"
-        )
+        return "SELECT * FROM `users` WHERE `users`.`name` = '2' OR `users`.`name` = '3'"
 
     def can_grouped_where(self):
         """
@@ -248,6 +248,12 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         return "SELECT SUM(`users`.`age`) AS age FROM `users` GROUP BY `users`.`age` HAVING `users`.`age`"
 
+    def can_compile_having_order(self):
+        """
+        builder.sum('age').group_by('age').having('age').order_by('age', 'desc').to_sql()
+        """
+        return "SELECT SUM(`users`.`age`) AS age FROM `users` GROUP BY `users`.`age` HAVING `users`.`age` ORDER `users`.`age` DESC"
+
     def can_compile_having_with_expression(self):
         """
         builder.sum('age').group_by('age').having('age', 10).to_sql()
@@ -282,7 +288,9 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         builder.between('age', 18, 21).to_sql()
         """
-        return "SELECT * FROM `users` WHERE `users`.`age` BETWEEN '18' AND '21'"
+        return (
+            "SELECT * FROM `users` WHERE `users`.`age` BETWEEN '18' AND '21'"
+        )
 
     def can_compile_not_between(self):
         """
@@ -304,6 +312,18 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
             to_sql, "SELECT COUNT(*) as counts FROM `users` HAVING counts > 10"
         )
 
+    def test_can_compile_having_raw_order(self):
+        to_sql = (
+            self.builder.select_raw("COUNT(*) as counts")
+            .having_raw("counts > 10")
+            .order_by_raw("counts DESC")
+            .to_sql()
+        )
+        self.assertEqual(
+            to_sql,
+            "SELECT COUNT(*) as counts FROM `users` HAVING counts > 10 ORDER BY counts DESC",
+        )
+
     def test_can_compile_select_raw(self):
         to_sql = self.builder.select_raw("COUNT(*)").to_sql()
         self.assertEqual(to_sql, "SELECT COUNT(*) FROM `users`")
@@ -317,7 +337,9 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder = self.get_builder()
         builder.where("is_admin", "=", True).first_or_fail()
         """
-        return """SELECT * FROM `users` WHERE `users`.`is_admin` = '1' LIMIT 1"""
+        return (
+            """SELECT * FROM `users` WHERE `users`.`is_admin` = '1' LIMIT 1"""
+        )
 
     def where_not_like(self):
         """
@@ -378,11 +400,25 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         clause = (
             JoinClause("report_groups as rg")
             .on_null("bgt.acct")
-            .or_on_not_null("bgt.dept")
+            .or_on_null("bgt.dept")
+            .on_value("rg.abc", 10)
         )
         builder.join(clause).to_sql()
         """
-        return "SELECT * FROM `users` INNER JOIN `report_groups` AS `rg` ON `acct` IS NULL OR `dept` IS NOT NULL"
+        return "SELECT * FROM `users` INNER JOIN `report_groups` AS `rg` ON `acct` IS NULL OR `dept` IS NULL AND `rg`.`abc` = '10'"
+
+    def can_compile_join_clause_with_not_null(self):
+        """
+        builder = self.get_builder()
+        clause = (
+            JoinClause("report_groups as rg")
+            .on_not_null("bgt.acct")
+            .or_on_not_null("bgt.dept")
+            .on_value("rg.abc", 10)
+        )
+        builder.join(clause).to_sql()
+        """
+        return "SELECT * FROM `users` INNER JOIN `report_groups` AS `rg` ON `acct` IS NOT NULL OR `dept` IS NOT NULL AND `rg`.`abc` = '10'"
 
     def can_compile_join_clause_with_lambda(self):
         """
@@ -435,7 +471,9 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder = self.get_builder()
         builder.where("age", "not like", "%name%").to_sql()
         """
-        return "SELECT * FROM `users` WHERE `users`.`votes` >= '100' FOR UPDATE"
+        return (
+            "SELECT * FROM `users` WHERE `users`.`votes` >= '100' FOR UPDATE"
+        )
 
     def can_user_where_raw_and_where(self):
         """
@@ -450,9 +488,7 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         return """SELECT * FROM `users` WHERE NOT EXISTS (SELECT * FROM `users` WHERE `users`.`age` = '1')"""
 
     def where_date(self):
-        return (
-            """SELECT * FROM `users` WHERE DATE(`users`.`created_at`) = '2022-06-01'"""
-        )
+        return """SELECT * FROM `users` WHERE DATE(`users`.`created_at`) = '2022-06-01'"""
 
     def or_where_null(self):
         return """SELECT * FROM `users` WHERE `users`.`column1` IS NULL OR `users`.`column2` IS NULL"""

@@ -1,14 +1,12 @@
-import inspect
 import unittest
 
-from src.masoniteorm.connections import ConnectionFactory
+from dotenv import load_dotenv
+
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import MSSQLGrammar
 from src.masoniteorm.relationships import belongs_to
 from tests.utils import MockConnectionFactory
-
-from dotenv import load_dotenv
 
 load_dotenv(".env")
 
@@ -40,9 +38,16 @@ class User(Model):
     def profile(self):
         return Profile
 
+    @belongs_to("id", "parent_dynamic_id")
+    def parent_dynamic(self):
+        return self.__class__
+
+    @belongs_to("id", "parent_specified_id")
+    def parent_specified(self):
+        return User
+
 
 class BaseTestQueryRelationships(unittest.TestCase):
-
     maxDiff = None
 
     def get_builder(self, table="users"):
@@ -52,7 +57,7 @@ class BaseTestQueryRelationships(unittest.TestCase):
             connection_class=connection,
             connection="mssql",
             table=table,
-            model=User,
+            model=User(),
         )
 
     def test_has(self):
@@ -65,9 +70,31 @@ class BaseTestQueryRelationships(unittest.TestCase):
             """)""",
         )
 
+    def test_has_reference_to_self(self):
+        builder = self.get_builder()
+        sql = builder.has("parent_dynamic").to_sql()
+        self.assertEqual(
+            sql,
+            """SELECT * FROM [users] WHERE EXISTS ("""
+            """SELECT * FROM [users] WHERE [users].[parent_dynamic_id] = [users].[id]"""
+            """)""",
+        )
+
+    def test_has_reference_to_self_using_class(self):
+        builder = self.get_builder()
+        sql = builder.has("parent_specified").to_sql()
+        self.assertEqual(
+            sql,
+            """SELECT * FROM [users] WHERE EXISTS ("""
+            """SELECT * FROM [users] WHERE [users].[parent_specified_id] = [users].[id]"""
+            """)""",
+        )
+
     def test_where_has_query(self):
         builder = self.get_builder()
-        sql = builder.where_has("articles", lambda q: q.where("active", 1)).to_sql()
+        sql = builder.where_has(
+            "articles", lambda q: q.where("active", 1)
+        ).to_sql()
         self.assertEqual(
             sql,
             """SELECT * FROM [users] WHERE EXISTS ("""

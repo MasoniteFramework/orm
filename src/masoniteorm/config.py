@@ -12,8 +12,11 @@ def load_config(config_path=None):
         2. else try to load from default config_path: config/database
     """
     selected_config_path = (
-        config_path or os.getenv("DB_CONFIG_PATH", None) or "config/database"
+        os.getenv("DB_CONFIG_PATH", config_path) or "config/database"
     )
+
+    os.environ["DB_CONFIG_PATH"] = selected_config_path
+
     # format path as python module if needed
     selected_config_path = (
         selected_config_path.replace("/", ".").replace("\\", ".").rstrip(".py")
@@ -94,7 +97,9 @@ def db_url(database_url=None, prefix="", options={}, log_queries=False):
         # lookup specified driver
         driver = DRIVERS_MAP[url.scheme]
         port = (
-            str(url.port) if url.port and driver in [DRIVERS_MAP["mssql"]] else url.port
+            str(url.port)
+            if url.port and driver in [DRIVERS_MAP["mssql"]]
+            else url.port
         )
 
     # build final configuration

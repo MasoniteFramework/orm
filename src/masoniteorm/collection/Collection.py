@@ -1,6 +1,6 @@
 import json
-import random
 import operator
+import random
 from functools import reduce
 
 
@@ -40,6 +40,7 @@ class Collection:
         if callback:
             filtered = self.filter(callback)
         response = None
+
         if filtered:
             response = filtered[0]
         return response
@@ -91,21 +92,41 @@ class Collection:
         return result
 
     def max(self, key=None):
-        """Returns the average of the items.
+        """Returns the max of the items.
 
-        If a key is given it will return the average of all the values of the key.
+        If a key is given it will return the max of all the values of the key.
 
         Keyword Arguments:
-            key {string} -- The key to use to find the average of all the values of that key. (default: {None})
+            key {string} -- The key to use to find the max of all the values of that key. (default: {None})
 
         Returns:
-            int -- Returns the average.
+            int -- Returns the max.
         """
         result = 0
         items = self._get_value(key) or self._items
 
         try:
             return max(items)
+        except (TypeError, ValueError):
+            pass
+        return result
+
+    def min(self, key=None):
+        """Returns the min of the items.
+
+        If a key is given it will return the min of all the values of the key.
+
+        Keyword Arguments:
+            key {string} -- The key to use to find the min of all the values of that key. (default: {None})
+
+        Returns:
+            int -- Returns the min.
+        """
+        result = 0
+        items = self._get_value(key) or self._items
+
+        try:
+            return min(items)
         except (TypeError, ValueError):
             pass
         return result
@@ -280,7 +301,7 @@ class Collection:
         self._items.append(value)
 
     def put(self, key, value):
-        self[key] = value
+        self._items[key] = value
         return self
 
     def random(self, count=None):
@@ -289,7 +310,9 @@ class Collection:
         if collection_count == 0:
             return None
         elif count and count > collection_count:
-            raise ValueError("count argument must be inferior to collection length.")
+            raise ValueError(
+                "count argument must be inferior to collection length."
+            )
         elif count:
             self._items = random.sample(self._items, k=count)
             return self
@@ -323,7 +346,7 @@ class Collection:
 
     def add_relation(self, result=None):
         for model in self._items:
-            model.add_relations(result or {})
+            model.add_relation(result or {})
 
         return self
 
@@ -351,7 +374,6 @@ class Collection:
         return json.dumps(self.serialize(), **kwargs)
 
     def group_by(self, key):
-
         from itertools import groupby
 
         self.sort(key)
@@ -404,12 +426,18 @@ class Collection:
             if isinstance(item, dict):
                 comparison = item.get(key)
             else:
-                comparison = getattr(item, key) if hasattr(item, key) else False
+                comparison = (
+                    getattr(item, key) if hasattr(item, key) else False
+                )
             if self._make_comparison(comparison, value, op):
                 attributes.append(item)
         return self.__class__(attributes)
 
     def where_in(self, key, args: list) -> "Collection":
+        # Compatibility patch - allow numeric strings to match integers
+        # (if all args are numeric strings)
+        if all([isinstance(arg, str) and arg.isnumeric() for arg in args]):
+            return self.where_in(key, [int(arg) for arg in args])
 
         attributes = []
 
@@ -426,19 +454,37 @@ class Collection:
             if comparison in args:
                 attributes.append(item)
 
+        return self.__class__(attributes)
+
+    def where_not_in(self, key, args: list) -> "Collection":
         # Compatibility patch - allow numeric strings to match integers
-        # (if all args are numeric strings and no matches were found)
-        if len(attributes) == 0 and all(
-            [isinstance(arg, str) and arg.isnumeric() for arg in args]
-        ):
-            return self.where_in(key, [int(arg) for arg in args])
+        # (if all args are numeric strings)
+        if all([isinstance(arg, str) and arg.isnumeric() for arg in args]):
+            return self.where_not_in(key, [int(arg) for arg in args])
+
+        attributes = []
+
+        for item in self._items:
+            if isinstance(item, dict):
+                if key not in item:
+                    continue
+                comparison = item.get(key)
+            else:
+                if not hasattr(item, key):
+                    continue
+                comparison = getattr(item, key)
+
+            if comparison not in args:
+                attributes.append(item)
 
         return self.__class__(attributes)
 
     def zip(self, items):
         items = self.__get_items(items)
         if not isinstance(items, list):
-            raise ValueError("The 'items' parameter must be a list or a Collection")
+            raise ValueError(
+                "The 'items' parameter must be a list or a Collection"
+            )
 
         _items = []
         for x, y in zip(self, items):
@@ -514,8 +560,13 @@ class Collection:
     def __getitem__(self, item):
         if isinstance(item, slice):
             return self.__class__(self._items[item])
+        if isinstance(item, dict):
+            return self._items.get(item, None)
 
-        return self._items[item]
+        try:
+            return self._items[item]
+        except KeyError:
+            return None
 
     def __setitem__(self, key, value):
         self._items[key] = value

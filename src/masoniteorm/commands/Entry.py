@@ -6,17 +6,19 @@ successfully import commands for you.
 """
 
 from cleo import Application
+
 from . import (
-    MigrateCommand,
-    MigrateRollbackCommand,
-    MigrateRefreshCommand,
     MakeMigrationCommand,
     MakeModelCommand,
     MakeModelDocstringCommand,
     MakeObserverCommand,
-    MigrateStatusCommand,
-    MigrateResetCommand,
     MakeSeedCommand,
+    MigrateCommand,
+    MigrateFreshCommand,
+    MigrateRefreshCommand,
+    MigrateResetCommand,
+    MigrateRollbackCommand,
+    MigrateStatusCommand,
     SeedRunCommand,
     ShellCommand,
 )
@@ -26,6 +28,7 @@ application = Application("ORM Version:", 0.1)
 application.add(MigrateCommand())
 application.add(MigrateRollbackCommand())
 application.add(MigrateRefreshCommand())
+application.add(MigrateFreshCommand())
 application.add(MakeMigrationCommand())
 application.add(MakeModelCommand())
 application.add(MakeModelDocstringCommand())

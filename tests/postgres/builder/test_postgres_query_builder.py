@@ -1,7 +1,6 @@
 import inspect
 import unittest
 
-from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import PostgresGrammar
@@ -9,7 +8,6 @@ from tests.utils import MockConnectionFactory
 
 
 class MockConnection:
-
     connection_details = {}
 
     def make_connection(self):
@@ -124,10 +122,12 @@ class BaseTestQueryBuilder:
         builder = self.get_builder(table=None)
         sql = (
             builder.add_select(
-                "other_test", lambda q: q.max("updated_at").table("different_table")
+                "other_test",
+                lambda q: q.max("updated_at").table("different_table"),
             )
             .add_select(
-                "some_alias", lambda q: q.max("updated_at").table("another_table")
+                "some_alias",
+                lambda q: q.max("updated_at").table("another_table"),
             )
             .to_sql()
         )
@@ -147,7 +147,8 @@ class BaseTestQueryBuilder:
     def test_create(self):
         builder = self.get_builder().without_global_scopes()
         builder.create(
-            {"name": "Corentin All", "email": "corentin@yopmail.com"}, query=True
+            {"name": "Corentin All", "email": "corentin@yopmail.com"},
+            query=True,
         )
         sql = getattr(
             self, inspect.currentframe().f_code.co_name.replace("test_", "")
@@ -462,7 +463,6 @@ class BaseTestQueryBuilder:
 
 
 class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
-
     grammar = PostgresGrammar
 
     def sum(self):
@@ -657,7 +657,9 @@ class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         builder.where_not_in('id', [1, 2, 3])
         """
-        return """SELECT * FROM "users" WHERE "users"."id" NOT IN ('1','2','3')"""
+        return (
+            """SELECT * FROM "users" WHERE "users"."id" NOT IN ('1','2','3')"""
+        )
 
     def where_in(self):
         """
@@ -669,7 +671,9 @@ class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         builder.between('id', 2, 5)
         """
-        return """SELECT * FROM "users" WHERE "users"."id" BETWEEN '2' AND '5'"""
+        return (
+            """SELECT * FROM "users" WHERE "users"."id" BETWEEN '2' AND '5'"""
+        )
 
     def not_between(self):
         """
@@ -743,7 +747,9 @@ class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = self.get_builder()
         builder.where("age", "not like", "%name%")
         """
-        return """SELECT * FROM "users" WHERE "users"."age" NOT ILIKE '%name%'"""
+        return (
+            """SELECT * FROM "users" WHERE "users"."age" NOT ILIKE '%name%'"""
+        )
 
     def truncate(self):
         """
@@ -772,3 +778,31 @@ class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder.truncate()
         """
         return """SELECT * FROM "users" WHERE "users"."votes" >= '100' FOR SHARE"""
+
+    def test_latest(self):
+        builder = self.get_builder()
+        builder.latest("email")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def test_oldest(self):
+        builder = self.get_builder()
+        builder.oldest("email")
+        sql = getattr(
+            self, inspect.currentframe().f_code.co_name.replace("test_", "")
+        )()
+        self.assertEqual(builder.to_sql(), sql)
+
+    def oldest(self):
+        """
+        builder.order_by('email', 'asc')
+        """
+        return """SELECT * FROM "users" ORDER BY "email" ASC"""
+
+    def latest(self):
+        """
+        builder.order_by('email', 'des')
+        """
+        return """SELECT * FROM "users" ORDER BY "email" DESC"""

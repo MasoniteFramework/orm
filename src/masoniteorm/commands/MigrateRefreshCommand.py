@@ -1,5 +1,4 @@
 from ..migrations import Migration
-
 from .Command import Command
 
 
@@ -17,7 +16,6 @@ class MigrateRefreshCommand(Command):
     """
 
     def handle(self):
-
         migration = Migration(
             command_class=self,
             connection=self.option("connection"),
@@ -33,11 +31,11 @@ class MigrateRefreshCommand(Command):
         if self.option("seed") == "null":
             self.call(
                 "seed:run",
-                f"None --directory {self.option('seed-directory')} --connection {self.option('connection', 'default')}",
+                f"None --directory {self.option('seed-directory')} --connection {self.option('connection')}",
             )
 
         elif self.option("seed"):
             self.call(
                 "seed:run",
-                f"{self.option('seed')} --directory {self.option('seed-directory')} --connection {self.option('connection', 'default')}",
+                f"{self.option('seed')} --directory {self.option('seed-directory')} --connection {self.option('connection')}",
             )

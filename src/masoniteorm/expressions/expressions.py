@@ -1,5 +1,3 @@
-import inspect
-
 from ..helpers.misc import deprecated
 
 
@@ -208,7 +206,9 @@ class JoinClause:
         Returns:
             self
         """
-        self.on_clauses += ((OnValueClause(column, "=", None, "NULL", operator="or")),)
+        self.on_clauses += (
+            (OnValueClause(column, "=", None, "NULL", operator="or")),
+        )
         return self
 
     def or_on_not_null(self, column: str):
@@ -225,7 +225,9 @@ class JoinClause:
         )
         return self
 
-    @deprecated("Using where() in a Join clause has been superceded by on_value()")
+    @deprecated(
+        "Using where() in a Join clause has been superceded by on_value()"
+    )
     def where(self, column, *args):
         return self.on_value(column, *args)
 
