@@ -1002,7 +1002,7 @@ class Blueprint:
         self.table.add_comment(comment)
         return self
 
-    def rename(self, old_column, new_column, data_type, length=None):
+    def rename(self, old_column, new_column, data_type, length=None, nullable=False, default=None):
         """Rename a column from the old value to a new value.
 
         Arguments:
@@ -1012,7 +1012,7 @@ class Blueprint:
         Returns:
             self
         """
-        self.table.rename_column(old_column, new_column, data_type, length=length)
+        self.table.rename_column(old_column, new_column, data_type, length=length, nullable=nullable, default=default)
         return self
 
     def after(self, old_column):
