@@ -1,7 +1,18 @@
 import inspect
+import os
 import unittest
+from pathlib import Path
 
-from src.masoniteorm.exceptions import HTTP404, ModelNotFound
+import pytest
+
+from src.masoniteorm.config import load_config
+from src.masoniteorm.connections import ConnectionResolver
+from src.masoniteorm.exceptions import (
+    HTTP404,
+    ConfigurationNotFound,
+    ModelNotFound,
+    QueryException,
+)
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
@@ -24,6 +35,37 @@ class BaseTestQueryBuilder:
             table=table,
             dry=True,
         )
+
+    def test_standalone_connection_details(self):
+        # clear the env config path
+        current_path = os.environ.pop("DB_CONFIG_PATH", None)
+        # test we fail to load the default config
+        with pytest.raises(ConfigurationNotFound):
+            load_config()
+
+        custom_details = {
+            "default": "test",
+            "test": {
+                "driver": "sqlite",
+                "database": "config_test.sqlite3",
+            },
+        }
+
+        resolver = ConnectionResolver(connection_details=custom_details)
+        connection = resolver.connection_factory.make("sqlite")
+        builder = QueryBuilder(
+            connection_details=custom_details,
+            connection_class=connection,
+        )
+        with pytest.raises(QueryException) as query_exc:
+            builder.table("tests").all()
+        self.assertIn("'no such table: tests'", str(query_exc))
+
+        # remove the test file
+        (Path().cwd() / "config_test.sqlite3").unlink()
+
+        # reset the config path for other tests to use
+        os.environ["DB_CONFIG_PATH"] = current_path
 
     def test_sum(self):
         builder = self.get_builder()
