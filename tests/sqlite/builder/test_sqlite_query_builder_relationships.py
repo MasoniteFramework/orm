@@ -1,12 +1,13 @@
 import unittest
 
+from dotenv import load_dotenv
+
+from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
 from src.masoniteorm.relationships import belongs_to
-from tests.utils import MockConnectionFactory
-
-from dotenv import load_dotenv
+from tests.integrations.config.database import DB
 
 load_dotenv(".env")
 
@@ -39,13 +40,17 @@ class User(Model):
         return Profile
 
 
-class BaseTestQueryRelationships(unittest.TestCase):
+class SqliteTestQueryBuilderRelationships(unittest.TestCase):
     maxDiff = None
 
     def get_builder(self, table="users"):
-        connection = MockConnectionFactory().make("sqlite")
+        connection = ConnectionFactory(resolver=DB).make("sqlite")
         return QueryBuilder(
-            grammar=SQLiteGrammar, connection_class=connection, table=table, model=User()
+            grammar=SQLiteGrammar,
+            connection_class=connection,
+            table=table,
+            model=User(),
+            connection_details=DB.get_connection_details(),
         )
 
     def test_has(self):
@@ -82,7 +87,9 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
     def test_where_has_query(self):
         builder = self.get_builder()
-        sql = builder.where_has("articles", lambda q: q.where("active", 1)).to_sql()
+        sql = builder.where_has(
+            "articles", lambda q: q.where("active", 1)
+        ).to_sql()
         self.assertEqual(
             sql,
             """SELECT * FROM "users" WHERE EXISTS ("""

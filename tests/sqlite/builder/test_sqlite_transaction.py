@@ -1,10 +1,11 @@
 import unittest
 
 from src.masoniteorm.collection import Collection
+from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
-from tests.integrations.config.database import DATABASES, DB
+from tests.integrations.config.database import DB
 
 
 class User(Model):
@@ -12,16 +13,18 @@ class User(Model):
     __timestamps__ = False
 
 
-class BaseTestQueryRelationships(unittest.TestCase):
+class SqliteTestQueryBuilderTransaction(unittest.TestCase):
     maxDiff = None
 
     def get_builder(self, table="users"):
+        connection = ConnectionFactory(resolver=DB).make("sqlite")
         return QueryBuilder(
             grammar=SQLiteGrammar,
+            connection_class=connection,
             connection="dev",
             table=table,
             model=User(),
-            connection_details=DATABASES,
+            connection_details=DB.get_connection_details(),
         ).on("dev")
 
     def test_transaction(self):

@@ -4,26 +4,26 @@ from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
-from tests.integrations.config.database import DATABASES
+from tests.integrations.config.database import DB
 
 
 class User(Model):
     __connection__ = "dev"
 
 
-class BaseTestQueryRelationships(unittest.TestCase):
+class SqliteQueryBuilderPagination(unittest.TestCase):
     maxDiff = None
 
-    def get_builder(self, table="users", model=User()):
-        connection = ConnectionFactory().make("sqlite")
+    def get_builder(self, table="users", model=User):
+        connection = ConnectionFactory(resolver=DB).make("sqlite")
         return QueryBuilder(
             grammar=SQLiteGrammar,
             connection_class=connection,
             connection="dev",
             table=table,
-            model=model,
-            connection_details=DATABASES,
-        ).on("dev")
+            model=model(),
+            connection_details=DB.get_connection_details(),
+        )
 
     def test_pagination(self):
         builder = self.get_builder()
