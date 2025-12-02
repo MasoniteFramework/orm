@@ -119,7 +119,7 @@ DATABASES = {
     },
 }
 
-DB = ConnectionResolver().set_connection_details(DATABASES)
+DB = ConnectionResolver(connection_details=DATABASES)
 
 logger = logging.getLogger("masoniteorm.connection.queries")
 logger.setLevel(logging.DEBUG)
