@@ -3,6 +3,7 @@ black
 isort
 faker
 pytest
+pytest-env
 pytest-cov
 pymysql
 inflection>=0.3
