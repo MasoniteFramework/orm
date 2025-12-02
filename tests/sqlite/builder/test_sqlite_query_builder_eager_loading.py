@@ -1,10 +1,11 @@
 import unittest
 
+from src.masoniteorm.connections import ConnectionFactory
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import SQLiteGrammar
 from src.masoniteorm.relationships import belongs_to, has_many
-from tests.integrations.config.database import DATABASES
+from tests.integrations.config.database import DB
 
 
 class Logo(Model):
@@ -52,16 +53,18 @@ class EagerUser(Model):
         return Profile
 
 
-class BaseTestQueryRelationships(unittest.TestCase):
+class SqliteTestQueryBuilderEagerLoading(unittest.TestCase):
     maxDiff = None
 
-    def get_builder(self, table="users", model=User()):
+    def get_builder(self, table="users", model=User):
+        connection = ConnectionFactory(resolver=DB).make("sqlite")
         return QueryBuilder(
             grammar=SQLiteGrammar,
+            connection_class=connection,
             connection="dev",
             table=table,
-            model=model,
-            connection_details=DATABASES,
+            model=model(),
+            connection_details=DB.get_connection_details(),
         ).on("dev")
 
     def test_with(self):

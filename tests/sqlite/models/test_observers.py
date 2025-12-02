@@ -55,7 +55,7 @@ class Observer(Model):
 Observer.observe(UserObserver())
 
 
-class BaseTestQueryRelationships(unittest.TestCase):
+class SqliteTestQueryBuilderObservers(unittest.TestCase):
     maxDiff = None
 
     def test_created_is_observed(self):

@@ -5,6 +5,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 from ..collection.Collection import Collection
 from ..config import load_config
+from ..connections import ConnectionResolver
 from ..exceptions import (
     HTTP404,
     ConnectionNotRegistered,
@@ -107,8 +108,8 @@ class QueryBuilder(ObservesEvents):
         self.set_action("select")
 
         if not self._connection_details:
-            DB = load_config(config_path=self.config_path).DB
-            self._connection_details = DB.get_connection_details()
+            resolver = load_config(config_path=self.config_path).DB
+            self._connection_details = resolver.get_connection_details()
 
         self.on(connection)
 
@@ -398,8 +399,6 @@ class QueryBuilder(ObservesEvents):
         )
 
     def on(self, connection):
-        DB = load_config(self.config_path).DB
-
         if connection == "default":
             self.connection = self._connection_details.get("default")
         else:
@@ -413,7 +412,10 @@ class QueryBuilder(ObservesEvents):
         self._connection_driver = self._connection_details.get(
             self.connection
         ).get("driver")
-        self.connection_class = DB.connection_factory.make(
+        resolver = ConnectionResolver(
+            connection_details=self._connection_details
+        )
+        self.connection_class = resolver.connection_factory.make(
             self._connection_driver
         )
 

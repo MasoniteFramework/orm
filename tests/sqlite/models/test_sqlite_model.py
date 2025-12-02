@@ -49,7 +49,7 @@ class Group(Model):
         return UserHydrateHidden
 
 
-class BaseTestQueryRelationships(unittest.TestCase):
+class SqliteTestQueryBuilderModel(unittest.TestCase):
     maxDiff = None
 
     def test_update_specific_record(self):

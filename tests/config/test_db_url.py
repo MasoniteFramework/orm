@@ -117,7 +117,12 @@ class TestDbUrlHelper(unittest.TestCase):
         assert config.get("port") == 3306
         assert config.get("host") == "localhost"
         assert config.get("log_queries")
-        # reset connection resolver to default for other tests to continue working
-        from tests.integrations.config.database import DATABASES
 
-        ConnectionResolver().set_connection_details(DATABASES)
+        inline_resolver = ConnectionResolver(connection_details=TEST_DATABASES)
+        inline_config = inline_resolver.get_connection_details().get("test")
+        assert inline_config.get("database") == "orm"
+        assert inline_config.get("user") == "root"
+        assert inline_config.get("password") == ""
+        assert inline_config.get("port") == 3306
+        assert inline_config.get("host") == "localhost"
+        assert inline_config.get("log_queries")

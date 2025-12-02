@@ -87,15 +87,14 @@ class Schema:
         Returns:
             cls
         """
-        DB = load_config(config_path=self.config_path).DB
-
+        resolver = load_config(config_path=self.config_path).DB
+        self.connection_details = resolver.get_connection_details()
         if connection_key == "default":
             self.connection = self.connection_details.get("default")
+        else:
+            self.connection = connection_key
 
-        connection_detail = self._connection_driver = (
-            self.connection_details.get(self.connection)
-        )
-
+        connection_detail = self.connection_details.get(self.connection)
         if connection_detail:
             self._connection_driver = connection_detail.get("driver")
         else:
@@ -103,7 +102,7 @@ class Schema:
                 f"Could not find the '{connection_key}' connection details"
             )
 
-        self.connection_class = DB.connection_factory.make(
+        self.connection_class = resolver.connection_factory.make(
             self._connection_driver
         )
 

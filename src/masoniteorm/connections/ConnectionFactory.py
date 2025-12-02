@@ -1,4 +1,5 @@
 from ..config import load_config
+from .ConnectionResolver import ConnectionResolver
 
 
 class ConnectionFactory:
@@ -6,8 +7,9 @@ class ConnectionFactory:
 
     _connections = {}
 
-    def __init__(self, config_path=None):
+    def __init__(self, config_path=None, resolver=None):
         self.config_path = config_path
+        self._resolver: ConnectionResolver = resolver
 
     @classmethod
     def register(cls, key, connection):
@@ -35,18 +37,16 @@ class ConnectionFactory:
         Returns:
             masoniteorm.connection.BaseConnection -- Returns an instance of a BaseConnection class.
         """
+        if not self._resolver:
+            self._resolver = load_config(config_path=self.config_path).DB
 
-        DB = load_config(config_path=self.config_path).DB
-
-        connections = DB.get_connection_details()
-
+        connections = self._resolver.get_connection_details()
         if key == "default":
             connection_details = connections.get(connections.get("default"))
             connection = self._connections.get(
                 connection_details.get("driver")
             )
         else:
-            connection_details = connections.get(key)
             connection = self._connections.get(key)
 
         if connection:

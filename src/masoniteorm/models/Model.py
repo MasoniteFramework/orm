@@ -392,8 +392,8 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return list(cls.first().__attributes__.keys())
 
     def get_connection_details(self):
-        DB = load_config().DB
-        return DB.get_connection_details()
+        resolver = load_config().DB
+        return resolver.get_connection_details()
 
     def boot(self):
         if not self._booted:
