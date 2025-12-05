@@ -221,19 +221,19 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
             schema.drop_table_if_exists(table)
 
         with schema.create("users_hidden") as blueprint:
-            blueprint.increments("id")
+            blueprint.integer("id").primary()
             blueprint.string("name")
             blueprint.integer("token")
             blueprint.string("password")
             blueprint.timestamps()
 
         with schema.create("groups") as blueprint:
-            blueprint.increments("id")
+            blueprint.integer("id").primary()
             blueprint.string("name")
             blueprint.timestamps()
 
         with schema.create("group_user") as blueprint:
-            blueprint.increments("id")
+            blueprint.integer("id").primary()
 
             blueprint.unsigned_integer("group_id")
             blueprint.unsigned_integer("user_id")
@@ -251,7 +251,7 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
         user = UserHydrateHidden.first()
         group = Group.first()
 
-        group.attach_related("team", user)
+        group.attach("team", user)
 
         serialized = Group.first().serialize()
 
