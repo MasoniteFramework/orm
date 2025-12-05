@@ -45,7 +45,7 @@ class MySQLPlatform(Platform):
         "date": "DATE",
         "year": "YEAR",
         "datetime": "DATETIME",
-        "tiny_increments": "TINYINT AUTO_INCREMENT",
+        "tiny_increments": "TINYINT UNSIGNED AUTO_INCREMENT",
         "unsigned": "INT UNSIGNED",
     }
 

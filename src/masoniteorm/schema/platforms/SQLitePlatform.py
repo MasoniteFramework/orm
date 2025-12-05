@@ -1,3 +1,4 @@
+from ...exceptions import QueryException
 from ...schema import Schema
 from ..Table import Table
 from .Platform import Platform
@@ -20,15 +21,15 @@ class SQLitePlatform(Platform):
         "integer": "INTEGER",
         "big_integer": "BIGINT",
         "tiny_integer": "TINYINT",
-        "big_increments": "BIGINT",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
-        "integer_unsigned": "INT UNSIGNED",
-        "big_integer_unsigned": "BIGINT UNSIGNED",
-        "tiny_integer_unsigned": "TINYINT UNSIGNED",
-        "small_integer_unsigned": "SMALLINT UNSIGNED",
-        "medium_integer_unsigned": "MEDIUMINT UNSIGNED",
-        "increments": "INTEGER",
+        # Sqlite database does not implement unsigned types
+        # So the below types are the same as the normal ones
+        "integer_unsigned": "INT",
+        "big_integer_unsigned": "BIGINT",
+        "tiny_integer_unsigned": "TINYINT",
+        "small_integer_unsigned": "SMALLINT",
+        "medium_integer_unsigned": "MEDIUMINT",
         "uuid": "CHAR",
         "binary": "LONGBLOB",
         "boolean": "BOOLEAN",
@@ -51,8 +52,13 @@ class SQLitePlatform(Platform):
         "date": "DATE",
         "year": "VARCHAR",
         "datetime": "DATETIME",
-        "tiny_increments": "TINYINT AUTO_INCREMENT",
-        "unsigned": "INT UNSIGNED",
+        "unsigned": "INT",
+    }
+
+    unsupported_types = {
+        "tiny_increments": "tiny_increments() is not supported. For a primary key use '.tiny_integer('{}').primary()'",
+        "increments": "increments() is not supported. For a primary key use '.integer('{}').primary()'",
+        "big_increments": "big_increments() is not supported. For a primary key use '.big_integer('{}').primary()'",
     }
 
     premapped_defaults = {
@@ -107,7 +113,15 @@ class SQLitePlatform(Platform):
 
     def columnize(self, columns):
         sql = []
+
+        # check for unsupported types
         for name, column in columns.items():
+            if column.column_type in self.unsupported_types:
+                msg = self.unsupported_types[column.column_type].format(
+                    column.name
+                )
+                raise QueryException(msg)
+
             if column.length:
                 length = self.create_column_length(column.column_type).format(
                     length=column.length
@@ -148,12 +162,6 @@ class SQLitePlatform(Platform):
                     data_type=self.type_map.get(column.column_type, ""),
                     column_constraint=column_constraint,
                     length=length,
-                    signed=(
-                        " " + self.signed.get(column._signed)
-                        if column.column_type not in self.types_without_signs
-                        and column._signed
-                        else ""
-                    ),
                     constraint=constraint,
                     nullable=self.premapped_nulls.get(column.is_null) or "",
                     default=default,
@@ -203,13 +211,6 @@ class SQLitePlatform(Platform):
                         column_constraint=column_constraint,
                         nullable="NULL" if column.is_null else "NOT NULL",
                         default=default,
-                        signed=(
-                            " " + self.signed.get(column._signed)
-                            if column.column_type
-                            not in self.types_without_signs
-                            and column._signed
-                            else ""
-                        ),
                         constraint=constraint,
                     )
                     .strip()
@@ -325,7 +326,7 @@ class SQLitePlatform(Platform):
         return '"{column}"'
 
     def add_column_string(self):
-        return "ALTER TABLE {table} ADD COLUMN {name} {data_type}{column_constraint}{signed} {nullable}{default}{constraint}"
+        return "ALTER TABLE {table} ADD COLUMN {name} {data_type}{column_constraint} {nullable}{default}{constraint}"
 
     def create_column_length(self, column_type):
         if column_type in self.types_without_lengths:
@@ -333,7 +334,7 @@ class SQLitePlatform(Platform):
         return "({length})"
 
     def columnize_string(self):
-        return "{name} {data_type}{length}{column_constraint}{signed} {nullable}{default} {constraint}"
+        return "{name} {data_type}{length}{column_constraint} {nullable}{default} {constraint}"
 
     def get_unique_constraint_string(self):
         return "UNIQUE({columns})"

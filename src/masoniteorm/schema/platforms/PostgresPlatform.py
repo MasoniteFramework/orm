@@ -22,7 +22,7 @@ class PostgresPlatform(Platform):
         "integer": "INTEGER",
         "big_integer": "BIGINT",
         "tiny_integer": "TINYINT",
-        "big_increments": "BIGSERIAL UNIQUE",
+        "big_increments": "BIGSERIAL",
         "small_integer": "SMALLINT",
         "medium_integer": "MEDIUMINT",
         # Postgres database does not implement unsigned types
@@ -32,7 +32,7 @@ class PostgresPlatform(Platform):
         "tiny_integer_unsigned": "TINYINT",
         "small_integer_unsigned": "SMALLINT",
         "medium_integer_unsigned": "MEDIUMINT",
-        "increments": "SERIAL UNIQUE",
+        "increments": "SERIAL",
         "uuid": "UUID",
         "binary": "BYTEA",
         "boolean": "BOOLEAN",
@@ -55,7 +55,7 @@ class PostgresPlatform(Platform):
         "date": "DATE",
         "year": "YEAR",
         "datetime": "TIMESTAMPTZ",
-        "tiny_increments": "TINYINT AUTO_INCREMENT",
+        "tiny_increments": "SMALLSERIAL",
         "unsigned": "INT",
     }
 
