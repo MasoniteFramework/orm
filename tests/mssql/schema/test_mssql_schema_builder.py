@@ -1,9 +1,9 @@
 import unittest
 
-from tests.integrations.config.database import DATABASES
 from src.masoniteorm.connections import MSSQLConnection
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import MSSQLPlatform
+from tests.integrations.config.database import DATABASES
 
 
 class TestMSSQLSchemaBuilder(unittest.TestCase):
@@ -26,7 +26,9 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
             blueprint.to_sql(),
-            ["CREATE TABLE [users] ([name] VARCHAR(255) NOT NULL, [age] INT NOT NULL)"],
+            [
+                "CREATE TABLE [users] ([name] VARCHAR(255) NOT NULL, [age] INT NOT NULL)"
+            ],
         )
 
     def test_can_add_tiny_text(self):
@@ -69,7 +71,10 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(
             blueprint.to_sql(),
-            ["""CREATE TABLE [users] (""" """[amount] FLOAT(19, 4) NOT NULL)"""],
+            [
+                """CREATE TABLE [users] ("""
+                """[amount] FLOAT(19, 4) NOT NULL)"""
+            ],
         )
 
     def test_can_have_unsigned_columns(self):
@@ -134,14 +139,16 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
 
     def test_can_advanced_table_creation(self):
         with self.schema.create("users") as blueprint:
-            blueprint.increments("id")
+            blueprint.increments("id").primary()
             blueprint.string("name")
             blueprint.string("email").unique()
             blueprint.string("password")
             blueprint.integer("admin").default(0)
             blueprint.string("remember_token").nullable()
             blueprint.timestamp("verified_at").nullable()
-            blueprint.timestamp("registered_at").default_raw("CURRENT_TIMESTAMP")
+            blueprint.timestamp("registered_at").default_raw(
+                "CURRENT_TIMESTAMP"
+            )
             blueprint.timestamps()
 
         self.assertEqual(len(blueprint.table.added_columns), 10)
@@ -157,7 +164,7 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
 
     def test_can_advanced_table_creation2(self):
         with self.schema.create("users") as blueprint:
-            blueprint.increments("id")
+            blueprint.increments("id").primary()
             blueprint.enum("gender", ["male", "female"])
             blueprint.string("name")
             blueprint.string("duration")
@@ -169,9 +176,9 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
             blueprint.string("thumbnail").nullable()
             blueprint.integer("premium")
             blueprint.integer("author_id").unsigned().nullable()
-            blueprint.foreign("author_id").references("id").on("users").on_delete(
-                "CASCADE"
-            )
+            blueprint.foreign("author_id").references("id").on(
+                "users"
+            ).on_delete("CASCADE")
             blueprint.text("description")
             blueprint.timestamps()
 
@@ -192,9 +199,9 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
     def test_can_add_columns_with_foreign_key_constraint_name(self):
         with self.schema.create("users") as blueprint:
             blueprint.integer("profile_id")
-            blueprint.foreign("profile_id", name="profile_foreign").references("id").on(
-                "profiles"
-            )
+            blueprint.foreign("profile_id", name="profile_foreign").references(
+                "id"
+            ).on("profiles")
 
         self.assertEqual(len(blueprint.table.added_columns), 1)
         self.assertEqual(
@@ -315,7 +322,9 @@ class TestMSSQLSchemaBuilder(unittest.TestCase):
 
     def test_can_change_column_enum(self):
         with self.schema.table("users") as blueprint:
-            blueprint.enum("status", ["active", "inactive"]).default("active").change()
+            blueprint.enum("status", ["active", "inactive"]).default(
+                "active"
+            ).change()
 
         self.assertEqual(len(blueprint.table.changed_columns), 1)
         self.assertEqual(
