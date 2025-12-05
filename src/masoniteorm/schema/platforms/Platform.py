@@ -1,6 +1,5 @@
 class Platform:
     foreign_key_actions = {
-        "cascade": "CASCADE",
         "set null": "SET NULL",
         "cascade": "CASCADE",
         "restrict": "RESTRICT",
@@ -11,44 +10,7 @@ class Platform:
     signed = {"signed": "SIGNED", "unsigned": "UNSIGNED"}
 
     def columnize(self, columns):
-        sql = []
-        for name, column in columns.items():
-            if column.length:
-                length = self.create_column_length(column.column_type).format(
-                    length=column.length
-                )
-            else:
-                length = ""
-
-            if column.default in (0,):
-                default = f" DEFAULT {column.default}"
-            elif column.default in self.premapped_defaults.keys():
-                default = self.premapped_defaults.get(column.default)
-            elif column.default:
-                if (
-                    isinstance(column.default, (str,))
-                    and not column.default_is_raw
-                ):
-                    default = f" DEFAULT '{column.default}'"
-                else:
-                    default = f" DEFAULT {column.default}"
-            else:
-                default = ""
-
-            sql.append(
-                self.columnize_string()
-                .format(
-                    name=column.name,
-                    data_type=self.type_map.get(column.column_type, ""),
-                    length=length,
-                    constraint="PRIMARY KEY" if column.primary else "",
-                    nullable=self.premapped_nulls.get(column.is_null) or "",
-                    default=default,
-                )
-                .strip()
-            )
-
-        return sql
+        raise NotImplementedError
 
     def columnize_string(self):
         raise NotImplementedError
