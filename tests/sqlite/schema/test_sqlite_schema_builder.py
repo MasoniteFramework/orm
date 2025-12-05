@@ -1,5 +1,6 @@
 import unittest
 
+from src.masoniteorm.exceptions import QueryException
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import SQLitePlatform
 from tests.integrations.config.database import DATABASES
@@ -242,6 +243,19 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
                 "CONSTRAINT users_name_primary PRIMARY KEY (name))"
             ],
         )
+
+    def test_cannot_have_unsupported_types(self):
+        with self.assertRaises(QueryException):
+            with self.schema.create("users100") as blueprint:
+                blueprint.increments("id").primary()
+
+            with self.schema.create("users200") as blueprint:
+                blueprint.tiny_increments("id").primary()
+                blueprint.to_sql()
+
+            with self.schema.create("users300") as blueprint:
+                blueprint.big_increments("id").primary()
+                blueprint.to_sql()
 
     def test_can_advanced_table_creation2(self):
         with self.schema.create("users") as blueprint:
