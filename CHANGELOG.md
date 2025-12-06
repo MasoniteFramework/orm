@@ -1,6 +1,6 @@
 # Change Log
  
-## [3.0.0] - 2025-03-30
+## [3.0.0] - 2025-12-05
    
 ### Changed
 
@@ -9,6 +9,7 @@
 
 #### Breaking Changes
 
+- Using `*increments()` for primary key definition now requires adding `.primay()` to the column definition.
 - Changed raw expressions placeholder from requiringing explicit quoring per grammar (like this '?') to automaic (like this ?)
 - Changed `update` and `delete` methods to return the affected rows instead of the model
 - Seeding depencies are now in a separate`[seeder]` extension
@@ -16,8 +17,12 @@
   
 ### Fixed
 
- - Model `update` and `delete` not casting passed values
+- QueryBuilder does not require `database.py` when passing connection detain in directly
+- Import DB (ConnectionResolver) from config even if inline connection details are provided   
+- `*increments()` can be used fir non primary key columns if supported by the platform
+- `*increments()` can be used fir non primary key columns if supported by the platform 
 
+ - Model `update` and `delete` not casting passed values
 
 ## [2.24.0] - 2025-01-23
  
