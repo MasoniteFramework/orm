@@ -10,8 +10,8 @@ class CreateTableSchemaMigration(Migration):
         Run the migrations.
         """
         with self.schema.create("table_schema") as table:
-            table.increments('id')
-            table.string('name')
+            table.increments("id").primary()
+            table.string("name")
             table.timestamps()
 
     def down(self):
