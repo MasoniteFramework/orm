@@ -148,9 +148,6 @@ class SQLitePlatform(Platform):
 
             constraint = ""
             column_constraint = ""
-            if column.primary:
-                constraint = "PRIMARY KEY"
-
             if column.column_type == "enum":
                 values = ", ".join(f"'{x}'" for x in column.values)
                 column_constraint = f" CHECK({column.name} IN ({values}))"
