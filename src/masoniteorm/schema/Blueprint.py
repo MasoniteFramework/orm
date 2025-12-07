@@ -902,6 +902,9 @@ class Blueprint:
             column = self._last_column.name
 
         if not isinstance(column, list):
+            self.table.set_primary_key(column)
+            if self.table.added_columns.get(column):
+                self.table.added_columns[column].set_as_primary()
             column = [column]
 
         self.table.add_constraint(
