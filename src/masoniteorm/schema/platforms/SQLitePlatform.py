@@ -55,7 +55,7 @@ class SQLitePlatform(Platform):
         "unsigned": "INT",
     }
 
-    unsupported_types = {
+    primary_key_type_check = {
         "tiny_increments": "tiny_increments() is not supported. For a primary key use '.tiny_integer('{}').primary()'",
         "increments": "increments() is not supported. For a primary key use '.integer('{}').primary()'",
         "big_increments": "big_increments() is not supported. For a primary key use '.big_integer('{}').primary()'",
@@ -116,8 +116,11 @@ class SQLitePlatform(Platform):
 
         # check for unsupported types
         for name, column in columns.items():
-            if column.column_type in self.unsupported_types:
-                msg = self.unsupported_types[column.column_type].format(
+            if (
+                column.column_type in self.primary_key_type_check
+                and not column.primary
+            ):
+                msg = self.primary_key_type_check[column.column_type].format(
                     column.name
                 )
                 raise QueryException(msg)

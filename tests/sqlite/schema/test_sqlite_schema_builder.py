@@ -246,15 +246,16 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
 
     def test_cannot_have_unsupported_types(self):
         with self.assertRaises(QueryException):
-            with self.schema.create("users100") as blueprint:
-                blueprint.increments("id").primary()
-
             with self.schema.create("users200") as blueprint:
-                blueprint.tiny_increments("id").primary()
+                blueprint.increments("id")
                 blueprint.to_sql()
 
-            with self.schema.create("users300") as blueprint:
-                blueprint.big_increments("id").primary()
+            with self.schema.create("users200") as blueprint:
+                blueprint.tiny_increments("id")
+                blueprint.to_sql()
+
+            with self.schema.create("users200") as blueprint:
+                blueprint.big_increments("id")
                 blueprint.to_sql()
 
     def test_can_advanced_table_creation2(self):
