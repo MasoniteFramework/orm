@@ -903,8 +903,23 @@ class Blueprint:
 
         if not isinstance(column, list):
             self.table.set_primary_key(column)
-            if self.table.added_columns.get(column):
-                self.table.added_columns[column].set_as_primary()
+            check_column = self.table.added_columns.get(column)
+            if check_column:
+                check_column.set_as_primary()
+                if check_column.column_type in [
+                    "tiny_increments",
+                    "increments",
+                    "big_increments",
+                ]:
+                    # use column attributes for primary key auto increment columns
+                    check_column.column_type = (
+                        f"{check_column.column_type}_primary"
+                    )
+                    self.table.added_columns[column] = check_column
+                    return self
+
+                self.table.added_columns[column] = check_column
+
             column = [column]
 
         self.table.add_constraint(

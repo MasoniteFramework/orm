@@ -53,12 +53,18 @@ class SQLitePlatform(Platform):
         "year": "VARCHAR",
         "datetime": "DATETIME",
         "unsigned": "INT",
+        "tiny_increments": "TINYINT",
+        "increments": "INTEGER",
+        "big_increments": "BIGINT",
+        "tiny_increments_primary": "TINYINT PRIMARY KEY AUTOINCREMENT",
+        "increments_primary": "INTEGER PRIMARY KEY AUTOINCREMENT",
+        "big_increments_primary": "BIGINT PRIMARY KEY AUTOINCREMENT",
     }
 
     primary_key_type_check = {
-        "tiny_increments": "tiny_increments() is not supported. For a primary key use '.tiny_integer('{}').primary()'",
-        "increments": "increments() is not supported. For a primary key use '.integer('{}').primary()'",
-        "big_increments": "big_increments() is not supported. For a primary key use '.big_integer('{}').primary()'",
+        "tiny_increments": "tiny_increments() not supported on non-primary key columns. For a primary key use '.tiny_increments('{}').primary()'",
+        "increments": "increments() not supported on non-primary key columns. For a primary key use '.increments('{}').primary()'",
+        "big_increments": "big_increments() not supported on non-primary key columns. For a primary key use '.big_increments('{}').primary()'",
     }
 
     premapped_defaults = {
@@ -116,14 +122,15 @@ class SQLitePlatform(Platform):
 
         # check for unsupported types
         for name, column in columns.items():
-            if (
-                column.column_type in self.primary_key_type_check
-                and not column.primary
-            ):
-                msg = self.primary_key_type_check[column.column_type].format(
-                    column.name
-                )
-                raise QueryException(msg)
+            constraint = ""
+            if column.column_type in self.primary_key_type_check:
+                if not column.primary:
+                    msg = self.primary_key_type_check[
+                        column.column_type
+                    ].format(column.name)
+                    raise QueryException(msg)
+
+                constraint = "PRIMARY KEY AUTOINCREMENT"
 
             if column.length:
                 length = self.create_column_length(column.column_type).format(
@@ -149,7 +156,6 @@ class SQLitePlatform(Platform):
             else:
                 default = ""
 
-            constraint = ""
             column_constraint = ""
             if column.column_type == "enum":
                 values = ", ".join(f"'{x}'" for x in column.values)

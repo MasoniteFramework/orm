@@ -195,11 +195,11 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             [
-                'CREATE TABLE "users" ("id" SERIAL NOT NULL, "name" VARCHAR(255) NOT NULL, '
+                'CREATE TABLE "users" ("id" SERIAL PRIMARY KEY NOT NULL, "name" VARCHAR(255) NOT NULL, '
                 '"email" VARCHAR(255) NOT NULL, "password" VARCHAR(255) NOT NULL, "admin" INTEGER NOT NULL DEFAULT 0, '
                 '"remember_token" VARCHAR(255) NULL, "verified_at" TIMESTAMP NULL, '
                 '"created_at" TIMESTAMPTZ NULL DEFAULT CURRENT_TIMESTAMP, "updated_at" TIMESTAMPTZ NULL DEFAULT CURRENT_TIMESTAMP, '
-                "CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_email_unique UNIQUE (email))"
+                "CONSTRAINT users_email_unique UNIQUE (email))"
             ],
         )
 
@@ -232,12 +232,12 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             blueprint.to_sql(),
             (
                 [
-                    """CREATE TABLE "users" ("id" BIGSERIAL NOT NULL, "name" VARCHAR(255) NOT NULL, "gender" VARCHAR(255) CHECK(gender IN ('male', 'female')) NOT NULL, """
+                    """CREATE TABLE "users" ("id" BIGSERIAL PRIMARY KEY NOT NULL, "name" VARCHAR(255) NOT NULL, "gender" VARCHAR(255) CHECK(gender IN ('male', 'female')) NOT NULL, """
                     """"duration" VARCHAR(255) NOT NULL, "money" DECIMAL(17, 6) NOT NULL, "url" VARCHAR(255) NOT NULL, "option" VARCHAR(255) NOT NULL DEFAULT 'ADMIN', "payload" JSONB NOT NULL, "last_address" INET NULL, """
                     '"route_origin" CIDR NULL, "mac_address" MACADDR NULL, "published_at" TIMESTAMPTZ NOT NULL, "thumbnail" VARCHAR(255) NULL, "premium" INTEGER NOT NULL, "amount" DOUBLE PRECISION NOT NULL DEFAULT 0.0, '
                     '"author_id" INTEGER NULL, "description" TEXT NOT NULL, "created_at" TIMESTAMPTZ NULL DEFAULT CURRENT_TIMESTAMP, '
                     '"updated_at" TIMESTAMPTZ NULL DEFAULT CURRENT_TIMESTAMP, '
-                    'CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_author_id_foreign FOREIGN KEY ("author_id") REFERENCES "authors"("id") ON DELETE CASCADE)'
+                    'CONSTRAINT users_author_id_foreign FOREIGN KEY ("author_id") REFERENCES "authors"("id") ON DELETE CASCADE)'
                 ]
             ),
         )
