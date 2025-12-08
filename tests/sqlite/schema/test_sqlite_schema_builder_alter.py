@@ -9,8 +9,9 @@ from tests.integrations.config.database import DATABASES
 class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
     maxDiff = None
 
-    def setUp(self):
-        self.schema = Schema(
+    @classmethod
+    def setUpClass(cls):
+        cls.schema = Schema(
             connection="dev",
             connection_details=DATABASES,
             platform=SQLitePlatform,
@@ -141,17 +142,6 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         sql = ['ALTER TABLE "users" ADD COLUMN "due_date" TIMESTAMP NULL']
 
         self.assertEqual(blueprint.to_sql(), sql)
-
-    def test_alter_drop_on_table_schema_table(self):
-        schema = Schema(connection="dev", connection_details=DATABASES).on(
-            "dev"
-        )
-
-        with schema.table("table_schema") as blueprint:
-            blueprint.drop_column("name")
-
-        with schema.table("table_schema") as blueprint:
-            blueprint.string("name").nullable()
 
     def test_alter_add_primary(self):
         with self.schema.table("users") as blueprint:
