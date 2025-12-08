@@ -1,4 +1,5 @@
 from ..config import load_config
+from ..connections import ConnectionResolver
 from ..exceptions import ConnectionNotRegistered
 from .Blueprint import Blueprint
 from .Table import Table
@@ -87,8 +88,14 @@ class Schema:
         Returns:
             cls
         """
-        resolver = load_config(config_path=self.config_path).DB
-        self.connection_details = resolver.get_connection_details()
+        if not self.connection_details:
+            resolver = ConnectionResolver(
+                connection_details=self.connection_details
+            )
+        else:
+            resolver = load_config(config_path=self.config_path).DB
+            self.connection_details = resolver.get_connection_details()
+
         if connection_key == "default":
             self.connection = self.connection_details.get("default")
         else:
