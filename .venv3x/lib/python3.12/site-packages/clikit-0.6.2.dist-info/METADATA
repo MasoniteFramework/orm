@@ -1,0 +1,34 @@
+Metadata-Version: 2.1
+Name: clikit
+Version: 0.6.2
+Summary: CliKit is a group of utilities to build beautiful and testable command line interfaces.
+Home-page: https://github.com/sdispater/clikit
+License: MIT
+Keywords: packaging,dependency,poetry
+Author: Sébastien Eustace
+Author-email: sebastien@eustace.io
+Requires-Python: >=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Requires-Dist: crashtest (>=0.3.0,<0.4.0); python_version >= "3.6" and python_version < "4.0"
+Requires-Dist: enum34 (>=1.1,<2.0); python_version >= "2.7" and python_version < "2.8"
+Requires-Dist: pastel (>=0.2.0,<0.3.0)
+Requires-Dist: pylev (>=1.3,<2.0)
+Requires-Dist: typing (>=3.6,<4.0); python_version >= "2.7" and python_version < "2.8" or python_version >= "3.4" and python_version < "3.5"
+Requires-Dist: typing-extensions (>=3.6,<4.0); python_version >= "3.5" and python_full_version < "3.5.4"
+Project-URL: Repository, https://github.com/sdispater/clikit
+Description-Content-Type: text/markdown
+
+# CliKit
+
+CliKit is a group of utilities to build beautiful and testable command line interfaces.
+
+This is at the core of [Cleo](https://github.com/sdispater/cleo).
+

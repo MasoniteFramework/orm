@@ -1,0 +1,6 @@
+[console_scripts]
+flake8p=flake8p:main
+
+[flake8.report]
+Flake8-pyproject=flake8p:Plugin
+
