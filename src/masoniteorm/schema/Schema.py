@@ -88,7 +88,7 @@ class Schema:
         Returns:
             cls
         """
-        if not self.connection_details:
+        if self.connection_details:
             resolver = ConnectionResolver(
                 connection_details=self.connection_details
             )
