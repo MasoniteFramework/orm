@@ -1,4 +1,5 @@
 ruff
+faker
 pytest
 pytest-env
 coverage
