@@ -1,54 +1,65 @@
 SHELL := /bin/bash
 
-init: .env .bootstrapped-pip .git/hooks/pre-commit
-init-ci:
-	touch .ignore-pre-commit
-	make init
+.PHONY: init
+init: .env .bootstrapped-dev
 
-.bootstrapped-pip: requirements.txt
+.PHONY: init-ci
+init-ci: .env .bootstrapped-tests
+
+.bootstrapped-tests:
 	pip install -r requirements.txt
-	touch .bootstrapped-pip
+	touch .bootstrapped-tests
 
-.git/hooks/pre-commit:
-	@if ! test -e ".ignore-pre-commit"; then \
-  		pip install pre-commit; \
-  		pre-commit install --install-hooks; \
-	fi
+.bootstrapped-dev: .bootstrapped-tests
+	pip install pre-commit faker
+	pre-commit install
+	touch .bootstrapped-dev
 
 .env:
 	cp .env-example .env
 
 # 	Create MySQL Database
 # 	Create Postgres Database
-test: init
+
+.PHONY: test
+test: .bootstrapped-tests
 	python -m pytest tests
+
+.PHONY: ci
 ci:
 	make test
-check: format sort lint
-lint:
-	flake8 src/masoniteorm tests
-format: init
-	black src/masoniteorm tests/
-sort: init
-	isort src/masoniteorm tests/
+
+.PHONY: check
+check: format lint
+
+.PHONY: lint
+lint: .bootstrapped-tests
+	ruff check --fix --exit-non-zero-on-fix src/masoniteorm tests
+
+format: .bootstrapped-tests
+	ruff format --check src/masoniteorm tests/
+
 coverage:
 	python -m pytest --cov-report term --cov-report xml --cov=src/masoniteorm tests/
 	python -m coveralls
+
 show:
 	python -m pytest --cov-report term --cov-report html --cov=src/masoniteorm tests/
+
 cov:
 	python -m pytest --cov-report term --cov-report xml --cov=src/masoniteorm tests/
+
 publish:
-	pip install twine
+	pip install build twine
 	make test
-	python setup.py sdist
+	python -m build
 	twine upload dist/*
-	rm -fr build dist .egg masonite.egg-info
-	rm -rf dist/*
+	rm -rf build dist *.egg-info
+
 pub:
-	python setup.py sdist
+	python -m build
 	twine upload dist/*
-	rm -fr build dist .egg masonite.egg-info
-	rm -rf dist/*
+	rm -rf build dist *.egg-info
+
 pypirc:
 	cp .pypirc ~/.pypirc

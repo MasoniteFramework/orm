@@ -1,21 +1,85 @@
-[tool.black]
-target-version = ['py38']
-include = '\.pyi?$'
-line-length = 79
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
 
-[tool.isort]
-profile = "black"
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-ensure_newline_before_comments = true
-
-[tool.flake8]
-ignore = ['E501', 'E203', 'E128', 'E402', 'E731', 'F821', 'E712', 'W503', 'F811']
-#max-line-length = 79
-#max-complexity = 18
-per-file-ignores = [
-    '__init__.py:F401',
-    'setup.py:E266',
+[project]
+name = "masonite-orm"
+version = "3.0.0"
+description = "The Official Masonite ORM"
+readme = { file = "README.md", content-type = "text/markdown" }
+license = { text = "MIT" }
+authors = [{ name = "Joe Mancuso", email = "joe@masoniteproject.com" }]
+requires-python = ">=3.8"
+keywords = ["Masonite", "MasoniteFramework", "Python", "ORM"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Build Tools",
+    "Environment :: Web Environment",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Framework :: Masonite",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
+dependencies = [
+    "inflection>=0.3,<0.6",
+    "pendulum>=3.0,<4.0",
+    "cleo>=0.8.0,<2.0",
+]
+
+[project.optional-dependencies]
+seeder  = ["faker"]
+
+[project.urls]
+Homepage = "https://github.com/masoniteframework/orm"
+
+[project.scripts]
+masonite-orm = "masoniteorm.commands.Entry:application.run"
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+env = [
+    "D:DB_CONFIG_PATH=tests/integrations/config/database",
+]
+
+[tool.ruff]
+target-version = "py38"
+line-length    = 79
+exclude        = ["build", "conda"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+]
+ignore = [
+#    "E501",  # line too long
+#    "E203",  # whitespace before ':'
+    "E402",  # module-level import not at top of file
+    "E731",  # do not assign a lambda expression
+#    "E712",  # comparison to True/False
+#    "F821",  # undefined name
+#    "F811",  # redefinition of unused name
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # imported but unused
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+combine-as-imports = true
+forced-separate = ["tests"]

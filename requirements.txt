@@ -1,10 +1,7 @@
-flake8-pyproject
-black
-isort
-faker
+ruff
 pytest
 pytest-env
-pytest-cov
+coverage
 pymysql
 inflection>=0.3
 psycopg2-binary
