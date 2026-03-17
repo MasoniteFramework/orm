@@ -1,9 +1,10 @@
 import unittest
 
-from tests.integrations.config.database import DATABASES
 from src.masoniteorm.connections import MSSQLConnection
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import MSSQLPlatform
+
+from tests.integrations.config.database import DATABASES
 
 
 class TestMSSQLSchemaBuilder(unittest.TestCase):

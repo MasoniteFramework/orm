@@ -1,9 +1,9 @@
 import inspect
 import unittest
 
+from src.masoniteorm.expressions import Raw
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import MySQLGrammar
-from src.masoniteorm.expressions import Raw
 
 
 class BaseTestCaseUpdateGrammar:

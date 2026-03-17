@@ -59,17 +59,13 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         self.builder.select('username').max('age').to_sql()
         """
-        return (
-            "SELECT `users`.`username`, MAX(`users`.`age`) AS age FROM `users`"
-        )
+        return "SELECT `users`.`username`, MAX(`users`.`age`) AS age FROM `users`"
 
     def can_compile_with_max_and_columns_different_order(self):
         """
         self.builder.max('age').select('username').to_sql()
         """
-        return (
-            "SELECT `users`.`username`, MAX(`users`.`age`) AS age FROM `users`"
-        )
+        return "SELECT `users`.`username`, MAX(`users`.`age`) AS age FROM `users`"
 
     def can_compile_with_order_by(self):
         """
@@ -180,7 +176,9 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         self.builder.where('name', 2).or_where('name', 3).to_sql()
         """
-        return "SELECT * FROM `users` WHERE `users`.`name` = '2' OR `users`.`name` = '3'"
+        return (
+            "SELECT * FROM `users` WHERE `users`.`name` = '2' OR `users`.`name` = '3'"
+        )
 
     def can_grouped_where(self):
         """
@@ -288,9 +286,7 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         builder.between('age', 18, 21).to_sql()
         """
-        return (
-            "SELECT * FROM `users` WHERE `users`.`age` BETWEEN '18' AND '21'"
-        )
+        return "SELECT * FROM `users` WHERE `users`.`age` BETWEEN '18' AND '21'"
 
     def can_compile_not_between(self):
         """
@@ -337,9 +333,7 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder = self.get_builder()
         builder.where("is_admin", "=", True).first_or_fail()
         """
-        return (
-            """SELECT * FROM `users` WHERE `users`.`is_admin` = '1' LIMIT 1"""
-        )
+        return """SELECT * FROM `users` WHERE `users`.`is_admin` = '1' LIMIT 1"""
 
     def where_not_like(self):
         """
@@ -471,9 +465,7 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         builder = self.get_builder()
         builder.where("age", "not like", "%name%").to_sql()
         """
-        return (
-            "SELECT * FROM `users` WHERE `users`.`votes` >= '100' FOR UPDATE"
-        )
+        return "SELECT * FROM `users` WHERE `users`.`votes` >= '100' FOR UPDATE"
 
     def can_user_where_raw_and_where(self):
         """
@@ -488,7 +480,9 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         return """SELECT * FROM `users` WHERE NOT EXISTS (SELECT * FROM `users` WHERE `users`.`age` = '1')"""
 
     def where_date(self):
-        return """SELECT * FROM `users` WHERE DATE(`users`.`created_at`) = '2022-06-01'"""
+        return (
+            """SELECT * FROM `users` WHERE DATE(`users`.`created_at`) = '2022-06-01'"""
+        )
 
     def or_where_null(self):
         return """SELECT * FROM `users` WHERE `users`.`column1` IS NULL OR `users`.`column2` IS NULL"""

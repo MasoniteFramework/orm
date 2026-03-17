@@ -2,7 +2,6 @@ import os
 import unittest
 
 from src.masoniteorm import Model
-from tests.integrations.config.database import DATABASES
 from src.masoniteorm.connections import MySQLConnection
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import MySQLPlatform
@@ -76,8 +75,8 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         with self.schema.create("users") as blueprint:
             blueprint.string("name")
             blueprint.integer("age")
-            blueprint.unique("name"),
-            blueprint.unique("name", name="table_unique"),
+            (blueprint.unique("name"),)
+            (blueprint.unique("name", name="table_unique"),)
 
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
@@ -109,30 +108,6 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.to_sql(),
             [
                 "CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL) COMMENT 'A users table'"
-            ],
-        )
-
-    def test_can_add_columns_with_foreign_key_constaint(self):
-        with self.schema.create("users") as blueprint:
-            blueprint.string("name").unique()
-            blueprint.integer("age")
-            blueprint.integer("profile_id")
-            blueprint.foreign("profile_id").references("id").on("profiles")
-            blueprint.foreign_id("post_id").references("id").on("posts")
-            blueprint.foreign_id_for(Discussion).references("id").on("discussions")
-
-        self.assertEqual(len(blueprint.table.added_columns), 3)
-        self.assertEqual(
-            blueprint.to_sql(),
-            [
-                "CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL, "
-                "`age` INT(11) NOT NULL, "
-                "`profile_id` INT(11) NOT NULL, "
-                "`post_id` BIGINT UNSIGNED NOT NULL, "
-                "CONSTRAINT users_name_unique UNIQUE (name), "
-                "CONSTRAINT users_profile_id_foreign FOREIGN KEY (`profile_id`) REFERENCES `profiles`(`id`), "
-                "CONSTRAINT users_profile_id_foreign FOREIGN KEY (`post_id`) REFERENCES `posts`(`id`)), "
-                "CONSTRAINT users_discussions_id_foreign FOREIGN KEY (`discussion_id`) REFERENCES `posts`(`id`))"
             ],
         )
 
@@ -316,7 +291,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(
             blueprint.to_sql(),
-            ["CREATE TABLE `users` (" "`profile_id` VARCHAR(255) NOT NULL DEFAULT '')"],
+            ["CREATE TABLE `users` (`profile_id` VARCHAR(255) NOT NULL DEFAULT '')"],
         )
 
     def test_can_have_float_type(self):
@@ -325,7 +300,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(
             blueprint.to_sql(),
-            ["CREATE TABLE `users` (" "`amount` FLOAT(19, 4) NOT NULL)"],
+            ["CREATE TABLE `users` (`amount` FLOAT(19, 4) NOT NULL)"],
         )
 
     def test_has_table(self):

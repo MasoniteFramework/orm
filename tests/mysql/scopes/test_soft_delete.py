@@ -4,6 +4,7 @@ from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import MySQLGrammar
 from src.masoniteorm.scopes import SoftDeleteScope, SoftDeletesMixin
+
 from tests.integrations.config.database import DATABASES
 from tests.utils import MockConnectionFactory
 

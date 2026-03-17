@@ -3,6 +3,7 @@ import unittest
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import SQLitePlatform
 from src.masoniteorm.schema.Table import Table
+
 from tests.integrations.config.database import DATABASES
 
 
@@ -143,9 +144,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_alter_drop_on_table_schema_table(self):
-        schema = Schema(connection="dev", connection_details=DATABASES).on(
-            "dev"
-        )
+        schema = Schema(connection="dev", connection_details=DATABASES).on("dev")
 
         with schema.table("table_schema") as blueprint:
             blueprint.drop_column("name")
@@ -166,9 +165,9 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
     def test_alter_add_column_and_foreign_key(self):
         with self.schema.table("users") as blueprint:
             blueprint.unsigned_integer("playlist_id").nullable()
-            blueprint.foreign("playlist_id").references("id").on(
-                "playlists"
-            ).on_delete("cascade").on_update("SET NULL")
+            blueprint.foreign("playlist_id").references("id").on("playlists").on_delete(
+                "cascade"
+            ).on_update("SET NULL")
 
         table = Table("users")
         table.add_column("age", "string")
@@ -190,9 +189,9 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
 
     def test_alter_add_foreign_key_only(self):
         with self.schema.table("users") as blueprint:
-            blueprint.foreign("playlist_id").references("id").on(
-                "playlists"
-            ).on_delete("cascade").on_update("set null")
+            blueprint.foreign("playlist_id").references("id").on("playlists").on_delete(
+                "cascade"
+            ).on_update("set null")
 
         table = Table("users")
         table.add_column("age", "string")
@@ -225,9 +224,7 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
 
     def test_can_change_column_enum(self):
         with self.schema.table("users") as blueprint:
-            blueprint.enum("status", ["active", "inactive"]).default(
-                "active"
-            ).change()
+            blueprint.enum("status", ["active", "inactive"]).default("active").change()
 
         blueprint.table.from_table = Table("users")
 

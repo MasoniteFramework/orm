@@ -1,10 +1,11 @@
 import unittest
 
-from tests.integrations.config.database import DATABASES
 from src.masoniteorm.connections import PostgresConnection
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import PostgresPlatform
 from src.masoniteorm.schema.Table import Table
+
+from tests.integrations.config.database import DATABASES
 
 
 class TestPostgresSchemaBuilderAlter(unittest.TestCase):
@@ -309,7 +310,7 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 1)
 
         sql = [
-            'ALTER TABLE "users" ADD COLUMN "status" VARCHAR(255) CHECK(status IN (\'active\', \'inactive\')) NOT NULL DEFAULT \'active\'',
+            "ALTER TABLE \"users\" ADD COLUMN \"status\" VARCHAR(255) CHECK(status IN ('active', 'inactive')) NOT NULL DEFAULT 'active'",
         ]
 
         self.assertEqual(blueprint.to_sql(), sql)

@@ -4,6 +4,7 @@ import unittest
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import PostgresGrammar
+
 from tests.utils import MockConnectionFactory
 
 
@@ -657,9 +658,7 @@ class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         builder.where_not_in('id', [1, 2, 3])
         """
-        return (
-            """SELECT * FROM "users" WHERE "users"."id" NOT IN ('1','2','3')"""
-        )
+        return """SELECT * FROM "users" WHERE "users"."id" NOT IN ('1','2','3')"""
 
     def where_in(self):
         """
@@ -671,9 +670,7 @@ class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         builder.between('id', 2, 5)
         """
-        return (
-            """SELECT * FROM "users" WHERE "users"."id" BETWEEN '2' AND '5'"""
-        )
+        return """SELECT * FROM "users" WHERE "users"."id" BETWEEN '2' AND '5'"""
 
     def not_between(self):
         """
@@ -747,9 +744,7 @@ class PostgresQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = self.get_builder()
         builder.where("age", "not like", "%name%")
         """
-        return (
-            """SELECT * FROM "users" WHERE "users"."age" NOT ILIKE '%name%'"""
-        )
+        return """SELECT * FROM "users" WHERE "users"."age" NOT ILIKE '%name%'"""
 
     def truncate(self):
         """

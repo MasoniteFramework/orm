@@ -4,6 +4,7 @@ from src.masoniteorm.models import Model
 from src.masoniteorm.relationships import has_one_through
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import SQLitePlatform
+
 from tests.integrations.config.database import DATABASES
 
 
@@ -24,9 +25,7 @@ class IncomingShipment(Model):
     __connection__ = "dev"
     __fillable__ = ["shipment_id", "name", "from_port_id"]
 
-    @has_one_through(
-        None, "from_port_id", "port_country_id", "port_id", "country_id"
-    )
+    @has_one_through(None, "from_port_id", "port_country_id", "port_id", "country_id")
     def from_country(self):
         return [Country, Port]
 
@@ -39,9 +38,7 @@ class TestHasOneThroughRelationship(unittest.TestCase):
             platform=SQLitePlatform,
         ).on("dev")
 
-        with self.schema.create_table_if_not_exists(
-            "incoming_shipments"
-        ) as table:
+        with self.schema.create_table_if_not_exists("incoming_shipments") as table:
             table.integer("shipment_id").primary()
             table.string("name")
             table.integer("from_port_id")
@@ -117,9 +114,7 @@ class TestHasOneThroughRelationship(unittest.TestCase):
             )
 
     def test_has_one_through_can_eager_load(self):
-        shipments = (
-            IncomingShipment.where("name", "Bread").with_("from_country").get()
-        )
+        shipments = IncomingShipment.where("name", "Bread").with_("from_country").get()
         self.assertEqual(shipments.count(), 2)
 
         shipment1 = shipments.shift()
@@ -137,9 +132,7 @@ class TestHasOneThroughRelationship(unittest.TestCase):
             .first()
         )
         single_get = (
-            IncomingShipment.where("name", "Tractor Parts")
-            .with_("from_country")
-            .get()
+            IncomingShipment.where("name", "Tractor Parts").with_("from_country").get()
         )
         self.assertEqual(single.from_country.country_id, 10)
         self.assertEqual(single_get.count(), 1)
@@ -151,9 +144,7 @@ class TestHasOneThroughRelationship(unittest.TestCase):
     def test_has_one_through_eager_load_can_be_empty(self):
         shipments = (
             IncomingShipment.where("name", "Bread")
-            .where_has(
-                "from_country", lambda query: query.where("name", "Ueaguay")
-            )
+            .where_has("from_country", lambda query: query.where("name", "Ueaguay"))
             .with_(
                 "from_country",
             )

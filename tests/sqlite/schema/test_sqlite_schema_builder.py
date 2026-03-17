@@ -2,6 +2,7 @@ import unittest
 
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import SQLitePlatform
+
 from tests.integrations.config.database import DATABASES
 
 
@@ -113,9 +114,9 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.string("name").unique()
             blueprint.integer("age")
             blueprint.integer("profile_id")
-            blueprint.foreign("profile_id", name="profile_foreign").references(
-                "id"
-            ).on("profiles")
+            blueprint.foreign("profile_id", name="profile_foreign").references("id").on(
+                "profiles"
+            )
 
         self.assertEqual(len(blueprint.table.added_columns), 3)
         self.assertEqual(
@@ -259,9 +260,9 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.string("thumbnail").nullable()
             blueprint.integer("premium")
             blueprint.integer("author_id").unsigned().nullable()
-            blueprint.foreign("author_id").references("id").on(
-                "users"
-            ).on_delete("set null")
+            blueprint.foreign("author_id").references("id").on("users").on_delete(
+                "set null"
+            )
             blueprint.text("description")
             blueprint.timestamps()
 

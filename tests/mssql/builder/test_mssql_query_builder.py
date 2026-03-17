@@ -2,6 +2,7 @@ import unittest
 
 from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
+
 from tests.utils import MockConnectionFactory
 
 
@@ -115,9 +116,7 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
         builder.add_select(
             "other_test",
             lambda q: q.max("updated_at").table("different_table"),
-        ).add_select(
-            "some_alias", lambda q: q.max("updated_at").table("another_table")
-        )
+        ).add_select("some_alias", lambda q: q.max("updated_at").table("another_table"))
 
         self.assertEqual(
             builder.to_sql(),
@@ -168,9 +167,7 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
     def test_where_exists(self):
         builder = self.get_builder()
         builder.where_exists("name")
-        self.assertEqual(
-            builder.to_sql(), "SELECT * FROM [users] WHERE EXISTS 'name'"
-        )
+        self.assertEqual(builder.to_sql(), "SELECT * FROM [users] WHERE EXISTS 'name'")
 
     def test_limit(self):
         builder = self.get_builder()
@@ -245,9 +242,7 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
     def test_order_by_asc(self):
         builder = self.get_builder()
         builder.order_by("email", "asc")
-        self.assertEqual(
-            builder.to_sql(), "SELECT * FROM [users] ORDER BY [email] ASC"
-        )
+        self.assertEqual(builder.to_sql(), "SELECT * FROM [users] ORDER BY [email] ASC")
 
     def test_order_by_desc(self):
         builder = self.get_builder()
@@ -445,9 +440,7 @@ class TestMSSQLQueryBuilder(unittest.TestCase):
     def test_oldest(self):
         builder = self.get_builder()
         builder.oldest("email")
-        self.assertEqual(
-            builder.to_sql(), "SELECT * FROM [users] ORDER BY [email] ASC"
-        )
+        self.assertEqual(builder.to_sql(), "SELECT * FROM [users] ORDER BY [email] ASC")
 
     def test_oldest_multiple(self):
         builder = self.get_builder()

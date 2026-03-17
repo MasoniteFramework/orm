@@ -1,6 +1,6 @@
 import datetime
-import unittest
 from decimal import Decimal
+import unittest
 
 import pendulum
 
@@ -50,9 +50,7 @@ class ModelWithBaseModel(BaseModel):
 
 class TestModels(unittest.TestCase):
     def test_model_can_access_str_dates_as_pendulum(self):
-        model = ModelTest.hydrate(
-            {"user": "joe", "due_date": "2020-11-28 11:42:07"}
-        )
+        model = ModelTest.hydrate({"user": "joe", "due_date": "2020-11-28 11:42:07"})
 
         self.assertTrue(model.user)
         self.assertTrue(model.due_date)
@@ -71,9 +69,7 @@ class TestModels(unittest.TestCase):
         self.assertEqual(model.get_new_date("2020-11-28 11:42:07").hour, 11)
 
     def test_model_can_access_str_dates_on_relationships(self):
-        model = ModelTest.hydrate(
-            {"user": "joe", "due_date": "2020-11-28 11:42:07"}
-        )
+        model = ModelTest.hydrate({"user": "joe", "due_date": "2020-11-28 11:42:07"})
         model.add_relation(
             {
                 "profile": ModelTest.hydrate(
@@ -199,9 +195,7 @@ class TestModels(unittest.TestCase):
 
         self.assertEqual(type(model.payload), dict)
 
-        model = ModelTest.hydrate(
-            {"payload": "{'this': 'should', 'throw': 'error'}"}
-        )
+        model = ModelTest.hydrate({"payload": "{'this': 'should', 'throw': 'error'}"})
 
         self.assertEqual(model.payload, None)
 

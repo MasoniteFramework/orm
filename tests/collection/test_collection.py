@@ -3,6 +3,7 @@ import unittest
 from src.masoniteorm.collection import Collection
 from src.masoniteorm.factories import Factory as factory
 from src.masoniteorm.models import Model
+
 from tests.User import User
 
 
@@ -583,8 +584,7 @@ class TestCollection(unittest.TestCase):
 
         self.assertEqual(
             json_data,
-            '[{"name": "Corentin", "age": 10}, '
-            '{"name": "Joe", "age": 20}, {"name": "Marlysson", "age": 15}]',
+            '[{"name": "Corentin", "age": 10}, {"name": "Joe", "age": 20}, {"name": "Marlysson", "age": 15}]',
         )
 
     def test_contains(self):

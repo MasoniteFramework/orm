@@ -6,6 +6,7 @@ from src.masoniteorm.models import Model
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import MySQLGrammar
 from src.masoniteorm.relationships import has_many
+
 from tests.integrations.config.database import DATABASES
 from tests.utils import MockConnectionFactory
 
@@ -160,9 +161,7 @@ class BaseTestQueryBuilder:
         builder = self.get_builder()
         builder._model = None
         builder.find([10, 20, 30], column="age", query=True)
-        sql = (
-            """SELECT * FROM `users` WHERE `users`.`age` IN ('10','20','30')"""
-        )
+        sql = """SELECT * FROM `users` WHERE `users`.`age` IN ('10','20','30')"""
         self.assertEqual(builder.to_sql(), sql)
 
     def test_find_with_builder_without_column(self):
@@ -514,35 +513,15 @@ class BaseTestQueryBuilder:
         )()
         self.assertEqual(builder.to_sql(), sql)
 
-    def test_or_where(self):
-        builder = self.get_builder()
-        builder.where("age", "20").or_where("age", "<", 20)
-        sql = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
-        self.assertEqual(builder.to_sql(), sql)
-
     def test_where_like_as_operator(self):
         builder = self.get_builder()
         builder.where("age", "like", "%name%")
         sql = getattr(self, "where_like")()
         self.assertEqual(builder.to_sql(), sql)
 
-    def test_where_like(self):
-        builder = self.get_builder()
-        builder.where_like("age", "%name%")
-        sql = getattr(self, "where_like")()
-        self.assertEqual(builder.to_sql(), sql)
-
     def test_where_not_like_as_operator(self):
         builder = self.get_builder()
         builder.where("age", "not like", "%name%")
-        sql = getattr(self, "where_not_like")()
-        self.assertEqual(builder.to_sql(), sql)
-
-    def test_where_not_like(self):
-        builder = self.get_builder()
-        builder.where_not_like("age", "%name%")
         sql = getattr(self, "where_not_like")()
         self.assertEqual(builder.to_sql(), sql)
 
@@ -811,9 +790,7 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         builder.where_column('name', 'username')
         """
-        return (
-            "SELECT * FROM `users` WHERE `users`.`name` = `users`.`username`"
-        )
+        return "SELECT * FROM `users` WHERE `users`.`name` = `users`.`username`"
 
     def where_null(self):
         """
@@ -849,9 +826,7 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         """
         builder.not_between('id', 2, 5)
         """
-        return (
-            "SELECT * FROM `users` WHERE `users`.`id` NOT BETWEEN '2' AND '5'"
-        )
+        return "SELECT * FROM `users` WHERE `users`.`id` NOT BETWEEN '2' AND '5'"
 
     def having(self):
         """
@@ -905,7 +880,9 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = self.get_builder()
         builder.where('age', '20').or_where('age','<', 20)
         """
-        return "SELECT * FROM `users` WHERE `users`.`age` = '20' OR `users`.`age` < '20'"
+        return (
+            "SELECT * FROM `users` WHERE `users`.`age` = '20' OR `users`.`age` < '20'"
+        )
 
     def where_like(self):
         """
@@ -951,9 +928,7 @@ class MySQLQueryBuilderTest(BaseTestQueryBuilder, unittest.TestCase):
         builder = self.get_builder()
         builder.truncate()
         """
-        return (
-            "SELECT * FROM `users` WHERE `users`.`votes` >= '100' FOR UPDATE"
-        )
+        return "SELECT * FROM `users` WHERE `users`.`votes` >= '100' FOR UPDATE"
 
     def test_latest(self):
         builder = self.get_builder()

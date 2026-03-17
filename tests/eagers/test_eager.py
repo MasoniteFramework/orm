@@ -14,9 +14,7 @@ class TestEagerRelation(unittest.TestCase):
             [{"profile": ["user"]}],
         )
         self.assertEqual(
-            EagerRelations()
-            .register("profile.user", "profile.logo")
-            .get_eagers(),
+            EagerRelations().register("profile.user", "profile.logo").get_eagers(),
             [{"profile": ["user", "logo"]}],
         )
         self.assertEqual(
@@ -39,9 +37,7 @@ class TestEagerRelation(unittest.TestCase):
             [["profile", "user"]],
         )
         self.assertEqual(
-            EagerRelations()
-            .register(("profile.name", "profile.user"))
-            .get_eagers(),
+            EagerRelations().register(("profile.name", "profile.user")).get_eagers(),
             [{"profile": ["name", "user"]}],
         )
 
@@ -54,9 +50,7 @@ class TestEagerRelation(unittest.TestCase):
             [["profile", "user"]],
         )
         self.assertEqual(
-            EagerRelations()
-            .register(["profile.name", "profile.user"])
-            .get_eagers(),
+            EagerRelations().register(["profile.name", "profile.user"]).get_eagers(),
             [{"profile": ["name", "user"]}],
         )
         self.assertEqual(

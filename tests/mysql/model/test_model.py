@@ -8,7 +8,6 @@ import pendulum
 from src.masoniteorm.collection import Collection
 from src.masoniteorm.exceptions import ModelNotFound
 from src.masoniteorm.models import Model
-from tests.User import User
 
 
 class ProfileFillable(Model):
@@ -306,8 +305,7 @@ class TestModel(unittest.TestCase):
         user = User.hydrate(
             {
                 "name": "Joe",
-                "created_at": datetime.datetime.now()
-                + datetime.timedelta(days=1),
+                "created_at": datetime.datetime.now() + datetime.timedelta(days=1),
             }
         )
 
@@ -323,9 +321,7 @@ class TestModel(unittest.TestCase):
         profile = ProfileFillAsterisk.hydrate({"name": "Joe", "id": 1})
 
         profile.age = 18
-        self.assertEqual(
-            profile.serialize(), {"age": 18, "name": "Joe", "id": 1}
-        )
+        self.assertEqual(profile.serialize(), {"age": 18, "name": "Joe", "id": 1})
 
     def test_attribute_check_with_hasattr(self):
         self.assertFalse(hasattr(Profile(), "__password__"))

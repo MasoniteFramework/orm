@@ -1,6 +1,13 @@
 import unittest
+
 from src.masoniteorm.models import Model
-from src.masoniteorm.relationships import belongs_to, has_many, has_one, belongs_to_many
+from src.masoniteorm.relationships import (
+    belongs_to,
+    belongs_to_many,
+    has_many,
+    has_one,
+)
+
 from tests.integrations.config.database import DB
 
 

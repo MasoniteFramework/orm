@@ -30,9 +30,7 @@ class TestAccessor(unittest.TestCase):
         self.assertTrue(user.is_admin is True, f"{user.is_admin} is not True")
 
     def test_mutator(self):
-        user = SetUser.hydrate(
-            {"email": "joe@masoniteproject.com", "is_admin": 1}
-        )
+        user = SetUser.hydrate({"email": "joe@masoniteproject.com", "is_admin": 1})
 
         user.name = "joe"
 

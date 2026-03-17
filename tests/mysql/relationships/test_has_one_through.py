@@ -1,10 +1,11 @@
 import unittest
 
+from dotenv import load_dotenv
+
 from src.masoniteorm.models import Model
 from src.masoniteorm.relationships import (
     has_one_through,
 )
-from dotenv import load_dotenv
 
 load_dotenv(".env")
 

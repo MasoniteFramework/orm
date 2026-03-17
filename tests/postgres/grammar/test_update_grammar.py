@@ -2,9 +2,9 @@ import inspect
 import unittest
 
 from src.masoniteorm.connections import PostgresConnection
+from src.masoniteorm.expressions import Raw
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import PostgresGrammar
-from src.masoniteorm.expressions import Raw
 
 
 class BaseTestCaseUpdateGrammar:
