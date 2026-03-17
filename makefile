@@ -30,25 +30,30 @@ ci:
 	make test
 
 .PHONY: check
-check: format lint
+check: lint format
 
 .PHONY: lint
 lint: .bootstrapped-tests
 	ruff check --fix --exit-non-zero-on-fix src/masoniteorm tests
 
+.PHONY: format
 format: .bootstrapped-tests
 	ruff format --check src/masoniteorm tests/
 
+.PHONY: coverage
 coverage:
 	python -m pytest --cov-report term --cov-report xml --cov=src/masoniteorm tests/
 	python -m coveralls
 
+.PHONY: show
 show:
 	python -m pytest --cov-report term --cov-report html --cov=src/masoniteorm tests/
 
+.PHONY: cov
 cov:
 	python -m pytest --cov-report term --cov-report xml --cov=src/masoniteorm tests/
 
+.PHONY: publish
 publish:
 	pip install build twine
 	make test
@@ -56,10 +61,12 @@ publish:
 	twine upload dist/*
 	rm -rf build dist *.egg-info
 
+.PHONY: pub
 pub:
 	python -m build
 	twine upload dist/*
 	rm -rf build dist *.egg-info
 
+.PHONY: pypirc
 pypirc:
 	cp .pypirc ~/.pypirc

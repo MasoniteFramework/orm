@@ -55,7 +55,7 @@ env = [
 
 [tool.ruff]
 target-version = "py38"
-line-length    = 88
+line-length    = 110
 exclude        = ["build", "conda"]
 
 [tool.ruff.lint]
@@ -67,7 +67,6 @@ select = [
     "UP",  # pyupgrade
 ]
 ignore = [
-#    "E501",  # line too long
 #    "E203",  # whitespace before ':'
     "E402",  # module-level import not at top of file
     "E731",  # do not assign a lambda expression
@@ -76,9 +75,16 @@ ignore = [
 #    "F811",  # redefinition of unused name
 ]
 
-[tool.ruff.lint.per-file-ignores]
+[tool.ruff.lint.extend-per-file-ignores]
 "__init__.py" = ["F401"]  # imported but unused
 "tests/**/*.py" = ["E501"]
+"src/masoniteorm/schema/platforms/*.py" = ["E501"]
+"src/masoniteorm/relationships/*.py" = ["E501"]
+"src/masoniteorm/query/processors/*.py" = ["E501"]
+"src/masoniteorm/query/grammars/*.py" = ["E501"]
+"src/masoniteorm/connections/*.py" = ["E501"]
+"src/masoniteorm/commands/*.py" = ["E501"]
+"*.pyi" = ["E501"]
 
 [tool.ruff.lint.isort]
 force-sort-within-sections = true
