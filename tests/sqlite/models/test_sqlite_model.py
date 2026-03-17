@@ -225,9 +225,7 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
             blueprint.foreign("user_id").references("id").on("users_hidden")
             blueprint.timestamps()
 
-        UserHydrateHidden.create(
-            name="Name", password="pass_value", token="token_value"
-        )
+        UserHydrateHidden.create(name="Name", password="pass_value", token="token_value")
 
         Group.create(name="Group")
 

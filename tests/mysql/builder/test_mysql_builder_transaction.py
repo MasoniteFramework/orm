@@ -19,9 +19,7 @@ if os.getenv("RUN_MYSQL_DATABASE") == "True":
 
         def get_builder(self, table="users"):
             connection = ConnectionFactory().make("mysql")
-            return QueryBuilder(
-                grammar=MySQLGrammar, connection=connection, table=table
-            ).on("mysql")
+            return QueryBuilder(grammar=MySQLGrammar, connection=connection, table=table).on("mysql")
 
         def test_transaction(self):
             builder = self.get_builder()

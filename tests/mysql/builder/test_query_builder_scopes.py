@@ -22,9 +22,7 @@ class BaseTestQueryBuilderScopes(unittest.TestCase):
         )
 
     def test_scopes(self):
-        builder = self.get_builder().set_scope(
-            "gender", lambda model, q: q.where("gender", "w")
-        )
+        builder = self.get_builder().set_scope("gender", lambda model, q: q.where("gender", "w"))
 
         self.assertEqual(
             builder.gender().where("id", 1).to_sql(),
@@ -53,9 +51,7 @@ class BaseTestQueryBuilderScopes(unittest.TestCase):
 
     def test_global_scope_remove_from_class(self):
         builder = (
-            self.get_builder()
-            .set_global_scope(SoftDeleteScope())
-            .remove_global_scope(SoftDeleteScope())
+            self.get_builder().set_global_scope(SoftDeleteScope()).remove_global_scope(SoftDeleteScope())
         )
 
         self.assertEqual(

@@ -49,9 +49,7 @@ class TestSoftDeleteScope(unittest.TestCase):
 
     def test_force_delete_with_wheres(self):
         sql = "DELETE FROM `users` WHERE `users`.`active` = '1'"
-        self.assertEqual(
-            sql, UserSoft.where("active", 1).force_delete(query=True).to_sql()
-        )
+        self.assertEqual(sql, UserSoft.where("active", 1).force_delete(query=True).to_sql())
 
     def test_that_trashed_users_are_not_returned_by_default(self):
         sql = "SELECT * FROM `users` WHERE `users`.`deleted_at` IS NULL"

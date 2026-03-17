@@ -176,9 +176,7 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         self.builder.where('name', 2).or_where('name', 3).to_sql()
         """
-        return (
-            "SELECT * FROM `users` WHERE `users`.`name` = '2' OR `users`.`name` = '3'"
-        )
+        return "SELECT * FROM `users` WHERE `users`.`name` = '2' OR `users`.`name` = '3'"
 
     def can_grouped_where(self):
         """
@@ -256,13 +254,17 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         builder.sum('age').group_by('age').having('age', 10).to_sql()
         """
-        return "SELECT SUM(`users`.`age`) AS age FROM `users` GROUP BY `users`.`age` HAVING `users`.`age` = '10'"
+        return (
+            "SELECT SUM(`users`.`age`) AS age FROM `users` GROUP BY `users`.`age` HAVING `users`.`age` = '10'"
+        )
 
     def can_compile_having_with_greater_than_expression(self):
         """
         builder.sum('age').group_by('age').having('age', '>', 10).to_sql()
         """
-        return "SELECT SUM(`users`.`age`) AS age FROM `users` GROUP BY `users`.`age` HAVING `users`.`age` > '10'"
+        return (
+            "SELECT SUM(`users`.`age`) AS age FROM `users` GROUP BY `users`.`age` HAVING `users`.`age` > '10'"
+        )
 
     def can_compile_join(self):
         """
@@ -299,14 +301,8 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         self.assertEqual(to_sql, "SELECT * FROM `users` WHERE `age` = '18'")
 
     def test_can_compile_having_raw(self):
-        to_sql = (
-            self.builder.select_raw("COUNT(*) as counts")
-            .having_raw("counts > 10")
-            .to_sql()
-        )
-        self.assertEqual(
-            to_sql, "SELECT COUNT(*) as counts FROM `users` HAVING counts > 10"
-        )
+        to_sql = self.builder.select_raw("COUNT(*) as counts").having_raw("counts > 10").to_sql()
+        self.assertEqual(to_sql, "SELECT COUNT(*) as counts FROM `users` HAVING counts > 10")
 
     def test_can_compile_having_raw_order(self):
         to_sql = (
@@ -480,9 +476,7 @@ class TestMySQLGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         return """SELECT * FROM `users` WHERE NOT EXISTS (SELECT * FROM `users` WHERE `users`.`age` = '1')"""
 
     def where_date(self):
-        return (
-            """SELECT * FROM `users` WHERE DATE(`users`.`created_at`) = '2022-06-01'"""
-        )
+        return """SELECT * FROM `users` WHERE DATE(`users`.`created_at`) = '2022-06-01'"""
 
     def or_where_null(self):
         return """SELECT * FROM `users` WHERE `users`.`column1` IS NULL OR `users`.`column2` IS NULL"""

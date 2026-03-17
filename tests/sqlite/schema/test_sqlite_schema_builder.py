@@ -25,9 +25,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
             blueprint.to_sql(),
-            [
-                'CREATE TABLE "users" ("name" VARCHAR(255) NOT NULL, "age" INTEGER NOT NULL)'
-            ],
+            ['CREATE TABLE "users" ("name" VARCHAR(255) NOT NULL, "age" INTEGER NOT NULL)'],
         )
 
     def test_can_add_tiny_text(self):
@@ -58,9 +56,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
             blueprint.to_sql(),
-            [
-                'CREATE TABLE IF NOT EXISTS "users" ("name" VARCHAR(255) NOT NULL, "age" INTEGER NOT NULL)'
-            ],
+            ['CREATE TABLE IF NOT EXISTS "users" ("name" VARCHAR(255) NOT NULL, "age" INTEGER NOT NULL)'],
         )
 
     def test_can_add_columns_with_constraint(self):
@@ -72,9 +68,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
             blueprint.to_sql(),
-            [
-                'CREATE TABLE "users" ("name" VARCHAR(255) NOT NULL, "age" INTEGER NOT NULL, UNIQUE(name))'
-            ],
+            ['CREATE TABLE "users" ("name" VARCHAR(255) NOT NULL, "age" INTEGER NOT NULL, UNIQUE(name))'],
         )
 
     def test_can_have_float_type(self):
@@ -114,9 +108,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.string("name").unique()
             blueprint.integer("age")
             blueprint.integer("profile_id")
-            blueprint.foreign("profile_id", name="profile_foreign").references("id").on(
-                "profiles"
-            )
+            blueprint.foreign("profile_id", name="profile_foreign").references("id").on("profiles")
 
         self.assertEqual(len(blueprint.table.added_columns), 3)
         self.assertEqual(
@@ -260,9 +252,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.string("thumbnail").nullable()
             blueprint.integer("premium")
             blueprint.integer("author_id").unsigned().nullable()
-            blueprint.foreign("author_id").references("id").on("users").on_delete(
-                "set null"
-            )
+            blueprint.foreign("author_id").references("id").on("users").on_delete("set null")
             blueprint.text("description")
             blueprint.timestamps()
 

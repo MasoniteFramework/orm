@@ -44,9 +44,7 @@ class MySQLHasOneThroughRelationship(unittest.TestCase):
         )
 
     def test_where_has_query(self):
-        sql = InboundShipment.where_has(
-            "from_country", lambda query: query.where("name", "USA")
-        ).to_sql()
+        sql = InboundShipment.where_has("from_country", lambda query: query.where("name", "USA")).to_sql()
 
         self.assertEqual(
             sql,
@@ -76,9 +74,7 @@ class MySQLHasOneThroughRelationship(unittest.TestCase):
     def test_or_where_doesnt_have(self):
         sql = (
             InboundShipment.where("name", "Joe")
-            .or_where_doesnt_have(
-                "from_country", lambda query: query.where("name", "USA")
-            )
+            .or_where_doesnt_have("from_country", lambda query: query.where("name", "USA"))
             .to_sql()
         )
 

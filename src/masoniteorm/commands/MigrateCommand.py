@@ -22,9 +22,7 @@ class MigrateCommand(Command):
         if os.getenv("APP_ENV") == "production" and not self.option("force"):
             answer = ""
             while answer not in ["y", "n"]:
-                answer = input(
-                    "Do you want to run migrations in PRODUCTION ? (y/n)\n"
-                ).lower()
+                answer = input("Do you want to run migrations in PRODUCTION ? (y/n)\n").lower()
             if answer != "y":
                 self.info("Migrations cancelled")
                 exit(0)

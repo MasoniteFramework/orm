@@ -6,13 +6,9 @@ class TimeStampsScope(BaseScope):
     """Global scope class to add soft deleting to models."""
 
     def on_boot(self, builder):
-        builder.set_global_scope(
-            "_timestamps", self.set_timestamp_create, action="insert"
-        )
+        builder.set_global_scope("_timestamps", self.set_timestamp_create, action="insert")
 
-        builder.set_global_scope(
-            "_timestamp_update", self.set_timestamp_update, action="update"
-        )
+        builder.set_global_scope("_timestamp_update", self.set_timestamp_update, action="update")
 
     def on_remove(self, builder):
         pass
@@ -40,8 +36,6 @@ class TimeStampsScope(BaseScope):
                 return
         builder._updates += (
             UpdateQueryExpression(
-                {
-                    builder._model.date_updated_at: builder._model.get_new_date().to_datetime_string()
-                }
+                {builder._model.date_updated_at: builder._model.get_new_date().to_datetime_string()}
             ),
         )

@@ -26,9 +26,7 @@ class Course(Model):
     __connection__ = "dev"
     __fillable__ = ["course_id", "name"]
 
-    @has_many_through(
-        None, "in_course_id", "active_student_id", "course_id", "student_id"
-    )
+    @has_many_through(None, "in_course_id", "active_student_id", "course_id", "student_id")
     def students(self):
         return [Student, Enrolment]
 

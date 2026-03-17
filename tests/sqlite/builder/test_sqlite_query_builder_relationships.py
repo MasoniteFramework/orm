@@ -76,9 +76,7 @@ class SqliteTestQueryBuilderRelationships(unittest.TestCase):
 
     def test_where_doesnt_have(self):
         builder = self.get_builder()
-        sql = builder.where_doesnt_have(
-            "articles", lambda q: q.where("title", "Eggs and Ham")
-        ).to_sql()
+        sql = builder.where_doesnt_have("articles", lambda q: q.where("title", "Eggs and Ham")).to_sql()
         self.assertEqual(
             sql,
             """SELECT * FROM "users" WHERE NOT EXISTS ("""

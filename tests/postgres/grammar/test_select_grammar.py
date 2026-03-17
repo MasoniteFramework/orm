@@ -71,9 +71,7 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         self.builder.select('username').order_by('age', 'desc').order_by('name').to_sql()
         """
-        return (
-            """SELECT "users"."username" FROM "users" ORDER BY "age" DESC, "name" ASC"""
-        )
+        return """SELECT "users"."username" FROM "users" ORDER BY "age" DESC, "name" ASC"""
 
     def can_compile_with_group_by(self):
         """
@@ -109,9 +107,7 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         self.builder.select('username').where_not_null('age').to_sql()
         """
-        return (
-            """SELECT "users"."username" FROM "users" WHERE "users"."age" IS NOT NULL"""
-        )
+        return """SELECT "users"."username" FROM "users" WHERE "users"."age" IS NOT NULL"""
 
     def can_compile_where_raw(self):
         """
@@ -210,7 +206,9 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         ).to_sql()
         """
 
-        return """SELECT * FROM "users" WHERE "users"."name" = (SELECT SUM("users"."age") AS age FROM "users")"""
+        return (
+            """SELECT * FROM "users" WHERE "users"."name" = (SELECT SUM("users"."age") AS age FROM "users")"""
+        )
 
     def can_compile_complex_sub_select(self):
         """
@@ -243,7 +241,9 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         builder.sum('age').group_by('age').having('age').to_sql()
         """
-        return """SELECT SUM("users"."age") AS age FROM "users" GROUP BY "users"."age" HAVING "users"."age\""""
+        return (
+            """SELECT SUM("users"."age") AS age FROM "users" GROUP BY "users"."age" HAVING "users"."age\""""
+        )
 
     def can_compile_having_order(self):
         """
@@ -304,11 +304,7 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         self.assertEqual(to_sql, """SELECT * FROM "users" WHERE "age" = '18'""")
 
     def test_can_compile_having_raw(self):
-        to_sql = (
-            self.builder.select_raw("COUNT(*) as counts")
-            .having_raw("counts > 10")
-            .to_sql()
-        )
+        to_sql = self.builder.select_raw("COUNT(*) as counts").having_raw("counts > 10").to_sql()
         self.assertEqual(
             to_sql,
             """SELECT COUNT(*) as counts FROM "users" HAVING counts > 10""",
@@ -327,9 +323,9 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         )
 
     def test_can_compile_where_raw_and_where_with_multiple_bindings(self):
-        query = self.builder.where_raw(
-            """ "age" = ? AND "is_admin" = ?""", [18, True]
-        ).where("email", "test@example.com")
+        query = self.builder.where_raw(""" "age" = ? AND "is_admin" = ?""", [18, True]).where(
+            "email", "test@example.com"
+        )
         self.assertEqual(
             query.to_qmark(),
             """SELECT * FROM "users" WHERE "age" = ? AND "is_admin" = ? AND "users"."email" = ?""",
@@ -496,9 +492,7 @@ class TestPostgresGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         return """SELECT * FROM "users" WHERE NOT EXISTS (SELECT * FROM "users" WHERE "users"."age" = '1')"""
 
     def where_date(self):
-        return (
-            """SELECT * FROM "users" WHERE DATE("users"."created_at") = '2022-06-01'"""
-        )
+        return """SELECT * FROM "users" WHERE DATE("users"."created_at") = '2022-06-01'"""
 
     def or_where_null(self):
         return """SELECT * FROM "users" WHERE "users"."column1" IS NULL OR "users"."column2" IS NULL"""

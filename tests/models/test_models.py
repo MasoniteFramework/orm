@@ -61,22 +61,14 @@ class TestModels(unittest.TestCase):
     ):
         model = ModelTest()
 
-        self.assertEqual(
-            model.get_new_date(datetime.datetime(2021, 1, 1, 7, 10)).hour, 7
-        )
+        self.assertEqual(model.get_new_date(datetime.datetime(2021, 1, 1, 7, 10)).hour, 7)
         self.assertEqual(model.get_new_date(datetime.date(2021, 1, 1)).hour, 0)
         self.assertEqual(model.get_new_date(datetime.time(1, 1, 1)).hour, 1)
         self.assertEqual(model.get_new_date("2020-11-28 11:42:07").hour, 11)
 
     def test_model_can_access_str_dates_on_relationships(self):
         model = ModelTest.hydrate({"user": "joe", "due_date": "2020-11-28 11:42:07"})
-        model.add_relation(
-            {
-                "profile": ModelTest.hydrate(
-                    {"name": "bob", "due_date": "2020-11-28 11:42:07"}
-                )
-            }
-        )
+        model.add_relation({"profile": ModelTest.hydrate({"name": "bob", "due_date": "2020-11-28 11:42:07"})})
 
         self.assertEqual(model.profile.name, "bob")
         self.assertTrue(model.profile.due_date.is_past())
@@ -85,9 +77,7 @@ class TestModels(unittest.TestCase):
         model = ModelTest.hydrate({"username": "joe", "admin": True})
 
         self.assertEqual(model.username, "joe")
-        self.assertEqual(
-            model.__original_attributes__, {"username": "joe", "admin": True}
-        )
+        self.assertEqual(model.__original_attributes__, {"username": "joe", "admin": True})
 
         model.username = "bob"
 
@@ -97,9 +87,7 @@ class TestModels(unittest.TestCase):
         self.assertEqual(model.__dirty_attributes__["username"], "bob")
         self.assertEqual(model.get_dirty_keys(), ["username"])
         self.assertTrue(model.is_dirty() is True)
-        self.assertEqual(
-            model.__original_attributes__, {"username": "joe", "admin": True}
-        )
+        self.assertEqual(model.__original_attributes__, {"username": "joe", "admin": True})
 
     def test_model_creates_when_new(self):
         model = ModelTest.hydrate({"id": 1, "username": "joe", "admin": True})
@@ -173,21 +161,15 @@ class TestModels(unittest.TestCase):
         self.assertEqual(type(model.d), Decimal)
 
     def test_valid_json_cast(self):
-        model = ModelTest.hydrate(
-            {"payload": {"this": "dict", "is": "usable", "as": "json"}}
-        )
+        model = ModelTest.hydrate({"payload": {"this": "dict", "is": "usable", "as": "json"}})
 
         self.assertEqual(type(model.payload), dict)
 
-        model = ModelTest.hydrate(
-            {"payload": {"this": "dict", "is": "invalid", "as": "json"}}
-        )
+        model = ModelTest.hydrate({"payload": {"this": "dict", "is": "invalid", "as": "json"}})
 
         self.assertEqual(type(model.payload), dict)
 
-        model = ModelTest.hydrate(
-            {"payload": '{"this": "dict", "is": "usable", "as": "json"}'}
-        )
+        model = ModelTest.hydrate({"payload": '{"this": "dict", "is": "usable", "as": "json"}'})
 
         self.assertEqual(type(model.payload), dict)
 
@@ -204,9 +186,7 @@ class TestModels(unittest.TestCase):
             model.save()
 
     def test_model_update_without_changes(self):
-        model = ModelTest.hydrate(
-            {"id": 1, "username": "joe", "name": "Joe", "admin": True}
-        )
+        model = ModelTest.hydrate({"id": 1, "username": "joe", "name": "Joe", "admin": True})
 
         model.username = "joe"
         model.name = "Bill"
@@ -215,9 +195,7 @@ class TestModels(unittest.TestCase):
         self.assertNotIn("username", sql)
 
     def test_force_update_on_model_class(self):
-        model = ModelTestForced.hydrate(
-            {"id": 1, "username": "joe", "name": "Joe", "admin": True}
-        )
+        model = ModelTestForced.hydrate({"id": 1, "username": "joe", "name": "Joe", "admin": True})
 
         model.username = "joe"
         model.name = "Bill"
@@ -227,17 +205,13 @@ class TestModels(unittest.TestCase):
         self.assertIn("name", sql)
 
     def test_only_method(self):
-        model = ModelTestForced.hydrate(
-            {"id": 1, "username": "joe", "name": "Joe", "admin": True}
-        )
+        model = ModelTestForced.hydrate({"id": 1, "username": "joe", "name": "Joe", "admin": True})
 
         self.assertEqual({"username": "joe"}, model.only("username"))
         self.assertEqual({"username": "joe"}, model.only(["username"]))
 
     def test_model_update_without_changes_at_all(self):
-        model = ModelTest.hydrate(
-            {"id": 1, "username": "joe", "name": "Joe", "admin": True}
-        )
+        model = ModelTest.hydrate({"id": 1, "username": "joe", "name": "Joe", "admin": True})
 
         model.username = "joe"
         model.name = "Joe"
@@ -258,11 +232,7 @@ class TestModels(unittest.TestCase):
 
         sql = (
             model.where("name", "=", "joe")
-            .or_where(
-                lambda query: query.where("username", "Joseph").or_where(
-                    "age", ">=", 18
-                )
-            )
+            .or_where(lambda query: query.where("username", "Joseph").or_where("age", ">=", 18))
             .to_sql()
         )
 
@@ -302,9 +272,7 @@ class TestModels(unittest.TestCase):
         )
 
     def test_model_can_override_to_default_select(self):
-        sql = ModelWithBaseModel.select(
-            ["products.name", "products.id", "store.name"]
-        ).to_sql()
+        sql = ModelWithBaseModel.select(["products.name", "products.id", "store.name"]).to_sql()
         self.assertEqual(
             sql,
             """SELECT `products`.`name`, `products`.`id`, `store`.`name` FROM `users`""",

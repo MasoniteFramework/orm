@@ -22,9 +22,7 @@ class SetUser(Model):
 
 class TestAccessor(unittest.TestCase):
     def test_can_get_accessor(self):
-        user = User.hydrate(
-            {"name": "joe", "email": "joe@masoniteproject.com", "is_admin": 1}
-        )
+        user = User.hydrate({"name": "joe", "email": "joe@masoniteproject.com", "is_admin": 1})
         self.assertEqual(user.email, "joe@masoniteproject.com")
         self.assertEqual(user.name, "Hello, joe")
         self.assertTrue(user.is_admin is True, f"{user.is_admin} is not True")

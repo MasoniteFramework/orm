@@ -156,18 +156,16 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.primary("playlist_id")
 
-        sql = [
-            'ALTER TABLE "users" ADD CONSTRAINT users_playlist_id_primary PRIMARY KEY (playlist_id)'
-        ]
+        sql = ['ALTER TABLE "users" ADD CONSTRAINT users_playlist_id_primary PRIMARY KEY (playlist_id)']
 
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_alter_add_column_and_foreign_key(self):
         with self.schema.table("users") as blueprint:
             blueprint.unsigned_integer("playlist_id").nullable()
-            blueprint.foreign("playlist_id").references("id").on("playlists").on_delete(
-                "cascade"
-            ).on_update("SET NULL")
+            blueprint.foreign("playlist_id").references("id").on("playlists").on_delete("cascade").on_update(
+                "SET NULL"
+            )
 
         table = Table("users")
         table.add_column("age", "string")
@@ -189,9 +187,9 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
 
     def test_alter_add_foreign_key_only(self):
         with self.schema.table("users") as blueprint:
-            blueprint.foreign("playlist_id").references("id").on("playlists").on_delete(
-                "cascade"
-            ).on_update("set null")
+            blueprint.foreign("playlist_id").references("id").on("playlists").on_delete("cascade").on_update(
+                "set null"
+            )
 
         table = Table("users")
         table.add_column("age", "string")

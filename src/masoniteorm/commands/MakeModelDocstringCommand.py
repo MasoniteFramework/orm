@@ -19,9 +19,7 @@ class MakeModelDocstringCommand(Command):
         schema = DB.get_schema_builder(self.option("connection"))
 
         if not schema.has_table(table):
-            return self.line_error(
-                f"There is no such table {table} for this connection."
-            )
+            return self.line_error(f"There is no such table {table} for this connection.")
 
         self.info(f"Model Docstring for table: {table}")
         print('"""')
