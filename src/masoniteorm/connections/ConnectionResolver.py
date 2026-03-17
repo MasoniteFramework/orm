@@ -17,9 +17,7 @@ class ConnectionResolver:
         self.config_path = config_path
         self._connection_details = connection_details or {}
 
-        self.connection_factory = ConnectionFactory(
-            config_path=config_path, resolver=self
-        )
+        self.connection_factory = ConnectionFactory(config_path=config_path, resolver=self)
         self.register(SQLiteConnection)
         self.register(PostgresConnection)
         self.register(MySQLConnection)
@@ -56,9 +54,7 @@ class ConnectionResolver:
         driver = self.get_connection_details()[name].get("driver")
 
         connection = (
-            self.connection_factory.make(driver)(
-                **self.get_connection_information(name)
-            )
+            self.connection_factory.make(driver)(**self.get_connection_information(name))
             .make_connection()
             .begin()
         )
@@ -127,6 +123,4 @@ class ConnectionResolver:
         )
 
     def statement(self, query, bindings=(), connection="default"):
-        return (
-            self.get_query_builder().on(connection).statement(query, bindings)
-        )
+        return self.get_query_builder().on(connection).statement(query, bindings)

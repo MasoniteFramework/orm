@@ -50,7 +50,7 @@ class BaseConnection:
             )
 
         self._cursor.execute(query, bindings)
-        end = "{:.2f}".format(timer() - start)
+        end = f"{timer() - start:.2f}"
 
         if self.full_details and self.full_details.get("log_queries", False):
             self.log(query, bindings, query_time=end)
@@ -96,6 +96,4 @@ class BaseConnection:
         if foreign_keys:
             self._connection.execute(platform.enable_foreign_key_constraints())
         elif foreign_keys is not None:
-            self._connection.execute(
-                platform.disable_foreign_key_constraints()
-            )
+            self._connection.execute(platform.disable_foreign_key_constraints())

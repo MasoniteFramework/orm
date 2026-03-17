@@ -22,9 +22,7 @@ class TableDiff(Table):
         self.comment = None
 
     def remove_constraint(self, name):
-        self.removed_constraints.update(
-            {name: self.from_table.get_constraint(name)}
-        )
+        self.removed_constraints.update({name: self.from_table.get_constraint(name)})
 
     def get_removed_constraints(self):
         return self.removed_constraints

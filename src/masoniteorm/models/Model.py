@@ -1,14 +1,13 @@
+# ruff: noqa: E501
+from datetime import date as datetimedate, datetime, time as datetimetime
+from decimal import Decimal
 import inspect
 import json
 import logging
-from datetime import date as datetimedate
-from datetime import datetime
-from datetime import time as datetimetime
-from decimal import Decimal
 from typing import Any, Dict
 
-import pendulum
 from inflection import tableize, underscore
+import pendulum
 
 from ..collection import Collection
 from ..config import load_config
@@ -362,9 +361,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Returns:
             str
         """
-        return underscore(
-            self.__class__.__name__ + "_" + self.get_primary_key()
-        )
+        return underscore(self.__class__.__name__ + "_" + self.get_primary_key())
 
     def query(self):
         return self.get_builder()
@@ -586,9 +583,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             self: A hydrated version of a model
         """
         if query:
-            return cls.builder.create(
-                dictionary, query=True, cast=cast, **kwargs
-            )
+            return cls.builder.create(dictionary, query=True, cast=cast, **kwargs)
 
         return cls.builder.create(dictionary, cast=cast, **kwargs)
 
@@ -620,9 +615,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         updated_attribs = {}
         for key, value in attributes.items():
             if key in self.get_dates():
-                updated_attribs.update(
-                    {key: self.get_new_datetime_string(value)}
-                )
+                updated_attribs.update({key: self.get_new_datetime_string(value)})
             elif key in self.__casts__:
                 updated_attribs.update({key: self.cast_value(key, value)})
             else:
@@ -631,11 +624,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return updated_attribs
 
     def fresh(self):
-        return (
-            self.get_builder()
-            .where(self.get_primary_key(), self.get_primary_key_value())
-            .first()
-        )
+        return self.get_builder().where(self.get_primary_key(), self.get_primary_key_value()).first()
 
     def serialize(self, exclude=None, include=None):
         """Takes the data as a model and converts it into a dictionary.
@@ -647,9 +636,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         # prevent using both exclude and include at the same time
         if exclude is not None and include is not None:
-            raise AttributeError(
-                "Can not define both includes and exclude values."
-            )
+            raise AttributeError("Can not define both includes and exclude values.")
 
         if exclude is not None:
             self.__hidden__ = exclude
@@ -665,9 +652,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         if self.__visible__:
             new_serialized_dictionary = {
-                k: serialized_dictionary[k]
-                for k in self.__visible__
-                if k in serialized_dictionary
+                k: serialized_dictionary[k] for k in self.__visible__ if k in serialized_dictionary
             }
             serialized_dictionary = new_serialized_dictionary
         else:
@@ -676,14 +661,9 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                     serialized_dictionary.pop(key)
 
         for date_column in self.get_dates():
-            if (
-                date_column in serialized_dictionary
-                and serialized_dictionary[date_column]
-            ):
-                serialized_dictionary[date_column] = (
-                    self.get_new_serialized_date(
-                        serialized_dictionary[date_column]
-                    )
+            if date_column in serialized_dictionary and serialized_dictionary[date_column]:
+                serialized_dictionary[date_column] = self.get_new_serialized_date(
+                    serialized_dictionary[date_column]
                 )
 
         serialized_dictionary.update(self.__dirty_attributes__)
@@ -703,9 +683,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
             if key in self.__hidden__:
                 remove_keys.append(key)
             if hasattr(value, "serialize"):
-                value = value.serialize(
-                    self.__relationship_hidden__.get(key, [])
-                )
+                value = value.serialize(self.__relationship_hidden__.get(key, []))
             if isinstance(value, datetime):
                 value = self.get_new_serialized_date(value)
             if key in self.__casts__:
@@ -817,22 +795,12 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         if (new_name_accessor) in self.__class__.__dict__:
             return self.__class__.__dict__.get(new_name_accessor)(self)
 
-        if (
-            "__dirty_attributes__" in self.__dict__
-            and attribute in self.__dict__["__dirty_attributes__"]
-        ):
+        if "__dirty_attributes__" in self.__dict__ and attribute in self.__dict__["__dirty_attributes__"]:
             return self.get_dirty_value(attribute)
 
-        if (
-            "__attributes__" in self.__dict__
-            and attribute in self.__dict__["__attributes__"]
-        ):
+        if "__attributes__" in self.__dict__ and attribute in self.__dict__["__attributes__"]:
             if attribute in self.get_dates():
-                return (
-                    self.get_new_date(self.get_value(attribute))
-                    if self.get_value(attribute)
-                    else None
-                )
+                return self.get_new_date(self.get_value(attribute)) if self.get_value(attribute) else None
             return self.get_value(attribute)
 
         if attribute in self.__passthrough__:
@@ -848,9 +816,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         if attribute not in self.__dict__:
             name = self.__class__.__name__
 
-            raise AttributeError(
-                f"class model '{name}' has no attribute {attribute}"
-            )
+            raise AttributeError(f"class model '{name}' has no attribute {attribute}")
 
         return None
 
@@ -884,9 +850,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         try:
             if not attribute.startswith("_"):
-                self.__dict__["__dirty_attributes__"].update(
-                    {attribute: value}
-                )
+                self.__dict__["__dirty_attributes__"].update({attribute: value})
             else:
                 self.__dict__[attribute] = value
         except KeyError:
@@ -925,9 +889,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
 
         if not query:
             if self.is_loaded():
-                result = builder.update(
-                    self.__dirty_attributes__, ignore_mass_assignment=True
-                )
+                result = builder.update(self.__dirty_attributes__, ignore_mass_assignment=True)
             else:
                 result = self.create(
                     self.__dirty_attributes__,
@@ -1121,9 +1083,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         related = getattr(self.__class__, relation)
 
         if not related_record.is_created():
-            related_record = related_record.create(
-                related_record.all_attributes()
-            )
+            related_record = related_record.create(related_record.all_attributes())
         else:
             related_record.save()
 
@@ -1159,11 +1119,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Returns:
             self
         """
-        delete = (
-            self.without_events()
-            .where(self.get_primary_key(), self.get_primary_key_value())
-            .delete()
-        )
+        delete = self.without_events().where(self.get_primary_key(), self.get_primary_key_value()).delete()
         self.with_events()
         return delete
 
@@ -1178,15 +1134,11 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         Passed dictionary is not mutated.
         """
         if cls.__fillable__ != ["*"]:
-            dictionary = {
-                x: dictionary[x] for x in cls.__fillable__ if x in dictionary
-            }
+            dictionary = {x: dictionary[x] for x in cls.__fillable__ if x in dictionary}
         return dictionary
 
     @classmethod
-    def filter_mass_assignment(
-        cls, dictionary: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def filter_mass_assignment(cls, dictionary: Dict[str, Any]) -> Dict[str, Any]:
         """
         Filters the provided dictionary in preparation for a mass-assignment operation
 
@@ -1204,6 +1156,4 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         if cls.__guarded__ == ["*"]:
             # If all fields are guarded, all data should be filtered
             return {}
-        return {
-            f: dictionary[f] for f in dictionary if f not in cls.__guarded__
-        }
+        return {f: dictionary[f] for f in dictionary if f not in cls.__guarded__}

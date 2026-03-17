@@ -1,9 +1,8 @@
-from typing import Any, Callable, Dict
+from typing import Any, Callable
 
 from ..query.QueryBuilder import QueryBuilder
 
 class Model:
-
     # ==============================
     # Model Methods
     # ==============================
@@ -33,7 +32,7 @@ class Model:
         """
         pass
 
-    def cast_values(self, attributes: Dict[str, Any]) -> Dict[str, Any]:
+    def cast_values(self, attributes: dict[str, Any]) -> dict[str, Any]:
         """
         Runs provided dictionary through all model casters and returns the result.
 
@@ -60,6 +59,14 @@ class Model:
 
         Returns:
             self: A hydrated version of a model
+            :param dictionary:
+            :type dictionary:
+            :param query:
+            :type query:
+            :param cast:
+            :type cast:
+            :param ignore_mass_assignment:
+            :type ignore_mass_assignment:
         """
         pass
 
@@ -94,7 +101,7 @@ class Model:
         pass
 
     @classmethod
-    def filter_fillable(cls, dictionary: Dict[str, Any]) -> Dict[str, Any]:
+    def filter_fillable(cls, dictionary: dict[str, Any]) -> dict[str, Any]:
         """
         Filters provided dictionary to only include fields specified in the model's __fillable__ property
 
@@ -103,9 +110,7 @@ class Model:
         pass
 
     @classmethod
-    def filter_mass_assignment(
-        cls, dictionary: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def filter_mass_assignment(cls, dictionary: dict[str, Any]) -> dict[str, Any]:
         """
         Filters the provided dictionary in preparation for a mass-assignment operation
 
@@ -114,7 +119,7 @@ class Model:
         pass
 
     @classmethod
-    def filter_guarded(cls, dictionary: Dict[str, Any]) -> Dict[str, Any]:
+    def filter_guarded(cls, dictionary: dict[str, Any]) -> dict[str, Any]:
         """
         Filters provided dictionary to exclude fields specified in the model's __guarded__ property
 
@@ -190,9 +195,6 @@ class Model:
 
     def get_foreign_key(self):
         """Gets the foreign key based on this model name.
-
-        Args:
-            relationship (str): The relationship name.
 
         Returns:
             str
@@ -404,7 +406,6 @@ class Model:
     # all marked as @classmethod for IDE
     # autocomplete to work correctly
     # ==============================
-
     @classmethod
     def add_select(cls, alias: str, callable: Any) -> QueryBuilder:
         """Specifies columns that should be selected
@@ -415,9 +416,7 @@ class Model:
         pass
 
     @classmethod
-    def aggregate(
-        cls, aggregate: str, column: str, alias: str
-    ) -> QueryBuilder:
+    def aggregate(cls, aggregate: str, column: str, alias: str) -> QueryBuilder:
         """Helper function to aggregate.
 
         Arguments:
@@ -427,7 +426,7 @@ class Model:
         pass
 
     @classmethod
-    def all(cls, selects: list = [], query: bool = False):
+    def all(cls, selects=None, query: bool = False):
         """Returns all records from the table.
 
         Returns:
@@ -448,9 +447,7 @@ class Model:
         pass
 
     @classmethod
-    def between(
-        cls, column: str, low: str | int, high: str | int
-    ) -> QueryBuilder:
+    def between(cls, column: str, low: str | int, high: str | int) -> QueryBuilder:
         """Specifies a where between expression.
 
         Arguments:
@@ -499,9 +496,7 @@ class Model:
         pass
 
     @classmethod
-    def delete(
-        cls, column: str = None, value: str = None, query: bool = False
-    ):
+    def delete(cls, column: str = None, value: str = None, query: bool = False):
         """Specify the column and value to delete
         or deletes everything based on a previously used where expression.
 
@@ -546,9 +541,7 @@ class Model:
         """
         pass
 
-    def find_or(
-        self, record_id: int, callback: Callable, args=None, column=None
-    ):
+    def find_or(self, record_id: int, callback: Callable, args=None, column=None):
         """Finds a row by the primary key ID (Requires a model) or raise a ModelNotFound exception.
 
         Arguments:
@@ -624,7 +617,7 @@ class Model:
         pass
 
     @classmethod
-    def get(cls, selects: list = []):
+    def get(cls, selects: list = None):
         """Runs the select query built from the query builder.
 
         Returns:
@@ -743,9 +736,7 @@ class Model:
         pass
 
     @classmethod
-    def joins(
-        cls, *relationships: list[str], clause: str = "inner"
-    ) -> QueryBuilder:
+    def joins(cls, *relationships: list[str], clause: str = "inner") -> QueryBuilder:
         pass
 
     @classmethod
@@ -850,9 +841,7 @@ class Model:
         pass
 
     @classmethod
-    def new_from_builder(
-        cls, from_builder: QueryBuilder = None
-    ) -> QueryBuilder:
+    def new_from_builder(cls, from_builder: QueryBuilder = None) -> QueryBuilder:
         """Creates a new QueryBuilder class.
 
         Returns:
@@ -861,9 +850,7 @@ class Model:
         pass
 
     @classmethod
-    def not_between(
-        cls, column: str, low: str | int, high: str | int
-    ) -> QueryBuilder:
+    def not_between(cls, column: str, low: str | int, high: str | int) -> QueryBuilder:
         """Specifies a where not between expression.
 
         Arguments:
@@ -931,7 +918,7 @@ class Model:
         pass
 
     @classmethod
-    def or_where_exists(cls, value: "str|int|QueryBuilder") -> QueryBuilder:
+    def or_where_exists(cls, value: str | int | QueryBuilder) -> QueryBuilder:
         """Specifies a where exists expression.
 
         Arguments:
@@ -943,9 +930,7 @@ class Model:
         pass
 
     @classmethod
-    def or_where_not_exists(
-        cls, value: "str|int|QueryBuilder"
-    ) -> QueryBuilder:
+    def or_where_not_exists(cls, value: str | int | QueryBuilder) -> QueryBuilder:
         """Specifies a where exists expression.
 
         Arguments:
@@ -978,9 +963,7 @@ class Model:
         pass
 
     @classmethod
-    def order_by(
-        cls, column: str, direction: str = "ASC|DESC"
-    ) -> QueryBuilder:
+    def order_by(cls, column: str, direction: str = "ASC|DESC") -> QueryBuilder:
         """Specifies a column to order by.
 
         Arguments:
@@ -1356,9 +1339,7 @@ class Model:
         pass
 
     @classmethod
-    def with_count(
-        cls, relationship: str, callback: Any = None
-    ) -> QueryBuilder:
+    def with_count(cls, relationship: str, callback: Any = None) -> QueryBuilder:
         pass
 
     @classmethod

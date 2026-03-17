@@ -35,9 +35,7 @@ class MySQLConnection(BaseConnection):
         self.password = password
         self.prefix = prefix
         self.full_details = full_details or {}
-        self.connection_pool_size = full_details.get(
-            "connection_pooling_max_size", 100
-        )
+        self.connection_pool_size = full_details.get("connection_pooling_max_size", 100)
         self.options = options or {}
         self._cursor = None
         self.open = 0
@@ -82,9 +80,7 @@ class MySQLConnection(BaseConnection):
         import pendulum
         import pymysql.converters
 
-        pymysql.converters.conversions[pendulum.DateTime] = (
-            pymysql.converters.escape_datetime
-        )
+        pymysql.converters.conversions[pendulum.DateTime] = pymysql.converters.escape_datetime
 
         # Initialize the connection pool if the option is set
         initialize_size = self.full_details.get("connection_pooling_min_size")

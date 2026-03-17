@@ -108,7 +108,7 @@ class OrderByExpression:
         self.direction = direction
         self.bindings = bindings
 
-        if raw is False:
+        if not raw:
             if self.column.endswith(" desc"):
                 self.column = self.column.split(" desc")[0].strip()
                 self.direction = "DESC"
@@ -168,9 +168,7 @@ class JoinClause:
 
     def or_on_value(self, column, *args):
         equality, value = self._extract_operator_value(*args)
-        self.on_clauses += (
-            (OnValueClause(column, equality, value, "value", operator="or")),
-        )
+        self.on_clauses += ((OnValueClause(column, equality, value, "value", operator="or")),)
         return self
 
     def on_null(self, column):
@@ -206,9 +204,7 @@ class JoinClause:
         Returns:
             self
         """
-        self.on_clauses += (
-            (OnValueClause(column, "=", None, "NULL", operator="or")),
-        )
+        self.on_clauses += ((OnValueClause(column, "=", None, "NULL", operator="or")),)
         return self
 
     def or_on_not_null(self, column: str):
@@ -220,14 +216,10 @@ class JoinClause:
         Returns:
             self
         """
-        self.on_clauses += (
-            (OnValueClause(column, "=", True, "NOT NULL", operator="or")),
-        )
+        self.on_clauses += ((OnValueClause(column, "=", True, "NOT NULL", operator="or")),)
         return self
 
-    @deprecated(
-        "Using where() in a Join clause has been superceded by on_value()"
-    )
+    @deprecated("Using where() in a Join clause has been superseded by on_value()")
     def where(self, column, *args):
         return self.on_value(column, *args)
 
@@ -246,8 +238,7 @@ class JoinClause:
 
         if operator not in operators:
             raise ValueError(
-                "Invalid comparison operator. The operator can be %s"
-                % ", ".join(operators)
+                "Invalid comparison operator. The operator can be {}".format(", ".join(operators))
             )
 
         return operator, value

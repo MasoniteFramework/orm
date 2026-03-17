@@ -150,11 +150,7 @@ class MSSQLConnection(BaseConnection):
                         return {}
                     columnNames = [column[0] for column in cursor.description]
                     result = cursor.fetchone()
-                    return (
-                        dict(zip(columnNames, result))
-                        if result is not None
-                        else {}
-                    )
+                    return dict(zip(columnNames, result)) if result is not None else {}
                 else:
                     if not cursor.description:
                         return {}
