@@ -55,7 +55,7 @@ env = [
 
 [tool.ruff]
 target-version = "py38"
-line-length    = 79
+line-length    = 88
 exclude        = ["build", "conda"]
 
 [tool.ruff.lint]
@@ -78,6 +78,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]  # imported but unused
+"tests/**/*.py" = ["E501"]
 
 [tool.ruff.lint.isort]
 force-sort-within-sections = true
