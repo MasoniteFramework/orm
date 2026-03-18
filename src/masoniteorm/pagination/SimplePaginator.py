@@ -7,9 +7,7 @@ class SimplePaginator(BasePaginator):
         self.current_page = current_page
         self.per_page = per_page
         self.count = len(self.result)
-        self.next_page = (
-            (int(self.current_page) + 1) if self.has_more_pages() else None
-        )
+        self.next_page = (int(self.current_page) + 1) if self.has_more_pages() else None
         self.previous_page = (int(self.current_page) - 1) or None
         self.url = url
 

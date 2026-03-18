@@ -2,7 +2,6 @@ import os
 import unittest
 
 from src.masoniteorm import Model
-from tests.integrations.config.database import DATABASES
 from src.masoniteorm.connections import MySQLConnection
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import MySQLPlatform
@@ -34,9 +33,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
             blueprint.to_sql(),
-            [
-                "CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL, `age` INT(11) NOT NULL)"
-            ],
+            ["CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL, `age` INT(11) NOT NULL)"],
         )
 
     def test_can_add_tiny_text(self):
@@ -67,17 +64,15 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
             blueprint.to_sql(),
-            [
-                "CREATE TABLE IF NOT EXISTS `users` (`name` VARCHAR(255) NOT NULL, `age` INT(11) NOT NULL)"
-            ],
+            ["CREATE TABLE IF NOT EXISTS `users` (`name` VARCHAR(255) NOT NULL, `age` INT(11) NOT NULL)"],
         )
 
     def test_can_add_columns_with_constaint(self):
         with self.schema.create("users") as blueprint:
             blueprint.string("name")
             blueprint.integer("age")
-            blueprint.unique("name"),
-            blueprint.unique("name", name="table_unique"),
+            (blueprint.unique("name"),)
+            (blueprint.unique("name", name="table_unique"),)
 
         self.assertEqual(len(blueprint.table.added_columns), 2)
         self.assertEqual(
@@ -94,9 +89,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 1)
         self.assertEqual(
             blueprint.to_sql(),
-            [
-                "CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL COMMENT 'A users username')"
-            ],
+            ["CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL COMMENT 'A users username')"],
         )
 
     def test_can_add_table_comment(self):
@@ -107,33 +100,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 1)
         self.assertEqual(
             blueprint.to_sql(),
-            [
-                "CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL) COMMENT 'A users table'"
-            ],
-        )
-
-    def test_can_add_columns_with_foreign_key_constaint(self):
-        with self.schema.create("users") as blueprint:
-            blueprint.string("name").unique()
-            blueprint.integer("age")
-            blueprint.integer("profile_id")
-            blueprint.foreign("profile_id").references("id").on("profiles")
-            blueprint.foreign_id("post_id").references("id").on("posts")
-            blueprint.foreign_id_for(Discussion).references("id").on("discussions")
-
-        self.assertEqual(len(blueprint.table.added_columns), 3)
-        self.assertEqual(
-            blueprint.to_sql(),
-            [
-                "CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL, "
-                "`age` INT(11) NOT NULL, "
-                "`profile_id` INT(11) NOT NULL, "
-                "`post_id` BIGINT UNSIGNED NOT NULL, "
-                "CONSTRAINT users_name_unique UNIQUE (name), "
-                "CONSTRAINT users_profile_id_foreign FOREIGN KEY (`profile_id`) REFERENCES `profiles`(`id`), "
-                "CONSTRAINT users_profile_id_foreign FOREIGN KEY (`post_id`) REFERENCES `posts`(`id`)), "
-                "CONSTRAINT users_discussions_id_foreign FOREIGN KEY (`discussion_id`) REFERENCES `posts`(`id`))"
-            ],
+            ["CREATE TABLE `users` (`name` VARCHAR(255) NOT NULL) COMMENT 'A users table'"],
         )
 
     def test_can_add_columns_with_foreign_key_constaint(self):
@@ -193,11 +160,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 3)
         self.assertEqual(len(blueprint.table.added_constraints), 1)
 
-        self.assertTrue(
-            blueprint.to_sql()[0].startswith(
-                "CREATE TABLE `users` (`user_id` INT(11) NOT NULL"
-            )
-        )
+        self.assertTrue(blueprint.to_sql()[0].startswith("CREATE TABLE `users` (`user_id` INT(11) NOT NULL"))
 
     def test_can_advanced_table_creation2(self):
         with self.schema.create("users") as blueprint:
@@ -212,9 +175,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.string("thumbnail").nullable()
             blueprint.integer("premium")
             blueprint.integer("author_id").unsigned().nullable()
-            blueprint.foreign("author_id").references("id").on("users").on_delete(
-                "CASCADE"
-            )
+            blueprint.foreign("author_id").references("id").on("users").on_delete("CASCADE")
             blueprint.text("description")
             blueprint.timestamps()
 
@@ -233,9 +194,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
     def test_can_add_columns_with_foreign_key_constraint_name(self):
         with self.schema.create("users") as blueprint:
             blueprint.integer("profile_id")
-            blueprint.foreign("profile_id", name="profile_foreign").references("id").on(
-                "profiles"
-            )
+            blueprint.foreign("profile_id", name="profile_foreign").references("id").on("profiles")
 
         self.assertEqual(len(blueprint.table.added_columns), 1)
         self.assertEqual(
@@ -316,7 +275,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(
             blueprint.to_sql(),
-            ["CREATE TABLE `users` (" "`profile_id` VARCHAR(255) NOT NULL DEFAULT '')"],
+            ["CREATE TABLE `users` (`profile_id` VARCHAR(255) NOT NULL DEFAULT '')"],
         )
 
     def test_can_have_float_type(self):
@@ -325,7 +284,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(
             blueprint.to_sql(),
-            ["CREATE TABLE `users` (" "`amount` FLOAT(19, 4) NOT NULL)"],
+            ["CREATE TABLE `users` (`amount` FLOAT(19, 4) NOT NULL)"],
         )
 
     def test_has_table(self):
@@ -392,7 +351,5 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 1)
         self.assertEqual(
             blueprint.to_sql(),
-            [
-                "CREATE TABLE `users` (`status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active')"
-            ],
+            ["CREATE TABLE `users` (`status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active')"],
         )

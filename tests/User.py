@@ -1,4 +1,4 @@
-""" User Model """
+"""User Model"""
 
 from src.masoniteorm import Model
 

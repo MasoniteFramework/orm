@@ -24,9 +24,7 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         self.builder.select('username', 'password').to_sql()
         """
-        return (
-            """SELECT "users"."username", "users"."password" FROM "users\""""
-        )
+        return """SELECT "users"."username", "users"."password" FROM "users\""""
 
     def can_compile_with_where(self):
         """
@@ -161,9 +159,7 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         self.builder.where_column('name', 'email').to_sql()
         """
 
-        return (
-            """SELECT * FROM "users" WHERE "users"."name" = "users"."email\""""
-        )
+        return """SELECT * FROM "users" WHERE "users"."name" = "users"."email\""""
 
     def can_compile_or_where(self):
         """
@@ -202,7 +198,9 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         ).to_sql()
         """
 
-        return """SELECT * FROM "users" WHERE "users"."name" = (SELECT SUM("users"."age") AS age FROM "users")"""
+        return (
+            """SELECT * FROM "users" WHERE "users"."name" = (SELECT SUM("users"."age") AS age FROM "users")"""
+        )
 
     def can_compile_complex_sub_select(self):
         """
@@ -235,7 +233,9 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
         """
         builder.sum('age').group_by('age').having('age').to_sql()
         """
-        return """SELECT SUM("users"."age") AS age FROM "users" GROUP BY "users"."age" HAVING "users"."age\""""
+        return (
+            """SELECT SUM("users"."age") AS age FROM "users" GROUP BY "users"."age" HAVING "users"."age\""""
+        )
 
     def can_compile_having_order(self):
         """
@@ -293,14 +293,12 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
 
     def test_can_compile_where_raw(self):
         to_sql = self.builder.where_raw(""" "age" = '18'""").to_sql()
-        self.assertEqual(
-            to_sql, """SELECT * FROM "users" WHERE "age" = '18'"""
-        )
+        self.assertEqual(to_sql, """SELECT * FROM "users" WHERE "age" = '18'""")
 
     def test_can_compile_where_raw_and_where_with_multiple_bindings(self):
-        query = self.builder.where_raw(
-            """ "age" = ? AND "is_admin" = ? """, [18, True]
-        ).where("email", "test@example.com")
+        query = self.builder.where_raw(""" "age" = ? AND "is_admin" = ? """, [18, True]).where(
+            "email", "test@example.com"
+        )
         self.assertEqual(
             query.to_qmark(),
             """SELECT * FROM "users" WHERE "age" = ? AND "is_admin" = ? AND "users"."email" = ?""",
@@ -313,27 +311,21 @@ class TestSQLiteGrammar(BaseTestCaseSelectGrammar, unittest.TestCase):
 
     def test_can_compile_select_raw_with_select(self):
         to_sql = self.builder.select("id").select_raw("COUNT(*)").to_sql()
-        self.assertEqual(
-            to_sql, """SELECT "users"."id", COUNT(*) FROM "users\""""
-        )
+        self.assertEqual(to_sql, """SELECT "users"."id", COUNT(*) FROM "users\"""")
 
     def can_compile_first_or_fail(self):
         """
         builder = self.get_builder()
         builder.where("is_admin", "=", True).first_or_fail()
         """
-        return (
-            """SELECT * FROM "users" WHERE "users"."is_admin" = '1' LIMIT 1"""
-        )
+        return """SELECT * FROM "users" WHERE "users"."is_admin" = '1' LIMIT 1"""
 
     def where_not_like(self):
         """
         builder = self.get_builder()
         builder.where("age", "not like", "%name%").to_sql()
         """
-        return (
-            """SELECT * FROM "users" WHERE "users"."age" NOT LIKE '%name%'"""
-        )
+        return """SELECT * FROM "users" WHERE "users"."age" NOT LIKE '%name%'"""
 
     def where_like(self):
         """

@@ -52,9 +52,7 @@ class MySQLRelationships(unittest.TestCase):
         )
 
     def test_or_has_nested(self):
-        sql = (
-            User.where("name", "Joe").or_has("profile.identification").to_sql()
-        )
+        sql = User.where("name", "Joe").or_has("profile.identification").to_sql()
 
         self.assertEqual(
             sql,
@@ -62,11 +60,7 @@ class MySQLRelationships(unittest.TestCase):
         )
 
     def test_relationship_where_has(self):
-        sql = (
-            User.where("name", "Joe")
-            .where_has("profile", lambda q: q.where("profile_id", 1))
-            .to_sql()
-        )
+        sql = User.where("name", "Joe").where_has("profile", lambda q: q.where("profile_id", 1)).to_sql()
 
         self.assertEqual(
             sql,
@@ -89,11 +83,7 @@ class MySQLRelationships(unittest.TestCase):
         )
 
     def test_relationship_or_where_has(self):
-        sql = (
-            User.where("name", "Joe")
-            .or_where_has("profile", lambda q: q.where("profile_id", 1))
-            .to_sql()
-        )
+        sql = User.where("name", "Joe").or_where_has("profile", lambda q: q.where("profile_id", 1)).to_sql()
 
         self.assertEqual(
             sql,
@@ -132,9 +122,7 @@ class MySQLRelationships(unittest.TestCase):
         )
 
     def test_relationship_where_doesnt_have(self):
-        sql = User.where_doesnt_have(
-            "profile", lambda q: q.where("profile_id", 1)
-        ).to_sql()
+        sql = User.where_doesnt_have("profile", lambda q: q.where("profile_id", 1)).to_sql()
 
         self.assertEqual(
             sql,
@@ -152,9 +140,7 @@ class MySQLRelationships(unittest.TestCase):
         )
 
     def test_relationship_or_where_doesnt_have(self):
-        sql = User.or_where_doesnt_have(
-            "profile", lambda q: q.where("profile_id", 1)
-        ).to_sql()
+        sql = User.or_where_doesnt_have("profile", lambda q: q.where("profile_id", 1)).to_sql()
 
         self.assertEqual(
             sql,
@@ -179,9 +165,7 @@ class MySQLRelationships(unittest.TestCase):
         )
 
     def test_join_on(self):
-        sql = User.join_on(
-            "profile", lambda q: (q.where("active", 1))
-        ).to_sql()
+        sql = User.join_on("profile", lambda q: q.where("active", 1)).to_sql()
 
         self.assertEqual(
             sql,

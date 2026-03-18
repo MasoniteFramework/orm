@@ -4,6 +4,7 @@ from src.masoniteorm.models import Model
 from src.masoniteorm.relationships import belongs_to_many
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms.SQLitePlatform import SQLitePlatform
+
 from tests.integrations.config.database import DATABASES
 
 
@@ -58,9 +59,7 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
 
         self.assertEqual(
             sql,
-            """UPDATE "users" SET "name" = 'joe' WHERE "id" = '{}'""".format(
-                user.id
-            ),
+            f"""UPDATE "users" SET "name" = 'joe' WHERE "id" = '{user.id}'""",
         )
 
     def test_update_all_records(self):
@@ -71,9 +70,7 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
     def test_can_find_list(self):
         sql = User.find(1, query=True).to_sql()
 
-        self.assertEqual(
-            sql, """SELECT * FROM "users" WHERE "users"."id" = '1'"""
-        )
+        self.assertEqual(sql, """SELECT * FROM "users" WHERE "users"."id" = '1'""")
 
         sql = User.find([1, 2, 3], query=True).to_sql()
 
@@ -118,21 +115,15 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
         # unchanged name attribute is not updated
         self.assertEqual(
             sql,
-            """UPDATE "users" SET "username" = 'new' WHERE "id" = '{}'""".format(
-                user.id
-            ),
+            f"""UPDATE "users" SET "username" = 'new' WHERE "id" = '{user.id}'""",
         )
 
     def test_can_force_update_on_method(self):
         user = User.first()
-        sql = user.update(
-            {"name": user.name, "username": "new"}, force=True
-        ).to_sql()
+        sql = user.update({"name": user.name, "username": "new"}, force=True).to_sql()
         self.assertEqual(
             sql,
-            """UPDATE "users" SET "name" = 'bill', "username" = 'new' WHERE "id" = '{}'""".format(
-                user.id
-            ),
+            f"""UPDATE "users" SET "name" = 'bill', "username" = 'new' WHERE "id" = '{user.id}'""",
         )
 
     def test_can_force_update_on_model(self):
@@ -140,21 +131,15 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
         sql = user.update({"name": user.name, "username": "new"}).to_sql()
         self.assertEqual(
             sql,
-            """UPDATE "users" SET "name" = 'bill', "username" = 'new' WHERE "id" = '{}'""".format(
-                user.id
-            ),
+            f"""UPDATE "users" SET "name" = 'bill', "username" = 'new' WHERE "id" = '{user.id}'""",
         )
 
     def test_force_update(self):
         user = User.first()
-        sql = user.force_update(
-            {"name": user.name, "username": "new"}
-        ).to_sql()
+        sql = user.force_update({"name": user.name, "username": "new"}).to_sql()
         self.assertEqual(
             sql,
-            """UPDATE "users" SET "name" = 'bill', "username" = 'new' WHERE "id" = '{}'""".format(
-                user.id
-            ),
+            f"""UPDATE "users" SET "name" = 'bill', "username" = 'new' WHERE "id" = '{user.id}'""",
         )
 
     def test_update_is_not_done_when_no_changes(self):
@@ -175,9 +160,7 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
             __connection__ = "dev"
             __table__ = "users"
 
-        count = (
-            User.where_not_null("id").not_between("age", 1, 2).get().count()
-        )
+        count = User.where_not_null("id").not_between("age", 1, 2).get().count()
         self.assertEqual(count, 0)
 
     def test_get_columns(self):
@@ -242,9 +225,7 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
             blueprint.foreign("user_id").references("id").on("users_hidden")
             blueprint.timestamps()
 
-        UserHydrateHidden.create(
-            name="Name", password="pass_value", token="token_value"
-        )
+        UserHydrateHidden.create(name="Name", password="pass_value", token="token_value")
 
         Group.create(name="Group")
 

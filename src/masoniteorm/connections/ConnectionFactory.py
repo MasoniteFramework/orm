@@ -43,17 +43,11 @@ class ConnectionFactory:
         connections = self._resolver.get_connection_details()
         if key == "default":
             connection_details = connections.get(connections.get("default"))
-            connection = self._connections.get(
-                connection_details.get("driver")
-            )
+            connection = self._connections.get(connection_details.get("driver"))
         else:
             connection = self._connections.get(key)
 
         if connection:
             return connection
 
-        raise Exception(
-            "The '{connection}' connection does not exist".format(
-                connection=key
-            )
-        )
+        raise Exception(f"The '{key}' connection does not exist")

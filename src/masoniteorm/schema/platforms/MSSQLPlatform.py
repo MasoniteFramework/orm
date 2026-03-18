@@ -63,34 +63,18 @@ class MSSQLPlatform(Platform):
 
     def compile_create_sql(self, table, if_not_exists=False):
         sql = []
-        table_create_format = (
-            self.create_if_not_exists_format()
-            if if_not_exists
-            else self.create_format()
-        )
+        table_create_format = self.create_if_not_exists_format() if if_not_exists else self.create_format()
         sql.append(
             table_create_format.format(
                 table=self.wrap_table(table.name),
-                columns=", ".join(
-                    self.columnize(table.get_added_columns())
-                ).strip(),
+                columns=", ".join(self.columnize(table.get_added_columns())).strip(),
                 constraints=(
-                    ", "
-                    + ", ".join(
-                        self.constraintize(
-                            table.get_added_constraints(), table
-                        )
-                    )
+                    ", " + ", ".join(self.constraintize(table.get_added_constraints(), table))
                     if table.get_added_constraints()
                     else ""
                 ),
                 foreign_keys=(
-                    ", "
-                    + ", ".join(
-                        self.foreign_key_constraintize(
-                            table.name, table.added_foreign_keys
-                        )
-                    )
+                    ", " + ", ".join(self.foreign_key_constraintize(table.name, table.added_foreign_keys))
                     if table.added_foreign_keys
                     else ""
                 ),
@@ -116,8 +100,7 @@ class MSSQLPlatform(Platform):
             sql.append(
                 self.alter_format().format(
                     table=self.wrap_table(table.name),
-                    columns="ADD "
-                    + ", ".join(self.columnize(table.added_columns)).strip(),
+                    columns="ADD " + ", ".join(self.columnize(table.added_columns)).strip(),
                 )
             )
 
@@ -125,26 +108,19 @@ class MSSQLPlatform(Platform):
             sql.append(
                 self.alter_format().format(
                     table=self.wrap_table(table.name),
-                    columns="ALTER COLUMN "
-                    + ", ".join(self.columnize(table.changed_columns)).strip(),
+                    columns="ALTER COLUMN " + ", ".join(self.columnize(table.changed_columns)).strip(),
                 )
             )
 
         if table.renamed_columns:
             for name, column in table.get_renamed_columns().items():
-                sql.append(
-                    self.rename_column_string(
-                        table.name, name, column.name
-                    ).strip()
-                )
+                sql.append(self.rename_column_string(table.name, name, column.name).strip())
 
         if table.dropped_columns:
             dropped_sql = []
 
             for name in table.get_dropped_columns():
-                dropped_sql.append(
-                    self.drop_column_string().format(name=name).strip()
-                )
+                dropped_sql.append(self.drop_column_string().format(name=name).strip())
 
             sql.append(
                 self.alter_format().format(
@@ -169,12 +145,8 @@ class MSSQLPlatform(Platform):
                         constraint_name=foreign_key_constraint.constraint_name,
                         column=self.wrap_column(column),
                         table=self.wrap_table(table.name),
-                        foreign_table=self.wrap_table(
-                            foreign_key_constraint.foreign_table
-                        ),
-                        foreign_column=self.wrap_column(
-                            foreign_key_constraint.foreign_column
-                        ),
+                        foreign_table=self.wrap_table(foreign_key_constraint.foreign_table),
+                        foreign_column=self.wrap_column(foreign_key_constraint.foreign_column),
                         cascade=cascade,
                     )
                 )
@@ -182,9 +154,7 @@ class MSSQLPlatform(Platform):
         if table.dropped_foreign_keys:
             constraints = table.dropped_foreign_keys
             for constraint in constraints:
-                sql.append(
-                    f"ALTER TABLE {self.wrap_table(table.name)} DROP CONSTRAINT {constraint}"
-                )
+                sql.append(f"ALTER TABLE {self.wrap_table(table.name)} DROP CONSTRAINT {constraint}")
 
         if table.added_indexes:
             for name, index in table.added_indexes.items():
@@ -196,18 +166,12 @@ class MSSQLPlatform(Platform):
                     )
                 )
 
-        if (
-            table.removed_indexes
-            or table.removed_unique_indexes
-            or table.dropped_primary_keys
-        ):
+        if table.removed_indexes or table.removed_unique_indexes or table.dropped_primary_keys:
             constraints = table.removed_indexes
             constraints += table.removed_unique_indexes
             constraints += table.dropped_primary_keys
             for constraint in constraints:
-                sql.append(
-                    f"DROP INDEX {self.wrap_table(table.name)}.{self.wrap_table(constraint)}"
-                )
+                sql.append(f"DROP INDEX {self.wrap_table(table.name)}.{self.wrap_table(constraint)}")
 
         if table.added_constraints:
             for name, constraint in table.added_constraints.items():
@@ -236,9 +200,7 @@ class MSSQLPlatform(Platform):
         sql = []
         for name, column in columns.items():
             if column.length:
-                length = self.create_column_length(column.column_type).format(
-                    length=column.length
-                )
+                length = self.create_column_length(column.column_type).format(length=column.length)
             else:
                 length = ""
 
@@ -249,10 +211,7 @@ class MSSQLPlatform(Platform):
             elif column.default in self.premapped_defaults.keys():
                 default = self.premapped_defaults.get(column.default)
             elif column.default:
-                if (
-                    isinstance(column.default, (str,))
-                    and not column.default_is_raw
-                ):
+                if isinstance(column.default, (str,)) and not column.default_is_raw:
                     default = f" DEFAULT '{column.default}'"
                 else:
                     default = f" DEFAULT {column.default}"
@@ -291,9 +250,7 @@ class MSSQLPlatform(Platform):
         sql = []
         for name, constraint in constraints.items():
             sql.append(
-                getattr(
-                    self, f"get_{constraint.constraint_type}_constraint_string"
-                )().format(
+                getattr(self, f"get_{constraint.constraint_type}_constraint_string")().format(
                     columns=", ".join(constraint.columns),
                     name_columns="_".join(constraint.columns),
                     constraint_name=constraint.name,

@@ -4,6 +4,7 @@ from src.masoniteorm.connections import MySQLConnection
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import MySQLPlatform
 from src.masoniteorm.schema.Table import Table
+
 from tests.integrations.config.database import DATABASES
 
 
@@ -26,9 +27,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 2)
 
-        sql = [
-            "ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL, ADD `age` INT(11) NOT NULL"
-        ]
+        sql = ["ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL, ADD `age` INT(11) NOT NULL"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -69,9 +68,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 1)
 
-        sql = [
-            "ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL AFTER `age`"
-        ]
+        sql = ["ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL AFTER `age`"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -130,9 +127,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
     def test_alter_add_column_and_foreign_key(self):
         with self.schema.table("users") as blueprint:
             blueprint.unsigned_integer("playlist_id").nullable()
-            blueprint.foreign("playlist_id").references("id").on(
-                "playlists"
-            ).on_delete("cascade")
+            blueprint.foreign("playlist_id").references("id").on("playlists").on_delete("cascade")
 
         sql = [
             "ALTER TABLE `users` ADD `playlist_id` INT UNSIGNED NULL",
@@ -145,9 +140,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.drop_foreign("users_playlist_id_foreign")
 
-        sql = [
-            "ALTER TABLE `users` DROP FOREIGN KEY users_playlist_id_foreign"
-        ]
+        sql = ["ALTER TABLE `users` DROP FOREIGN KEY users_playlist_id_foreign"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -155,9 +148,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.drop_foreign(["playlist_id"])
 
-        sql = [
-            "ALTER TABLE `users` DROP FOREIGN KEY users_playlist_id_foreign"
-        ]
+        sql = ["ALTER TABLE `users` DROP FOREIGN KEY users_playlist_id_foreign"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -189,9 +180,7 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
         with self.schema.table("users") as blueprint:
             blueprint.primary("playlist_id")
 
-        sql = [
-            "ALTER TABLE `users` ADD CONSTRAINT users_playlist_id_primary PRIMARY KEY (playlist_id)"
-        ]
+        sql = ["ALTER TABLE `users` ADD CONSTRAINT users_playlist_id_primary PRIMARY KEY (playlist_id)"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
@@ -306,22 +295,16 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 1)
 
-        sql = [
-            "ALTER TABLE `users` ADD `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active'"
-        ]
+        sql = ["ALTER TABLE `users` ADD `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active'"]
 
         self.assertEqual(blueprint.to_sql(), sql)
 
     def test_can_change_column_enum(self):
         with self.schema.table("users") as blueprint:
-            blueprint.enum("status", ["active", "inactive"]).default(
-                "active"
-            ).change()
+            blueprint.enum("status", ["active", "inactive"]).default("active").change()
 
         self.assertEqual(len(blueprint.table.changed_columns), 1)
 
-        sql = [
-            "ALTER TABLE `users` MODIFY `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active'"
-        ]
+        sql = ["ALTER TABLE `users` MODIFY `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active'"]
 
         self.assertEqual(blueprint.to_sql(), sql)

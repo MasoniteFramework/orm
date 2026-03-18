@@ -10,9 +10,7 @@ class LengthAwarePaginator(BasePaginator):
         self.per_page = per_page
         self.count = len(self.result)
         self.last_page = int(math.ceil(total / per_page))
-        self.next_page = (
-            (int(self.current_page) + 1) if self.has_more_pages() else None
-        )
+        self.next_page = (int(self.current_page) + 1) if self.has_more_pages() else None
         self.previous_page = (int(self.current_page) - 1) or None
         self.total = total
         self.url = url

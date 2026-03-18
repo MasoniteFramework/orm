@@ -56,23 +56,17 @@ class HasOneThrough(BaseRelationship):
         relationship2 = self.fn(self)[1]()
         self.distant_builder = relationship1.builder
         self.intermediary_builder = relationship2.builder
-        self.set_keys(
-            self.distant_builder, self.intermediary_builder, attribute
-        )
+        self.set_keys(self.distant_builder, self.intermediary_builder, attribute)
 
         if instance.is_loaded():
             if attribute in instance._relationships:
                 return instance._relationships[attribute]
 
-            return self.apply_relation_query(
-                self.distant_builder, self.intermediary_builder, instance
-            )
+            return self.apply_relation_query(self.distant_builder, self.intermediary_builder, instance)
         else:
             return self
 
-    def apply_relation_query(
-        self, distant_builder, intermediary_builder, owner
-    ):
+    def apply_relation_query(self, distant_builder, intermediary_builder, owner):
         """
         Apply the query and return a dict of data for the distant model to be hydrated with.
 
@@ -92,9 +86,7 @@ class HasOneThrough(BaseRelationship):
         int_table = intermediary_builder.get_table_name()
 
         return (
-            distant_builder.select(
-                f"{dist_table}.*, {int_table}.{self.local_owner_key} as {self.local_key}"
-            )
+            distant_builder.select(f"{dist_table}.*, {int_table}.{self.local_owner_key} as {self.local_key}")
             .join(
                 f"{int_table}",
                 f"{int_table}.{self.foreign_key}",
@@ -146,9 +138,7 @@ class HasOneThrough(BaseRelationship):
         related = collection.get(getattr(model, self.local_key), None)
         model.add_relation({key: related[0] if related else None})
 
-    def get_related(
-        self, current_builder, relation, eagers=None, callback=None
-    ):
+    def get_related(self, current_builder, relation, eagers=None, callback=None):
         """
         Get the data to hydrate the model for the distant table with
         Used when eager loading the model attribute
@@ -209,9 +199,7 @@ class HasOneThrough(BaseRelationship):
 
         return self.distant_builder
 
-    def query_where_exists(
-        self, current_builder, callback, method="where_exists"
-    ):
+    def query_where_exists(self, current_builder, callback, method="where_exists"):
         dist_table = self.distant_builder.get_table_name()
         int_table = self.intermediary_builder.get_table_name()
 
@@ -226,7 +214,7 @@ class HasOneThrough(BaseRelationship):
                 f"{int_table}.{self.local_owner_key}",
                 f"{current_builder.get_table_name()}.{self.local_key}",
             )
-            .when(callback, lambda q: (callback(q)))
+            .when(callback, lambda q: callback(q))
         )
 
     def get_with_count_query(self, current_builder, callback):
@@ -239,32 +227,24 @@ class HasOneThrough(BaseRelationship):
         return_query = current_builder.add_select(
             f"{self.attribute}_count",
             lambda q: (
-                (
-                    q.count("*")
-                    .join(
-                        f"{int_table}",
-                        f"{int_table}.{self.foreign_key}",
-                        "=",
-                        f"{dist_table}.{self.other_owner_key}",
-                    )
-                    .where_column(
-                        f"{int_table}.{self.local_owner_key}",
-                        f"{current_builder.get_table_name()}.{self.local_key}",
-                    )
-                    .table(dist_table)
-                    .when(
-                        callback,
-                        lambda q: (
-                            q.where_in(
-                                self.foreign_key,
-                                callback(
-                                    self.distant_builder.select(
-                                        self.other_owner_key
-                                    )
-                                ),
-                            )
-                        ),
-                    )
+                q.count("*")
+                .join(
+                    f"{int_table}",
+                    f"{int_table}.{self.foreign_key}",
+                    "=",
+                    f"{dist_table}.{self.other_owner_key}",
+                )
+                .where_column(
+                    f"{int_table}.{self.local_owner_key}",
+                    f"{current_builder.get_table_name()}.{self.local_key}",
+                )
+                .table(dist_table)
+                .when(
+                    callback,
+                    lambda q: q.where_in(
+                        self.foreign_key,
+                        callback(self.distant_builder.select(self.other_owner_key)),
+                    ),
                 )
             ),
         )

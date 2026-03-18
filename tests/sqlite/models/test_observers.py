@@ -1,6 +1,7 @@
 import unittest
 
 from src.masoniteorm.models import Model
+
 from tests.integrations.config.database import DB
 
 

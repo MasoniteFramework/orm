@@ -11,21 +11,15 @@ def load_config(config_path=None):
         1. try to load from DB_CONFIG_PATH environment variable
         2. else try to load from default config_path: config/database
     """
-    selected_config_path = (
-        os.getenv("DB_CONFIG_PATH", config_path) or "config/database"
-    )
+    selected_config_path = os.getenv("DB_CONFIG_PATH", config_path) or "config/database"
 
     os.environ["DB_CONFIG_PATH"] = selected_config_path
 
     # format path as python module if needed
-    selected_config_path = (
-        selected_config_path.replace("/", ".").replace("\\", ".").rstrip(".py")
-    )
+    selected_config_path = selected_config_path.replace("/", ".").replace("\\", ".").rstrip(".py")
     config_module = pydoc.locate(selected_config_path)
     if config_module is None:
-        raise ConfigurationNotFound(
-            f"ORM configuration file has not been found in {selected_config_path}."
-        )
+        raise ConfigurationNotFound(f"ORM configuration file has not been found in {selected_config_path}.")
     return config_module
 
 
@@ -96,11 +90,7 @@ def db_url(database_url=None, prefix="", options={}, log_queries=False):
 
         # lookup specified driver
         driver = DRIVERS_MAP[url.scheme]
-        port = (
-            str(url.port)
-            if url.port and driver in [DRIVERS_MAP["mssql"]]
-            else url.port
-        )
+        port = str(url.port) if url.port and driver in [DRIVERS_MAP["mssql"]] else url.port
 
     # build final configuration
     config = {

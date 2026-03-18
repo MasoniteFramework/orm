@@ -30,9 +30,7 @@ class BelongsTo(BaseRelationship):
         Returns:
             dict -- A dictionary of data which will be hydrated.
         """
-        return foreign.where(
-            self.foreign_key, owner.__attributes__[self.local_key]
-        ).first()
+        return foreign.where(self.foreign_key, owner.__attributes__[self.local_key]).first()
 
     def query_has(self, current_query_builder, method="where_exists"):
         related_builder = self.get_builder()
@@ -98,9 +96,7 @@ class BelongsTo(BaseRelationship):
         foreign_key_value = getattr(related_record, self.foreign_key)
         if not current_model.is_created():
             current_model.fill({self.local_key: foreign_key_value})
-            return current_model.create(
-                current_model.all_attributes(), cast=True
-            )
+            return current_model.create(current_model.all_attributes(), cast=True)
 
         current_model.update({self.local_key: foreign_key_value})
         return current_model
@@ -111,14 +107,6 @@ class BelongsTo(BaseRelationship):
     def relate(self, related_record):
         return (
             self.get_builder()
-            .where(
-                self.foreign_key, related_record.__attributes__[self.local_key]
-            )
-            ._set_creates_related(
-                {
-                    self.foreign_key: related_record.__attributes__[
-                        self.local_key
-                    ]
-                }
-            )
+            .where(self.foreign_key, related_record.__attributes__[self.local_key])
+            ._set_creates_related({self.foreign_key: related_record.__attributes__[self.local_key]})
         )

@@ -2,9 +2,7 @@ import pydoc
 
 
 class Seeder:
-    def __init__(
-        self, dry=False, seed_path="databases/seeds", connection=None
-    ):
+    def __init__(self, dry=False, seed_path="databases/seeds", connection=None):
         self.ran_seeds = []
         self.dry = dry
         self.seed_path = seed_path
@@ -18,9 +16,7 @@ class Seeder:
                 seeder_class(connection=self.connection).run()
 
     def run_database_seed(self):
-        database_seeder = pydoc.locate(
-            f"{self.seed_module}.database_seeder.DatabaseSeeder"
-        )
+        database_seeder = pydoc.locate(f"{self.seed_module}.database_seeder.DatabaseSeeder")
 
         self.ran_seeds.append(database_seeder)
 

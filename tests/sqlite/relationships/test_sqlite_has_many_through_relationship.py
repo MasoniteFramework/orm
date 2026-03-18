@@ -3,9 +3,10 @@ import unittest
 from src.masoniteorm.collection import Collection
 from src.masoniteorm.models import Model
 from src.masoniteorm.relationships import has_many_through
-from tests.integrations.config.database import DATABASES
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import SQLitePlatform
+
+from tests.integrations.config.database import DATABASES
 
 
 class Enrolment(Model):
@@ -25,13 +26,7 @@ class Course(Model):
     __connection__ = "dev"
     __fillable__ = ["course_id", "name"]
 
-    @has_many_through(
-        None,
-        "in_course_id",
-        "active_student_id",
-        "course_id",
-        "student_id"
-    )
+    @has_many_through(None, "in_course_id", "active_student_id", "course_id", "student_id")
     def students(self):
         return [Student, Enrolment]
 
@@ -103,16 +98,10 @@ class TestHasManyThroughRelationship(unittest.TestCase):
         self.assertEqual(student2.name, "Bob")
 
         # check .first() and .get() produce the same result
-        single = (
-            Course.where("name", "History 101")
-            .with_("students")
-            .first()
-        )
+        single = Course.where("name", "History 101").with_("students").first()
         self.assertIsInstance(single.students, Collection)
 
-        single_get = (
-            Course.where("name", "History 101").with_("students").get()
-        )
+        single_get = Course.where("name", "History 101").with_("students").get()
 
         print(single.students)
         print(single_get.first().students)
@@ -124,11 +113,7 @@ class TestHasManyThroughRelationship(unittest.TestCase):
         self.assertEqual(single_name, single_get_name)
 
     def test_has_many_through_eager_load_can_be_empty(self):
-        courses = (
-            Course.where("name", "Biology 302")
-            .with_("students")
-            .get()
-        )
+        courses = Course.where("name", "Biology 302").with_("students").get()
         self.assertIsNone(courses.first().students)
 
     def test_has_many_through_can_get_related(self):
@@ -138,7 +123,5 @@ class TestHasManyThroughRelationship(unittest.TestCase):
         self.assertEqual(course.students.count(), 2)
 
     def test_has_many_through_has_query(self):
-        courses = Course.where_has(
-            "students", lambda query: query.where("name", "Bob")
-        )
+        courses = Course.where_has("students", lambda query: query.where("name", "Bob"))
         self.assertEqual(courses.count(), 2)

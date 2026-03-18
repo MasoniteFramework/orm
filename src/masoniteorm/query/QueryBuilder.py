@@ -1,6 +1,7 @@
-import inspect
+# ruff: noqa: E501
 from copy import deepcopy
 from datetime import datetime
+import inspect
 from typing import Any, Callable, Dict, List, Optional
 
 from ..collection.Collection import Collection
@@ -154,27 +155,13 @@ class QueryBuilder(ObservesEvents):
 
     def get_connection_information(self):
         return {
-            "host": self._connection_details.get(self.connection, {}).get(
-                "host"
-            ),
-            "database": self._connection_details.get(self.connection, {}).get(
-                "database"
-            ),
-            "user": self._connection_details.get(self.connection, {}).get(
-                "user"
-            ),
-            "port": self._connection_details.get(self.connection, {}).get(
-                "port"
-            ),
-            "password": self._connection_details.get(self.connection, {}).get(
-                "password"
-            ),
-            "prefix": self._connection_details.get(self.connection, {}).get(
-                "prefix"
-            ),
-            "options": self._connection_details.get(self.connection, {}).get(
-                "options", {}
-            ),
+            "host": self._connection_details.get(self.connection, {}).get("host"),
+            "database": self._connection_details.get(self.connection, {}).get("database"),
+            "user": self._connection_details.get(self.connection, {}).get("user"),
+            "port": self._connection_details.get(self.connection, {}).get("port"),
+            "password": self._connection_details.get(self.connection, {}).get("password"),
+            "prefix": self._connection_details.get(self.connection, {}).get("prefix"),
+            "options": self._connection_details.get(self.connection, {}).get("options", {}),
             "full_details": self._connection_details.get(self.connection, {}),
         }
 
@@ -237,15 +224,8 @@ class QueryBuilder(ObservesEvents):
         """
         return self._table.name
 
-    def get_connection(self):
-        """Sets a table on the query builder
-
-        Arguments:
-            table {string} -- The name of the table
-
-        Returns:
-            self
-        """
+    def get_connection_class(self):
+        """Gets the connection class"""
         return self.connection_class
 
     def begin(self):
@@ -288,16 +268,16 @@ class QueryBuilder(ObservesEvents):
         self._connection.rollback()
         return self
 
-    def get_relation(self, key):
-        """Sets a table on the query builder
-
-        Arguments:
-            table {string} -- The name of the table
-
-        Returns:
-            self
-        """
-        return getattr(self.owner, key)
+    # def get_relation(self, key):
+    #     """Sets a table on the query builder
+    #
+    #     Arguments:
+    #         table {string} -- The name of the table
+    #
+    #     Returns:
+    #         self
+    #     """
+    #     return getattr(self.owner, key)
 
     def set_scope(self, name, callable):
         """Sets a scope based on a class and maps it to a name.
@@ -372,31 +352,23 @@ class QueryBuilder(ObservesEvents):
             self
         """
         if attribute == "__setstate__":
-            raise AttributeError(
-                "'QueryBuilder' object has no attribute '{}'".format(attribute)
-            )
+            raise AttributeError(f"'QueryBuilder' object has no attribute '{attribute}'")
 
         if attribute in self._scopes:
 
             def method(*args, **kwargs):
-                return self._scopes[attribute](
-                    self._model, self, *args, **kwargs
-                )
+                return self._scopes[attribute](self._model, self, *args, **kwargs)
 
             return method
 
         if attribute in self._macros:
 
             def method(*args, **kwargs):
-                return self._macros[attribute](
-                    self._model, self, *args, **kwargs
-                )
+                return self._macros[attribute](self._model, self, *args, **kwargs)
 
             return method
 
-        raise AttributeError(
-            "'QueryBuilder' object has no attribute '{}'".format(attribute)
-        )
+        raise AttributeError(f"'QueryBuilder' object has no attribute '{attribute}'")
 
     def on(self, connection):
         if connection == "default":
@@ -405,19 +377,11 @@ class QueryBuilder(ObservesEvents):
             self.connection = connection
 
         if self.connection not in self._connection_details:
-            raise ConnectionNotRegistered(
-                f"Could not find the '{self.connection}' connection details"
-            )
+            raise ConnectionNotRegistered(f"Could not find the '{self.connection}' connection details")
 
-        self._connection_driver = self._connection_details.get(
-            self.connection
-        ).get("driver")
-        resolver = ConnectionResolver(
-            connection_details=self._connection_details
-        )
-        self.connection_class = resolver.connection_factory.make(
-            self._connection_driver
-        )
+        self._connection_driver = self._connection_details.get(self.connection).get("driver")
+        resolver = ConnectionResolver(connection_details=self._connection_details)
+        self.connection_class = resolver.connection_factory.make(self._connection_driver)
 
         self.grammar = self.connection_class.get_default_query_grammar()
 
@@ -505,9 +469,7 @@ class QueryBuilder(ObservesEvents):
             model = model.hydrate(self._creates)
         if not self.dry:
             connection = self.new_connection()
-            query_result = connection.query(
-                self.to_qmark(), self._bindings, results=1
-            )
+            query_result = connection.query(self.to_qmark(), self._bindings, results=1)
 
             processed_results = query_result or self._creates
         else:
@@ -563,9 +525,7 @@ class QueryBuilder(ObservesEvents):
         if not self.dry:
             connection = self.new_connection()
 
-            query_result = connection.query(
-                self.to_qmark(), self._bindings, results=1
-            )
+            query_result = connection.query(self.to_qmark(), self._bindings, results=1)
 
             if model:
                 id_key = model.get_primary_key()
@@ -641,24 +601,14 @@ class QueryBuilder(ObservesEvents):
 
         if inspect.isfunction(column):
             builder = column(self.new())
-            self._wheres += (
-                (QueryExpression(None, operator, SubGroupExpression(builder))),
-            )
+            self._wheres += ((QueryExpression(None, operator, SubGroupExpression(builder))),)
         elif isinstance(column, dict):
             for key, value in column.items():
                 self._wheres += ((QueryExpression(key, "=", value, "value")),)
         elif isinstance(value, QueryBuilder):
-            self._wheres += (
-                (
-                    QueryExpression(
-                        column, operator, SubSelectExpression(value)
-                    )
-                ),
-            )
+            self._wheres += ((QueryExpression(column, operator, SubSelectExpression(value))),)
         else:
-            self._wheres += (
-                (QueryExpression(column, operator, value, "value")),
-            )
+            self._wheres += ((QueryExpression(column, operator, value, "value")),)
         return self
 
     def where_from_builder(self, builder):
@@ -674,9 +624,7 @@ class QueryBuilder(ObservesEvents):
             self
         """
 
-        self._wheres += (
-            (QueryExpression(None, "=", SubGroupExpression(builder))),
-        )
+        self._wheres += ((QueryExpression(None, "=", SubGroupExpression(builder))),)
 
         return self
 
@@ -720,13 +668,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._wheres += (
-            (
-                QueryExpression(
-                    query, "=", None, "value", raw=True, bindings=bindings
-                )
-            ),
-        )
+        self._wheres += ((QueryExpression(query, "=", None, "value", raw=True, bindings=bindings)),)
         return self
 
     def or_where(self, column, *args):
@@ -753,21 +695,9 @@ class QueryBuilder(ObservesEvents):
                 ),
             )
         elif isinstance(value, QueryBuilder):
-            self._wheres += (
-                (
-                    QueryExpression(
-                        column, operator, SubSelectExpression(value)
-                    )
-                ),
-            )
+            self._wheres += ((QueryExpression(column, operator, SubSelectExpression(value))),)
         else:
-            self._wheres += (
-                (
-                    QueryExpression(
-                        column, operator, value, "value", keyword="or"
-                    )
-                ),
-            )
+            self._wheres += ((QueryExpression(column, operator, value, "value", keyword="or")),)
         return self
 
     def where_exists(self, value: "str|int|QueryBuilder"):
@@ -780,21 +710,11 @@ class QueryBuilder(ObservesEvents):
             self
         """
         if inspect.isfunction(value):
-            self._wheres += (
-                (
-                    QueryExpression(
-                        None, "EXISTS", SubSelectExpression(value(self.new()))
-                    )
-                ),
-            )
+            self._wheres += ((QueryExpression(None, "EXISTS", SubSelectExpression(value(self.new())))),)
         elif isinstance(value, QueryBuilder):
-            self._wheres += (
-                (QueryExpression(None, "EXISTS", SubSelectExpression(value))),
-            )
+            self._wheres += ((QueryExpression(None, "EXISTS", SubSelectExpression(value))),)
         else:
-            self._wheres += (
-                (QueryExpression(None, "EXISTS", value, "value")),
-            )
+            self._wheres += ((QueryExpression(None, "EXISTS", value, "value")),)
 
         return self
 
@@ -830,13 +750,7 @@ class QueryBuilder(ObservesEvents):
                 ),
             )
         else:
-            self._wheres += (
-                (
-                    QueryExpression(
-                        None, "EXISTS", value, "value", keyword="or"
-                    )
-                ),
-            )
+            self._wheres += ((QueryExpression(None, "EXISTS", value, "value", keyword="or")),)
 
         return self
 
@@ -861,17 +775,9 @@ class QueryBuilder(ObservesEvents):
                 ),
             )
         elif isinstance(value, QueryBuilder):
-            self._wheres += (
-                (
-                    QueryExpression(
-                        None, "NOT EXISTS", SubSelectExpression(value)
-                    )
-                ),
-            )
+            self._wheres += ((QueryExpression(None, "NOT EXISTS", SubSelectExpression(value))),)
         else:
-            self._wheres += (
-                (QueryExpression(None, "NOT EXISTS", value, "value")),
-            )
+            self._wheres += ((QueryExpression(None, "NOT EXISTS", value, "value")),)
 
         return self
 
@@ -908,13 +814,7 @@ class QueryBuilder(ObservesEvents):
                 ),
             )
         else:
-            self._wheres += (
-                (
-                    QueryExpression(
-                        None, "NOT EXISTS", value, "value", keyword="or"
-                    )
-                ),
-            )
+            self._wheres += ((QueryExpression(None, "NOT EXISTS", value, "value", keyword="or")),)
 
         return self
 
@@ -967,16 +867,12 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._wheres += (
-            (QueryExpression(column, "=", None, "NULL", keyword="or")),
-        )
+        self._wheres += ((QueryExpression(column, "=", None, "NULL", keyword="or")),)
         return self
 
     def chunk(self, chunk_amount):
         chunk_connection = self.new_connection()
-        for result in chunk_connection.select_many(
-            self.to_sql(), (), chunk_amount
-        ):
+        for result in chunk_connection.select_many(self.to_sql(), (), chunk_amount):
             yield self.prepare_result(result)
 
     def where_not_null(self, column: str):
@@ -1008,13 +904,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._wheres += (
-            (
-                QueryExpression(
-                    column, "=", self._get_date_string(date), "DATE"
-                )
-            ),
-        )
+        self._wheres += ((QueryExpression(column, "=", self._get_date_string(date), "DATE")),)
         return self
 
     def or_where_date(self, column: str, date: "str|datetime"):
@@ -1071,9 +961,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self._wheres += (
-            BetweenExpression(column, low, high, equality="NOT BETWEEN"),
-        )
+        self._wheres += (BetweenExpression(column, low, high, equality="NOT BETWEEN"),)
         return self
 
     def where_in(self, column, wheres=None):
@@ -1095,17 +983,9 @@ class QueryBuilder(ObservesEvents):
             self._wheres += ((QueryExpression(0, "=", 1, "value_equals")),)
 
         elif isinstance(wheres, QueryBuilder):
-            self._wheres += (
-                (QueryExpression(column, "IN", SubSelectExpression(wheres))),
-            )
+            self._wheres += ((QueryExpression(column, "IN", SubSelectExpression(wheres))),)
         elif callable(wheres):
-            self._wheres += (
-                (
-                    QueryExpression(
-                        column, "IN", SubSelectExpression(wheres(self.new()))
-                    )
-                ),
-            )
+            self._wheres += ((QueryExpression(column, "IN", SubSelectExpression(wheres(self.new())))),)
         else:
             self._wheres += ((QueryExpression(column, "IN", list(wheres))),)
         return self
@@ -1115,17 +995,13 @@ class QueryBuilder(ObservesEvents):
             builder = self
 
         if not builder._model:
-            raise AttributeError(
-                "You must specify a model in order to use relationship methods"
-            )
+            raise AttributeError("You must specify a model in order to use relationship methods")
 
         return getattr(builder._model, relationship)
 
     def has(self, *relationships):
         if not self._model:
-            raise AttributeError(
-                "You must specify a model in order to use 'has' relationship methods"
-            )
+            raise AttributeError("You must specify a model in order to use 'has' relationship methods")
 
         for relationship in relationships:
             if "." in relationship:
@@ -1140,28 +1016,20 @@ class QueryBuilder(ObservesEvents):
 
     def or_has(self, *relationships):
         if not self._model:
-            raise AttributeError(
-                "You must specify a model in order to use 'has' relationship methods"
-            )
+            raise AttributeError("You must specify a model in order to use 'has' relationship methods")
 
         for relationship in relationships:
             if "." in relationship:
                 last_builder = self._model.builder
                 split_count = len(relationship.split("."))
-                for index, split_relationship in enumerate(
-                    relationship.split(".")
-                ):
+                for index, split_relationship in enumerate(relationship.split(".")):
                     related = last_builder.get_relation(split_relationship)
 
                     if index + 1 == split_count:
-                        last_builder = related.query_has(
-                            last_builder, method="where_exists"
-                        )
+                        last_builder = related.query_has(last_builder, method="where_exists")
                         continue
 
-                    last_builder = related.query_has(
-                        last_builder, method="or_where_exists"
-                    )
+                    last_builder = related.query_has(last_builder, method="or_where_exists")
             else:
                 related = getattr(self._model, relationship)
                 related.query_has(self, method="or_where_exists")
@@ -1177,19 +1045,13 @@ class QueryBuilder(ObservesEvents):
             if "." in relationship:
                 last_builder = self._model.builder
                 split_count = len(relationship.split("."))
-                for index, split_relationship in enumerate(
-                    relationship.split(".")
-                ):
+                for index, split_relationship in enumerate(relationship.split(".")):
                     related = last_builder.get_relation(split_relationship)
                     if index + 1 == split_count:
-                        last_builder = related.query_has(
-                            last_builder, method="where_exists"
-                        )
+                        last_builder = related.query_has(last_builder, method="where_exists")
                         continue
 
-                    last_builder = related.query_has(
-                        last_builder, method="where_not_exists"
-                    )
+                    last_builder = related.query_has(last_builder, method="where_not_exists")
             else:
                 related = getattr(self._model, relationship)
                 related.query_has(self, method="where_not_exists")
@@ -1205,19 +1067,13 @@ class QueryBuilder(ObservesEvents):
             if "." in relationship:
                 last_builder = self._model.builder
                 split_count = len(relationship.split("."))
-                for index, split_relationship in enumerate(
-                    relationship.split(".")
-                ):
+                for index, split_relationship in enumerate(relationship.split(".")):
                     related = last_builder.get_relation(split_relationship)
                     if index + 1 == split_count:
-                        last_builder = related.query_has(
-                            last_builder, method="where_exists"
-                        )
+                        last_builder = related.query_has(last_builder, method="where_exists")
                         continue
 
-                    last_builder = related.query_has(
-                        last_builder, method="or_where_not_exists"
-                    )
+                    last_builder = related.query_has(last_builder, method="or_where_not_exists")
             else:
                 related = getattr(self._model, relationship)
                 related.query_has(self, method="or_where_not_exists")
@@ -1225,9 +1081,7 @@ class QueryBuilder(ObservesEvents):
 
     def where_has(self, relationship, callback):
         if not self._model:
-            raise AttributeError(
-                "You must specify a model in order to use 'has' relationship methods"
-            )
+            raise AttributeError("You must specify a model in order to use 'has' relationship methods")
 
         if "." in relationship:
             last_builder = self._model.builder
@@ -1237,13 +1091,9 @@ class QueryBuilder(ObservesEvents):
                 related = last_builder.get_relation(split_relationship)
 
                 if index + 1 == split_count:
-                    last_builder = related.query_where_exists(
-                        last_builder, callback, method="where_exists"
-                    )
+                    last_builder = related.query_where_exists(last_builder, callback, method="where_exists")
                     continue
-                last_builder = related.query_has(
-                    last_builder, method="where_exists"
-                )
+                last_builder = related.query_has(last_builder, method="where_exists")
         else:
             related = getattr(self._model, relationship)
             related.query_where_exists(self, callback, method="where_exists")
@@ -1251,9 +1101,7 @@ class QueryBuilder(ObservesEvents):
 
     def or_where_has(self, relationship, callback):
         if not self._model:
-            raise AttributeError(
-                "You must specify a model in order to use 'has' relationship methods"
-            )
+            raise AttributeError("You must specify a model in order to use 'has' relationship methods")
 
         if "." in relationship:
             last_builder = self._model.builder
@@ -1262,19 +1110,13 @@ class QueryBuilder(ObservesEvents):
             for index, split_relationship in enumerate(splits):
                 related = last_builder.get_relation(split_relationship)
                 if index + 1 == split_count:
-                    last_builder = related.query_where_exists(
-                        last_builder, callback, method="where_exists"
-                    )
+                    last_builder = related.query_where_exists(last_builder, callback, method="where_exists")
                     continue
 
-                last_builder = related.query_has(
-                    last_builder, method="or_where_exists"
-                )
+                last_builder = related.query_has(last_builder, method="or_where_exists")
         else:
             related = getattr(self._model, relationship)
-            related.query_where_exists(
-                self, callback, method="or_where_exists"
-            )
+            related.query_where_exists(self, callback, method="or_where_exists")
         return self
 
     def where_doesnt_have(self, relationship, callback):
@@ -1286,24 +1128,18 @@ class QueryBuilder(ObservesEvents):
         if "." in relationship:
             last_builder = self._model.builder
             split_count = len(relationship.split("."))
-            for index, split_relationship in enumerate(
-                relationship.split(".")
-            ):
+            for index, split_relationship in enumerate(relationship.split(".")):
                 related = last_builder.get_relation(split_relationship)
                 if index + 1 == split_count:
-                    last_builder = getattr(
-                        last_builder._model, split_relationship
-                    ).query_where_exists(self, callback, method="where_exists")
+                    last_builder = getattr(last_builder._model, split_relationship).query_where_exists(
+                        self, callback, method="where_exists"
+                    )
                     continue
 
-                last_builder = related.query_has(
-                    last_builder, method="where_not_exists"
-                )
+                last_builder = related.query_has(last_builder, method="where_not_exists")
         else:
             related = getattr(self._model, relationship)
-            related.query_where_exists(
-                self, callback, method="where_not_exists"
-            )
+            related.query_where_exists(self, callback, method="where_not_exists")
         return self
 
     def or_where_doesnt_have(self, relationship, callback):
@@ -1315,31 +1151,23 @@ class QueryBuilder(ObservesEvents):
         if "." in relationship:
             last_builder = self._model.builder
             split_count = len(relationship.split("."))
-            for index, split_relationship in enumerate(
-                relationship.split(".")
-            ):
+            for index, split_relationship in enumerate(relationship.split(".")):
                 related = last_builder.get_relation(split_relationship)
                 if index + 1 == split_count:
-                    last_builder = getattr(
-                        last_builder._model, split_relationship
-                    ).query_where_exists(self, callback, method="where_exists")
+                    last_builder = getattr(last_builder._model, split_relationship).query_where_exists(
+                        self, callback, method="where_exists"
+                    )
                     continue
 
-                last_builder = related.query_has(
-                    last_builder, method="or_where_not_exists"
-                )
+                last_builder = related.query_has(last_builder, method="or_where_not_exists")
         else:
             related = getattr(self._model, relationship)
-            related.query_where_exists(
-                self, callback, method="or_where_not_exists"
-            )
+            related.query_where_exists(self, callback, method="or_where_not_exists")
         return self
 
     def with_count(self, relationship, callback=None):
         self.select(*self._model.get_selects())
-        return getattr(self._model, relationship).get_with_count_query(
-            self, callback=callback
-        )
+        return getattr(self._model, relationship).get_with_count_query(self, callback=callback)
 
     def where_not_in(self, column, wheres=None):
         """Specifies where a column does not contain a list of a values.
@@ -1357,17 +1185,9 @@ class QueryBuilder(ObservesEvents):
         wheres = wheres or []
 
         if isinstance(wheres, QueryBuilder):
-            self._wheres += (
-                (
-                    QueryExpression(
-                        column, "NOT IN", SubSelectExpression(wheres)
-                    )
-                ),
-            )
+            self._wheres += ((QueryExpression(column, "NOT IN", SubSelectExpression(wheres))),)
         else:
-            self._wheres += (
-                (QueryExpression(column, "NOT IN", list(wheres))),
-            )
+            self._wheres += ((QueryExpression(column, "NOT IN", list(wheres))),)
         return self
 
     def join(
@@ -1395,11 +1215,7 @@ class QueryBuilder(ObservesEvents):
         if inspect.isfunction(column1):
             self._joins += (column1(JoinClause(table, clause=clause)),)
         elif isinstance(table, str):
-            self._joins += (
-                JoinClause(table, clause=clause).on(
-                    column1, equality, column2
-                ),
-            )
+            self._joins += (JoinClause(table, clause=clause).on(column1, equality, column2),)
         else:
             self._joins += (table,)
         return self
@@ -1538,9 +1354,7 @@ class QueryBuilder(ObservesEvents):
 
         if model and model.is_loaded():
             self.where(model.get_primary_key(), model.get_primary_key_value())
-            additional.update(
-                {model.get_primary_key(): model.get_primary_key_value()}
-            )
+            additional.update({model.get_primary_key(): model.get_primary_key_value()})
 
             self.observe_events(model, "updating")
 
@@ -1550,11 +1364,7 @@ class QueryBuilder(ObservesEvents):
                 updates = {
                     attr: value
                     for attr, value in updates.items()
-                    if (
-                        value is None
-                        or model.__original_attributes__.get(attr, None)
-                        != value
-                    )
+                    if (value is None or model.__original_attributes__.get(attr, None) != value)
                 }
 
             # Do not execute query if no changes
@@ -1626,24 +1436,18 @@ class QueryBuilder(ObservesEvents):
 
         if model and model.is_loaded():
             self.where(model.get_primary_key(), model.get_primary_key_value())
-            additional.update(
-                {model.get_primary_key(): model.get_primary_key_value()}
-            )
+            additional.update({model.get_primary_key(): model.get_primary_key_value()})
 
             self.observe_events(model, "updating")
 
-        self._updates += (
-            UpdateQueryExpression(column, value, update_type="increment"),
-        )
+        self._updates += (UpdateQueryExpression(column, value, update_type="increment"),)
 
         self.set_action("update")
         if dry or self.dry:
             return self
 
         results = self.new_connection().query(self.to_qmark(), self._bindings)
-        processed_results = self.get_processor().get_column_value(
-            self, column, results, id_key, id_value
-        )
+        processed_results = self.get_processor().get_column_value(self, column, results, id_key, id_value)
         return processed_results
 
     def decrement(self, column, value=1, dry=False):
@@ -1670,24 +1474,18 @@ class QueryBuilder(ObservesEvents):
 
         if model and model.is_loaded():
             self.where(model.get_primary_key(), model.get_primary_key_value())
-            additional.update(
-                {model.get_primary_key(): model.get_primary_key_value()}
-            )
+            additional.update({model.get_primary_key(): model.get_primary_key_value()})
 
             self.observe_events(model, "updating")
 
-        self._updates += (
-            UpdateQueryExpression(column, value, update_type="decrement"),
-        )
+        self._updates += (UpdateQueryExpression(column, value, update_type="decrement"),)
 
         self.set_action("update")
         if dry or self.dry:
             return self
 
         result = self.new_connection().query(self.to_qmark(), self._bindings)
-        processed_results = self.get_processor().get_column_value(
-            self, column, result, id_key, id_value
-        )
+        processed_results = self.get_processor().get_column_value(self, column, result, id_key, id_value)
         return processed_results
 
     def sum(self, column):
@@ -1699,7 +1497,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self.aggregate("SUM", "{column}".format(column=column))
+        self.aggregate("SUM", f"{column}")
         return self
 
     def count(self, column=None, dry=False):
@@ -1711,9 +1509,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        alias = (
-            "m_count_reserved" if (column == "*" or column is None) else column
-        )
+        alias = "m_count_reserved" if (column == "*" or column is None) else column
         if column == "*":
             self.aggregate("COUNT", f"{column} as {alias}")
         elif column is None:
@@ -1725,9 +1521,7 @@ class QueryBuilder(ObservesEvents):
             return self
 
         if not column:
-            result = self.new_connection().query(
-                self.to_qmark(), self._bindings, results=1
-            )
+            result = self.new_connection().query(self.to_qmark(), self._bindings, results=1)
 
             if isinstance(result, dict):
                 return result.get(alias, 0)
@@ -1748,7 +1542,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self.aggregate("MAX", "{column}".format(column=column))
+        self.aggregate("MAX", f"{column}")
         return self
 
     def order_by(self, column, direction="ASC"):
@@ -1781,9 +1575,7 @@ class QueryBuilder(ObservesEvents):
         """
         if bindings is None:
             bindings = []
-        self._order_by += (
-            OrderByExpression(query, raw=True, bindings=bindings),
-        )
+        self._order_by += (OrderByExpression(query, raw=True, bindings=bindings),)
         return self
 
     def group_by(self, column):
@@ -1811,9 +1603,7 @@ class QueryBuilder(ObservesEvents):
         """
         if bindings is None:
             bindings = []
-        self._group_by += (
-            GroupByExpression(column=query, raw=True, bindings=bindings),
-        )
+        self._group_by += (GroupByExpression(column=query, raw=True, bindings=bindings),)
 
         return self
 
@@ -1824,11 +1614,7 @@ class QueryBuilder(ObservesEvents):
             aggregate {string} -- The name of the aggregation.
             column {string} -- The name of the column to aggregate.
         """
-        self._aggregates += (
-            AggregateExpression(
-                aggregate=aggregate, column=column, alias=alias
-            ),
-        )
+        self._aggregates += (AggregateExpression(aggregate=aggregate, column=column, alias=alias),)
 
     def first(self, fields=None, query=False):
         """Gets the first record.
@@ -1845,9 +1631,7 @@ class QueryBuilder(ObservesEvents):
         if query:
             return self
 
-        result = self.new_connection().query(
-            self.to_qmark(), self._bindings, results=1
-        )
+        result = self.new_connection().query(self.to_qmark(), self._bindings, results=1)
 
         return self.prepare_result(result)
 
@@ -1948,9 +1732,7 @@ class QueryBuilder(ObservesEvents):
 
         return self.first()
 
-    def find_or(
-        self, record_id: int, callback: Callable, args=None, column=None
-    ):
+    def find_or(self, record_id: int, callback: Callable, args=None, column=None):
         """Finds a row by the primary key ID (Requires a model) or raise a ModelNotFound exception.
 
         Arguments:
@@ -2069,9 +1851,7 @@ class QueryBuilder(ObservesEvents):
                             else:
                                 related = self._model.get_related(eager)
 
-                            result_set = related.get_related(
-                                self, hydrated_model
-                            )
+                            result_set = related.get_related(self, hydrated_model)
 
                             self._register_relationships_to_model(
                                 related,
@@ -2090,9 +1870,7 @@ class QueryBuilder(ObservesEvents):
         else:
             return result or None
 
-    def _register_relationships_to_model(
-        self, related, related_result, hydrated_model, relation_key
-    ):
+    def _register_relationships_to_model(self, related, related_result, hydrated_model, relation_key):
         """Takes a related result and a hydrated model and registers them to eachother using the relation key.
 
         Args:
@@ -2119,21 +1897,21 @@ class QueryBuilder(ObservesEvents):
     def _map_related(self, related_result, related):
         return related.map_related(related_result)
 
-    def all(self, selects=[], query=False):
+    def all(self, selects=None, query=False):
         """Returns all records from the table.
 
         Returns:
             dictionary -- Returns a dictionary of results.
         """
 
+        if selects is None:
+            selects = []
         self.select(*selects)
 
         if query:
             return self
 
-        result = (
-            self.new_connection().query(self.to_qmark(), self._bindings) or []
-        )
+        result = self.new_connection().query(self.to_qmark(), self._bindings) or []
 
         return self.prepare_result(result, collection=True)
 
@@ -2153,9 +1931,7 @@ class QueryBuilder(ObservesEvents):
             return self._connection
 
         self._connection = (
-            self.connection_class(
-                **self.get_connection_information(), name=self.connection
-            )
+            self.connection_class(**self.get_connection_information(), name=self.connection)
             .set_schema(self._schema)
             .make_connection()
         )
@@ -2313,7 +2089,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self.aggregate("AVG", "{column}".format(column=column))
+        self.aggregate("AVG", f"{column}")
         return self
 
     def min(self, column):
@@ -2325,7 +2101,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        self.aggregate("MIN", "{column}".format(column=column))
+        self.aggregate("MIN", f"{column}")
         return self
 
     def _extract_operator_value(self, *args):
@@ -2355,8 +2131,7 @@ class QueryBuilder(ObservesEvents):
 
         if operator not in operators:
             raise ValueError(
-                "Invalid comparison operator. The operator can be %s"
-                % ", ".join(operators)
+                "Invalid comparison operator. The operator can be {}".format(", ".join(operators))
             )
 
         return operator, value
@@ -2379,9 +2154,7 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def truncate(self, foreign_keys=False, dry=False):
-        sql = self.get_grammar().truncate_table(
-            self.get_table_name(), foreign_keys
-        )
+        sql = self.get_grammar().truncate_table(self.get_table_name(), foreign_keys)
 
         if dry or self.dry:
             return sql

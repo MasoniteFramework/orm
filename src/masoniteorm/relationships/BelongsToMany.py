@@ -1,5 +1,5 @@
-import pendulum
 from inflection import singularize
+import pendulum
 
 from ..collection import Collection
 from ..models.Pivot import Pivot
@@ -133,9 +133,7 @@ class BelongsToMany(BaseRelationship):
             model.delete_attribute("m_reserved2")
 
             if self.pivot_id:
-                pivot_data.update(
-                    {self.pivot_id: getattr(model, "m_reserved3")}
-                )
+                pivot_data.update({self.pivot_id: getattr(model, "m_reserved3")})
                 model.delete_attribute("m_reserved3")
 
             if self.with_fields:
@@ -244,14 +242,10 @@ class BelongsToMany(BaseRelationship):
                 Collection(relation._get_value(self.local_owner_key)).unique(),
             ).get()
         else:
-            return result.where(
-                self.local_owner_key, getattr(relation, self.local_owner_key)
-            ).get()
+            return result.where(self.local_owner_key, getattr(relation, self.local_owner_key)).get()
 
     def get_related(self, query, relation, eagers=None, callback=None):
-        final_result = self.make_query(
-            query, relation, eagers=eagers, callback=callback
-        )
+        final_result = self.make_query(query, relation, eagers=eagers, callback=callback)
         builder = self.make_builder(eagers)
 
         for model in final_result:
@@ -271,9 +265,7 @@ class BelongsToMany(BaseRelationship):
                 )
 
             if self.pivot_id:
-                pivot_data.update(
-                    {self.pivot_id: getattr(model, "m_reserved3")}
-                )
+                pivot_data.update({self.pivot_id: getattr(model, "m_reserved3")})
                 model.delete_attribute("m_reserved3")
 
             if self.with_fields:
@@ -356,13 +348,7 @@ class BelongsToMany(BaseRelationship):
         return result
 
     def register_related(self, key, model, collection):
-        model.add_relation(
-            {
-                key: collection.where(
-                    f"{self._table}_id", getattr(model, self.local_owner_key)
-                )
-            }
-        )
+        model.add_relation({key: collection.where(f"{self._table}_id", getattr(model, self.local_owner_key))})
 
     def joins(self, builder, clause=None):
         if not self._table:
@@ -487,22 +473,18 @@ class BelongsToMany(BaseRelationship):
         return_query = builder.add_select(
             f"{query.get_table_name()}_count",
             lambda q: (
-                (
-                    q.count("*")
-                    .where_column(
-                        f"{builder.get_table_name()}.{self.local_owner_key}",
-                        f"{self._table}.{self.local_key}",
-                    )
-                    .table(self._table)
-                    .when(
-                        callback,
-                        lambda q: (
-                            q.where_in(
-                                self.foreign_key,
-                                callback(query.select(self.other_owner_key)),
-                            )
-                        ),
-                    )
+                q.count("*")
+                .where_column(
+                    f"{builder.get_table_name()}.{self.local_owner_key}",
+                    f"{self._table}.{self.local_key}",
+                )
+                .table(self._table)
+                .when(
+                    callback,
+                    lambda q: q.where_in(
+                        self.foreign_key,
+                        callback(query.select(self.other_owner_key)),
+                    ),
                 )
             ),
         )
@@ -515,9 +497,7 @@ class BelongsToMany(BaseRelationship):
             self.foreign_key: getattr(related_record, self.other_owner_key),
         }
 
-        self._table = self._table or self.get_pivot_table_name(
-            current_model, related_record
-        )
+        self._table = self._table or self.get_pivot_table_name(current_model, related_record)
 
         if self.with_timestamps:
             data.update(
@@ -540,9 +520,7 @@ class BelongsToMany(BaseRelationship):
             self.foreign_key: getattr(related_record, self.other_owner_key),
         }
 
-        self._table = self._table or self.get_pivot_table_name(
-            current_model, related_record
-        )
+        self._table = self._table or self.get_pivot_table_name(current_model, related_record)
 
         return (
             Pivot.on(current_model.get_builder().connection)
@@ -558,9 +536,7 @@ class BelongsToMany(BaseRelationship):
             self.foreign_key: getattr(related_record, self.other_owner_key),
         }
 
-        self._table = self._table or self.get_pivot_table_name(
-            current_model, related_record
-        )
+        self._table = self._table or self.get_pivot_table_name(current_model, related_record)
 
         if self.with_timestamps:
             data.update(
@@ -583,9 +559,7 @@ class BelongsToMany(BaseRelationship):
             self.foreign_key: getattr(related_record, self.other_owner_key),
         }
 
-        self._table = self._table or self.get_pivot_table_name(
-            current_model, related_record
-        )
+        self._table = self._table or self.get_pivot_table_name(current_model, related_record)
 
         if self.with_timestamps:
             data.update(

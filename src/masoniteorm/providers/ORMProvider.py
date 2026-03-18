@@ -22,18 +22,20 @@ class ORMProvider(Provider):
         self.application = application
 
     def register(self):
-        self.application.make("commands").add(
-            MakeMigrationCommand(),
-            MakeSeedCommand(),
-            MakeObserverCommand(),
-            MigrateCommand(),
-            MigrateResetCommand(),
-            MakeModelCommand(),
-            MigrateStatusCommand(),
-            MigrateRefreshCommand(),
-            MigrateRollbackCommand(),
-            SeedRunCommand(),
-        ),
+        (
+            self.application.make("commands").add(
+                MakeMigrationCommand(),
+                MakeSeedCommand(),
+                MakeObserverCommand(),
+                MigrateCommand(),
+                MigrateResetCommand(),
+                MakeModelCommand(),
+                MigrateStatusCommand(),
+                MigrateRefreshCommand(),
+                MigrateRollbackCommand(),
+                SeedRunCommand(),
+            ),
+        )
 
     def boot(self):
         pass

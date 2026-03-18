@@ -12,104 +12,78 @@ class BaseQMarkTest:
     def test_can_compile_select(self):
         mark = self.builder.select("username").where("name", "Joe")
 
-        sql, bindings = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
+        sql, bindings = getattr(self, inspect.currentframe().f_code.co_name.replace("test_", ""))()
         self.assertEqual(mark.to_qmark(), sql)
         self.assertEqual(mark._bindings, bindings)
 
     def test_can_compile_delete(self):
         mark = self.builder.where("name", "Joe").delete(query=True)
 
-        sql, bindings = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
+        sql, bindings = getattr(self, inspect.currentframe().f_code.co_name.replace("test_", ""))()
         self.assertEqual(mark.to_qmark(), sql)
         self.assertEqual(mark._bindings, bindings)
 
     def test_can_compile_update(self):
         mark = self.builder.update({"name": "Bob"}, dry=True).where("name", "Joe")
 
-        sql, bindings = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
+        sql, bindings = getattr(self, inspect.currentframe().f_code.co_name.replace("test_", ""))()
         self.assertEqual(mark.to_qmark(), sql)
         self.assertEqual(mark._bindings, bindings)
 
     def test_can_compile_where_in(self):
         mark = self.builder.where_in("id", [1, 2, 3])
 
-        sql, bindings = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
+        sql, bindings = getattr(self, inspect.currentframe().f_code.co_name.replace("test_", ""))()
         self.assertEqual(mark.to_qmark(), sql)
         self.assertEqual(mark._bindings, bindings)
 
     def test_can_compile_where_not_null(self):
         mark = self.builder.where_not_null("id")
 
-        sql, bindings = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
+        sql, bindings = getattr(self, inspect.currentframe().f_code.co_name.replace("test_", ""))()
         self.assertEqual(mark.to_qmark(), sql)
         self.assertEqual(mark._bindings, [])
 
     def test_can_compile_where_with_falsy_values(self):
         mark = self.builder.where("name", 0)
 
-        sql, bindings = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
+        sql, bindings = getattr(self, inspect.currentframe().f_code.co_name.replace("test_", ""))()
         self.assertEqual(mark.to_qmark(), sql)
         self.assertEqual(mark._bindings, bindings)
 
     def test_can_compile_where_with_true_value(self):
         mark = self.builder.where("is_admin", True)
 
-        sql, bindings = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
+        sql, bindings = getattr(self, inspect.currentframe().f_code.co_name.replace("test_", ""))()
         self.assertEqual(mark.to_qmark(), sql)
         self.assertEqual(mark._bindings, bindings)
 
     def test_can_compile_where_with_false_value(self):
         mark = self.builder.where("is_admin", False)
 
-        sql, bindings = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
+        sql, bindings = getattr(self, inspect.currentframe().f_code.co_name.replace("test_", ""))()
         self.assertEqual(mark.to_qmark(), sql)
         self.assertEqual(mark._bindings, bindings)
 
     def test_can_compile_sub_group_bindings(self):
         mark = self.builder.where(
-            lambda query: (
-                query.where("challenger", 1)
-                .or_where("proposer", 1)
-                .or_where("referee", 1)
-            )
+            lambda query: query.where("challenger", 1).or_where("proposer", 1).or_where("referee", 1)
         )
 
-        sql, bindings = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
+        sql, bindings = getattr(self, inspect.currentframe().f_code.co_name.replace("test_", ""))()
         self.assertEqual(mark.to_qmark(), sql)
         self.assertEqual(mark._bindings, bindings)
 
     def test_can_increment(self):
         builder = self.builder.increment("age", dry=True)
-        sql, bindings = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
+        sql, bindings = getattr(self, inspect.currentframe().f_code.co_name.replace("test_", ""))()
 
         self.assertEqual(builder.to_qmark(), sql)
         self.assertEqual(builder._bindings, bindings)
 
     def test_can_decrement(self):
         builder = self.builder.decrement("age", dry=True)
-        sql, bindings = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
+        sql, bindings = getattr(self, inspect.currentframe().f_code.co_name.replace("test_", ""))()
 
         self.assertEqual(builder.to_qmark(), sql)
         self.assertEqual(builder._bindings, bindings)

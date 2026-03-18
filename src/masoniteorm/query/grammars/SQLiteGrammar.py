@@ -223,6 +223,6 @@ class SQLiteGrammar(BaseGrammar):
             self
         """
         if not self._limit:
-            self._limit = int(-1)
+            self._limit = -1
 
         return super().process_offset()

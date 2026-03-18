@@ -104,9 +104,7 @@ class MorphMany(BaseRelationship):
                 )
                 .where_in(
                     self.morph_id,
-                    relation.pluck(
-                        relation.first().get_primary_key(), keep_nulls=False
-                    ).unique(),
+                    relation.pluck(relation.first().get_primary_key(), keep_nulls=False).unique(),
                 )
                 .get()
             )
@@ -116,9 +114,9 @@ class MorphMany(BaseRelationship):
 
             if callback:
                 return callback(
-                    self.polymorphic_builder.where(
-                        self.morph_key, record_type
-                    ).where(self.morph_id, relation.get_primary_key_value())
+                    self.polymorphic_builder.where(self.morph_key, record_type).where(
+                        self.morph_id, relation.get_primary_key_value()
+                    )
                 ).get()
             return (
                 self.polymorphic_builder.where(self.morph_key, record_type)
@@ -145,8 +143,6 @@ class MorphMany(BaseRelationship):
                 break
 
         if not record_type:
-            raise ValueError(
-                f"Could not find the record type key for the {relation} class"
-            )
+            raise ValueError(f"Could not find the record type key for the {relation} class")
 
         return record_type

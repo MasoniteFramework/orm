@@ -27,11 +27,7 @@ class MakeModelCommand(Command):
 
         model_directory = self.option("directory")
 
-        with open(
-            os.path.join(
-                pathlib.Path(__file__).parent.absolute(), "stubs/model.stub"
-            )
-        ) as fp:
+        with open(os.path.join(pathlib.Path(__file__).parent.absolute(), "stubs/model.stub")) as fp:
             output = fp.read()
             output = output.replace("__CLASS__", camelize(name))
 
@@ -43,18 +39,12 @@ class MakeModelCommand(Command):
         full_directory_path = os.path.join(os.getcwd(), model_directory)
 
         if os.path.exists(os.path.join(full_directory_path, file_name)):
-            self.line(
-                f'<error>Model "{name}" Already Exists ({full_directory_path}/{file_name})</error>'
-            )
+            self.line(f'<error>Model "{name}" Already Exists ({full_directory_path}/{file_name})</error>')
             return
 
-        os.makedirs(
-            os.path.dirname(os.path.join(full_directory_path)), exist_ok=True
-        )
+        os.makedirs(os.path.dirname(os.path.join(full_directory_path)), exist_ok=True)
 
-        with open(
-            os.path.join(os.getcwd(), model_directory, file_name), "w+"
-        ) as fp:
+        with open(os.path.join(os.getcwd(), model_directory, file_name), "w+") as fp:
             fp.write(output)
 
         self.info(f"Model created: {os.path.join(model_directory, file_name)}")
@@ -73,6 +63,4 @@ class MakeModelCommand(Command):
 
         if self.option("seeder"):
             directory = self.option("seeders-directory")
-            self.call(
-                "seed", f"{self.argument('name')} --directory {directory}"
-            )
+            self.call("seed", f"{self.argument('name')} --directory {directory}")

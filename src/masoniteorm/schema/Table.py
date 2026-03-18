@@ -47,13 +47,9 @@ class Table:
         return column
 
     def add_constraint(self, name, constraint_type, columns=None):
-        self.added_constraints.update(
-            {name: Constraint(name, constraint_type, columns=columns or [])}
-        )
+        self.added_constraints.update({name: Constraint(name, constraint_type, columns=columns or [])})
 
-    def add_foreign_key(
-        self, column, table=None, foreign_column=None, name=None
-    ):
+    def add_foreign_key(self, column, table=None, foreign_column=None, name=None):
         foreign_key = ForeignKeyConstraint(
             column,
             table,

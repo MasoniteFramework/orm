@@ -1,9 +1,10 @@
 import unittest
 
-from tests.integrations.config.database import DATABASES
 from src.masoniteorm.connections import SQLiteConnection
 from src.masoniteorm.schema import Column, Table
 from src.masoniteorm.schema.platforms.SQLitePlatform import SQLitePlatform
+
+from tests.integrations.config.database import DATABASES
 
 
 class TestTable(unittest.TestCase):
@@ -100,9 +101,7 @@ class TestTable(unittest.TestCase):
     def test_can_build_table_from_connection_call(self):
         sql_details = DATABASES["dev"]
         table = self.platform.get_current_schema(
-            SQLiteConnection(
-                database=sql_details["database"], name="dev"
-            ).make_connection(),
+            SQLiteConnection(database=sql_details["database"], name="dev").make_connection(),
             "table_schema",
         )
 

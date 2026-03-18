@@ -1,6 +1,13 @@
 import unittest
+
 from src.masoniteorm.models import Model
-from src.masoniteorm.relationships import belongs_to, has_many, has_one, belongs_to_many
+from src.masoniteorm.relationships import (
+    belongs_to,
+    belongs_to_many,
+    has_many,
+    has_one,
+)
+
 from tests.integrations.config.database import DB
 
 
@@ -152,12 +159,8 @@ class TestRelationships(unittest.TestCase):
         self.assertEqual(store.products.count(), 3)
         self.assertEqual(store.products.serialize()[0]["id"], 4)
         self.assertEqual(store.products.serialize()[0]["name"], "Handgun")
-        self.assertEqual(
-            store.products.serialize()[0]["updated_at"], "2020-01-01T00:00:00+00:00"
-        )
-        self.assertEqual(
-            store.products.serialize()[0]["created_at"], "2020-01-01T00:00:00+00:00"
-        )
+        self.assertEqual(store.products.serialize()[0]["updated_at"], "2020-01-01T00:00:00+00:00")
+        self.assertEqual(store.products.serialize()[0]["created_at"], "2020-01-01T00:00:00+00:00")
 
     def test_belongs_to_eager_many(self):
         store = Store.hydrate({"id": 2, "name": "Walmart"})

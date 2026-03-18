@@ -1,4 +1,5 @@
 import unittest
+
 from cleo import CommandTester
 
 from src.masoniteorm.commands import ShellCommand
@@ -62,10 +63,7 @@ class TestShellCommand(unittest.TestCase):
             "full_details": {"driver": "mssql"},
         }
         command, _ = self.command.get_command(config)
-        assert (
-            command
-            == "sqlcmd -d orm -U root -P secretpostgres -S tcp:db.masonite.com,1234"
-        )
+        assert command == "sqlcmd -d orm -U root -P secretpostgres -S tcp:db.masonite.com,1234"
 
     def test_running_command_with_sqlite(self):
         self.command_tester.execute("-c dev")
@@ -84,6 +82,4 @@ class TestShellCommand(unittest.TestCase):
         }
         command, _ = self.command.get_command(config)
         cleaned_command = self.command.hide_sensitive_options(config, command)
-        assert (
-            cleaned_command == "mysql orm --host localhost --user root --password ***"
-        )
+        assert cleaned_command == "mysql orm --host localhost --user root --password ***"

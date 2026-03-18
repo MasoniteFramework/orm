@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 class Blueprint:
     """Used for building schemas for creating, modifying or altering schema."""
 
@@ -37,9 +38,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "string", length=length, nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "string", length=length, nullable=nullable)
 
         return self
 
@@ -56,9 +55,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "tiny_integer", length=length, nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "tiny_integer", length=length, nullable=nullable)
         return self
 
     def small_integer(self, column, length=5, nullable=False):
@@ -74,9 +71,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "small_integer", length=length, nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "small_integer", length=length, nullable=nullable)
         return self
 
     def medium_integer(self, column, length=7, nullable=False):
@@ -92,9 +87,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "medium_integer", length=length, nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "medium_integer", length=length, nullable=nullable)
         return self
 
     def integer(self, column, length=11, nullable=False):
@@ -110,9 +103,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "integer", length=length, nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "integer", length=length, nullable=nullable)
         return self
 
     def big_integer(self, column, length=32, nullable=False):
@@ -128,9 +119,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "big_integer", length=length, nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "big_integer", length=length, nullable=nullable)
         return self
 
     def unsigned_big_integer(self, column, length=32, nullable=False):
@@ -146,19 +135,13 @@ class Blueprint:
         Returns:
             self
         """
-        return self.big_integer(
-            column, length=length, nullable=nullable
-        ).unsigned()
+        return self.big_integer(column, length=length, nullable=nullable).unsigned()
 
     def _compile_create(self):
-        return self.grammar(
-            creates=self._columns, table=self.table
-        )._compile_create()
+        return self.grammar(creates=self._columns, table=self.table)._compile_create()
 
     def _compile_alter(self):
-        return self.grammar(
-            creates=self._columns, table=self.table
-        )._compile_create()
+        return self.grammar(creates=self._columns, table=self.table)._compile_create()
 
     def increments(self, column, nullable=False):
         """Sets a column to be the auto incrementing primary key representation for the table.
@@ -172,9 +155,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "increments", nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "increments", nullable=nullable)
 
         self.primary(column)
         return self
@@ -191,9 +172,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "tiny_increments", nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "tiny_increments", nullable=nullable)
 
         self.primary(column)
         return self
@@ -221,9 +200,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "uuid", nullable=nullable, length=length
-        )
+        self._last_column = self.table.add_column(column, "uuid", nullable=nullable, length=length)
         return self
 
     def big_increments(self, column, nullable=False):
@@ -238,9 +215,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "big_increments", nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "big_increments", nullable=nullable)
 
         self.primary(column)
         return self
@@ -257,9 +232,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "binary", nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "binary", nullable=nullable)
         return self
 
     def boolean(self, column, nullable=False):
@@ -274,9 +247,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "boolean", nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "boolean", nullable=nullable)
         return self
 
     def default(self, value, raw=False):
@@ -301,9 +272,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "char", length=length, nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "char", length=length, nullable=nullable)
         return self
 
     def date(self, column, nullable=False):
@@ -318,9 +287,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "date", nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "date", nullable=nullable)
         return self
 
     def time(self, column, nullable=False):
@@ -335,9 +302,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "time", nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "time", nullable=nullable)
         return self
 
     def datetime(self, column, nullable=False, now=False):
@@ -354,9 +319,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "datetime", nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "datetime", nullable=nullable)
 
         if now:
             self._last_column.use_current()
@@ -377,9 +340,7 @@ class Blueprint:
             self
         """
 
-        self._last_column = self.table.add_column(
-            column, "timestamp", nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "timestamp", nullable=nullable)
 
         if now:
             self._last_column.use_current()
@@ -416,9 +377,7 @@ class Blueprint:
         self._last_column = self.table.add_column(
             column,
             "decimal",
-            length="{length}, {precision}".format(
-                length=length, precision=precision
-            ),
+            length=f"{length}, {precision}",
             nullable=nullable,
         )
         return self
@@ -440,9 +399,7 @@ class Blueprint:
         self._last_column = self.table.add_column(
             column,
             "float",
-            length="{length}, {precision}".format(
-                length=length, precision=precision
-            ),
+            length=f"{length}, {precision}",
             nullable=nullable,
         )
         return self
@@ -459,9 +416,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "double", nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "double", nullable=nullable)
         return self
 
     def enum(self, column, options=None, nullable=False):
@@ -481,7 +436,7 @@ class Blueprint:
         options = options or []
         new_options = ""
         for option in options:
-            new_options += "'{}',".format(option)
+            new_options += f"'{option}',"
         new_options = new_options.rstrip(",")
         self._last_column = self.table.add_column(
             column, "enum", length="255", values=options, nullable=nullable
@@ -501,9 +456,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "text", length=length, nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "text", length=length, nullable=nullable)
         return self
 
     def tiny_text(self, column, length=None, nullable=False):
@@ -519,9 +472,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "tiny_text", length=length, nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "tiny_text", length=length, nullable=nullable)
         return self
 
     def unsigned_decimal(self, column, length=17, precision=6, nullable=False):
@@ -540,9 +491,7 @@ class Blueprint:
         self._last_column = self.table.add_column(
             column,
             "decimal",
-            length="{length}, {precision}".format(
-                length=length, precision=precision
-            ),
+            length=f"{length}, {precision}",
             nullable=nullable,
         ).unsigned()
         return self
@@ -561,9 +510,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "long_text", length=length, nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "long_text", length=length, nullable=nullable)
         return self
 
     def json(self, column, nullable=False):
@@ -578,9 +525,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "json", nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "json", nullable=nullable)
         return self
 
     def jsonb(self, column, nullable=False):
@@ -595,9 +540,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "jsonb", nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "jsonb", nullable=nullable)
         return self
 
     def inet(self, column, length=255, nullable=False):
@@ -612,9 +555,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "inet", length=255, nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "inet", length=255, nullable=nullable)
         return self
 
     def cidr(self, column, length=255, nullable=False):
@@ -629,9 +570,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "cidr", length=255, nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "cidr", length=255, nullable=nullable)
         return self
 
     def macaddr(self, column, length=255, nullable=False):
@@ -646,9 +585,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "macaddr", length=255, nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "macaddr", length=255, nullable=nullable)
         return self
 
     def point(self, column, nullable=False):
@@ -663,9 +600,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "point", nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "point", nullable=nullable)
         return self
 
     def geometry(self, column, nullable=False):
@@ -680,9 +615,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "geometry", nullable=nullable
-        )
+        self._last_column = self.table.add_column(column, "geometry", nullable=nullable)
         return self
 
     def year(self, column, length=4, default=None, nullable=False):
@@ -736,9 +669,7 @@ class Blueprint:
         Returns:
             self
         """
-        self._last_column = self.table.add_column(
-            column, "integer", nullable=nullable
-        ).unsigned()
+        self._last_column = self.table.add_column(column, "integer", nullable=nullable).unsigned()
         return self
 
     def morphs(self, column, nullable=False, indexes=True):
@@ -754,14 +685,10 @@ class Blueprint:
             self
         """
         _columns = []
+        _columns.append(self.table.add_column(f"{column}_id", "integer", nullable=nullable).unsigned())
         _columns.append(
             self.table.add_column(
-                "{}_id".format(column), "integer", nullable=nullable
-            ).unsigned()
-        )
-        _columns.append(
-            self.table.add_column(
-                "{}_type".format(column),
+                f"{column}_type",
                 "string",
                 nullable=nullable,
                 length=self._default_string_length,
@@ -784,9 +711,7 @@ class Blueprint:
         if self._action == "create":
             return self.platform().compile_create_sql(self.table)
         elif self._action == "create_table_if_not_exists":
-            return self.platform().compile_create_sql(
-                self.table, if_not_exists=True
-            )
+            return self.platform().compile_create_sql(self.table, if_not_exists=True)
         else:
             if not self._dry:
                 # get current table schema
@@ -885,9 +810,7 @@ class Blueprint:
         if not isinstance(column, list):
             column = [column]
 
-        self.table.add_constraint(
-            name or f"{'_'.join(column)}_fulltext", "fulltext", column
-        )
+        self.table.add_constraint(name or f"{'_'.join(column)}_fulltext", "fulltext", column)
 
         return self
 
@@ -923,15 +846,9 @@ class Blueprint:
             columns {string} -- The name of the from_column . to_column . table
         """
         if len(columns.split(".")) != 3:
-            raise Exception(
-                "Wrong add_foreign argument, the struncture is from_column.to_column.table"
-            )
+            raise Exception("Wrong add_foreign argument, the struncture is from_column.to_column.table")
         from_column, to_column, table = columns.split(".")
-        return (
-            self.foreign(from_column, name=name)
-            .references(to_column)
-            .on(table)
-        )
+        return self.foreign(from_column, name=name).references(to_column).on(table)
 
     def foreign(self, column, name=None):
         """Starts the creation of a foreign key constraint
@@ -980,11 +897,7 @@ class Blueprint:
         """
         clm = column if column else model.get_foreign_key()
 
-        return (
-            self.foreign_id(clm)
-            if model.get_primary_key_type() == "int"
-            else self.foreign_uuid(column)
-        )
+        return self.foreign_id(clm) if model.get_primary_key_type() == "int" else self.foreign_uuid(column)
 
     def references(self, column):
         """Sets the other column on the foreign table that the local column will use to reference.
@@ -1052,9 +965,7 @@ class Blueprint:
         Returns:
             self
         """
-        self.table.rename_column(
-            old_column, new_column, data_type, length=length
-        )
+        self.table.rename_column(old_column, new_column, data_type, length=length)
         return self
 
     def after(self, old_column):
@@ -1116,9 +1027,7 @@ class Blueprint:
         """
         if isinstance(index, list):
             for column in index:
-                self.table.remove_unique_index(
-                    f"{self.table.name}_{column}_unique"
-                )
+                self.table.remove_unique_index(f"{self.table.name}_{column}_unique")
 
             return self
 
