@@ -69,7 +69,7 @@ class JsonCast:
         """
         Cast the value to assign to the model attribute
         """
-        if isinstance(value, str):
+        if isinstance(value, (str, bytes)):
             try:
                 return json.loads(value)
             except ValueError:
@@ -967,7 +967,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return value
 
     def all_attributes(self):
-        attributes = self.__attributes__
+        attributes = self.__attributes__.copy()
         attributes.update(self.get_dirty_attributes())
         for key, value in attributes.items():
             if key in self.__casts__:
@@ -988,7 +988,7 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
         return self.__dirty_attributes__ or {}
 
     def get_cast_map(self):
-        cast_map = self.__internal_cast_map__
+        cast_map = self.__internal_cast_map__.copy()
         cast_map.update(self.__cast_map__)
         return cast_map
 
