@@ -210,6 +210,38 @@ class TestModels(unittest.TestCase):
             model.payload = "{'this': 'should', 'throw': 'error'}"
             model.save()
 
+    def test_json_cast_handles_bytes(self):
+        from src.masoniteorm.models.Model import JsonCast
+        caster = JsonCast()
+        self.assertEqual(caster.get(b'{"a": 1}'), {"a": 1})
+
+    def test_all_attributes_does_not_mutate_internal_attributes(self):
+        class FastModel(Model):
+            _booted = True
+            __casts__ = {"data": "json"}
+
+        model = FastModel()
+        model.__attributes__ = {"data": '{"key": "value"}'}
+        attrs = model.all_attributes()
+
+        self.assertEqual(attrs["data"], {"key": "value"})
+        self.assertIsInstance(model.get_raw_attribute("data"), str)
+
+    def test_get_cast_map_does_not_mutate_global(self):
+        class ModelA(Model):
+            _booted = True
+            __cast_map__ = {"custom_a": object}
+
+        class ModelB(Model):
+            _booted = True
+            __cast_map__ = {"custom_b": object}
+
+        map_a = ModelA().get_cast_map()
+        map_b = ModelB().get_cast_map()
+
+        self.assertIn("custom_a", map_a)
+        self.assertNotIn("custom_a", map_b)
+
     def test_model_update_without_changes(self):
         model = ModelTest.hydrate(
             {"id": 1, "username": "joe", "name": "Joe", "admin": True}
@@ -334,35 +366,3 @@ class TestModels(unittest.TestCase):
             """SELECT MIN(`users`.`id`) AS id FROM `users`""",
         )
 
-class TestCasting(unittest.TestCase):
-    def test_json_cast_handles_bytes(self):
-        from src.masoniteorm.models.Model import JsonCast
-        caster = JsonCast()
-        self.assertEqual(caster.get(b'{"a": 1}'), {"a": 1})
-
-    def test_all_attributes_does_not_mutate_internal_attributes(self):
-        class FastModel(Model):
-            _booted = True
-            __casts__ = {"data": "json"}
-
-        model = FastModel()
-        model.__attributes__ = {"data": '{"key": "value"}'}
-        attrs = model.all_attributes()
-
-        self.assertEqual(attrs["data"], {"key": "value"})
-        self.assertIsInstance(model.get_raw_attribute("data"), str)
-
-    def test_get_cast_map_does_not_mutate_global(self):
-        class ModelA(Model):
-            _booted = True
-            __cast_map__ = {"custom_a": object}
-
-        class ModelB(Model):
-            _booted = True
-            __cast_map__ = {"custom_b": object}
-
-        map_a = ModelA().get_cast_map()
-        map_b = ModelB().get_cast_map()
-
-        self.assertIn("custom_a", map_a)
-        self.assertNotIn("custom_a", map_b)

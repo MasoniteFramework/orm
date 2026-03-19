@@ -1,6 +1,4 @@
 venv
-.venv2x
-.venv3x
 .direnv
 .python-version
 .vscode
