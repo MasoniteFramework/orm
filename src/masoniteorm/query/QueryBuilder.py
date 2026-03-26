@@ -257,7 +257,7 @@ class QueryBuilder(ObservesEvents):
         Returns:
             self
         """
-        return self.new_connection().begin()
+        return self.get_connection().begin()
 
     def begin_transaction(self, *args, **kwargs):
         return self.begin(*args, **kwargs)
@@ -462,7 +462,7 @@ class QueryBuilder(ObservesEvents):
     def statement(self, query, bindings=None):
         if bindings is None:
             bindings = []
-        result = self.new_connection().query(query, bindings)
+        result = self.get_connection().query(query, bindings)
         return self.prepare_result(result)
 
     def select_raw(self, query):
@@ -504,7 +504,7 @@ class QueryBuilder(ObservesEvents):
         if model:
             model = model.hydrate(self._creates)
         if not self.dry:
-            connection = self.new_connection()
+            connection = self.get_connection()
             query_result = connection.query(
                 self.to_qmark(), self._bindings, results=1
             )
@@ -561,7 +561,7 @@ class QueryBuilder(ObservesEvents):
             self._creates.update(model.get_dirty_attributes())
 
         if not self.dry:
-            connection = self.new_connection()
+            connection = self.get_connection()
 
             query_result = connection.query(
                 self.to_qmark(), self._bindings, results=1
@@ -616,7 +616,7 @@ class QueryBuilder(ObservesEvents):
             self.where(model.get_primary_key(), model.get_primary_key_value())
             self.observe_events(model, "deleting")
 
-        connection = self.new_connection()
+        connection = self.get_connection()
 
         connection.query(self.to_qmark(), self._bindings)
 
@@ -973,7 +973,7 @@ class QueryBuilder(ObservesEvents):
         return self
 
     def chunk(self, chunk_amount):
-        chunk_connection = self.new_connection()
+        chunk_connection = self.get_connection()
         for result in chunk_connection.select_many(
             self.to_sql(), (), chunk_amount
         ):
@@ -1574,7 +1574,7 @@ class QueryBuilder(ObservesEvents):
             return self
 
         additional.update(updates)
-        connection = self.new_connection()
+        connection = self.get_connection()
 
         connection.query(self.to_qmark(), self._bindings)
         if model:
@@ -1640,7 +1640,7 @@ class QueryBuilder(ObservesEvents):
         if dry or self.dry:
             return self
 
-        results = self.new_connection().query(self.to_qmark(), self._bindings)
+        results = self.get_connection().query(self.to_qmark(), self._bindings)
         processed_results = self.get_processor().get_column_value(
             self, column, results, id_key, id_value
         )
@@ -1684,7 +1684,7 @@ class QueryBuilder(ObservesEvents):
         if dry or self.dry:
             return self
 
-        result = self.new_connection().query(self.to_qmark(), self._bindings)
+        result = self.get_connection().query(self.to_qmark(), self._bindings)
         processed_results = self.get_processor().get_column_value(
             self, column, result, id_key, id_value
         )
@@ -1725,7 +1725,7 @@ class QueryBuilder(ObservesEvents):
             return self
 
         if not column:
-            result = self.new_connection().query(
+            result = self.get_connection().query(
                 self.to_qmark(), self._bindings, results=1
             )
 
@@ -1845,7 +1845,7 @@ class QueryBuilder(ObservesEvents):
         if query:
             return self
 
-        result = self.new_connection().query(
+        result = self.get_connection().query(
             self.to_qmark(), self._bindings, results=1
         )
 
@@ -1912,7 +1912,7 @@ class QueryBuilder(ObservesEvents):
         if query:
             return self
 
-        result = self.new_connection().query(
+        result = self.get_connection().query(
             self.to_qmark(),
             self._bindings,
             results=1,
@@ -2132,7 +2132,7 @@ class QueryBuilder(ObservesEvents):
             return self
 
         result = (
-            self.new_connection().query(self.to_qmark(), self._bindings) or []
+            self.get_connection().query(self.to_qmark(), self._bindings) or []
         )
 
         return self.prepare_result(result, collection=True)
@@ -2144,24 +2144,26 @@ class QueryBuilder(ObservesEvents):
             self
         """
         self.select(*selects)
-        result = self.new_connection().query(self.to_qmark(), self._bindings)
+        result = self.get_connection().query(self.to_qmark(), self._bindings)
 
         return self.prepare_result(result, collection=True)
 
     def new_connection(self):
-        if self._connection:
-            return self._connection
-
-        self._connection = (
+        """Create a new connection"""
+        return (
             self.connection_class(
                 **self.get_connection_information(), name=self.connection
             )
             .set_schema(self._schema)
             .make_connection()
         )
-        return self._connection
 
     def get_connection(self):
+        """Get the current connection"""
+        if self._connection:
+            return self._connection
+
+        self._connection = self.new_connection()
         return self._connection
 
     def without_eager(self):
@@ -2386,7 +2388,7 @@ class QueryBuilder(ObservesEvents):
         if dry or self.dry:
             return sql
 
-        return self.new_connection().query(sql, ())
+        return self.get_connection().query(sql, ())
 
     def exists(self):
         """Determine if rows exist for the current query.
