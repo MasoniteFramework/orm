@@ -212,15 +212,25 @@ class Schema:
         }
 
     def new_connection(self):
+        """Explicitly creates a new connection."""
         if self._dry:
             return
 
-        self._connection = (
+        return (
             self.connection_class(**self.get_connection_information())
             .set_schema(self.schema)
             .make_connection()
         )
 
+    def get_connection(self):
+        """Create"""
+        if self._dry:
+            return
+
+        if self._connection:
+            return self._connection
+
+        self._connection = self.new_connection()
         return self._connection
 
     def has_column(self, table, column, query_only=False):
