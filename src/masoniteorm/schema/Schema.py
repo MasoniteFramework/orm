@@ -132,7 +132,7 @@ class Schema:
 
         self._blueprint = Blueprint(
             self.grammar,
-            connection=self.new_connection(),
+            connection=self.get_connection(),
             table=Table(table),
             action="create",
             platform=self.platform,
@@ -148,7 +148,7 @@ class Schema:
 
         self._blueprint = Blueprint(
             self.grammar,
-            connection=self.new_connection(),
+            connection=self.get_connection(),
             table=Table(table),
             action="create_table_if_not_exists",
             platform=self.platform,
@@ -174,7 +174,7 @@ class Schema:
 
         self._blueprint = Blueprint(
             self.grammar,
-            connection=self.new_connection(),
+            connection=self.get_connection(),
             table=TableDiff(table),
             action="alter",
             platform=self.platform,
@@ -248,11 +248,11 @@ class Schema:
             self._sql = sql
             return sql
 
-        return bool(self.new_connection().query(sql, ()))
+        return bool(self.get_connection().query(sql, ()))
 
     def get_columns(self, table, dict=True):
         table = self.platform().get_current_schema(
-            self.new_connection(), table, schema=self.get_schema()
+            self.get_connection(), table, schema=self.get_schema()
         )
         result = {}
         if dict:
@@ -274,7 +274,7 @@ class Schema:
             self._sql = sql
             return sql
 
-        return bool(self.new_connection().query(sql, ()))
+        return bool(self.get_connection().query(sql, ()))
 
     def drop(self, *args, **kwargs):
         return self.drop_table(*args, **kwargs)
@@ -286,7 +286,7 @@ class Schema:
             self._sql = sql
             return sql
 
-        return bool(self.new_connection().query(sql, ()))
+        return bool(self.get_connection().query(sql, ()))
 
     def rename(self, table, new_name):
         sql = self.platform().compile_rename_table(table, new_name)
@@ -295,7 +295,7 @@ class Schema:
             self._sql = sql
             return sql
 
-        return bool(self.new_connection().query(sql, ()))
+        return bool(self.get_connection().query(sql, ()))
 
     def truncate(self, table, foreign_keys=False):
         sql = self.platform().compile_truncate(
@@ -306,7 +306,7 @@ class Schema:
             self._sql = sql
             return sql
 
-        return bool(self.new_connection().query(sql, ()))
+        return bool(self.get_connection().query(sql, ()))
 
     def get_schema(self):
         """Gets the schema set on the migration class"""
@@ -325,7 +325,7 @@ class Schema:
             self._sql = sql
             return sql
 
-        result = self.new_connection().query(sql, ())
+        result = self.get_connection().query(sql, ())
 
         return (
             list(map(lambda t: list(t.values())[0], result)) if result else []
@@ -348,7 +348,7 @@ class Schema:
             self._sql = sql
             return sql
 
-        return bool(self.new_connection().query(sql, ()))
+        return bool(self.get_connection().query(sql, ()))
 
     def enable_foreign_key_constraints(self):
         sql = self.platform().enable_foreign_key_constraints()
@@ -357,7 +357,7 @@ class Schema:
             self._sql = sql
             return sql
 
-        return bool(self.new_connection().query(sql, ()))
+        return bool(self.get_connection().query(sql, ()))
 
     def disable_foreign_key_constraints(self):
         sql = self.platform().disable_foreign_key_constraints()
@@ -366,4 +366,4 @@ class Schema:
             self._sql = sql
             return sql
 
-        return bool(self.new_connection().query(sql, ()))
+        return bool(self.get_connection().query(sql, ()))
