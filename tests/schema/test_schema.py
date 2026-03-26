@@ -10,7 +10,6 @@ class TestSchema(unittest.TestCase):
     maxDiff = None
 
     def get_schema(self):
-        print("in setUp")
         return Schema(
             connection="dev",
             connection_class=MockSQLiteConnection,
