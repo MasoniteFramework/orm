@@ -62,6 +62,7 @@ class Schema:
         self._dry = dry
         self.connection = connection
         self.connection_class = connection_class
+        self._connection_driver = None
         self._connection = None
         self.grammar = grammar
         self.platform = platform
@@ -367,3 +368,16 @@ class Schema:
             return sql
 
         return bool(self.get_connection().query(sql, ()))
+
+    def query_builder(self):
+        """Get a query builder for the schema connection"""
+        from ..query import QueryBuilder
+
+        return QueryBuilder(
+            connection=self.connection,
+            connection_class=self.connection_class,
+            connection_driver=self._connection_driver,
+            connection_details=self.connection_details,
+            schema=self.schema,
+            dry=self.dry,
+        )

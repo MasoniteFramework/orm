@@ -1,5 +1,6 @@
 import unittest
 
+from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import SQLitePlatform
 from tests.integrations.config.database import DATABASES
@@ -35,3 +36,8 @@ class TestSchema(unittest.TestCase):
         self.assertIsNotNone(second_connection)
         self.assertEqual(first_connection, second_connection)
         self.assertNotEqual(new_connection, first_connection)
+
+    def test_can_get_query_builder(self):
+        schema = self.get_schema()
+        builder = schema.query_builder()
+        self.assertIsInstance(builder, QueryBuilder)
