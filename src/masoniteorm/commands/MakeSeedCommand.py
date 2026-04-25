@@ -20,7 +20,9 @@ class MakeSeedCommand(Command):
         # replace the placeholders of a stub file
         # output the content to a file location
         name = self.argument("name") + "TableSeeder"
-        seed_directory = self.option("directory")
+        seed_directory = self.option_or_config(
+            "directory", "databases/seeds", "SEEDS_DIRECTORY", "seed_directory"
+        )
 
         file_name = underscore(name)
         stub_file = "create_seed"
