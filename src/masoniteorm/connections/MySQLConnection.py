@@ -26,9 +26,7 @@ class MySQLConnection(BaseConnection):
         name=None,
     ):
         self.host = host
-        self.port = port
-        if str(port).isdigit():
-            self.port = int(self.port)
+        self.port = int(port) if port else None
         self.database = database
 
         self.user = user

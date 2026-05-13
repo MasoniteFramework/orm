@@ -6,6 +6,20 @@ from .BaseConnection import BaseConnection
 
 CONNECTION_POOL = []
 
+# Options that are handled explicitly when building the connection string.
+# Anything in self.options that is NOT in this set will be appended verbatim
+# as additional "Key=Value" pairs in the pyodbc connection string.
+_MSSQL_KNOWN_OPTIONS = frozenset(
+    {
+        "driver",
+        "integrated_security",
+        "connection_timeout",
+        "authentication",
+        "instance",
+        "trusted_connection",
+    }
+)
+
 
 class MSSQLConnection(BaseConnection):
     """MSSQL Connection class."""
@@ -25,10 +39,7 @@ class MSSQLConnection(BaseConnection):
         name=None,
     ):
         self.host = host
-        if port:
-            self.port = int(port)
-        else:
-            self.port = port
+        self.port = int(port) if port else None
         self.database = database
         self.user = user
         self.password = password
@@ -40,6 +51,50 @@ class MSSQLConnection(BaseConnection):
         self.open = 0
         if name:
             self.name = name
+
+    def _build_connection_string(self):
+        """Build the pyodbc connection string from self.options.
+
+        Known options are mapped to their canonical ODBC connection string
+        keys. Any remaining entries in self.options that are not in
+        ``_MSSQL_KNOWN_OPTIONS`` are appended verbatim as ``Key=Value`` pairs,
+        allowing arbitrary ODBC attributes to be passed through.
+
+        Returns:
+            str: A semicolon-delimited ODBC connection string.
+        """
+        driver = self.options.get("driver", "ODBC Driver 17 for SQL Server")
+        connection_timeout = str(self.options.get("connection_timeout", "30"))
+        integrated_security = self.options.get("integrated_security")
+        trusted_connection = self.options.get("trusted_connection")
+        authentication = self.options.get("authentication")
+        instance = self.options.get("instance", "")
+
+        if instance:
+            instance = "\\" + instance
+
+        parts = [
+            f"DRIVER={driver}",
+            f"SERVER={self.host}{instance},{self.port}",
+            f"Connection Timeout={connection_timeout}",
+            f"DATABASE={self.database}",
+            f"UID={self.user}",
+            f"PWD={self.password}",
+        ]
+
+        if integrated_security:
+            parts.append(f"Integrated Security={integrated_security}")
+        if trusted_connection:
+            parts.append(f"Trusted_Connection={trusted_connection}")
+        if authentication:
+            parts.append(f"Authentication={authentication}")
+
+        # Append any extra options not handled above.
+        for key, value in self.options.items():
+            if key not in _MSSQL_KNOWN_OPTIONS:
+                parts.append(f"{key}={value}")
+
+        return ";".join(parts)
 
     def make_connection(self):
         """This sets the connection on the connection class"""
@@ -53,18 +108,8 @@ class MSSQLConnection(BaseConnection):
         if self.has_global_connection():
             return self.get_global_connection()
 
-        driver = self.options.get("driver", "ODBC Driver 17 for SQL Server")
-        integrated_security = self.options.get("integrated_security")
-        connection_timeout = str(self.options.get("connection_timeout", "30"))
-        authentication = self.options.get("authentication")
-        instance = self.options.get("instance", "")
-        trusted_connection = self.options.get("trusted_connection")
-
-        if instance:
-            instance = "\\" + instance
-
         self._connection = pyodbc.connect(
-            f"DRIVER={driver};SERVER={self.host}{instance if instance else ''},{self.port};Connection Timeout={connection_timeout};DATABASE={self.database}{f';Integrated Security={integrated_security}' if integrated_security else ''};UID={self.user};PWD={self.password}{f';Trusted_Connection={trusted_connection}' if trusted_connection else ''}{f';Authentication={authentication}' if authentication else ''}",
+            self._build_connection_string(),
             autocommit=True,
         )
 
@@ -134,7 +179,6 @@ class MSSQLConnection(BaseConnection):
         Returns:
             dict|None -- Returns a dictionary of results or None
         """
-
         try:
             if not self.open:
                 self.make_connection()

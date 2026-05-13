@@ -12,6 +12,20 @@ def regexp(expr, item):
     return reg.search(item) is not None
 
 
+# Valid keyword arguments for sqlite3.connect() beyond the database path.
+_SQLITE3_CONNECT_KWARGS = frozenset(
+    {
+        "timeout",
+        "detect_types",
+        "isolation_level",
+        "check_same_thread",
+        "factory",
+        "cached_statements",
+        "uri",
+    }
+)
+
+
 class SQLiteConnection(BaseConnection):
     """SQLite Connection class."""
 
@@ -32,10 +46,7 @@ class SQLiteConnection(BaseConnection):
         name=None,
     ):
         self.host = host
-        if port:
-            self.port = int(port)
-        else:
-            self.port = port
+        self.port = int(port) if port else None
         self.database = database
         self.user = user
         self.password = password
@@ -47,6 +58,29 @@ class SQLiteConnection(BaseConnection):
         self.open = 0
         if name:
             self.name = name
+
+    def _build_connect_kwargs(self):
+        """Return kwargs for sqlite3.connect() and any leftover PRAGMA settings.
+
+        self.options is partitioned into two groups:
+        - Keys that are valid sqlite3.connect() keyword arguments are returned
+          in ``connect_kwargs`` and passed directly to the connect call.
+        - All remaining keys are returned in ``pragma_settings`` and applied
+          as ``PRAGMA key = value`` statements after the connection is opened.
+
+        Returns:
+            tuple[dict, dict]: (connect_kwargs, pragma_settings)
+        """
+        connect_kwargs = {}
+        pragma_settings = {}
+
+        for key, value in self.options.items():
+            if key in _SQLITE3_CONNECT_KWARGS:
+                connect_kwargs[key] = value
+            else:
+                pragma_settings[key] = value
+
+        return connect_kwargs, pragma_settings
 
     def make_connection(self):
         """This sets the connection on the connection class"""
@@ -60,10 +94,19 @@ class SQLiteConnection(BaseConnection):
         if self.has_global_connection():
             return self.get_global_connection()
 
-        self._connection = sqlite3.connect(self.database, isolation_level=None)
-        self._connection.create_function("REGEXP", 2, regexp)
+        connect_kwargs, pragma_settings = self._build_connect_kwargs()
 
+        # isolation_level=None enables autocommit; only set it as a default if
+        # the caller hasn't provided their own isolation_level via options.
+        connect_kwargs.setdefault("isolation_level", None)
+
+        self._connection = sqlite3.connect(self.database, **connect_kwargs)
+        self._connection.create_function("REGEXP", 2, regexp)
         self._connection.row_factory = sqlite3.Row
+
+        # Apply any leftover options as PRAGMA statements.
+        for key, value in pragma_settings.items():
+            self._connection.execute(f"PRAGMA {key} = {value}")
 
         self.enable_disable_foreign_keys()
 

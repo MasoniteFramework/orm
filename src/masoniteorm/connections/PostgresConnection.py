@@ -6,6 +6,39 @@ from .BaseConnection import BaseConnection
 
 CONNECTION_POOL = []
 
+# All keyword arguments accepted directly by psycopg2.connect(), excluding
+# 'options' which we build ourselves from leftover entries in self.options.
+_PSYCOPG2_CONNECT_KWARGS = frozenset(
+    {
+        # Core identity
+        "database",
+        "dbname",
+        "user",
+        "password",
+        "host",
+        "port",
+        # SSL
+        "sslmode",
+        "sslcert",
+        "sslkey",
+        "sslrootcert",
+        "sslcrl",
+        "sslpassword",
+        # Timeouts & keepalives
+        "connect_timeout",
+        "keepalives",
+        "keepalives_idle",
+        "keepalives_interval",
+        "keepalives_count",
+        # Application identification
+        "application_name",
+        "fallback_application_name",
+        # Misc
+        "cursor_factory",
+        "async",
+    }
+)
+
 
 class PostgresConnection(BaseConnection):
     """Postgres Connection class."""
@@ -25,10 +58,7 @@ class PostgresConnection(BaseConnection):
         name=None,
     ):
         self.host = host
-        if port:
-            self.port = int(port)
-        else:
-            self.port = port
+        self.port = int(port) if port else None
         self.database = database
         self.user = user
         self.password = password
@@ -45,6 +75,47 @@ class PostgresConnection(BaseConnection):
         self.schema = None
         if name:
             self.name = name
+
+    def _build_connect_kwargs(self):
+        """Return a dict of kwargs ready to be unpacked into psycopg2.connect().
+
+        self.options is partitioned into two groups:
+        - Keys that are valid psycopg2.connect() keyword arguments are passed
+          through directly.
+        - All remaining keys are treated as PostgreSQL GUC parameters and
+          appended to the ``options`` string as ``-c key=value`` entries
+          alongside the schema search_path (when set).
+        """
+        # --- Base connection parameters ---------------------------------
+        kwargs = {
+            "database": self.database,
+            "user": self.user,
+            "password": self.password,
+            "host": self.host,
+            "port": self.port,
+        }
+
+        # --- Split self.options into direct kwargs vs GUC params --------
+        guc_params = {}
+        for key, value in self.options.items():
+            if key in _PSYCOPG2_CONNECT_KWARGS:
+                kwargs[key] = value
+            else:
+                guc_params[key] = value
+
+        # --- Build the options / GUC string -----------------------------
+        # search_path comes from the instance schema or full_details, but can
+        # also be overridden via self.options by passing it as a leftover key.
+        schema = self.schema or self.full_details.get("schema")
+        if schema and "search_path" not in guc_params:
+            guc_params["search_path"] = schema
+
+        if guc_params:
+            kwargs["options"] = " ".join(
+                f"-c {k}={v}" for k, v in guc_params.items()
+            )
+
+        return kwargs
 
     def make_connection(self):
         """This sets the connection on the connection class"""
@@ -66,8 +137,12 @@ class PostgresConnection(BaseConnection):
             import psycopg2
         except ModuleNotFoundError:
             raise DriverNotFound(
-                "You must have the 'psycopg2' package installed to make a connection to Postgres. Please install it using 'pip install psycopg2-binary'"
+                "You must have the 'psycopg2' package installed to make a "
+                "connection to Postgres. Please install it using "
+                "'pip install psycopg2-binary'"
             )
+
+        connect_kwargs = self._build_connect_kwargs()
 
         # Initialize the connection pool if the option is set
         initialize_size = self.full_details.get("connection_pooling_min_size")
@@ -77,47 +152,15 @@ class PostgresConnection(BaseConnection):
             and len(CONNECTION_POOL) < initialize_size
         ):
             for _ in range(initialize_size - len(CONNECTION_POOL)):
-                connection = psycopg2.connect(
-                    database=self.database,
-                    user=self.user,
-                    password=self.password,
-                    host=self.host,
-                    port=self.port,
-                    sslmode=self.options.get("sslmode"),
-                    sslcert=self.options.get("sslcert"),
-                    sslkey=self.options.get("sslkey"),
-                    sslrootcert=self.options.get("sslrootcert"),
-                    options=(
-                        f"-c search_path={self.schema or self.full_details.get('schema')}"
-                        if self.schema or self.full_details.get("schema")
-                        else ""
-                    ),
-                )
-                CONNECTION_POOL.append(connection)
+                CONNECTION_POOL.append(psycopg2.connect(**connect_kwargs))
 
         if (
             self.full_details.get("connection_pooling_enabled")
-            and CONNECTION_POOL
             and len(CONNECTION_POOL) > 0
         ):
             connection = CONNECTION_POOL.pop()
         else:
-            connection = psycopg2.connect(
-                database=self.database,
-                user=self.user,
-                password=self.password,
-                host=self.host,
-                port=self.port,
-                sslmode=self.options.get("sslmode"),
-                sslcert=self.options.get("sslcert"),
-                sslkey=self.options.get("sslkey"),
-                sslrootcert=self.options.get("sslrootcert"),
-                options=(
-                    f"-c search_path={self.schema or self.full_details.get('schema')}"
-                    if self.schema or self.full_details.get("schema")
-                    else ""
-                ),
-            )
+            connection = psycopg2.connect(**connect_kwargs)
 
         return connection
 
@@ -222,4 +265,3 @@ class PostgresConnection(BaseConnection):
             if self.get_transaction_level() <= 0:
                 self.open = 0
                 self.close_connection()
-                # self._connection.close()
