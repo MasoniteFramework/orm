@@ -10,9 +10,7 @@ class CreateProductStoreTable(Migration):
             table.increments("id").primary()
             table.integer("product_id")
             table.integer("store_id")
-            # Pivot timestamps are checked explicitly in test_belongs_to_many.
-            table.datetime("created_at").default("CURRENT_TIMESTAMP")
-            table.datetime("updated_at").default("CURRENT_TIMESTAMP")
+            table.timestamps()
 
     def down(self):
         """Revert the migrations."""
