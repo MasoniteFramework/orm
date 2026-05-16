@@ -58,9 +58,7 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
 
         self.assertEqual(
             sql,
-            """UPDATE "users" SET "name" = 'joe' WHERE "id" = '{}'""".format(
-                user.id
-            ),
+            f"""UPDATE "users" SET "name" = 'joe' WHERE "id" = '{user.id}'""",
         )
 
     def test_update_all_records(self):
@@ -118,43 +116,33 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
         # unchanged name attribute is not updated
         self.assertEqual(
             sql,
-            """UPDATE "users" SET "username" = 'new' WHERE "id" = '{}'""".format(
-                user.id
-            ),
+            f"""UPDATE "users" SET "username" = 'new' WHERE "id" = '{user.id}'""",
         )
 
     def test_can_force_update_on_method(self):
         user = User.first()
         sql = user.update(
-            {"name": user.name, "username": "new"}, force=True
+            {"name": "Frank", "username": "new"}, force=True
         ).to_sql()
         self.assertEqual(
             sql,
-            """UPDATE "users" SET "name" = 'bill', "username" = 'new' WHERE "id" = '{}'""".format(
-                user.id
-            ),
+            f"""UPDATE "users" SET "name" = 'Frank', "username" = 'new' WHERE "id" = '{user.id}'""",
         )
 
     def test_can_force_update_on_model(self):
         user = UserForced.first()
-        sql = user.update({"name": user.name, "username": "new"}).to_sql()
+        sql = user.update({"name": "Fred", "username": "new"}).to_sql()
         self.assertEqual(
             sql,
-            """UPDATE "users" SET "name" = 'bill', "username" = 'new' WHERE "id" = '{}'""".format(
-                user.id
-            ),
+            f"""UPDATE "users" SET "name" = 'Fred', "username" = 'new' WHERE "id" = '{user.id}'""",
         )
 
     def test_force_update(self):
         user = User.first()
-        sql = user.force_update(
-            {"name": user.name, "username": "new"}
-        ).to_sql()
+        sql = user.force_update({"name": "Bill", "username": "new"}).to_sql()
         self.assertEqual(
             sql,
-            """UPDATE "users" SET "name" = 'bill', "username" = 'new' WHERE "id" = '{}'""".format(
-                user.id
-            ),
+            f"""UPDATE "users" SET "name" = 'Bill', "username" = 'new' WHERE "id" = '{user.id}'""",
         )
 
     def test_update_is_not_done_when_no_changes(self):
@@ -167,7 +155,7 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
             __connection__ = "dev"
             __table__ = "users"
 
-        count = User.between("age", 1, 2).get().count()
+        count = User.between("age", 21, 25).get().count()
         self.assertEqual(count, 2)
 
     def test_should_collect_correct_amount_data_using_not_between(self):
@@ -176,7 +164,7 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
             __table__ = "users"
 
         count = (
-            User.where_not_null("id").not_between("age", 1, 2).get().count()
+            User.where_not_null("id").not_between("age", 21, 25).get().count()
         )
         self.assertEqual(count, 0)
 
@@ -188,23 +176,15 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
                 "id",
                 "name",
                 "email",
-                "password",
-                "remember_token",
-                "created_at",
-                "is_admin",
                 "age",
-                "boo",
-                "tool1",
-                "tool2",
+                "is_admin",
                 "active",
+                "password",
+                "second_password",
+                "remember_token",
+                "verified_at",
+                "created_at",
                 "updated_at",
-                "profile_id",
-                "name5",
-                "name6",
-                "age6",
-                "age7",
-                "age8",
-                "age10",
             ],
         )
 
@@ -221,19 +201,19 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
             schema.drop_table_if_exists(table)
 
         with schema.create("users_hidden") as blueprint:
-            blueprint.increments("id")
+            blueprint.integer("id").primary()
             blueprint.string("name")
             blueprint.integer("token")
             blueprint.string("password")
             blueprint.timestamps()
 
         with schema.create("groups") as blueprint:
-            blueprint.increments("id")
+            blueprint.integer("id").primary()
             blueprint.string("name")
             blueprint.timestamps()
 
         with schema.create("group_user") as blueprint:
-            blueprint.increments("id")
+            blueprint.integer("id").primary()
 
             blueprint.unsigned_integer("group_id")
             blueprint.unsigned_integer("user_id")
@@ -251,7 +231,7 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
         user = UserHydrateHidden.first()
         group = Group.first()
 
-        group.attach_related("team", user)
+        group.attach("team", user)
 
         serialized = Group.first().serialize()
 

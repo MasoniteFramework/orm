@@ -88,8 +88,8 @@ class SqliteTestQueryBuilderEagerLoading(unittest.TestCase):
 
     def test_with_where_no_relation(self):
         builder = self.get_builder()
-        result = builder.with_("profile").where("id", 5).first()
-        result.serialize()
+        user = builder.with_("profile").where("id", 3).first()
+        self.assertIsNone(user.profile)
 
     def test_with_multiple_per_same_relation(self):
         result = User.with_("articles", "articles.logo").where("id", 1).first()

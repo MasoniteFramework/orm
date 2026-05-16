@@ -87,14 +87,14 @@ class SqliteTestQueryBuilderObservers(unittest.TestCase):
         # DB.rollback("dev")
 
     def test_booting_is_observed(self):
-        # DB.begin_transaction("dev")
-        user = Observer.hydrate({"id": 1, "name": "joe"})
+        DB.begin_transaction("dev")
+        user = Observer.hydrate({"id": 10, "name": "bill"})
 
         user.update({"name": "bill"})
 
         self.assertEqual(TestM.observed_booting, 1)
         self.assertEqual(TestM.observed_booted, 1)
-        # DB.rollback("dev")
+        DB.rollback("dev")
 
     def test_deleting_is_observed(self):
         DB.begin_transaction("dev")

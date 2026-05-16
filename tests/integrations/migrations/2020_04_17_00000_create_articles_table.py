@@ -6,13 +6,15 @@ class CreateArticlesTable(Migration):
         """
         Run the migrations.
         """
-        with self.schema.create("fans") as table:
+        with self.schema.create("articles") as table:
             table.increments("id").primary()
-            table.string("name")
-            table.integer("age")
+            table.integer("user_id")
+            table.string("title").nullable()
+            table.integer("status").nullable()
+            table.datetime("published_date").nullable()
 
     def down(self):
         """
         Revert the migrations.
         """
-        self.schema.drop("fans")
+        self.schema.drop("articles")
