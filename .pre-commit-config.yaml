@@ -30,3 +30,13 @@ repos:
                 ^build|
                 ^conda
             )
+
+  - repo: local
+    hooks:
+      - id: check-test-asserts
+        name: Check tests have assertions
+        description: Ensures every test method contains at least one assert statement
+        entry: python scripts/check_test_asserts.py
+        language: system
+        files: ^tests/.*test_.*\.py$
+        pass_filenames: false
