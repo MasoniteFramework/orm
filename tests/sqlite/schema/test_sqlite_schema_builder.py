@@ -135,12 +135,13 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.morphs("record")
 
         self.assertEqual(len(blueprint.table.added_columns), 2)
-        sql = [
+        query_sql = blueprint.to_sql()
+        expected_sql = [
             'CREATE TABLE "likes" ("record_id" INTEGER UNSIGNED NOT NULL, "record_type" VARCHAR(255) NOT NULL)',
             'CREATE INDEX likes_record_id_index ON "likes"(record_id)',
             'CREATE INDEX likes_record_type_index ON "likes"(record_type)',
         ]
-        self.assertEqual(blueprint.to_sql(), sql)
+        self.assertEqual(query_sql, expected_sql)
 
     def test_can_advanced_table_creation(self):
         with self.schema.create("users") as blueprint:
@@ -281,37 +282,37 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
         )
 
     def test_has_table(self):
-        schema_sql = self.schema.has_table("users")
+        query_sql = self.schema.has_table("users")
 
-        sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='users'"
+        expected_sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='users'"
 
-        self.assertEqual(schema_sql, sql)
+        self.assertEqual(query_sql, expected_sql)
 
     def test_can_truncate(self):
-        sql = self.schema.truncate("users")
+        query_sql = self.schema.truncate("users")
 
-        self.assertEqual(sql, 'DELETE FROM "users"')
+        self.assertEqual(query_sql, 'DELETE FROM "users"')
 
     def test_can_rename_table(self):
-        sql = self.schema.rename("users", "clients")
+        query_sql = self.schema.rename("users", "clients")
 
-        self.assertEqual(sql, 'ALTER TABLE "users" RENAME TO "clients"')
+        self.assertEqual(query_sql, 'ALTER TABLE "users" RENAME TO "clients"')
 
     def test_can_drop_table_if_exists(self):
-        sql = self.schema.drop_table_if_exists("users", "clients")
+        query_sql = self.schema.drop_table_if_exists("users", "clients")
 
-        self.assertEqual(sql, 'DROP TABLE IF EXISTS "users"')
+        self.assertEqual(query_sql, 'DROP TABLE IF EXISTS "users"')
 
     def test_can_drop_table(self):
-        sql = self.schema.drop_table("users", "clients")
+        query_sql = self.schema.drop_table("users", "clients")
 
-        self.assertEqual(sql, 'DROP TABLE "users"')
+        self.assertEqual(query_sql, 'DROP TABLE "users"')
 
     def test_has_column(self):
-        sql = self.schema.has_column("users", "name")
+        query_sql = self.schema.has_column("users", "name")
 
         self.assertEqual(
-            sql,
+            query_sql,
             "SELECT column_name FROM information_schema.columns WHERE table_name='users' and column_name='name'",
         )
 
@@ -336,20 +337,20 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
         )
 
     def test_can_enable_foreign_keys(self):
-        sql = self.schema.enable_foreign_key_constraints()
+        query_sql = self.schema.enable_foreign_key_constraints()
 
-        self.assertEqual(sql, "PRAGMA foreign_keys = ON")
+        self.assertEqual(query_sql, "PRAGMA foreign_keys = ON")
 
     def test_can_disable_foreign_keys(self):
-        sql = self.schema.disable_foreign_key_constraints()
+        query_sql = self.schema.disable_foreign_key_constraints()
 
-        self.assertEqual(sql, "PRAGMA foreign_keys = OFF")
+        self.assertEqual(query_sql, "PRAGMA foreign_keys = OFF")
 
     def test_can_truncate_without_foreign_keys(self):
-        sql = self.schema.truncate("users", foreign_keys=True)
+        query_sql = self.schema.truncate("users", foreign_keys=True)
 
         self.assertEqual(
-            sql,
+            query_sql,
             [
                 "PRAGMA foreign_keys = OFF",
                 'DELETE FROM "users"',

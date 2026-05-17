@@ -26,11 +26,12 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 2)
 
-        sql = [
+        expected_sql = [
             "ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL, ADD `age` INT(11) NOT NULL"
         ]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_can_add_column_comments(self):
         with self.schema.table("users") as blueprint:
@@ -59,9 +60,10 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 0)
 
-        sql = ["ALTER TABLE `users` COMMENT 'A users username'"]
+        expected_sql = ["ALTER TABLE `users` COMMENT 'A users username'"]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_can_add_column_after(self):
         with self.schema.table("users") as blueprint:
@@ -69,11 +71,12 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 1)
 
-        sql = [
+        expected_sql = [
             "ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL AFTER `age`"
         ]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_alter_rename(self):
         with self.schema.table("users") as blueprint:
@@ -83,9 +86,12 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
         table.add_column("post", "integer")
         blueprint.table.from_table = table
 
-        sql = ["ALTER TABLE `users` CHANGE `post` `comment` INT NOT NULL"]
+        expected_sql = [
+            "ALTER TABLE `users` CHANGE `post` `comment` INT NOT NULL"
+        ]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_alter_add_and_rename(self):
         with self.schema.table("users") as blueprint:
@@ -96,12 +102,13 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
         table.add_column("post", "string")
         blueprint.table.from_table = table
 
-        sql = [
+        expected_sql = [
             "ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL",
             "ALTER TABLE `users` CHANGE `post` `comment` VARCHAR NOT NULL",
         ]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_alter_add_and_rename_to_string(self):
         with self.schema.table("users") as blueprint:
@@ -112,20 +119,22 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
         table.add_column("post", "integer")
         blueprint.table.from_table = table
 
-        sql = [
+        expected_sql = [
             "ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL",
             "ALTER TABLE `users` CHANGE `post` `comment` VARCHAR(200) NOT NULL",
         ]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_alter_drop1(self):
         with self.schema.table("users") as blueprint:
             blueprint.drop_column("post")
 
-        sql = ["ALTER TABLE `users` DROP COLUMN `post`"]
+        expected_sql = ["ALTER TABLE `users` DROP COLUMN `post`"]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_alter_add_column_and_foreign_key(self):
         with self.schema.table("users") as blueprint:
@@ -134,90 +143,110 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
                 "playlists"
             ).on_delete("cascade")
 
-        sql = [
+        expected_sql = [
             "ALTER TABLE `users` ADD `playlist_id` INT UNSIGNED NULL",
             "ALTER TABLE `users` ADD CONSTRAINT users_playlist_id_foreign FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE",
         ]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_alter_drop_foreign_key(self):
         with self.schema.table("users") as blueprint:
             blueprint.drop_foreign("users_playlist_id_foreign")
 
-        sql = [
+        expected_sql = [
             "ALTER TABLE `users` DROP FOREIGN KEY users_playlist_id_foreign"
         ]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_alter_drop_foreign_key_shortcut(self):
         with self.schema.table("users") as blueprint:
             blueprint.drop_foreign(["playlist_id"])
 
-        sql = [
+        expected_sql = [
             "ALTER TABLE `users` DROP FOREIGN KEY users_playlist_id_foreign"
         ]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_alter_drop_unique_constraint(self):
         with self.schema.table("users") as blueprint:
             blueprint.drop_unique("users_playlist_id_unique")
 
-        sql = ["ALTER TABLE `users` DROP INDEX users_playlist_id_unique"]
+        expected_sql = [
+            "ALTER TABLE `users` DROP INDEX users_playlist_id_unique"
+        ]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_alter_add_index(self):
         with self.schema.table("users") as blueprint:
             blueprint.index("playlist_id")
 
-        sql = ["CREATE INDEX users_playlist_id_index ON `users`(playlist_id)"]
+        expected_sql = [
+            "CREATE INDEX users_playlist_id_index ON `users`(playlist_id)"
+        ]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_alter_drop_index(self):
         with self.schema.table("users") as blueprint:
             blueprint.drop_index("users_playlist_id_index")
 
-        sql = ["ALTER TABLE `users` DROP INDEX users_playlist_id_index"]
+        expected_sql = [
+            "ALTER TABLE `users` DROP INDEX users_playlist_id_index"
+        ]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_alter_add_primary(self):
         with self.schema.table("users") as blueprint:
             blueprint.primary("playlist_id")
 
-        sql = [
+        expected_sql = [
             "ALTER TABLE `users` ADD CONSTRAINT users_playlist_id_primary PRIMARY KEY (playlist_id)"
         ]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_alter_drop_index_shortcut(self):
         with self.schema.table("users") as blueprint:
             blueprint.drop_index(["playlist_id"])
 
-        sql = ["ALTER TABLE `users` DROP INDEX users_playlist_id_index"]
+        expected_sql = [
+            "ALTER TABLE `users` DROP INDEX users_playlist_id_index"
+        ]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_alter_drop_unique_constraint_shortcut(self):
         with self.schema.table("users") as blueprint:
             blueprint.drop_unique(["playlist_id"])
 
-        sql = ["ALTER TABLE `users` DROP INDEX users_playlist_id_unique"]
+        expected_sql = [
+            "ALTER TABLE `users` DROP INDEX users_playlist_id_unique"
+        ]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_alter_drop_primary(self):
         with self.schema.table("users") as blueprint:
             blueprint.drop_primary("users_id_primary")
 
-        sql = ["ALTER TABLE `users` DROP INDEX users_id_primary"]
+        expected_sql = ["ALTER TABLE `users` DROP INDEX users_id_primary"]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_change(self):
         with self.schema.table("users") as blueprint:
@@ -233,12 +262,13 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         blueprint.table.from_table = table
 
-        sql = [
+        expected_sql = [
             "ALTER TABLE `users` ADD `external_type` VARCHAR(255) NOT NULL DEFAULT 'external', ADD `name` VARCHAR(255) NOT NULL",
             "ALTER TABLE `users` MODIFY `age` INT(11) NOT NULL, MODIFY `gender` INT(11) NULL",
         ]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_timestamp_alter_add_nullable_column(self):
         with self.schema.table("users") as blueprint:
@@ -251,9 +281,10 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         blueprint.table.from_table = table
 
-        sql = ["ALTER TABLE `users` ADD `due_date` TIMESTAMP NULL"]
+        expected_sql = ["ALTER TABLE `users` ADD `due_date` TIMESTAMP NULL"]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_drop_add_and_change(self):
         with self.schema.table("users") as blueprint:
@@ -269,13 +300,14 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         blueprint.table.from_table = table
 
-        sql = [
+        expected_sql = [
             "ALTER TABLE `users` ADD `name` VARCHAR(255) NOT NULL",
             "ALTER TABLE `users` MODIFY `age` INT(11) NOT NULL DEFAULT 0",
             "ALTER TABLE `users` DROP COLUMN `email`",
         ]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_can_create_indexes(self):
         with self.schema.table("users") as blueprint:
@@ -288,17 +320,16 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 0)
         print(blueprint.to_sql())
-        self.assertEqual(
-            blueprint.to_sql(),
-            [
-                "CREATE INDEX users_name_index ON `users`(name)",
-                "CREATE INDEX users_name_email_index ON `users`(name,email)",
-                "ALTER TABLE `users` ADD CONSTRAINT UNIQUE INDEX users_name_unique(name)",
-                "ALTER TABLE `users` ADD CONSTRAINT UNIQUE INDEX table_unique(name)",
-                "ALTER TABLE `users` ADD CONSTRAINT UNIQUE INDEX users_name_email_unique(name,email)",
-                "ALTER TABLE `users` ADD FULLTEXT description_fulltext(description)",
-            ],
-        )
+        query_sql = blueprint.to_sql()
+        expected_sql = [
+            "CREATE INDEX users_name_index ON `users`(name)",
+            "CREATE INDEX users_name_email_index ON `users`(name,email)",
+            "ALTER TABLE `users` ADD CONSTRAINT UNIQUE INDEX users_name_unique(name)",
+            "ALTER TABLE `users` ADD CONSTRAINT UNIQUE INDEX table_unique(name)",
+            "ALTER TABLE `users` ADD CONSTRAINT UNIQUE INDEX users_name_email_unique(name,email)",
+            "ALTER TABLE `users` ADD FULLTEXT description_fulltext(description)",
+        ]
+        self.assertEqual(query_sql, expected_sql)
 
     def test_can_add_column_enum(self):
         with self.schema.table("users") as blueprint:
@@ -306,11 +337,12 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 1)
 
-        sql = [
+        expected_sql = [
             "ALTER TABLE `users` ADD `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active'"
         ]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_can_change_column_enum(self):
         with self.schema.table("users") as blueprint:
@@ -320,8 +352,9 @@ class TestMySQLSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.changed_columns), 1)
 
-        sql = [
+        expected_sql = [
             "ALTER TABLE `users` MODIFY `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active'"
         ]
 
-        self.assertEqual(blueprint.to_sql(), sql)
+        query_sql = blueprint.to_sql()
+        self.assertEqual(query_sql, expected_sql)

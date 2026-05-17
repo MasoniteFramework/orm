@@ -25,10 +25,9 @@ class BaseTestQueryBuilderScopes(unittest.TestCase):
             "gender", lambda model, q: q.where("gender", "w")
         )
 
-        self.assertEqual(
-            builder.gender().where("id", 1).to_sql(),
-            "SELECT * FROM `users` WHERE `users`.`gender` = 'w' AND `users`.`id` = '1'",
-        )
+        query_sql = builder.gender().where("id", 1).to_sql()
+        expected_sql = "SELECT * FROM `users` WHERE `users`.`gender` = 'w' AND `users`.`id` = '1'"
+        self.assertEqual(query_sql, expected_sql)
 
     def test_global_scopes(self):
         builder = self.get_builder().set_global_scope(
@@ -37,18 +36,16 @@ class BaseTestQueryBuilderScopes(unittest.TestCase):
             action="select",
         )
 
-        self.assertEqual(
-            builder.where("id", 1).to_sql(),
-            "SELECT * FROM `users` WHERE `users`.`id` = '1' AND `users`.`deleted_at` IS NOT NULL",
-        )
+        query_sql = builder.where("id", 1).to_sql()
+        expected_sql = "SELECT * FROM `users` WHERE `users`.`id` = '1' AND `users`.`deleted_at` IS NOT NULL"
+        self.assertEqual(query_sql, expected_sql)
 
     def test_global_scope_from_class(self):
         builder = self.get_builder().set_global_scope(SoftDeleteScope())
 
-        self.assertEqual(
-            builder.where("id", 1).to_sql(),
-            "SELECT * FROM `users` WHERE `users`.`id` = '1' AND `users`.`deleted_at` IS NULL",
-        )
+        query_sql = builder.where("id", 1).to_sql()
+        expected_sql = "SELECT * FROM `users` WHERE `users`.`id` = '1' AND `users`.`deleted_at` IS NULL"
+        self.assertEqual(query_sql, expected_sql)
 
     def test_global_scope_remove_from_class(self):
         builder = (
@@ -57,14 +54,13 @@ class BaseTestQueryBuilderScopes(unittest.TestCase):
             .remove_global_scope(SoftDeleteScope())
         )
 
-        self.assertEqual(
-            builder.where("id", 1).to_sql(),
-            "SELECT * FROM `users` WHERE `users`.`id` = '1'",
-        )
+        query_sql = builder.where("id", 1).to_sql()
+        expected_sql = "SELECT * FROM `users` WHERE `users`.`id` = '1'"
+        self.assertEqual(query_sql, expected_sql)
 
     def test_global_scope_adds_method(self):
         builder = self.get_builder().set_global_scope(SoftDeleteScope())
 
-        self.assertEqual(
-            builder.with_trashed().to_sql(), "SELECT * FROM `users`"
-        )
+        query_sql = builder.with_trashed().to_sql()
+        expected_sql = "SELECT * FROM `users`"
+        self.assertEqual(query_sql, expected_sql)

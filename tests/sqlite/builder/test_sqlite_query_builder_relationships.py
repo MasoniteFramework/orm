@@ -55,9 +55,9 @@ class SqliteTestQueryBuilderRelationships(unittest.TestCase):
 
     def test_has(self):
         builder = self.get_builder()
-        sql = builder.has("articles").to_sql()
+        query_sql = builder.has("articles").to_sql()
         self.assertEqual(
-            sql,
+            query_sql,
             """SELECT * FROM "users" WHERE EXISTS ("""
             """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id\""""
             """)""",
@@ -65,9 +65,9 @@ class SqliteTestQueryBuilderRelationships(unittest.TestCase):
 
     def test_doesnt_have(self):
         builder = self.get_builder()
-        sql = builder.doesnt_have("articles").to_sql()
+        query_sql = builder.doesnt_have("articles").to_sql()
         self.assertEqual(
-            sql,
+            query_sql,
             """SELECT * FROM "users" WHERE NOT EXISTS ("""
             """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id\""""
             """)""",
@@ -75,11 +75,11 @@ class SqliteTestQueryBuilderRelationships(unittest.TestCase):
 
     def test_where_doesnt_have(self):
         builder = self.get_builder()
-        sql = builder.where_doesnt_have(
+        query_sql = builder.where_doesnt_have(
             "articles", lambda q: q.where("title", "Eggs and Ham")
         ).to_sql()
         self.assertEqual(
-            sql,
+            query_sql,
             """SELECT * FROM "users" WHERE NOT EXISTS ("""
             """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id" AND "articles"."title" = 'Eggs and Ham'"""
             """)""",
@@ -87,20 +87,20 @@ class SqliteTestQueryBuilderRelationships(unittest.TestCase):
 
     def test_where_has_query(self):
         builder = self.get_builder()
-        sql = builder.where_has(
+        query_sql = builder.where_has(
             "articles", lambda q: q.where("active", 1)
         ).to_sql()
         self.assertEqual(
-            sql,
+            query_sql,
             """SELECT * FROM "users" WHERE EXISTS ("""
             """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id" AND "articles"."active" = '1'"""
             """)""",
         )
 
     def test_relationship_multiple_has(self):
-        to_sql = User.has("articles", "profile").to_sql()
+        query_sql = User.has("articles", "profile").to_sql()
         self.assertEqual(
-            to_sql,
+            query_sql,
             """SELECT * FROM "users" WHERE EXISTS ("""
             """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id\""""
             """) AND EXISTS ("""
@@ -109,9 +109,9 @@ class SqliteTestQueryBuilderRelationships(unittest.TestCase):
         )
 
     def test_relationship_multiple_has_calls(self):
-        to_sql = User.has("articles").has("profile").to_sql()
+        query_sql = User.has("articles").has("profile").to_sql()
         self.assertEqual(
-            to_sql,
+            query_sql,
             """SELECT * FROM "users" WHERE EXISTS ("""
             """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id\""""
             """) AND EXISTS ("""
@@ -120,15 +120,15 @@ class SqliteTestQueryBuilderRelationships(unittest.TestCase):
         )
 
     def test_nested_has(self):
-        to_sql = User.has("articles.logo").to_sql()
+        query_sql = User.has("articles.logo").to_sql()
         self.assertEqual(
-            to_sql,
+            query_sql,
             """SELECT * FROM "users" WHERE EXISTS (SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id" AND EXISTS (SELECT * FROM "logos" WHERE "logos"."article_id" = "articles"."id"))""",
         )
 
     def test_joins(self):
-        to_sql = self.get_builder().joins("articles").to_sql()
+        query_sql = self.get_builder().joins("articles").to_sql()
         self.assertEqual(
-            to_sql,
+            query_sql,
             """SELECT * FROM "users" INNER JOIN "articles" ON "users"."id" = "articles"."user_id\"""",
         )

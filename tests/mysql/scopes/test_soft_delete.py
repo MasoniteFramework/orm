@@ -32,55 +32,71 @@ class TestSoftDeleteScope(unittest.TestCase):
         )
 
     def test_with_trashed(self):
-        sql = "SELECT * FROM `users`"
+        expected_sql = "SELECT * FROM `users`"
         builder = self.get_builder().set_global_scope(SoftDeleteScope())
-        self.assertEqual(sql, builder.with_trashed().to_sql())
+        query_sql = builder.with_trashed().to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_force_delete(self):
-        sql = "DELETE FROM `users`"
+        expected_sql = "DELETE FROM `users`"
         builder = self.get_builder().set_global_scope(SoftDeleteScope())
-        self.assertEqual(sql, builder.force_delete(query=True).to_sql())
+        query_sql = builder.force_delete(query=True).to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_restore(self):
-        sql = "UPDATE `users` SET `users`.`deleted_at` = 'None'"
+        expected_sql = "UPDATE `users` SET `users`.`deleted_at` = 'None'"
         builder = self.get_builder().set_global_scope(SoftDeleteScope())
-        self.assertEqual(sql, builder.restore().to_sql())
+        query_sql = builder.restore().to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_force_delete_with_wheres(self):
-        sql = "DELETE FROM `users` WHERE `users`.`active` = '1'"
-        self.assertEqual(
-            sql, UserSoft.where("active", 1).force_delete(query=True).to_sql()
+        expected_sql = "DELETE FROM `users` WHERE `users`.`active` = '1'"
+        query_sql = (
+            UserSoft.where("active", 1).force_delete(query=True).to_sql()
         )
+        self.assertEqual(query_sql, expected_sql)
 
     def test_that_trashed_users_are_not_returned_by_default(self):
-        sql = "SELECT * FROM `users` WHERE `users`.`deleted_at` IS NULL"
+        expected_sql = (
+            "SELECT * FROM `users` WHERE `users`.`deleted_at` IS NULL"
+        )
         builder = self.get_builder().set_global_scope(SoftDeleteScope())
-        self.assertEqual(sql, builder.to_sql())
+        query_sql = builder.to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_only_trashed(self):
-        sql = "SELECT * FROM `users` WHERE `users`.`deleted_at` IS NOT NULL"
+        expected_sql = (
+            "SELECT * FROM `users` WHERE `users`.`deleted_at` IS NOT NULL"
+        )
         builder = self.get_builder().set_global_scope(SoftDeleteScope())
-        self.assertEqual(sql, builder.only_trashed().to_sql())
+        query_sql = builder.only_trashed().to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_only_trashed_on_model(self):
-        sql = "SELECT * FROM `users` WHERE `users`.`deleted_at` IS NOT NULL"
-        self.assertEqual(sql, UserSoft.only_trashed().to_sql())
+        expected_sql = (
+            "SELECT * FROM `users` WHERE `users`.`deleted_at` IS NOT NULL"
+        )
+        query_sql = UserSoft.only_trashed().to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_can_change_column(self):
-        sql = "SELECT * FROM `users` WHERE `users`.`archived_at` IS NOT NULL"
-        self.assertEqual(sql, UserSoftArchived.only_trashed().to_sql())
+        expected_sql = (
+            "SELECT * FROM `users` WHERE `users`.`archived_at` IS NOT NULL"
+        )
+        query_sql = UserSoftArchived.only_trashed().to_sql()
+        self.assertEqual(query_sql, expected_sql)
 
     def test_find_with_global_scope(self):
-        find_sql = UserSoft.find("1", query=True).to_sql()
-        raw_sql = """SELECT * FROM `users` WHERE `users`.`id` = '1' AND `users`.`deleted_at` IS NULL"""
-        self.assertEqual(find_sql, raw_sql)
+        query_sql = UserSoft.find("1", query=True).to_sql()
+        expected_sql = """SELECT * FROM `users` WHERE `users`.`id` = '1' AND `users`.`deleted_at` IS NULL"""
+        self.assertEqual(query_sql, expected_sql)
 
     def test_find_with_trashed_scope(self):
-        find_sql = UserSoft.with_trashed().find("1", query=True).to_sql()
-        raw_sql = """SELECT * FROM `users` WHERE `users`.`id` = '1'"""
-        self.assertEqual(find_sql, raw_sql)
+        query_sql = UserSoft.with_trashed().find("1", query=True).to_sql()
+        expected_sql = """SELECT * FROM `users` WHERE `users`.`id` = '1'"""
+        self.assertEqual(query_sql, expected_sql)
 
     def test_find_with_only_trashed_scope(self):
-        find_sql = UserSoft.only_trashed().find("1", query=True).to_sql()
-        raw_sql = """SELECT * FROM `users` WHERE `users`.`deleted_at` IS NOT NULL AND `users`.`id` = '1'"""
-        self.assertEqual(find_sql, raw_sql)
+        query_sql = UserSoft.only_trashed().find("1", query=True).to_sql()
+        expected_sql = """SELECT * FROM `users` WHERE `users`.`deleted_at` IS NOT NULL AND `users`.`id` = '1'"""
+        self.assertEqual(query_sql, expected_sql)

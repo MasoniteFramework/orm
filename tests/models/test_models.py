@@ -109,14 +109,14 @@ class TestModels(unittest.TestCase):
         model = ModelTest.hydrate({"id": 1, "username": "joe", "admin": True})
 
         model.name = "Bill"
-        sql = model.save(query=True).to_sql()
-        self.assertTrue(sql.startswith("UPDATE"))
+        query_sql = model.save(query=True).to_sql()
+        self.assertTrue(query_sql.startswith("UPDATE"))
 
         model = ModelTest()
 
         model.name = "Bill"
-        sql = model.save(query=True).to_sql()
-        self.assertTrue(sql.startswith("INSERT"))
+        query_sql = model.save(query=True).to_sql()
+        self.assertTrue(query_sql.startswith("INSERT"))
 
     def test_model_can_cast_attributes(self):
         model = ModelTest.hydrate(
@@ -216,9 +216,9 @@ class TestModels(unittest.TestCase):
 
         model.username = "joe"
         model.name = "Bill"
-        sql = model.save(query=True).to_sql()
-        self.assertTrue(sql.startswith("UPDATE"))
-        self.assertNotIn("username", sql)
+        query_sql = model.save(query=True).to_sql()
+        self.assertTrue(query_sql.startswith("UPDATE"))
+        self.assertNotIn("username", query_sql)
 
     def test_force_update_on_model_class(self):
         model = ModelTestForced.hydrate(
@@ -227,10 +227,10 @@ class TestModels(unittest.TestCase):
 
         model.username = "joe"
         model.name = "Bill"
-        sql = model.save(query=True).to_sql()
-        self.assertTrue(sql.startswith("UPDATE"))
-        self.assertIn("username", sql)
-        self.assertIn("name", sql)
+        query_sql = model.save(query=True).to_sql()
+        self.assertTrue(query_sql.startswith("UPDATE"))
+        self.assertIn("username", query_sql)
+        self.assertIn("name", query_sql)
 
     def test_only_method(self):
         model = ModelTestForced.hydrate(
@@ -247,22 +247,22 @@ class TestModels(unittest.TestCase):
 
         model.username = "joe"
         model.name = "Joe"
-        sql = model.save(query=True).to_sql()
-        self.assertFalse(sql.startswith("UPDATE"))
+        query_sql = model.save(query=True).to_sql()
+        self.assertFalse(query_sql.startswith("UPDATE"))
 
     def test_model_using_or_where(self):
         model = ModelTest()
-        sql = model.where("name", "=", "joe").or_where("is_vip", True).to_sql()
-
-        self.assertEqual(
-            sql,
-            """SELECT * FROM `model_tests` WHERE `model_tests`.`name` = 'joe' OR `model_tests`.`is_vip` = '1'""",
+        query_sql = (
+            model.where("name", "=", "joe").or_where("is_vip", True).to_sql()
         )
+        expected_sql = """SELECT * FROM `model_tests` WHERE `model_tests`.`name` = 'joe' OR `model_tests`.`is_vip` = '1'"""
+
+        self.assertEqual(query_sql, expected_sql)
 
     def test_model_using_or_where_and_chaining_wheres(self):
         model = ModelTest()
 
-        sql = (
+        query_sql = (
             model.where("name", "=", "joe")
             .or_where(
                 lambda query: query.where("username", "Joseph").or_where(
@@ -273,7 +273,7 @@ class TestModels(unittest.TestCase):
         )
 
         self.assertTrue(
-            sql,
+            query_sql,
             """SELECT * FROM `model_tests` WHERE `model_tests`.`name` = 'joe' OR (`model_tests`.`username` = 'Joseph' OR `model_tests`.`age` >= '18'))""",
         )
 
@@ -301,34 +301,26 @@ class TestModels(unittest.TestCase):
         InvalidFillableGuardedModelTest()
 
     def test_model_can_provide_default_select(self):
-        sql = ModelWithBaseModel.to_sql()
-        self.assertEqual(
-            sql,
-            """SELECT `users`.* FROM `users`""",
-        )
+        query_sql = ModelWithBaseModel.to_sql()
+        expected_sql = """SELECT `users`.* FROM `users`"""
+        self.assertEqual(query_sql, expected_sql)
 
     def test_model_can_override_to_default_select(self):
-        sql = ModelWithBaseModel.select(
+        query_sql = ModelWithBaseModel.select(
             ["products.name", "products.id", "store.name"]
         ).to_sql()
-        self.assertEqual(
-            sql,
-            """SELECT `products`.`name`, `products`.`id`, `store`.`name` FROM `users`""",
-        )
+        expected_sql = """SELECT `products`.`name`, `products`.`id`, `store`.`name` FROM `users`"""
+        self.assertEqual(query_sql, expected_sql)
 
     def test_model_can_use_aggregate_funcs_with_default_selects(self):
-        sql = ModelWithBaseModel.count().to_sql()
-        self.assertEqual(
-            sql,
-            """SELECT COUNT(*) AS m_count_reserved FROM `users`""",
-        )
-        sql = ModelWithBaseModel.max("id").to_sql()
-        self.assertEqual(
-            sql,
-            """SELECT MAX(`users`.`id`) AS id FROM `users`""",
-        )
-        sql = ModelWithBaseModel.min("id").to_sql()
-        self.assertEqual(
-            sql,
-            """SELECT MIN(`users`.`id`) AS id FROM `users`""",
-        )
+        query_sql = ModelWithBaseModel.count().to_sql()
+        expected_sql = """SELECT COUNT(*) AS m_count_reserved FROM `users`"""
+        self.assertEqual(query_sql, expected_sql)
+
+        query_sql = ModelWithBaseModel.max("id").to_sql()
+        expected_sql = """SELECT MAX(`users`.`id`) AS id FROM `users`"""
+        self.assertEqual(query_sql, expected_sql)
+
+        query_sql = ModelWithBaseModel.min("id").to_sql()
+        expected_sql = """SELECT MIN(`users`.`id`) AS id FROM `users`"""
+        self.assertEqual(query_sql, expected_sql)

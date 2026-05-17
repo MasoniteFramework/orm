@@ -93,8 +93,8 @@ class TestSoftDeletesScope(unittest.TestCase):
     def test_soft_deletes_changes_delete_to_update(self):
         UserSoft.__timestamps__ = False
         user = UserSoft.hydrate({"id": 1})
-        sql = user.delete(query=True).to_sql()
-        self.assertTrue(sql.startswith("UPDATE"))
+        query_sql = user.delete(query=True).to_sql()
+        self.assertTrue(query_sql.startswith("UPDATE"))
 
 
 class TestTimeStampsScope(unittest.TestCase):
@@ -141,5 +141,5 @@ class TestTimeStampsScope(unittest.TestCase):
 
     def test_uses_custom_updated_column_on_update(self):
         user = UserWithCustomTimeStamps.hydrate({"id": 1})
-        sql = user.update({"id": 2}).to_sql()
-        self.assertTrue(UserWithCustomTimeStamps.date_updated_at in sql)
+        query_sql = user.update({"id": 2}).to_sql()
+        self.assertTrue(UserWithCustomTimeStamps.date_updated_at in query_sql)

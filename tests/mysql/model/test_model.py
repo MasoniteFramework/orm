@@ -79,41 +79,38 @@ class ProductNames(Model):
 
 class TestModel(unittest.TestCase):
     def test_create_can_use_fillable(self):
-        sql = ProfileFillable.create(
+        query_sql = ProfileFillable.create(
             {"name": "Joe", "email": "user@example.com"}, query=True
         ).to_sql()
-
-        self.assertEqual(
-            sql, "INSERT INTO `profiles` (`profiles`.`name`) VALUES ('Joe')"
+        expected_sql = (
+            "INSERT INTO `profiles` (`profiles`.`name`) VALUES ('Joe')"
         )
+        self.assertEqual(query_sql, expected_sql)
 
     def test_create_can_use_fillable_asterisk(self):
-        sql = ProfileFillAsterisk.create(
+        query_sql = ProfileFillAsterisk.create(
             {"name": "Joe", "email": "user@example.com"}, query=True
         ).to_sql()
-
-        self.assertEqual(
-            sql,
-            "INSERT INTO `profiles` (`profiles`.`name`, `profiles`.`email`) VALUES ('Joe', 'user@example.com')",
-        )
+        expected_sql = "INSERT INTO `profiles` (`profiles`.`name`, `profiles`.`email`) VALUES ('Joe', 'user@example.com')"
+        self.assertEqual(query_sql, expected_sql)
 
     def test_create_can_use_guarded(self):
-        sql = ProfileGuarded.create(
+        query_sql = ProfileGuarded.create(
             {"name": "Joe", "email": "user@example.com"}, query=True
         ).to_sql()
-
-        self.assertEqual(
-            sql, "INSERT INTO `profiles` (`profiles`.`name`) VALUES ('Joe')"
+        expected_sql = (
+            "INSERT INTO `profiles` (`profiles`.`name`) VALUES ('Joe')"
         )
+        self.assertEqual(query_sql, expected_sql)
 
     def test_create_can_use_guarded_asterisk(self):
-        sql = ProfileGuardedAsterisk.create(
+        query_sql = ProfileGuardedAsterisk.create(
             {"name": "Joe", "email": "user@example.com"}, query=True
         ).to_sql()
-
         # An asterisk guarded attribute excludes all fields from mass-assignment.
         # This would raise a DB error if there are any required fields.
-        self.assertEqual(sql, "INSERT INTO `profiles` (*) VALUES ()")
+        expected_sql = "INSERT INTO `profiles` (*) VALUES ()"
+        self.assertEqual(query_sql, expected_sql)
 
     def test_bulk_create_can_use_fillable(self):
         query_builder = ProfileFillable.bulk_create(
@@ -124,10 +121,11 @@ class TestModel(unittest.TestCase):
             query=True,
         )
 
-        self.assertEqual(
-            query_builder.to_sql(),
-            "INSERT INTO `profiles` (`name`) VALUES ('Joe'), ('Joe II')",
+        query_sql = query_builder.to_sql()
+        expected_sql = (
+            "INSERT INTO `profiles` (`name`) VALUES ('Joe'), ('Joe II')"
         )
+        self.assertEqual(query_sql, expected_sql)
 
     def test_bulk_create_can_use_fillable_asterisk(self):
         query_builder = ProfileFillAsterisk.bulk_create(
@@ -138,10 +136,9 @@ class TestModel(unittest.TestCase):
             query=True,
         )
 
-        self.assertEqual(
-            query_builder.to_sql(),
-            "INSERT INTO `profiles` (`email`, `name`) VALUES ('user@example.com', 'Joe'), ('userII@example.com', 'Joe II')",
-        )
+        query_sql = query_builder.to_sql()
+        expected_sql = "INSERT INTO `profiles` (`email`, `name`) VALUES ('user@example.com', 'Joe'), ('userII@example.com', 'Joe II')"
+        self.assertEqual(query_sql, expected_sql)
 
     def test_bulk_create_can_use_guarded(self):
         query_builder = ProfileGuarded.bulk_create(
@@ -152,10 +149,11 @@ class TestModel(unittest.TestCase):
             query=True,
         )
 
-        self.assertEqual(
-            query_builder.to_sql(),
-            "INSERT INTO `profiles` (`name`) VALUES ('Joe'), ('Joe II')",
+        query_sql = query_builder.to_sql()
+        expected_sql = (
+            "INSERT INTO `profiles` (`name`) VALUES ('Joe'), ('Joe II')"
         )
+        self.assertEqual(query_sql, expected_sql)
 
     def test_bulk_create_can_use_guarded_asterisk(self):
         query_builder = ProfileGuardedAsterisk.bulk_create(
@@ -169,39 +167,36 @@ class TestModel(unittest.TestCase):
         # An asterisk guarded attribute excludes all fields from mass-assignment.
         # This would obviously raise an invalid SQL syntax error.
         # TODO: Raise a clearer error?
-        self.assertEqual(
-            query_builder.to_sql(), "INSERT INTO `profiles` () VALUES (), ()"
-        )
+        query_sql = query_builder.to_sql()
+        expected_sql = "INSERT INTO `profiles` () VALUES (), ()"
+        self.assertEqual(query_sql, expected_sql)
 
     def test_update_can_use_fillable(self):
         query_builder = ProfileFillable().update(
             {"name": "Joe", "email": "user@example.com"}, dry=True
         )
 
-        self.assertEqual(
-            query_builder.to_sql(),
-            "UPDATE `profiles` SET `profiles`.`name` = 'Joe'",
-        )
+        query_sql = query_builder.to_sql()
+        expected_sql = "UPDATE `profiles` SET `profiles`.`name` = 'Joe'"
+        self.assertEqual(query_sql, expected_sql)
 
     def test_update_can_use_fillable_asterisk(self):
         query_builder = ProfileFillAsterisk().update(
             {"name": "Joe", "email": "user@example.com"}, dry=True
         )
 
-        self.assertEqual(
-            query_builder.to_sql(),
-            "UPDATE `profiles` SET `profiles`.`name` = 'Joe', `profiles`.`email` = 'user@example.com'",
-        )
+        query_sql = query_builder.to_sql()
+        expected_sql = "UPDATE `profiles` SET `profiles`.`name` = 'Joe', `profiles`.`email` = 'user@example.com'"
+        self.assertEqual(query_sql, expected_sql)
 
     def test_update_can_use_guarded(self):
         query_builder = ProfileGuarded().update(
             {"name": "Joe", "email": "user@example.com"}, dry=True
         )
 
-        self.assertEqual(
-            query_builder.to_sql(),
-            "UPDATE `profiles` SET `profiles`.`name` = 'Joe'",
-        )
+        query_sql = query_builder.to_sql()
+        expected_sql = "UPDATE `profiles` SET `profiles`.`name` = 'Joe'"
+        self.assertEqual(query_sql, expected_sql)
 
     def test_update_can_use_guarded_asterisk(self):
         profile = ProfileGuardedAsterisk()
@@ -212,7 +207,9 @@ class TestModel(unittest.TestCase):
 
         # An asterisk guarded attribute excludes all fields from mass-assignment.
         # The query builder's sql should not have been altered in any way.
-        self.assertEqual(query_builder.to_sql(), initial_sql)
+        query_sql = query_builder.to_sql()
+        expected_sql = initial_sql
+        self.assertEqual(query_sql, expected_sql)
 
     def test_table_name(self):
         table_name = Profile.get_table_name()
@@ -342,12 +339,9 @@ if os.getenv("RUN_MYSQL_DATABASE", "false").lower() == "true":
         def test_can_touch(self):
             profile = ProfileFillTimeStamped.hydrate({"name": "Joe", "id": 1})
 
-            sql = profile.touch("now", query=True).to_sql()
-
-            self.assertEqual(
-                sql,
-                "UPDATE `profiles` SET `profiles`.`updated_at` = 'now' WHERE `profiles`.`id` = '1'",
-            )
+            query_sql = profile.touch("now", query=True).to_sql()
+            expected_sql = "UPDATE `profiles` SET `profiles`.`updated_at` = 'now' WHERE `profiles`.`id` = '1'"
+            self.assertEqual(query_sql, expected_sql)
 
         def test_find_or_fail_raise_an_exception_if_not_exists(self):
             with self.assertRaises(ModelNotFound):

@@ -2,11 +2,9 @@ import os
 import unittest
 
 from src.masoniteorm import Model
-from tests.integrations.config.database import DATABASES
 from src.masoniteorm.connections import MySQLConnection
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import MySQLPlatform
-
 from tests.integrations.config.database import DATABASES
 
 
@@ -56,7 +54,9 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 1)
         self.assertEqual(
             blueprint.to_sql(),
-            ["CREATE TABLE `users` (`amount` DECIMAL(19, 4) UNSIGNED NOT NULL)"],
+            [
+                "CREATE TABLE `users` (`amount` DECIMAL(19, 4) UNSIGNED NOT NULL)"
+            ],
         )
 
     def test_can_create_table_if_not_exists(self):
@@ -119,7 +119,9 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.integer("profile_id")
             blueprint.foreign("profile_id").references("id").on("profiles")
             blueprint.foreign_id("post_id").references("id").on("posts")
-            blueprint.foreign_id_for(Discussion).references("id").on("discussions")
+            blueprint.foreign_id_for(Discussion).references("id").on(
+                "discussions"
+            )
 
         self.assertEqual(len(blueprint.table.added_columns), 3)
         self.assertEqual(
@@ -212,9 +214,9 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.string("thumbnail").nullable()
             blueprint.integer("premium")
             blueprint.integer("author_id").unsigned().nullable()
-            blueprint.foreign("author_id").references("id").on("users").on_delete(
-                "CASCADE"
-            )
+            blueprint.foreign("author_id").references("id").on(
+                "users"
+            ).on_delete("CASCADE")
             blueprint.text("description")
             blueprint.timestamps()
 
@@ -233,9 +235,9 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
     def test_can_add_columns_with_foreign_key_constraint_name(self):
         with self.schema.create("users") as blueprint:
             blueprint.integer("profile_id")
-            blueprint.foreign("profile_id", name="profile_foreign").references("id").on(
-                "profiles"
-            )
+            blueprint.foreign("profile_id", name="profile_foreign").references(
+                "id"
+            ).on("profiles")
 
         self.assertEqual(len(blueprint.table.added_columns), 1)
         self.assertEqual(
@@ -316,7 +318,10 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(
             blueprint.to_sql(),
-            ["CREATE TABLE `users` (" "`profile_id` VARCHAR(255) NOT NULL DEFAULT '')"],
+            [
+                "CREATE TABLE `users` ("
+                "`profile_id` VARCHAR(255) NOT NULL DEFAULT '')"
+            ],
         )
 
     def test_can_have_float_type(self):
@@ -329,55 +334,55 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         )
 
     def test_has_table(self):
-        schema_sql = self.schema.has_table("users")
+        query_sql = self.schema.has_table("users")
 
-        sql = f"SELECT * from information_schema.tables where table_name='users' AND table_schema = '{os.getenv('MYSQL_DATABASE_DATABASE')}'"
+        expected_sql = f"SELECT * from information_schema.tables where table_name='users' AND table_schema = '{os.getenv('MYSQL_DATABASE_DATABASE')}'"
 
-        self.assertEqual(schema_sql, sql)
+        self.assertEqual(query_sql, expected_sql)
 
     def test_can_truncate(self):
-        sql = self.schema.truncate("users")
+        query_sql = self.schema.truncate("users")
 
-        self.assertEqual(sql, "TRUNCATE `users`")
+        self.assertEqual(query_sql, "TRUNCATE `users`")
 
     def test_can_rename_table(self):
-        sql = self.schema.rename("users", "clients")
+        query_sql = self.schema.rename("users", "clients")
 
-        self.assertEqual(sql, "ALTER TABLE `users` RENAME TO `clients`")
+        self.assertEqual(query_sql, "ALTER TABLE `users` RENAME TO `clients`")
 
     def test_can_drop_table_if_exists(self):
-        sql = self.schema.drop_table_if_exists("users", "clients")
+        query_sql = self.schema.drop_table_if_exists("users", "clients")
 
-        self.assertEqual(sql, "DROP TABLE IF EXISTS `users`")
+        self.assertEqual(query_sql, "DROP TABLE IF EXISTS `users`")
 
     def test_can_drop_table(self):
-        sql = self.schema.drop_table("users", "clients")
+        query_sql = self.schema.drop_table("users", "clients")
 
-        self.assertEqual(sql, "DROP TABLE `users`")
+        self.assertEqual(query_sql, "DROP TABLE `users`")
 
     def test_has_column(self):
-        sql = self.schema.has_column("users", "name")
+        query_sql = self.schema.has_column("users", "name")
 
         self.assertEqual(
-            sql,
+            query_sql,
             "SELECT column_name FROM information_schema.columns WHERE table_name='users' and column_name='name'",
         )
 
     def test_can_enable_foreign_keys(self):
-        sql = self.schema.enable_foreign_key_constraints()
+        query_sql = self.schema.enable_foreign_key_constraints()
 
-        self.assertEqual(sql, "SET FOREIGN_KEY_CHECKS=1")
+        self.assertEqual(query_sql, "SET FOREIGN_KEY_CHECKS=1")
 
     def test_can_disable_foreign_keys(self):
-        sql = self.schema.disable_foreign_key_constraints()
+        query_sql = self.schema.disable_foreign_key_constraints()
 
-        self.assertEqual(sql, "SET FOREIGN_KEY_CHECKS=0")
+        self.assertEqual(query_sql, "SET FOREIGN_KEY_CHECKS=0")
 
     def test_can_truncate_without_foreign_keys(self):
-        sql = self.schema.truncate("users", foreign_keys=True)
+        query_sql = self.schema.truncate("users", foreign_keys=True)
 
         self.assertEqual(
-            sql,
+            query_sql,
             [
                 "SET FOREIGN_KEY_CHECKS=0",
                 "TRUNCATE `users`",
