@@ -323,27 +323,22 @@ class TestPostgresSchemaBuilderAlter(unittest.TestCase):
         self.assertEqual(query_sql, expected_sql)
 
     def test_alter_drop_on_table_schema_table(self):
-        schema = Schema(
-            connection_class=PostgresConnection,
-            connection="postgres",
-            connection_details=DATABASES,
-            dry=True,
-        ).on("postgres")
-
-        with schema.table("table_schema") as blueprint:
+        with self.schema.table("table_schema") as blueprint:
             blueprint.drop_column("name")
 
-        expected_sql_drop = ['ALTER TABLE "table_schema" DROP COLUMN "name"']
+        self.assertEqual(len(blueprint.table.dropped_columns), 1)
         query_sql_drop = blueprint.to_sql()
+        expected_sql_drop = ['ALTER TABLE "table_schema" DROP COLUMN "name"']
         self.assertEqual(query_sql_drop, expected_sql_drop)
 
-        with schema.table("table_schema") as blueprint:
-            blueprint.string("name")
+        with self.schema.table("table_schema") as blueprint:
+            blueprint.text("name").nullable()
 
-        expected_sql_add = [
-            'ALTER TABLE "table_schema" ADD COLUMN "name" VARCHAR(255) NOT NULL'
-        ]
+        self.assertEqual(len(blueprint.table.added_columns), 1)
         query_sql_add = blueprint.to_sql()
+        expected_sql_add = [
+            'ALTER TABLE "table_schema" ADD COLUMN "name" TEXT NULL'
+        ]
         self.assertEqual(query_sql_add, expected_sql_add)
 
     def test_can_add_column_enum(self):
