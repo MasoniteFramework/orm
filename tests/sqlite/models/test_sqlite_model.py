@@ -54,33 +54,27 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
 
     def test_update_specific_record(self):
         user = User.first()
-        sql = user.update({"name": "joe"}).to_sql()
-
-        self.assertEqual(
-            sql,
-            """UPDATE "users" SET "name" = 'joe' WHERE "id" = '{}'""".format(
-                user.id
-            ),
+        query_sql = user.update({"name": "joe"}).to_sql()
+        expected_sql = (
+            f"""UPDATE "users" SET "name" = 'joe' WHERE "id" = '{user.id}'"""
         )
+        self.assertEqual(query_sql, expected_sql)
 
     def test_update_all_records(self):
-        sql = User.update({"name": "joe"}).to_sql()
-
-        self.assertEqual(sql, """UPDATE "users" SET "name" = 'joe'""")
+        query_sql = User.update({"name": "joe"}).to_sql()
+        expected_sql = """UPDATE "users" SET "name" = 'joe'"""
+        self.assertEqual(query_sql, expected_sql)
 
     def test_can_find_list(self):
-        sql = User.find(1, query=True).to_sql()
+        query_sql = User.find(1, query=True).to_sql()
+        expected_sql = """SELECT * FROM "users" WHERE "users"."id" = '1'"""
+        self.assertEqual(query_sql, expected_sql)
 
-        self.assertEqual(
-            sql, """SELECT * FROM "users" WHERE "users"."id" = '1'"""
+        query_sql = User.find([1, 2, 3], query=True).to_sql()
+        expected_sql = (
+            """SELECT * FROM "users" WHERE "users"."id" IN ('1','2','3')"""
         )
-
-        sql = User.find([1, 2, 3], query=True).to_sql()
-
-        self.assertEqual(
-            sql,
-            """SELECT * FROM "users" WHERE "users"."id" IN ('1','2','3')""",
-        )
+        self.assertEqual(query_sql, expected_sql)
 
     def test_find_or_if_record_not_found(self):
         # Insane record number so record cannot be found
@@ -101,73 +95,57 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
         self.assertEqual(user.customer_id, "CUST1")
 
     def test_model_can_use_selects(self):
-        self.assertEqual(
-            Select.to_sql(),
-            'SELECT "selects"."username", "selects"."rememember_token" AS token FROM "selects"',
-        )
+        query_sql = Select.to_sql()
+        expected_sql = 'SELECT "selects"."username", "selects"."rememember_token" AS token FROM "selects"'
+        self.assertEqual(query_sql, expected_sql)
 
     def test_model_can_use_selects_from_methods(self):
-        self.assertEqual(
-            SelectPass.all(["username"], query=True).to_sql(),
-            'SELECT "select_passes"."username" FROM "select_passes"',
-        )
+        query_sql = SelectPass.all(["username"], query=True).to_sql()
+        expected_sql = 'SELECT "select_passes"."username" FROM "select_passes"'
+        self.assertEqual(query_sql, expected_sql)
 
     def test_update_only_changed_attributes(self):
         user = User.first()
-        sql = user.update({"name": user.name, "username": "new"}).to_sql()
+        query_sql = user.update(
+            {"name": user.name, "username": "new"}
+        ).to_sql()
         # unchanged name attribute is not updated
-        self.assertEqual(
-            sql,
-            """UPDATE "users" SET "username" = 'new' WHERE "id" = '{}'""".format(
-                user.id
-            ),
-        )
+        expected_sql = f"""UPDATE "users" SET "username" = 'new' WHERE "id" = '{user.id}'"""
+        self.assertEqual(query_sql, expected_sql)
 
     def test_can_force_update_on_method(self):
         user = User.first()
-        sql = user.update(
-            {"name": user.name, "username": "new"}, force=True
+        query_sql = user.update(
+            {"name": "Frank", "username": "new"}, force=True
         ).to_sql()
-        self.assertEqual(
-            sql,
-            """UPDATE "users" SET "name" = 'bill', "username" = 'new' WHERE "id" = '{}'""".format(
-                user.id
-            ),
-        )
+        expected_sql = f"""UPDATE "users" SET "name" = 'Frank', "username" = 'new' WHERE "id" = '{user.id}'"""
+        self.assertEqual(query_sql, expected_sql)
 
     def test_can_force_update_on_model(self):
         user = UserForced.first()
-        sql = user.update({"name": user.name, "username": "new"}).to_sql()
-        self.assertEqual(
-            sql,
-            """UPDATE "users" SET "name" = 'bill', "username" = 'new' WHERE "id" = '{}'""".format(
-                user.id
-            ),
-        )
+        query_sql = user.update({"name": "Fred", "username": "new"}).to_sql()
+        expected_sql = f"""UPDATE "users" SET "name" = 'Fred', "username" = 'new' WHERE "id" = '{user.id}'"""
+        self.assertEqual(query_sql, expected_sql)
 
     def test_force_update(self):
         user = User.first()
-        sql = user.force_update(
-            {"name": user.name, "username": "new"}
+        query_sql = user.force_update(
+            {"name": "Bill", "username": "new"}
         ).to_sql()
-        self.assertEqual(
-            sql,
-            """UPDATE "users" SET "name" = 'bill', "username" = 'new' WHERE "id" = '{}'""".format(
-                user.id
-            ),
-        )
+        expected_sql = f"""UPDATE "users" SET "name" = 'Bill', "username" = 'new' WHERE "id" = '{user.id}'"""
+        self.assertEqual(query_sql, expected_sql)
 
     def test_update_is_not_done_when_no_changes(self):
         user = User.first()
-        sql = user.update({"name": user.name}).to_sql()
-        self.assertNotIn("UPDATE", sql)
+        query_sql = user.update({"name": user.name}).to_sql()
+        self.assertNotIn("UPDATE", query_sql)
 
     def test_should_collect_correct_amount_data_using_between(self):
         class ModelUser(Model):
             __connection__ = "dev"
             __table__ = "users"
 
-        count = User.between("age", 1, 2).get().count()
+        count = User.between("age", 21, 25).get().count()
         self.assertEqual(count, 2)
 
     def test_should_collect_correct_amount_data_using_not_between(self):
@@ -176,7 +154,7 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
             __table__ = "users"
 
         count = (
-            User.where_not_null("id").not_between("age", 1, 2).get().count()
+            User.where_not_null("id").not_between("age", 21, 25).get().count()
         )
         self.assertEqual(count, 0)
 
@@ -188,23 +166,15 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
                 "id",
                 "name",
                 "email",
-                "password",
-                "remember_token",
-                "created_at",
-                "is_admin",
                 "age",
-                "boo",
-                "tool1",
-                "tool2",
+                "is_admin",
                 "active",
+                "password",
+                "second_password",
+                "remember_token",
+                "verified_at",
+                "created_at",
                 "updated_at",
-                "profile_id",
-                "name5",
-                "name6",
-                "age6",
-                "age7",
-                "age8",
-                "age10",
             ],
         )
 
@@ -221,19 +191,19 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
             schema.drop_table_if_exists(table)
 
         with schema.create("users_hidden") as blueprint:
-            blueprint.increments("id")
+            blueprint.integer("id").primary()
             blueprint.string("name")
             blueprint.integer("token")
             blueprint.string("password")
             blueprint.timestamps()
 
         with schema.create("groups") as blueprint:
-            blueprint.increments("id")
+            blueprint.integer("id").primary()
             blueprint.string("name")
             blueprint.timestamps()
 
         with schema.create("group_user") as blueprint:
-            blueprint.increments("id")
+            blueprint.integer("id").primary()
 
             blueprint.unsigned_integer("group_id")
             blueprint.unsigned_integer("user_id")
@@ -251,7 +221,7 @@ class SqliteTestQueryBuilderModel(unittest.TestCase):
         user = UserHydrateHidden.first()
         group = Group.first()
 
-        group.attach_related("team", user)
+        group.attach("team", user)
 
         serialized = Group.first().serialize()
 

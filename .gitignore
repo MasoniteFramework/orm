@@ -17,6 +17,4 @@ coverage.xml
 .coverage
 *.log
 build
-/orm.sqlite3
-/.bootstrapped-pip
-/.ignore-pre-commit
+/.bootstrapped-*

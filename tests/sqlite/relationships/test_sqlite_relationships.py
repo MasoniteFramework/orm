@@ -1,6 +1,12 @@
 import unittest
+
 from src.masoniteorm.models import Model
-from src.masoniteorm.relationships import belongs_to, has_many, has_one, belongs_to_many
+from src.masoniteorm.relationships import (
+    belongs_to,
+    belongs_to_many,
+    has_many,
+    has_one,
+)
 from tests.integrations.config.database import DB
 
 
@@ -49,11 +55,15 @@ class User(Model):
 class Store(Model):
     __connection__ = "dev"
 
-    @belongs_to_many("store_id", "product_id", "id", "id", with_timestamps=True)
+    @belongs_to_many(
+        "store_id", "product_id", "id", "id", with_timestamps=True
+    )
     def products(self):
         return Product
 
-    @belongs_to_many("store_id", "product_id", "id", "id", table="product_table")
+    @belongs_to_many(
+        "store_id", "product_id", "id", "id", table="product_table"
+    )
     def products_table(self):
         return Product
 
@@ -68,7 +78,6 @@ class Product(Model):
 
 class UserHasOne(Model):
     __table__ = "users"
-
     __connection__ = "dev"
 
     @has_one("user_id", "user_id")
@@ -80,10 +89,11 @@ class TestRelationships(unittest.TestCase):
     maxDiff = None
 
     def test_relationship_can_be_callable(self):
-        self.assertEqual(
-            User.profile().where("name", "Joe").to_sql(),
-            """SELECT * FROM "profiles" WHERE "profiles"."name" = 'Joe'""",
+        query_sql = User.profile().where("name", "Joe").to_sql()
+        expected_sql = (
+            """SELECT * FROM "profiles" WHERE "profiles"."name" = 'Joe'"""
         )
+        self.assertEqual(query_sql, expected_sql)
 
     def test_can_access_relationship(self):
         for user in User.where("id", 1).get():
@@ -101,34 +111,42 @@ class TestRelationships(unittest.TestCase):
     def test_can_access_relationship_date(self):
         user = User.with_("articles").where("id", 1).first()
         for article in user.articles:
-            print(article.logo.published_date.is_past())
+            result = article.logo.published_date.is_past()
+            self.assertIsInstance(result, bool)
 
     def test_loading(self):
         users = User.with_("articles").get()
+        self.assertGreater(len(users), 0)
         for user in users:
-            user
+            self.assertIsInstance(user, User)
 
     def test_relationship_has_one_sql(self):
-        self.assertEqual(UserHasOne.profile().to_sql(), 'SELECT * FROM "profiles"')
+        query_sql = UserHasOne.profile().to_sql()
+        expected_sql = 'SELECT * FROM "profiles"'
+        self.assertEqual(query_sql, expected_sql)
 
     def test_loading_with_nested_with(self):
         users = User.with_("articles", "articles.logo").get()
+        self.assertGreater(len(users), 0)
         for user in users:
+            self.assertIsInstance(user, User)
             for article in user.articles:
-                if article.logo:
-                    print("aa", article.logo.url)
+                # logo may be None if not every article has one; accessing it must not raise
+                _ = article.logo
 
     def test_casting(self):
         users = User.with_("articles").where("is_admin", True).get()
         for user in users:
-            user
+            self.assertIsInstance(user.is_admin, bool)
+            self.assertTrue(user.is_admin)
 
     def test_setting(self):
         users = User.with_("articles").where("is_admin", True).get()
         for user in users:
             user.name = "Joe"
             user.is_admin = 1
-            user.save()
+            result = user.save()
+            self.assertIsNotNone(result)
 
     def test_related(self):
         user = User.first()
@@ -141,10 +159,11 @@ class TestRelationships(unittest.TestCase):
     def test_associate_records(self):
         DB.begin_transaction("dev")
         user = User.first()
-
         articles = [Articles.hydrate({"id": 1, "title": "associate records"})]
-
         user.save_many("articles", articles)
+        # Verify the association was written: the article's user_id should now match
+        updated = Articles.on("dev").find(1)
+        self.assertEqual(str(updated.user_id), str(user.id))
         DB.rollback("dev")
 
     def test_belongs_to_many(self):
@@ -153,10 +172,12 @@ class TestRelationships(unittest.TestCase):
         self.assertEqual(store.products.serialize()[0]["id"], 4)
         self.assertEqual(store.products.serialize()[0]["name"], "Handgun")
         self.assertEqual(
-            store.products.serialize()[0]["updated_at"], "2020-01-01T00:00:00+00:00"
+            store.products.serialize()[0]["updated_at"],
+            "2020-01-01T00:00:00+00:00",
         )
         self.assertEqual(
-            store.products.serialize()[0]["created_at"], "2020-01-01T00:00:00+00:00"
+            store.products.serialize()[0]["created_at"],
+            "2020-01-01T00:00:00+00:00",
         )
 
     def test_belongs_to_eager_many(self):

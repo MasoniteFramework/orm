@@ -44,10 +44,11 @@ if os.getenv("RUN_POSTGRES_DATABASE", False) == "True":
         maxDiff = None
 
         def test_relationship_can_be_callable(self):
-            self.assertEqual(
-                User.profile().where("name", "Joe").to_sql(),
-                """SELECT * FROM "profiles" WHERE "profiles"."name" = 'Joe'""",
+            query_sql = User.profile().where("name", "Joe").to_sql()
+            expected_sql = (
+                """SELECT * FROM "profiles" WHERE "profiles"."name" = 'Joe'"""
             )
+            self.assertEqual(query_sql, expected_sql)
 
         def test_can_access_relationship(self):
             for user in User.where("id", 1).get():
@@ -65,12 +66,14 @@ if os.getenv("RUN_POSTGRES_DATABASE", False) == "True":
         def test_loading(self):
             users = User.with_("articles").get()
             for user in users:
-                user
+                self.assertTrue(hasattr(user, "articles"))
+                self.assertGreater(len(user.articles), 0)
 
         def test_casting(self):
             users = User.with_("articles").where("is_admin", True).get()
             for user in users:
-                user
+                self.assertIsInstance(user.is_admin, bool)
+                self.assertTrue(user.is_admin)
 
         def test_setting(self):
             users = User.with_("articles").where("is_admin", True).get()
@@ -78,29 +81,31 @@ if os.getenv("RUN_POSTGRES_DATABASE", False) == "True":
                 user.name = "Joe"
                 user.is_admin = 1
                 user.save()
+                fresh_user = User.find(user.id)
+                self.assertEqual(fresh_user.name, "Joe")
 
         def test_relationship_has(self):
-            to_sql = User.has("articles").to_sql()
+            query_sql = User.has("articles").to_sql()
             self.assertEqual(
-                to_sql,
+                query_sql,
                 """SELECT * FROM "users" WHERE EXISTS ("""
                 """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id\""""
                 """)""",
             )
 
         def test_relationship_has_off_builder(self):
-            to_sql = User.where("active", 1).has("articles").to_sql()
+            query_sql = User.where("active", 1).has("articles").to_sql()
             self.assertEqual(
-                to_sql,
+                query_sql,
                 """SELECT * FROM "users" WHERE "users"."active" = '1' AND EXISTS ("""
                 """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id\""""
                 """)""",
             )
 
         def test_relationship_multiple_has(self):
-            to_sql = User.has("articles", "profile").to_sql()
+            query_sql = User.has("articles", "profile").to_sql()
             self.assertEqual(
-                to_sql,
+                query_sql,
                 """SELECT * FROM "users" WHERE EXISTS ("""
                 """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id\""""
                 """) AND EXISTS ("""
@@ -112,9 +117,9 @@ if os.getenv("RUN_POSTGRES_DATABASE", False) == "True":
             self.assertEqual(count, 2)
 
         def test_nested_has(self):
-            to_sql = User.has("articles.logo").to_sql()
+            query_sql = User.has("articles.logo").to_sql()
             self.assertEqual(
-                to_sql,
+                query_sql,
                 """SELECT * FROM "users" WHERE EXISTS (SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id" AND EXISTS (SELECT * FROM "logos" WHERE "logos"."article_id" = "articles"."id"))""",
             )
 
@@ -122,9 +127,11 @@ if os.getenv("RUN_POSTGRES_DATABASE", False) == "True":
             self.assertEqual(count, 2)
 
         def test_relationship_where_has(self):
-            to_sql = User.where_has("articles", lambda q: q.where("status", 1)).to_sql()
+            query_sql = User.where_has(
+                "articles", lambda q: q.where("status", 1)
+            ).to_sql()
             self.assertEqual(
-                to_sql,
+                query_sql,
                 """SELECT * FROM "users" WHERE EXISTS ("""
                 """SELECT * FROM "articles" WHERE "articles"."user_id" = "users"."id" AND "articles"."status" = '1'"""
                 """)""",

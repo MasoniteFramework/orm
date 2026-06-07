@@ -17,10 +17,10 @@ if os.getenv("RUN_MYSQL_DATABASE", False) == "True":
             self.builder = QueryBuilder(MySQLGrammar, table="users")
 
         def test_can_compile_select(self):
-            to_sql = MockUser.where("id", 1).to_sql()
+            query_sql = MockUser.where("id", 1).to_sql()
 
-            sql = "SELECT * FROM `users` WHERE `users`.`id` = '1'"
-            self.assertEqual(to_sql, sql)
+            expected_sql = "SELECT * FROM `users` WHERE `users`.`id` = '1'"
+            self.assertEqual(query_sql, expected_sql)
 
         def test_can_get_first_record(self):
             user = MockUser.where("id", 1).first()

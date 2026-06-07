@@ -62,9 +62,9 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
     def test_has(self):
         builder = self.get_builder()
-        sql = builder.has("articles").to_sql()
+        query_sql = builder.has("articles").to_sql()
         self.assertEqual(
-            sql,
+            query_sql,
             """SELECT * FROM [users] WHERE EXISTS ("""
             """SELECT * FROM [articles] WHERE [articles].[user_id] = [users].[id]"""
             """)""",
@@ -72,9 +72,9 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
     def test_has_reference_to_self(self):
         builder = self.get_builder()
-        sql = builder.has("parent_dynamic").to_sql()
+        query_sql = builder.has("parent_dynamic").to_sql()
         self.assertEqual(
-            sql,
+            query_sql,
             """SELECT * FROM [users] WHERE EXISTS ("""
             """SELECT * FROM [users] WHERE [users].[parent_dynamic_id] = [users].[id]"""
             """)""",
@@ -82,9 +82,9 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
     def test_has_reference_to_self_using_class(self):
         builder = self.get_builder()
-        sql = builder.has("parent_specified").to_sql()
+        query_sql = builder.has("parent_specified").to_sql()
         self.assertEqual(
-            sql,
+            query_sql,
             """SELECT * FROM [users] WHERE EXISTS ("""
             """SELECT * FROM [users] WHERE [users].[parent_specified_id] = [users].[id]"""
             """)""",
@@ -92,20 +92,20 @@ class BaseTestQueryRelationships(unittest.TestCase):
 
     def test_where_has_query(self):
         builder = self.get_builder()
-        sql = builder.where_has(
+        query_sql = builder.where_has(
             "articles", lambda q: q.where("active", 1)
         ).to_sql()
         self.assertEqual(
-            sql,
+            query_sql,
             """SELECT * FROM [users] WHERE EXISTS ("""
             """SELECT * FROM [articles] WHERE [articles].[user_id] = [users].[id] AND [articles].[active] = '1'"""
             """)""",
         )
 
     def test_relationship_multiple_has(self):
-        to_sql = User.has("articles", "profile").to_sql()
+        query_sql = User.has("articles", "profile").to_sql()
         self.assertEqual(
-            to_sql,
+            query_sql,
             """SELECT * FROM [users] WHERE EXISTS ("""
             """SELECT * FROM [articles] WHERE [articles].[user_id] = [users].[id]"""
             """) AND EXISTS ("""
@@ -114,9 +114,9 @@ class BaseTestQueryRelationships(unittest.TestCase):
         )
 
     def test_relationship_multiple_has_calls(self):
-        to_sql = User.has("articles").has("profile").to_sql()
+        query_sql = User.has("articles").has("profile").to_sql()
         self.assertEqual(
-            to_sql,
+            query_sql,
             """SELECT * FROM [users] WHERE EXISTS ("""
             """SELECT * FROM [articles] WHERE [articles].[user_id] = [users].[id]"""
             """) AND EXISTS ("""
@@ -125,8 +125,8 @@ class BaseTestQueryRelationships(unittest.TestCase):
         )
 
     def test_nested_has(self):
-        to_sql = User.has("articles.logo").to_sql()
+        query_sql = User.has("articles.logo").to_sql()
         self.assertEqual(
-            to_sql,
+            query_sql,
             """SELECT * FROM [users] WHERE EXISTS (SELECT * FROM [articles] WHERE [articles].[user_id] = [users].[id] AND EXISTS (SELECT * FROM [logos] WHERE [logos].[article_id] = [articles].[id]))""",
         )

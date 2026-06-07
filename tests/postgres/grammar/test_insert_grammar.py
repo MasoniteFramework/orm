@@ -1,33 +1,30 @@
-import inspect
 import unittest
 
 from src.masoniteorm.query import QueryBuilder
 from src.masoniteorm.query.grammars import PostgresGrammar
 
 
-class BaseInsertGrammarTest:
+class TestPostgresInsertGrammar(unittest.TestCase):
     def setUp(self):
         self.builder = QueryBuilder(PostgresGrammar, table="users")
 
     def test_can_compile_insert(self):
-        to_sql = self.builder.create({"name": "Joe"}, query=True).to_sql()
-
-        sql = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
-        self.assertEqual(to_sql, sql)
+        query_sql = self.builder.create({"name": "Joe"}, query=True).to_sql()
+        expected_sql = (
+            """INSERT INTO "users" ("name") VALUES ('Joe') RETURNING *"""
+        )
+        self.assertEqual(query_sql, expected_sql)
 
     def test_can_compile_insert_with_keywords(self):
-        to_sql = self.builder.create(name="Joe", query=True).to_sql()
-
-        sql = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
-        self.assertEqual(to_sql, sql)
+        query_sql = self.builder.create(name="Joe", query=True).to_sql()
+        expected_sql = (
+            """INSERT INTO "users" ("name") VALUES ('Joe') RETURNING *"""
+        )
+        self.assertEqual(query_sql, expected_sql)
 
     def test_can_compile_bulk_create(self):
-        to_sql = self.builder.bulk_create(
-            # These keys are intentionally out of order to show column to value alignment works
+        # Keys are intentionally out of order to verify column-to-value alignment
+        query_sql = self.builder.bulk_create(
             [
                 {"name": "Joe", "age": 5},
                 {"age": 35, "name": "Bill"},
@@ -35,48 +32,14 @@ class BaseInsertGrammarTest:
             ],
             query=True,
         ).to_sql()
-
-        sql = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
-        self.assertEqual(to_sql, sql)
+        expected_sql = """INSERT INTO "users" ("age", "name") VALUES ('5', 'Joe'), ('35', 'Bill'), ('10', 'John') RETURNING *"""
+        self.assertEqual(query_sql, expected_sql)
 
     def test_can_compile_bulk_create_qmark(self):
-        to_sql = self.builder.bulk_create(
+        query_sql = self.builder.bulk_create(
             [{"name": "Joe"}, {"name": "Bill"}, {"name": "John"}], query=True
         ).to_qmark()
-
-        sql = getattr(
-            self, inspect.currentframe().f_code.co_name.replace("test_", "")
-        )()
-        self.assertEqual(to_sql, sql)
-
-
-class TestPostgresUpdateGrammar(BaseInsertGrammarTest, unittest.TestCase):
-    grammar = "postgres"
-
-    def can_compile_insert(self):
-        """
-        self.builder.create({
-            'name': 'Joe'
-        }).to_sql()
-        """
-        return """INSERT INTO "users" ("name") VALUES ('Joe') RETURNING *"""
-
-    def can_compile_insert_with_keywords(self):
-        """
-        self.builder.create(name="Joe").to_sql()
-        """
-        return """INSERT INTO "users" ("name") VALUES ('Joe') RETURNING *"""
-
-    def can_compile_bulk_create(self):
-        """
-        self.builder.create(name="Joe").to_sql()
-        """
-        return """INSERT INTO "users" ("age", "name") VALUES ('5', 'Joe'), ('35', 'Bill'), ('10', 'John') RETURNING *"""
-
-    def can_compile_bulk_create_qmark(self):
-        """
-        self.builder.create(name="Joe").to_sql()
-        """
-        return """INSERT INTO "users" ("name") VALUES (?), (?), (?) RETURNING *"""
+        expected_sql = (
+            """INSERT INTO "users" ("name") VALUES (?), (?), (?) RETURNING *"""
+        )
+        self.assertEqual(query_sql, expected_sql)

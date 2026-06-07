@@ -20,13 +20,15 @@ init-ci:
 
 # 	Create MySQL Database
 # 	Create Postgres Database
-test: init
+test: init test-asserts
 	python -m pytest tests
 ci:
 	make test
-check: format sort lint
+check: format sort lint test-asserts
 lint:
 	flake8 src/masoniteorm tests
+test-asserts:
+	python scripts/check_test_asserts.py
 format: init
 	black src/masoniteorm tests/
 sort: init
