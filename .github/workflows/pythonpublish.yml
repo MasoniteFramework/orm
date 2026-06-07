@@ -5,76 +5,20 @@ on:
     types: [created]
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:10.8
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-        ports:
-          # will assign a random free host port
-          - 5432/tcp
-        # needed because the postgres container does not provide a healthcheck
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
-          MYSQL_DATABASE: orm
-        ports:
-          - 3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
-    strategy:
-      matrix:
-        python-version: ["3.12"]
-    name: Python ${{ matrix.python-version }}
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          make init-ci
-      - name: Test with Pytest and Publish to PYPI
+          python-version: "3.10"
+      - name: Build and publish
         env:
-          POSTGRES_DATABASE_HOST: localhost
-          POSTGRES_DATABASE_DATABASE: postgres
-          POSTGRES_DATABASE_USER: postgres
-          POSTGRES_DATABASE_PASSWORD: postgres
-          POSTGRES_DATABASE_PORT: ${{ job.services.postgres.ports[5432] }}
-          MYSQL_DATABASE_HOST: localhost
-          MYSQL_DATABASE_DATABASE: orm
-          MYSQL_DATABASE_USER: root
-          MYSQL_DATABASE_PORT: ${{ job.services.mysql.ports[3306] }}
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-          DB_CONFIG_PATH: tests/integrations/config/database.py
         run: |
-          python orm migrate --connection postgres
-          python orm migrate --connection mysql
-          make publish
-      - name: Discord notification
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        uses: Ilshidur/action-discord@master
-        with:
-          args: "{{ EVENT_PAYLOAD.repository.full_name }} {{ EVENT_PAYLOAD.release.tag_name }} has been released. Checkout the full release notes here: {{ EVENT_PAYLOAD.release.html_url }}"
-
-  publish:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: publish-to-conda
-        uses: fcakyon/conda-publish-action@v1.3
-        with:
-          subdir: "conda"
-          anacondatoken: ${{ secrets.ANACONDA_TOKEN }}
-          platforms: "win osx linux"
+          python -m pip install --upgrade pip
+          pip install setuptools wheel twine
+          python setup.py sdist bdist_wheel
+          twine upload dist/*
