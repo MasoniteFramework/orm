@@ -1,3 +1,15 @@
+# ⚠️ This repository is no longer maintained
+
+> **Masonite ORM development continues at [masonitedev/orm](https://github.com/masonitedev/orm).**
+> It is published on PyPI as [**`masonite-framework-orm`**](https://pypi.org/project/masonite-framework-orm/) — imports are unchanged (`from masoniteorm...`).
+> This repository covers `masonite-orm` ≤ 3.0.0, which will receive **no further updates** (including security fixes).
+>
+> - 📖 Documentation: <https://docs.masonite.dev/orm/introduction/>
+>
+> ❤️ In memory of [Joseph "Joe" Mancuso](https://github.com/josephmancuso), creator of Masonite.
+
+---
+
 <p align="center">
   <img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/4trhpkkdbbzutc5ufxi9.png" width="160px">
   <h1 align="center">Masonite ORM</h1>
