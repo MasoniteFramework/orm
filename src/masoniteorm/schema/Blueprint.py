@@ -161,7 +161,7 @@ class Blueprint:
         )._compile_create()
 
     def increments(self, column, nullable=False):
-        """Sets a column to be the auto incrementing primary key representation for the table.
+        """Sets a column to be the auto-incrementing integer.
 
         Arguments:
             column {string} -- The column name.
@@ -176,11 +176,10 @@ class Blueprint:
             column, "increments", nullable=nullable
         )
 
-        self.primary(column)
         return self
 
     def tiny_increments(self, column, nullable=False):
-        """Sets a column to be the auto tiny incrementing primary key representation for the table.
+        """Sets a column to an auto-increment tiny integer.
 
         Arguments:
             column {string} -- The column name.
@@ -195,11 +194,10 @@ class Blueprint:
             column, "tiny_increments", nullable=nullable
         )
 
-        self.primary(column)
         return self
 
     def id(self, column="id"):
-        """Sets a column to be the auto-incrementing big integer (8-byte) primary key representation for the table.
+        """Sets a column to an auto-incrementing big integer.
 
         Arguments:
             column {string} -- The column name. Defaults to "id".
@@ -207,7 +205,7 @@ class Blueprint:
         Returns:
             self
         """
-        return self.big_increments(column)
+        return self.big_increments(column).primary()
 
     def uuid(self, column, nullable=False, length=36):
         """Sets a column to be the UUID4 representation for the table.
@@ -227,7 +225,7 @@ class Blueprint:
         return self
 
     def big_increments(self, column, nullable=False):
-        """Sets a column to be the the big integer increments representation for the table
+        """Sets a column to an auto-incrementing big integer
 
         Arguments:
             column {string} -- The column name.
@@ -242,7 +240,6 @@ class Blueprint:
             column, "big_increments", nullable=nullable
         )
 
-        self.primary(column)
         return self
 
     def binary(self, column, nullable=False):
@@ -905,6 +902,24 @@ class Blueprint:
             column = self._last_column.name
 
         if not isinstance(column, list):
+            self.table.set_primary_key(column)
+            check_column = self.table.added_columns.get(column)
+            if check_column:
+                check_column.set_as_primary()
+                if check_column.column_type in [
+                    "tiny_increments",
+                    "increments",
+                    "big_increments",
+                ]:
+                    # use column attributes for primary key auto increment columns
+                    check_column.column_type = (
+                        f"{check_column.column_type}_primary"
+                    )
+                    self.table.added_columns[column] = check_column
+                    return self
+
+                self.table.added_columns[column] = check_column
+
             column = [column]
 
         self.table.add_constraint(

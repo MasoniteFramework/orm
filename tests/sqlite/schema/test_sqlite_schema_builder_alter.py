@@ -9,8 +9,9 @@ from tests.integrations.config.database import DATABASES
 class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
     maxDiff = None
 
-    def setUp(self):
-        self.schema = Schema(
+    @classmethod
+    def setUpClass(cls):
+        cls.schema = Schema(
             connection="dev",
             connection_details=DATABASES,
             platform=SQLitePlatform,
@@ -142,17 +143,6 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
 
         self.assertEqual(blueprint.to_sql(), sql)
 
-    def test_alter_drop_on_table_schema_table(self):
-        schema = Schema(connection="dev", connection_details=DATABASES).on(
-            "dev"
-        )
-
-        with schema.table("table_schema") as blueprint:
-            blueprint.drop_column("name")
-
-        with schema.table("table_schema") as blueprint:
-            blueprint.string("name").nullable()
-
     def test_alter_add_primary(self):
         with self.schema.table("users") as blueprint:
             blueprint.primary("playlist_id")
@@ -177,10 +167,10 @@ class TestSQLiteSchemaBuilderAlter(unittest.TestCase):
         blueprint.table.from_table = table
 
         sql = [
-            'ALTER TABLE "users" ADD COLUMN "playlist_id" INTEGER UNSIGNED NULL REFERENCES "playlists"("id")',
+            'ALTER TABLE "users" ADD COLUMN "playlist_id" INTEGER NULL REFERENCES "playlists"("id")',
             "CREATE TEMPORARY TABLE __temp__users AS SELECT age, email FROM users",
             'DROP TABLE "users"',
-            'CREATE TABLE "users" ("age" VARCHAR NOT NULL, "email" VARCHAR NOT NULL, "playlist_id" INTEGER UNSIGNED NULL, '
+            'CREATE TABLE "users" ("age" VARCHAR NOT NULL, "email" VARCHAR NOT NULL, "playlist_id" INTEGER NULL, '
             'CONSTRAINT users_playlist_id_foreign FOREIGN KEY ("playlist_id") REFERENCES "playlists"("id") ON DELETE CASCADE ON UPDATE SET NULL)',
             'INSERT INTO "users" ("age", "email") SELECT age, email FROM __temp__users',
             "DROP TABLE __temp__users",

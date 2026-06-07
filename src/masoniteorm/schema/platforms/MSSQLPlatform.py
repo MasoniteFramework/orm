@@ -14,7 +14,6 @@ class MSSQLPlatform(Platform):
     type_map = {
         "string": "VARCHAR",
         "char": "CHAR",
-        "big_increments": "BIGINT IDENTITY",
         "integer": "INT",
         "big_integer": "BIGINT",
         "tiny_integer": "TINYINT",
@@ -25,7 +24,6 @@ class MSSQLPlatform(Platform):
         "tiny_integer_unsigned": "TINYINT",
         "small_integer_unsigned": "SMALLINT",
         "medium_integer_unsigned": "MEDIUMINT",
-        "increments": "INT IDENTITY",
         "uuid": "CHAR",
         "binary": "LONGBLOB",
         "boolean": "BOOLEAN",
@@ -48,9 +46,14 @@ class MSSQLPlatform(Platform):
         "date": "DATE",
         "year": "YEAR",
         "datetime": "DATETIME",
-        "tiny_increments": "TINYINT IDENTITY",
         "unsigned": "INT",
         "unsigned_integer": "INT",
+        "tiny_increments": "TINYINT IDENTITY",
+        "increments": "INT IDENTITY",
+        "big_increments": "BIGINT IDENTITY",
+        "tiny_increments_primary": "TINYINT PRIMARY KEY IDENTITY",
+        "increments_primary": "INT PRIMARY KEY IDENTITY",
+        "big_increments_primary": "BIGINT PRIMARY KEY IDENTITY",
     }
 
     premapped_nulls = {True: "NULL", False: "NOT NULL"}
@@ -261,9 +264,6 @@ class MSSQLPlatform(Platform):
 
             constraint = ""
             column_constraint = ""
-            if column.primary:
-                constraint = " PRIMARY KEY"
-
             if column.column_type == "enum":
                 values = ", ".join(f"'{x}'" for x in column.values)
                 column_constraint = f" CHECK([{column.name}] IN ({values}))"

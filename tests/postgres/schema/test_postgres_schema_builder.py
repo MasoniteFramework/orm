@@ -1,9 +1,9 @@
 import unittest
 
-from tests.integrations.config.database import DATABASES
 from src.masoniteorm.connections import PostgresConnection
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import PostgresPlatform
+from tests.integrations.config.database import DATABASES
 
 
 class TestPostgresSchemaBuilder(unittest.TestCase):
@@ -37,7 +37,8 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 1)
         self.assertEqual(
-            blueprint.to_sql(), ['CREATE TABLE "users" ("description" TEXT NOT NULL)']
+            blueprint.to_sql(),
+            ['CREATE TABLE "users" ("description" TEXT NOT NULL)'],
         )
 
     def test_can_add_unsigned_decimal(self):
@@ -138,7 +139,8 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 1)
         self.assertEqual(
-            blueprint.to_sql(), ['CREATE TABLE "users" ("description" TEXT NOT NULL)']
+            blueprint.to_sql(),
+            ['CREATE TABLE "users" ("description" TEXT NOT NULL)'],
         )
 
     def test_can_have_unsigned_columns(self):
@@ -180,7 +182,7 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
 
     def test_can_advanced_table_creation(self):
         with self.schema.create("users") as blueprint:
-            blueprint.increments("id")
+            blueprint.increments("id").primary()
             blueprint.string("name")
             blueprint.string("email").unique()
             blueprint.string("password")
@@ -193,17 +195,17 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             [
-                'CREATE TABLE "users" ("id" SERIAL UNIQUE NOT NULL, "name" VARCHAR(255) NOT NULL, '
+                'CREATE TABLE "users" ("id" SERIAL PRIMARY KEY NOT NULL, "name" VARCHAR(255) NOT NULL, '
                 '"email" VARCHAR(255) NOT NULL, "password" VARCHAR(255) NOT NULL, "admin" INTEGER NOT NULL DEFAULT 0, '
                 '"remember_token" VARCHAR(255) NULL, "verified_at" TIMESTAMP NULL, '
                 '"created_at" TIMESTAMPTZ NULL DEFAULT CURRENT_TIMESTAMP, "updated_at" TIMESTAMPTZ NULL DEFAULT CURRENT_TIMESTAMP, '
-                "CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_email_unique UNIQUE (email))"
+                "CONSTRAINT users_email_unique UNIQUE (email))"
             ],
         )
 
     def test_can_advanced_table_creation2(self):
         with self.schema.create("users") as blueprint:
-            blueprint.big_increments("id")
+            blueprint.big_increments("id").primary()
             blueprint.string("name")
             blueprint.enum("gender", ["male", "female"])
             blueprint.string("duration")
@@ -219,9 +221,9 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             blueprint.integer("premium")
             blueprint.double("amount").default(0.0)
             blueprint.integer("author_id").unsigned().nullable()
-            blueprint.foreign("author_id").references("id").on("authors").on_delete(
-                "CASCADE"
-            )
+            blueprint.foreign("author_id").references("id").on(
+                "authors"
+            ).on_delete("CASCADE")
             blueprint.text("description")
             blueprint.timestamps()
 
@@ -230,12 +232,12 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
             blueprint.to_sql(),
             (
                 [
-                    """CREATE TABLE "users" ("id" BIGSERIAL UNIQUE NOT NULL, "name" VARCHAR(255) NOT NULL, "gender" VARCHAR(255) CHECK(gender IN ('male', 'female')) NOT NULL, """
+                    """CREATE TABLE "users" ("id" BIGSERIAL PRIMARY KEY NOT NULL, "name" VARCHAR(255) NOT NULL, "gender" VARCHAR(255) CHECK(gender IN ('male', 'female')) NOT NULL, """
                     """"duration" VARCHAR(255) NOT NULL, "money" DECIMAL(17, 6) NOT NULL, "url" VARCHAR(255) NOT NULL, "option" VARCHAR(255) NOT NULL DEFAULT 'ADMIN', "payload" JSONB NOT NULL, "last_address" INET NULL, """
                     '"route_origin" CIDR NULL, "mac_address" MACADDR NULL, "published_at" TIMESTAMPTZ NOT NULL, "thumbnail" VARCHAR(255) NULL, "premium" INTEGER NOT NULL, "amount" DOUBLE PRECISION NOT NULL DEFAULT 0.0, '
                     '"author_id" INTEGER NULL, "description" TEXT NOT NULL, "created_at" TIMESTAMPTZ NULL DEFAULT CURRENT_TIMESTAMP, '
                     '"updated_at" TIMESTAMPTZ NULL DEFAULT CURRENT_TIMESTAMP, '
-                    'CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_author_id_foreign FOREIGN KEY ("author_id") REFERENCES "authors"("id") ON DELETE CASCADE)'
+                    'CONSTRAINT users_author_id_foreign FOREIGN KEY ("author_id") REFERENCES "authors"("id") ON DELETE CASCADE)'
                 ]
             ),
         )
@@ -261,9 +263,9 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
     def test_can_add_columns_with_foreign_key_constraint_name(self):
         with self.schema.create("users") as blueprint:
             blueprint.integer("profile_id")
-            blueprint.foreign("profile_id", name="profile_foreign").references("id").on(
-                "profiles"
-            )
+            blueprint.foreign("profile_id", name="profile_foreign").references(
+                "id"
+            ).on("profiles")
 
         self.assertEqual(len(blueprint.table.added_columns), 1)
         self.assertEqual(
@@ -344,7 +346,10 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(
             blueprint.to_sql(),
-            ["""CREATE TABLE "users" (""" """\"amount" FLOAT(19, 4) NOT NULL)"""],
+            [
+                """CREATE TABLE "users" ("""
+                """\"amount" FLOAT(19, 4) NOT NULL)"""
+            ],
         )
 
     def test_can_enable_foreign_keys(self):
@@ -377,6 +382,7 @@ class TestPostgresSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             [
-                'CREATE TABLE "users" ("status" VARCHAR(255) CHECK(status IN (\'active\', \'inactive\')) NOT NULL ' 'DEFAULT \'active\')'
+                "CREATE TABLE \"users\" (\"status\" VARCHAR(255) CHECK(status IN ('active', 'inactive')) NOT NULL "
+                "DEFAULT 'active')"
             ],
         )

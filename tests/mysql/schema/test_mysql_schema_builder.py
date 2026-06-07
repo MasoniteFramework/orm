@@ -2,11 +2,9 @@ import os
 import unittest
 
 from src.masoniteorm import Model
-from tests.integrations.config.database import DATABASES
 from src.masoniteorm.connections import MySQLConnection
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import MySQLPlatform
-
 from tests.integrations.config.database import DATABASES
 
 
@@ -56,7 +54,9 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(len(blueprint.table.added_columns), 1)
         self.assertEqual(
             blueprint.to_sql(),
-            ["CREATE TABLE `users` (`amount` DECIMAL(19, 4) UNSIGNED NOT NULL)"],
+            [
+                "CREATE TABLE `users` (`amount` DECIMAL(19, 4) UNSIGNED NOT NULL)"
+            ],
         )
 
     def test_can_create_table_if_not_exists(self):
@@ -119,7 +119,9 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.integer("profile_id")
             blueprint.foreign("profile_id").references("id").on("profiles")
             blueprint.foreign_id("post_id").references("id").on("posts")
-            blueprint.foreign_id_for(Discussion).references("id").on("discussions")
+            blueprint.foreign_id_for(Discussion).references("id").on(
+                "discussions"
+            )
 
         self.assertEqual(len(blueprint.table.added_columns), 3)
         self.assertEqual(
@@ -176,11 +178,12 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.to_sql(),
             [
                 "CREATE TABLE `users` (`id` INT UNSIGNED AUTO_INCREMENT NOT NULL, "
-                "`id2` BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, "
+                "`id2` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL, "
                 "`name` VARCHAR(255) NOT NULL, `active` TINYINT(1) NOT NULL, `email` VARCHAR(255) NOT NULL, `gender` ENUM('male', 'female') NOT NULL, "
                 "`password` VARCHAR(255) NOT NULL, `money` DECIMAL(17, 6) NOT NULL, "
                 "`admin` INT(11) NOT NULL DEFAULT 0, `option` VARCHAR(255) NOT NULL DEFAULT 'ADMIN', `remember_token` VARCHAR(255) NULL, `verified_at` TIMESTAMP NULL, "
-                "`created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, `updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_id2_primary PRIMARY KEY (id2), CONSTRAINT users_email_unique UNIQUE (email))"
+                "`created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, `updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
+                "CONSTRAINT users_email_unique UNIQUE (email))"
             ],
         )
 
@@ -201,7 +204,7 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
 
     def test_can_advanced_table_creation2(self):
         with self.schema.create("users") as blueprint:
-            blueprint.big_increments("id")
+            blueprint.big_increments("id").primary()
             blueprint.string("name")
             blueprint.string("duration")
             blueprint.string("url")
@@ -212,9 +215,9 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
             blueprint.string("thumbnail").nullable()
             blueprint.integer("premium")
             blueprint.integer("author_id").unsigned().nullable()
-            blueprint.foreign("author_id").references("id").on("users").on_delete(
-                "CASCADE"
-            )
+            blueprint.foreign("author_id").references("id").on(
+                "users"
+            ).on_delete("CASCADE")
             blueprint.text("description")
             blueprint.timestamps()
 
@@ -222,20 +225,20 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
         self.assertEqual(
             blueprint.to_sql(),
             [
-                "CREATE TABLE `users` (`id` BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, `name` VARCHAR(255) NOT NULL, "
+                "CREATE TABLE `users` (`id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL, `name` VARCHAR(255) NOT NULL, "
                 "`duration` VARCHAR(255) NOT NULL, `url` VARCHAR(255) NOT NULL, `last_address` VARCHAR(255) NULL, `route_origin` VARCHAR(255) NULL, `mac_address` VARCHAR(255) NULL, "
                 "`published_at` DATETIME NOT NULL, `thumbnail` VARCHAR(255) NULL, "
                 "`premium` INT(11) NOT NULL, `author_id` INT(11) UNSIGNED NULL, `description` TEXT NOT NULL, `created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "
-                "`updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_author_id_foreign FOREIGN KEY (`author_id`) REFERENCES `users`(`id`) ON DELETE CASCADE)"
+                "`updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_author_id_foreign FOREIGN KEY (`author_id`) REFERENCES `users`(`id`) ON DELETE CASCADE)"
             ],
         )
 
     def test_can_add_columns_with_foreign_key_constraint_name(self):
         with self.schema.create("users") as blueprint:
             blueprint.integer("profile_id")
-            blueprint.foreign("profile_id", name="profile_foreign").references("id").on(
-                "profiles"
-            )
+            blueprint.foreign("profile_id", name="profile_foreign").references(
+                "id"
+            ).on("profiles")
 
         self.assertEqual(len(blueprint.table.added_columns), 1)
         self.assertEqual(
@@ -316,7 +319,10 @@ class TestMySQLSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(
             blueprint.to_sql(),
-            ["CREATE TABLE `users` (" "`profile_id` VARCHAR(255) NOT NULL DEFAULT '')"],
+            [
+                "CREATE TABLE `users` ("
+                "`profile_id` VARCHAR(255) NOT NULL DEFAULT '')"
+            ],
         )
 
     def test_can_have_float_type(self):

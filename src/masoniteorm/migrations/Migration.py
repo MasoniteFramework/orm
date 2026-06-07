@@ -46,7 +46,7 @@ class Migration:
     def create_table_if_not_exists(self):
         if not self.schema.has_table("migrations"):
             with self.schema.create("migrations") as table:
-                table.increments("migration_id")
+                table.increments("migration_id").primary()
                 table.string("migration")
                 table.integer("batch")
 

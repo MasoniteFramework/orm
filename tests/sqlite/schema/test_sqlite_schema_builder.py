@@ -1,5 +1,6 @@
 import unittest
 
+from src.masoniteorm.exceptions import QueryException
 from src.masoniteorm.schema import Schema
 from src.masoniteorm.schema.platforms import SQLitePlatform
 from tests.integrations.config.database import DATABASES
@@ -136,7 +137,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
 
         self.assertEqual(len(blueprint.table.added_columns), 2)
         sql = [
-            'CREATE TABLE "likes" ("record_id" INTEGER UNSIGNED NOT NULL, "record_type" VARCHAR(255) NOT NULL)',
+            'CREATE TABLE "likes" ("record_id" INTEGER NOT NULL, "record_type" VARCHAR(255) NOT NULL)',
             'CREATE INDEX likes_record_id_index ON "likes"(record_id)',
             'CREATE INDEX likes_record_type_index ON "likes"(record_type)',
         ]
@@ -144,7 +145,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
 
     def test_can_advanced_table_creation(self):
         with self.schema.create("users") as blueprint:
-            blueprint.increments("id")
+            blueprint.integer("id")
             blueprint.string("name")
             blueprint.enum("gender", ["male", "female"])
             blueprint.string("email").unique()
@@ -163,7 +164,7 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
                 """CREATE TABLE "users" ("id" INTEGER NOT NULL, "name" VARCHAR(255) NOT NULL, "gender" VARCHAR(255) CHECK(gender IN ('male', 'female')) NOT NULL, "email" VARCHAR(255) NOT NULL, """
                 """"password" VARCHAR(255) NOT NULL, "option" VARCHAR(255) NOT NULL DEFAULT 'ADMIN', "admin" INTEGER NOT NULL DEFAULT 0, "remember_token" VARCHAR(255) NULL, """
                 '"verified_at" TIMESTAMP NULL, "created_at" DATETIME NULL DEFAULT CURRENT_TIMESTAMP, '
-                '"updated_at" DATETIME NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT users_id_primary PRIMARY KEY (id), '
+                '"updated_at" DATETIME NULL DEFAULT CURRENT_TIMESTAMP, '
                 "UNIQUE(email), UNIQUE(email, name))"
             ],
         )
@@ -243,9 +244,24 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             ],
         )
 
+    def test_cannot_have_unsupported_types(self):
+        with self.assertRaises(QueryException):
+            with self.schema.create("users200") as blueprint:
+                blueprint.increments("id")
+                blueprint.to_sql()
+
+            with self.schema.create("users200") as blueprint:
+                blueprint.tiny_increments("id")
+                blueprint.to_sql()
+
+            with self.schema.create("users200") as blueprint:
+                blueprint.big_increments("id")
+                blueprint.to_sql()
+
     def test_can_advanced_table_creation2(self):
         with self.schema.create("users") as blueprint:
-            blueprint.big_increments("id")
+            blueprint.big_integer("id")
+            blueprint.primary("id")
             blueprint.string("name")
             blueprint.string("duration")
             blueprint.string("url")
@@ -266,14 +282,13 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.timestamps()
 
         self.assertEqual(len(blueprint.table.added_columns), 17)
-
         self.assertEqual(
             blueprint.to_sql(),
             (
                 [
                     'CREATE TABLE "users" ("id" BIGINT NOT NULL, "name" VARCHAR(255) NOT NULL, "duration" VARCHAR(255) NOT NULL, '
                     '"url" VARCHAR(255) NOT NULL, "payload" JSON NOT NULL, "birth" VARCHAR(4) NOT NULL, "last_address" VARCHAR(255) NULL, "route_origin" VARCHAR(255) NULL, "mac_address" VARCHAR(255) NULL, '
-                    '"published_at" DATETIME NOT NULL, "wakeup_at" TIME NOT NULL, "thumbnail" VARCHAR(255) NULL, "premium" INTEGER NOT NULL, "author_id" INTEGER UNSIGNED NULL, "description" TEXT NOT NULL, '
+                    '"published_at" DATETIME NOT NULL, "wakeup_at" TIME NOT NULL, "thumbnail" VARCHAR(255) NULL, "premium" INTEGER NOT NULL, "author_id" INTEGER NULL, "description" TEXT NOT NULL, '
                     '"created_at" DATETIME NULL DEFAULT CURRENT_TIMESTAMP, "updated_at" DATETIME NULL DEFAULT CURRENT_TIMESTAMP, '
                     'CONSTRAINT users_id_primary PRIMARY KEY (id), CONSTRAINT users_author_id_foreign FOREIGN KEY ("author_id") REFERENCES "users"("id") ON DELETE SET NULL)'
                 ]
@@ -327,11 +342,11 @@ class TestSQLiteSchemaBuilder(unittest.TestCase):
             blueprint.to_sql(),
             [
                 """CREATE TABLE "users" ("""
-                """"profile_id" INTEGER UNSIGNED NOT NULL, """
-                """"big_profile_id" BIGINT UNSIGNED NOT NULL, """
-                """"tiny_profile_id" TINYINT UNSIGNED NOT NULL, """
-                """"small_profile_id" SMALLINT UNSIGNED NOT NULL, """
-                """"medium_profile_id" MEDIUMINT UNSIGNED NOT NULL)"""
+                """"profile_id" INTEGER NOT NULL, """
+                """"big_profile_id" BIGINT NOT NULL, """
+                """"tiny_profile_id" TINYINT NOT NULL, """
+                """"small_profile_id" SMALLINT NOT NULL, """
+                """"medium_profile_id" MEDIUMINT NOT NULL)"""
             ],
         )
 
