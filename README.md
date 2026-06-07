@@ -29,7 +29,7 @@
 
 All documentation can be found here [https://orm.masoniteproject.com](https://orm.masoniteproject.com).
 
-Hop on [Masonite Discord Community](https://discord.gg/TwKeFahmPZ) to ask any questions you need!
+Ask any questions you need on [GitHub Discussions](https://github.com/masonitedev/masonite/discussions)!
 
 ## Contributing
 
