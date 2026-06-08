@@ -241,6 +241,7 @@ class BaseTestQueryRelationships(unittest.TestCase):
         Group.create(name="Group")
 
         user = UserHydrateHidden.first()
+        print('ppppp', Group.all())
         group = Group.first()
 
         group.attach_related("team", user)

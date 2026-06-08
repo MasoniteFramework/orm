@@ -31,6 +31,7 @@ from ..pagination import LengthAwarePaginator, SimplePaginator
 from ..schema import Schema
 from ..scopes import BaseScope
 from .EagerRelation import EagerRelations
+from .EagerLoader import EagerLoader
 
 
 class QueryBuilder(ObservesEvents):
@@ -1901,49 +1902,19 @@ class QueryBuilder(ObservesEvents):
 
     def prepare_result(self, result, collection=False):
         if self._model and result:
-            # eager load here
+            # Hydrate the model first
             hydrated_model = self._model.hydrate(result)
+            
+            # Only proceed with eager loading if we have eager relations and a hydrated model
             if (
                 self._eager_relation.eagers
                 or self._eager_relation.nested_eagers
                 or self._eager_relation.callback_eagers
             ) and hydrated_model:
-                for eager_load in self._eager_relation.get_eagers():
-                    if isinstance(eager_load, dict):
-                        # Nested
-                        for relation, eagers in eager_load.items():
-                            callback = None
-                            if inspect.isclass(self._model):
-                                related = getattr(self._model, relation)
-                            elif callable(eagers):
-                                related = getattr(self._model, relation)
-                                callback = eagers
-                            else:
-                                related = self._model.get_related(relation)
-
-                            result_set = related.get_related(
-                                self, hydrated_model, eagers=eagers, callback=callback
-                            )
-
-                            self._register_relationships_to_model(
-                                related,
-                                result_set,
-                                hydrated_model,
-                                relation_key=relation,
-                            )
-                    else:
-                        # Not Nested
-                        for eager in eager_load:
-                            if inspect.isclass(self._model):
-                                related = getattr(self._model, eager)
-                            else:
-                                related = self._model.get_related(eager)
-
-                            result_set = related.get_related(self, hydrated_model)
-
-                            self._register_relationships_to_model(
-                                related, result_set, hydrated_model, relation_key=eager
-                            )
+                # Create eager loader and load relationships
+                eager_loader = EagerLoader(self._model)
+                eager_loader.register(*self._eager_relation.get_eagers())
+                hydrated_model = eager_loader.load(hydrated_model)
 
             if collection:
                 return hydrated_model if result else Collection([])
@@ -1954,6 +1925,42 @@ class QueryBuilder(ObservesEvents):
             return Collection(result) if result else Collection([])
         else:
             return result or None
+
+    def _load_nested_relationships(self, model, relationships, parent_model=None):
+        """Helper method to load nested relationships recursively"""
+        if not parent_model:
+            parent_model = model
+
+        for relation, nested in relationships.items():
+            if isinstance(nested, dict):
+                # This is a nested relationship
+                if inspect.isclass(parent_model.__class__):
+                    related = getattr(parent_model.__class__, relation)
+                else:
+                    related = parent_model.get_related(relation)
+
+                result_set = related.get_related(self, parent_model)
+                self._register_relationships_to_model(
+                    related, result_set, parent_model, relation_key=relation
+                )
+
+                # Recursively load nested relationships
+                if isinstance(result_set, Collection):
+                    for item in result_set:
+                        self._load_nested_relationships(model, nested, item)
+                else:
+                    self._load_nested_relationships(model, nested, result_set)
+            else:
+                # This is a leaf relationship
+                if inspect.isclass(parent_model.__class__):
+                    related = getattr(parent_model.__class__, relation)
+                else:
+                    related = parent_model.get_related(relation)
+
+                result_set = related.get_related(self, parent_model)
+                self._register_relationships_to_model(
+                    related, result_set, parent_model, relation_key=relation
+                )
 
     def _register_relationships_to_model(
         self, related, related_result, hydrated_model, relation_key

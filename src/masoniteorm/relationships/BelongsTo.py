@@ -87,12 +87,53 @@ class BelongsTo(BaseRelationship):
             ).first()
 
     def register_related(self, key, model, collection):
-        related = collection.get(getattr(model, self.local_key), None)
+        """Register the related model to the parent model.
 
-        model.add_relation({key: related[0] if related else None})
+        Args:
+            key (str): The key to register the relationship under
+            model (Model): The model to register the relationship on
+            collection (Collection|dict): The collection of related models or mapped dictionary
+        """
+        # Get the foreign key value from the model
+        foreign_key_value = getattr(model, self.local_key)
+        
+        # If foreign key is None, register None as the relationship
+        if foreign_key_value is None:
+            model.add_relation({key: None})
+            return
+            
+        # Convert foreign key to string for consistent lookup
+        foreign_key_value = str(foreign_key_value)
+        
+        # If collection is a dict (mapped), use it directly
+        if isinstance(collection, dict):
+            related = collection.get(foreign_key_value)
+        else:
+            # Otherwise find the related model in the collection
+            related = None
+            for item in collection:
+                if str(getattr(item, self.foreign_key)) == foreign_key_value:
+                    related = item
+                    break
+                
+        # Register the relationship with the model instance
+        model.add_relation({key: related})
 
     def map_related(self, related_result):
-        return related_result.group_by(self.foreign_key)
+        """Map the related results to a dictionary keyed by foreign key.
+        
+        Args:
+            related_result (Collection): The collection of related models
+            
+        Returns:
+            dict: A dictionary of models keyed by their foreign key values
+        """
+        mapped = {}
+        for item in related_result:
+            # Convert foreign key to string to ensure consistent key types
+            key = str(getattr(item, self.foreign_key))
+            mapped[key] = item
+        return mapped
 
     def attach(self, current_model, related_record):
         foreign_key_value = getattr(related_record, self.foreign_key)

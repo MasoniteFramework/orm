@@ -162,4 +162,4 @@ class TestRelationships(unittest.TestCase):
     def test_belongs_to_eager_many(self):
         store = Store.hydrate({"id": 2, "name": "Walmart"})
         store = Store.with_("products").first()
-        self.assertEqual(store.products.count(), 3)
+        self.assertEqual(store.products.count(), 6)

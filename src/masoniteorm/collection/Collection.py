@@ -505,8 +505,18 @@ class Collection:
         items = []
         for item in self:
             if isinstance(key, str):
-                if hasattr(item, key) or (key in item):
-                    items.append(getattr(item, key, item[key]))
+                if hasattr(item, key):
+                    items.append(getattr(item, key))
+                elif isinstance(item, dict) and key in item:
+                    items.append(item[key])
+            elif isinstance(key, int):
+                if isinstance(item, (list, tuple)):
+                    try:
+                        items.append(item[key])
+                    except IndexError:
+                        pass
+                elif isinstance(item, dict) and key in item:
+                    items.append(item[key])
             elif callable(key):
                 result = key(item)
                 if result:

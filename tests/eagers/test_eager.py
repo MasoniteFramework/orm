@@ -12,17 +12,17 @@ class TestEagerRelation(unittest.TestCase):
         self.assertEqual(EagerRelations().register("profile").is_nested, False)
         self.assertEqual(
             EagerRelations().register("profile.user").get_eagers(),
-            [{"profile": ["user"]}],
+            [{'profile': {'user': []}}],
         )
         self.assertEqual(
             EagerRelations().register("profile.user", "profile.logo").get_eagers(),
-            [{"profile": ["user", "logo"]}],
+            [{'profile': {'logo': [], 'user': []}}],
         )
         self.assertEqual(
             EagerRelations()
             .register("profile.user", "profile.logo", "profile.bio")
             .get_eagers(),
-            [{"profile": ["user", "logo", "bio"]}],
+            [{'profile': {'bio': [], 'logo': [], 'user': []}}],
         )
         self.assertEqual(
             EagerRelations().register("user", "logo", "bio").get_eagers(),
@@ -39,7 +39,7 @@ class TestEagerRelation(unittest.TestCase):
         )
         self.assertEqual(
             EagerRelations().register(("profile.name", "profile.user")).get_eagers(),
-            [{"profile": ["name", "user"]}],
+            [{'profile': {'name': [], 'user': []}}],
         )
 
     def test_can_register_list_eager_load(self):
@@ -52,19 +52,19 @@ class TestEagerRelation(unittest.TestCase):
         )
         self.assertEqual(
             EagerRelations().register(["profile.name", "profile.user"]).get_eagers(),
-            [{"profile": ["name", "user"]}],
+            [{'profile': {'name': [], 'user': []}}],
         )
         self.assertEqual(
             EagerRelations().register(["profile.name"]).get_eagers(),
-            [{"profile": ["name"]}],
+            [{'profile': {'name': []}}],
         )
         self.assertEqual(
             EagerRelations().register(["profile.name", "logo"]).get_eagers(),
-            [["logo"], {"profile": ["name"]}],
+            [['logo'], {'profile': {'name': []}}],
         )
         self.assertEqual(
             EagerRelations()
             .register(["profile.name", "logo", "profile.user"])
             .get_eagers(),
-            [["logo"], {"profile": ["name", "user"]}],
+            [['logo'], {'profile': {'name': [], 'user': []}}],
         )

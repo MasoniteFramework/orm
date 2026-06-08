@@ -8,15 +8,21 @@ class EagerRelations:
 
     def register(self, *relations, callback=None):
         for relation in relations:
-            if isinstance(relation, str) and "." not in relation:
-                self.eagers += [relation]
-            elif isinstance(relation, str) and "." in relation:
-                self.is_nested = True
-                relation_key = relation.split(".")[0]
-                if relation_key not in self.nested_eagers:
-                    self.nested_eagers = {relation_key: relation.split(".")[1:]}
+            if isinstance(relation, str):
+                if "." in relation:
+                    self.is_nested = True
+                    parts = relation.split(".")
+                    current = self.nested_eagers
+                    for i, part in enumerate(parts):
+                        if i == len(parts) - 1:
+                            if part not in current:
+                                current[part] = []
+                        else:
+                            if part not in current:
+                                current[part] = {}
+                            current = current[part]
                 else:
-                    self.nested_eagers[relation_key] += relation.split(".")[1:]
+                    self.eagers.append(relation)
             elif isinstance(relation, (tuple, list)):
                 for eagers in relations:
                     for eager in eagers:

@@ -102,7 +102,7 @@ class MorphTo(BaseRelationship):
             morphed_model.get_primary_key(), getattr(model, self.morph_id)
         ).first()
 
-        model.add_relation({key: related})
+        model.add_relation({key: related or None})
 
     def morph_map(self):
         return load_config().DB._morph_map
