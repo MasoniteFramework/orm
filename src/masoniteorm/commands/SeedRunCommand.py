@@ -18,7 +18,12 @@ class SeedRunCommand(Command):
     def handle(self):
         seeder = Seeder(
             dry=self.option("dry"),
-            seed_path=self.option("directory"),
+            seed_path=self.option_or_config(
+                "directory",
+                "databases/seeds",
+                "SEEDS_DIRECTORY",
+                "seed_directory",
+            ),
             connection=self.option("connection"),
         )
 

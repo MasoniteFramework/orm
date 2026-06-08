@@ -31,7 +31,12 @@ class MigrateCommand(Command):
         migration = Migration(
             command_class=self,
             connection=self.option("connection"),
-            migration_directory=self.option("directory"),
+            migration_directory=self.option_or_config(
+                "directory",
+                "databases/migrations",
+                "MIGRATIONS_DIRECTORY",
+                "migrations_directory",
+            ),
             config_path=self.option("config"),
             schema=self.option("schema"),
         )

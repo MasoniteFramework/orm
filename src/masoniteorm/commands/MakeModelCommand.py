@@ -25,7 +25,9 @@ class MakeModelCommand(Command):
     def handle(self):
         name = self.argument("name")
 
-        model_directory = self.option("directory")
+        model_directory = self.option_or_config(
+            "directory", "app", "MODELS_DIRECTORY", "models_directory"
+        )
 
         with open(
             os.path.join(pathlib.Path(__file__).parent.absolute(), "stubs/model.stub")
@@ -53,7 +55,12 @@ class MakeModelCommand(Command):
 
         self.info(f"Model created: {os.path.join(model_directory, file_name)}")
         if self.option("migration"):
-            migrations_directory = self.option("migrations-directory")
+            migrations_directory = self.option_or_config(
+                "migrations-directory",
+                "databases/migrations",
+                "MIGRATIONS_DIRECTORY",
+                "migrations_directory",
+            )
             if self.option("table"):
                 self.call(
                     "migration",
@@ -66,5 +73,10 @@ class MakeModelCommand(Command):
                 )
 
         if self.option("seeder"):
-            directory = self.option("seeders-directory")
+            directory = self.option_or_config(
+                "seeders-directory",
+                "databases/seeds",
+                "SEEDERS_DIRECTORY",
+                "seeders_directory",
+            )
             self.call("seed", f"{self.argument('name')} --directory {directory}")

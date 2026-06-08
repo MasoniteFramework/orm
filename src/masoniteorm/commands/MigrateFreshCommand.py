@@ -20,7 +20,12 @@ class MigrateFreshCommand(Command):
         migration = Migration(
             command_class=self,
             connection=self.option("connection"),
-            migration_directory=self.option("directory"),
+            migration_directory=self.option_or_config(
+                "directory",
+                "databases/migrations",
+                "MIGRATIONS_DIRECTORY",
+                "migrations_directory",
+            ),
             config_path=self.option("config"),
             schema=self.option("schema"),
         )
@@ -32,11 +37,11 @@ class MigrateFreshCommand(Command):
         if self.option("seed") == "null":
             self.call(
                 "seed:run",
-                f"None --directory {self.option('seed-directory')} --connection {self.option('connection')}",
+                f"None --directory {self.option_or_config('seed-directory', 'databases/seeds', 'SEEDS_DIRECTORY', 'seed_directory')} --connection {self.option('connection')}",
             )
 
         elif self.option("seed"):
             self.call(
                 "seed:run",
-                f"{self.option('seed')} --directory {self.option('seed-directory')} --connection {self.option('connection')}",
+                f"{self.option('seed')} --directory {self.option_or_config('seed-directory', 'databases/seeds', 'SEEDS_DIRECTORY', 'seed_directory')} --connection {self.option('connection')}",
             )

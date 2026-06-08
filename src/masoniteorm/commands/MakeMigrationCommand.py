@@ -33,7 +33,12 @@ class MakeMigrationCommand(Command):
             table = tableize(name.replace("create_", "").replace("_table", ""))
             stub_file = "create_migration"
 
-        migration_directory = self.option("directory")
+        migration_directory = self.option_or_config(
+            "directory",
+            "databases/migrations",
+            "MIGRATIONS_DIRECTORY",
+            "migrations_directory",
+        )
 
         with open(
             os.path.join(
