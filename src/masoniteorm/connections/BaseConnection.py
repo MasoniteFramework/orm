@@ -23,7 +23,7 @@ class BaseConnection:
         logger.propagate = self.full_details.get("propagate", True)
 
         logger.debug(
-            f"Running query {query}, {bindings}. Executed in {query_time}ms",
+            f"Running query {query}, {bindings}. Executed in {query_time}s",
             extra={"query": query, "bindings": bindings, "query_time": query_time},
         )
 
