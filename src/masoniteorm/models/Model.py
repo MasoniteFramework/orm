@@ -385,10 +385,17 @@ class Model(TimeStampsMixin, ObservesEvents, metaclass=ModelMeta):
                         f"{type(self).__name__} must specify either __fillable__ or __guarded__ properties, but not both."
                     )
 
+            self.booted()
             self._booted = True
             self.observe_events(self, "booted")
 
             self.append_passthrough(list(self.get_builder()._macros.keys()))
+
+    def booted(self):
+        """
+        Perform any actions required after the model boots
+        """
+        pass
 
     def append_passthrough(self, passthrough):
         self.__passthrough__.update(passthrough)
